@@ -13,7 +13,10 @@ from app import models, schemas, ai
 
 # FastAPI 인스턴스 생성
 app = FastAPI(title="PASS-MATE API", description="PASS-MATE MVP용 Backend API 서비스")
+
+# 데이터베이스 테이블 자동 생성
 models.Base.metadata.create_all(bind=engine)
+
 # CORS 미들웨어 설정
 app.add_middleware(
     CORSMiddleware,
@@ -87,6 +90,81 @@ def get_student(student_id: int, db: Session = Depends(get_db)):
     if not student:
         raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
     return student
+
+@app.put("/api/student/profile", response_model=schemas.StudentResponse)
+def update_student_profile(payload: schemas.StudentProfileUpdate, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+    if payload.target_univ is not None:
+        student.target_univ = payload.target_univ
+    if payload.baseline_univ is not None:
+        student.baseline_univ = payload.baseline_univ
+    if payload.wake_target_time is not None:
+        student.wake_target_time = payload.wake_target_time
+    if payload.sleep_target_time is not None:
+        student.sleep_target_time = payload.sleep_target_time
+    db.commit()
+    db.refresh(student)
+    return student
+
+@app.post("/api/feedback", response_model=schemas.FeedbackResponse)
+def create_feedback(payload: schemas.FeedbackCreate, db: Session = Depends(get_db)):
+    st_name = None
+    if payload.student_id:
+        st = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+        if st:
+            st_name = st.name
+            if not payload.user_email:
+                payload.user_email = st.email
+
+    feedback = models.Feedback(
+        student_id=payload.student_id,
+        user_email=payload.user_email,
+        category=payload.category,
+        content=payload.content,
+        status="접수됨"
+    )
+    db.add(feedback)
+    db.commit()
+    db.refresh(feedback)
+    
+    res = schemas.FeedbackResponse.from_orm(feedback)
+    res.student_name = st_name
+    return res
+
+@app.get("/api/admin/feedbacks", response_model=List[schemas.FeedbackResponse])
+def get_admin_feedbacks(db: Session = Depends(get_db)):
+    feedbacks = db.query(models.Feedback).order_by(models.Feedback.created_at.desc()).all()
+    result = []
+    for fb in feedbacks:
+        st_name = None
+        if fb.student_id:
+            st = db.query(models.Student).filter(models.Student.id == fb.student_id).first()
+            if st:
+                st_name = st.name
+        item = schemas.FeedbackResponse.from_orm(fb)
+        item.student_name = st_name
+        result.append(item)
+    return result
+
+@app.put("/api/admin/feedbacks/{feedback_id}/status", response_model=schemas.FeedbackResponse)
+def update_feedback_status(feedback_id: int, payload: schemas.FeedbackStatusUpdate, db: Session = Depends(get_db)):
+    feedback = db.query(models.Feedback).filter(models.Feedback.id == feedback_id).first()
+    if not feedback:
+        raise HTTPException(status_code=404, detail="건의사항을 찾을 수 없습니다.")
+    feedback.status = payload.status
+    db.commit()
+    db.refresh(feedback)
+    st_name = None
+    if feedback.student_id:
+        st = db.query(models.Student).filter(models.Student.id == feedback.student_id).first()
+        if st:
+            st_name = st.name
+    item = schemas.FeedbackResponse.from_orm(feedback)
+    item.student_name = st_name
+    return item
+
 
 @app.get("/api/student/{student_id}/parent", response_model=schemas.ParentResponse)
 def get_student_parent(student_id: int, db: Session = Depends(get_db)):
@@ -849,7 +927,10 @@ def get_admin_dashboard(db: Session = Depends(get_db)):
             "phone": s.phone,
             "high_school": s.high_school,
             "grade": s.grade,
-            "target_univ": s.target_univ,
+            "target_univ": s.target_univ or "",
+            "baseline_univ": s.baseline_univ or "",
+            "wake_target_time": s.wake_target_time or "06:30",
+            "sleep_target_time": s.sleep_target_time or "23:30",
             "league_tier": s.league_tier or "BRONZE",
             "point_multiplier": s.point_multiplier or 1.0,
             "current_points": s.current_points,
@@ -857,16 +938,36 @@ def get_admin_dashboard(db: Session = Depends(get_db)):
             "golden_tickets_count": s.golden_tickets_count
         })
 
+    # 최근 10개 건의사항 / 불편사항 로그
+    feedbacks = db.query(models.Feedback).order_by(models.Feedback.created_at.desc()).limit(10).all()
+    recent_feedbacks = []
+    open_feedback_count = 0
+    for fb in feedbacks:
+        if fb.status != "완료":
+            open_feedback_count += 1
+        st = db.query(models.Student).filter(models.Student.id == fb.student_id).first() if fb.student_id else None
+        recent_feedbacks.append({
+            "id": fb.id,
+            "student_name": st.name if st else "비회원/익명",
+            "user_email": fb.user_email or (st.email if st else ""),
+            "category": fb.category,
+            "content": fb.content,
+            "status": fb.status,
+            "created_at": fb.created_at.strftime("%Y-%m-%d %H:%M") if fb.created_at else ""
+        })
+
     return {
         "summary": {
             "total_students": len(students),
             "total_parents": len(parents),
             "total_tutors": len(tutors),
+            "open_feedbacks": open_feedback_count,
             "league_counts": league_counts
         },
         "students": student_list,
         "recent_missions": recent_missions,
-        "recent_studies": recent_studies
+        "recent_studies": recent_studies,
+        "recent_feedbacks": recent_feedbacks
     }
 
 
