@@ -1,0 +1,10 @@
+venv/
+__pycache__/
+*.pyc
+*.db
+.env
+gemini_key.txt
+gen_icons.py
+cloudflared.exe
+*.xlsb
+*.xlsx

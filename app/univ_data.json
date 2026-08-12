@@ -1,0 +1,128 @@
+[
+  {
+    "university": "서울대학교",
+    "department": "의예과",
+    "gpa_cut": 1.1,
+    "mock_percentile_cut": 98,
+    "tip": "수시 지균/일반 모두 극강의 내신과 면접이 필요합니다. 수능 최저는 3개 영역 등급 합 7 이내입니다."
+  },
+  {
+    "university": "서울대학교",
+    "department": "경영학과",
+    "gpa_cut": 1.3,
+    "mock_percentile_cut": 96,
+    "tip": "수시 수능최저 기준(3합 7) 충족 여부가 관건이며, 면접 답변 논리가 성패를 가릅니다."
+  },
+  {
+    "university": "서울대학교",
+    "department": "컴퓨터공학부",
+    "gpa_cut": 1.2,
+    "mock_percentile_cut": 97,
+    "tip": "수학/과학적 역량을 증명할 수 있는 세특이 수시에서 매우 유리하게 작용합니다."
+  },
+  {
+    "university": "연세대학교",
+    "department": "신소재공학과",
+    "gpa_cut": 1.8,
+    "mock_percentile_cut": 90,
+    "tip": "내신 대비 수능 최저학력기준(4합 8) 충족이 관건입니다. 수학 백분위 관리가 필수적입니다."
+  },
+  {
+    "university": "연세대학교",
+    "department": "의예과",
+    "gpa_cut": 1.2,
+    "mock_percentile_cut": 97,
+    "tip": "수시 학생부종합 면접의 과학 제시문 분석력이 당락을 가르며 수능최저는 존재하지 않습니다(추천형)."
+  },
+  {
+    "university": "연세대학교",
+    "department": "경영학과",
+    "gpa_cut": 1.5,
+    "mock_percentile_cut": 93,
+    "tip": "인문학적 깊이와 경제/통계 분석력이 수시 생기부의 핵심입니다. 영어 등급 감점이 큰 편입니다."
+  },
+  {
+    "university": "연세대학교",
+    "department": "컴퓨터과학과",
+    "gpa_cut": 1.4,
+    "mock_percentile_cut": 94,
+    "tip": "논리적 사고력과 프로그래밍 탐구 활동이 돋보여야 합니다. 수학 백분위 가중치가 높습니다."
+  },
+  {
+    "university": "고려대학교",
+    "department": "경영학과",
+    "gpa_cut": 1.4,
+    "mock_percentile_cut": 94,
+    "tip": "영어 1등급 유지 및 국어 화작/언매 백분위 확보에 유의해야 합니다. 수능최저는 4합 8입니다."
+  },
+  {
+    "university": "고려대학교",
+    "department": "컴퓨터학과",
+    "gpa_cut": 1.5,
+    "mock_percentile_cut": 93,
+    "tip": "학업우수형 수시의 경우 까다로운 4합 8 최저기준을 맞추는 것이 실질 경쟁률을 대폭 낮춥니다."
+  },
+  {
+    "university": "고려대학교",
+    "department": "의예과",
+    "gpa_cut": 1.2,
+    "mock_percentile_cut": 96,
+    "tip": "수시 수능최저학력기준이 4개 영역 등급 합 5로 매우 엄격하므로 정시 수준의 수능 공부가 필수입니다."
+  },
+  {
+    "university": "국민대학교",
+    "department": "신소재공학과",
+    "gpa_cut": 2.8,
+    "mock_percentile_cut": 78,
+    "tip": "현재 성적으로 합격 가능성이 매우 높습니다. 마지노선으로 적합한 안정적인 상태입니다."
+  },
+  {
+    "university": "국민대학교",
+    "department": "컴퓨터공학부",
+    "gpa_cut": 2.6,
+    "mock_percentile_cut": 80,
+    "tip": "학생부교과 면접이 있는 경우, 기본 CS 상식과 고교 과정 기하/확통 개념 정리가 중요합니다."
+  },
+  {
+    "university": "국민대학교",
+    "department": "경영학부",
+    "gpa_cut": 2.7,
+    "mock_percentile_cut": 76,
+    "tip": "내신 우수자의 경우 수시 최저(2합 6) 충족 시 사실상 합격 안정권에 도달합니다."
+  },
+  {
+    "university": "성균관대학교",
+    "department": "반도체시스템공학과",
+    "gpa_cut": 1.6,
+    "mock_percentile_cut": 91,
+    "tip": "삼성전자 연계 계약학과로 인기가 높습니다. 수시 수능최저는 3개 과목 합 5 이내입니다."
+  },
+  {
+    "university": "성균관대학교",
+    "department": "의예과",
+    "gpa_cut": 1.2,
+    "mock_percentile_cut": 96,
+    "tip": "논술 또는 학종 선발 인원이 적어 좁은 문입니다. 과탐 두 과목의 백분위가 당락에 직결됩니다."
+  },
+  {
+    "university": "성균관대학교",
+    "department": "소프트웨어학과",
+    "gpa_cut": 1.5,
+    "mock_percentile_cut": 92,
+    "tip": "수시 탐구형에서 프로그래밍 역량과 수학적 우수성이 골고루 입증되어야 우위를 점합니다."
+  },
+  {
+    "university": "한양대학교",
+    "department": "융합전자공학부",
+    "gpa_cut": 1.7,
+    "mock_percentile_cut": 90,
+    "tip": "한양대 전통의 다이아몬드 학과입니다. 수시 수능최저 학력기준이 적용되지 않는 전형이 많습니다."
+  },
+  {
+    "university": "한양대학교",
+    "department": "컴퓨터소프트웨어학부",
+    "gpa_cut": 1.6,
+    "mock_percentile_cut": 91,
+    "tip": "학생부종합전형의 경우 생기부의 횡적 연결성과 심화 수학 문제 탐구 이력이 매우 중요합니다."
+  }
+]
