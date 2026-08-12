@@ -45,6 +45,8 @@ class StudentResponse(BaseModel):
     high_school: str
     target_univ: str
     baseline_univ: str
+    wake_target_time: str = "06:30"
+    sleep_target_time: str = "23:30"
     current_points: int
     parent_id: int
     
@@ -59,6 +61,36 @@ class StudentResponse(BaseModel):
     
     class Config:
         from_attributes = True
+
+class StudentProfileUpdate(BaseModel):
+    student_id: int
+    target_univ: Optional[str] = None
+    baseline_univ: Optional[str] = None
+    wake_target_time: Optional[str] = None
+    sleep_target_time: Optional[str] = None
+
+class FeedbackCreate(BaseModel):
+    student_id: Optional[int] = None
+    user_email: Optional[str] = None
+    category: str = "불편사항" # 불편사항 | 기능제안 | 기타
+    content: str
+
+class FeedbackResponse(BaseModel):
+    id: int
+    student_id: Optional[int] = None
+    student_name: Optional[str] = None
+    user_email: Optional[str] = None
+    category: str
+    content: str
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class FeedbackStatusUpdate(BaseModel):
+    status: str # 접수됨 | 처리중 | 완료
+
 
 class GoldenTicketClaim(BaseModel):
     student_id: int
