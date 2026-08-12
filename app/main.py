@@ -13,7 +13,7 @@ from app import models, schemas, ai
 
 # FastAPI 인스턴스 생성
 app = FastAPI(title="PASS-MATE API", description="PASS-MATE MVP용 Backend API 서비스")
-
+models.Base.metadata.create_all(bind=engine)
 # CORS 미들웨어 설정
 app.add_middleware(
     CORSMiddleware,
