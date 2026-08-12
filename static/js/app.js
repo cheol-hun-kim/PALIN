@@ -247,6 +247,22 @@ function updateHeaderUI() {
     const sub = document.getElementById("mypage-student-sub");
     if (sub) sub.innerText = `${currentStudent.high_school} ${currentStudent.grade}학년 | ${currentStudent.region}`;
 
+    // 마이페이지 설정 폼 채우기
+    const targetInput = document.getElementById("edit-target-univ");
+    if (targetInput && targetInput.value === "") targetInput.value = currentStudent.target_univ || "";
+    const baselineInput = document.getElementById("edit-baseline-univ");
+    if (baselineInput && baselineInput.value === "") baselineInput.value = currentStudent.baseline_univ || "";
+    const wakeInput = document.getElementById("edit-wake-time");
+    if (wakeInput) wakeInput.value = currentStudent.wake_target_time || "06:30";
+    const sleepInput = document.getElementById("edit-sleep-time");
+    if (sleepInput) sleepInput.value = currentStudent.sleep_target_time || "23:30";
+
+    // 메인화면 미션 라벨 업데이트
+    const wakeLabel = document.getElementById("mission-wakeup-label");
+    if (wakeLabel) wakeLabel.innerText = `🌅 기상 미션 (${currentStudent.wake_target_time || "06:30"})`;
+    const sleepLabel = document.getElementById("mission-sleep-label");
+    if (sleepLabel) sleepLabel.innerText = `🌃 취침 미션 (${currentStudent.sleep_target_time || "23:30"})`;
+
     const premiumBtn = document.getElementById("premium-toggle-btn");
     if (premiumBtn) {
         if (currentStudent.parent && currentStudent.parent.is_premium_subscribed) {
@@ -283,11 +299,93 @@ async function fetchLeagueStatus(studentId) {
 
 function openMyPageModal() {
     updateHeaderUI();
+    if (currentStudent) {
+        document.getElementById("edit-target-univ").value = currentStudent.target_univ || "";
+        document.getElementById("edit-baseline-univ").value = currentStudent.baseline_univ || "";
+        document.getElementById("edit-wake-time").value = currentStudent.wake_target_time || "06:30";
+        document.getElementById("edit-sleep-time").value = currentStudent.sleep_target_time || "23:30";
+    }
     document.getElementById("mypage-modal").style.display = "flex";
 }
 
 function closeMyPageModal() {
     document.getElementById("mypage-modal").style.display = "none";
+}
+
+async function saveStudentProfileSettings() {
+    if (!currentStudent) return;
+    const targetUniv = document.getElementById("edit-target-univ").value.trim();
+    const baselineUniv = document.getElementById("edit-baseline-univ").value.trim();
+    const wakeTime = document.getElementById("edit-wake-time").value;
+    const sleepTime = document.getElementById("edit-sleep-time").value;
+
+    try {
+        const res = await fetch("/api/student/profile", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: currentStudent.id,
+                target_univ: targetUniv,
+                baseline_univ: baselineUniv,
+                wake_target_time: wakeTime,
+                sleep_target_time: sleepTime
+            })
+        });
+        if (!res.ok) {
+            alert("프로필 및 미션 시간 변경 실패");
+            return;
+        }
+        const updated = await res.json();
+        currentStudent = updated;
+        updateHeaderUI();
+        updateTargetBanner();
+        alert("✅ 목표 대학 및 기상/취침 미션 설정이 성공적으로 변경되었습니다.");
+    } catch (e) {
+        console.error("saveStudentProfileSettings error:", e);
+        alert("설정 저장 중 오류가 발생했습니다.");
+    }
+}
+
+function openFeedbackModal() {
+    closeMyPageModal();
+    document.getElementById("feedback-modal").style.display = "flex";
+}
+
+function closeFeedbackModal() {
+    document.getElementById("feedback-modal").style.display = "none";
+}
+
+async function handleSendFeedback(e) {
+    e.preventDefault();
+    const category = document.getElementById("feedback-category").value;
+    const content = document.getElementById("feedback-content").value.trim();
+    if (!content) {
+        alert("내용을 입력해주세요.");
+        return;
+    }
+
+    try {
+        const res = await fetch("/api/feedback", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: currentStudent ? currentStudent.id : null,
+                user_email: currentStudent ? currentStudent.email : null,
+                category: category,
+                content: content
+            })
+        });
+        if (!res.ok) {
+            alert("건의 제출 실패");
+            return;
+        }
+        alert("✅ 건의사항이 정상 접수되었습니다. 개발팀에 전달되었습니다. 감사합니다!");
+        document.getElementById("feedback-content").value = "";
+        closeFeedbackModal();
+    } catch (e) {
+        console.error("handleSendFeedback error:", e);
+        alert("건의 제출 중 오류가 발생했습니다.");
+    }
 }
 
 function logoutStudent() {
