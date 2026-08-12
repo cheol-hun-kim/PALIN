@@ -15,6 +15,8 @@ class Student(Base):
     high_school = Column(String)  # 고등학교 (예: 대치고)
     target_univ = Column(String)  # 목표 대학/학과
     baseline_univ = Column(String)  # 마지노선 대학/학과
+    wake_target_time = Column(String, default="06:30")  # 기상 목표 시간 (HH:MM)
+    sleep_target_time = Column(String, default="23:30")  # 취침 목표 시간 (HH:MM)
     current_points = Column(Integer, default=100)
     
     # PALIN OS 전용 성장/리그전/바이럴 시스템 필드
@@ -39,6 +41,7 @@ class Student(Base):
     tutor_proposals = relationship("Proposal", back_populates="student")
     planner_blocks = relationship("PlannerBlock", back_populates="student", cascade="all, delete-orphan")
     golden_tickets = relationship("GoldenTicket", foreign_keys="[GoldenTicket.referrer_id]", back_populates="referrer")
+    feedbacks = relationship("Feedback", back_populates="student")
     
     # 1:1 관계 추가 (학생이 대학 합격 시 과외 프로필 연동)
     tutor_profile = relationship("TutorProfile", back_populates="student", uselist=False)
@@ -228,3 +231,18 @@ class PointHistory(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     student = relationship("Student", back_populates="point_histories")
+
+
+class Feedback(Base):
+    __tablename__ = "feedbacks"
+
+    id = Column(Integer, primary_key=True, index=True)
+    student_id = Column(Integer, ForeignKey("students.id"), nullable=True)
+    user_email = Column(String, nullable=True)
+    category = Column(String, default="불편사항")  # 불편사항 | 기능제안 | 기타
+    content = Column(Text)
+    status = Column(String, default="접수됨")  # 접수됨 | 처리중 | 완료
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    student = relationship("Student", back_populates="feedbacks")
+
