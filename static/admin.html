@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PALIN OS - 원장 전용 중앙 관제 대시보드</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="css/style.css?v=3.0">
+    <style>
+        body {
+            background-color: #06070a;
+            color: #f8fafc;
+            font-family: 'Outfit', 'Noto Sans KR', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: block;
+            min-height: 100vh;
+        }
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 24px;
+        }
+        .admin-title {
+            font-size: 1.6rem;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+        }
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: rgba(18, 20, 29, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        .kpi-title {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        .kpi-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #6366f1;
+        }
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(18, 20, 29, 0.8);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 30px;
+        }
+        .data-table th, .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.85rem;
+        }
+        .data-table th {
+            background: rgba(255, 255, 255, 0.04);
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        .status-success { color: #10b981; font-weight: 700; }
+        .status-fail { color: #ef4444; font-weight: 700; }
+        .feed-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .feed-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-header">
+        <div>
+            <div class="admin-title">PALIN<span style="color: #6366f1;">OS</span> 중앙 관제 대시보드</div>
+            <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 4px;">원장 전용 재원생 수험 궤적 & 실시간 모니터링 모니터</div>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="fetchDashboardData()" class="btn" style="padding: 10px 16px;">🔄 데이터 실시간 갱신</button>
+            <a href="/" class="btn btn-secondary" style="padding: 10px 16px; text-decoration: none;">📱 학생용 모바일 화면 보기</a>
+        </div>
+    </div>
+
+    <!-- KPI 요약 카드 -->
+    <div class="admin-grid">
+        <div class="kpi-card">
+            <div class="kpi-title">총 등록 재원생</div>
+            <div class="kpi-value" id="stat-students">0명</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title">연동 학부모</div>
+            <div class="kpi-value" id="stat-parents" style="color: #10b981;">0명</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title">승격 튜터(선배)</div>
+            <div class="kpi-value" id="stat-tutors" style="color: #f59e0b;">0명</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title">플래티넘/골드 등급 유저</div>
+            <div class="kpi-value" id="stat-top-league" style="color: #818cf8;">0명</div>
+        </div>
+    </div>
+
+    <!-- 🤖 Gemini API Key 설정 카드 -->
+    <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15)); border: 1px solid rgba(168, 85, 247, 0.3); padding: 20px; border-radius: 16px; margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div style="font-size: 1.05rem; font-weight: 800; color: #c084fc; display: flex; align-items: center; gap: 6px;">
+                <span class="material-symbols-rounded">psychology</span>
+                Gemini 2.5 AI 엔진 API 키 설정 (백서 100% 지식 탑재)
+            </div>
+            <span id="gemini-key-status" style="font-size: 0.8rem; font-weight: 700; color: #94a3b8;">상태 확인 중...</span>
+        </div>
+        <div style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 12px; line-height: 1.4;">
+            Google Gemini API Key를 입력하시면 즉시 재원생 챗봇에 <b>실제 Gemini 2.5 Flash AI</b>가 적용되어 수험생 백서 백그라운드 지식을 기반으로 100% 실시간 유연 대화를 진행합니다.
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <input type="password" id="gemini-key-input" placeholder="Google Gemini API Key (AIzaSy...)" style="flex: 1; padding: 10px 14px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: white; font-size: 0.88rem;">
+            <button onclick="saveGeminiKey()" class="btn" style="padding: 10px 20px; font-weight: 700; background: linear-gradient(135deg, #a855f7, #6366f1); border: none; white-space: nowrap;">⚡ API 키 저장 및 Gemini 탑재</button>
+        </div>
+    </div>
+
+    <!-- 재원생 리스트 및 성실도 리그전 현황 -->
+    <div class="section-title">
+        <span class="material-symbols-rounded" style="color: #6366f1;">groups</span>
+        재원생 종합 궤적 & 주간 성실도 리그전 현황
+    </div>
+    <div style="overflow-x: auto;">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>학생 ID</th>
+                    <th>이름</th>
+                    <th>연락처</th>
+                    <th>학교 / 학년</th>
+                    <th>목표 대학교</th>
+                    <th>성실도 리그 티어</th>
+                    <th>보상 배수</th>
+                    <th>보유 포인트</th>
+                    <th>누적 성실도 자산</th>
+                    <th>골든 티켓</th>
+                </tr>
+            </thead>
+            <tbody id="student-table-body">
+                <tr><td colspan="10" style="text-align: center; color: #94a3b8;">데이터 로딩 중...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 피드 그리드: 실시간 미션 로그 & 공부 타이머 세션 -->
+    <div class="feed-container">
+        <!-- 최근 미션 수신 & 알림 피드 -->
+        <div class="kpi-card">
+            <div class="section-title">
+                <span class="material-symbols-rounded" style="color: #10b981;">task_alt</span>
+                최근 미션 성공/실패 통제 피드
+            </div>
+            <div id="mission-feed" style="display: flex; flex-direction: column; gap: 10px;">
+                <div style="color: #94a3b8; font-size: 0.85rem;">로딩중...</div>
+            </div>
+        </div>
+
+        <!-- 최근 공부 타이머 집중 피드 -->
+        <div class="kpi-card">
+            <div class="section-title">
+                <span class="material-symbols-rounded" style="color: #f59e0b;">timer</span>
+                최근 공부 타이머 & 딴짓 통제 피드
+            </div>
+            <div id="study-feed" style="display: flex; flex-direction: column; gap: 10px;">
+                <div style="color: #94a3b8; font-size: 0.85rem;">로딩중...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", fetchDashboardData);
+
+        async function fetchDashboardData() {
+            try {
+                const res = await fetch("/api/admin/dashboard");
+                if (!res.ok) throw new Error("Dashboard fetch failed");
+                const data = await res.json();
+
+                // KPI 요약
+                document.getElementById("stat-students").innerText = `${data.summary.total_students}명`;
+                document.getElementById("stat-parents").innerText = `${data.summary.total_parents}명`;
+                document.getElementById("stat-tutors").innerText = `${data.summary.total_tutors}명`;
+                const topCount = (data.summary.league_counts.PLATINUM || 0) + (data.summary.league_counts.GOLD || 0);
+                document.getElementById("stat-top-league").innerText = `${topCount}명`;
+
+                // 학생 테이블
+                const tbody = document.getElementById("student-table-body");
+                tbody.innerHTML = "";
+                data.students.forEach(s => {
+                    const tr = document.createElement("tr");
+                    const tierClass = `league-${s.league_tier.toLowerCase()}`;
+                    tr.innerHTML = `
+                        <td>#${s.id}</td>
+                        <td style="font-weight: 700; color: #f8fafc;">${s.name}</td>
+                        <td>${s.phone}</td>
+                        <td>${s.high_school} (${s.grade}학년)</td>
+                        <td>${s.target_univ}</td>
+                        <td><span class="league-badge ${tierClass}">${s.league_tier}</span></td>
+                        <td style="font-weight: 700; color: #a78bfa;">${s.point_multiplier}x</td>
+                        <td>${s.current_points} P</td>
+                        <td style="color: #10b981; font-weight: 700;">+${s.diligence_score}점</td>
+                        <td>🎫 ${s.golden_tickets_count}장</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                // 미션 피드
+                const mFeed = document.getElementById("mission-feed");
+                mFeed.innerHTML = "";
+                if (data.recent_missions.length === 0) {
+                    mFeed.innerHTML = "<div style='color:#94a3b8; font-size:0.85rem;'>기록된 미션 로그가 없습니다.</div>";
+                } else {
+                    data.recent_missions.forEach(m => {
+                        const div = document.createElement("div");
+                        div.style.cssText = "padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;";
+                        const statusBadge = m.status === "SUCCESS" 
+                            ? "<span class='status-success'>[성공인증]</span>" 
+                            : "<span class='status-fail'>[실패-문자발송]</span>";
+                        div.innerHTML = `
+                            <div>
+                                <span style="font-weight: 700; color: #f8fafc;">${m.student_name}</span> - 
+                                <span>${m.mission_type === "WAKEUP" ? "🌅 기상 미션" : "🌃 취침 미션"}</span>
+                                ${statusBadge}
+                            </div>
+                            <div style="font-size: 0.75rem; color: #94a3b8;">${m.created_at}</div>
+                        `;
+                        mFeed.appendChild(div);
+                    });
+                }
+
+                // 공부 피드
+                const sFeed = document.getElementById("study-feed");
+                sFeed.innerHTML = "";
+                if (data.recent_studies.length === 0) {
+                    sFeed.innerHTML = "<div style='color:#94a3b8; font-size:0.85rem;'>기록된 공부 세션이 없습니다.</div>";
+                } else {
+                    data.recent_studies.forEach(s => {
+                        const div = document.createElement("div");
+                        div.style.cssText = "padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;";
+                        const statusBadge = s.is_distracted 
+                            ? "<span class='status-fail'>[딴짓 감지/정지]</span>" 
+                            : "<span class='status-success'>[정상 몰입완료]</span>";
+                        div.innerHTML = `
+                            <div>
+                                <span style="font-weight: 700; color: #f8fafc;">${s.student_name}</span> - 
+                                <span>⏱️ ${s.duration_min}분 측정</span>
+                                ${statusBadge}
+                            </div>
+                            <div style="font-size: 0.75rem; color: #94a3b8;">${s.created_at}</div>
+                        `;
+                        sFeed.appendChild(div);
+                    });
+                }
+
+                checkGeminiStatus();
+            } catch (e) {
+                console.error("Dashboard load failed:", e);
+            }
+        }
+
+        async function checkGeminiStatus() {
+            try {
+                const res = await fetch("/api/admin/gemini-status");
+                const data = await res.json();
+                const statusEl = document.getElementById("gemini-key-status");
+                if (data.active) {
+                    statusEl.innerText = `✅ 활성화됨 (${data.key_masked})`;
+                    statusEl.style.color = "#10b981";
+                } else {
+                    statusEl.innerText = "⚠️ 미설정 (Dynamic Fallback 모드 사용 중)";
+                    statusEl.style.color = "#f59e0b";
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function saveGeminiKey() {
+            const key = document.getElementById("gemini-key-input").value.trim();
+            if (!key) {
+                alert("Gemini API 키를 입력해 주세요.");
+                return;
+            }
+            try {
+                const res = await fetch("/api/admin/set-gemini-key", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ api_key: key })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.detail || "API 키 저장 실패");
+                    return;
+                }
+                alert(data.message);
+                document.getElementById("gemini-key-input").value = "";
+                checkGeminiStatus();
+            } catch (e) {
+                alert("API 키 저장 중 오류가 발생했습니다.");
+            }
+        }
+    </script>
+</body>
+</html>

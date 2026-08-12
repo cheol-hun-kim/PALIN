@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PALIN OS - 데이터 기반 행동 통제 범용 OS</title>
+    <!-- 구글 폰트 및 아이콘 -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="css/style.css?v=15.0">
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PALIN OS">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <meta name="description" content="데이터 기반 행동 통제 범용 OS - 수험생 합격 시스템">
+</head>
+<body>
+
+    <div class="mobile-frame">
+        
+        <!-- 1. 회원가입 오버레이 (신규 로그인 전) -->
+        <div id="register-overlay" class="loader-overlay" style="display: flex;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="font-size: 2.2rem; font-weight: 800; color: white;">PASS-MATE</div>
+                <div style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 4px;">대입 수험생을 위한 밀착 생활 관리 플랫폼</div>
+            </div>
+            
+            <form id="register-form" class="auth-form" style="max-height: 75vh; overflow-y: auto; padding-right: 4px;">
+                <div style="font-size: 0.95rem; font-weight: 700; color: #a78bfa; margin-bottom: 6px;">[학생 정보]</div>
+                <input type="email" id="reg-email" class="form-input" placeholder="이메일 주소" required value="student@test.com">
+                <input type="text" id="reg-name" class="form-input" placeholder="학생 이름" required value="홍길동">
+                <input type="tel" id="reg-phone" class="form-input" placeholder="학생 연락처 (예: 010-9876-5432)" required value="010-9876-5432">
+                
+                <select id="reg-grade" class="form-input" required>
+                    <option value="" disabled>학년 선택</option>
+                    <option value="1">고등학교 1학년</option>
+                    <option value="2">고등학교 2학년</option>
+                    <option value="3" selected>고등학교 3학년</option>
+                </select>
+                
+                <input type="text" id="reg-region" class="form-input" placeholder="지역 (예: 서울 강남구)" required value="서울 강남구">
+                <input type="text" id="reg-school" class="form-input" placeholder="소속 고등학교 (예: 대치고)" required value="대치고">
+                
+                <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 10px; margin-bottom: 4px;">🎯 최종희망 대학설정 (상향/적정 목표 대학)</div>
+                <div style="display: flex; gap: 6px; width: 100%;">
+                    <select id="reg-target-univ" class="form-input" required style="width: 50%;">
+                        <option value="" disabled selected>목표 대학 선택</option>
+                    </select>
+                    <select id="reg-target-dept" class="form-input" required style="width: 50%;">
+                        <option value="" disabled selected>학과 선택</option>
+                    </select>
+                </div>
+                <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 10px; margin-bottom: 4px;">🛡️ 마지노선 대학설정 (안정 지원 백업 대학)</div>
+                <div style="display: flex; gap: 6px; width: 100%;">
+                    <select id="reg-baseline-univ" class="form-input" required style="width: 50%;">
+                        <option value="" disabled selected>마지노선 대학 선택</option>
+                    </select>
+                    <select id="reg-baseline-dept" class="form-input" required style="width: 50%;">
+                        <option value="" disabled selected>학과 선택</option>
+                    </select>
+                </div>
+                
+                <div style="font-size: 0.95rem; font-weight: 700; color: #a78bfa; margin-top: 14px; margin-bottom: 6px;">[부모님 연락처 연동]</div>
+                <input type="text" id="reg-pname" class="form-input" placeholder="학부모 이름" required value="김철수(부모)">
+                <input type="tel" id="reg-pphone" class="form-input" placeholder="학부모 연락처 (알림톡 수신)" required value="010-1234-5678">
+                
+                <button type="submit" class="btn" style="width: 100%; margin-top: 14px; padding: 12px 0; font-size:0.95rem;">학생 계정으로 시작하기</button>
+            </form>
+        </div>
+
+        <!-- 2. 공통 헤더 (클린 마이페이지 통합형) -->
+        <header>
+            <div class="logo-container" style="display: flex; align-items: center; gap: 8px;">
+                <span class="logo-text" style="font-weight: 900; letter-spacing: -0.5px;">PALIN<span style="color: #6366f1;">OS</span></span>
+            </div>
+            <div class="user-status" style="display: flex; align-items: center; gap: 8px;">
+                <div class="points-badge">
+                    <span class="material-symbols-rounded" style="font-size: 1.1rem;">toll</span>
+                    <span id="header-points">0 P</span>
+                </div>
+                <button onclick="openMyPageModal()" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.8rem; display: flex; align-items: center; gap: 4px; border-radius: 20px; background: rgba(255,255,255,0.06);">
+                    <span class="material-symbols-rounded" style="font-size: 1.1rem; color: #a78bfa;">account_circle</span>
+                    <span id="header-student-name">학생</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- 3. 메인 뷰포트 (페이지 변경) -->
+        <main>
+            
+            <!-- ==========================================
+                 1페이지: 생활관리 화면
+                 ========================================== -->
+            <div id="page1" class="page-view" style="display: block;">
+                
+                <!-- 🎯 목표대학 배너 (스크롤 시 함께 자연스럽게 올라감) -->
+                <div class="univ-banner" style="margin-bottom: 12px; border-radius: 16px; border: 1px solid var(--glass-border);">
+                    <div>
+                        <span class="target-label">🦁 목표 대학</span>
+                        <span class="univ-name" id="banner-target-univ">로딩중..</span>
+                    </div>
+                    <div style="margin-top: 4px;">
+                        <span class="target-label">🛡️ 마지노선</span>
+                        <span class="univ-name" id="banner-baseline-univ">로딩중..</span>
+                    </div>
+                    <div class="dday">D-250</div>
+                </div>
+
+                <!-- 골든 티켓 초대 네트워크 카드 -->
+                <div class="card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(245, 158, 11, 0.15)); border: 1px solid rgba(245, 158, 11, 0.3);">
+                    <div class="card-title" style="color: #fcd34d;">
+                        <span class="material-symbols-rounded" style="color: #f59e0b">confirmation_number</span>
+                        PALIN OS 골든 티켓 (MGM 5% 복리 네트워크)
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4;">
+                        검증된 수험생에게만 발급되는 제한 초대권입니다. 친구 가입 시 <b>+50P</b> 및 친구 미션 보상의 <b>5% 영구 복리 포인트</b>가 지급됩니다.
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 10px;">
+                        <div style="font-size: 0.85rem; font-weight: 700;">보유 티켓: <span id="golden-ticket-count" style="color: #f59e0b;">3장</span></div>
+                        <button class="btn" style="padding: 6px 12px; font-size: 0.78rem; background: linear-gradient(135deg, #f59e0b, #d97706);" onclick="generateGoldenTicket()">🎫 새 골든 티켓 발급</button>
+                    </div>
+                    <div id="ticket-display" style="display: none; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; font-weight: 700; color: #67e8f9; margin-bottom: 10px; text-align: center;"></div>
+                    <div style="display: flex; gap: 6px;">
+                        <input type="text" id="claim-ticket-input" class="form-input" placeholder="친구의 골든 티켓 코드 입력" style="margin-bottom:0; font-size:0.8rem;">
+                        <button class="btn" style="padding: 6px 12px; font-size: 0.78rem; white-space: nowrap;" onclick="claimGoldenTicket()">등록 (+50P)</button>
+                    </div>
+                </div>
+
+                <!-- 미션 카드 -->
+                <div class="card">
+                    <div class="card-title">
+                        <span class="material-symbols-rounded" style="color: var(--color-accent)">task_alt</span>
+                        오늘의 생활 규칙 미션
+                    </div>
+                    
+                    <div class="mission-row">
+                        <div class="mission-info" style="min-width: 0;">
+                            <span class="mission-name">🌅 기상 미션 (06:30)</span>
+                            <span class="mission-time">실패 시 부모님께 안내메시지 즉시 발송</span>
+                        </div>
+                        <div style="display: flex; gap: 6px; flex-shrink: 0;">
+                            <button id="btn-mission-wakeup" class="btn" style="padding: 6px 10px; font-size: 0.78rem; white-space: nowrap;" onclick="verifyMission('WAKEUP')">성공인증</button>
+                            <button class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.78rem; border-color:var(--color-danger); color:var(--color-danger); white-space: nowrap;" onclick="verifyMission('WAKEUP', true)">실패테스트</button>
+                        </div>
+                    </div>
+                    
+                    <div class="mission-row">
+                        <div class="mission-info" style="min-width: 0;">
+                            <span class="mission-name">🌃 취침 미션 (23:30)</span>
+                            <span class="mission-time">수면 모드 시작 및 기기 동작 모니터링</span>
+                        </div>
+                        <div style="display: flex; gap: 6px; flex-shrink: 0;">
+                            <button id="btn-mission-sleep" class="btn" style="padding: 6px 10px; font-size: 0.78rem; white-space: nowrap;" onclick="verifyMission('SLEEP')">성공인증</button>
+                            <button class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.78rem; border-color:var(--color-danger); color:var(--color-danger); white-space: nowrap;" onclick="verifyMission('SLEEP', true)">실패테스트</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 집중 공부 타이머 -->
+                <div class="card" style="text-align: center;">
+                    <div class="card-title" style="justify-content: center;">
+                        <span class="material-symbols-rounded" style="color: var(--color-success)">hourglass_empty</span>
+                        공부 시간 타이머 (계획 연동 & 딴짓 방지)
+                    </div>
+                    <div class="timer-container">
+                        <div style="width:100%; max-width:280px; margin-bottom:12px;">
+                            <label style="font-size:0.75rem; color:var(--text-secondary); display:block; text-align:left; margin-bottom:4px;">어떤 계획을 공부하시겠습니까?</label>
+                            <select id="timer-schedule-select" class="form-input" style="width:100%; padding:8px;">
+                                <option value="none">직접 자유 공부하기</option>
+                            </select>
+                        </div>
+                        
+                        <div id="timer-current-study" style="font-size:0.8rem; font-weight:600; color:#a78bfa; margin-bottom:12px;">🎯 대기 중: 할 일을 골라 측정을 시작하세요</div>
+                        
+                        <div class="timer-circle" id="timer-circle">00:00:00</div>
+                        <div class="timer-controls">
+                            <button class="btn" id="timer-toggle-btn" style="background-color: var(--color-success); box-shadow: 0 4px 12px var(--color-success-glow); padding: 10px 24px; font-size: 0.95rem;" onclick="toggleTimer()">공부 시작</button>
+                        </div>
+                        
+                        <div style="font-size:0.68rem; color:var(--text-secondary); margin-top:14px; line-height:1.3;">
+                            ⚠️ 측정 중 스마트폰 화면을 끄거나 타 앱으로 전환(딴짓)하면 타이머가 중단되며 포인트가 적립되지 않고 부모님께 안내 문자가 발송됩니다.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 에브리타임 스타일 주간 계획 시간표 -->
+                <div class="card">
+                    <div class="card-title">
+                        <span class="material-symbols-rounded" style="color: var(--color-warning)">calendar_view_week</span>
+                        주간 계획표
+                    </div>
+                    
+                    <form onsubmit="addPlannerBlock(event)" style="display:grid; grid-template-columns: 1fr 1.2fr 1.2fr 2.2fr; gap:6px; margin-bottom:12px;">
+                        <select id="plan-day" class="form-input" style="padding:6px; font-size:0.75rem;">
+                            <option value="0">월</option>
+                            <option value="1">화</option>
+                            <option value="2">수</option>
+                            <option value="3">목</option>
+                            <option value="4">금</option>
+                            <option value="5">토</option>
+                            <option value="6">일</option>
+                        </select>
+                        <input type="time" id="plan-start" class="form-input" style="padding:6px; font-size:0.75rem;" value="09:00">
+                        <input type="time" id="plan-end" class="form-input" style="padding:6px; font-size:0.75rem;" value="11:30">
+                        <div style="display:flex; gap:4px; min-width:0; flex:1;">
+                            <input type="text" id="plan-title" class="form-input" style="padding:6px; font-size:0.75rem; min-width:0; width:100%;" placeholder="계획명">
+                            <button type="submit" class="btn" style="padding:6px 8px; font-size:0.72rem; white-space:nowrap;">추가</button>
+                        </div>
+                    </form>
+
+                    <div class="timetable-container">
+                        <div class="timetable-header">
+                            <div>시간</div>
+                            <div>월</div>
+                            <div>화</div>
+                            <div>수</div>
+                            <div>목</div>
+                            <div>금</div>
+                            <div>토</div>
+                            <div>일</div>
+                        </div>
+                        <div class="timetable-body">
+                            <div class="time-axis">
+                                <div>09:00</div>
+                                <div>12:00</div>
+                                <div>15:00</div>
+                                <div>18:00</div>
+                                <div>21:00</div>
+                                <div>24:00</div>
+                            </div>
+                            
+                            <div class="day-column" id="col-day-0"></div>
+                            <div class="day-column" id="col-day-1"></div>
+                            <div class="day-column" id="col-day-2"></div>
+                            <div class="day-column" id="col-day-3"></div>
+                            <div class="day-column" id="col-day-4"></div>
+                            <div class="day-column" id="col-day-5"></div>
+                            <div class="day-column" id="col-day-6"></div>
+                            
+                            <div class="timetable-grid-line" style="top: 90px;"></div>
+                            <div class="timetable-grid-line" style="top: 180px;"></div>
+                            <div class="timetable-grid-line" style="top: 270px;"></div>
+                            <div class="timetable-grid-line" style="top: 360px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 부모님 전송 주간 리포트 -->
+                <div class="card" style="border: 1px dashed var(--color-accent); background: rgba(99, 102, 241, 0.04);">
+                    <div class="card-title" style="color: #a78bfa;">
+                        <span class="material-symbols-rounded">assessment</span>
+                        학부모 관리 대시보드 (SMS 전송 데이터)
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px;">
+                        <div style="background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">주간 총 공부시간</div>
+                            <div id="report-study-hours" style="font-size: 1.3rem; font-weight: 700; color: white; margin-top: 4px;">0시간</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">미션 성공률</div>
+                            <div id="report-mission-rate" style="font-size: 1.3rem; font-weight: 700; color: white; margin-top: 4px;">0%</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>총 측정 횟수: <span id="report-total-sessions" style="color: white; font-weight: 600;">0회</span></span>
+                        <button class="btn btn-secondary" id="premium-toggle-btn" style="padding: 4px 8px; font-size:0.65rem;" onclick="togglePremium()">⚡ 프리미엄 구독</button>
+                    </div>
+                    <div style="margin-top: 14px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
+                        <div style="font-size: 0.8rem; font-weight:600; margin-bottom: 8px;">최근 인증 이력</div>
+                        <div id="recent-mission-logs" style="display:flex; flex-direction:column; gap:4px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 2페이지: 학습공간 화면
+                 ========================================== -->
+            <div id="page2" class="page-view" style="display: none;">
+                <div class="tab-header" id="p2-tabs">
+                    <button class="tab-btn active" data-sub="chat">🤖 AI 챗봇</button>
+                    <button class="tab-btn" data-sub="predict">🎯 합격 예측</button>
+                    <button class="tab-btn" data-sub="archive">📚 기출문제</button>
+                </div>
+
+                <!-- 2-A: AI 챗봇 탭 -->
+                <div id="p2-chat" class="subtab-view-p2" style="display: block;">
+                    <div class="card">
+                        <div class="card-title">
+                            <span class="material-symbols-rounded" style="color: var(--color-accent)">forum</span>
+                            대입 입시 전략 전문 멘토링
+                        </div>
+                        <div class="chat-container" id="chat-box">
+                            <div class="chat-bubble bot">
+                                안녕하세요! 저는 대입 수능 및 입시 상담을 도와주는 AI 멘토 "패스봇"입니다. 수능 대비 과목 공부법, 내신 수시전략, 생활습관 설정 등에 대해 언제든 물어보세요!
+                            </div>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 8px;" id="chat-limit-label">
+                            오늘 남은 무료 대화: 5회
+                        </div>
+                        <div class="chat-input-row">
+                            <input type="text" id="chat-input" class="form-input" placeholder="영어/수학 공부법 혹은 진로 상담을 해보세요.." onkeydown="if(event.key==='Enter') sendChatMessage()">
+                            <button class="btn" style="padding: 10px 16px;" onclick="sendChatMessage()">
+                                <span class="material-symbols-rounded" style="font-size: 1.1rem; display:block;">send</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2-B: 합격 가능성 예측 탭 -->
+                <div id="p2-predict" class="subtab-view-p2" style="display: none;">
+
+<!-- 목표/마지노선 대학 설정 -->
+<div class="card" style="margin-bottom: 12px; padding: 12px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <h4 style="margin: 0;">🏫 목표 대학 설정</h4>
+        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="toggleUnivSettings()">변경</button>
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <div style="text-align: center;">
+            <div style="font-size: 0.68rem; color: var(--text-secondary);">🎯 희망</div>
+            <div id="disp-target-univ" style="font-weight: 700; font-size: 0.82rem;"></div>
+        </div>
+        <div style="text-align: center;">
+            <div style="font-size: 0.68rem; color: var(--text-secondary);">🛡️ 마지노선</div>
+            <div id="disp-baseline-univ" style="font-weight: 700; font-size: 0.82rem;"></div>
+        </div>
+    </div>
+    <!-- 변경 폼 (기본 숨김) -->
+    <div id="univ-settings-form" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08);">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <div>
+                <label class="input-label">희망 대학</label>
+                <select id="up-univ" class="input-field"></select>
+            </div>
+            <div>
+                <label class="input-label">희망 학과</label>
+                <select id="up-major" class="input-field"></select>
+            </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+            <div>
+                <label class="input-label">마지노선 대학</label>
+                <select id="up-base-univ" class="input-field"></select>
+            </div>
+            <div>
+                <label class="input-label">마지노선 학과</label>
+                <select id="up-base-major" class="input-field"></select>
+            </div>
+        </div>
+        <button class="btn" style="width: 100%; padding: 8px; font-size: 0.82rem; background: linear-gradient(135deg, #6366f1, #8b5cf6);" onclick="saveUnivSettings()">
+            저장하기
+        </button>
+    </div>
+</div>
+
+<!-- 수시/정시 탭 토글 -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px;">
+    <button id="btn-susi" class="btn btn-secondary" style="padding: 10px; font-size: 0.88rem; font-weight: 700; border-radius: 12px;" onclick="switchAdmissionTab('susi')">
+        📋 수시 합격 예측
+    </button>
+    <button id="btn-jeongsi" class="btn" style="padding: 10px; font-size: 0.88rem; font-weight: 700; border-radius: 12px; background: linear-gradient(135deg, #10b981, #059669);" onclick="switchAdmissionTab('jeongsi')">
+        📊 정시 합격 예측
+    </button>
+</div>
+
+<!-- === 수시 합격 예측 (플레이스홀더) === -->
+<div id="susi-section" style="display: none;">
+    <div class="card" style="padding: 14px;">
+        <h3 style="margin-bottom: 10px;">📋 수시 합격 가능성 진단</h3>
+        
+        <!-- 학생부교과 -->
+        <div style="background: rgba(16,185,129,0.08); border-radius: 10px; padding: 12px; margin-bottom: 12px;">
+            <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 6px;">📌 학생부교과 전형</div>
+            <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 8px;">
+                내신 등급을 기반으로 정량 평가합니다. 내신 평균 등급을 입력하면 교과 전형 합격 가능성을 진단합니다.
+            </p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                <div>
+                    <label class="input-label">내신 평균 등급</label>
+                    <input type="number" id="susi-gpa" class="input-field" placeholder="예: 1.5" min="1" max="9" step="0.1">
+                </div>
+                <div style="display: flex; align-items: flex-end;">
+                    <button class="btn" style="width: 100%; padding: 8px; font-size: 0.82rem; background: #10b981;" onclick="alert('학생부교과 예측은 추후 업데이트 예정입니다.\n\n대학별 입시결과 데이터를 수집 중입니다.')">분석</button>
+                </div>
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-secondary); background: rgba(0,0,0,0.15); padding: 8px; border-radius: 6px;">
+                ⏳ 학생부교과 전형 예측 기능은 <b>대학별 입시결과 데이터 수집 후</b> 업데이트 예정입니다.
+            </div>
+        </div>
+        
+        <!-- 학생부종합 -->
+        <div style="background: rgba(99,102,241,0.08); border-radius: 10px; padding: 12px;">
+            <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 6px;">📌 학생부종합 전형</div>
+            <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 10px;">
+                학생부종합 전형은 내신 외에도 <b>출신 고교, 비교과 활동</b> 등 정성적 요소가 크기 때문에 자동 진단이 어렵습니다. 아래 방법을 따라 직접 확인해보세요.
+            </p>
+            <div style="background: rgba(0,0,0,0.15); border-radius: 8px; padding: 10px; font-size: 0.78rem; line-height: 1.6;">
+                <div style="font-weight: 700; color: #a78bfa; margin-bottom: 4px;">📝 확인 방법</div>
+                <b>1.</b> 학교 <b>진학지도부</b>(진학상담실)를 방문하세요<br>
+                <b>2.</b> 본인과 <b>비슷한 내신(전교등수)</b>을 가진 선배들의 2~3개년 합격 데이터를 확인하세요<br>
+                <b>3.</b> 어쩌다 합격한 특이 케이스를 제외하고, <b>'주로' 합격한 대학 수준</b>을 파악하세요<br>
+                <b>4.</b> 아래에 결과를 입력하면 기록으로 남습니다
+            </div>
+            <div style="margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div>
+                    <label class="input-label">희망대학 종합전형</label>
+                    <select id="susi-target-verdict" class="input-field">
+                        <option value="">미조사</option>
+                        <option value="안정">🟢 안정</option>
+                        <option value="적정">🟩 적정</option>
+                        <option value="소신">🟡 소신</option>
+                        <option value="위험">🔴 위험</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="input-label">마지노선 종합전형</label>
+                    <select id="susi-baseline-verdict" class="input-field">
+                        <option value="">미조사</option>
+                        <option value="안정">🟢 안정</option>
+                        <option value="적정">🟩 적정</option>
+                        <option value="소신">🟡 소신</option>
+                        <option value="위험">🔴 위험</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn" style="width: 100%; margin-top: 8px; padding: 8px; font-size: 0.82rem; background: #6366f1;" onclick="alert('종합전형 자가진단 저장 기능은 추후 업데이트 예정입니다.')">자가진단 저장</button>
+        </div>
+    </div>
+</div>
+
+<!-- === 정시 합격 예측 === -->
+<div id="jeongsi-section">
+<!-- 합격예측 입력 -->
+<div class="card" id="predict-section">
+    <h3 style="margin-bottom: 12px;">📊 정시 합격 예측</h3>
+    <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 16px;">모의고사/수능 성적을 입력하면 대학별 합격 가능성을 예측합니다.</p>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+        <div>
+            <label class="input-label">계열</label>
+            <select id="pred-gyeyeol" class="input-field">
+                <option value="이과">이과 (미적/기하 + 과탐)</option>
+                <option value="문과">문과 (확통/사탐)</option>
+            </select>
+        </div>
+        <div>
+            <label class="input-label">수학 선택</label>
+            <select id="pred-math-type" class="input-field">
+                <option value="미적">미적분</option>
+                <option value="기하">기하</option>
+                <option value="확통">확률과통계</option>
+            </select>
+        </div>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+        <div>
+            <label class="input-label">국어 백분위</label>
+            <input type="number" id="pred-kor" class="input-field" placeholder="0~100" min="0" max="100" step="1">
+        </div>
+        <div>
+            <label class="input-label">수학 백분위</label>
+            <input type="number" id="pred-math" class="input-field" placeholder="0~100" min="0" max="100" step="1">
+        </div>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+        <div>
+            <label class="input-label">영어 원점수</label>
+            <input type="number" id="pred-eng" class="input-field" placeholder="0~100" min="0" max="100" step="1">
+        </div>
+        <div>
+            <label class="input-label">한국사 원점수</label>
+            <input type="number" id="pred-hist" class="input-field" placeholder="0~50" min="0" max="50" step="1">
+        </div>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+        <div>
+            <label class="input-label">탐구1 백분위</label>
+            <input type="number" id="pred-tam1" class="input-field" placeholder="0~100" min="0" max="100" step="1">
+        </div>
+        <div>
+            <label class="input-label">탐구2 백분위</label>
+            <input type="number" id="pred-tam2" class="input-field" placeholder="0~100" min="0" max="100" step="1">
+        </div>
+    </div>
+
+    
+    <button class="btn" style="width: 100%; padding: 12px; font-size: 0.95rem; font-weight: 700; background: linear-gradient(135deg, #10b981, #059669);" onclick="runPrediction()">
+        🔍 합격 가능성 분석하기
+    </button>
+</div>
+
+<!-- 합격예측 결과 -->
+<div id="predict-result" style="display:none;">
+    <!-- 희망대학 + 마지노선 대학 합격 가능성 -->
+    <div class="card" style="margin-top: 12px; padding: 14px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <!-- 희망대학 -->
+            <div id="pred-target-card" style="text-align: center; border-radius: 12px; padding: 12px 8px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+                <div style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 4px;">🎯 희망 대학</div>
+                <div id="pred-target-univ-name" style="font-weight: 800; font-size: 0.85rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
+                <div id="pred-target-dept-name" style="font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
+                <div id="pred-target-verdict" style="display: inline-block; padding: 5px 16px; border-radius: 20px; font-weight: 800; font-size: 0.95rem; color: white; background: #666;">-</div>
+            </div>
+            <!-- 마지노선 대학 -->
+            <div id="pred-baseline-card" style="text-align: center; border-radius: 12px; padding: 12px 8px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+                <div style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 4px;">🛡️ 마지노선</div>
+                <div id="pred-baseline-univ-name" style="font-weight: 800; font-size: 0.85rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
+                <div id="pred-baseline-dept-name" style="font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
+                <div id="pred-baseline-verdict" style="display: inline-block; padding: 5px 16px; border-radius: 20px; font-weight: 800; font-size: 0.95rem; color: white; background: #666;">-</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 판정 요약 -->
+    <div class="card" style="margin-top: 12px; padding: 12px;">
+        <h4 style="margin-bottom: 8px;">📋 전체 판정 요약</h4>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; text-align: center;">
+            <div style="background: #166534; color: white; border-radius: 8px; padding: 8px;">
+                <div style="font-size: 1.2rem; font-weight: 800;" id="pred-count-safe">0</div>
+                <div style="font-size: 0.7rem;">안정</div>
+            </div>
+            <div style="background: #22c55e; color: white; border-radius: 8px; padding: 8px;">
+                <div style="font-size: 1.2rem; font-weight: 800;" id="pred-count-proper">0</div>
+                <div style="font-size: 0.7rem;">적정</div>
+            </div>
+            <div style="background: #eab308; color: #1a1a1a; border-radius: 8px; padding: 8px;">
+                <div style="font-size: 1.2rem; font-weight: 800;" id="pred-count-sosin">0</div>
+                <div style="font-size: 0.7rem;">소신</div>
+            </div>
+            <div style="background: #dc2626; color: white; border-radius: 8px; padding: 8px;">
+                <div style="font-size: 1.2rem; font-weight: 800;" id="pred-count-danger">0</div>
+                <div style="font-size: 0.7rem;">위험</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 필터 -->
+    <div class="card" style="margin-top: 12px; padding: 12px;">
+        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;">
+            <button class="btn" style="padding: 5px 10px; font-size: 0.75rem; background: #166534;" onclick="filterPredResults('안정')">🟢 안정</button>
+            <button class="btn" style="padding: 5px 10px; font-size: 0.75rem; background: #22c55e;" onclick="filterPredResults('적정')">🟩 적정</button>
+            <button class="btn" style="padding: 5px 10px; font-size: 0.75rem; background: #eab308; color: #1a1a1a;" onclick="filterPredResults('소신')">🟡 소신</button>
+            <button class="btn" style="padding: 5px 10px; font-size: 0.75rem; background: #dc2626;" onclick="filterPredResults('위험')">🔴 위험</button>
+            <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.75rem;" onclick="filterPredResults('전체')">전체</button>
+        </div>
+        <input type="text" id="pred-search" class="input-field" placeholder="대학/학과명 검색..." oninput="filterPredResults()" style="margin-bottom: 8px;">
+        <div id="pred-results-list" style="max-height: 400px; overflow-y: auto;"></div>
+        <div id="pred-results-count" style="text-align: center; font-size: 0.75rem; color: var(--text-secondary); margin-top: 8px;"></div>
+    </div>
+</div>
+</div>
+                </div>
+
+                <!-- 2-C: 기출문제 자료실 탭 -->
+                <div id="p2-archive" class="subtab-view-p2" style="display: none;">
+                    <div class="card">
+                        <div class="card-title">
+                            <span class="material-symbols-rounded" style="color: var(--color-accent)">download</span>
+                            평가원/교육청 모의고사 아카이브
+                        </div>
+                        <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom: 12px;">다운로드 및 해설 열람은 무료로 자유롭게 가능합니다.</div>
+                        <div class="list-container">
+                            <div style="background:rgba(255,255,255,0.02); padding:12px; border-radius:8px; border: 1px solid rgba(255,255,255,0.04); display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <div style="font-size:0.88rem; font-weight:600;">2025학년도 6월 평가원 모의평가</div>
+                                    <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">고3 수학 영역 (공통+선택)</div>
+                                </div>
+                                <button class="btn" style="padding: 6px 12px; font-size:0.75rem;" onclick="alert('📥 PDF 다운로드가 시작되었습니다.')">다운로드</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 3페이지: 커뮤니티 공간
+                 ========================================== -->
+            <div id="page3" class="page-view" style="display: none;">
+                <!-- 서브탭 메뉴 -->
+                <div class="tab-header" id="p3-tabs">
+                    <button class="tab-btn active" data-sub="qa">❓ 공부 Q&A</button>
+                    <button class="tab-btn" data-sub="matching">🎓 과외 매칭</button>
+                </div>
+
+                <!-- 3-A: 공부 Q&A 게시판 -->
+                <div id="p3-qa" class="subtab-view-p3" style="display: block;">
+                    <div class="card">
+                        <div class="card-title">질문 등록 (포인트 에스크로)</div>
+                        <div class="todo-list" style="gap:10px;">
+                            <div style="display:grid; grid-template-columns: 1fr 2fr; gap:8px;">
+                                <select id="qa-post-subject" class="form-input">
+                                    <option value="수학">수학</option>
+                                    <option value="국어">국어</option>
+                                    <option value="영어">영어</option>
+                                    <option value="탐구">과학/사회</option>
+                                </select>
+                                <input type="number" id="qa-post-reward" class="form-input" placeholder="보상 포인트 (예: 50)" value="50">
+                            </div>
+                            <input type="text" id="qa-post-title" class="form-input" placeholder="질문 제목">
+                            <textarea id="qa-post-content" class="form-input" style="height:70px; resize:none;" placeholder="세부 내용을 작성해 주세요.."></textarea>
+                            <button class="btn" style="width: 100%;" onclick="createQAPost()">올리기</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">실시간 질의응답</div>
+                        <div class="list-container" id="qa-list-container"></div>
+                    </div>
+                </div>
+
+                <!-- 3-B: 선배 과외 매칭 -->
+                <div id="p3-matching" class="subtab-view-p3" style="display: none;">
+                    
+                    <!-- 신규: [학생 모드 ⇄ 선생님 모드] 전환 토글바 (합격 인증 후에만 노출) -->
+                    <div class="role-toggle-bar" id="role-toggle-bar" style="display: none;">
+                        <button class="role-toggle-btn active" data-role="student">👨‍🎓 학생 모드</button>
+                        <button class="role-toggle-btn" data-role="tutor">👨‍🏫 과외선생님 모드</button>
+                    </div>
+
+                    <!-- ==========================================
+                         3-B-1: 학생 모드 뷰
+                         ========================================== -->
+                    <div id="student-only-views" style="display: block;">
+                        
+                        <!-- 🎓 대학 합격 인증 배너 및 프로필 개설 양식 -->
+                        <div class="card" id="tutor-upgrade-banner" style="border: 1px dashed var(--color-success); background: rgba(16,185,129,0.03);">
+                            <div style="font-weight: 700; font-size: 0.95rem; color: var(--color-success); margin-bottom: 8px;">🎓 대학 합격자이신가요?</div>
+                            <div style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4;">
+                                대학 합격증 혹은 학생증을 연동해 인증하면, **[과외 선생님 모드]**가 해금되어 프로필을 등록하고 후배들에게 과외를 유치해 용돈을 벌 수 있습니다! (인증 즉시 500P 지급)
+                            </div>
+                            
+                            <form onsubmit="upgradeStudentToTutor(event)" style="display:flex; flex-direction:column; gap:8px;">
+                                <div style="display:grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap:6px; width:100%; box-sizing:border-box; overflow:hidden;">
+                                    <select id="tutor-up-univ" class="form-input" style="padding:8px; width:100%; min-width:0; box-sizing:border-box; overflow:hidden; text-overflow:ellipsis;" required>
+                                        <option value="" disabled selected>합격 대학교</option>
+                                    </select>
+                                    <select id="tutor-up-major" class="form-input" style="padding:8px; width:100%; min-width:0; box-sizing:border-box; overflow:hidden; text-overflow:ellipsis;" required>
+                                        <option value="" disabled selected>합격 학과</option>
+                                    </select>
+                                </div>
+                                <input type="number" id="tutor-up-year" class="form-input" style="padding:8px;" placeholder="학번 - 입학년도 끝 두자리 (예: 25)" min="20" max="30">
+                                <input type="text" id="tutor-up-bio" class="form-input" style="padding:8px;" placeholder="한줄 과외 홍보 소개 (예: 과탐 1등급 보장)">
+                                <input type="text" id="tutor-up-link" class="form-input" style="padding:8px;" placeholder="오픈카톡 링크 (예: open.kakao.com/...)">
+                                <button type="submit" class="btn" style="background-color: var(--color-success); box-shadow: 0 4px 10px var(--color-success-glow); padding: 8px 0; margin-top:4px;">합격 인증 및 과외선생 개설하기</button>
+                            </form>
+                        </div>
+
+                        <!-- 학생 과외 요청 등록 -->
+                        <div class="card">
+                            <div class="card-title">
+                                <span class="material-symbols-rounded" style="color: var(--color-accent)">campaign</span>
+                                나만의 과외 모집서 등록 (학생)
+                            </div>
+                            <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:12px;">원하는 과외 희망조건을 올리면 선배들이 프로필을 확인하고 제안서를 보냅니다.</div>
+                            <div class="todo-list" style="gap:10px;">
+                                <select id="tr-subject" class="form-input">
+                                    <option value="수학">수학</option>
+                                    <option value="국어">국어</option>
+                                    <option value="영어">영어</option>
+                                    <option value="과학탐구">과학탐구</option>
+                                    <option value="사회탐구">사회탐구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                                <input type="text" id="tr-budget" class="form-input" placeholder="희망 과외비 (예: 월 40만원)">
+                                <textarea id="tr-details" class="form-input" style="height:70px; resize:none;" placeholder="희망하는 선배 자격 조건이나 수업 방식을 적어주세요."></textarea>
+                                <button class="btn" style="width: 100%;" onclick="createTutorRequest()">과외 구인글 등록</button>
+                            </div>
+                        </div>
+
+                        <!-- 학생 시점: 받은 제안서 리스트 -->
+                        <div class="card">
+                            <div class="card-title">📩 대학생 선배들이 보낸 제안서</div>
+                            <div class="list-container" id="received-proposals-container"></div>
+                        </div>
+
+                        <!-- 학생 시점: 등록된 대학생 선배 목록 -->
+                        <div class="card">
+                            <div class="card-title">🎓 검증된 대학생 튜터 목록 (합격 마크 인증)</div>
+                            <div class="list-container" id="tutor-list-container"></div>
+                        </div>
+                    </div>
+
+
+                    <!-- ==========================================
+                         3-B-2: 과외선생님 전용 모드 뷰 (합격자용)
+                         ========================================== -->
+                    <div id="tutor-only-views" style="display: none;">
+                        
+                        <!-- 내 과외선생 프로필 관리 카드 -->
+                        <div class="card" style="border: 1px solid var(--color-accent);">
+                            <div class="card-title" style="color: #a78bfa;">
+                                <span class="material-symbols-rounded">manage_accounts</span>
+                                내 과외 모집 프로필 정보 관리
+                            </div>
+                            
+                            <div style="margin-bottom: 12px; display:flex; gap:8px;">
+                                <span class="badge-emblem badge-univ" id="tutor-my-univ-badge">로딩중..</span>
+                                <span class="badge-emblem badge-school" id="tutor-my-school-badge">로딩중..</span>
+                                <span style="font-size:0.75rem; color:var(--color-success); font-weight:700; margin-left:auto; display:flex; align-items:center;">인증 승인완료 ✅</span>
+                            </div>
+                            
+                            <form onsubmit="handleUpdateTutorProfile(event)" class="todo-list" style="gap:10px;">
+                                <div>
+                                    <label style="font-size:0.75rem; color:var(--text-secondary); display:block; margin-bottom:4px;">내 과외 홍보 소개글 수정</label>
+                                    <textarea id="edit-tutor-bio" class="form-input" style="height:80px; resize:none;" placeholder="수강료 혜택 및 오답 밀착 커리큘럼 등을 소개해 학생을 모집해보세요.."></textarea>
+                                </div>
+                                <div>
+                                    <label style="font-size:0.75rem; color:var(--text-secondary); display:block; margin-bottom:4px;">오픈카톡 상담 링크</label>
+                                    <input type="text" id="edit-tutor-link" class="form-input" placeholder="학생들에게 연락받을 카카오 오픈챗 주소">
+                                </div>
+                                <button type="submit" class="btn" style="width:100%; padding:10px 0;">✍️ 과외 모집글 정보 수정 완료</button>
+                            </form>
+                        </div>
+
+                        <!-- 선생님 시점: 매칭 대기중인 학생 구인글 목록 조회 및 제안서 발송 -->
+                        <div class="card">
+                            <div class="card-title">
+                                <span class="material-symbols-rounded" style="color:var(--color-warning);">explore</span>
+                                과외생 매칭 대기 게시판 (학생 구인 리스트)
+                            </div>
+                            <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:12px;">후배들이 작성한 과외 희망조건입니다. 제안하기(100P 소모)를 통해 즉시 매칭을 어필해 보세요!</div>
+                            <div class="list-container" id="tutor-requests-list-container">
+                                <!-- 과외 구인글 리스트 동적 노출 및 제안서 발송 처리 -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+
+        <!-- 5. 하단 플로팅 탭바 네비게이션 -->
+        <div class="bottom-nav">
+            <div class="nav-item active" data-tab="page1">
+                <span class="material-symbols-rounded nav-icon">local_activity</span>
+                <span>생활관리</span>
+            </div>
+            <div class="nav-item" data-tab="page2">
+                <span class="material-symbols-rounded nav-icon">book</span>
+                <span>학습공간</span>
+            </div>
+            <div class="nav-item" data-tab="page3">
+                <span class="material-symbols-rounded nav-icon">groups</span>
+                <span>커뮤니티</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 6. 마이페이지 / 개인 설정 모달 -->
+    <div id="mypage-modal" class="trigger-modal" style="display: none;">
+        <div class="trigger-content" style="border-color: #a78bfa;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <div style="font-size: 1.2rem; font-weight: 800; color: #a78bfa;">👤 마이페이지 & 설정</div>
+                <button onclick="closeMyPageModal()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8rem; border: none;">&times; 닫기</button>
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.04); padding: 14px; border-radius: 16px; margin-bottom: 16px;">
+                <div style="font-size: 1rem; font-weight: 700; color: var(--text-primary);" id="mypage-student-fullname">홍길동 학생</div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px;" id="mypage-student-sub">대치고 3학년 | 서울 강남구</div>
+                <div style="margin-top: 10px; display: flex; gap: 8px; align-items: center;">
+                    <span style="font-size: 0.78rem; color: var(--text-secondary);">성실도 리그:</span>
+                    <span id="mypage-league-badge" class="league-badge league-bronze">BRONZE (1.0x)</span>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
+                <a href="/admin.html" class="btn" style="text-align: center; text-decoration: none; padding: 10px 0; background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 700;">👑 원장님 전용 중앙 관제 대시보드</a>
+                <button id="theme-toggle-btn" class="btn btn-secondary" style="padding: 10px 0; width: 100%; text-align: center;">☀️ / 🌙 낮/밤 테마 모드 전환</button>
+                <button id="premium-toggle-btn" class="btn btn-secondary" onclick="toggleParentPremium()" style="padding: 10px 0; width: 100%; text-align: center;">⚡ 프리미엄 구독 상태 전환 (부모결제)</button>
+            </div>
+
+            <button onclick="logoutStudent()" class="btn" style="width: 100%; padding: 10px 0; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171;">🚪 로그아웃 / 계정 변경</button>
+        </div>
+    </div>
+
+    <!-- 6. PALIN OS 시크릿 트리거 모달 (진실의 문 & 초정밀 입시 리포트) -->
+    <div id="truth-gate-modal" class="trigger-modal" style="display: none;">
+        <div class="trigger-content">
+            <div style="font-size: 1.2rem; font-weight: 800; color: #818cf8; margin-bottom: 8px;">🔑 PALIN OS [진실의 문] 비공개 설계도</div>
+            <div style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 16px;">
+                기성 사설 인강 및 문제집 양치기의 거품을 걷어낸 **진짜 국어 독해 및 수능 출제 원리 비공개 비밀 칼럼**입니다.
+            </div>
+            <div style="background: rgba(99, 102, 241, 0.15); padding: 12px; border-radius: 12px; border: 1px solid rgba(99, 102, 241, 0.3); font-size: 0.8rem; color: #a5b4fc; margin-bottom: 16px;">
+                "수능은 지식의 양이 아닌 낯선 원리의 사색이다. 평가원 기출 100% 장악을 위한 3단계 해독법"
+            </div>
+            <button onclick="document.getElementById('truth-gate-modal').style.display='none'" class="btn" style="width: 100%; padding: 10px 0;">확인 및 칼럼 열람 세션 종료</button>
+        </div>
+    </div>
+
+    <div id="premium-report-modal" class="trigger-modal" style="display: none;">
+        <div class="trigger-content">
+            <div style="font-size: 1.2rem; font-weight: 800; color: #f59e0b; margin-bottom: 8px;">🎯 PALIN OS 초정밀 입시 내비게이션 리포트</div>
+            <div style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 16px;">
+                감정적 희망 고문을 배제하고, 현재 내신/모의고사 성적을 바탕으로 **수시 낭떠러지 여부와 정시/약술형 논술 100% 합격 궤적**을 수치로 분석하는 유료 리포트입니다.
+            </div>
+            <div style="background: rgba(245, 158, 11, 0.15); padding: 12px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.3); font-size: 0.8rem; color: #fcd34d; margin-bottom: 16px;">
+                필요 포인트: 50 P (보유 성실도 포인트 차감 결제)
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button onclick="document.getElementById('premium-report-modal').style.display='none'" class="btn" style="width: 50%; padding: 10px 0; background: rgba(255,255,255,0.1);">취소</button>
+                <button onclick="alert('초정밀 합격 예측 탭으로 이동합니다.'); document.getElementById('premium-report-modal').style.display='none';" class="btn" style="width: 50%; padding: 10px 0; background: linear-gradient(135deg, #f59e0b, #d97706);">리포트 열람</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js?v=15.0"></script>
+    <script>
+    // Service Worker Registration
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('SW registered:', reg.scope))
+            .catch(err => console.log('SW failed:', err));
+    }
+    </script>
+</body>
+</html>
