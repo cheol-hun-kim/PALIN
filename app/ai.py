@@ -72,6 +72,14 @@ def generate_dynamic_fallback(msg: str) -> str:
             "남들이 다 하는 감정적 희망 고문이나 무의미한 문제 양치기는 전부 걷어내고, 오직 데이터랑 팩트로만 이야기해 줄 거다.\n\n"
             "너 지금 현재 가장 불안하거나 막히는 과목이 뭐야? 국어, 수학, 내신 미련, 아니면 하루 공부 바이오리듬 문제야? 편하게 솔직하게 다 말해봐."
         )
+
+    # 1.5. 밥 / 식사 / 음식 관련 일상 대화
+    if any(k in m for k in ["밥", "식사", "음식", "배고파", "먹기"]):
+        return (
+            f"네가 말한 '{msg}'처럼 입맛이 떨어지거나 밥 먹기 싫은 건 수험 스트레스로 위장이 굳어서 생기는 신체 신호야.\n\n"
+            "하지만 뇌를 쓰려면 포도당과 영양분이 필수거든. 정 제대로 된 밥이 안 넘어간다면 소화 잘 되는 죽이나 바나나, 단백질 음료라도 가볍게 챙겨 먹어라.\n\n"
+            "속이 비어있으면 오후 집중력이 반토막 난다. 오늘 점심이나 저녁에 가볍게 뭐라도 챙겨 먹었어?"
+        )
     
     # 2. 의욕 없음 / 공부하기 싫음 / 지침 / 슬럼프
     if any(k in m for k in ["의욕", "싫어", "싫다", "힘들", "지친", "피곤", "졸려", "포기", "죽겠", "우울", "쉬고", "슬럼프", "망했"]):
@@ -151,9 +159,9 @@ def ask_ai_chatbot(message: str) -> str:
                 f"{knowledge}\n"
             )
             
-            # Gemini API 호출 (Model: gemini-3.6-flash, Temperature: 0.4)
+            # Gemini API 호출 (Model: gemini-2.5-flash, Temperature: 0.4)
             response = client.models.generate_content(
-                model='gemini-3.6-flash',
+                model='gemini-2.5-flash',
                 contents=message,
                 config={
                     'system_instruction': system_prompt,
