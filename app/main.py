@@ -39,6 +39,69 @@ def send_mock_sms(to_phone: str, message: str):
         print(f"Failed to write SMS log: {e}")
 
 
+# --- 0. Gemini AI 진단 엔드포인트 ---
+
+@app.get("/api/debug/gemini-test")
+def debug_gemini_test():
+    """Gemini API 연결 상태를 진단하는 테스트 엔드포인트"""
+    result = {"steps": []}
+    
+    # Step 1: API 키 확인
+    api_key = ai.get_saved_api_key()
+    if api_key:
+        masked = api_key[:8] + "..." + api_key[-4:] if len(api_key) > 12 else "***"
+        result["steps"].append({"step": "API키 확인", "status": "OK", "detail": f"키 발견: {masked}"})
+    else:
+        result["steps"].append({"step": "API키 확인", "status": "FAIL", "detail": "API 키가 없음. gemini_key.txt 또는 환경변수 GEMINI_API_KEY 필요"})
+        result["final"] = "FAIL - API 키 없음"
+        return result
+    
+    # Step 2: 클라이언트 생성
+    try:
+        client = ai.get_gemini_client()
+        if client:
+            result["steps"].append({"step": "클라이언트 생성", "status": "OK", "detail": "genai.Client 생성 성공"})
+        else:
+            result["steps"].append({"step": "클라이언트 생성", "status": "FAIL", "detail": "Client가 None"})
+            result["final"] = "FAIL - 클라이언트 생성 실패"
+            return result
+    except Exception as e:
+        result["steps"].append({"step": "클라이언트 생성", "status": "FAIL", "detail": f"{type(e).__name__}: {e}"})
+        result["final"] = f"FAIL - {e}"
+        return result
+    
+    # Step 3: knowledge.txt 확인
+    knowledge = ai.get_expert_knowledge()
+    kb_len = len(knowledge)
+    result["steps"].append({"step": "지식베이스(knowledge.txt)", "status": "OK" if kb_len > 100 else "WARN", "detail": f"{kb_len}자 로드됨"})
+    
+    # Step 4: 실제 Gemini API 호출 테스트
+    try:
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents='안녕하세요. 테스트 메시지입니다. 한 문장으로 답해주세요.',
+            config={
+                'temperature': 0.6,
+                'max_output_tokens': 100,
+            }
+        )
+        reply = response.text
+        if reply and reply.strip():
+            result["steps"].append({"step": "Gemini API 호출", "status": "OK", "detail": f"응답: {reply[:100]}"})
+            result["final"] = "SUCCESS - Gemini 정상 작동"
+        else:
+            result["steps"].append({"step": "Gemini API 호출", "status": "FAIL", "detail": "빈 응답 반환됨"})
+            result["final"] = "FAIL - 빈 응답"
+    except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
+        result["steps"].append({"step": "Gemini API 호출", "status": "FAIL", "detail": f"{type(e).__name__}: {e}"})
+        result["traceback"] = tb
+        result["final"] = f"FAIL - {type(e).__name__}: {e}"
+    
+    return result
+
+
 # --- 1. 회원가입 및 사용자 정보 API ---
 
 @app.post("/api/register", response_model=schemas.StudentResponse)
