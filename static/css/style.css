@@ -37,6 +37,17 @@ body.day-mode header {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
+body.day-mode .btn-secondary {
+    background: rgba(0, 0, 0, 0.05);
+    border: 1.5px solid rgba(0, 0, 0, 0.2);
+    color: #1e293b;
+}
+
+body.day-mode .btn-secondary:hover {
+    background: rgba(0, 0, 0, 0.1);
+    border-color: rgba(0, 0, 0, 0.35);
+}
+
 /* PALIN OS League Badges */
 .league-badge {
     display: inline-flex;
@@ -308,14 +319,15 @@ main::-webkit-scrollbar {
 }
 
 .btn-secondary {
-    background: transparent;
-    border: 1px solid var(--glass-border);
-    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    color: #e2e8f0;
     box-shadow: none;
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
 }
 
 .btn:disabled {
