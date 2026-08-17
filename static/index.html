@@ -29,9 +29,9 @@
             
             <form id="register-form" class="auth-form" style="max-height: 75vh; overflow-y: auto; padding-right: 4px;">
                 <div style="font-size: 0.95rem; font-weight: 700; color: #a78bfa; margin-bottom: 6px;">[학생 정보]</div>
-                <input type="email" id="reg-email" class="form-input" placeholder="이메일 주소" required value="student@test.com">
-                <input type="text" id="reg-name" class="form-input" placeholder="학생 이름" required value="홍길동">
-                <input type="tel" id="reg-phone" class="form-input" placeholder="학생 연락처 (예: 010-9876-5432)" required value="010-9876-5432">
+                <input type="email" id="reg-email" class="form-input" placeholder="이메일 주소" required>
+                <input type="text" id="reg-name" class="form-input" placeholder="학생 이름" required>
+                <input type="tel" id="reg-phone" class="form-input" placeholder="학생 연락처 (예: 010-9876-5432)" required>
                 
                 <select id="reg-grade" class="form-input" required>
                     <option value="" disabled>학년 선택</option>
@@ -40,8 +40,8 @@
                     <option value="3" selected>고등학교 3학년</option>
                 </select>
                 
-                <input type="text" id="reg-region" class="form-input" placeholder="지역 (예: 서울 강남구)" required value="서울 강남구">
-                <input type="text" id="reg-school" class="form-input" placeholder="소속 고등학교 (예: 대치고)" required value="대치고">
+                <input type="text" id="reg-region" class="form-input" placeholder="지역 (예: 서울 강남구)" required>
+                <input type="text" id="reg-school" class="form-input" placeholder="소속 고등학교 (예: 대치고)" required>
                 
                 <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 10px; margin-bottom: 4px;">🎯 최종희망 대학설정 (상향/적정 목표 대학)</div>
                 <div style="display: flex; gap: 6px; width: 100%;">
@@ -63,10 +63,23 @@
                 </div>
                 
                 <div style="font-size: 0.95rem; font-weight: 700; color: #a78bfa; margin-top: 14px; margin-bottom: 6px;">[부모님 연락처 연동]</div>
-                <input type="text" id="reg-pname" class="form-input" placeholder="학부모 이름" required value="김철수(부모)">
-                <input type="tel" id="reg-pphone" class="form-input" placeholder="학부모 연락처 (알림톡 수신)" required value="010-1234-5678">
+                <input type="text" id="reg-pname" class="form-input" placeholder="학부모 이름" required>
+                <input type="tel" id="reg-pphone" class="form-input" placeholder="학부모 연락처 (알림톡 수신)" required>
                 
                 <button type="submit" class="btn" style="width: 100%; margin-top: 14px; padding: 12px 0; font-size:0.95rem;">학생 계정으로 시작하기</button>
+            </form>
+
+            <div style="text-align: center; margin-top: 16px;">
+                <div style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 8px;">이미 가입하셨나요?</div>
+                <button type="button" onclick="toggleLoginForm()" class="btn btn-secondary" style="padding: 10px 24px; font-size: 0.88rem;">기존 계정으로 로그인</button>
+            </div>
+
+            <!-- 로그인 폼 (초기 숨김) -->
+            <form id="login-form" class="auth-form" style="display: none;">
+                <div style="font-size: 0.95rem; font-weight: 700; color: #10b981; margin-bottom: 8px;">기존 계정 로그인</div>
+                <input type="email" id="login-email" class="form-input" placeholder="가입 시 사용한 이메일 주소" required>
+                <button type="submit" class="btn" style="width: 100%; margin-top: 10px; padding: 12px 0; font-size: 0.95rem; background: linear-gradient(135deg, #10b981, #059669);">로그인</button>
+                <button type="button" onclick="toggleLoginForm()" class="btn btn-secondary" style="width: 100%; margin-top: 8px; padding: 10px 0; font-size: 0.85rem;">← 회원가입으로 돌아가기</button>
             </form>
         </div>
 
