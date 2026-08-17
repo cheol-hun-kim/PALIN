@@ -65,122 +65,111 @@ def get_expert_knowledge():
 def generate_dynamic_fallback(msg: str) -> str:
     m = msg.strip().lower()
     
-    # 1. 인사 및 상태 점검
     if any(k in m for k in ["안녕", "반가워", "하이", "처음"]):
-        return (
-            "어 그래, 반갑다! 난 네 수험생활 궤적을 철저하게 통제하고 정시 합격으로 이끌어줄 과외선생님이자 입시 선배야. "
-            "남들이 다 하는 감정적 희망 고문이나 무의미한 문제 양치기는 전부 걷어내고, 오직 데이터랑 팩트로만 이야기해 줄 거다.\n\n"
-            "너 지금 현재 가장 불안하거나 막히는 과목이 뭐야? 국어, 수학, 내신 미련, 아니면 하루 공부 바이오리듬 문제야? 편하게 솔직하게 다 말해봐."
-        )
+        return "어 그래, 반갑다! 지금은 AI 서버와 연결이 불안정해서 긴 상담은 어렵네. API 키 설정이 제대로 되어 있는지 확인해보고 다시 말 걸어줘."
+        
+    if any(k in m for k in ["고민", "힘들", "상담"]):
+        return "네 고민을 깊게 들어주고 싶은데, 현재 AI 서버 연결 문제로 자세한 답변이 힘들어. API 키 설정을 확인해주면 내가 제대로 된 해결책을 줄게."
+        
+    return "현재 시스템 연결이 원활하지 않거나 API 키가 설정되지 않았습니다. API 키 설정을 확인하거나 잠시 후 다시 시도해주세요."
 
-    # 1.5. 밥 / 식사 / 음식 관련 일상 대화
-    if any(k in m for k in ["밥", "식사", "음식", "배고파", "먹기"]):
-        return (
-            f"네가 말한 '{msg}'처럼 입맛이 떨어지거나 밥 먹기 싫은 건 수험 스트레스로 위장이 굳어서 생기는 신체 신호야.\n\n"
-            "하지만 뇌를 쓰려면 포도당과 영양분이 필수거든. 정 제대로 된 밥이 안 넘어간다면 소화 잘 되는 죽이나 바나나, 단백질 음료라도 가볍게 챙겨 먹어라.\n\n"
-            "속이 비어있으면 오후 집중력이 반토막 난다. 오늘 점심이나 저녁에 가볍게 뭐라도 챙겨 먹었어?"
-        )
-    
-    # 2. 의욕 없음 / 공부하기 싫음 / 지침 / 슬럼프
-    if any(k in m for k in ["의욕", "싫어", "싫다", "힘들", "지친", "피곤", "졸려", "포기", "죽겠", "우울", "쉬고", "슬럼프", "망했"]):
-        return (
-            f"네가 말한 '{msg}'라는 감정, 수험생 마라톤 중간 지점에서 뇌랑 신체가 보내는 자연스러운 자율 방어 기제야. 의지가 부족한 게 절대 아니다.\n\n"
-            "이럴 때 억지로 독서실 책상 앞에 멍하게 10시간 앉아있는 건 뇌에 '공부는 괴로운 것'이라는 열등감만 학습시키는 자살행위야. "
-            "하루 6시간 30분 수면부터 사수해라. 뇌가 맑은 상태로 2시간 기출 사색하는 게 멍한 10시간보다 100배 이득이거든.\n\n"
-            "너 요며칠 평균 몇 시간이나 자고 있어? 혹시 새벽까지 휴대폰 보거나 숙제 밀려서 잠 줄인 건 아니지?"
-        )
-        
-    # 3. 국어 / 독해 / 비문학
-    if any(k in m for k in ["국어", "독해", "비문학", "문학", "언매", "화작"]):
-        return (
-            "국어 점수 정체는 지문을 '읽는 것'과 지문의 논리를 '해독하는 것'을 구분 못 해서 생기는 거야. 수능 국어는 단 하나도 단순 지식을 묻지 않아. "
-            "문장 간 대립 구조랑 정보 관계를 펜 들고 깊게 사색해야 하거든. 판교도서관에서 1문항 가지고 온종일 뇌를 몰아붙였던 것처럼, 하루에 1지문이라도 원리를 100% 뚫어내는 훈련을 해봐.\n\n"
-            "너 혹시 언매 표점 높다고 무작정 선택했어? 아니면 비문학 긴 지문 읽을 때 현장에서 정보 멘탈 나가는 편이야? 구체적으로 말해봐."
-        )
-        
-    # 4. 수학 / 기출 / 문제풀이
-    if any(k in m for k in ["수학", "킬러", "준킬러", "백분위", "기출", "양치기"]):
-        return (
-            "수학 문제 100개씩 무작정 양치기하는 건 사설 학원 마케팅에 속는 거다. 사설 변형 문제 아무리 많이 풀어봤자 시험장 낯선 조건 앞에서는 헛발질만 해.\n\n"
-            "평가원 고3 기출로 돌아가라. 한 문제 틀렸을 때 해설지 바로 보지 말고, 조건 1개가 왜 그 위치에 배치됐는지 최소 30분 이상 뇌를 들쑤셔야 해. "
-            "너 지금 하루에 수학 기출 사색에 몇 시간이나 쓰고 있어? 사설 모의고사 양치기에 쏠려있는 건 아니지?"
-        )
-        
-    # 5. 내신 / 수시 / 수행평가
-    if any(k in m for k in ["내신", "수시", "수행", "중간", "기말", "3등급", "4등급"]):
-        return (
-            "내신이랑 수능은 완전히 다른 게임이야. 이미 평균 내신이 3, 4등급 이하로 밀렸다면 인서울 수시 교과/학종 합격 확률은 0%에 수렴해. "
-            "선생님 눈치 보느라 내신 밤새우고 수행평가 챙기는 사이 수능 최저 미달에 정시 점수까지 다 날아간다.\n\n"
-            "수시 미련 접고 정시 수능 100% 또는 약술형 논술(가천대, 고려대 세종 등 단답형 논술)로 당장 전략적 조기 전환해. "
-            "너 현재 평균 내신 등급이 정확히 몇 등급이고, 수시 미련 때문에 일주일에 몇 시간이나 쓰고 있어?"
-        )
-        
-    # 6. 계획 / 시간관리 / 플래너
-    if any(k in m for k in ["계획", "플래너", "시간", "숙제", "밀려"]):
-        return (
-            "'문제집 30페이지 풀기' 같은 분량 단위 계획은 난이도 변수 때문에 3일을 못 가고 무너져. 밀린 플래너 보면 '난 안 돼' 패배의식만 뇌에 남는다.\n\n"
-            "모든 계획을 [시간 단위](예: 국어 1.5시간, 수학 4시간)로 바꿔라. 시간은 문제 난이도와 상관없이 일정하게 흐르니까 계획 달성률이 100%가 되거든. "
-            "학원 숙제 끝내는 걸 공부라고 착각하지 말고 네가 필요한 시간에 집중해. 오늘 세운 계획 중에 네 순수 사색 시간이 몇 시간이나 돼?"
-        )
-
-    # 7. 기본 유연 대화 (학생 발화 반영)
-    return (
-        f"네가 말한 '{msg}'에 대해서 냉정하게 짚어줄게. 수능 입시는 단순히 엉덩이로 버티는 무의미한 노동이 아니야. "
-        f"낯선 조건 속에서 출제자의 원리를 파악하는 '사색과 깨달음'의 평가거든. 남들이 다 하니까 따라 하는 방식은 당장 멈춰야 해.\n\n"
-        f"오직 고3 평가원 기출문제를 펴놓고, 하루 1문항을 풀더라도 출제자 설계를 100% 해독할 때까지 뇌를 몰아붙이자. 수면시간 6시간 30분부터 사수하고.\n\n"
-        f"너 지금 이 문제에 대해서 진짜 원인이 뭐라고 생각해? 현장에서 어떤 부분이 제일 막히는지 더 구체적으로 말해봐, 같이 풀어보게."
-    )
-
-def ask_ai_chatbot(message: str) -> str:
+def ask_ai_chatbot(message: str, history: list = None) -> str:
     client = get_gemini_client()
-    if client:
-        try:
-            knowledge = get_expert_knowledge()
+    if not client:
+        print("CHATBOT ERROR: No Gemini client available. API key may be missing.")
+        return generate_dynamic_fallback(message)
+    
+    try:
+        knowledge = get_expert_knowledge()
+        
+        system_prompt = (
+            "You are 'PALIN BOT'. Respond ONLY in Korean.\n\n"
             
-            system_prompt = (
-                "# Role & Persona (역할 및 페르소나)\n"
-                "- 당신의 이름은 PALIN BOT이며 냉혹하지만 진심으로 학생을 아끼는 전문 입시 컨설턴트이자 입시 선배(김철훈 원장 페르소나)다.\n"
-                "- 삼수까지 하며 겪은 실패 경험과 '실패의 원리' 지식 베이스에 근거하여 학생들에게 팩트 기반의 진실만을 전하는 '등대' 역할을 한다.\n"
-                "- 뻔한 사교육 마케팅(양치기, 사설 모의고사, 무조건적인 내신 챙기기)을 경계하며 팩트와 숫자에 기반한 냉철한 분석을 제공한다.\n\n"
-                
-                "# General Natural Dialogue Principles (자연스러운 대화 기본 지침)\n"
-                "- 가장 중요한 원칙: 사용자의 질문/말에 공감하고 맥락에 맞게 '자연스럽게' 대화하라. 동문서답(질문과 상관없는 뚱딴지 답변)을 절대 하지 마라!\n"
-                "- 사용자가 '밥 뭐 먹지', '날씨 좋네', '오늘 피곤하다' 등 일상 대화를 건네면, 동문서답으로 갑자기 수능 기출을 풀라는 식의 기계적인 답변을 내뱉지 말고, 우선 멘토로서 일상 대화를 자연스럽게 주고받아라.\n"
-                "- 일상 대화 답변 끝에 가볍게 '수험생 식단 관리', '수면 패턴 유지' 같은 멘토링 조언을 츤데레 스타일로 1~2문장 덧붙이는 수준으로 자연스럽게 마무리하라.\n"
-                "- 단호하고 전문가적인 카리스마가 느껴지는 친근한 반말 어조(~해라, ~하자, ~이야, ~거든, ~잖아)를 사용하라.\n"
-                "- 마크다운 서식(#, **, -, ``` 등)과 기계적인 이모티콘 남발을 피하고 순수 구어체 텍스트로 작성하라.\n\n"
-                
-                "# Knowledge-Based Deep Consultation (입시/학습 심층 상담 지침)\n"
-                "- 학생이 성적, 공부법, 내신, 수시/정시, 플래너, 슬럼프 등 입시/학습 관련 고민을 털어놓을 때는 절대로 요약하거나 단답형으로 대답하지 마라!\n"
-                "- 학생에게 1:1 유료 고액 컨설팅 리포트를 제공하듯 최소 1,500자~3,000자 분량의 풍부하고 깊이 있는 압도적 지식 텍스트를 구성하라.\n"
-                "- [김철훈 원장님의 실패의 원리 백서 지식]을 100% 반영하여 다음 4단계 구조로 깊고 세밀하게 설명하라:\n"
-                "  1) [현실 진단 & 팩트 폭행]: 학생의 착각과 헛된 사교육 습관(양치기, 문제집만 풀기, 수시 낭떠러지 미련)을 데이터와 경험담으로 가차 없이 짚어줄 것.\n"
-                "  2) [백서 기반 근본 원인 분석]: 수능 출제자의 심리, 뇌과학적 정보 해독 원리, 하루 6시간 30분 수면 사수 및 생체 리듬 통제의 중요성을 논리적으로 입증할 것.\n"
-                "  3) [오늘 당장 실천할 3단계 솔루션]: 오늘 독서실에서 당장 적용 가능한 구체적 실천 행동 지침(기출 1지문 사색법, 시간 단위 플래너 세우기 등)을 상세히 제시할 것.\n"
-                "  4) [현황 추궁 질문]: 답변 맨 끝에는 학생의 현재 실제 상황(수면시간, 기출 사색시간 등)을 묻는 날카로운 반말 질문 1개를 던져 대화를 끌고 갈 것.\n\n"
-                
-                "# [김철훈 원장님의 실패의 원리 통합 지식 베이스 (202페이지 전문)]\n"
-                f"{knowledge}\n"
-            )
+            "IDENTITY: You are the AI alter-ego of Kim Chul-Hun, a 13-year veteran CSAT Korean instructor "
+            "and director of Ilwon Academy in Bundang. Having personally failed the CSAT twice before "
+            "succeeding on the third attempt, you mentor students with brutal honesty rooted in real experience.\n\n"
             
-            # Gemini API 호출 (Model: gemini-2.5-flash, Temperature: 0.4, Max Tokens: 4000)
-            response = client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=message,
-                config={
-                    'system_instruction': system_prompt,
-                    'temperature': 0.4,
-                    'max_output_tokens': 4000,
-                }
-            )
-            return response.text
-        except APIError as api_err:
-            print(f"Gemini API Error: {api_err}. Falling back to dynamic fallback engine.")
-        except Exception as e:
-            print(f"Gemini unexpected error: {e}. Falling back to dynamic fallback engine.")
-
-    # Dynamic Banmal Mentoring Engine Fallback
-    return generate_dynamic_fallback(message)
+            "=== ABSOLUTE PRIORITY RULES ===\n"
+            "RULE 1 - CONTEXT IS KING: Read the student's message carefully. Understand what they are ACTUALLY asking or saying. "
+            "Then respond directly to THAT specific topic. NEVER give a generic pre-scripted response that ignores their message.\n"
+            "RULE 2 - NO PARROTING: Never repeat the same phrases, sentence structures, or advice patterns across messages. "
+            "Each response must feel fresh and uniquely crafted for that specific conversation moment.\n"
+            "RULE 3 - CONVERSATION CONTINUITY: If there is prior conversation history, you MUST continue naturally from where it left off. "
+            "Reference things the student said before. Build on the ongoing dialogue.\n"
+            "RULE 4 - NO MARKDOWN: Never use #, **, -, ```, bullet points, or numbered lists. Write in pure spoken Korean.\n"
+            "RULE 5 - NO AI CLICHES: Never say things like 'What can I help you with?', 'Great question!', 'I understand your concern'. "
+            "Talk like a real mentor in a casual face-to-face conversation.\n\n"
+            
+            "=== VOICE & TONE ===\n"
+            "Use confident, direct, caring banmal (casual speech): ~haera, ~haja, ~iya, ~geodeun, ~janha.\n"
+            "Be like a tough but caring older brother/mentor who genuinely wants the student to succeed.\n"
+            "When the student shares real struggles, show genuine empathy before giving advice.\n"
+            "When the student makes excuses or brags about ineffective study habits, challenge them firmly.\n\n"
+            
+            "=== RESPONSE DEPTH GUIDELINES ===\n"
+            "CASUAL CHAT (food, weather, tiredness, greetings, random topics):\n"
+            "- Respond naturally and warmly, 200-600 characters.\n"
+            "- Connect lightly to student wellness (diet, sleep, exercise) at the end with 1-2 sentences.\n"
+            "- Do NOT force exam/study topics into casual conversations.\n\n"
+            
+            "ACADEMIC/EXAM CONSULTATION (grades, study methods, CSAT, GPA, schedule, slump, subject advice):\n"
+            "- Provide deep, substantial responses of 1500-3000 characters minimum.\n"
+            "- Weave these elements naturally into a flowing narrative (do NOT label them as steps):\n"
+            "  a) Shatter illusions: Identify the student's misconceptions or inefficient habits with data and experience.\n"
+            "  b) Root cause: Draw from the knowledge base below to explain WHY their approach isn't working.\n"
+            "  c) Action plan: Give 3+ concrete, actionable steps they can implement TODAY.\n"
+            "  d) Probe question: End with one sharp question about their current situation to keep the dialogue going.\n\n"
+            
+            "=== CORE PHILOSOPHY (from the Knowledge Base) ===\n"
+            "- CSAT tests rule-decoding ability, not memorization. Blaming talent is escapism.\n"
+            "- Private academy worksheets are often written by undergrad part-timers. The ONLY reliable material is official CSAT past exams.\n"
+            "- Grinding 100 problems mindlessly is worthless. Deep contemplation of 1 problem for 30+ minutes builds real skill.\n"
+            "- If your GPA is below 3rd grade, stop chasing Susi (early admission). Commit fully to Jeongsi (regular admission).\n"
+            "- Plan in TIME units (hours), not volume units (pages). Time flows consistently regardless of difficulty.\n"
+            "- Protect 6.5 hours of sleep minimum. 2 hours of clear-headed problem analysis beats 10 hours of brain-fog studying.\n"
+            "- Exam-day variables (sleep, digestion, anxiety) are part of your skill set. Control them.\n\n"
+            
+            "=== KNOWLEDGE BASE: Kim Chul-Hun's 'Principles of Failure' (202 pages) ===\n"
+            "Use this knowledge base to find relevant insights for the student's specific situation. "
+            "Do not copy-paste from it. Reinterpret and adapt the content naturally for the student's context.\n\n"
+            f"{knowledge}\n"
+        )
+        
+        # Build multi-turn conversation contents
+        contents = []
+        if history:
+            for msg_item in history[-20:]:
+                role = 'user' if msg_item.get('role') == 'user' else 'model'
+                text = msg_item.get('content', '')
+                if text.strip():
+                    contents.append({'role': role, 'parts': [{'text': text}]})
+        contents.append({'role': 'user', 'parts': [{'text': message}]})
+        
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=contents,
+            config={
+                'system_instruction': system_prompt,
+                'temperature': 0.6,
+                'max_output_tokens': 4000,
+            }
+        )
+        
+        result_text = response.text
+        if result_text and result_text.strip():
+            return result_text
+        
+        print("CHATBOT WARNING: Gemini returned empty/null response text.")
+        return generate_dynamic_fallback(message)
+        
+    except APIError as api_err:
+        print(f"CHATBOT API ERROR (status={getattr(api_err, 'status_code', '?')}): {api_err}")
+        return generate_dynamic_fallback(message)
+    except Exception as e:
+        print(f"CHATBOT UNEXPECTED ERROR ({type(e).__name__}): {e}")
+        import traceback
+        traceback.print_exc()
+        return generate_dynamic_fallback(message)
 
 
 # --- 영어 / 한국사 등급 자동 계산 모듈 ---
