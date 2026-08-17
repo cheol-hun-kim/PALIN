@@ -84,6 +84,16 @@ def register_student(payload: schemas.StudentCreate, db: Session = Depends(get_d
     
     return student
 
+class LoginPayload(BaseModel):
+    email: str
+
+@app.post("/api/login")
+def login_student(payload: LoginPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.email == payload.email).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="등록되지 않은 이메일입니다. 회원가입을 진행해 주세요.")
+    return student
+
 @app.get("/api/student/{student_id}", response_model=schemas.StudentResponse)
 def get_student(student_id: int, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == student_id).first()
@@ -518,7 +528,11 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
     if not student.parent.is_premium_subscribed:
         remaining = 3
         
-    reply = ai.ask_ai_chatbot(payload.message)
+    history_dicts = None
+    if payload.history:
+        history_dicts = [{"role": h.role, "content": h.content} for h in payload.history]
+    
+    reply = ai.ask_ai_chatbot(payload.message, history=history_dicts)
     return schemas.AIChatResponse(reply=reply, remaining_chats=remaining)
 
 from app.predict import predict_admission, raw_to_eng_grade, raw_to_hist_grade, load_entries
