@@ -9,6 +9,7 @@ let timerSeconds = 0;
 let activeSessionId = null;
 let isTimerRunning = false;
 let isDistracted = false; 
+let chatHistory = []; // AI 챗봇 대화 기록
 
 // --- 앱 초기화 및 로딩 ---
 document.addEventListener("DOMContentLoaded", async () => {
@@ -208,6 +209,47 @@ async function handleRegister(e) {
         if (!res.ok) {
             const err = await res.json();
             alert(err.detail || "등록 실패");
+            return;
+        }
+        const student = await res.json();
+        localStorage.setItem("studentId", student.id);
+        fetchStudentInfo(student.id);
+    } catch (e) {
+        alert("서버 연결 실패");
+    }
+}
+
+function toggleLoginForm() {
+    const regForm = document.getElementById("register-form");
+    const loginForm = document.getElementById("login-form");
+    const toggleArea = regForm.nextElementSibling; // the toggle button div
+    if (loginForm.style.display === "none") {
+        regForm.style.display = "none";
+        if (toggleArea && toggleArea.tagName !== "FORM") toggleArea.style.display = "none";
+        loginForm.style.display = "block";
+    } else {
+        loginForm.style.display = "none";
+        regForm.style.display = "block";
+        if (toggleArea && toggleArea.tagName !== "FORM") toggleArea.style.display = "block";
+    }
+}
+
+async function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById("login-email").value.trim();
+    if (!email) {
+        alert("이메일을 입력해 주세요.");
+        return;
+    }
+    try {
+        const res = await fetch("/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: email })
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            alert(err.detail || "로그인 실패");
             return;
         }
         const student = await res.json();
@@ -520,6 +562,7 @@ function switchRole(role) {
 // --- 이벤트 리스너 바인딩 ---
 function setupEventListeners() {
     document.getElementById("register-form").addEventListener("submit", handleRegister);
+    document.getElementById("login-form")?.addEventListener("submit", handleLogin);
     
     document.querySelectorAll(".nav-item").forEach(item => {
         item.addEventListener("click", () => {
@@ -889,17 +932,28 @@ async function sendChatMessage() {
     input.value = "";
     appendChatBubble("user", msg);
     
+    // 대화 기록에 사용자 메시지 추가
+    chatHistory.push({ role: "user", content: msg });
+    
     try {
+        // 최근 20개 대화 기록만 전송 (토큰 제한 고려)
+        const recentHistory = chatHistory.slice(-21, -1); // 현재 메시지 제외한 이전 대화
+        
         const res = await fetch("/api/ai/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 student_id: currentStudent.id,
-                message: msg
+                message: msg,
+                history: recentHistory.length > 0 ? recentHistory : null
             })
         });
         const data = await res.json();
         appendChatBubble("bot", data.reply);
+        
+        // 대화 기록에 봇 응답 추가
+        chatHistory.push({ role: "bot", content: data.reply });
+        
         document.getElementById("chat-limit-label").innerText = `오늘 남은 무료 대화: ${data.remaining_chats}회`;
     } catch (e) {
         appendChatBubble("bot", "서버 응답 오류가 발생했습니다.");
