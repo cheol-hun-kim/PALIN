@@ -948,6 +948,14 @@ async function sendChatMessage() {
                 history: recentHistory.length > 0 ? recentHistory : null
             })
         });
+        
+        if (!res.ok) {
+            const errData = await res.json().catch(() => null);
+            const errMsg = errData?.detail || `서버 오류 (HTTP ${res.status})`;
+            appendChatBubble("bot", `⚠️ ${errMsg}`);
+            return;
+        }
+        
         const data = await res.json();
         appendChatBubble("bot", data.reply);
         
@@ -956,7 +964,8 @@ async function sendChatMessage() {
         
         document.getElementById("chat-limit-label").innerText = `오늘 남은 무료 대화: ${data.remaining_chats}회`;
     } catch (e) {
-        appendChatBubble("bot", "서버 응답 오류가 발생했습니다.");
+        console.error("Chat error:", e);
+        appendChatBubble("bot", `서버 연결 오류: ${e.message || "네트워크 문제"}`);
     }
 }
 
