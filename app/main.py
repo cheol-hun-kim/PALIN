@@ -525,15 +525,26 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
         raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
         
     remaining = 5
-    if not student.parent.is_premium_subscribed:
+    if student.parent and not student.parent.is_premium_subscribed:
+        remaining = 3
+    elif not student.parent:
         remaining = 3
         
     history_dicts = None
     if payload.history:
         history_dicts = [{"role": h.role, "content": h.content} for h in payload.history]
     
-    reply = ai.ask_ai_chatbot(payload.message, history=history_dicts)
-    return schemas.AIChatResponse(reply=reply, remaining_chats=remaining)
+    try:
+        reply = ai.ask_ai_chatbot(payload.message, history=history_dicts)
+        return schemas.AIChatResponse(reply=reply, remaining_chats=remaining)
+    except Exception as e:
+        print(f"CHAT ENDPOINT ERROR: {type(e).__name__}: {e}")
+        import traceback
+        traceback.print_exc()
+        return schemas.AIChatResponse(
+            reply=f"죄송합니다. AI 엔진에서 오류가 발생했습니다. (오류: {type(e).__name__})",
+            remaining_chats=remaining
+        )
 
 from app.predict import predict_admission, raw_to_eng_grade, raw_to_hist_grade, load_entries
 
