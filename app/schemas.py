@@ -187,9 +187,14 @@ class StudySessionResponse(BaseModel):
 
 
 # --- AI 관련 스키마 ---
+class ChatHistoryItem(BaseModel):
+    role: str  # "user" or "bot"
+    content: str
+
 class AIChatRequest(BaseModel):
-    student_id: int
+    student_id: Optional[int] = None
     message: str
+    history: Optional[List[Any]] = None
 
 class AIChatResponse(BaseModel):
     reply: str
