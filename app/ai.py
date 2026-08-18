@@ -81,6 +81,9 @@ def ask_ai_chatbot(message: str, history: list = None) -> str:
     
     try:
         knowledge = get_expert_knowledge()
+        # 토큰 절약: 지식 베이스를 30,000자로 제한 (무료 API 할당량 보호)
+        if len(knowledge) > 30000:
+            knowledge = knowledge[:30000] + "\n\n[... 지식 베이스 나머지 생략 (토큰 절약) ...]"
         
         system_prompt = (
             "You are 'PALIN BOT'. Respond ONLY in Korean.\n\n"
@@ -129,7 +132,7 @@ def ask_ai_chatbot(message: str, history: list = None) -> str:
             "- Protect 6.5 hours of sleep minimum. 2 hours of clear-headed problem analysis beats 10 hours of brain-fog studying.\n"
             "- Exam-day variables (sleep, digestion, anxiety) are part of your skill set. Control them.\n\n"
             
-            "=== KNOWLEDGE BASE: Kim Chul-Hun's 'Principles of Failure' (202 pages) ===\n"
+            "=== KNOWLEDGE BASE: Kim Chul-Hun's 'Principles of Failure' ===\n"
             "Use this knowledge base to find relevant insights for the student's specific situation. "
             "Do not copy-paste from it. Reinterpret and adapt the content naturally for the student's context.\n\n"
             f"{knowledge}\n"
@@ -138,33 +141,53 @@ def ask_ai_chatbot(message: str, history: list = None) -> str:
         # Build multi-turn conversation contents
         contents = []
         if history:
-            for msg_item in history[-20:]:
+            for msg_item in history[-10:]:  # 최근 10턴으로 줄여 토큰 절약
                 role = 'user' if msg_item.get('role') == 'user' else 'model'
                 text = msg_item.get('content', '')
                 if text.strip():
                     contents.append({'role': role, 'parts': [{'text': text}]})
         contents.append({'role': 'user', 'parts': [{'text': message}]})
         
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=contents,
-            config={
-                'system_instruction': system_prompt,
-                'temperature': 0.6,
-                'max_output_tokens': 4000,
-            }
-        )
+        # 429 에러 시 재시도 (최대 3회, 지수 백오프)
+        import time
+        last_error = None
+        for attempt in range(3):
+            try:
+                response = client.models.generate_content(
+                    model='gemini-2.0-flash',
+                    contents=contents,
+                    config={
+                        'system_instruction': system_prompt,
+                        'temperature': 0.6,
+                        'max_output_tokens': 4000,
+                    }
+                )
+                
+                result_text = response.text
+                if result_text and result_text.strip():
+                    return result_text
+                
+                print("CHATBOT WARNING: Gemini returned empty/null response text.")
+                return generate_dynamic_fallback(message)
+                
+            except APIError as api_err:
+                last_error = api_err
+                status = getattr(api_err, 'status_code', 0)
+                if status == 429 and attempt < 2:
+                    wait = (attempt + 1) * 5  # 5초, 10초 대기
+                    print(f"CHATBOT 429 RATE LIMIT: attempt {attempt+1}/3, waiting {wait}s...")
+                    time.sleep(wait)
+                    continue
+                print(f"CHATBOT API ERROR (status={status}, attempt={attempt+1}): {api_err}")
+                break
         
-        result_text = response.text
-        if result_text and result_text.strip():
-            return result_text
-        
-        print("CHATBOT WARNING: Gemini returned empty/null response text.")
+        if last_error:
+            status = getattr(last_error, 'status_code', 0)
+            if status == 429:
+                return "지금 AI 서버가 요청이 많아서 잠시 쉬고 있어. 1~2분 뒤에 다시 말 걸어줘. 그동안 오늘 기출 1문제라도 펴놓고 사색해봐."
+            return generate_dynamic_fallback(message)
         return generate_dynamic_fallback(message)
         
-    except APIError as api_err:
-        print(f"CHATBOT API ERROR (status={getattr(api_err, 'status_code', '?')}): {api_err}")
-        return generate_dynamic_fallback(message)
     except Exception as e:
         print(f"CHATBOT UNEXPECTED ERROR ({type(e).__name__}): {e}")
         import traceback
@@ -343,7 +366,7 @@ def evaluate_univ_admission_extended(
                 f"예시 형식: {{\"susi_comment\": \"수시 조언...\", \"jeongsi_comment\": \"정시 조언...\"}}"
             )
             response = client.models.generate_content(
-                model='gemini-2.5-flash',
+                model='gemini-2.0-flash',
                 contents=prompt
             )
             text_cleaned = response.text.strip().replace("```json", "").replace("```", "")
