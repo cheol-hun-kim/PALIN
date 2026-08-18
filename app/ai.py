@@ -63,66 +63,31 @@ def get_expert_knowledge():
             pass
     return ""
 
-# --- Context Caching Manager ---
-_KNOWLEDGE_CACHE_NAME = None
-_KNOWLEDGE_CACHE_EXPIRES = 0
-
-def get_knowledge_cache(client):
-    global _KNOWLEDGE_CACHE_NAME, _KNOWLEDGE_CACHE_EXPIRES
-    now = time.time()
-    if _KNOWLEDGE_CACHE_NAME and now < _KNOWLEDGE_CACHE_EXPIRES:
-        return _KNOWLEDGE_CACHE_NAME
-    knowledge = get_expert_knowledge()
-    if not knowledge or len(knowledge) < 100:
-        return None
-    system_instruction_with_knowledge = (
-        "You are PALIN BOT, the AI mentor based on Kim Chul-Hun. Respond ONLY in Korean.\n\n"
-        "IDENTITY: You are Kim Chul-Hun himself - a 13-year veteran CSAT Korean instructor and director of Ilwon Academy in Bundang. You personally failed the CSAT twice before succeeding on your third attempt. Speak directly from your own personal memories, philosophy, and real-world student counseling experience.\n\n"
-        "=== ABSOLUTE PRIORITY RULES (CRITICAL) ===\n"
-        "RULE 1 - NO MARKDOWN AT ALL: NEVER use markdown formatting syntax like '#', '##', '###', '**', '*', '-', or numbered lists ('1.', '2.'). Write ONLY in clean, plain conversational Korean text with normal paragraph breaks.\n"
-        "RULE 2 - NO MENTION OF BOOKS OR EXTERNAL DOCUMENTS: NEVER mention 'the book', 'Principles of Failure', or 'as written in the document'. NEVER refer to your knowledge as a book or file. Speak as if all these insights are YOUR OWN personal experience, wisdom, and direct advice.\n"
-        "RULE 3 - CONTEXT IS KING: Read the student message carefully. Respond directly and naturally to THAT specific topic. No pre-scripted avoidance.\n"
-        "RULE 4 - NO AI CLICHES: Never say 'What can I help you with?', 'Great question!', 'As an AI...'. Talk like a real, direct, caring mentor in a face-to-face chat.\n\n"
-        "=== VOICE & TONE ===\n"
-        "Use confident, direct, caring banmal (casual speech: ~haera, ~haja, ~iya, ~geodeun, ~janha).\n"
-        "Be like a tough but deeply caring mentor/older brother.\n"
-        "When the student shares struggles, show real empathy first, then deliver direct truth and practical solutions.\n\n"
-        "=== EXPERT KNOWLEDGE (Your Personal Wisdom & Philosophy) ===\n"
-        "Below is your entire lifetime of CSAT coaching wisdom and personal experience. Integrate these exact facts into your answers naturally as your own words.\n\n"
-        f"{knowledge}\n"
-    )
-    try:
-        from google.genai import types
-        cache = client.caches.create(
-            model='gemini-3.6-flash',
-            config=types.CreateCachedContentConfig(
-                contents=[system_instruction_with_knowledge],
-                ttl='86400s',
-            )
-        )
-        _KNOWLEDGE_CACHE_NAME = cache.name
-        _KNOWLEDGE_CACHE_EXPIRES = now + 80000
-        print(f"CHATBOT CACHE CREATED SUCCESS: {cache.name}")
-        return _KNOWLEDGE_CACHE_NAME
-    except Exception as e:
-        print(f"CHATBOT CACHE CREATE ERROR: {e}")
-        return None
-
-def generate_dynamic_fallback(msg: str) -> str:
-    m = msg.strip().lower()
-    if any(k in m for k in ["\uc548\ub155", "\ubc18\uac00\uc6cc", "\ud558\uc774", "\ucc98\uc74c"]):
-        return "\uc5b4 \uadf8\ub798, \ubc18\uac11\ub2e4! \uc9c0\uae08\uc740 AI \uc11c\ubc84\uc640 \uc5f0\uacb0\uc774 \ubd88\uc548\uc815\ud574\uc11c \uae34 \uc0c1\ub2f4\uc740 \uc5b4\ub835\ub124. API \ud0a4 \uc124\uc815\uc744 \ud655\uc778\ud574\ubcf4\uace0 \ub2e4\uc2dc \ub9d0 \uac78\uc5b4\uc918."
-    if any(k in m for k in ["\uace0\ubbfc", "\ud798\ub4e4", "\uc0c1\ub2f4"]):
-        return "\ub124 \uace0\ubbfc\uc744 \uae4a\uac8c \ub4e4\uc5b4\uc8fc\uace0 \uc2f6\uc740\ub370, \ud604\uc7ac AI \uc11c\ubc84 \uc5f0\uacb0 \ubb38\uc81c\ub85c \uc790\uc138\ud55c \ub2f5\ubcc0\uc774 \ud798\ub4e4\uc5b4. API \ud0a4 \uc124\uc815\uc744 \ud655\uc778\ud574\uc8fc\uba74 \ub0b4\uac00 \uc81c\ub300\ub85c \ub41c \ud574\uacb0\ucc45\uc744 \uc904\uac8c."
-    return "\ud604\uc7ac \uc2dc\uc2a4\ud15c \uc5f0\uacb0\uc774 \uc6d0\ud65c\ud558\uc9c0 \uc54a\uac70\ub098 API \ud0a4\uac00 \uc124\uc815\ub418\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4. \uc7a0\uc2dc \ud6c4 \ub2e4\uc2dc \uc2dc\ud3c4\ud574\uc8fc\uc138\uc694."
-
 def ask_ai_chatbot(message: str, history: list = None) -> str:
     client = get_gemini_client()
     if not client:
         print("CHATBOT ERROR: No Gemini client available.")
-        return generate_dynamic_fallback(message)
+        return "\uc9c0\uae08 AI \uc11c\ubc84 \uc5f0\uacb0\uc774 \ubd88\uc548\uc815\ud574. \uc7a0\uc2dc \ud6c4 \ub2e4\uc2dc \ub9d0 \uac78\uc5b4\uc918."
     try:
-        cache_name = get_knowledge_cache(client)
+        knowledge = get_expert_knowledge()
+        if len(knowledge) > 35000:
+            knowledge = knowledge[:35000]
+        system_prompt = (
+            "You are PALIN BOT (Kim Chul-Hun). Respond ONLY in Korean.\n\n"
+            "IDENTITY: You are Kim Chul-Hun - a 13-year veteran CSAT Korean instructor and director of Ilwon Academy in Bundang. You personally failed the CSAT twice before succeeding on your third attempt. Speak directly from your own personal memories, philosophy, and real-world student counseling experience.\n\n"
+            "=== ABSOLUTE PRIORITY RULES (CRITICAL) ===\n"
+            "RULE 1 - NO MARKDOWN FORMATTING AT ALL: NEVER use markdown formatting like '#', '##', '###', '**', '*', '-', or numbered lists ('1.', '2.'). Write ONLY in clean, plain conversational Korean text with normal paragraph breaks.\n"
+            "RULE 2 - NO MENTION OF BOOKS OR DOCUMENTS: NEVER mention 'the book', 'Principles of Failure', 'PDF', or 'as written in the document'. NEVER refer to your knowledge as a book or file. Speak as if all these insights are YOUR OWN personal experience, wisdom, and direct advice.\n"
+            "RULE 3 - CONTEXT IS KING: Read the student message carefully. Respond directly and naturally to THAT specific topic with direct, caring banmal.\n"
+            "RULE 4 - NO AI CLICHES: Never say 'What can I help you with?', 'Great question!', 'As an AI...'. Talk like a real, direct, caring mentor in a face-to-face chat.\n\n"
+            "=== VOICE & TONE ===\n"
+            "Use confident, direct, caring banmal (casual speech: ~haera, ~haja, ~iya, ~geodeun, ~janha).\n"
+            "Be like a tough but deeply caring mentor/older brother.\n"
+            "When the student shares struggles, show real empathy first, then deliver direct truth and practical solutions.\n\n"
+            "=== EXPERT KNOWLEDGE (Your Personal Wisdom & Philosophy) ===\n"
+            "Below is your lifetime of CSAT coaching wisdom and personal experience. Integrate these exact facts into your answers naturally as your own words.\n\n"
+            f"{knowledge}\n"
+        )
         contents = []
         if history:
             for msg_item in history[-10:]:
@@ -140,35 +105,21 @@ def ask_ai_chatbot(message: str, history: list = None) -> str:
         last_error = None
         for attempt in range(3):
             try:
-                if cache_name:
-                    response = client.models.generate_content(
-                        model='gemini-3.6-flash',
-                        contents=contents,
-                        config={
-                            'cached_content': cache_name,
-                            'temperature': 0.6,
-                            'max_output_tokens': 4000,
-                        }
-                    )
-                else:
-                    knowledge = get_expert_knowledge()[:20000]
-                    system_prompt = 'You are Kim Chul-Hun (PALIN BOT). Do NOT use markdown. Do NOT mention books. Speak as yourself in Korean.\n\n' + knowledge
-                    response = client.models.generate_content(
-                        model='gemini-3.6-flash',
-                        contents=contents,
-                        config={
-                            'system_instruction': system_prompt,
-                            'temperature': 0.6,
-                            'max_output_tokens': 4000,
-                        }
-                    )
+                response = client.models.generate_content(
+                    model='gemini-3.6-flash',
+                    contents=contents,
+                    config={
+                        'system_instruction': system_prompt,
+                        'temperature': 0.6,
+                        'max_output_tokens': 4000,
+                    }
+                )
                 result_text = response.text
                 if result_text and result_text.strip():
-                    # Clean up any leftover markdown formatting if the model slipped
+                    # Clean up any markdown symbols if generated
                     cleaned = result_text.replace('###', '').replace('##', '').replace('#', '').replace('**', '').replace('* ', '')
                     return cleaned
                 print("CHATBOT WARNING: Gemini returned empty response.")
-                return generate_dynamic_fallback(message)
             except APIError as api_err:
                 last_error = api_err
                 status = getattr(api_err, 'status_code', 0)
@@ -183,13 +134,13 @@ def ask_ai_chatbot(message: str, history: list = None) -> str:
             status = getattr(last_error, 'status_code', 0)
             if status == 429:
                 return "\uc9c0\uae08 AI \uc11c\ubc84\uac00 \uc694\uccad\uc774 \ub9ce\uc544\uc11c \uc7a0\uc2dc \uc26c\uace0 \uc788\uc5b4. 1~2\ubd84 \ub4a4\uc5d0 \ub2e4\uc2dc \ub9d0 \uac78\uc5b4\uc918."
-            return generate_dynamic_fallback(message)
-        return generate_dynamic_fallback(message)
+            return f"AI 대화 응답 중 오류가 발생했습니다. ({last_error})"
+        return "\uc9c0\uae08 AI \uc11c\ubc84 \uc5f0\uacb0\uc774 \ubd88\uc548\uc815\ud574. \uc7a0\uc2dc \ud6c4 \ub2e4\uc2dc \ub9d0 \uac78\uc5b4\uc918."
     except Exception as e:
         print(f"CHATBOT UNEXPECTED ERROR ({type(e).__name__}): {e}")
         import traceback
         traceback.print_exc()
-        return generate_dynamic_fallback(message)
+        return f"AI 오류: {e}"
 
 def get_english_grade(score: int) -> int:
     if score >= 90: return 1
