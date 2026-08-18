@@ -78,7 +78,7 @@ def debug_gemini_test():
     # Step 4: 실제 Gemini API 호출 테스트
     try:
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-2.0-flash',
             contents='안녕하세요. 테스트 메시지입니다. 한 문장으로 답해주세요.',
             config={
                 'temperature': 0.6,
