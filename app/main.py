@@ -284,11 +284,14 @@ def manage_session(payload: schemas.StudySessionRequest, db: Session = Depends(g
 
 @app.post("/api/ai/chat", response_model=schemas.AIChatResponse)
 def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)):
-    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
-    if not student:
-        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+    student = None
+    try:
+        if payload.student_id:
+            student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    except Exception:
+        pass
         
-    is_premium = student.parent.is_premium_subscribed if student.parent else False
+    is_premium = (student.parent and student.parent.is_premium_subscribed) if (student and student.parent) else False
     remaining = 999 if is_premium else 5
     
     history_dicts = None
@@ -305,7 +308,7 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
         return schemas.AIChatResponse(reply=reply, remaining_chats=remaining)
     except Exception as e:
         print(f"CHAT ENDPOINT ERROR: {e}")
-        return schemas.AIChatResponse(reply=f"AI 오류: {str(e)}", remaining_chats=remaining)
+        return schemas.AIChatResponse(reply=f"AI 대화 처리 중 오류가 발생했습니다. ({str(e)})", remaining_chats=remaining)
 
 @app.get("/api/predict/universities")
 def get_predict_univs():
