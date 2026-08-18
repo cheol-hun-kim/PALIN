@@ -3,21 +3,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
-from typing import List
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
 import json
 import os
 
 from app.database import get_db, engine
-from app import models, schemas, ai
+from app import models, schemas, ai, predict
 
-# FastAPI ?�스?�스 ?�성
-app = FastAPI(title="PASS-MATE API", description="PASS-MATE MVP??Backend API ?�비??)
+app = FastAPI(title="PASS-MATE API")
 
-# ?�이?�베?�스 ?�이�??�동 ?�성
 models.Base.metadata.create_all(bind=engine)
 
-# CORS 미들?�어 ?�정
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -26,1030 +23,459 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mock SMS 발송 로그 기록 ?�수
 SMS_LOG_FILE = "sms_log.txt"
-
 def send_mock_sms(to_phone: str, message: str):
     log_msg = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] TO: {to_phone} | MSG: {message}\n"
-    print(f"[MOCK SMS SENDER]: {log_msg.strip()}")
+    print(log_msg.strip())
     try:
         with open(SMS_LOG_FILE, "a", encoding="utf-8") as f:
             f.write(log_msg)
-    except Exception as e:
-        print(f"Failed to write SMS log: {e}")
+    except:
+        pass
 
+# --- 1. User & Auth ---
 
-# --- 0. Gemini AI 진단 ?�드?�인??---
-
-@app.get("/api/debug/gemini-test")
-def debug_gemini_test():
-    """Gemini API ?�결 ?�태�?진단?�는 ?�스???�드?�인??""
-    result = {"steps": []}
-    
-    # Step 1: API ???�인
-    api_key = ai.get_saved_api_key()
-    if api_key:
-        masked = api_key[:8] + "..." + api_key[-4:] if len(api_key) > 12 else "***"
-        result["steps"].append({"step": "API???�인", "status": "OK", "detail": f"??발견: {masked}"})
-    else:
-        result["steps"].append({"step": "API???�인", "status": "FAIL", "detail": "API ?��? ?�음. gemini_key.txt ?�는 ?�경변??GEMINI_API_KEY ?�요"})
-        result["final"] = "FAIL - API ???�음"
-        return result
-    
-    # Step 2: ?�라?�언???�성
+@app.get("/api/univ-data")
+def get_univ_data():
     try:
-        client = ai.get_gemini_client()
-        if client:
-            result["steps"].append({"step": "?�라?�언???�성", "status": "OK", "detail": "genai.Client ?�성 ?�공"})
-        else:
-            result["steps"].append({"step": "?�라?�언???�성", "status": "FAIL", "detail": "Client가 None"})
-            result["final"] = "FAIL - ?�라?�언???�성 ?�패"
-            return result
-    except Exception as e:
-        result["steps"].append({"step": "?�라?�언???�성", "status": "FAIL", "detail": f"{type(e).__name__}: {e}"})
-        result["final"] = f"FAIL - {e}"
-        return result
-    
-    # Step 3: knowledge.txt ?�인
-    knowledge = ai.get_expert_knowledge()
-    kb_len = len(knowledge)
-    result["steps"].append({"step": "지?�베?�스(knowledge.txt)", "status": "OK" if kb_len > 100 else "WARN", "detail": f"{kb_len}??로드??})
-    
-    # Step 4: ?�제 Gemini API ?�출 ?�스??    try:
-        response = client.models.generate_content(
-            model='gemini-3.6-flash',
-            contents='?�녕?�세?? ?�스??메시지?�니?? ??문장?�로 ?�해주세??',
-            config={
-                'temperature': 0.6,
-                'max_output_tokens': 100,
-            }
-        )
-        reply = response.text
-        if reply and reply.strip():
-            result["steps"].append({"step": "Gemini API ?�출", "status": "OK", "detail": f"?�답: {reply[:100]}"})
-            result["final"] = "SUCCESS - Gemini ?�상 ?�동"
-        else:
-            result["steps"].append({"step": "Gemini API ?�출", "status": "FAIL", "detail": "�??�답 반환??})
-            result["final"] = "FAIL - �??�답"
-    except Exception as e:
-        import traceback
-        tb = traceback.format_exc()
-        result["steps"].append({"step": "Gemini API ?�출", "status": "FAIL", "detail": f"{type(e).__name__}: {e}"})
-        result["traceback"] = tb
-        result["final"] = f"FAIL - {type(e).__name__}: {e}"
-    
-    return result
-
-
-# --- 1. ?�원가??�??�용???�보 API ---
+        from app.ai import load_univ_cuts
+        cuts = load_univ_cuts()
+        res = {}
+        for u in cuts:
+            res[u] = list(cuts[u].keys())
+        return res
+    except:
+        return {}
 
 @app.post("/api/register", response_model=schemas.StudentResponse)
 def register_student(payload: schemas.StudentCreate, db: Session = Depends(get_db)):
-    existing_student = db.query(models.Student).filter(models.Student.email == payload.email).first()
-    if existing_student:
-        raise HTTPException(status_code=400, detail="?��? ?�록???�메?�입?�다.")
-        
     parent = db.query(models.Parent).filter(models.Parent.phone == payload.parent_phone).first()
     if not parent:
-        parent = models.Parent(
-            name=payload.parent_name,
-            phone=payload.parent_phone,
-            is_premium_subscribed=False
-        )
+        parent = models.Parent(name=payload.parent_name, phone=payload.parent_phone, is_premium_subscribed=False)
         db.add(parent)
         db.commit()
         db.refresh(parent)
         
     student = models.Student(
-        email=payload.email,
-        name=payload.name,
-        phone=payload.phone,
-        grade=payload.grade,
-        region=payload.region,
-        high_school=payload.high_school,
-        target_univ=payload.target_univ,
-        baseline_univ=payload.baseline_univ,
-        current_points=100,
-        parent_id=parent.id
+        email=payload.email, name=payload.name, phone=payload.phone,
+        grade=payload.grade, region=payload.region, high_school=payload.high_school,
+        target_univ=payload.target_univ, baseline_univ=payload.baseline_univ,
+        current_points=100, parent_id=parent.id
     )
     db.add(student)
     db.commit()
     db.refresh(student)
     
-    history = models.PointHistory(
-        student_id=student.id,
-        amount=100,
-        description="가??축하 ?�인??지�?
-    )
-    db.add(history)
+    db.add(models.PointHistory(student_id=student.id, amount=100, description="\uac00\uc785 \ucd95\ud558 \ud3ec\uc778\ud2b8"))
     db.commit()
-    
     return student
 
 class LoginPayload(BaseModel):
     email: str
 
-@app.post("/api/login")
+@app.post("/api/login", response_model=schemas.StudentResponse)
 def login_student(payload: LoginPayload, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.email == payload.email).first()
     if not student:
-        raise HTTPException(status_code=404, detail="?�록?��? ?��? ?�메?�입?�다. ?�원가?�을 진행??주세??")
+        raise HTTPException(status_code=404, detail="\ud559\uc0dd \uc815\ubcf4\ub97c \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.")
     return student
 
 @app.get("/api/student/{student_id}", response_model=schemas.StudentResponse)
 def get_student(student_id: int, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == student_id).first()
     if not student:
-        raise HTTPException(status_code=404, detail="?�생??찾을 ???�습?�다.")
+        raise HTTPException(status_code=404, detail="\ud559\uc0dd\uc744 \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.")
     return student
-
-@app.put("/api/student/profile", response_model=schemas.StudentResponse)
-def update_student_profile(payload: schemas.StudentProfileUpdate, db: Session = Depends(get_db)):
-    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
-    if not student:
-        raise HTTPException(status_code=404, detail="?�생??찾을 ???�습?�다.")
-    if payload.target_univ is not None:
-        student.target_univ = payload.target_univ
-    if payload.baseline_univ is not None:
-        student.baseline_univ = payload.baseline_univ
-    if payload.wake_target_time is not None:
-        student.wake_target_time = payload.wake_target_time
-    if payload.sleep_target_time is not None:
-        student.sleep_target_time = payload.sleep_target_time
-    db.commit()
-    db.refresh(student)
-    return student
-
-@app.post("/api/feedback", response_model=schemas.FeedbackResponse)
-def create_feedback(payload: schemas.FeedbackCreate, db: Session = Depends(get_db)):
-    st_name = None
-    if payload.student_id:
-        st = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
-        if st:
-            st_name = st.name
-            if not payload.user_email:
-                payload.user_email = st.email
-
-    feedback = models.Feedback(
-        student_id=payload.student_id,
-        user_email=payload.user_email,
-        category=payload.category,
-        content=payload.content,
-        status="?�수??
-    )
-    db.add(feedback)
-    db.commit()
-    db.refresh(feedback)
-    
-    res = schemas.FeedbackResponse.from_orm(feedback)
-    res.student_name = st_name
-    return res
-
-@app.get("/api/admin/feedbacks", response_model=List[schemas.FeedbackResponse])
-def get_admin_feedbacks(db: Session = Depends(get_db)):
-    feedbacks = db.query(models.Feedback).order_by(models.Feedback.created_at.desc()).all()
-    result = []
-    for fb in feedbacks:
-        st_name = None
-        if fb.student_id:
-            st = db.query(models.Student).filter(models.Student.id == fb.student_id).first()
-            if st:
-                st_name = st.name
-        item = schemas.FeedbackResponse.from_orm(fb)
-        item.student_name = st_name
-        result.append(item)
-    return result
-
-@app.put("/api/admin/feedbacks/{feedback_id}/status", response_model=schemas.FeedbackResponse)
-def update_feedback_status(feedback_id: int, payload: schemas.FeedbackStatusUpdate, db: Session = Depends(get_db)):
-    feedback = db.query(models.Feedback).filter(models.Feedback.id == feedback_id).first()
-    if not feedback:
-        raise HTTPException(status_code=404, detail="건의?�항??찾을 ???�습?�다.")
-    feedback.status = payload.status
-    db.commit()
-    db.refresh(feedback)
-    st_name = None
-    if feedback.student_id:
-        st = db.query(models.Student).filter(models.Student.id == feedback.student_id).first()
-        if st:
-            st_name = st.name
-    item = schemas.FeedbackResponse.from_orm(feedback)
-    item.student_name = st_name
-    return item
-
 
 @app.get("/api/student/{student_id}/parent", response_model=schemas.ParentResponse)
 def get_student_parent(student_id: int, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == student_id).first()
     if not student or not student.parent:
-        raise HTTPException(status_code=404, detail="?��?�??�보�?찾을 ???�습?�다.")
+        raise HTTPException(status_code=404, detail="\ud559\ubd80\ubaa8\ub97c \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.")
     return student.parent
 
 @app.post("/api/student/{student_id}/toggle-premium", response_model=schemas.ParentResponse)
-def toggle_parent_premium(student_id: int, db: Session = Depends(get_db)):
+def toggle_premium(student_id: int, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == student_id).first()
     if not student or not student.parent:
-        raise HTTPException(status_code=404, detail="?��?�??�보�?찾을 ???�습?�다.")
-    
-    parent = student.parent
-    parent.is_premium_subscribed = not parent.is_premium_subscribed
+        raise HTTPException(status_code=404, detail="\ud559\ubd80\ubaa8\ub97c \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.")
+    student.parent.is_premium_subscribed = not student.parent.is_premium_subscribed
     db.commit()
-    db.refresh(parent)
-    return parent
+    db.refresh(student.parent)
+    return student.parent
 
+@app.put("/api/student/profile", response_model=schemas.StudentResponse)
+def update_profile(payload: schemas.StudentProfileUpdate, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="\ud559\uc0dd\uc744 \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.")
+    if payload.target_univ: student.target_univ = payload.target_univ
+    if payload.baseline_univ: student.baseline_univ = payload.baseline_univ
+    if payload.wake_target_time: student.wake_target_time = payload.wake_target_time
+    if payload.sleep_target_time: student.sleep_target_time = payload.sleep_target_time
+    db.commit()
+    db.refresh(student)
+    return student
 
-# --- 2. 1?�이지: ?�활관�?API (미션 �?집중 ?�?�머) ---
+class UpdateUnivPayload(BaseModel):
+    target_univ: str
+    baseline_univ: str
+
+@app.post("/api/student/{student_id}/update-univ")
+def update_univ(student_id: int, payload: UpdateUnivPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="\ud559\uc0dd\uc744 \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.")
+    student.target_univ = payload.target_univ
+    student.baseline_univ = payload.baseline_univ
+    db.commit()
+    db.refresh(student)
+    return student
+
+@app.get("/api/league/{student_id}")
+def get_league(student_id: int, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="\ud559\uc0dd\uc744 \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.")
+    return {
+        "league_tier": student.league_tier,
+        "point_multiplier": student.point_multiplier,
+        "golden_tickets_count": student.golden_tickets_count
+    }
+
+@app.post("/api/feedback")
+def submit_feedback(payload: schemas.FeedbackCreate, db: Session = Depends(get_db)):
+    fb = models.Feedback(student_id=payload.student_id, user_email=payload.user_email, category=payload.category, content=payload.content)
+    db.add(fb)
+    db.commit()
+    return {"status": "ok"}
+
+@app.post("/api/referral/generate-ticket/{student_id}")
+def generate_ticket(student_id: int, db: Session = Depends(get_db)):
+    import uuid
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student or student.golden_tickets_count <= 0:
+        raise HTTPException(status_code=400, detail="\uace8\ub4e0 \ud2f0\ucf13\uc774 \ubd80\uc871\ud569\ub2c8\ub2e4.")
+    code = str(uuid.uuid4())[:8].upper()
+    ticket = models.GoldenTicket(code=code, referrer_id=student.id)
+    student.golden_tickets_count -= 1
+    db.add(ticket)
+    db.commit()
+    db.refresh(ticket)
+    return ticket
+
+@app.post("/api/referral/claim-ticket")
+def claim_ticket(payload: schemas.GoldenTicketClaim, db: Session = Depends(get_db)):
+    ticket = db.query(models.GoldenTicket).filter(models.GoldenTicket.code == payload.ticket_code).first()
+    if not ticket or ticket.is_claimed:
+        raise HTTPException(status_code=400, detail="\uc720\ud6a8\ud558\uc9c0 \uc54a\uac70\ub098 \uc774\ubbf8 \uc0ac\uc6a9\ub41c \ud2f0\ucf13\uc785\ub2c8\ub2e4.")
+    if ticket.referrer_id == payload.student_id:
+        raise HTTPException(status_code=400, detail="\uc790\uc2e0\uc758 \ud2f0\ucf13\uc740 \uc0ac\uc6a9\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.")
+    
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    student.referrer_id = ticket.referrer_id
+    ticket.is_claimed = True
+    ticket.claimed_by_id = student.id
+    db.commit()
+    return {"message": "\ud2f0\ucf13 \ub4f1\ub85d \uc644\ub8cc"}
+
+# --- 2. Study & Mission ---
+
+@app.get("/api/study/report/{student_id}")
+def study_report(student_id: int, db: Session = Depends(get_db)):
+    sessions = db.query(models.StudySession).filter(models.StudySession.student_id == student_id).all()
+    total_sec = sum(s.duration_sec for s in sessions)
+    logs = db.query(models.MissionLog).filter(models.MissionLog.student_id == student_id).all()
+    success = sum(1 for l in logs if l.status == "SUCCESS")
+    rate = int((success / len(logs) * 100)) if logs else 0
+    return {
+        "total_study_hours": round(total_sec / 3600, 1),
+        "mission_success_rate": rate,
+        "total_sessions": len(sessions)
+    }
+
+@app.get("/api/mission/logs/{student_id}")
+def get_mission_logs(student_id: int, db: Session = Depends(get_db)):
+    return db.query(models.MissionLog).filter(models.MissionLog.student_id == student_id).order_by(models.MissionLog.created_at.desc()).limit(10).all()
+
+@app.get("/api/mission/status/{student_id}")
+def get_mission_status(student_id: int, db: Session = Depends(get_db)):
+    today = datetime.now().date()
+    logs = db.query(models.MissionLog).filter(models.MissionLog.student_id == student_id).all()
+    wakeup = any(l.mission_type == "WAKEUP" and l.created_at.date() == today and l.status == "SUCCESS" for l in logs)
+    sleep = any(l.mission_type == "SLEEP" and l.created_at.date() == today and l.status == "SUCCESS" for l in logs)
+    return {"wakeup_done": wakeup, "sleep_done": sleep}
 
 @app.post("/api/mission/verify")
 def verify_mission(payload: schemas.MissionVerify, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
     if not student:
-        raise HTTPException(status_code=404, detail="?�생??찾을 ???�습?�다.")
-
-    now = datetime.now()
-    scheduled_time = now
-    status = "SUCCESS"
-    earned_points = 50 if (student.parent and student.parent.is_premium_subscribed) else 25
-
-    if payload.img_data == "fail":
-        status = "FAIL"
-        earned_points = 0
-    else:
-        # 1??1??미션 보상 중복 지�?방�?
-        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-        existing_today = db.query(models.MissionLog).filter(
-            models.MissionLog.student_id == payload.student_id,
-            models.MissionLog.mission_type == payload.mission_type,
-            models.MissionLog.status == "SUCCESS",
-            models.MissionLog.created_at >= today_start
-        ).first()
-
-        if existing_today:
-            m_label = "기상" if payload.mission_type == "WAKEUP" else "취침"
-            raise HTTPException(
-                status_code=400,
-                detail=f"?�늘??{m_label} 미션?� ?��? ?�공 ?�증???�료?�셨?�니?? (1??1???�립 가??"
-            )
+        raise HTTPException(status_code=404)
         
-    log = models.MissionLog(
-        student_id=payload.student_id,
-        mission_type=payload.mission_type,
-        scheduled_time=scheduled_time,
-        completed_time=now if status == "SUCCESS" else None,
-        proof_img_url="proof_photo.png" if status == "SUCCESS" else None,
-        status=status
-    )
+    status_val = "SUCCESS" if payload.img_data == "success" else "FAIL"
+    log = models.MissionLog(student_id=student.id, mission_type=payload.mission_type, status=status_val, scheduled_time=datetime.now())
     db.add(log)
     
-    if status == "SUCCESS":
-        multiplier = student.point_multiplier or 1.0
-        final_earned = int(earned_points * multiplier)
-        
-        student.current_points += final_earned
-        student.diligence_score += 10 # ?�적 ?�실???�산 10??추�?
-        
-        history = models.PointHistory(
-            student_id=student.id,
-            amount=final_earned,
-            description=f"{payload.mission_type} 미션 ?�공 보상 ({multiplier}x 배수 ?�용)"
-        )
-        db.add(history)
-        
-        if student.referrer_id:
-            referrer = db.query(models.Student).filter(models.Student.id == student.referrer_id).first()
-            if referrer:
-                bonus = max(1, int(final_earned * 0.05))
-                referrer.current_points += bonus
-                ref_history = models.PointHistory(
-                    student_id=referrer.id,
-                    amount=bonus,
-                    description=f"초�????��?({student.name}) 미션 ?�공 5% ?�구 복리 보상"
-                )
-                db.add(ref_history)
+    earned = 0
+    if status_val == "SUCCESS":
+        earned = 10
+        if student.parent and student.parent.is_premium_subscribed:
+            earned *= 2
+        earned = int(earned * student.point_multiplier)
+        student.current_points += earned
+        db.add(models.PointHistory(student_id=student.id, amount=earned, description=f"{payload.mission_type} \ubbf8\uc158 \uc131\uacf5"))
     else:
-        msg = f"[PALIN OS] {student.name} ?�생??기설?�된 {payload.mission_type} 미션 ?�행???�패?��??�니?? ?�험 궤적 ?�제가 ?�요?�니??"
-        send_mock_sms(student.parent.phone if student.parent else "010-0000-0000", msg)
-        
+        if student.parent:
+            send_mock_sms(student.parent.phone, f"\uc790\ub140({student.name})\uac00 {payload.mission_type} \ubbf8\uc158\uc5d0 \uc2e4\ud328\ud588\uc2b5\ub2c8\ub2e4.")
+            
     db.commit()
-    db.refresh(student)
-    
-    return {
-        "success": True, 
-        "status": status, 
-        "earned_points": earned_points, 
-        "current_points": student.current_points,
-        "diligence_score": student.diligence_score,
-        "league_tier": student.league_tier,
-        "multiplier": student.point_multiplier
-    }
+    return {"status": status_val, "earned_points": earned, "current_points": student.current_points}
 
-@app.get("/api/mission/status/{student_id}")
-def get_mission_daily_status(student_id: int, db: Session = Depends(get_db)):
-    today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    wakeup_done = db.query(models.MissionLog).filter(
-        models.MissionLog.student_id == student_id,
-        models.MissionLog.mission_type == "WAKEUP",
-        models.MissionLog.status == "SUCCESS",
-        models.MissionLog.created_at >= today_start
-    ).first() is not None
+@app.get("/api/planner/blocks/{student_id}")
+def get_blocks(student_id: int, db: Session = Depends(get_db)):
+    return db.query(models.PlannerBlock).filter(models.PlannerBlock.student_id == student_id).all()
 
-    sleep_done = db.query(models.MissionLog).filter(
-        models.MissionLog.student_id == student_id,
-        models.MissionLog.mission_type == "SLEEP",
-        models.MissionLog.status == "SUCCESS",
-        models.MissionLog.created_at >= today_start
-    ).first() is not None
+@app.post("/api/planner/block")
+def create_block(payload: schemas.PlannerBlockCreate, db: Session = Depends(get_db)):
+    block = models.PlannerBlock(**payload.model_dump())
+    db.add(block)
+    db.commit()
+    return block
 
-    return {"wakeup_done": wakeup_done, "sleep_done": sleep_done}
+@app.delete("/api/planner/block/{block_id}")
+def delete_block(block_id: int, db: Session = Depends(get_db)):
+    block = db.query(models.PlannerBlock).filter(models.PlannerBlock.id == block_id).first()
+    if block:
+        db.delete(block)
+        db.commit()
+    return {"status": "ok"}
 
-@app.get("/api/mission/logs/{student_id}")
-def get_mission_logs(student_id: int, db: Session = Depends(get_db)):
-    logs = db.query(models.MissionLog).filter(models.MissionLog.student_id == student_id).order_by(models.MissionLog.created_at.desc()).limit(10).all()
-    return logs
-
-@app.post("/api/study/session", response_model=schemas.StudySessionResponse)
-def handle_study_session(payload: schemas.StudySessionRequest, db: Session = Depends(get_db)):
+@app.post("/api/study/session")
+def manage_session(payload: schemas.StudySessionRequest, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404)
+        
     if payload.action == "START":
-        session = models.StudySession(
-            student_id=payload.student_id,
-            start_time=datetime.now()
-        )
+        session = models.StudySession(student_id=student.id, start_time=datetime.now())
         db.add(session)
         db.commit()
         db.refresh(session)
         return session
-        
-    elif payload.action == "STOP":
-        if not payload.session_id:
-            raise HTTPException(status_code=400, detail="종료 ??session_id가 ?�요?�니??")
-            
+    else:
         session = db.query(models.StudySession).filter(models.StudySession.id == payload.session_id).first()
         if not session:
-            raise HTTPException(status_code=404, detail="?�션??찾을 ???�습?�다.")
-            
+            raise HTTPException(status_code=404)
         session.end_time = datetime.now()
         session.duration_sec = int((session.end_time - session.start_time).total_seconds())
         session.is_distracted = payload.is_distracted
-        
-        student = db.query(models.Student).filter(models.Student.id == session.student_id).first()
-        if student:
-            if payload.is_distracted:
-                history = models.PointHistory(
-                    student_id=student.id,
-                    amount=0,
-                    description=f"공�? �??�짓 감�? (공�??�간: {session.duration_sec//60}�? ?�인??미�?�?"
-                )
-                db.add(history)
-                msg = f"[PASS-MATE] {student.name} ?�생??공�? 측정 �??�른 ?�플리�??�션???�용?�여 집중???��??��? 못했?�니??"
-                send_mock_sms(student.parent.phone, msg)
-            else:
-                earned = max(1, session.duration_sec // 60)
-                student.current_points += earned
-                history = models.PointHistory(
-                    student_id=student.id,
-                    amount=earned,
-                    description=f"집중 ?�습 ?�?�머 ?�성 ({earned}�?"
-                )
-                db.add(history)
-            
+        if payload.is_distracted:
+            if student.parent:
+                send_mock_sms(student.parent.phone, f"\uc790\ub140({student.name})\uac00 \uacf5\ubd80 \uc911 \ub534\uc9d3\uc744 \ud588\uc2b5\ub2c8\ub2e4.")
+        else:
+            earned = int((session.duration_sec / 60) * student.point_multiplier)
+            student.current_points += earned
+            db.add(models.PointHistory(student_id=student.id, amount=earned, description="\uacf5\ubd80 \uc9d1\uc911 \ubcf4\uc0c1"))
         db.commit()
         db.refresh(session)
         return session
-        
-    raise HTTPException(status_code=400, detail="?�효?��? ?��? ?�션?�니??")
 
-@app.get("/api/study/report/{student_id}")
-def get_study_report(student_id: int, db: Session = Depends(get_db)):
-    student = db.query(models.Student).filter(models.Student.id == student_id).first()
-    if not student:
-        raise HTTPException(status_code=404, detail="?�생??찾을 ???�습?�다.")
-        
-    seven_days_ago = datetime.now() - timedelta(days=7)
-    
-    sessions = db.query(models.StudySession).filter(
-        models.StudySession.student_id == student_id,
-        models.StudySession.created_at >= seven_days_ago,
-        models.StudySession.is_distracted == False
-    ).all()
-    
-    total_study_sec = sum(s.duration_sec for s in sessions)
-    
-    missions = db.query(models.MissionLog).filter(
-        models.MissionLog.student_id == student_id,
-        models.MissionLog.created_at >= seven_days_ago
-    ).all()
-    
-    success_count = sum(1 for m in missions if m.status == "SUCCESS")
-    fail_count = sum(1 for m in missions if m.status == "FAIL")
-    
-    return {
-        "total_study_hours": round(total_study_sec / 3600, 1),
-        "mission_success_rate": round(success_count / max(1, success_count + fail_count) * 100, 0),
-        "total_sessions": len(sessions)
-    }
-
-
-# --- 2.0 PALIN OS ?�용 리그??& 골든 ?�켓 추천 ?�스??API ---
-
-import uuid
-
-@app.get("/api/league/{student_id}")
-def get_league_status(student_id: int, db: Session = Depends(get_db)):
-    student = db.query(models.Student).filter(models.Student.id == student_id).first()
-    if not student:
-        raise HTTPException(status_code=404, detail="?�생??찾을 ???�습?�다.")
-        
-    seven_days_ago = datetime.now() - timedelta(days=7)
-    missions = db.query(models.MissionLog).filter(
-        models.MissionLog.student_id == student_id,
-        models.MissionLog.created_at >= seven_days_ago
-    ).all()
-    
-    success_count = sum(1 for m in missions if m.status == "SUCCESS")
-    total_count = len(missions)
-    rate = (success_count / total_count * 100) if total_count > 0 else 0
-    
-    # ?�실??미션 ?�성률에 ?�른 리그 ?�어 �?배수 ?�데?�트
-    if rate >= 90:
-        student.league_tier = "PLATINUM"
-        student.point_multiplier = 2.0
-    elif rate >= 75:
-        student.league_tier = "GOLD"
-        student.point_multiplier = 1.5
-    elif rate >= 50:
-        student.league_tier = "SILVER"
-        student.point_multiplier = 1.2
-    else:
-        student.league_tier = "BRONZE"
-        student.point_multiplier = 1.0
-        
-    db.commit()
-    db.refresh(student)
-    
-    return {
-        "student_id": student.id,
-        "league_tier": student.league_tier,
-        "point_multiplier": student.point_multiplier,
-        "weekly_success_rate": round(rate, 1),
-        "diligence_score": student.diligence_score,
-        "golden_tickets_count": student.golden_tickets_count
-    }
-
-@app.post("/api/referral/generate-ticket/{student_id}")
-def generate_golden_ticket(student_id: int, db: Session = Depends(get_db)):
-    student = db.query(models.Student).filter(models.Student.id == student_id).first()
-    if not student:
-        raise HTTPException(status_code=404, detail="?�생??찾을 ???�습?�다.")
-        
-    if student.golden_tickets_count <= 0:
-        raise HTTPException(status_code=400, detail="?��? 골든 ?�켓???�습?�다. 미션 ?�실?��? ?�여 리그 ?�급 ??추�? 지급됩?�다.")
-        
-    code = f"PALIN-{uuid.uuid4().hex[:6].upper()}"
-    ticket = models.GoldenTicket(
-        code=code,
-        referrer_id=student.id
-    )
-    student.golden_tickets_count -= 1
-    db.add(ticket)
-    db.commit()
-    db.refresh(ticket)
-    
-    return ticket
-
-@app.post("/api/referral/claim-ticket")
-def claim_golden_ticket(payload: schemas.GoldenTicketClaim, db: Session = Depends(get_db)):
-    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
-    if not student:
-        raise HTTPException(status_code=404, detail="?�생??찾을 ???�습?�다.")
-        
-    ticket = db.query(models.GoldenTicket).filter(models.GoldenTicket.code == payload.ticket_code).first()
-    if not ticket or ticket.is_claimed:
-        raise HTTPException(status_code=400, detail="?�효?��? ?�거???��? ?�용??골든 ?�켓?�니??")
-        
-    if ticket.referrer_id == student.id:
-        raise HTTPException(status_code=400, detail="?�신???�성???�켓?� ?�용?????�습?�다.")
-        
-    ticket.is_claimed = True
-    ticket.claimed_by_id = student.id
-    student.referrer_id = ticket.referrer_id
-    
-    # 가??축하 보너??(+50P) ?�측 지�?    student.current_points += 50
-    db.add(models.PointHistory(student_id=student.id, amount=50, description="골든 ?�켓 ?�록 가??축하 보너??))
-    
-    referrer = db.query(models.Student).filter(models.Student.id == ticket.referrer_id).first()
-    if referrer:
-        referrer.current_points += 50
-        db.add(models.PointHistory(student_id=referrer.id, amount=50, description="골든 ?�켓 추천 ?�초?�??가??보너??))
-        
-    db.commit()
-    return {"success": True, "message": "골든 ?�켓 ?�록 ?�공! 50P가 지급되?�으�? ?�후 미션 5% 복리 보상 ?�트?�크???�결?�었?�니??"}
-
-
-# --- 2.1 ?�브리�????��???주간 ?�간??API ---
-
-@app.post("/api/planner/block", response_model=schemas.PlannerBlockResponse)
-def create_planner_block(payload: schemas.PlannerBlockCreate, db: Session = Depends(get_db)):
-    block = models.PlannerBlock(
-        student_id=payload.student_id,
-        day_of_week=payload.day_of_week,
-        start_time=payload.start_time,
-        end_time=payload.end_time,
-        title=payload.title,
-        is_completed=False
-    )
-    db.add(block)
-    db.commit()
-    db.refresh(block)
-    return block
-
-@app.get("/api/planner/blocks/{student_id}", response_model=List[schemas.PlannerBlockResponse])
-def get_planner_blocks(student_id: int, db: Session = Depends(get_db)):
-    blocks = db.query(models.PlannerBlock).filter(models.PlannerBlock.student_id == student_id).all()
-    return blocks
-
-@app.delete("/api/planner/block/{block_id}")
-def delete_planner_block(block_id: int, db: Session = Depends(get_db)):
-    block = db.query(models.PlannerBlock).filter(models.PlannerBlock.id == block_id).first()
-    if not block:
-        raise HTTPException(status_code=404, detail="?�간????��??찾을 ???�습?�다.")
-    db.delete(block)
-    db.commit()
-    return {"success": True}
-
-
-# --- 3. 2?�이지: ?�습공간 API (AI 챗봇, ?�격?�측) ---
+# --- 3. AI & Prediction ---
 
 @app.post("/api/ai/chat", response_model=schemas.AIChatResponse)
 def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
     if not student:
-        raise HTTPException(status_code=404, detail="?�생??찾을 ???�습?�다.")
+        raise HTTPException(status_code=404)
         
-    remaining = 5
-    if student.parent and not student.parent.is_premium_subscribed:
-        remaining = 3
-    elif not student.parent:
-        remaining = 3
-        
-    history_dicts = None
-    if payload.history:
-        history_dicts = [{"role": h.role, "content": h.content} for h in payload.history]
+    is_premium = student.parent.is_premium_subscribed if student.parent else False
+    remaining = 999 if is_premium else 5
     
-    try:
-        reply = ai.ask_ai_chatbot(payload.message, history=history_dicts)
-        return schemas.AIChatResponse(reply=reply, remaining_chats=remaining)
-    except Exception as e:
-        print(f"CHAT ENDPOINT ERROR: {type(e).__name__}: {e}")
-        import traceback
-        traceback.print_exc()
-        return schemas.AIChatResponse(
-            reply=f"죄송?�니?? AI ?�진?�서 ?�류가 발생?�습?�다. (?�류: {type(e).__name__})",
-            remaining_chats=remaining
-        )
+    reply = ai.ask_ai_chatbot(payload.message, payload.history)
+    return schemas.AIChatResponse(reply=reply, remaining_chats=remaining)
 
-from app.predict import predict_admission, raw_to_eng_grade, raw_to_hist_grade, load_entries
+@app.get("/api/predict/universities")
+def get_predict_univs():
+    entries = predict.load_entries()
+    univs = list(set(e.get("\ub300\ud559\uad50") for e in entries if e.get("\ub300\ud559\uad50")))
+    return sorted(univs)
 
 class PredictPayload(BaseModel):
-    kor_pct: float          # �?�� 백분??    math_pct: float         # ?�학 백분??    eng_raw: int            # ?�어 ?�점??    tam1_pct: float         # ?�구1 백분??    tam2_pct: float         # ?�구2 백분??    hist_raw: int           # ?�국???�점??    math_type: str = '미적'  # 미적/기하/?�통
-    gyeyeol: str = '?�과'    # ?�과/문과
-    target_univ: str = ''   # 목표 ?�??    target_dept: str = ''   # 목표 ?�과
+    kor_pct: float
+    math_pct: float
+    eng_raw: int
+    tam1_pct: float
+    tam2_pct: float
+    hist_raw: int
+    math_type: str = "\ubbf8\uc801"
+    gyeyeol: str = "\uc774\uacfc"
+    target_univ: str = ""
+    target_dept: str = ""
 
-@app.post('/api/ai/predict')
-def predict_endpoint(payload: PredictPayload):
-    result = predict_admission(
-        kor_pct=payload.kor_pct,
-        math_pct=payload.math_pct,
-        eng_raw=payload.eng_raw,
-        tam1_pct=payload.tam1_pct,
-        tam2_pct=payload.tam2_pct,
-        hist_raw=payload.hist_raw,
-        math_type=payload.math_type,
-        gyeyeol=payload.gyeyeol,
-        target_univ=payload.target_univ,
-        target_dept=payload.target_dept
+@app.post("/api/ai/predict")
+def run_prediction(payload: PredictPayload):
+    try:
+        res = predict.predict_admission(
+            kor_pct=payload.kor_pct, math_pct=payload.math_pct, eng_raw=payload.eng_raw,
+            tam1_pct=payload.tam1_pct, tam2_pct=payload.tam2_pct, hist_raw=payload.hist_raw,
+            math_type=payload.math_type, gyeyeol=payload.gyeyeol,
+            target_univ=payload.target_univ, target_dept=payload.target_dept
+        )
+        return res
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# --- 4. Community & Tutor ---
+
+@app.post("/api/tutor/upgrade")
+def upgrade_tutor(payload: schemas.TutorUpgradeRequest, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student: raise HTTPException(status_code=404)
+    tp = models.TutorProfile(
+        student_id=student.id, email=student.email, name=student.name, phone=student.phone,
+        university=payload.university, major=payload.major, admission_year=payload.admission_year,
+        high_school_type="\uc77c\ubc18\uace0", bio=payload.bio, contact_link=payload.contact_link, is_verified=True,
+        univ_emblem="\ud83c\udf93", high_school_emblem="\ud83c\udfeb"
     )
-    return result
-
-@app.get('/api/predict/universities')
-def get_universities():
-    entries = load_entries()
-    univs = sorted(set(e['?�?�교'] for e in entries if e.get('?�?�교')))
-    return univs
-
-@app.get('/api/predict/departments/{univ_name}')
-def get_departments(univ_name: str):
-    entries = load_entries()
-    depts = sorted(set(e['?�공'] for e in entries if e.get('?�?�교') == univ_name and e.get('?�공')))
-    return depts
-
-class UpdateUnivPayload(BaseModel):
-    target_univ: str = ''
-    baseline_univ: str = ''
-
-@app.post('/api/student/{student_id}/update-univ')
-def update_student_univ(student_id: int, payload: UpdateUnivPayload, db: Session = Depends(get_db)):
-    student = db.query(models.Student).filter(models.Student.id == student_id).first()
-    if not student:
-        raise HTTPException(status_code=404, detail="?�생??찾을 ???�습?�다.")
-    if payload.target_univ:
-        student.target_univ = payload.target_univ
-    if payload.baseline_univ:
-        student.baseline_univ = payload.baseline_univ
+    db.add(tp)
+    student.current_points += 500
     db.commit()
-    db.refresh(student)
-    return {"target_univ": student.target_univ, "baseline_univ": student.baseline_univ}
+    return {"status": "ok"}
 
+class TutorUpdatePayload(BaseModel):
+    tutor_id: int
+    bio: str
+    contact_link: str
 
-# --- 4. 3?�이지: 커�??�티 API (공�? Q&A �?과외매칭) ---
+@app.post("/api/tutor/update-profile")
+def update_tutor_profile(payload: TutorUpdatePayload, db: Session = Depends(get_db)):
+    tp = db.query(models.TutorProfile).filter(models.TutorProfile.id == payload.tutor_id).first()
+    if tp:
+        tp.bio = payload.bio
+        tp.contact_link = payload.contact_link
+        db.commit()
+    return {"status": "ok"}
+
+@app.get("/api/qa/posts", response_model=List[schemas.QAPostResponse])
+def get_qa_posts(db: Session = Depends(get_db)):
+    posts = db.query(models.QAPost).order_by(models.QAPost.created_at.desc()).all()
+    for p in posts:
+        p.student_name = p.student.name if p.student else "\uc54c\uc218\uc5c6\uc74c"
+        for c in p.comments:
+            c.student_name = c.student.name if c.student else "\uc54c\uc218\uc5c6\uc74c"
+    return posts
 
 @app.post("/api/qa/post", response_model=schemas.QAPostResponse)
 def create_qa_post(payload: schemas.QAPostCreate, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
-    if not student:
-        raise HTTPException(status_code=404, detail="?�생??찾을 ???�습?�다.")
-        
-    if payload.reward_points > 0:
-        if student.current_points < payload.reward_points:
-            raise HTTPException(status_code=400, detail="게시�?보상 ?�인?��? 보유 ?�인?�보???�니??")
+    if student and student.current_points >= payload.reward_points:
         student.current_points -= payload.reward_points
-        history = models.PointHistory(
-            student_id=student.id,
-            amount=-payload.reward_points,
-            description=f"공�? Q&A ?�스?�로 ?�정 (보상: {payload.reward_points}P)"
-        )
-        db.add(history)
-        
-    post = models.QAPost(
-        student_id=payload.student_id,
-        subject=payload.subject,
-        title=payload.title,
-        content=payload.content,
-        reward_points=payload.reward_points,
-        is_resolved=False
-    )
+    post = models.QAPost(**payload.model_dump())
     db.add(post)
     db.commit()
     db.refresh(post)
-    
-    post.student_name = student.name
     return post
 
-@app.get("/api/qa/posts")
-def list_qa_posts(db: Session = Depends(get_db)):
-    posts = db.query(models.QAPost).order_by(models.QAPost.created_at.desc()).all()
-    for p in posts:
-        p.student_name = p.student.name
-        for c in p.comments:
-            c.student_name = c.student.name
-    return posts
-
-@app.post("/api/qa/post/{post_id}/comment", response_model=schemas.QACommentResponse)
-def add_qa_comment(post_id: int, payload: schemas.QACommentCreate, db: Session = Depends(get_db)):
-    post = db.query(models.QAPost).filter(models.QAPost.id == post_id).first()
-    if not post:
-        raise HTTPException(status_code=404, detail="게시물을 찾을 ???�습?�다.")
-        
-    comment = models.QAComment(
-        post_id=post_id,
-        student_id=payload.student_id,
-        content=payload.content
-    )
-    db.add(comment)
+@app.post("/api/qa/post/{post_id}/comment")
+def create_comment(post_id: int, payload: schemas.QACommentCreate, db: Session = Depends(get_db)):
+    c = models.QAComment(post_id=post_id, student_id=payload.student_id, content=payload.content)
+    db.add(c)
     db.commit()
-    db.refresh(comment)
-    
-    comment.student_name = comment.student.name
-    return comment
+    return {"status": "ok"}
 
 @app.post("/api/qa/comment/{comment_id}/accept")
-def accept_qa_comment(comment_id: int, student_id: int, db: Session = Depends(get_db)):
-    comment = db.query(models.QAComment).filter(models.QAComment.id == comment_id).first()
-    if not comment:
-        raise HTTPException(status_code=404, detail="?��???찾을 ???�습?�다.")
-        
-    post = comment.post
-    if post.student_id != student_id:
-        raise HTTPException(status_code=403, detail="?�신??게시글 ?��?�?채택?????�습?�다.")
-        
-    if post.is_resolved:
-        raise HTTPException(status_code=400, detail="?��? 채택???�료??질문?�니??")
-        
-    comment.is_accepted = True
-    post.is_resolved = True
-    
-    if post.reward_points > 0:
-        answerer = comment.student
-        answerer.current_points += post.reward_points
-        history = models.PointHistory(
-            student_id=answerer.id,
-            amount=post.reward_points,
-            description=f"공�? Q&A 채택 보상 ?�령 (글번호: {post.id})"
-        )
-        db.add(history)
-        
+def accept_comment(comment_id: int, student_id: int, db: Session = Depends(get_db)):
+    c = db.query(models.QAComment).filter(models.QAComment.id == comment_id).first()
+    if not c: raise HTTPException(status_code=404)
+    if c.post.student_id != student_id: raise HTTPException(status_code=403)
+    c.is_accepted = True
+    c.post.is_resolved = True
+    if c.post.reward_points > 0 and c.student:
+        c.student.current_points += c.post.reward_points
     db.commit()
-    return {"success": True, "reward_transferred": post.reward_points}
+    return {"status": "ok"}
 
+@app.get("/api/tutor/list", response_model=List[schemas.TutorProfileResponse])
+def get_tutor_list(db: Session = Depends(get_db)):
+    return db.query(models.TutorProfile).all()
 
-# --- 4.1 ?�???�격 ?�증 �?과외 ?�생???�격 API ---
-
-@app.post("/api/tutor/upgrade", response_model=schemas.TutorProfileResponse)
-def upgrade_to_tutor(payload: schemas.TutorUpgradeRequest, db: Session = Depends(get_db)):
-    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
-    if not student:
-        raise HTTPException(status_code=404, detail="?�생 계정??찾을 ???�습?�다.")
-        
-    # 기존 ?�로?�이 ?�는 지 체크
-    tutor = db.query(models.TutorProfile).filter(models.TutorProfile.student_id == payload.student_id).first()
-    if tutor:
-        raise HTTPException(status_code=400, detail="?��? 과외 ?�생?�으�??�록?�어 ?�습?�다.")
-
-    # ?�?�교명에 매칭?�는 ?�각 ?�블??뱃�? 부??    univ = payload.university
-    dept = payload.major
-    univ_tag = f"?�� {univ} {dept}"
-    if "?�울?�" in univ:
-        univ_tag = f"?�� ?�울?� {dept} [?�격배�?]"
-    elif "?�세?�" in univ:
-        univ_tag = f"?�� ?�세?� {dept} [?�격배�?]"
-    elif "고려?�" in univ:
-        univ_tag = f"?�� 고려?� {dept} [?�격배�?]"
-        
-    # ?��?/?�학 계열 ?�블??추�? 보정
-    if "?�예" in dept or "?��?" in dept or "치의" in dept or "?�의" in dept or "?�학" in dept:
-        univ_tag += " ?�️"
-
-    tutor = models.TutorProfile(
-        student_id=payload.student_id,
-        email=student.email,
-        name=student.name,
-        phone=student.phone,
-        university=univ,
-        major=dept,
-        admission_year=payload.admission_year,
-        high_school_type="?�사�? if "?�사" in payload.high_school else "?�반�?,
-        bio=payload.bio,
-        contact_link=payload.contact_link,
-        is_verified=True, # 목업?��?�?즉시 ?�동 ?�증
-        univ_emblem=univ_tag,
-        high_school_emblem=f"?�� {payload.high_school}"
-    )
-    db.add(tutor)
-    
-    # ?�???�격 축하 �??�생???�로??개설 축하 ?�규모 보너???�인??지�?    student.current_points += 500
-    history = models.PointHistory(
-        student_id=student.id,
-        amount=500,
-        description="?�� ?�???�격 �?과외 ?�생???�격 축하 ?�인??지�?"
-    )
-    db.add(history)
+@app.post("/api/tutoring/request", response_model=schemas.TutorRequestResponse)
+def create_tutoring_request(payload: schemas.TutorRequestCreate, db: Session = Depends(get_db)):
+    req = models.TutorRequest(**payload.model_dump())
+    db.add(req)
     db.commit()
-    db.refresh(tutor)
-    return tutor
+    db.refresh(req)
+    return req
 
-@app.post("/api/tutor/update-profile", response_model=schemas.TutorProfileResponse)
-def update_tutor_profile(payload: dict, db: Session = Depends(get_db)):
-    tutor_id = payload.get("tutor_id")
-    bio = payload.get("bio")
-    contact_link = payload.get("contact_link")
-    
-    tutor = db.query(models.TutorProfile).filter(models.TutorProfile.id == tutor_id).first()
-    if not tutor:
-        raise HTTPException(status_code=404, detail="과외 ?�생???�로?�을 찾을 ???�습?�다.")
-        
-    tutor.bio = bio
-    tutor.contact_link = contact_link
+@app.get("/api/tutoring/requests", response_model=List[schemas.TutorRequestResponse])
+def get_tutoring_requests(db: Session = Depends(get_db)):
+    reqs = db.query(models.TutorRequest).order_by(models.TutorRequest.created_at.desc()).all()
+    for r in reqs:
+        r.student_name = r.student.name if r.student else "\uc54c\uc218\uc5c6\uc74c"
+    return reqs
+
+@app.post("/api/tutoring/propose", response_model=schemas.ProposalResponse)
+def propose_tutoring(payload: schemas.ProposalCreate, db: Session = Depends(get_db)):
+    req = db.query(models.TutorRequest).filter(models.TutorRequest.id == payload.request_id).first()
+    if not req: raise HTTPException(status_code=404)
+    prop = models.Proposal(tutor_id=payload.tutor_id, request_id=payload.request_id, student_id=req.student_id, message=payload.message)
+    db.add(prop)
     db.commit()
-    db.refresh(tutor)
-    return tutor
+    db.refresh(prop)
+    return prop
 
+@app.get("/api/tutoring/proposals/{student_id}", response_model=List[schemas.ProposalResponse])
+def get_proposals(student_id: int, db: Session = Depends(get_db)):
+    props = db.query(models.Proposal).filter(models.Proposal.student_id == student_id).all()
+    for p in props:
+        p.tutor_name = p.tutor.name if p.tutor else "\uc54c\uc218\uc5c6\uc74c"
+        p.tutor_univ = p.tutor.university if p.tutor else "\uc54c\uc218\uc5c6\uc74c"
+        p.tutor_major = p.tutor.major if p.tutor else "\uc54c\uc218\uc5c6\uc74c"
+        if p.status == "ACCEPTED":
+            p.__dict__["tutor_contact"] = p.tutor.phone if p.tutor else ""
+            p.__dict__["contact_link"] = p.tutor.contact_link if p.tutor else ""
+    return props
+
+class AcceptProposalPayload(BaseModel):
+    proposalId: int
+    studentId: int
+
+@app.post("/api/tutoring/accept")
+def accept_proposal(payload: AcceptProposalPayload, db: Session = Depends(get_db)):
+    prop = db.query(models.Proposal).filter(models.Proposal.id == payload.proposalId).first()
+    if not prop or prop.student_id != payload.studentId: raise HTTPException(status_code=404)
+    student = db.query(models.Student).filter(models.Student.id == payload.studentId).first()
+    if student.current_points < 150:
+        raise HTTPException(status_code=400, detail="\ud3ec\uc778\ud2b8\uac00 \ubd80\uc871\ud569\ub2c8\ub2e4.")
+    student.current_points -= 150
+    prop.status = "ACCEPTED"
+    db.commit()
+    return {"tutor_contact": prop.tutor.phone, "contact_link": prop.tutor.contact_link}
+
+# --- 5. Admin & Debug ---
+
+@app.get("/api/debug/gemini-test")
+def test_gemini():
+    try:
+        reply = ai.ask_ai_chatbot("\uc548\ub155! \uc5f0\uacb0 \ud14c\uc2a4\ud2b8\uc57c.")
+        return {"status": "ok", "reply": reply}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
 
 class GeminiKeyPayload(BaseModel):
     api_key: str
 
-@app.post("/api/admin/set-gemini-key")
+@app.post("/api/admin/gemini-key")
 def set_gemini_key(payload: GeminiKeyPayload):
-    if not payload.api_key or len(payload.api_key.strip()) < 10:
-        raise HTTPException(status_code=400, detail="?�효??Gemini API ?��? ?�력?�주?�요.")
-    success = ai.set_gemini_api_key(payload.api_key.strip())
+    success = ai.set_gemini_api_key(payload.api_key)
     if success:
-        return {"message": "?�� Gemini 2.5 AI API ?��? ?�공?�으�??�??�??�재?�었?�니??"}
-    raise HTTPException(status_code=500, detail="API ???�???�패")
+        return {"status": "ok"}
+    raise HTTPException(status_code=500, detail="\ud0a4 \uc800\uc7a5 \uc2e4\ud328")
 
-@app.get("/api/admin/gemini-status")
-def get_gemini_status():
-    key = ai.get_saved_api_key()
-    active = bool(key and len(key) > 10)
-    masked = f"{key[:6]}...{key[-4:]}" if active else "미설??
-    return {"active": active, "key_masked": masked}
+@app.get("/api/admin/gemini-key")
+def get_gemini_key():
+    k = ai.get_saved_api_key()
+    return {"has_key": bool(k)}
 
-# --- 과외 매칭 API ---
-
-@app.get("/api/tutor/list", response_model=List[schemas.TutorProfileResponse])
-def list_tutors(db: Session = Depends(get_db)):
-    tutors = db.query(models.TutorProfile).filter(models.TutorProfile.is_verified == True).all()
-    return tutors
-
-@app.post("/api/tutoring/request", response_model=schemas.TutorRequestResponse)
-def create_tutor_request(payload: schemas.TutorRequestCreate, db: Session = Depends(get_db)):
-    req = models.TutorRequest(
-        student_id=payload.student_id,
-        subject=payload.subject,
-        budget=payload.budget,
-        details=payload.details
-    )
-    db.add(req)
-    db.commit()
-    db.refresh(req)
-    req.student_name = req.student.name
-    return req
-
-@app.get("/api/tutoring/requests")
-def list_tutor_requests(db: Session = Depends(get_db)):
-    reqs = db.query(models.TutorRequest).order_by(models.TutorRequest.created_at.desc()).all()
-    for r in reqs:
-        r.student_name = r.student.name
-    return reqs
-
-@app.post("/api/tutoring/propose", response_model=schemas.ProposalResponse)
-def tutor_propose_tutoring(payload: schemas.ProposalCreate, db: Session = Depends(get_db)):
-    tutor = db.query(models.TutorProfile).filter(models.TutorProfile.id == payload.tutor_id).first()
-    if not tutor:
-        raise HTTPException(status_code=404, detail="?�터 ?�로?�을 찾을 ???�습?�다.")
-        
-    req = db.query(models.TutorRequest).filter(models.TutorRequest.id == payload.request_id).first()
-    if not req:
-        raise HTTPException(status_code=404, detail="?�생 과외 ?�청??찾을 ???�습?�다.")
-        
-    proposal = models.Proposal(
-        tutor_id=payload.tutor_id,
-        request_id=payload.request_id,
-        student_id=req.student_id,
-        message=payload.message,
-        cost_points=100,
-        status="PENDING"
-    )
-    db.add(proposal)
-    db.commit()
-    db.refresh(proposal)
-    
-    proposal.tutor_name = tutor.name
-    proposal.tutor_univ = tutor.university
-    proposal.tutor_major = tutor.major
-    return proposal
-
-@app.get("/api/tutoring/proposals/{student_id}")
-def get_received_proposals(student_id: int, db: Session = Depends(get_db)):
-    proposals = db.query(models.Proposal).filter(models.Proposal.student_id == student_id).order_by(models.Proposal.created_at.desc()).all()
-    for p in proposals:
-        p.tutor_name = p.tutor.name
-        p.tutor_univ = p.tutor.university
-        p.tutor_major = p.tutor.major
-    return proposals
-
-@app.post("/api/tutoring/accept")
-def accept_tutor_proposal(payload: dict, db: Session = Depends(get_db)):
-    proposal_id = payload.get("proposalId")
-    student_id = payload.get("studentId")
-    
-    proposal = db.query(models.Proposal).filter(models.Proposal.id == proposal_id).first()
-    if not proposal:
-        raise HTTPException(status_code=404, detail="?�안?��? 찾을 ???�습?�다.")
-        
-    if proposal.student_id != student_id:
-        raise HTTPException(status_code=403, detail="본인?�게 ???�안?�만 ?�락?????�습?�다.")
-        
-    proposal.status = "ACCEPTED"
-    
-    msg = f"[PASS-MATE] {proposal.student.name} ?�생과의 과외 매칭???�사?�었?�니?? ?�락�? {proposal.student.phone}"
-    send_mock_sms(proposal.tutor.phone, msg)
-    
-    db.commit()
-    
-    return {
-        "success": True,
-        "tutor_contact": proposal.tutor.phone,
-        "contact_link": proposal.tutor.contact_link
-    }
-
-
-# --- 4.2 ?�?�교 �??�과 ?�보 조회 API ---
-
-UNIV_DEPS_PATH = os.path.join(os.path.dirname(__file__), "univ_departments.json")
-
-@app.get("/api/univ-data")
-def get_university_data():
-    if not os.path.exists(UNIV_DEPS_PATH):
-        try:
-            from parse_univ_data import run_parsing
-            run_parsing()
-        except Exception as e:
-            print(f"Error running parser on demand: {e}")
-            
-    if os.path.exists(UNIV_DEPS_PATH):
-        try:
-            with open(UNIV_DEPS_PATH, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"?�???�이?��? ?�는 �??�류가 발생?�습?�다: {e}")
-            
-    return {}
-
-
-# --- 4.3 ?�장???�용 ?�합 관???�?�보??API ---
-
-@app.get("/api/admin/dashboard")
-def get_admin_dashboard(db: Session = Depends(get_db)):
-    students = db.query(models.Student).all()
-    parents = db.query(models.Parent).all()
-    tutors = db.query(models.TutorProfile).all()
-    
-    # 리그�??�험??분포 집계
-    league_counts = {"BRONZE": 0, "SILVER": 0, "GOLD": 0, "PLATINUM": 0}
-    for s in students:
-        tier = s.league_tier or "BRONZE"
-        league_counts[tier] = league_counts.get(tier, 0) + 1
-        
-    # 최근 20�?미션 로그
-    mission_logs = db.query(models.MissionLog).order_by(models.MissionLog.created_at.desc()).limit(20).all()
-    recent_missions = []
-    for m in mission_logs:
-        st = db.query(models.Student).filter(models.Student.id == m.student_id).first()
-        recent_missions.append({
-            "id": m.id,
-            "student_name": st.name if st else "?�수?�음",
-            "mission_type": m.mission_type,
-            "status": m.status,
-            "created_at": m.created_at.strftime("%Y-%m-%d %H:%M") if m.created_at else ""
-        })
-        
-    # 최근 10�?공�? ?�?�머 ?�션
-    study_sessions = db.query(models.StudySession).order_by(models.StudySession.created_at.desc()).limit(10).all()
-    recent_studies = []
-    for ss in study_sessions:
-        st = db.query(models.Student).filter(models.Student.id == ss.student_id).first()
-        recent_studies.append({
-            "id": ss.id,
-            "student_name": st.name if st else "?�수?�음",
-            "duration_min": round(ss.duration_sec / 60, 1),
-            "is_distracted": ss.is_distracted,
-            "created_at": ss.created_at.strftime("%Y-%m-%d %H:%M") if ss.created_at else ""
-        })
-
-    # ?�생 종합 브리??리스??    student_list = []
-    for s in students:
-        student_list.append({
-            "id": s.id,
-            "name": s.name,
-            "phone": s.phone,
-            "high_school": s.high_school,
-            "grade": s.grade,
-            "target_univ": s.target_univ or "",
-            "baseline_univ": s.baseline_univ or "",
-            "wake_target_time": s.wake_target_time or "06:30",
-            "sleep_target_time": s.sleep_target_time or "23:30",
-            "league_tier": s.league_tier or "BRONZE",
-            "point_multiplier": s.point_multiplier or 1.0,
-            "current_points": s.current_points,
-            "diligence_score": s.diligence_score,
-            "golden_tickets_count": s.golden_tickets_count
-        })
-
-    # 최근 10�?건의?�항 / 불편?�항 로그
-    feedbacks = db.query(models.Feedback).order_by(models.Feedback.created_at.desc()).limit(10).all()
-    recent_feedbacks = []
-    open_feedback_count = 0
-    for fb in feedbacks:
-        if fb.status != "?�료":
-            open_feedback_count += 1
-        st = db.query(models.Student).filter(models.Student.id == fb.student_id).first() if fb.student_id else None
-        recent_feedbacks.append({
-            "id": fb.id,
-            "student_name": st.name if st else "비회???�명",
-            "user_email": fb.user_email or (st.email if st else ""),
-            "category": fb.category,
-            "content": fb.content,
-            "status": fb.status,
-            "created_at": fb.created_at.strftime("%Y-%m-%d %H:%M") if fb.created_at else ""
-        })
-
-    return {
-        "summary": {
-            "total_students": len(students),
-            "total_parents": len(parents),
-            "total_tutors": len(tutors),
-            "open_feedbacks": open_feedback_count,
-            "league_counts": league_counts
-        },
-        "students": student_list,
-        "recent_missions": recent_missions,
-        "recent_studies": recent_studies,
-        "recent_feedbacks": recent_feedbacks
-    }
-
-
-# --- 5. ?�론?�엔???�적 ?�일 ?�빙 ---
-static_dir = os.path.join(os.path.dirname(__file__), "..", "static")
-if os.path.exists(static_dir):
-    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
-else:
-    print(f"Warning: Static directory '{static_dir}' not found. Ensure to create frontend files.")
+# Static files
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
