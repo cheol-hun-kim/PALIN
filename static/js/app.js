@@ -1870,3 +1870,52 @@ function updateUnivDisplay() {
         dispBaseline.innerHTML = `<div>${parts[0] || '-'}</div><div style="font-size:0.7rem;color:var(--text-secondary);font-weight:400;">${parts.slice(1).join(' ') || ''}</div>`;
     }
 }
+
+// === 서비스 불편사항 & 아이디어 건의함 모달 ===
+function openFeedbackModal() {
+    const modal = document.getElementById("feedback-modal");
+    if (modal) modal.style.display = "flex";
+}
+
+function closeFeedbackModal() {
+    const modal = document.getElementById("feedback-modal");
+    if (modal) modal.style.display = "none";
+}
+
+async function submitStudentFeedback() {
+    const contentEl = document.getElementById("feedback-content");
+    const categoryEl = document.getElementById("feedback-category");
+    const emailEl = document.getElementById("feedback-email");
+    
+    const content = contentEl ? contentEl.value.trim() : "";
+    if (!content) {
+        alert("건의사항 또는 의견 내용을 작성해 주세요.");
+        return;
+    }
+    
+    const category = categoryEl ? categoryEl.value : "불편사항";
+    const userEmail = emailEl ? emailEl.value.trim() : (currentStudent ? currentStudent.email : "");
+    
+    try {
+        const res = await fetch("/api/feedback", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: currentStudent ? currentStudent.id : null,
+                user_email: userEmail,
+                category: category,
+                content: content
+            })
+        });
+        if (res.ok) {
+            alert("💡 건의해주신 소중한 의견이 원장님 및 개발팀으로 실시간 접수되었습니다. 빠르게 확인 후 반영하겠습니다!");
+            if (contentEl) contentEl.value = "";
+            closeFeedbackModal();
+        } else {
+            alert("등록 실패. 잠시 후 다시 시도해주세요.");
+        }
+    } catch(e) {
+        console.error(e);
+        alert("서버 연결 실패");
+    }
+}
