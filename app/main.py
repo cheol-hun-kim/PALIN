@@ -468,30 +468,144 @@ def accept_proposal(payload: AcceptProposalPayload, db: Session = Depends(get_db
     db.commit()
     return {"tutor_contact": prop.tutor.phone, "contact_link": prop.tutor.contact_link}
 
-# --- 5. Admin & Debug ---
+# --- 5. Admin & Feedback & Debug ---
 
-@app.get("/api/debug/gemini-test")
-def test_gemini():
-    try:
-        reply = ai.ask_ai_chatbot("\uc548\ub155! \uc5f0\uacb0 \ud14c\uc2a4\ud2b8\uc57c.")
-        return {"status": "ok", "reply": reply}
-    except Exception as e:
-        return {"status": "error", "detail": str(e)}
+class FeedbackCreatePayload(BaseModel):
+    student_id: Optional[int] = None
+    user_email: Optional[str] = ""
+    category: str = "불편사항"
+    content: str
+
+@app.post("/api/feedback")
+def create_feedback(payload: FeedbackCreatePayload, db: Session = Depends(get_db)):
+    fb = models.Feedback(
+        student_id=payload.student_id,
+        user_email=payload.user_email,
+        category=payload.category,
+        content=payload.content,
+        status="접수됨"
+    )
+    db.add(fb)
+    db.commit()
+    db.refresh(fb)
+    return {"status": "ok", "message": "건의사항이 등록되었습니다."}
+
+@app.get("/api/admin/dashboard")
+def get_admin_dashboard(db: Session = Depends(get_db)):
+    students = db.query(models.Student).all()
+    parents = db.query(models.Parent).all()
+    feedbacks = db.query(models.Feedback).order_by(models.Feedback.created_at.desc()).all()
+    missions = db.query(models.MissionLog).order_by(models.MissionLog.created_at.desc()).limit(15).all()
+    studies = db.query(models.StudySession).order_by(models.StudySession.created_at.desc()).limit(15).all()
+    
+    tier_counts = {"PLATINUM": 0, "GOLD": 0, "SILVER": 0, "BRONZE": 0}
+    student_list = []
+    for s in students:
+        t = (s.league_tier or "BRONZE").upper()
+        tier_counts[t] = tier_counts.get(t, 0) + 1
+        student_list.append({
+            "id": s.id,
+            "name": s.name,
+            "phone": s.phone,
+            "high_school": s.high_school or "-",
+            "grade": s.grade or 0,
+            "target_univ": s.target_univ or "-",
+            "baseline_univ": s.baseline_univ or "-",
+            "wake_target_time": s.wake_target_time or "06:30",
+            "sleep_target_time": s.sleep_target_time or "23:30",
+            "league_tier": s.league_tier or "BRONZE",
+            "point_multiplier": s.point_multiplier or 1.0,
+            "current_points": s.current_points or 0,
+            "diligence_score": s.diligence_score or 0,
+            "golden_tickets_count": s.golden_tickets_count or 0
+        })
+        
+    feedback_list = []
+    open_count = 0
+    for f in feedbacks:
+        if f.status != "완료":
+            open_count += 1
+        s_name = f.student.name if f.student else "비회원"
+        feedback_list.append({
+            "id": f.id,
+            "category": f.category or "불편사항",
+            "student_name": s_name,
+            "user_email": f.user_email or "",
+            "content": f.content,
+            "status": f.status or "접수됨",
+            "created_at": f.created_at.strftime("%Y-%m-%d %H:%M") if f.created_at else ""
+        })
+        
+    mission_list = []
+    for m in missions:
+        s_name = m.student.name if m.student else "학생"
+        mission_list.append({
+            "student_name": s_name,
+            "mission_type": m.mission_type,
+            "status": m.status,
+            "created_at": m.created_at.strftime("%m-%d %H:%M") if m.created_at else ""
+        })
+        
+    study_list = []
+    for st in studies:
+        s_name = st.student.name if st.student else "학생"
+        study_list.append({
+            "student_name": s_name,
+            "duration_min": round((st.duration_sec or 0) / 60, 1),
+            "is_distracted": st.is_distracted,
+            "created_at": st.created_at.strftime("%m-%d %H:%M") if st.created_at else ""
+        })
+        
+    return {
+        "summary": {
+            "total_students": len(students),
+            "total_parents": len(parents),
+            "open_feedbacks": open_count,
+            "league_counts": tier_counts
+        },
+        "recent_feedbacks": feedback_list[:10],
+        "students": student_list,
+        "recent_missions": mission_list,
+        "recent_studies": study_list
+    }
+
+class FeedbackStatusPayload(BaseModel):
+    status: str
+
+@app.put("/api/admin/feedbacks/{feedback_id}/status")
+def update_feedback_status(feedback_id: int, payload: FeedbackStatusPayload, db: Session = Depends(get_db)):
+    fb = db.query(models.Feedback).filter(models.Feedback.id == feedback_id).first()
+    if not fb:
+        raise HTTPException(status_code=404, detail="건의사항을 찾을 수 없습니다.")
+    fb.status = payload.status
+    db.commit()
+    return {"status": "ok"}
+
+@app.get("/api/admin/gemini-status")
+def get_gemini_status():
+    key = ai.get_saved_api_key()
+    if key:
+        masked = key[:8] + "..." + key[-4:] if len(key) > 12 else "***"
+        return {"active": True, "key_masked": masked}
+    return {"active": False, "key_masked": ""}
 
 class GeminiKeyPayload(BaseModel):
     api_key: str
 
-@app.post("/api/admin/gemini-key")
+@app.post("/api/admin/set-gemini-key")
 def set_gemini_key(payload: GeminiKeyPayload):
     success = ai.set_gemini_api_key(payload.api_key)
     if success:
-        return {"status": "ok"}
-    raise HTTPException(status_code=500, detail="\ud0a4 \uc800\uc7a5 \uc2e4\ud328")
+        return {"status": "ok", "message": "Gemini API 키가 성공적으로 저장되었습니다."}
+    raise HTTPException(status_code=500, detail="키 저장 실패")
 
-@app.get("/api/admin/gemini-key")
-def get_gemini_key():
-    k = ai.get_saved_api_key()
-    return {"has_key": bool(k)}
+@app.get("/api/debug/gemini-test")
+def test_gemini():
+    try:
+        reply = ai.ask_ai_chatbot("안녕! 연결 테스트야.")
+        return {"status": "ok", "reply": reply}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
 
 # Static files
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
