@@ -60,18 +60,18 @@ def get_expert_knowledge():
                 return f.read()
         except Exception:
             pass
-    return "수능과 내신 공부 균형을 맞추고, 취침/기상 미션을 준수하여 최적의 생체 리듬을 찾으세요."
+    return "?�능�??�신 공�? 균형??맞추�? 취침/기상 미션??준?�하??최적???�체 리듬??찾으?�요."
 
 def generate_dynamic_fallback(msg: str) -> str:
     m = msg.strip().lower()
     
-    if any(k in m for k in ["안녕", "반가워", "하이", "처음"]):
-        return "어 그래, 반갑다! 지금은 AI 서버와 연결이 불안정해서 긴 상담은 어렵네. API 키 설정이 제대로 되어 있는지 확인해보고 다시 말 걸어줘."
+    if any(k in m for k in ["?�녕", "반�???, "?�이", "처음"]):
+        return "??그래, 반갑?? 지금�? AI ?�버?� ?�결??불안?�해??�??�담?� ?�렵?? API ???�정???��?�??�어 ?�는지 ?�인?�보�??�시 �?걸어�?"
         
-    if any(k in m for k in ["고민", "힘들", "상담"]):
-        return "네 고민을 깊게 들어주고 싶은데, 현재 AI 서버 연결 문제로 자세한 답변이 힘들어. API 키 설정을 확인해주면 내가 제대로 된 해결책을 줄게."
+    if any(k in m for k in ["고�?", "?�들", "?�담"]):
+        return "??고�???깊게 ?�어주고 ?��??? ?�재 AI ?�버 ?�결 문제�??�세???��????�들?? API ???�정???�인?�주�??��? ?��?�????�결책을 줄게."
         
-    return "현재 시스템 연결이 원활하지 않거나 API 키가 설정되지 않았습니다. API 키 설정을 확인하거나 잠시 후 다시 시도해주세요."
+    return "?�재 ?�스???�결???�활?��? ?�거??API ?��? ?�정?��? ?�았?�니?? API ???�정???�인?�거???�시 ???�시 ?�도?�주?�요."
 
 def ask_ai_chatbot(message: str, history: list = None) -> str:
     client = get_gemini_client()
@@ -81,9 +81,9 @@ def ask_ai_chatbot(message: str, history: list = None) -> str:
     
     try:
         knowledge = get_expert_knowledge()
-        # 토큰 절약: 지식 베이스를 30,000자로 제한 (무료 API 할당량 보호)
+        # ?�큰 ?�약: 지??베이?��? 30,000?�로 ?�한 (무료 API ?�당??보호)
         if len(knowledge) > 30000:
-            knowledge = knowledge[:30000] + "\n\n[... 지식 베이스 나머지 생략 (토큰 절약) ...]"
+            knowledge = knowledge[:30000] + "\n\n[... 지??베이???�머지 ?�략 (?�큰 ?�약) ...]"
         
         system_prompt = (
             "You are 'PALIN BOT'. Respond ONLY in Korean.\n\n"
@@ -141,20 +141,20 @@ def ask_ai_chatbot(message: str, history: list = None) -> str:
         # Build multi-turn conversation contents
         contents = []
         if history:
-            for msg_item in history[-10:]:  # 최근 10턴으로 줄여 토큰 절약
+            for msg_item in history[-10:]:  # 최근 10?�으�?줄여 ?�큰 ?�약
                 role = 'user' if msg_item.get('role') == 'user' else 'model'
                 text = msg_item.get('content', '')
                 if text.strip():
                     contents.append({'role': role, 'parts': [{'text': text}]})
         contents.append({'role': 'user', 'parts': [{'text': message}]})
         
-        # 429 에러 시 재시도 (최대 3회, 지수 백오프)
+        # 429 ?�러 ???�시??(최�? 3?? 지??백오??
         import time
         last_error = None
         for attempt in range(3):
             try:
                 response = client.models.generate_content(
-                    model='gemini-2.0-flash',
+                    model='gemini-3.6-flash',
                     contents=contents,
                     config={
                         'system_instruction': system_prompt,
@@ -174,8 +174,7 @@ def ask_ai_chatbot(message: str, history: list = None) -> str:
                 last_error = api_err
                 status = getattr(api_err, 'status_code', 0)
                 if status == 429 and attempt < 2:
-                    wait = (attempt + 1) * 5  # 5초, 10초 대기
-                    print(f"CHATBOT 429 RATE LIMIT: attempt {attempt+1}/3, waiting {wait}s...")
+                    wait = (attempt + 1) * 5  # 5�? 10�??��?                    print(f"CHATBOT 429 RATE LIMIT: attempt {attempt+1}/3, waiting {wait}s...")
                     time.sleep(wait)
                     continue
                 print(f"CHATBOT API ERROR (status={status}, attempt={attempt+1}): {api_err}")
@@ -184,7 +183,7 @@ def ask_ai_chatbot(message: str, history: list = None) -> str:
         if last_error:
             status = getattr(last_error, 'status_code', 0)
             if status == 429:
-                return "지금 AI 서버가 요청이 많아서 잠시 쉬고 있어. 1~2분 뒤에 다시 말 걸어줘. 그동안 오늘 기출 1문제라도 펴놓고 사색해봐."
+                return "지�?AI ?�버가 ?�청??많아???�시 ?�고 ?�어. 1~2�??�에 ?�시 �?걸어�? 그동???�늘 기출 1문제?�도 ?�놓�??�색?�봐."
             return generate_dynamic_fallback(message)
         return generate_dynamic_fallback(message)
         
@@ -195,10 +194,10 @@ def ask_ai_chatbot(message: str, history: list = None) -> str:
         return generate_dynamic_fallback(message)
 
 
-# --- 영어 / 한국사 등급 자동 계산 모듈 ---
+# --- ?�어 / ?�국???�급 ?�동 계산 모듈 ---
 
 def get_english_grade(score: int) -> int:
-    """영어 절대평가 등급 변환 (90점 이상 1등급, 80점 이상 2등급...)"""
+    """?�어 ?��??��? ?�급 변??(90???�상 1?�급, 80???�상 2?�급...)"""
     if score >= 90: return 1
     elif score >= 80: return 2
     elif score >= 70: return 3
@@ -210,7 +209,7 @@ def get_english_grade(score: int) -> int:
     return 9
 
 def get_history_grade(score: int) -> int:
-    """한국사 절대평가 등급 변환 (40점 이상 1등급, 35점 이상 2등급...)"""
+    """?�국???��??��? ?�급 변??(40???�상 1?�급, 35???�상 2?�급...)"""
     if score >= 40: return 1
     elif score >= 35: return 2
     elif score >= 30: return 3
@@ -222,7 +221,7 @@ def get_history_grade(score: int) -> int:
     return 9
 
 
-# --- 합격 예측 알고리즘 (수정) ---
+# --- ?�격 ?�측 ?�고리즘 (?�정) ---
 
 def evaluate_univ_admission_extended(
     gpa: float,
@@ -264,13 +263,13 @@ def evaluate_univ_admission_extended(
             target_cuts["계열"] = list(target_cuts_dict.keys())[0]
         else:
             is_science = False
-            science_keywords = ["공학", "화학", "생물", "수학", "물리", "의예", "치의", "약학", "한의", "간호", "컴퓨터", "IT", "과학", "소프트웨어", "기계", "전기", "전자", "신소재", "항공", "자연", "바이오", "시스템", "융합"]
+            science_keywords = ["공학", "?�학", "?�물", "?�학", "물리", "?�예", "치의", "?�학", "?�의", "간호", "컴퓨??, "IT", "과학", "?�프?�웨??, "기계", "?�기", "?�자", "?�소??, "??��", "?�연", "바이??, "?�스??, "?�합"]
             for kw in science_keywords:
                 if kw in department_name:
                     is_science = True
                     break
             
-            chosen_key = "이과" if is_science else "문과"
+            chosen_key = "?�과" if is_science else "문과"
             if chosen_key in target_cuts_dict:
                 target_cuts = target_cuts_dict[chosen_key]
                 target_cuts["계열"] = chosen_key
@@ -280,112 +279,112 @@ def evaluate_univ_admission_extended(
                 
     if not target_cuts:
         target_cuts = {
-            "적정누백": 15.0,
-            "예상누백": 20.0,
-            "소신누백": 25.0,
-            "계열": "이과"
+            "?�정?�백": 15.0,
+            "?�상?�백": 20.0,
+            "?�신?�백": 25.0,
+            "계열": "?�과"
         }
         
-    적정 = target_cuts.get("적정누백")
-    예상 = target_cuts.get("예상누백")
-    소신 = target_cuts.get("소신누백")
+    ?�정 = target_cuts.get("?�정?�백")
+    ?�상 = target_cuts.get("?�상?�백")
+    ?�신 = target_cuts.get("?�신?�백")
     
-    if 적정 is None: 적정 = 15.0
-    if 예상 is None: 예상 = 20.0
-    if 소신 is None: 소신 = 25.0
+    if ?�정 is None: ?�정 = 15.0
+    if ?�상 is None: ?�상 = 20.0
+    if ?�신 is None: ?�신 = 25.0
     
-    # --- 정시 (Jeongsi) 판정 및 미달 % 계산 (소수점 없는 정수) ---
-    target_cutoff_pct = round(100.0 - 적정)
+    # --- ?�시 (Jeongsi) ?�정 �?미달 % 계산 (?�수???�는 ?�수) ---
+    target_cutoff_pct = round(100.0 - ?�정)
     pct_diff = round(mock_avg - target_cutoff_pct)
     
-    if student_nuback <= 적정 - 5.0:
-        jeongsi_tier = "하향"
-    elif student_nuback <= 적정:
-        jeongsi_tier = "안정"
-    elif student_nuback <= 예상:
-        jeongsi_tier = "적정"
-    elif student_nuback <= 소신:
-        jeongsi_tier = "소신"
+    if student_nuback <= ?�정 - 5.0:
+        jeongsi_tier = "?�향"
+    elif student_nuback <= ?�정:
+        jeongsi_tier = "?�정"
+    elif student_nuback <= ?�상:
+        jeongsi_tier = "?�정"
+    elif student_nuback <= ?�신:
+        jeongsi_tier = "?�신"
     else:
-        jeongsi_tier = "상향"
+        jeongsi_tier = "?�향"
 
     if pct_diff >= 0:
-        jeongsi_tip = f"목표 대학 합격선 대비 백분위 +{pct_diff}%p 여유 (안정/적정 지원권)"
+        jeongsi_tip = f"목표 ?�???�격???��?백분??+{pct_diff}%p ?�유 (?�정/?�정 지?�권)"
     else:
-        jeongsi_tip = f"목표 대학 합격선 대비 백분위 {pct_diff}%p 미달 (상향 지원권)"
+        jeongsi_tip = f"목표 ?�???�격???��?백분??{pct_diff}%p 미달 (?�향 지?�권)"
 
     if eng_grade >= 3 or hist_grade >= 4:
-        tier_downgrade = {"하향": "안정", "안정": "적정", "적정": "소신", "소신": "상향", "상향": "상향"}
+        tier_downgrade = {"?�향": "?�정", "?�정": "?�정", "?�정": "?�신", "?�신": "?�향", "?�향": "?�향"}
         old_tier = jeongsi_tier
-        jeongsi_tier = tier_downgrade.get(jeongsi_tier, "상향")
-        jeongsi_tip += f" [영어/한국사 감점 반영: {old_tier} → {jeongsi_tier}]"
+        jeongsi_tier = tier_downgrade.get(jeongsi_tier, "?�향")
+        jeongsi_tip += f" [?�어/?�국??감점 반영: {old_tier} ??{jeongsi_tier}]"
 
-    # --- 수시 (Susi) 판정 및 등급 미달 계산 ---
+    # --- ?�시 (Susi) ?�정 �??�급 미달 계산 ---
     gpa_cut = 2.0
-    if 소신 < 2.0:
+    if ?�신 < 2.0:
         gpa_cut = 1.3
-    elif 소신 < 10.0:
+    elif ?�신 < 10.0:
         gpa_cut = 1.8
-    elif 소신 < 25.0:
+    elif ?�신 < 25.0:
         gpa_cut = 2.5
     else:
         gpa_cut = 3.5
         
     gpa_diff = round(gpa_cut - gpa, 1)
     if gpa_diff >= 0.5:
-        susi_tier = "하향"
+        susi_tier = "?�향"
     elif gpa_diff >= 0.1:
-        susi_tier = "안정"
+        susi_tier = "?�정"
     elif gpa_diff >= -0.2:
-        susi_tier = "적정"
+        susi_tier = "?�정"
     elif gpa_diff >= -0.5:
-        susi_tier = "소신"
+        susi_tier = "?�신"
     else:
-        susi_tier = "상향"
+        susi_tier = "?�향"
 
     if gpa_diff >= 0:
-        susi_tip = f"목표 합격 내신({gpa_cut}등급) 대비 +{gpa_diff}등급 우수 (안정 지원권)"
+        susi_tip = f"목표 ?�격 ?�신({gpa_cut}?�급) ?��?+{gpa_diff}?�급 ?�수 (?�정 지?�권)"
     else:
-        susi_tip = f"목표 합격 내신({gpa_cut}등급) 대비 {abs(gpa_diff):.1f}등급 미달 (상향 지원권)"
+        susi_tip = f"목표 ?�격 ?�신({gpa_cut}?�급) ?��?{abs(gpa_diff):.1f}?�급 미달 (?�향 지?�권)"
 
-    if mock_avg < (100.0 - 소신) - 8:
-        tier_downgrade = {"하향": "안정", "안정": "적정", "적정": "소신", "소신": "상향", "상향": "상향"}
+    if mock_avg < (100.0 - ?�신) - 8:
+        tier_downgrade = {"?�향": "?�정", "?�정": "?�정", "?�정": "?�신", "?�신": "?�향", "?�향": "?�향"}
         old_susi = susi_tier
-        susi_tier = tier_downgrade.get(susi_tier, "상향")
-        susi_tip += f" [수능 최저 미달 가능성 주의: {old_susi} → {susi_tier}]"
+        susi_tier = tier_downgrade.get(susi_tier, "?�향")
+        susi_tip += f" [?�능 최�? 미달 가?�성 주의: {old_susi} ??{susi_tier}]"
 
     client = get_gemini_client()
     if client:
         try:
             prompt = (
-                f"당신은 입시 컨설턴트입니다. 다음 학생의 개별 성적 진단 결과에 대해 수시전략과 정시전략을 아우르는 피드백 1문장을 각각 작성해주세요.\n"
-                f"학생 성적 - 내신: {gpa}등급, 모의고사 평균백분위: {mock_avg:.1f} (국어:{kor_pct}, 수학:{math_pct}, 영어:{eng_grade}등급, 탐구1:{tam1_pct}, 탐구2:{tam2_pct}, 한국사:{hist_grade}등급)\n"
-                f"지원대학: {university_name} {department_name} (내신컷대체: {gpa_cut}, 정시백분위컷대체: {100.0-적정})\n"
-                f"수시 진단 등급: {susi_tier}, 정시 진단 등급: {jeongsi_tier}\n"
-                f"요구사항: 존댓말로 학생에게 조언하듯이 부드럽지만 전문적으로 수시용 조언 1문장, 정시용 조언 1문장을 JSON 형식으로 출력해주세요.\n"
-                f"예시 형식: {{\"susi_comment\": \"수시 조언...\", \"jeongsi_comment\": \"정시 조언...\"}}"
+                f"?�신?� ?�시 컨설?�트?�니?? ?�음 ?�생??개별 ?�적 진단 결과???�???�시?�략�??�시?�략???�우르는 ?�드�?1문장??각각 ?�성?�주?�요.\n"
+                f"?�생 ?�적 - ?�신: {gpa}?�급, 모의고사 ?�균백분?? {mock_avg:.1f} (�?��:{kor_pct}, ?�학:{math_pct}, ?�어:{eng_grade}?�급, ?�구1:{tam1_pct}, ?�구2:{tam2_pct}, ?�국??{hist_grade}?�급)\n"
+                f"지?��??? {university_name} {department_name} (?�신컷�?�? {gpa_cut}, ?�시백분?�컷?��? {100.0-?�정})\n"
+                f"?�시 진단 ?�급: {susi_tier}, ?�시 진단 ?�급: {jeongsi_tier}\n"
+                f"?�구?�항: 존댓말로 ?�생?�게 조언?�듯??부?�럽지�??�문?�으�??�시??조언 1문장, ?�시??조언 1문장??JSON ?�식?�로 출력?�주?�요.\n"
+                f"?�시 ?�식: {{\"susi_comment\": \"?�시 조언...\", \"jeongsi_comment\": \"?�시 조언...\"}}"
             )
             response = client.models.generate_content(
-                model='gemini-2.0-flash',
+                model='gemini-3.6-flash',
                 contents=prompt
             )
             text_cleaned = response.text.strip().replace("```json", "").replace("```", "")
             ai_data = json.loads(text_cleaned)
             if "susi_comment" in ai_data:
-                susi_tip += f" (AI 수시 전략: {ai_data['susi_comment']})"
+                susi_tip += f" (AI ?�시 ?�략: {ai_data['susi_comment']})"
             if "jeongsi_comment" in ai_data:
-                jeongsi_tip += f" (AI 정시 전략: {ai_data['jeongsi_comment']})"
+                jeongsi_tip += f" (AI ?�시 ?�략: {ai_data['jeongsi_comment']})"
         except Exception:
             pass
 
     return {
         "susi": {
-            "university": f"{university_name} {department_name} (수시)",
+            "university": f"{university_name} {department_name} (?�시)",
             "result_tier": susi_tier,
             "tip": susi_tip
         },
         "jeongsi": {
-            "university": f"{university_name} {department_name} (정시)",
+            "university": f"{university_name} {department_name} (?�시)",
             "result_tier": jeongsi_tier,
             "tip": jeongsi_tip
         }
