@@ -107,13 +107,17 @@ def ask_ai_chatbot(message: str, history: list = None) -> str:
             "Use this knowledge base to find relevant insights. Do not copy-paste. Reinterpret naturally.\n\n"
             f"{knowledge}\n"
         )
-        contents = []
         if history:
             for msg_item in history[-10:]:
-                role = 'user' if msg_item.get('role') == 'user' else 'model'
-                text = msg_item.get('content', '')
-                if text.strip():
-                    contents.append({'role': role, 'parts': [{'text': text}]})
+                if isinstance(msg_item, dict):
+                    r_val = msg_item.get('role', 'user')
+                    text = msg_item.get('content', '')
+                else:
+                    r_val = getattr(msg_item, 'role', 'user')
+                    text = getattr(msg_item, 'content', '')
+                role = 'user' if r_val == 'user' else 'model'
+                if text and str(text).strip():
+                    contents.append({'role': role, 'parts': [{'text': str(text)}]})
         contents.append({'role': 'user', 'parts': [{'text': message}]})
         import time
         last_error = None
