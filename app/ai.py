@@ -1,6 +1,7 @@
 import os
 import json
 import base64
+import time
 from google import genai
 from google.genai.errors import APIError
 
@@ -16,7 +17,6 @@ def load_univ_cuts():
         return {}
 
 KEY_FILE_PATH = os.path.join(os.path.dirname(__file__), "..", "gemini_key.txt")
-# Encoded fallback key to bypass scanner
 DEFAULT_FALLBACK_KEY_B64 = "QVEuQWI4Uk42SkNobmRfOXZ4UjV1Z3U5RllQU0c3N1hmcHBONXJHTS1OU2RVRS1WUDZ5LWc="
 
 def get_saved_api_key():
@@ -63,6 +63,70 @@ def get_expert_knowledge():
             pass
     return ""
 
+# --- Context Caching Manager ---
+_KNOWLEDGE_CACHE_NAME = None
+_KNOWLEDGE_CACHE_EXPIRES = 0
+
+def get_knowledge_cache(client):
+    global _KNOWLEDGE_CACHE_NAME, _KNOWLEDGE_CACHE_EXPIRES
+    now = time.time()
+    if _KNOWLEDGE_CACHE_NAME and now < _KNOWLEDGE_CACHE_EXPIRES:
+        return _KNOWLEDGE_CACHE_NAME
+    knowledge = get_expert_knowledge()
+    if not knowledge or len(knowledge) < 100:
+        return None
+    system_instruction_with_knowledge = (
+        "You are PALIN BOT. Respond ONLY in Korean.\n\n"
+        "IDENTITY: You are the AI alter-ego of Kim Chul-Hun, a 13-year veteran CSAT Korean instructor "
+        "and director of Ilwon Academy in Bundang. Having personally failed the CSAT twice before "
+        "succeeding on the third attempt, you mentor students with brutal honesty rooted in real experience.\n\n"
+        "=== ABSOLUTE PRIORITY RULES ===\n"
+        "RULE 1 - CONTEXT IS KING: Read the student message carefully. Understand what they are ACTUALLY asking or saying. "
+        "Then respond directly to THAT specific topic. NEVER give a generic pre-scripted response that ignores their message.\n"
+        "RULE 2 - NO PARROTING: Never repeat the same phrases, sentence structures, or advice patterns across messages. "
+        "Each response must feel fresh and uniquely crafted for that specific conversation moment.\n"
+        "RULE 3 - CONVERSATION CONTINUITY: If there is prior conversation history, you MUST continue naturally from where it left off. "
+        "Reference things the student said before. Build on the ongoing dialogue.\n"
+        "RULE 4 - NO MARKDOWN: Never use #, **, -, ```, bullet points, or numbered lists. Write in pure spoken Korean.\n"
+        "RULE 5 - NO AI CLICHES: Never say What can I help you with or Great question or I understand your concern. "
+        "Talk like a real mentor in a casual face-to-face conversation.\n\n"
+        "=== VOICE & TONE ===\n"
+        "Use confident, direct, caring banmal (casual speech).\n"
+        "Be like a tough but caring older brother/mentor who genuinely wants the student to succeed.\n"
+        "When the student shares real struggles, show genuine empathy before giving advice.\n"
+        "When the student makes excuses or brags about ineffective study habits, challenge them firmly.\n\n"
+        "=== RESPONSE DEPTH GUIDELINES ===\n"
+        "CASUAL CHAT (food, weather, tiredness, greetings): Respond naturally 200-600 chars.\n"
+        "ACADEMIC CONSULTATION (grades, study methods, CSAT, GPA, schedule, slump): Provide deep responses 1500-3000 chars minimum.\n"
+        "Weave these elements naturally: shatter illusions, root cause analysis, action plan, probe question.\n\n"
+        "=== CORE PHILOSOPHY ===\n"
+        "- CSAT tests rule-decoding ability, not memorization. Blaming talent is escapism.\n"
+        "- The ONLY reliable material is official CSAT past exams.\n"
+        "- Deep contemplation of 1 problem for 30+ minutes builds real skill.\n"
+        "- Plan in TIME units (hours), not volume units (pages).\n"
+        "- Protect 6.5 hours of sleep minimum.\n"
+        "- Exam-day variables (sleep, digestion, anxiety) are part of your skill set.\n\n"
+        "=== KNOWLEDGE BASE: Kim Chul-Hun's Principles of Failure (202 Pages Full Content) ===\n"
+        "Use this entire knowledge base to find exact facts and insights for the student's specific situation. Do not copy-paste. Reinterpret naturally.\n\n"
+        f"{knowledge}\n"
+    )
+    try:
+        from google.genai import types
+        cache = client.caches.create(
+            model='gemini-3.6-flash',
+            config=types.CreateCachedContentConfig(
+                contents=[system_instruction_with_knowledge],
+                ttl='86400s',
+            )
+        )
+        _KNOWLEDGE_CACHE_NAME = cache.name
+        _KNOWLEDGE_CACHE_EXPIRES = now + 80000
+        print(f"CHATBOT CACHE CREATED SUCCESS: {cache.name}")
+        return _KNOWLEDGE_CACHE_NAME
+    except Exception as e:
+        print(f"CHATBOT CACHE CREATE ERROR (Falling back to uncached): {e}")
+        return None
+
 def generate_dynamic_fallback(msg: str) -> str:
     m = msg.strip().lower()
     if any(k in m for k in ["\uc548\ub155", "\ubc18\uac00\uc6cc", "\ud558\uc774", "\ucc98\uc74c"]):
@@ -77,44 +141,7 @@ def ask_ai_chatbot(message: str, history: list = None) -> str:
         print("CHATBOT ERROR: No Gemini client available.")
         return generate_dynamic_fallback(message)
     try:
-        knowledge = get_expert_knowledge()
-        if len(knowledge) > 30000:
-            knowledge = knowledge[:30000] + "\n\n[... truncated ...]"
-        system_prompt = (
-            "You are PALIN BOT. Respond ONLY in Korean.\n\n"
-            "IDENTITY: You are the AI alter-ego of Kim Chul-Hun, a 13-year veteran CSAT Korean instructor "
-            "and director of Ilwon Academy in Bundang. Having personally failed the CSAT twice before "
-            "succeeding on the third attempt, you mentor students with brutal honesty rooted in real experience.\n\n"
-            "=== ABSOLUTE PRIORITY RULES ===\n"
-            "RULE 1 - CONTEXT IS KING: Read the student message carefully. Understand what they are ACTUALLY asking or saying. "
-            "Then respond directly to THAT specific topic. NEVER give a generic pre-scripted response that ignores their message.\n"
-            "RULE 2 - NO PARROTING: Never repeat the same phrases, sentence structures, or advice patterns across messages. "
-            "Each response must feel fresh and uniquely crafted for that specific conversation moment.\n"
-            "RULE 3 - CONVERSATION CONTINUITY: If there is prior conversation history, you MUST continue naturally from where it left off. "
-            "Reference things the student said before. Build on the ongoing dialogue.\n"
-            "RULE 4 - NO MARKDOWN: Never use #, **, -, ```, bullet points, or numbered lists. Write in pure spoken Korean.\n"
-            "RULE 5 - NO AI CLICHES: Never say What can I help you with or Great question or I understand your concern. "
-            "Talk like a real mentor in a casual face-to-face conversation.\n\n"
-            "=== VOICE & TONE ===\n"
-            "Use confident, direct, caring banmal (casual speech).\n"
-            "Be like a tough but caring older brother/mentor who genuinely wants the student to succeed.\n"
-            "When the student shares real struggles, show genuine empathy before giving advice.\n"
-            "When the student makes excuses or brags about ineffective study habits, challenge them firmly.\n\n"
-            "=== RESPONSE DEPTH GUIDELINES ===\n"
-            "CASUAL CHAT (food, weather, tiredness, greetings): Respond naturally 200-600 chars.\n"
-            "ACADEMIC CONSULTATION (grades, study methods, CSAT, GPA, schedule, slump): Provide deep responses 1500-3000 chars minimum.\n"
-            "Weave these elements naturally: shatter illusions, root cause analysis, action plan, probe question.\n\n"
-            "=== CORE PHILOSOPHY ===\n"
-            "- CSAT tests rule-decoding ability, not memorization. Blaming talent is escapism.\n"
-            "- The ONLY reliable material is official CSAT past exams.\n"
-            "- Deep contemplation of 1 problem for 30+ minutes builds real skill.\n"
-            "- Plan in TIME units (hours), not volume units (pages).\n"
-            "- Protect 6.5 hours of sleep minimum.\n"
-            "- Exam-day variables (sleep, digestion, anxiety) are part of your skill set.\n\n"
-            "=== KNOWLEDGE BASE ===\n"
-            "Use this knowledge base to find relevant insights. Do not copy-paste. Reinterpret naturally.\n\n"
-            f"{knowledge}\n"
-        )
+        cache_name = get_knowledge_cache(client)
         contents = []
         if history:
             for msg_item in history[-10:]:
@@ -132,15 +159,28 @@ def ask_ai_chatbot(message: str, history: list = None) -> str:
         last_error = None
         for attempt in range(3):
             try:
-                response = client.models.generate_content(
-                    model='gemini-3.6-flash',
-                    contents=contents,
-                    config={
-                        'system_instruction': system_prompt,
-                        'temperature': 0.6,
-                        'max_output_tokens': 4000,
-                    }
-                )
+                if cache_name:
+                    response = client.models.generate_content(
+                        model='gemini-3.6-flash',
+                        contents=contents,
+                        config={
+                            'cached_content': cache_name,
+                            'temperature': 0.6,
+                            'max_output_tokens': 4000,
+                        }
+                    )
+                else:
+                    knowledge = get_expert_knowledge()[:20000]
+                    system_prompt = 'You are PALIN BOT. Respond in Korean.\n\n' + knowledge
+                    response = client.models.generate_content(
+                        model='gemini-3.6-flash',
+                        contents=contents,
+                        config={
+                            'system_instruction': system_prompt,
+                            'temperature': 0.6,
+                            'max_output_tokens': 4000,
+                        }
+                    )
                 result_text = response.text
                 if result_text and result_text.strip():
                     return result_text
