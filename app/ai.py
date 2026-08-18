@@ -60,18 +60,15 @@ def get_expert_knowledge():
                 return f.read()
         except Exception:
             pass
-    return "?�능�??�신 공�? 균형??맞추�? 취침/기상 미션??준?�하??최적???�체 리듬??찾으?�요."
+    return ""
 
 def generate_dynamic_fallback(msg: str) -> str:
     m = msg.strip().lower()
-    
-    if any(k in m for k in ["?�녕", "반�???, "?�이", "처음"]):
-        return "??그래, 반갑?? 지금�? AI ?�버?� ?�결??불안?�해??�??�담?� ?�렵?? API ???�정???��?�??�어 ?�는지 ?�인?�보�??�시 �?걸어�?"
-        
-    if any(k in m for k in ["고�?", "?�들", "?�담"]):
-        return "??고�???깊게 ?�어주고 ?��??? ?�재 AI ?�버 ?�결 문제�??�세???��????�들?? API ???�정???�인?�주�??��? ?��?�????�결책을 줄게."
-        
-    return "?�재 ?�스???�결???�활?��? ?�거??API ?��? ?�정?��? ?�았?�니?? API ???�정???�인?�거???�시 ???�시 ?�도?�주?�요."
+    if any(k in m for k in ["\uc548\ub155", "\ubc18\uac00\uc6cc", "\ud558\uc774", "\ucc98\uc74c"]):
+        return "\uc5b4 \uadf8\ub798, \ubc18\uac11\ub2e4! \uc9c0\uae08\uc740 AI \uc11c\ubc84\uc640 \uc5f0\uacb0\uc774 \ubd88\uc548\uc815\ud574\uc11c \uae34 \uc0c1\ub2f4\uc740 \uc5b4\ub835\ub124. API \ud0a4 \uc124\uc815\uc774 \uc81c\ub300\ub85c \ub418\uc5b4 \uc788\ub294\uc9c0 \ud655\uc778\ud574\ubcf4\uace0 \ub2e4\uc2dc \ub9d0 \uac78\uc5b4\uc918."
+    if any(k in m for k in ["\uace0\ubbfc", "\ud798\ub4e4", "\uc0c1\ub2f4"]):
+        return "\ub124 \uace0\ubbfc\uc744 \uae4a\uac8c \ub4e4\uc5b4\uc8fc\uace0 \uc2f6\uc740\ub370, \ud604\uc7ac AI \uc11c\ubc84 \uc5f0\uacb0 \ubb38\uc81c\ub85c \uc790\uc138\ud55c \ub2f5\ubcc0\uc774 \ud798\ub4e4\uc5b4. API \ud0a4 \uc124\uc815\uc744 \ud655\uc778\ud574\uc8fc\uba74 \ub0b4\uac00 \uc81c\ub300\ub85c \ub41c \ud574\uacb0\ucc45\uc744 \uc904\uac8c."
+    return "\ud604\uc7ac \uc2dc\uc2a4\ud15c \uc5f0\uacb0\uc774 \uc6d0\ud65c\ud558\uc9c0 \uc54a\uac70\ub098 API \ud0a4\uac00 \uc124\uc815\ub418\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4. API \ud0a4 \uc124\uc815\uc744 \ud655\uc778\ud558\uac70\ub098 \uc7a0\uc2dc \ud6c4 \ub2e4\uc2dc \uc2dc\ub3c4\ud574\uc8fc\uc138\uc694."
 
 def ask_ai_chatbot(message: str, history: list = None) -> str:
     client = get_gemini_client()
@@ -81,17 +78,14 @@ def ask_ai_chatbot(message: str, history: list = None) -> str:
     
     try:
         knowledge = get_expert_knowledge()
-        # ?�큰 ?�약: 지??베이?��? 30,000?�로 ?�한 (무료 API ?�당??보호)
         if len(knowledge) > 30000:
-            knowledge = knowledge[:30000] + "\n\n[... 지??베이???�머지 ?�략 (?�큰 ?�약) ...]"
+            knowledge = knowledge[:30000] + "\n\n[... knowledge base truncated for token savings ...]"
         
         system_prompt = (
             "You are 'PALIN BOT'. Respond ONLY in Korean.\n\n"
-            
             "IDENTITY: You are the AI alter-ego of Kim Chul-Hun, a 13-year veteran CSAT Korean instructor "
             "and director of Ilwon Academy in Bundang. Having personally failed the CSAT twice before "
             "succeeding on the third attempt, you mentor students with brutal honesty rooted in real experience.\n\n"
-            
             "=== ABSOLUTE PRIORITY RULES ===\n"
             "RULE 1 - CONTEXT IS KING: Read the student's message carefully. Understand what they are ACTUALLY asking or saying. "
             "Then respond directly to THAT specific topic. NEVER give a generic pre-scripted response that ignores their message.\n"
@@ -102,19 +96,16 @@ def ask_ai_chatbot(message: str, history: list = None) -> str:
             "RULE 4 - NO MARKDOWN: Never use #, **, -, ```, bullet points, or numbered lists. Write in pure spoken Korean.\n"
             "RULE 5 - NO AI CLICHES: Never say things like 'What can I help you with?', 'Great question!', 'I understand your concern'. "
             "Talk like a real mentor in a casual face-to-face conversation.\n\n"
-            
             "=== VOICE & TONE ===\n"
             "Use confident, direct, caring banmal (casual speech): ~haera, ~haja, ~iya, ~geodeun, ~janha.\n"
             "Be like a tough but caring older brother/mentor who genuinely wants the student to succeed.\n"
             "When the student shares real struggles, show genuine empathy before giving advice.\n"
             "When the student makes excuses or brags about ineffective study habits, challenge them firmly.\n\n"
-            
             "=== RESPONSE DEPTH GUIDELINES ===\n"
             "CASUAL CHAT (food, weather, tiredness, greetings, random topics):\n"
             "- Respond naturally and warmly, 200-600 characters.\n"
             "- Connect lightly to student wellness (diet, sleep, exercise) at the end with 1-2 sentences.\n"
             "- Do NOT force exam/study topics into casual conversations.\n\n"
-            
             "ACADEMIC/EXAM CONSULTATION (grades, study methods, CSAT, GPA, schedule, slump, subject advice):\n"
             "- Provide deep, substantial responses of 1500-3000 characters minimum.\n"
             "- Weave these elements naturally into a flowing narrative (do NOT label them as steps):\n"
@@ -122,7 +113,6 @@ def ask_ai_chatbot(message: str, history: list = None) -> str:
             "  b) Root cause: Draw from the knowledge base below to explain WHY their approach isn't working.\n"
             "  c) Action plan: Give 3+ concrete, actionable steps they can implement TODAY.\n"
             "  d) Probe question: End with one sharp question about their current situation to keep the dialogue going.\n\n"
-            
             "=== CORE PHILOSOPHY (from the Knowledge Base) ===\n"
             "- CSAT tests rule-decoding ability, not memorization. Blaming talent is escapism.\n"
             "- Private academy worksheets are often written by undergrad part-timers. The ONLY reliable material is official CSAT past exams.\n"
@@ -131,24 +121,21 @@ def ask_ai_chatbot(message: str, history: list = None) -> str:
             "- Plan in TIME units (hours), not volume units (pages). Time flows consistently regardless of difficulty.\n"
             "- Protect 6.5 hours of sleep minimum. 2 hours of clear-headed problem analysis beats 10 hours of brain-fog studying.\n"
             "- Exam-day variables (sleep, digestion, anxiety) are part of your skill set. Control them.\n\n"
-            
-            "=== KNOWLEDGE BASE: Kim Chul-Hun's 'Principles of Failure' ===\n"
+            "=== KNOWLEDGE BASE ===\n"
             "Use this knowledge base to find relevant insights for the student's specific situation. "
-            "Do not copy-paste from it. Reinterpret and adapt the content naturally for the student's context.\n\n"
+            "Do not copy-paste from it. Reinterpret and adapt the content naturally.\n\n"
             f"{knowledge}\n"
         )
         
-        # Build multi-turn conversation contents
         contents = []
         if history:
-            for msg_item in history[-10:]:  # 최근 10?�으�?줄여 ?�큰 ?�약
+            for msg_item in history[-10:]:
                 role = 'user' if msg_item.get('role') == 'user' else 'model'
                 text = msg_item.get('content', '')
                 if text.strip():
                     contents.append({'role': role, 'parts': [{'text': text}]})
         contents.append({'role': 'user', 'parts': [{'text': message}]})
         
-        # 429 ?�러 ???�시??(최�? 3?? 지??백오??
         import time
         last_error = None
         for attempt in range(3):
@@ -162,19 +149,17 @@ def ask_ai_chatbot(message: str, history: list = None) -> str:
                         'max_output_tokens': 4000,
                     }
                 )
-                
                 result_text = response.text
                 if result_text and result_text.strip():
                     return result_text
-                
-                print("CHATBOT WARNING: Gemini returned empty/null response text.")
+                print("CHATBOT WARNING: Gemini returned empty response.")
                 return generate_dynamic_fallback(message)
-                
             except APIError as api_err:
                 last_error = api_err
                 status = getattr(api_err, 'status_code', 0)
                 if status == 429 and attempt < 2:
-                    wait = (attempt + 1) * 5  # 5�? 10�??��?                    print(f"CHATBOT 429 RATE LIMIT: attempt {attempt+1}/3, waiting {wait}s...")
+                    wait = (attempt + 1) * 5
+                    print(f"CHATBOT 429 RATE LIMIT: attempt {attempt+1}/3, waiting {wait}s...")
                     time.sleep(wait)
                     continue
                 print(f"CHATBOT API ERROR (status={status}, attempt={attempt+1}): {api_err}")
@@ -183,7 +168,7 @@ def ask_ai_chatbot(message: str, history: list = None) -> str:
         if last_error:
             status = getattr(last_error, 'status_code', 0)
             if status == 429:
-                return "지�?AI ?�버가 ?�청??많아???�시 ?�고 ?�어. 1~2�??�에 ?�시 �?걸어�? 그동???�늘 기출 1문제?�도 ?�놓�??�색?�봐."
+                return "\uc9c0\uae08 AI \uc11c\ubc84\uac00 \uc694\uccad\uc774 \ub9ce\uc544\uc11c \uc7a0\uc2dc \uc26c\uace0 \uc788\uc5b4. 1~2\ubd84 \ub4a4\uc5d0 \ub2e4\uc2dc \ub9d0 \uac78\uc5b4\uc918. \uadf8\ub3d9\uc548 \uc624\ub298 \uae30\ucd9c 1\ubb38\uc81c\ub77c\ub3c4 \ud3b4\ub193\uace0 \uc0ac\uc0c9\ud574\ubd10."
             return generate_dynamic_fallback(message)
         return generate_dynamic_fallback(message)
         
@@ -194,10 +179,9 @@ def ask_ai_chatbot(message: str, history: list = None) -> str:
         return generate_dynamic_fallback(message)
 
 
-# --- ?�어 / ?�국???�급 ?�동 계산 모듈 ---
+# --- English / History grade conversion ---
 
 def get_english_grade(score: int) -> int:
-    """?�어 ?��??��? ?�급 변??(90???�상 1?�급, 80???�상 2?�급...)"""
     if score >= 90: return 1
     elif score >= 80: return 2
     elif score >= 70: return 3
@@ -209,7 +193,6 @@ def get_english_grade(score: int) -> int:
     return 9
 
 def get_history_grade(score: int) -> int:
-    """?�국???��??��? ?�급 변??(40???�상 1?�급, 35???�상 2?�급...)"""
     if score >= 40: return 1
     elif score >= 35: return 2
     elif score >= 30: return 3
@@ -221,7 +204,7 @@ def get_history_grade(score: int) -> int:
     return 9
 
 
-# --- ?�격 ?�측 ?�고리즘 (?�정) ---
+# --- Admission prediction ---
 
 def evaluate_univ_admission_extended(
     gpa: float,
@@ -236,10 +219,8 @@ def evaluate_univ_admission_extended(
 ) -> dict:
     
     univ_cuts = load_univ_cuts()
-    
     eng_grade = get_english_grade(eng_score)
     hist_grade = get_history_grade(history_score)
-    
     mock_avg = (kor_pct + math_pct + (tam1_pct + tam2_pct)/2) / 3
     student_nuback = 100.0 - mock_avg
     
@@ -260,109 +241,87 @@ def evaluate_univ_admission_extended(
     if target_cuts_dict:
         if len(target_cuts_dict) == 1:
             target_cuts = list(target_cuts_dict.values())[0]
-            target_cuts["계열"] = list(target_cuts_dict.keys())[0]
+            target_cuts["\uacc4\uc5f4"] = list(target_cuts_dict.keys())[0]
         else:
             is_science = False
-            science_keywords = ["공학", "?�학", "?�물", "?�학", "물리", "?�예", "치의", "?�학", "?�의", "간호", "컴퓨??, "IT", "과학", "?�프?�웨??, "기계", "?�기", "?�자", "?�소??, "??��", "?�연", "바이??, "?�스??, "?�합"]
+            science_keywords = ["\uacf5\ud559", "\ud654\ud559", "\uc0dd\ubb3c", "\uc218\ud559", "\ubb3c\ub9ac", "\uc758\uc608", "\uce58\uc758", "\uc57d\ud559", "\ud55c\uc758", "\uac04\ud638", "\ucef4\ud4e8\ud130", "IT", "\uacfc\ud559", "\uc18c\ud504\ud2b8\uc6e8\uc5b4", "\uae30\uacc4", "\uc804\uae30", "\uc804\uc790", "\uc2e0\uc18c\uc7ac", "\ud56d\uacf5", "\uc790\uc5f0", "\ubc14\uc774\uc624", "\uc2dc\uc2a4\ud15c", "\uc735\ud569"]
             for kw in science_keywords:
                 if kw in department_name:
                     is_science = True
                     break
-            
-            chosen_key = "?�과" if is_science else "문과"
+            chosen_key = "\uc774\uacfc" if is_science else "\ubb38\uacfc"
             if chosen_key in target_cuts_dict:
                 target_cuts = target_cuts_dict[chosen_key]
-                target_cuts["계열"] = chosen_key
+                target_cuts["\uacc4\uc5f4"] = chosen_key
             else:
                 target_cuts = list(target_cuts_dict.values())[0]
-                target_cuts["계열"] = list(target_cuts_dict.keys())[0]
+                target_cuts["\uacc4\uc5f4"] = list(target_cuts_dict.keys())[0]
                 
     if not target_cuts:
-        target_cuts = {
-            "?�정?�백": 15.0,
-            "?�상?�백": 20.0,
-            "?�신?�백": 25.0,
-            "계열": "?�과"
-        }
+        target_cuts = {"\uc801\uc815\ub204\ubc31": 15.0, "\uc608\uc0c1\ub204\ubc31": 20.0, "\uc18c\uc2e0\ub204\ubc31": 25.0, "\uacc4\uc5f4": "\uc774\uacfc"}
         
-    ?�정 = target_cuts.get("?�정?�백")
-    ?�상 = target_cuts.get("?�상?�백")
-    ?�신 = target_cuts.get("?�신?�백")
+    jeokjeong = target_cuts.get("\uc801\uc815\ub204\ubc31", 15.0)
+    yesang = target_cuts.get("\uc608\uc0c1\ub204\ubc31", 20.0)
+    sosin = target_cuts.get("\uc18c\uc2e0\ub204\ubc31", 25.0)
     
-    if ?�정 is None: ?�정 = 15.0
-    if ?�상 is None: ?�상 = 20.0
-    if ?�신 is None: ?�신 = 25.0
-    
-    # --- ?�시 (Jeongsi) ?�정 �?미달 % 계산 (?�수???�는 ?�수) ---
-    target_cutoff_pct = round(100.0 - ?�정)
+    target_cutoff_pct = round(100.0 - jeokjeong)
     pct_diff = round(mock_avg - target_cutoff_pct)
     
-    if student_nuback <= ?�정 - 5.0:
-        jeongsi_tier = "?�향"
-    elif student_nuback <= ?�정:
-        jeongsi_tier = "?�정"
-    elif student_nuback <= ?�상:
-        jeongsi_tier = "?�정"
-    elif student_nuback <= ?�신:
-        jeongsi_tier = "?�신"
+    if student_nuback <= jeokjeong - 5.0:
+        jeongsi_tier = "\ud558\ud5a5"
+    elif student_nuback <= jeokjeong:
+        jeongsi_tier = "\uc548\uc815"
+    elif student_nuback <= yesang:
+        jeongsi_tier = "\uc801\uc815"
+    elif student_nuback <= sosin:
+        jeongsi_tier = "\uc18c\uc2e0"
     else:
-        jeongsi_tier = "?�향"
+        jeongsi_tier = "\uc0c1\ud5a5"
 
     if pct_diff >= 0:
-        jeongsi_tip = f"목표 ?�???�격???��?백분??+{pct_diff}%p ?�유 (?�정/?�정 지?�권)"
+        jeongsi_tip = f"\ubaa9\ud45c \ub300\ud559 \ud569\uaca9\uc120 \ub300\ube44 \ubc31\ubd84\uc704 +{pct_diff}%p \uc5ec\uc720 (\uc548\uc815/\uc801\uc815 \uc9c0\uc6d0\uad8c)"
     else:
-        jeongsi_tip = f"목표 ?�???�격???��?백분??{pct_diff}%p 미달 (?�향 지?�권)"
+        jeongsi_tip = f"\ubaa9\ud45c \ub300\ud559 \ud569\uaca9\uc120 \ub300\ube44 \ubc31\ubd84\uc704 {pct_diff}%p \ubbf8\ub2ec (\uc0c1\ud5a5 \uc9c0\uc6d0\uad8c)"
 
     if eng_grade >= 3 or hist_grade >= 4:
-        tier_downgrade = {"?�향": "?�정", "?�정": "?�정", "?�정": "?�신", "?�신": "?�향", "?�향": "?�향"}
+        tier_downgrade = {"\ud558\ud5a5": "\uc548\uc815", "\uc548\uc815": "\uc801\uc815", "\uc801\uc815": "\uc18c\uc2e0", "\uc18c\uc2e0": "\uc0c1\ud5a5", "\uc0c1\ud5a5": "\uc0c1\ud5a5"}
         old_tier = jeongsi_tier
-        jeongsi_tier = tier_downgrade.get(jeongsi_tier, "?�향")
-        jeongsi_tip += f" [?�어/?�국??감점 반영: {old_tier} ??{jeongsi_tier}]"
+        jeongsi_tier = tier_downgrade.get(jeongsi_tier, "\uc0c1\ud5a5")
+        jeongsi_tip += f" [\uc601\uc5b4/\ud55c\uad6d\uc0ac \uac10\uc810 \ubc18\uc601: {old_tier} -> {jeongsi_tier}]"
 
-    # --- ?�시 (Susi) ?�정 �??�급 미달 계산 ---
     gpa_cut = 2.0
-    if ?�신 < 2.0:
-        gpa_cut = 1.3
-    elif ?�신 < 10.0:
-        gpa_cut = 1.8
-    elif ?�신 < 25.0:
-        gpa_cut = 2.5
-    else:
-        gpa_cut = 3.5
+    if sosin < 2.0: gpa_cut = 1.3
+    elif sosin < 10.0: gpa_cut = 1.8
+    elif sosin < 25.0: gpa_cut = 2.5
+    else: gpa_cut = 3.5
         
     gpa_diff = round(gpa_cut - gpa, 1)
-    if gpa_diff >= 0.5:
-        susi_tier = "?�향"
-    elif gpa_diff >= 0.1:
-        susi_tier = "?�정"
-    elif gpa_diff >= -0.2:
-        susi_tier = "?�정"
-    elif gpa_diff >= -0.5:
-        susi_tier = "?�신"
-    else:
-        susi_tier = "?�향"
+    if gpa_diff >= 0.5: susi_tier = "\ud558\ud5a5"
+    elif gpa_diff >= 0.1: susi_tier = "\uc548\uc815"
+    elif gpa_diff >= -0.2: susi_tier = "\uc801\uc815"
+    elif gpa_diff >= -0.5: susi_tier = "\uc18c\uc2e0"
+    else: susi_tier = "\uc0c1\ud5a5"
 
     if gpa_diff >= 0:
-        susi_tip = f"목표 ?�격 ?�신({gpa_cut}?�급) ?��?+{gpa_diff}?�급 ?�수 (?�정 지?�권)"
+        susi_tip = f"\ubaa9\ud45c \ud569\uaca9 \ub0b4\uc2e0({gpa_cut}\ub4f1\uae09) \ub300\ube44 +{gpa_diff}\ub4f1\uae09 \uc6b0\uc218 (\uc548\uc815 \uc9c0\uc6d0\uad8c)"
     else:
-        susi_tip = f"목표 ?�격 ?�신({gpa_cut}?�급) ?��?{abs(gpa_diff):.1f}?�급 미달 (?�향 지?�권)"
+        susi_tip = f"\ubaa9\ud45c \ud569\uaca9 \ub0b4\uc2e0({gpa_cut}\ub4f1\uae09) \ub300\ube44 {abs(gpa_diff):.1f}\ub4f1\uae09 \ubbf8\ub2ec (\uc0c1\ud5a5 \uc9c0\uc6d0\uad8c)"
 
-    if mock_avg < (100.0 - ?�신) - 8:
-        tier_downgrade = {"?�향": "?�정", "?�정": "?�정", "?�정": "?�신", "?�신": "?�향", "?�향": "?�향"}
+    if mock_avg < (100.0 - sosin) - 8:
+        tier_downgrade2 = {"\ud558\ud5a5": "\uc548\uc815", "\uc548\uc815": "\uc801\uc815", "\uc801\uc815": "\uc18c\uc2e0", "\uc18c\uc2e0": "\uc0c1\ud5a5", "\uc0c1\ud5a5": "\uc0c1\ud5a5"}
         old_susi = susi_tier
-        susi_tier = tier_downgrade.get(susi_tier, "?�향")
-        susi_tip += f" [?�능 최�? 미달 가?�성 주의: {old_susi} ??{susi_tier}]"
+        susi_tier = tier_downgrade2.get(susi_tier, "\uc0c1\ud5a5")
+        susi_tip += f" [\uc218\ub2a5 \ucd5c\uc800 \ubbf8\ub2ec \uac00\ub2a5\uc131 \uc8fc\uc758: {old_susi} -> {susi_tier}]"
 
     client = get_gemini_client()
     if client:
         try:
             prompt = (
-                f"?�신?� ?�시 컨설?�트?�니?? ?�음 ?�생??개별 ?�적 진단 결과???�???�시?�략�??�시?�략???�우르는 ?�드�?1문장??각각 ?�성?�주?�요.\n"
-                f"?�생 ?�적 - ?�신: {gpa}?�급, 모의고사 ?�균백분?? {mock_avg:.1f} (�?��:{kor_pct}, ?�학:{math_pct}, ?�어:{eng_grade}?�급, ?�구1:{tam1_pct}, ?�구2:{tam2_pct}, ?�국??{hist_grade}?�급)\n"
-                f"지?��??? {university_name} {department_name} (?�신컷�?�? {gpa_cut}, ?�시백분?�컷?��? {100.0-?�정})\n"
-                f"?�시 진단 ?�급: {susi_tier}, ?�시 진단 ?�급: {jeongsi_tier}\n"
-                f"?�구?�항: 존댓말로 ?�생?�게 조언?�듯??부?�럽지�??�문?�으�??�시??조언 1문장, ?�시??조언 1문장??JSON ?�식?�로 출력?�주?�요.\n"
-                f"?�시 ?�식: {{\"susi_comment\": \"?�시 조언...\", \"jeongsi_comment\": \"?�시 조언...\"}}"
+                f"You are an admission consultant. Respond in Korean.\n"
+                f"Student scores - GPA: {gpa}, Avg percentile: {mock_avg:.1f} (Kor:{kor_pct}, Math:{math_pct}, Eng grade:{eng_grade}, Tam1:{tam1_pct}, Tam2:{tam2_pct}, History grade:{hist_grade})\n"
+                f"Target: {university_name} {department_name}\n"
+                f"Susi tier: {susi_tier}, Jeongsi tier: {jeongsi_tier}\n"
+                f'Give 1 sentence advice each for susi and jeongsi in JSON: {{"susi_comment": "...", "jeongsi_comment": "..."}}'
             )
             response = client.models.generate_content(
                 model='gemini-3.6-flash',
@@ -371,20 +330,20 @@ def evaluate_univ_admission_extended(
             text_cleaned = response.text.strip().replace("```json", "").replace("```", "")
             ai_data = json.loads(text_cleaned)
             if "susi_comment" in ai_data:
-                susi_tip += f" (AI ?�시 ?�략: {ai_data['susi_comment']})"
+                susi_tip += f" (AI: {ai_data['susi_comment']})"
             if "jeongsi_comment" in ai_data:
-                jeongsi_tip += f" (AI ?�시 ?�략: {ai_data['jeongsi_comment']})"
+                jeongsi_tip += f" (AI: {ai_data['jeongsi_comment']})"
         except Exception:
             pass
 
     return {
         "susi": {
-            "university": f"{university_name} {department_name} (?�시)",
+            "university": f"{university_name} {department_name} (susi)",
             "result_tier": susi_tier,
             "tip": susi_tip
         },
         "jeongsi": {
-            "university": f"{university_name} {department_name} (?�시)",
+            "university": f"{university_name} {department_name} (jeongsi)",
             "result_tier": jeongsi_tier,
             "tip": jeongsi_tip
         }
