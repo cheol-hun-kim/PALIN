@@ -943,7 +943,7 @@ async function sendChatMessage() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                student_id: currentStudent.id,
+                student_id: (currentStudent && currentStudent.id) ? currentStudent.id : 1,
                 message: msg,
                 history: recentHistory.length > 0 ? recentHistory : null
             })
