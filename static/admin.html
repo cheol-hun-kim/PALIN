@@ -100,8 +100,9 @@
             <div class="admin-title">PALIN<span style="color: #6366f1;">OS</span> 중앙 관제 대시보드</div>
             <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 4px;">원장 전용 재원생 수험 궤적 & 실시간 모니터링 모니터</div>
         </div>
-        <div style="display: flex; gap: 10px;">
-            <button onclick="fetchDashboardData()" class="btn" style="padding: 10px 16px;">🔄 데이터 실시간 갱신</button>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button onclick="downloadMarketingReport()" class="btn" style="padding: 10px 16px; background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: 700;">📊 마케팅 리텐션 리포트(CSV) 다운로드</button>
+            <button onclick="fetchDashboardData()" class="btn" style="padding: 10px 16px;">🔄 실시간 갱신</button>
             <a href="/" class="btn btn-secondary" style="padding: 10px 16px; text-decoration: none;">📱 학생용 모바일 화면 보기</a>
         </div>
     </div>
@@ -214,7 +215,7 @@
             </div>
             <div style="font-size: 1.3rem; font-weight: 800; color: #f8fafc; margin-bottom: 8px;">원장님 전용 관리자 인증</div>
             <div style="font-size: 0.83rem; color: #94a3b8; margin-bottom: 20px; line-height: 1.4;">중앙 관제 대시보드 접근을 위해 비밀번호를 입력해주세요.</div>
-            <input type="password" id="admin-pin-input" placeholder="비밀번호 입력 (기본: 1286)" style="width: 100%; padding: 14px; background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 12px; color: white; font-size: 1.1rem; text-align: center; letter-spacing: 4px; box-sizing: border-box; margin-bottom: 14px;" onkeyup="if(event.key==='Enter') checkAdminAuth()">
+            <input type="password" id="admin-pin-input" placeholder="원장 전용 비밀번호 입력" style="width: 100%; padding: 14px; background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 12px; color: white; font-size: 1.1rem; text-align: center; letter-spacing: 4px; box-sizing: border-box; margin-bottom: 14px;" onkeyup="if(event.key==='Enter') checkAdminAuth()">
             <button onclick="checkAdminAuth()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);">🔐 관리자 인증하기</button>
             <div id="auth-error-msg" style="color: #ef4444; font-size: 0.8rem; margin-top: 10px; display: none;">비밀번호가 올바르지 않습니다.</div>
         </div>
@@ -431,6 +432,37 @@
                 checkGeminiStatus();
             } catch (e) {
                 alert("API 키 저장 중 오류가 발생했습니다.");
+            }
+        }
+
+        async function downloadMarketingReport() {
+            try {
+                const res = await fetch("/api/admin/dashboard");
+                if (!res.ok) {
+                    alert("데이터 다운로드 실패");
+                    return;
+                }
+                const data = await res.json();
+                
+                let csvContent = "\uFEFF";
+                csvContent += "학생ID,이름,연락처,학교,학년,목표대학,마지노선대학,리그티어,보상배수,보유포인트,누적성실도자산,골든티켓수\n";
+                
+                data.students.forEach(s => {
+                    csvContent += `"${s.id}","${s.name}","${s.phone}","${s.high_school}","${s.grade}","${s.target_univ}","${s.baseline_univ}","${s.league_tier}","${s.point_multiplier}x","${s.current_points}","${s.diligence_score}","${s.golden_tickets_count}"\n`;
+                });
+                
+                const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `PALIN_OS_Marketing_Retention_Report_${new Date().toISOString().slice(0,10)}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                alert("📊 마케팅 리텐션 리포트(CSV) 다운로드가 시작되었습니다!");
+            } catch (e) {
+                console.error(e);
+                alert("보고서 생성 중 오류가 발생했습니다.");
             }
         }
     </script>
