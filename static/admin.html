@@ -187,10 +187,11 @@
                     <th>보유 포인트</th>
                     <th>누적 성실도 자산</th>
                     <th>골든 티켓</th>
+                    <th>원장 계정제재</th>
                 </tr>
             </thead>
             <tbody id="student-table-body">
-                <tr><td colspan="11" style="text-align: center; color: #94a3b8;">데이터 로딩 중...</td></tr>
+                <tr><td colspan="12" style="text-align: center; color: #94a3b8;">데이터 로딩 중...</td></tr>
             </tbody>
         </table>
     </div>
@@ -356,6 +357,12 @@
                         <td>${s.current_points} P</td>
                         <td style="color: #10b981; font-weight: 700;">+${s.diligence_score}점</td>
                         <td>🎫 ${s.golden_tickets_count}장</td>
+                        <td>
+                            ${s.is_banned 
+                                ? `<div style="display:flex; flex-direction:column; gap:4px;"><span style="color:#ef4444; font-weight:700; font-size:0.75rem;">🚫 퇴거됨 (${s.ban_reason || '규칙위반'})</span><button onclick="unbanStudent(${s.id})" class="btn" style="padding:3px 8px; font-size:0.72rem; background:#3b82f6;">🔓 해제</button></div>` 
+                                : `<button onclick="banStudent(${s.id})" class="btn" style="padding:4px 10px; font-size:0.75rem; background:#ef4444; font-weight:700;">🚫 강제 퇴거/차단</button>`
+                            }
+                        </td>
                     `;
                     tbody.appendChild(tr);
                 });
@@ -520,6 +527,45 @@
             } catch (e) {
                 console.error(e);
                 alert("승인 처리 중 오류가 발생했습니다.");
+            }
+        }
+
+        async function banStudent(studentId) {
+            const reason = prompt("해당 유저의 퇴거 및 차단 사유를 입력하세요:", "3회 이상 무단 결석 및 학원 규칙 위반");
+            if (reason === null) return;
+            try {
+                const res = await fetch(`/api/admin/students/${studentId}/ban`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ reason: reason.trim() || "학원 규칙 위반" })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.detail || "차단 처리 실패");
+                    return;
+                }
+                alert(data.message || "🚫 학생이 이용 정지 처리되었습니다.");
+                fetchDashboardData();
+            } catch (e) {
+                console.error(e);
+                alert("차단 처리 중 오류가 발생했습니다.");
+            }
+        }
+
+        async function unbanStudent(studentId) {
+            if (!confirm("해당 학생의 차단을 해제하시겠습니까?")) return;
+            try {
+                const res = await fetch(`/api/admin/students/${studentId}/unban`, { method: "POST" });
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.detail || "차단 해제 실패");
+                    return;
+                }
+                alert(data.message || "🔓 차단이 해제되었습니다.");
+                fetchDashboardData();
+            } catch (e) {
+                console.error(e);
+                alert("차단 해제 처리 중 오류가 발생했습니다.");
             }
         }
     </script>
