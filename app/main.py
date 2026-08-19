@@ -49,6 +49,13 @@ def get_univ_data():
 
 @app.post("/api/register", response_model=schemas.StudentResponse)
 def register_student(payload: schemas.StudentCreate, db: Session = Depends(get_db)):
+    # 블랙리스트 검사
+    banned = db.query(models.Blacklist).filter(
+        (models.Blacklist.email == payload.email) | (models.Blacklist.phone == payload.phone)
+    ).first()
+    if banned:
+        raise HTTPException(status_code=403, detail=f"원장님에 의해 이용이 정지/퇴거된 계정입니다. (사유: {banned.reason or '학원 규칙 위반'})")
+
     parent = db.query(models.Parent).filter(models.Parent.phone == payload.parent_phone).first()
     if not parent:
         parent = models.Parent(name=payload.parent_name, phone=payload.parent_phone, is_premium_subscribed=False)
@@ -66,7 +73,7 @@ def register_student(payload: schemas.StudentCreate, db: Session = Depends(get_d
     db.commit()
     db.refresh(student)
     
-    db.add(models.PointHistory(student_id=student.id, amount=100, description="\uac00\uc785 \ucd95\ud558 \ud3ec\uc778\ud2b8"))
+    db.add(models.PointHistory(student_id=student.id, amount=100, description="가입 축하 포인트"))
     db.commit()
     return student
 
@@ -77,14 +84,18 @@ class LoginPayload(BaseModel):
 def login_student(payload: LoginPayload, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.email == payload.email).first()
     if not student:
-        raise HTTPException(status_code=404, detail="\ud559\uc0dd \uc815\ubcf4\ub97c \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.")
+        raise HTTPException(status_code=404, detail="학생 정보를 찾을 수 없습니다.")
+    if student.is_banned:
+        raise HTTPException(status_code=403, detail=f"원장님에 의해 이용이 정지/퇴거된 계정입니다. (사유: {student.ban_reason or '학원 규칙 위반'})")
     return student
 
 @app.get("/api/student/{student_id}", response_model=schemas.StudentResponse)
 def get_student(student_id: int, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == student_id).first()
     if not student:
-        raise HTTPException(status_code=404, detail="\ud559\uc0dd\uc744 \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.")
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+    if student.is_banned:
+        raise HTTPException(status_code=403, detail=f"원장님에 의해 이용이 정지/퇴거된 계정입니다. (사유: {student.ban_reason or '학원 규칙 위반'})")
     return student
 
 @app.get("/api/student/{student_id}/parent", response_model=schemas.ParentResponse)
@@ -529,8 +540,42 @@ def get_admin_dashboard(db: Session = Depends(get_db)):
             "point_multiplier": s.point_multiplier or 1.0,
             "current_points": s.current_points or 0,
             "diligence_score": s.diligence_score or 0,
-            "golden_tickets_count": s.golden_tickets_count or 0
+            "golden_tickets_count": s.golden_tickets_count or 0,
+            "is_banned": bool(s.is_banned),
+            "ban_reason": s.ban_reason or ""
         })
+
+class BanStudentPayload(BaseModel):
+    reason: str = "무단결석 / 학원 규칙 위반"
+
+@app.post("/api/admin/students/{student_id}/ban")
+def ban_student(student_id: int, payload: BanStudentPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+    student.is_banned = True
+    student.ban_reason = payload.reason
+    
+    # 블랙리스트 테이블 등록
+    bl = models.Blacklist(email=student.email, phone=student.phone, reason=payload.reason)
+    db.add(bl)
+    db.commit()
+    return {"status": "ok", "message": f"학생({student.name})이 이용 정지/강제 퇴거 처리되었습니다."}
+
+@app.post("/api/admin/students/{student_id}/unban")
+def unban_student(student_id: int, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+    student.is_banned = False
+    student.ban_reason = None
+    
+    # 블랙리스트 삭제
+    db.query(models.Blacklist).filter(
+        (models.Blacklist.email == student.email) | (models.Blacklist.phone == student.phone)
+    ).delete()
+    db.commit()
+    return {"status": "ok", "message": f"학생({student.name})의 이용 정지가 해제되었습니다."}
         
     feedback_list = []
     open_count = 0
