@@ -145,13 +145,24 @@
         </div>
     </div>
 
-    <!-- 💡 학생 불편사항 & 개선 아이디어 수신함 -->
-    <div class="kpi-card" style="margin-bottom: 24px; border-color: rgba(245, 158, 11, 0.3);">
+    <!-- 학생 불편사항 & 아이디어 피드 -->
+    <div class="kpi-card" style="margin-bottom: 24px; border: 1px solid rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.03);">
         <div class="section-title" style="color: #f59e0b;">
             <span class="material-symbols-rounded">feedback</span>
             학생 불편사항 & 개선 아이디어 실시간 수신함
         </div>
         <div id="feedback-feed" style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="color: #94a3b8; font-size: 0.85rem;">로딩중...</div>
+        </div>
+    </div>
+
+    <!-- 🎓 과외선생님 검증 및 승인 대기 수신함 -->
+    <div class="kpi-card" style="margin-bottom: 24px; border: 1px solid rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.04);">
+        <div class="section-title" style="color: #a78bfa;">
+            <span class="material-symbols-rounded">school</span>
+            🎓 과외선생님 검증 및 승인 대기 수신함 (원장 직접 성적표/합격증 검증용)
+        </div>
+        <div id="pending-tutor-feed" style="display: flex; flex-direction: column; gap: 10px;">
             <div style="color: #94a3b8; font-size: 0.85rem;">로딩중...</div>
         </div>
     </div>
@@ -293,6 +304,33 @@
                         `;
                         fFeed.appendChild(div);
                     });
+                }
+
+                // 🎓 과외선생님 승인 대기 수신함
+                const ptFeed = document.getElementById("pending-tutor-feed");
+                if (ptFeed) {
+                    ptFeed.innerHTML = "";
+                    if (!data.pending_tutors || data.pending_tutors.length === 0) {
+                        ptFeed.innerHTML = "<div style='color:#94a3b8; font-size:0.85rem;'>승인 대기 중인 과외선생님 신청건이 없습니다.</div>";
+                    } else {
+                        data.pending_tutors.forEach(pt => {
+                            const div = document.createElement("div");
+                            div.style.cssText = "padding: 14px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(99, 102, 241, 0.2); margin-bottom: 8px;";
+                            div.innerHTML = `
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div>
+                                        <span style="font-weight: 800; font-size: 1rem; color: #a78bfa;">🎓 ${pt.name} 학생</span> 
+                                        <span style="font-size: 0.85rem; color: #cbd5e1; margin-left: 6px;">(${pt.university} ${pt.major} ${pt.admission_year}학번)</span>
+                                        <span style="font-size: 0.8rem; color: #6366f1; margin-left: 8px;">📞 ${pt.phone}</span>
+                                    </div>
+                                    <button onclick="approveTutor(${pt.id})" class="btn" style="padding: 6px 14px; font-size: 0.82rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); font-weight: 700;">✅ 합격증 검증 완료 및 최종 승인</button>
+                                </div>
+                                <div style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 6px;">카카오톡 1:1 링크: <a href="${pt.contact_link}" target="_blank" style="color: #fcd34d;">${pt.contact_link}</a></div>
+                                <div style="font-size: 0.85rem; color: #e2e8f0; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 6px;">자기소개: ${pt.bio}</div>
+                            `;
+                            ptFeed.appendChild(div);
+                        });
+                    }
                 }
 
                 // 학생 테이블
@@ -463,6 +501,25 @@
             } catch (e) {
                 console.error(e);
                 alert("보고서 생성 중 오류가 발생했습니다.");
+            }
+        }
+
+        async function approveTutor(tutorId) {
+            if (!confirm("해당 학생의 합격증 및 성적표 확인이 완료되었습니까? 승인 시 학생에게 축하금 500P가 지급되며 과외선생님 프로필이 학생들에게 정식 노출됩니다.")) {
+                return;
+            }
+            try {
+                const res = await fetch(`/api/admin/approve-tutor/${tutorId}`, { method: "POST" });
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.detail || "승인 처리 실패");
+                    return;
+                }
+                alert(data.message || "✅ 최종 승인이 완료되었습니다!");
+                fetchDashboardData();
+            } catch (e) {
+                console.error(e);
+                alert("승인 처리 중 오류가 발생했습니다.");
             }
         }
     </script>
