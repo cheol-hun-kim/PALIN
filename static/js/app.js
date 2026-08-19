@@ -187,6 +187,12 @@ async function handleRegister(e) {
         return;
     }
 
+    const privacyCheck = document.getElementById("reg-privacy-check");
+    if (privacyCheck && !privacyCheck.checked) {
+        alert("개인정보 수집·이용 동의서 항목에 동의해주셔야 가입 및 서비스 이용이 가능합니다.");
+        return;
+    }
+
     const payload = {
         email: document.getElementById("reg-email").value,
         name: document.getElementById("reg-name").value,
