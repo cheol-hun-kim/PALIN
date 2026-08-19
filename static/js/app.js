@@ -569,6 +569,7 @@ function switchRole(role) {
 function setupEventListeners() {
     document.getElementById("register-form").addEventListener("submit", handleRegister);
     document.getElementById("login-form")?.addEventListener("submit", handleLogin);
+    document.getElementById("tutor-upgrade-form")?.addEventListener("submit", upgradeStudentToTutor);
     
     document.querySelectorAll(".nav-item").forEach(item => {
         item.addEventListener("click", () => {
@@ -1300,17 +1301,16 @@ async function upgradeStudentToTutor(e) {
             body: JSON.stringify(payload)
         });
         if (res.ok) {
-            alert("🎉 대학 합격 검증 완료! 과외선생님 프로필이 개설되었습니다. 축하금 500P가 지급되었으며, 과외선생님 모드 토글이 활성화됩니다.");
+            const data = await res.json();
+            alert(data.message || "🎉 과외선생님 신청이 원장님께 제출되었습니다. 원장님이 서류(합격증 및 성적표)를 별도 확인 후 최종 승인하면 프로필이 공개됩니다.");
             
-            // 입력 초기화 및 모달 닫기
-            document.getElementById("tutor-up-univ").value = "";
-            document.getElementById("tutor-up-major").value = "";
+            // 입력 초기화
             document.getElementById("tutor-up-bio").value = "";
             document.getElementById("tutor-up-link").value = "";
             
-            // 유저 정보 갱신 및 토글 활성화
-            activeRole = "tutor";
-            fetchStudentInfo(currentStudent.id);
+            // 팝업 닫기 (존재 시)
+            const modal = document.getElementById("tutor-upgrade-modal");
+            if (modal) modal.style.display = "none";
         } else {
             const err = await res.json();
             alert(err.detail || "승격 실패");
