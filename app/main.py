@@ -13,7 +13,26 @@ from app import models, schemas, ai, predict
 
 app = FastAPI(title="PASS-MATE API")
 
-models.Base.metadata.create_all(bind=engine)
+from sqlalchemy import text
+def init_db_schema():
+    models.Base.metadata.create_all(bind=engine)
+    with engine.connect() as conn:
+        try:
+            columns = [row[1] for row in conn.execute(text("PRAGMA table_info(students)")).fetchall()]
+            if columns:
+                if "wake_target_time" not in columns:
+                    conn.execute(text("ALTER TABLE students ADD COLUMN wake_target_time VARCHAR DEFAULT '06:30'"))
+                if "sleep_target_time" not in columns:
+                    conn.execute(text("ALTER TABLE students ADD COLUMN sleep_target_time VARCHAR DEFAULT '23:30'"))
+                if "is_banned" not in columns:
+                    conn.execute(text("ALTER TABLE students ADD COLUMN is_banned BOOLEAN DEFAULT 0"))
+                if "ban_reason" not in columns:
+                    conn.execute(text("ALTER TABLE students ADD COLUMN ban_reason VARCHAR"))
+                conn.commit()
+        except Exception as e:
+            print("DB Schema Migration Warning:", e)
+
+init_db_schema()
 
 app.add_middleware(
     CORSMiddleware,
@@ -540,43 +559,11 @@ def get_admin_dashboard(db: Session = Depends(get_db)):
             "point_multiplier": s.point_multiplier or 1.0,
             "current_points": s.current_points or 0,
             "diligence_score": s.diligence_score or 0,
-            "golden_tickets_count": s.golden_tickets_count or 0,
-            "is_banned": bool(s.is_banned),
-            "ban_reason": s.ban_reason or ""
+            "golden_tickets_count": getattr(s, "golden_tickets_count", len(s.golden_tickets) if hasattr(s, "golden_tickets") and s.golden_tickets else 0),
+            "is_banned": getattr(s, "is_banned", False),
+            "ban_reason": getattr(s, "ban_reason", "") or ""
         })
 
-class BanStudentPayload(BaseModel):
-    reason: str = "무단결석 / 학원 규칙 위반"
-
-@app.post("/api/admin/students/{student_id}/ban")
-def ban_student(student_id: int, payload: BanStudentPayload, db: Session = Depends(get_db)):
-    student = db.query(models.Student).filter(models.Student.id == student_id).first()
-    if not student:
-        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
-    student.is_banned = True
-    student.ban_reason = payload.reason
-    
-    # 블랙리스트 테이블 등록
-    bl = models.Blacklist(email=student.email, phone=student.phone, reason=payload.reason)
-    db.add(bl)
-    db.commit()
-    return {"status": "ok", "message": f"학생({student.name})이 이용 정지/강제 퇴거 처리되었습니다."}
-
-@app.post("/api/admin/students/{student_id}/unban")
-def unban_student(student_id: int, db: Session = Depends(get_db)):
-    student = db.query(models.Student).filter(models.Student.id == student_id).first()
-    if not student:
-        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
-    student.is_banned = False
-    student.ban_reason = None
-    
-    # 블랙리스트 삭제
-    db.query(models.Blacklist).filter(
-        (models.Blacklist.email == student.email) | (models.Blacklist.phone == student.phone)
-    ).delete()
-    db.commit()
-    return {"status": "ok", "message": f"학생({student.name})의 이용 정지가 해제되었습니다."}
-        
     feedback_list = []
     open_count = 0
     for f in feedbacks:
@@ -642,6 +629,38 @@ def unban_student(student_id: int, db: Session = Depends(get_db)):
         "recent_missions": mission_list,
         "recent_studies": study_list
     }
+
+class BanStudentPayload(BaseModel):
+    reason: str = "무단결석 / 학원 규칙 위반"
+
+@app.post("/api/admin/students/{student_id}/ban")
+def ban_student(student_id: int, payload: BanStudentPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+    student.is_banned = True
+    student.ban_reason = payload.reason
+    
+    # 블랙리스트 테이블 등록
+    bl = models.Blacklist(email=student.email, phone=student.phone, reason=payload.reason)
+    db.add(bl)
+    db.commit()
+    return {"status": "ok", "message": f"학생({student.name})이 이용 정지/강제 퇴거 처리되었습니다."}
+
+@app.post("/api/admin/students/{student_id}/unban")
+def unban_student(student_id: int, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+    student.is_banned = False
+    student.ban_reason = None
+    
+    # 블랙리스트 삭제
+    db.query(models.Blacklist).filter(
+        (models.Blacklist.email == student.email) | (models.Blacklist.phone == student.phone)
+    ).delete()
+    db.commit()
+    return {"status": "ok", "message": f"학생({student.name})의 이용 정지가 해제되었습니다."}
 
 @app.post("/api/admin/approve-tutor/{tutor_id}")
 def approve_tutor(tutor_id: int, db: Session = Depends(get_db)):
