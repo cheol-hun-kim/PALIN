@@ -347,16 +347,27 @@ def run_prediction(payload: PredictPayload):
 def upgrade_tutor(payload: schemas.TutorUpgradeRequest, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
     if not student: raise HTTPException(status_code=404)
-    tp = models.TutorProfile(
-        student_id=student.id, email=student.email, name=student.name, phone=student.phone,
-        university=payload.university, major=payload.major, admission_year=payload.admission_year,
-        high_school_type="\uc77c\ubc18\uace0", bio=payload.bio, contact_link=payload.contact_link, is_verified=True,
-        univ_emblem="\ud83c\udf93", high_school_emblem="\ud83c\udfeb"
-    )
-    db.add(tp)
-    student.current_points += 500
+    
+    # 기존 튜터 신청건이 있는지 확인
+    existing = db.query(models.TutorProfile).filter(models.TutorProfile.student_id == student.id).first()
+    if existing:
+        existing.university = payload.university
+        existing.major = payload.major
+        existing.admission_year = payload.admission_year
+        existing.bio = payload.bio
+        existing.contact_link = payload.contact_link
+        existing.is_verified = False  # 재신청 시에도 원장 승인 대기
+    else:
+        tp = models.TutorProfile(
+            student_id=student.id, email=student.email, name=student.name, phone=student.phone,
+            university=payload.university, major=payload.major, admission_year=payload.admission_year,
+            high_school_type="일반고", bio=payload.bio, contact_link=payload.contact_link, is_verified=False,
+            univ_emblem="🎓", high_school_emblem="🏫"
+        )
+        db.add(tp)
+        
     db.commit()
-    return {"status": "ok"}
+    return {"status": "ok", "message": "과외선생님 승격 신청이 원장님께 제출되었습니다. 원장님이 서류(합격증 및 성적표) 확인 후 최종 승인하면 프로필이 공개됩니다."}
 
 class TutorUpdatePayload(BaseModel):
     tutor_id: int
@@ -413,7 +424,7 @@ def accept_comment(comment_id: int, student_id: int, db: Session = Depends(get_d
 
 @app.get("/api/tutor/list", response_model=List[schemas.TutorProfileResponse])
 def get_tutor_list(db: Session = Depends(get_db)):
-    return db.query(models.TutorProfile).all()
+    return db.query(models.TutorProfile).filter(models.TutorProfile.is_verified == True).all()
 
 @app.post("/api/tutoring/request", response_model=schemas.TutorRequestResponse)
 def create_tutoring_request(payload: schemas.TutorRequestCreate, db: Session = Depends(get_db)):
@@ -497,6 +508,7 @@ def get_admin_dashboard(db: Session = Depends(get_db)):
     feedbacks = db.query(models.Feedback).order_by(models.Feedback.created_at.desc()).all()
     missions = db.query(models.MissionLog).order_by(models.MissionLog.created_at.desc()).limit(15).all()
     studies = db.query(models.StudySession).order_by(models.StudySession.created_at.desc()).limit(15).all()
+    pending_tutors_raw = db.query(models.TutorProfile).filter(models.TutorProfile.is_verified == False).order_by(models.TutorProfile.created_at.desc()).all()
     
     tier_counts = {"PLATINUM": 0, "GOLD": 0, "SILVER": 0, "BRONZE": 0}
     student_list = []
@@ -535,6 +547,21 @@ def get_admin_dashboard(db: Session = Depends(get_db)):
             "status": f.status or "접수됨",
             "created_at": f.created_at.strftime("%Y-%m-%d %H:%M") if f.created_at else ""
         })
+
+    pending_tutors = []
+    for pt in pending_tutors_raw:
+        pending_tutors.append({
+            "id": pt.id,
+            "student_id": pt.student_id,
+            "name": pt.name,
+            "phone": pt.phone,
+            "university": pt.university,
+            "major": pt.major,
+            "admission_year": pt.admission_year,
+            "bio": pt.bio,
+            "contact_link": pt.contact_link,
+            "created_at": pt.created_at.strftime("%Y-%m-%d %H:%M") if pt.created_at else ""
+        })
         
     mission_list = []
     for m in missions:
@@ -561,13 +588,27 @@ def get_admin_dashboard(db: Session = Depends(get_db)):
             "total_students": len(students),
             "total_parents": len(parents),
             "open_feedbacks": open_count,
+            "pending_tutors_count": len(pending_tutors),
             "league_counts": tier_counts
         },
         "recent_feedbacks": feedback_list[:10],
+        "pending_tutors": pending_tutors,
         "students": student_list,
         "recent_missions": mission_list,
         "recent_studies": study_list
     }
+
+@app.post("/api/admin/approve-tutor/{tutor_id}")
+def approve_tutor(tutor_id: int, db: Session = Depends(get_db)):
+    tutor = db.query(models.TutorProfile).filter(models.TutorProfile.id == tutor_id).first()
+    if not tutor:
+        raise HTTPException(status_code=404, detail="튜터 신청 건을 찾을 수 없습니다.")
+    
+    tutor.is_verified = True
+    if tutor.student:
+        tutor.student.current_points += 500  # 원장 승인 시 축하 500P 부여!
+    db.commit()
+    return {"status": "ok", "message": "합격증 검증 및 최종 승인이 완료되었습니다!"}
 
 class FeedbackStatusPayload(BaseModel):
     status: str
