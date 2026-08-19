@@ -60,11 +60,16 @@
                     <select id="reg-baseline-dept" class="form-input" required style="width: 50%;">
                         <option value="" disabled selected>학과 선택</option>
                     </select>
-                </div>
-                
                 <div style="font-size: 0.95rem; font-weight: 700; color: #a78bfa; margin-top: 14px; margin-bottom: 6px;">[부모님 연락처 연동]</div>
                 <input type="text" id="reg-pname" class="form-input" placeholder="학부모 이름" required>
                 <input type="tel" id="reg-pphone" class="form-input" placeholder="학부모 연락처 (알림톡 수신)" required>
+
+                <div style="margin-top: 12px; font-size: 0.78rem; color: #94a3b8; text-align: left; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                    <label style="display: flex; align-items: flex-start; gap: 6px; cursor: pointer;">
+                        <input type="checkbox" id="reg-privacy-check" required style="margin-top: 2px;">
+                        <span>[필수] <strong>개인정보 수집·이용 동의서</strong> (학습 몰입도 분석, AI 멘토링 고도화 및 학부모 알림 연동 목적)</span>
+                    </label>
+                </div>
                 
                 <button type="submit" class="btn" style="width: 100%; margin-top: 14px; padding: 12px 0; font-size:0.95rem;">학생 계정으로 시작하기</button>
             </form>
