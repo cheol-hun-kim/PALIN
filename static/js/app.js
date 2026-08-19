@@ -139,6 +139,10 @@ async function fetchStudentInfo(studentId) {
     try {
         const res = await fetch(`/api/student/${studentId}`);
         if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            if (res.status === 403) {
+                alert(`⚠️ ${err.detail || "원장님에 의해 이용이 정지/퇴거된 계정입니다. 학원 집무실로 문의해 주세요."}`);
+            }
             localStorage.removeItem("studentId");
             showOverlay("register-overlay");
             return;
