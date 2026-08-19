@@ -23,8 +23,9 @@ class Student(Base):
     league_tier = Column(String, default="BRONZE")  # BRONZE | SILVER | GOLD | PLATINUM
     point_multiplier = Column(Float, default=1.0)   # 1.0x | 1.2x | 1.5x | 2.0x
     referrer_id = Column(Integer, ForeignKey("students.id"), nullable=True) # 나를 초대한 유저 ID (5% 복리 보상용)
-    golden_tickets_count = Column(Integer, default=3) # 보유 골든 티켓(초대권) 수량
     diligence_score = Column(Integer, default=0) # 누적 성실도 점수 (훗날 과외 튜터 신뢰도 자산)
+    is_banned = Column(Boolean, default=False)   # 강제 퇴거/차단 여부
+    ban_reason = Column(String, nullable=True)   # 강제 퇴거/차단 사유
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -245,4 +246,14 @@ class Feedback(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     student = relationship("Student", back_populates="feedbacks")
+
+
+class Blacklist(Base):
+    __tablename__ = "blacklists"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, index=True, nullable=True)
+    phone = Column(String, index=True, nullable=True)
+    reason = Column(String)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
