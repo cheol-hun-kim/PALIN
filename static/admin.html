@@ -267,6 +267,31 @@
         <div id="admin-notices-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
     </div>
 
+    <!-- 📚 기출문제 & 수험자료 업로드 및 관리 (국/수/영/탐) -->
+    <div class="kpi-card" style="margin-bottom: 20px; border: 1px solid rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.04);">
+        <div class="section-title" style="color: #818cf8;">
+            <span class="material-symbols-rounded">upload_file</span>
+            📚 기출문제 & 수험자료실 파일 업로드 및 관리 (국어·수학·영어·탐구)
+        </div>
+        <div style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 12px;">
+            원장님이 PDF, HWP 문제지나 해설지 파일을 업로드하시면 학생들의 <b>[2페이지 > 기출문제 자료실]</b>에 즉시 과목별로 노출되어 무료 다운로드할 수 있습니다.
+        </div>
+        <form onsubmit="handleUploadMaterial(event)" style="display: grid; grid-template-columns: 110px 1.5fr 1fr 1fr auto; gap: 8px; margin-bottom: 12px;" class="responsive-form-grid" id="material-upload-form">
+            <select id="mat-subject" class="form-input" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 8px;" required>
+                <option value="국어" style="background:#1e293b;">📖 국어</option>
+                <option value="수학" selected style="background:#1e293b;">📐 수학</option>
+                <option value="영어" style="background:#1e293b;">🔤 영어</option>
+                <option value="탐구" style="background:#1e293b;">🔬 탐구</option>
+                <option value="기타" style="background:#1e293b;">📄 기타</option>
+            </select>
+            <input type="text" id="mat-title" placeholder="자료명 (예: 2026학년도 6월 모평 수학 공통+선택)" required style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 12px; border-radius: 8px;">
+            <input type="text" id="mat-desc" placeholder="상세 설명 (예: 킬러 문항 손글씨 해설 포함)" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 12px; border-radius: 8px;">
+            <input type="file" id="mat-file" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px; border-radius: 8px; font-size: 0.8rem;">
+            <button type="submit" id="mat-upload-btn" class="btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 700; padding: 10px 18px; border-radius: 8px; white-space: nowrap;">자료 등록</button>
+        </form>
+        <div id="admin-materials-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+    </div>
+
     <!-- 🎓 과외선생님 검증 및 승인 대기 수신함 -->
     <div class="kpi-card" style="margin-bottom: 24px; border: 1px solid rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.04);">
         <div class="section-title" style="color: #a78bfa;">
@@ -347,8 +372,8 @@
     </div> <!-- admin-dashboard-screen 닫기 -->
 
     <script>
-        const MASTER_PIN = "1286";
-        const ALLOWED_PINS = ["1286", "1234", "0000", "admin", "1286orbital21@gmail.com"];
+        const MASTER_PIN = "12862386";
+        const ALLOWED_PINS = ["12862386", "1286orbital21@gmail.com"];
 
         document.addEventListener("DOMContentLoaded", () => {
             // 접속할 때마다 무조건 100% 비밀번호 입력 화면 노출
@@ -382,7 +407,7 @@
             const input = pinInput ? pinInput.value.trim().toLowerCase() : "";
             const errEl = document.getElementById("login-error-msg");
 
-            if (ALLOWED_PINS.includes(input) || input === MASTER_PIN || input === "1286") {
+            if (ALLOWED_PINS.includes(input) || input === MASTER_PIN || input === "12862386") {
                 sessionStorage.setItem("palinAdminAuthed", "true");
                 if (errEl) errEl.style.display = "none";
                 showAdminDashboard();
@@ -632,8 +657,9 @@
                     }
                 } catch (e) { console.warn("Study feed error:", e); }
 
-                // 8. 공지사항 및 제미나이 상태
+                // 8. 공지사항 및 기출자료 및 제미나이 상태
                 loadAdminNotices();
+                loadAdminMaterials();
                 checkGeminiStatus();
             } catch (e) {
                 console.error("Dashboard load failed:", e);
@@ -886,6 +912,100 @@
             try {
                 await fetch(`/api/admin/notices/${noticeId}`, { method: "DELETE" });
                 loadAdminNotices();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // === 📚 기출문제 & 수험자료 관리 스크립트 ===
+        async function handleUploadMaterial(e) {
+            e.preventDefault();
+            const subject = document.getElementById("mat-subject").value;
+            const title = document.getElementById("mat-title").value.trim();
+            const desc = document.getElementById("mat-desc").value.trim();
+            const fileInput = document.getElementById("mat-file");
+            const btn = document.getElementById("mat-upload-btn");
+
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert("업로드할 파일을 선택해 주세요 (PDF, HWP, ZIP 등).");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("subject", subject);
+            formData.append("title", title);
+            formData.append("description", desc);
+            formData.append("file", fileInput.files[0]);
+
+            btn.disabled = true;
+            btn.innerText = "업로드 중...";
+
+            try {
+                const res = await fetch("/api/admin/materials/upload", {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert("📚 기출자료가 성공적으로 업로드되어 학생 자료실에 노출됩니다!");
+                    document.getElementById("mat-title").value = "";
+                    document.getElementById("mat-desc").value = "";
+                    fileInput.value = "";
+                    loadAdminMaterials();
+                } else {
+                    alert(data.detail || "업로드 실패");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("파일 업로드 중 오류가 발생했습니다.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "자료 등록";
+            }
+        }
+
+        async function loadAdminMaterials() {
+            try {
+                const res = await fetch("/api/materials");
+                if (res.ok) {
+                    const materials = await res.json();
+                    const container = document.getElementById("admin-materials-list");
+                    if (!container) return;
+                    container.innerHTML = "";
+                    if (materials.length === 0) {
+                        container.innerHTML = "<div style='color:#94a3b8; font-size:0.75rem;'>등록된 기출/수험 자료가 없습니다.</div>";
+                    } else {
+                        materials.forEach(m => {
+                            container.innerHTML += `
+                                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:8px 12px; border-radius:8px; font-size:0.8rem; gap:10px; border:1px solid rgba(255,255,255,0.06);">
+                                    <div style="flex:1; min-width:0; line-height:1.4;">
+                                        <span style="color:#818cf8; font-weight:700;">[${m.subject}]</span> 
+                                        <b>${m.title}</b> ${m.description ? `- <span style='color:#94a3b8;'>${m.description}</span>` : ''}
+                                        <span style="font-size:0.7rem; color:#64748b; margin-left:6px;">(${m.file_size || '파일'})</span>
+                                    </div>
+                                    <div style="display:flex; gap:6px; align-items:center;">
+                                        <a href="${m.file_url}" target="_blank" download class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem; text-decoration:none;">다운로드</a>
+                                        <button onclick="deleteMaterial(${m.id})" class="btn" style="padding:4px 10px; font-size:0.75rem; background:#ef4444; color:white; font-weight:700; white-space:nowrap; flex-shrink:0; border-radius:6px;">삭제</button>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+                }
+            } catch (e) {
+                console.warn(e);
+            }
+        }
+
+        async function deleteMaterial(matId) {
+            if (!confirm("해당 자료를 삭제하시겠습니까? 학생 화면에서도 즉시 제거됩니다.")) return;
+            try {
+                const res = await fetch(`/api/admin/materials/${matId}`, { method: "DELETE" });
+                if (res.ok) {
+                    loadAdminMaterials();
+                } else {
+                    alert("자료 삭제 실패");
+                }
             } catch (e) {
                 console.error(e);
             }
