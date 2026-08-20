@@ -170,9 +170,10 @@
             <div style="width: 56px; height: 56px; background: rgba(99, 102, 241, 0.15); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
                 <span class="material-symbols-rounded" style="font-size: 32px; color: #6366f1;">admin_panel_settings</span>
             </div>
-            <div style="font-size: 1.3rem; font-weight: 800; color: #f8fafc; margin-bottom: 8px;">원장님 전용 관리자 인증</div>
+            <div style="font-size: 1.3rem; font-weight: 800; color: #f8fafc; margin-bottom: 6px;">원장님 전용 관리자 인증</div>
+            <div style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 16px;">보안 마스터 PIN 8자리를 입력해 주세요.</div>
             <div style="margin: 0;">
-                <input type="text" id="admin-login-pin" placeholder="비밀번호 4자리 입력" autocomplete="off" value="" autofocus style="width: 100%; padding: 14px; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 12px; color: white; font-size: 1.2rem; text-align: center; letter-spacing: 6px; box-sizing: border-box; margin-bottom: 14px; -webkit-text-security: disc;" onkeydown="if(event.key==='Enter') handleAdminLogin();">
+                <input type="text" id="admin-login-pin" name="admin_secure_code_8" placeholder="마스터 PIN 8자리 입력" autocomplete="new-password" value="" readonly onfocus="this.removeAttribute('readonly');" maxlength="20" style="width: 100%; padding: 14px; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 12px; color: white; font-size: 1.15rem; text-align: center; letter-spacing: 4px; box-sizing: border-box; margin-bottom: 14px; -webkit-text-security: disc;" onkeydown="if(event.key==='Enter') handleAdminLogin();">
                 <button type="button" onclick="handleAdminLogin()" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);">🔐 관리자 로그인</button>
             </div>
             
@@ -282,6 +283,8 @@
                 <option value="수학" selected style="background:#1e293b;">📐 수학</option>
                 <option value="영어" style="background:#1e293b;">🔤 영어</option>
                 <option value="탐구" style="background:#1e293b;">🔬 탐구</option>
+                <option value="논술" style="background:#1e293b;">✍️ 논술</option>
+                <option value="경찰·사관" style="background:#1e293b;">🎖️ 경찰·사관</option>
                 <option value="기타" style="background:#1e293b;">📄 기타</option>
             </select>
             <input type="text" id="mat-title" placeholder="자료명 (예: 2026학년도 6월 모평 수학 공통+선택)" required style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 12px; border-radius: 8px;">
@@ -385,6 +388,8 @@
             const dashboardScreen = document.getElementById("admin-dashboard-screen");
             if (loginScreen) loginScreen.style.display = "flex";
             if (dashboardScreen) dashboardScreen.style.display = "none";
+            const pin = document.getElementById("admin-login-pin");
+            if (pin) pin.value = "";
             setTimeout(() => {
                 const pin = document.getElementById("admin-login-pin");
                 if (pin) {
@@ -392,6 +397,10 @@
                     pin.focus();
                 }
             }, 100);
+            setTimeout(() => {
+                const pin = document.getElementById("admin-login-pin");
+                if (pin && pin.value) pin.value = "";
+            }, 300);
         }
 
         function showAdminDashboard() {
