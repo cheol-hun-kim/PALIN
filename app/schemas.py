@@ -16,6 +16,8 @@ class TutorProfileResponse(BaseModel):
     bio: str
     contact_link: str
     is_verified: bool
+    is_suspended: bool = False
+    suspend_reason: Optional[str] = None
     univ_emblem: Optional[str] = None
     high_school_emblem: Optional[str] = None
 
