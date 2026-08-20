@@ -2196,7 +2196,9 @@ async function loadExamMaterials(subject = currentExamSubject) {
                 "국어": { bg: "rgba(239, 68, 68, 0.15)", color: "#f87171", icon: "📖" },
                 "수학": { bg: "rgba(99, 102, 241, 0.15)", color: "#818cf8", icon: "📐" },
                 "영어": { bg: "rgba(16, 185, 129, 0.15)", color: "#34d399", icon: "🔤" },
-                "탐구": { bg: "rgba(245, 158, 11, 0.15)", color: "#fbbf24", icon: "🔬" }
+                "탐구": { bg: "rgba(245, 158, 11, 0.15)", color: "#fbbf24", icon: "🔬" },
+                "논술": { bg: "rgba(168, 85, 247, 0.15)", color: "#c084fc", icon: "✍️" },
+                "경찰·사관": { bg: "rgba(59, 130, 246, 0.15)", color: "#60a5fa", icon: "🎖️" }
             };
             const badgeInfo = subjectBadges[m.subject] || { bg: "rgba(255,255,255,0.1)", color: "#e2e8f0", icon: "📄" };
             
