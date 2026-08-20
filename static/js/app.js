@@ -329,19 +329,30 @@ async function togglePremium() {
 // --- UI 업데이트 헬퍼 ---
 
 function calculateDDay(dateStr) {
-    const targetDate = dateStr || "2026-11-19"; // 2027학년도 본 수능일 기준 기본값
+    let targetDateStr = (dateStr || "").trim();
+    if (!targetDateStr || targetDateStr === "undefined" || targetDateStr === "null") {
+        targetDateStr = "2026-11-19"; // 2027학년도 본 수능일 기본값
+    }
     try {
-        const target = new Date(targetDate);
+        const parts = targetDateStr.split("-");
+        let y = 2026, m = 11, d = 19;
+        if (parts.length === 3) {
+            y = parseInt(parts[0], 10);
+            m = parseInt(parts[1], 10);
+            d = parseInt(parts[2], 10);
+        }
+        const target = new Date(y, m - 1, d, 0, 0, 0);
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        target.setHours(0, 0, 0, 0);
-        const diffTime = target - today;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const now = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
+        
+        const diffTime = target.getTime() - now.getTime();
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+        
         if (diffDays > 0) return `D-${diffDays}`;
         if (diffDays === 0) return "D-DAY";
         return `D+${Math.abs(diffDays)}`;
     } catch (e) {
-        return "D-DAY";
+        return "D-91";
     }
 }
 
@@ -565,6 +576,12 @@ async function saveStudentProfileSettings() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 student_id: currentStudent.id,
+                high_school: highSchool,
+                region: region,
+                grade: grade,
+                medical_symbol: medicalSymbol,
+                dday_title: ddayTitle,
+                dday_date: ddayDate,
                 target_univ: targetUniv,
                 baseline_univ: baselineUniv,
                 wake_target_time: wakeTime,
