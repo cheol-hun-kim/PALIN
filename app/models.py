@@ -26,6 +26,13 @@ class Student(Base):
     diligence_score = Column(Integer, default=0) # 누적 성실도 점수 (훗날 과외 튜터 신뢰도 자산)
     is_banned = Column(Boolean, default=False)   # 강제 퇴거/차단 여부
     ban_reason = Column(String, nullable=True)   # 강제 퇴거/차단 사유
+    
+    # 듀오링고/포레스트/D-Day 고도화 필드
+    dday_date = Column(String, default="2026-11-19") # 사용자 지정 목표 D-Day 날짜
+    dday_title = Column(String, default="2027 수능")  # 사용자 지정 목표 D-Day 시험명
+    streak_days = Column(Integer, default=0)         # 연속 기상/자습 성공 불꽃 일수
+    max_streak_days = Column(Integer, default=0)     # 최고 연속 기록
+    medical_symbol = Column(String, default="GENERAL") # 메디컬/전공 엠블럼 심볼 (MED, DENT, PHARM, KMED, VET, GENERAL)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -255,5 +262,16 @@ class Blacklist(Base):
     email = Column(String, index=True, nullable=True)
     phone = Column(String, index=True, nullable=True)
     reason = Column(String)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class Notice(Base):
+    __tablename__ = "notices"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String)
+    content = Column(Text)
+    category = Column(String, default="일반공지")  # 긴급공지 | 일반공지 | 이벤트
+    is_pinned = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
