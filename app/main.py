@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
@@ -7,6 +7,7 @@ from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
 import json
 import os
+import shutil
 
 from app.database import get_db, engine
 from app import models, schemas, ai, predict
@@ -602,8 +603,8 @@ class AdminAuthPayload(BaseModel):
 @app.post("/api/admin/auth")
 def authenticate_admin(payload: AdminAuthPayload):
     input_pin = payload.pin.strip().lower()
-    if input_pin in ["1286", "1234", "0000", "1286orbital21@gmail.com"]:
-        return {"authenticated": True, "token": "palin_admin_session_1286", "message": "원장님 인증 성공"}
+    if input_pin in ["12862386", "1286orbital21@gmail.com"]:
+        return {"authenticated": True, "token": "palin_admin_session_12862386", "message": "원장님 인증 성공"}
     raise HTTPException(status_code=401, detail="비밀번호가 올바르지 않습니다.")
 
 @app.get("/api/admin/dashboard")
@@ -870,6 +871,87 @@ def test_gemini():
         return {"status": "ok", "reply": reply}
     except Exception as e:
         return {"status": "error", "detail": str(e)}
+
+# === 📚 기출문제 및 수험자료 아카이브 API ===
+DOWNLOADS_DIR = os.path.join("static", "downloads")
+os.makedirs(DOWNLOADS_DIR, exist_ok=True)
+
+@app.get("/api/materials")
+def get_exam_materials(subject: Optional[str] = None, db: Session = Depends(get_db)):
+    query = db.query(models.ExamMaterial)
+    if subject and subject != "전체":
+        query = query.filter(models.ExamMaterial.subject == subject)
+    materials = query.order_by(models.ExamMaterial.created_at.desc()).all()
+    return materials
+
+@app.post("/api/admin/materials/upload")
+async def upload_exam_material(
+    subject: str = Form(...),
+    title: str = Form(...),
+    description: Optional[str] = Form(None),
+    year: Optional[int] = Form(None),
+    external_url: Optional[str] = Form(None),
+    file: Optional[UploadFile] = File(None),
+    db: Session = Depends(get_db)
+):
+    file_url = ""
+    file_name = None
+    file_size_str = None
+
+    if file and file.filename:
+        safe_filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{file.filename}"
+        dest_path = os.path.join(DOWNLOADS_DIR, safe_filename)
+        with open(dest_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        file_size_bytes = os.path.getsize(dest_path)
+        if file_size_bytes >= 1024 * 1024:
+            file_size_str = f"{file_size_bytes / (1024 * 1024):.1f} MB"
+        else:
+            file_size_str = f"{max(1, round(file_size_bytes / 1024))} KB"
+
+        file_url = f"/downloads/{safe_filename}"
+        file_name = file.filename
+    elif external_url:
+        file_url = external_url.strip()
+        file_name = "외부 링크 자료"
+        file_size_str = "URL"
+    else:
+        raise HTTPException(status_code=400, detail="파일을 첨부하거나 외부 다운로드 링크를 입력해 주세요.")
+
+    mat = models.ExamMaterial(
+        subject=subject.strip(),
+        title=title.strip(),
+        description=description.strip() if description else None,
+        file_url=file_url,
+        file_name=file_name,
+        file_size=file_size_str,
+        year=year or datetime.now().year
+    )
+    db.add(mat)
+    db.commit()
+    db.refresh(mat)
+    return {"status": "ok", "message": "자료가 성공적으로 등록되었습니다.", "material": mat}
+
+@app.delete("/api/admin/materials/{material_id}")
+def delete_exam_material(material_id: int, db: Session = Depends(get_db)):
+    mat = db.query(models.ExamMaterial).filter(models.ExamMaterial.id == material_id).first()
+    if not mat:
+        raise HTTPException(status_code=404, detail="자료를 찾을 수 없습니다.")
+    
+    # 로컬 파일 삭제 시도
+    if mat.file_url and mat.file_url.startswith("/downloads/"):
+        filename = mat.file_url.replace("/downloads/", "")
+        local_path = os.path.join(DOWNLOADS_DIR, filename)
+        if os.path.exists(local_path):
+            try:
+                os.remove(local_path)
+            except Exception as e:
+                print("Failed to remove file:", e)
+                
+    db.delete(mat)
+    db.commit()
+    return {"status": "ok", "message": "자료가 삭제되었습니다."}
 
 # Static files
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
