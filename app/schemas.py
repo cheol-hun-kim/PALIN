@@ -56,6 +56,15 @@ class StudentResponse(BaseModel):
     golden_tickets_count: int = 3
     diligence_score: int = 0
     referrer_id: Optional[int] = None
+    is_banned: bool = False
+    ban_reason: Optional[str] = None
+    
+    # 심리통제 & D-Day 확장
+    dday_date: str = "2026-11-19"
+    dday_title: str = "2027 수능"
+    streak_days: int = 0
+    max_streak_days: int = 0
+    medical_symbol: str = "GENERAL"
 
     tutor_profile: Optional[TutorProfileResponse] = None # 연계 튜터 정보 연동 추가
     
@@ -64,10 +73,35 @@ class StudentResponse(BaseModel):
 
 class StudentProfileUpdate(BaseModel):
     student_id: int
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    grade: Optional[int] = None
+    region: Optional[str] = None
+    high_school: Optional[str] = None
     target_univ: Optional[str] = None
     baseline_univ: Optional[str] = None
     wake_target_time: Optional[str] = None
     sleep_target_time: Optional[str] = None
+    dday_date: Optional[str] = None
+    dday_title: Optional[str] = None
+    medical_symbol: Optional[str] = None
+
+class NoticeCreate(BaseModel):
+    title: str
+    content: str
+    category: str = "일반공지"
+    is_pinned: bool = False
+
+class NoticeResponse(BaseModel):
+    id: int
+    title: str
+    content: str
+    category: str
+    is_pinned: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
 
 class FeedbackCreate(BaseModel):
     student_id: Optional[int] = None
