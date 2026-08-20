@@ -1219,4 +1219,28 @@ body:not(.day-mode) .calendar-item-title {
     font-weight: 800 !important;
 }
 
+/* 마이페이지 액션 버튼 (테마 전환 / 프리미엄) 고대비 스타일 */
+body.day-mode .mypage-action-btn {
+    background: #f8fafc !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #0f172a !important; /* 짙은 잉크 블랙 */
+    font-weight: 700 !important;
+}
+
+body.day-mode .mypage-action-btn:hover {
+    background: #e2e8f0 !important;
+    border-color: #94a3b8 !important;
+}
+
+body:not(.day-mode) .mypage-action-btn {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.25) !important;
+    color: #f8fafc !important; /* 밝고 또렷한 순백색 */
+    font-weight: 700 !important;
+}
+
+body:not(.day-mode) .mypage-action-btn:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+
 
