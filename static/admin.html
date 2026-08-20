@@ -282,12 +282,8 @@
         const ALLOWED_PINS = ["1286", "1234", "0000", "admin", "1286orbital21@gmail.com"];
 
         document.addEventListener("DOMContentLoaded", () => {
-            // 세션 인증 여부 확인 (미인증 시 반드시 로그인 화면 노출)
-            if (sessionStorage.getItem("palinAdminAuthed") === "true") {
-                showAdminDashboard();
-            } else {
-                showLoginScreen();
-            }
+            // 접속할 때마다 무조건 100% 비밀번호 입력 화면 노출
+            showLoginScreen();
         });
 
         function showLoginScreen() {
