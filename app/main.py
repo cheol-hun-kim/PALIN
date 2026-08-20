@@ -124,7 +124,11 @@ class LoginPayload(BaseModel):
 def login_student(payload: LoginPayload, db: Session = Depends(get_db)):
     clean_email = payload.email.strip().lower()
     from sqlalchemy import func
-    student = db.query(models.Student).filter(func.lower(models.Student.email) == clean_email).first()
+    # 대소문자 무시 검색 + 공백 제거 매칭
+    student = db.query(models.Student).filter(
+        (func.lower(models.Student.email) == clean_email) |
+        (models.Student.email == payload.email.strip())
+    ).first()
     if not student:
         raise HTTPException(status_code=404, detail="학생 정보를 찾을 수 없습니다. (가입된 이메일을 확인하시거나 회원가입을 진행해 주세요.)")
     if student.is_banned:
