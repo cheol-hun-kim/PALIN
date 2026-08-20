@@ -636,19 +636,24 @@
                 <!-- 2-C: 기출문제 자료실 탭 -->
                 <div id="p2-archive" class="subtab-view-p2" style="display: none;">
                     <div class="card">
-                        <div class="card-title">
-                            <span class="material-symbols-rounded" style="color: var(--color-accent)">download</span>
-                            평가원/교육청 모의고사 아카이브
+                        <div class="card-title" style="color: #818cf8;">
+                            <span class="material-symbols-rounded" style="color: #6366f1">download</span>
+                            평가원/교육청 기출 & 수험자료실
                         </div>
-                        <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom: 12px;">다운로드 및 해설 열람은 무료로 자유롭게 가능합니다.</div>
-                        <div class="list-container">
-                            <div style="background:rgba(255,255,255,0.02); padding:12px; border-radius:8px; border: 1px solid rgba(255,255,255,0.04); display:flex; justify-content:space-between; align-items:center;">
-                                <div>
-                                    <div style="font-size:0.88rem; font-weight:600;">2025학년도 6월 평가원 모의평가</div>
-                                    <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">고3 수학 영역 (공통+선택)</div>
-                                </div>
-                                <button class="btn" style="padding: 6px 12px; font-size:0.75rem;" onclick="alert('📥 PDF 다운로드가 시작되었습니다.')">다운로드</button>
-                            </div>
+                        <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom: 12px;">원장님이 엄선한 기출문제와 핵심 해설 자료를 자유롭게 다운로드하세요.</div>
+                        
+                        <!-- 과목 필터 버튼 바 -->
+                        <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px; scrollbar-width: none;" id="exam-subject-filter-bar">
+                            <button class="btn" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; background: #6366f1; white-space: nowrap;" onclick="filterExamMaterials('전체', this)">전체</button>
+                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; white-space: nowrap;" onclick="filterExamMaterials('국어', this)">📖 국어</button>
+                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; white-space: nowrap;" onclick="filterExamMaterials('수학', this)">📐 수학</button>
+                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; white-space: nowrap;" onclick="filterExamMaterials('영어', this)">🔤 영어</button>
+                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; white-space: nowrap;" onclick="filterExamMaterials('탐구', this)">🔬 탐구</button>
+                        </div>
+
+                        <!-- 기출문제 목록 컨테이너 -->
+                        <div class="list-container" id="exam-materials-container" style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 20px;">자료를 불러오는 중입니다...</div>
                         </div>
                     </div>
                 </div>
