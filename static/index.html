@@ -775,10 +775,10 @@
                                 내 과외 모집 프로필 정보 관리
                             </div>
                             
-                            <div style="margin-bottom: 12px; display:flex; gap:8px;">
+                            <div style="margin-bottom: 12px; display:flex; gap:8px; align-items:center;">
                                 <span class="badge-emblem badge-univ" id="tutor-my-univ-badge">로딩중..</span>
                                 <span class="badge-emblem badge-school" id="tutor-my-school-badge">로딩중..</span>
-                                <span style="font-size:0.75rem; color:var(--color-success); font-weight:700; margin-left:auto; display:flex; align-items:center;">인증 승인완료 ✅</span>
+                                <span id="tutor-verify-status-badge" style="font-size:0.75rem; font-weight:700; margin-left:auto; display:flex; align-items:center;"></span>
                             </div>
                             
                             <form onsubmit="handleUpdateTutorProfile(event)" class="todo-list" style="gap:10px;">
@@ -927,7 +927,7 @@
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
-                <a href="/admin.html?pin=1286" class="btn" style="text-align: center; text-decoration: none; padding: 11px 0; background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; font-size: 0.9rem; color: #ffffff !important; border-radius: 8px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">👑 원장님 전용 중앙 관제 대시보드</a>
+                <a href="/admin.html" class="btn" style="text-align: center; text-decoration: none; padding: 11px 0; background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; font-size: 0.9rem; color: #ffffff !important; border-radius: 8px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">👑 원장님 전용 중앙 관제 대시보드</a>
                 <button onclick="openFeedbackModal()" class="btn" style="padding: 10px 0; width: 100%; text-align: center; background: linear-gradient(135deg, #f59e0b, #d97706); font-weight: 700;">💡 서비스 불편사항 & 아이디어 건의하기</button>
                 <button id="theme-toggle-btn" class="btn mypage-action-btn" style="padding: 11px 0; width: 100%; text-align: center; font-size: 0.88rem; font-weight: 700;">☀️ / 🌙 낮/밤 테마 모드 전환</button>
                 <button id="premium-toggle-btn" class="btn mypage-action-btn" onclick="toggleParentPremium()" style="padding: 11px 0; width: 100%; text-align: center; font-size: 0.88rem; font-weight: 700;">⚡ 프리미엄 구독 상태 전환 (부모결제)</button>
