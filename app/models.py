@@ -283,3 +283,17 @@ class Notice(Base):
     is_pinned = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+
+class ExamMaterial(Base):
+    __tablename__ = "exam_materials"
+
+    id = Column(Integer, primary_key=True, index=True)
+    subject = Column(String, index=True)  # 국어 | 수학 | 영어 | 탐구 | 기타
+    title = Column(String)
+    description = Column(String, nullable=True)
+    file_url = Column(String)  # /downloads/... or external link
+    file_name = Column(String, nullable=True)
+    file_size = Column(String, nullable=True)
+    year = Column(Integer, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
