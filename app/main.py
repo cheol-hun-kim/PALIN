@@ -28,6 +28,16 @@ def init_db_schema():
                     conn.execute(text("ALTER TABLE students ADD COLUMN is_banned BOOLEAN DEFAULT 0"))
                 if "ban_reason" not in columns:
                     conn.execute(text("ALTER TABLE students ADD COLUMN ban_reason VARCHAR"))
+                if "dday_date" not in columns:
+                    conn.execute(text("ALTER TABLE students ADD COLUMN dday_date VARCHAR DEFAULT '2026-11-19'"))
+                if "dday_title" not in columns:
+                    conn.execute(text("ALTER TABLE students ADD COLUMN dday_title VARCHAR DEFAULT '2027 수능'"))
+                if "streak_days" not in columns:
+                    conn.execute(text("ALTER TABLE students ADD COLUMN streak_days INTEGER DEFAULT 0"))
+                if "max_streak_days" not in columns:
+                    conn.execute(text("ALTER TABLE students ADD COLUMN max_streak_days INTEGER DEFAULT 0"))
+                if "medical_symbol" not in columns:
+                    conn.execute(text("ALTER TABLE students ADD COLUMN medical_symbol VARCHAR DEFAULT 'GENERAL'"))
                 conn.commit()
         except Exception as e:
             print("DB Schema Migration Warning:", e)
@@ -138,11 +148,19 @@ def toggle_premium(student_id: int, db: Session = Depends(get_db)):
 def update_profile(payload: schemas.StudentProfileUpdate, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
     if not student:
-        raise HTTPException(status_code=404, detail="\ud559\uc0dd\uc744 \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.")
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+    if payload.name: student.name = payload.name
+    if payload.phone: student.phone = payload.phone
+    if payload.grade is not None: student.grade = payload.grade
+    if payload.region: student.region = payload.region
+    if payload.high_school: student.high_school = payload.high_school
     if payload.target_univ: student.target_univ = payload.target_univ
     if payload.baseline_univ: student.baseline_univ = payload.baseline_univ
     if payload.wake_target_time: student.wake_target_time = payload.wake_target_time
     if payload.sleep_target_time: student.sleep_target_time = payload.sleep_target_time
+    if payload.dday_date: student.dday_date = payload.dday_date
+    if payload.dday_title: student.dday_title = payload.dday_title
+    if payload.medical_symbol: student.medical_symbol = payload.medical_symbol
     db.commit()
     db.refresh(student)
     return student
@@ -253,13 +271,26 @@ def verify_mission(payload: schemas.MissionVerify, db: Session = Depends(get_db)
             earned *= 2
         earned = int(earned * student.point_multiplier)
         student.current_points += earned
-        db.add(models.PointHistory(student_id=student.id, amount=earned, description=f"{payload.mission_type} \ubbf8\uc158 \uc131\uacf5"))
+        
+        # 듀오링고 불꽃(Streak) 증가
+        student.streak_days = (student.streak_days or 0) + 1
+        if student.streak_days > (student.max_streak_days or 0):
+            student.max_streak_days = student.streak_days
+            
+        db.add(models.PointHistory(student_id=student.id, amount=earned, description=f"{payload.mission_type} 미션 성공"))
     else:
+        # 실패 시 불꽃 즉시 리셋 (매몰 비용 상실감 부여)
+        student.streak_days = 0
         if student.parent:
-            send_mock_sms(student.parent.phone, f"\uc790\ub140({student.name})\uac00 {payload.mission_type} \ubbf8\uc158\uc5d0 \uc2e4\ud328\ud588\uc2b5\ub2c8\ub2e4.")
+            send_mock_sms(student.parent.phone, f"자녀({student.name})가 {payload.mission_type} 미션에 실패했습니다. (연속 달성 기록 초기화)")
             
     db.commit()
-    return {"status": status_val, "earned_points": earned, "current_points": student.current_points}
+    return {
+        "status": status_val,
+        "earned_points": earned,
+        "current_points": student.current_points,
+        "streak_days": student.streak_days
+    }
 
 @app.get("/api/planner/blocks/{student_id}")
 def get_blocks(student_id: int, db: Session = Depends(get_db)):
@@ -685,6 +716,48 @@ def update_feedback_status(feedback_id: int, payload: FeedbackStatusPayload, db:
     fb.status = payload.status
     db.commit()
     return {"status": "ok"}
+
+@app.get("/api/notices", response_model=List[schemas.NoticeResponse])
+def get_notices(db: Session = Depends(get_db)):
+    return db.query(models.Notice).order_by(models.Notice.is_pinned.desc(), models.Notice.created_at.desc()).limit(10).all()
+
+@app.post("/api/admin/notices", response_model=schemas.NoticeResponse)
+def create_notice(payload: schemas.NoticeCreate, db: Session = Depends(get_db)):
+    notice = models.Notice(**payload.model_dump())
+    db.add(notice)
+    db.commit()
+    db.refresh(notice)
+    return notice
+
+@app.delete("/api/admin/notices/{notice_id}")
+def delete_notice(notice_id: int, db: Session = Depends(get_db)):
+    n = db.query(models.Notice).filter(models.Notice.id == notice_id).first()
+    if n:
+        db.delete(n)
+        db.commit()
+    return {"status": "ok"}
+
+@app.get("/api/micro-league/{student_id}")
+def get_micro_league(student_id: int, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404)
+        
+    region = student.region or "대치동"
+    target_univ = (student.target_univ or "가천대학교").split()[0]
+    
+    # 1. 지역 마이크로 리그 (예: 대치동 재원생 랭킹)
+    region_students = db.query(models.Student).filter(models.Student.region == student.region).order_by(models.Student.diligence_score.desc()).limit(5).all()
+    
+    # 2. 목표 대학 지망생 마이크로 리그 (예: 의대/지망대학 랭킹)
+    univ_students = db.query(models.Student).filter(models.Student.target_univ.like(f"%{target_univ}%")).order_by(models.Student.diligence_score.desc()).limit(5).all()
+    
+    return {
+        "region_title": f"📍 {region} 수험생 주간 성실도 랭킹",
+        "region_rankings": [{"name": s.name[:1] + "*" + s.name[2:] if len(s.name) >= 3 else s.name[:1] + "*", "school": s.high_school or "-", "score": s.diligence_score, "is_me": s.id == student.id} for s in region_students],
+        "univ_title": f"🎯 [{target_univ}] 지망생 몰입도 Top 5",
+        "univ_rankings": [{"name": s.name[:1] + "*" + s.name[2:] if len(s.name) >= 3 else s.name[:1] + "*", "target": s.target_univ, "score": s.diligence_score, "is_me": s.id == student.id} for s in univ_students]
+    }
 
 @app.get("/api/admin/gemini-status")
 def get_gemini_status():
