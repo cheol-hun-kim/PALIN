@@ -18,7 +18,6 @@ def init_db_schema():
     models.Base.metadata.create_all(bind=engine)
     with engine.connect() as conn:
         try:
-            # SQLite일 때만 PRAGMA 실행 (PostgreSQL은 models.Base.metadata.create_all로 완벽 생성)
             if engine.dialect.name == "sqlite":
                 columns = [row[1] for row in conn.execute(text("PRAGMA table_info(students)")).fetchall()]
                 if columns:
@@ -50,6 +49,21 @@ def init_db_schema():
                     if "suspend_reason" not in tutor_cols:
                         conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN suspend_reason VARCHAR"))
                     conn.commit()
+            else:
+                # PostgreSQL (Supabase) 자동 마이그레이션 실행
+                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS wake_target_time VARCHAR DEFAULT '06:30'"))
+                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS sleep_target_time VARCHAR DEFAULT '23:30'"))
+                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS is_banned BOOLEAN DEFAULT FALSE"))
+                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS ban_reason VARCHAR"))
+                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS dday_date VARCHAR DEFAULT '2026-11-19'"))
+                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS dday_title VARCHAR DEFAULT '2027 수능'"))
+                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS streak_days INTEGER DEFAULT 0"))
+                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS max_streak_days INTEGER DEFAULT 0"))
+                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS medical_symbol VARCHAR DEFAULT 'GENERAL'"))
+                conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS is_suspended BOOLEAN DEFAULT FALSE"))
+                conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS suspend_reason VARCHAR"))
+                conn.commit()
+                print("PostgreSQL Schema Migration Complete!")
         except Exception as e:
             print("DB Schema Migration Warning:", e)
 
