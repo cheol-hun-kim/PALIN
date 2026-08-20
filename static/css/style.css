@@ -1073,6 +1073,46 @@ body.day-mode .input-field:not(#register-overlay .input-field) {
     font-weight: 600 !important;
 }
 
+/* 🎯 드롭다운 옵션 글자색 완전 선명 고대비 보장 */
+select option {
+    background-color: #1e2433 !important;
+    color: #ffffff !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    padding: 8px !important;
+}
+
+body.day-mode select option {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+}
+
+select#exam-subject-select {
+    color: #ffffff !important;
+    background-color: #141724 !important;
+    font-weight: 700 !important;
+}
+
+select#exam-subject-select option {
+    background-color: #1e2433 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+body.day-mode select#exam-subject-select {
+    color: #0f172a !important;
+    background-color: #f8fafc !important;
+    border: 1.5px solid #6366f1 !important;
+}
+
+body.day-mode select#exam-subject-select option {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    font-weight: 700 !important;
+}
+
 body.day-mode .form-input:focus {
     border-color: #4f46e5 !important;
     background: #ffffff !important;
