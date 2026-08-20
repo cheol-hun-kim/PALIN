@@ -132,51 +132,57 @@ body {
 
 /* 헤더 스타일 */
 header {
-    background-color: rgba(11, 15, 25, 0.8);
-    backdrop-filter: blur(12px);
+    background-color: rgba(11, 15, 25, 0.9);
+    backdrop-filter: blur(14px);
     border-bottom: 1px solid var(--glass-border);
-    padding: 16px 20px;
+    padding: 10px 14px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: sticky;
     top: 0;
     z-index: 100;
+    gap: 6px;
 }
 
 .logo-container {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    flex-shrink: 0;
 }
 
 .logo-text {
-    font-size: 1.25rem;
-    font-weight: 700;
-    letter-spacing: 1px;
+    font-size: 1.1rem;
+    font-weight: 900;
+    letter-spacing: -0.5px;
     background: linear-gradient(135deg, #a78bfa, var(--color-accent));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    white-space: nowrap;
 }
 
 .user-status {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 5px;
+    flex-shrink: 0;
 }
 
 .points-badge {
     background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05));
     border: 1px solid rgba(245, 158, 11, 0.3);
     color: var(--color-warning);
-    padding: 6px 12px;
+    padding: 4px 8px;
     border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.76rem;
+    font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
     box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 /* 목표 대학교 배너 */
@@ -895,18 +901,20 @@ div[style*="grid-template-columns"] > * {
     }
 }
 
-/* === 듀오링고 불꽃 (Streak) 스타일 === */
+/* === 연속 출석(Streak) 불꽃 배지 === */
 .streak-badge {
     display: inline-flex;
     align-items: center;
     gap: 4px;
     background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(245, 158, 11, 0.15));
     border: 1px solid rgba(245, 158, 11, 0.4);
-    padding: 4px 10px;
+    padding: 4px 8px;
     border-radius: 20px;
-    font-size: 0.82rem;
+    font-size: 0.76rem;
     font-weight: 800;
     color: #f59e0b;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
     animation: streakGlow 2s infinite alternate;
 }
 
@@ -981,13 +989,21 @@ div[style*="grid-template-columns"] > * {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 10px;
 }
 
 .calendar-dday {
     font-weight: 800;
-    font-size: 0.9rem;
-    padding: 4px 10px;
+    font-size: 0.82rem;
+    padding: 6px 10px;
     border-radius: 8px;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    min-width: 60px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* ===================================================
