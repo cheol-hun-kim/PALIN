@@ -6,7 +6,7 @@
     <title>PALIN OS - 데이터 기반 행동 통제 범용 OS</title>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=19.0">
+    <link rel="stylesheet" href="css/style.css?v=20.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -142,7 +142,7 @@
                         <span class="univ-name" id="banner-baseline-univ">로딩중..</span>
                     </div>
                     <div style="text-align: right;">
-                        <div class="dday" id="banner-dday" style="cursor: pointer;" onclick="openMyPageModal()" title="클릭하여 목표 D-Day 변경">D-DAY</div>
+                        <div class="dday" id="banner-dday" style="cursor: pointer;" onclick="openMyPageModal()" title="클릭하여 목표 D-Day 변경">D-91</div>
                         <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;" id="banner-dday-title">2027 수능</div>
                     </div>
                 </div>
@@ -927,6 +927,7 @@
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
+                <a href="/admin.html" class="btn" style="text-align: center; text-decoration: none; padding: 11px 0; background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; font-size: 0.9rem; color: #ffffff !important; border-radius: 8px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">👑 원장님 전용 중앙 관제 대시보드</a>
                 <button onclick="openFeedbackModal()" class="btn" style="padding: 10px 0; width: 100%; text-align: center; background: linear-gradient(135deg, #f59e0b, #d97706); font-weight: 700;">💡 서비스 불편사항 & 아이디어 건의하기</button>
                 <button id="theme-toggle-btn" class="btn mypage-action-btn" style="padding: 11px 0; width: 100%; text-align: center; font-size: 0.88rem; font-weight: 700;">☀️ / 🌙 낮/밤 테마 모드 전환</button>
                 <button id="premium-toggle-btn" class="btn mypage-action-btn" onclick="toggleParentPremium()" style="padding: 11px 0; width: 100%; text-align: center; font-size: 0.88rem; font-weight: 700;">⚡ 프리미엄 구독 상태 전환 (부모결제)</button>
@@ -997,7 +998,7 @@
         </div>
     </div>
 
-    <script src="js/app.js?v=19.0"></script>
+    <script src="js/app.js?v=20.0"></script>
     <script>
     // Service Worker Registration
     if ('serviceWorker' in navigator) {
