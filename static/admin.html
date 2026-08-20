@@ -282,16 +282,7 @@
         const ALLOWED_PINS = ["1286", "1234", "0000", "admin", "1286orbital21@gmail.com"];
 
         document.addEventListener("DOMContentLoaded", () => {
-            // 1. URL 쿼리 파라미터에 pin=1286 또는 auth=1286이 있으면 원클릭 즉시 오픈
-            const urlParams = new URLSearchParams(window.location.search);
-            const queryPin = urlParams.get("pin") || urlParams.get("auth");
-            if (queryPin && (queryPin === MASTER_PIN || ALLOWED_PINS.includes(queryPin.trim().toLowerCase()))) {
-                sessionStorage.setItem("palinAdminAuthed", "true");
-                showAdminDashboard();
-                return;
-            }
-
-            // 2. 세션 인증 여부 확인
+            // 세션 인증 여부 확인 (미인증 시 반드시 로그인 화면 노출)
             if (sessionStorage.getItem("palinAdminAuthed") === "true") {
                 showAdminDashboard();
             } else {
