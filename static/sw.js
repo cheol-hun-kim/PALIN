@@ -1,12 +1,12 @@
-const CACHE_NAME = 'palin-os-v1';
+const CACHE_NAME = 'palin-os-v2';
 const STATIC_ASSETS = [
   '/',
   '/css/style.css',
   '/js/app.js',
-  '/static/manifest.json'
+  '/manifest.json'
 ];
 
-// Install - cache core assets
+// Install - cache core static assets only
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
@@ -14,7 +14,7 @@ self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
-// Activate - clean old caches
+// Activate - clean all old caches immediately
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -24,15 +24,22 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Fetch - network first, fallback to cache
+// Fetch - DO NOT cache API requests (Security & Privacy guarantee)
 self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+  
+  // 🚫 API 요청, 관리자 페이지, 인증 관련 요청은 절대로 캐시하지 않고 항상 네트워크 직접 통신
+  if (event.request.method !== 'GET' || url.pathname.startsWith('/api/') || url.pathname.includes('admin')) {
+    return;
+  }
   
   event.respondWith(
     fetch(event.request)
       .then(response => {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        if (response && response.status === 200 && response.type === 'basic') {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        }
         return response;
       })
       .catch(() => caches.match(event.request))
