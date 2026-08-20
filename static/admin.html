@@ -297,190 +297,216 @@
                 if (!res.ok) throw new Error("Dashboard fetch failed");
                 const data = await res.json();
 
-                // KPI 요약
-                document.getElementById("stat-students").innerText = `${data.summary.total_students}명`;
-                document.getElementById("stat-parents").innerText = `${data.summary.total_parents}명`;
-                document.getElementById("stat-open-feedbacks").innerText = `${data.summary.open_feedbacks || 0}건`;
-                const topCount = (data.summary.league_counts.PLATINUM || 0) + (data.summary.league_counts.GOLD || 0);
-                document.getElementById("stat-top-league").innerText = `${topCount}명`;
+                // 1. KPI 요약
+                try {
+                    document.getElementById("stat-students").innerText = `${data.summary?.total_students || 0}명`;
+                    document.getElementById("stat-parents").innerText = `${data.summary?.total_parents || 0}명`;
+                    document.getElementById("stat-open-feedbacks").innerText = `${data.summary?.open_feedbacks || 0}건`;
+                    const lCounts = data.summary?.league_counts || {};
+                    const topCount = (lCounts.PLATINUM || 0) + (lCounts.GOLD || 0);
+                    document.getElementById("stat-top-league").innerText = `${topCount}명`;
+                } catch (e) { console.warn("KPI error:", e); }
 
-                // 건의사항 수신함
-                const fFeed = document.getElementById("feedback-feed");
-                fFeed.innerHTML = "";
-                if (!data.recent_feedbacks || data.recent_feedbacks.length === 0) {
-                    fFeed.innerHTML = "<div style='color:#94a3b8; font-size:0.85rem;'>수신된 건의사항이 없습니다.</div>";
-                } else {
-                    data.recent_feedbacks.forEach(fb => {
-                        const div = document.createElement("div");
-                        div.style.cssText = "padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);";
-                        const isDone = fb.status === "완료";
-                        const statusBadge = isDone 
-                            ? "<span style='color:#10b981; font-weight:700;'>[완료]</span>" 
-                            : "<span style='color:#f59e0b; font-weight:700;'>[접수됨]</span>";
-                        const actionBtn = !isDone 
-                            ? `<button onclick="updateFeedbackStatus(${fb.id}, '완료')" class="btn" style="padding: 4px 10px; font-size: 0.75rem; background: #10b981; margin-left: auto;">✅ 완료 처리</button>`
-                            : `<span style="font-size: 0.75rem; color: #10b981;">처리 완료</span>`;
+                // 2. 건의사항 수신함
+                try {
+                    const fFeed = document.getElementById("feedback-feed");
+                    if (fFeed) {
+                        fFeed.innerHTML = "";
+                        if (!data.recent_feedbacks || data.recent_feedbacks.length === 0) {
+                            fFeed.innerHTML = "<div style='color:#94a3b8; font-size:0.85rem;'>수신된 건의사항이 없습니다.</div>";
+                        } else {
+                            data.recent_feedbacks.forEach(fb => {
+                                const div = document.createElement("div");
+                                div.style.cssText = "padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);";
+                                const isDone = fb.status === "완료";
+                                const statusBadge = isDone 
+                                    ? "<span style='color:#10b981; font-weight:700;'>[완료]</span>" 
+                                    : "<span style='color:#f59e0b; font-weight:700;'>[접수됨]</span>";
+                                const actionBtn = !isDone 
+                                    ? `<button onclick="updateFeedbackStatus(${fb.id}, '완료')" class="btn" style="padding: 4px 10px; font-size: 0.75rem; background: #10b981; margin-left: auto;">✅ 완료 처리</button>`
+                                    : `<span style="font-size: 0.75rem; color: #10b981;">처리 완료</span>`;
 
-                        div.innerHTML = `
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                <div>
-                                    ${statusBadge} <span style="font-weight: 700; color: #fcd34d;">[${fb.category}]</span> 
-                                    <span style="font-weight: 700; color: #f8fafc;">${fb.student_name}</span> (${fb.user_email || "이메일미입력"})
-                                </div>
-                                <div style="display: flex; gap: 8px; align-items: center;">
-                                    <span style="font-size: 0.75rem; color: #94a3b8;">${fb.created_at}</span>
-                                    ${actionBtn}
-                                </div>
-                            </div>
-                            <div style="font-size: 0.85rem; color: #cbd5e1; white-space: pre-wrap; line-height: 1.4;">${fb.content}</div>
-                        `;
-                        fFeed.appendChild(div);
-                    });
-                }
-
-                // 🎓 과외선생님 승인 대기 수신함
-                const ptFeed = document.getElementById("pending-tutor-feed");
-                if (ptFeed) {
-                    ptFeed.innerHTML = "";
-                    if (!data.pending_tutors || data.pending_tutors.length === 0) {
-                        ptFeed.innerHTML = "<div style='color:#94a3b8; font-size:0.85rem;'>승인 대기 중인 과외선생님 신청건이 없습니다.</div>";
-                    } else {
-                        data.pending_tutors.forEach(pt => {
-                            const div = document.createElement("div");
-                            div.style.cssText = "padding: 14px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(99, 102, 241, 0.2); margin-bottom: 8px;";
-                            div.innerHTML = `
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                    <div>
-                                        <span style="font-weight: 800; font-size: 1rem; color: #a78bfa;">🎓 ${pt.name} 학생</span> 
-                                        <span style="font-size: 0.85rem; color: #cbd5e1; margin-left: 6px;">(${pt.university} ${pt.major} ${pt.admission_year}학번)</span>
-                                        <span style="font-size: 0.8rem; color: #6366f1; margin-left: 8px;">📞 ${pt.phone}</span>
+                                div.innerHTML = `
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                        <div>
+                                            ${statusBadge} <span style="font-weight: 700; color: #fcd34d;">[${fb.category}]</span> 
+                                            <span style="font-weight: 700; color: #f8fafc;">${fb.student_name}</span> (${fb.user_email || "이메일미입력"})
+                                        </div>
+                                        <div style="display: flex; gap: 8px; align-items: center;">
+                                            <span style="font-size: 0.75rem; color: #94a3b8;">${fb.created_at}</span>
+                                            ${actionBtn}
+                                        </div>
                                     </div>
-                                    <button onclick="approveTutor(${pt.id})" class="btn" style="padding: 6px 14px; font-size: 0.82rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); font-weight: 700;">✅ 합격증 검증 완료 및 최종 승인</button>
-                                </div>
-                                <div style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 6px;">카카오톡 1:1 링크: <a href="${pt.contact_link}" target="_blank" style="color: #fcd34d;">${pt.contact_link}</a></div>
-                                <div style="font-size: 0.85rem; color: #e2e8f0; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 6px;">자기소개: ${pt.bio}</div>
-                            `;
-                            ptFeed.appendChild(div);
-                        });
+                                    <div style="font-size: 0.85rem; color: #cbd5e1; white-space: pre-wrap; line-height: 1.4;">${fb.content}</div>
+                                `;
+                                fFeed.appendChild(div);
+                            });
+                        }
                     }
-                }
+                } catch (e) { console.warn("Feedback feed error:", e); }
 
-                // 🛡️ 활동 중인 과외선생님 목록 & 강제 활동정지 제재 렌더링
-                const atFeed = document.getElementById("active-tutor-feed");
-                if (atFeed) {
-                    atFeed.innerHTML = "";
-                    if (!data.all_tutors || data.all_tutors.length === 0) {
-                        atFeed.innerHTML = "<div style='color:#94a3b8; font-size:0.85rem;'>현재 등록되어 활동 중인 과외선생님이 없습니다.</div>";
-                    } else {
-                        data.all_tutors.forEach(t => {
-                            const div = document.createElement("div");
-                            div.style.cssText = "padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px;";
-                            const statusTag = t.is_suspended 
-                                ? `<span style="color:#ef4444; font-weight:800; font-size:0.8rem; background:rgba(239,68,68,0.15); padding:3px 8px; border-radius:12px;">🚫 활동정지됨 (${t.suspend_reason || '사유미기재'})</span>`
-                                : `<span style="color:#10b981; font-weight:800; font-size:0.8rem; background:rgba(16,185,129,0.15); padding:3px 8px; border-radius:12px;">🟢 정상 활동 중</span>`;
-                            
-                            const actionBtn = t.is_suspended
-                                ? `<button onclick="unsuspendTutor(${t.id})" class="btn" style="padding:4px 10px; font-size:0.75rem; background:#3b82f6; font-weight:700;">🔓 활동 재개</button>`
-                                : `<button onclick="suspendTutor(${t.id})" class="btn" style="padding:4px 10px; font-size:0.75rem; background:#ef4444; font-weight:700;">🚫 강제 활동정지</button>`;
-
-                            div.innerHTML = `
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <div>
-                                        <span style="font-weight: 700; color: #f8fafc;">${t.name} 선생님</span>
-                                        <span style="font-size: 0.82rem; color: #94a3b8; margin-left: 6px;">(${t.university} ${t.major} ${t.admission_year}학번)</span>
-                                        <span style="font-size: 0.78rem; color: #6366f1; margin-left: 8px;">📞 ${t.phone}</span>
-                                        <span style="margin-left: 10px;">${statusTag}</span>
+                // 3. 🎓 과외선생님 승인 대기 수신함
+                try {
+                    const ptFeed = document.getElementById("pending-tutor-feed");
+                    if (ptFeed) {
+                        ptFeed.innerHTML = "";
+                        if (!data.pending_tutors || data.pending_tutors.length === 0) {
+                            ptFeed.innerHTML = "<div style='color:#94a3b8; font-size:0.85rem;'>승인 대기 중인 과외선생님 신청건이 없습니다.</div>";
+                        } else {
+                            data.pending_tutors.forEach(pt => {
+                                const div = document.createElement("div");
+                                div.style.cssText = "padding: 14px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(99, 102, 241, 0.2); margin-bottom: 8px;";
+                                div.innerHTML = `
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                        <div>
+                                            <span style="font-weight: 800; font-size: 1rem; color: #a78bfa;">🎓 ${pt.name} 학생</span> 
+                                            <span style="font-size: 0.85rem; color: #cbd5e1; margin-left: 6px;">(${pt.university} ${pt.major} ${pt.admission_year}학번)</span>
+                                            <span style="font-size: 0.8rem; color: #6366f1; margin-left: 8px;">📞 ${pt.phone}</span>
+                                        </div>
+                                        <button onclick="approveTutor(${pt.id})" class="btn" style="padding: 6px 14px; font-size: 0.82rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); font-weight: 700;">✅ 합격증 검증 완료 및 최종 승인</button>
                                     </div>
-                                    <div>${actionBtn}</div>
-                                </div>
-                            `;
-                            atFeed.appendChild(div);
-                        });
+                                    <div style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 6px;">카카오톡 1:1 링크: <a href="${pt.contact_link}" target="_blank" style="color: #fcd34d;">${pt.contact_link}</a></div>
+                                    <div style="font-size: 0.85rem; color: #e2e8f0; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 6px;">자기소개: ${pt.bio}</div>
+                                `;
+                                ptFeed.appendChild(div);
+                            });
+                        }
                     }
-                }
+                } catch (e) { console.warn("Pending tutor feed error:", e); }
 
-                // 학생 테이블
-                const tbody = document.getElementById("student-table-body");
-                tbody.innerHTML = "";
-                data.students.forEach(s => {
-                    const tr = document.createElement("tr");
-                    const tierClass = `league-${s.league_tier.toLowerCase()}`;
-                    tr.innerHTML = `
-                        <td>#${s.id}</td>
-                        <td style="font-weight: 700; color: #f8fafc;">${s.name}</td>
-                        <td>${s.phone}</td>
-                        <td>${s.high_school} (${s.grade}학년)</td>
-                        <td>
-                            <div style="font-size:0.8rem;">🦁 ${s.target_univ || "-"}</div>
-                            <div style="font-size:0.75rem; color:#94a3b8;">🛡️ ${s.baseline_univ || "-"}</div>
-                        </td>
-                        <td>
-                            <div style="font-size:0.78rem;">🌅 ${s.wake_target_time || "06:30"} / 🌃 ${s.sleep_target_time || "23:30"}</div>
-                        </td>
-                        <td><span style="color:#f59e0b; font-weight:700; font-size:0.8rem;">🔥 ${s.streak_days || 0}일</span></td>
-                        <td><span class="league-badge ${tierClass}">${s.league_tier}</span></td>
-                        <td style="font-weight: 700; color: #a78bfa;">${s.point_multiplier}x</td>
-                        <td>${s.current_points} P</td>
-                        <td style="color: #10b981; font-weight: 700;">+${s.diligence_score}점</td>
-                        <td>🎫 ${s.golden_tickets_count}장</td>
-                        <td>
-                            ${s.is_banned 
-                                ? `<div style="display:flex; flex-direction:column; gap:4px;"><span style="color:#ef4444; font-weight:700; font-size:0.75rem;">🚫 퇴거됨 (${s.ban_reason || '규칙위반'})</span><button onclick="unbanStudent(${s.id})" class="btn" style="padding:3px 8px; font-size:0.72rem; background:#3b82f6;">🔓 해제</button></div>` 
-                                : `<button onclick="banStudent(${s.id})" class="btn" style="padding:4px 10px; font-size:0.75rem; background:#ef4444; font-weight:700;">🚫 강제 퇴거/차단</button>`
-                            }
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
+                // 4. 🛡️ 활동 중인 과외선생님 목록 & 강제 활동정지 제재 렌더링
+                try {
+                    const atFeed = document.getElementById("active-tutor-feed");
+                    if (atFeed) {
+                        atFeed.innerHTML = "";
+                        if (!data.all_tutors || data.all_tutors.length === 0) {
+                            atFeed.innerHTML = "<div style='color:#94a3b8; font-size:0.85rem;'>현재 등록되어 활동 중인 과외선생님이 없습니다.</div>";
+                        } else {
+                            data.all_tutors.forEach(t => {
+                                const div = document.createElement("div");
+                                div.style.cssText = "padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px;";
+                                const statusTag = t.is_suspended 
+                                    ? `<span style="color:#ef4444; font-weight:800; font-size:0.8rem; background:rgba(239,68,68,0.15); padding:3px 8px; border-radius:12px;">🚫 활동정지됨 (${t.suspend_reason || '사유미기재'})</span>`
+                                    : `<span style="color:#10b981; font-weight:800; font-size:0.8rem; background:rgba(16,185,129,0.15); padding:3px 8px; border-radius:12px;">🟢 정상 활동 중</span>`;
+                                
+                                const actionBtn = t.is_suspended
+                                    ? `<button onclick="unsuspendTutor(${t.id})" class="btn" style="padding:4px 10px; font-size:0.75rem; background:#3b82f6; font-weight:700;">🔓 활동 재개</button>`
+                                    : `<button onclick="suspendTutor(${t.id})" class="btn" style="padding:4px 10px; font-size:0.75rem; background:#ef4444; font-weight:700;">🚫 강제 활동정지</button>`;
 
-                // 미션 피드
-                const mFeed = document.getElementById("mission-feed");
-                mFeed.innerHTML = "";
-                if (data.recent_missions.length === 0) {
-                    mFeed.innerHTML = "<div style='color:#94a3b8; font-size:0.85rem;'>기록된 미션 로그가 없습니다.</div>";
-                } else {
-                    data.recent_missions.forEach(m => {
-                        const div = document.createElement("div");
-                        div.style.cssText = "padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;";
-                        const statusBadge = m.status === "SUCCESS" 
-                            ? "<span class='status-success'>[성공인증]</span>" 
-                            : "<span class='status-fail'>[실패-문자발송]</span>";
-                        div.innerHTML = `
-                            <div>
-                                <span style="font-weight: 700; color: #f8fafc;">${m.student_name}</span> - 
-                                <span>${m.mission_type === "WAKEUP" ? "🌅 기상 미션" : "🌃 취침 미션"}</span>
-                                ${statusBadge}
-                            </div>
-                            <div style="font-size: 0.75rem; color: #94a3b8;">${m.created_at}</div>
-                        `;
-                        mFeed.appendChild(div);
-                    });
-                }
+                                div.innerHTML = `
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <span style="font-weight: 700; color: #f8fafc;">${t.name} 선생님</span>
+                                            <span style="font-size: 0.82rem; color: #94a3b8; margin-left: 6px;">(${t.university} ${t.major} ${t.admission_year}학번)</span>
+                                            <span style="font-size: 0.78rem; color: #6366f1; margin-left: 8px;">📞 ${t.phone}</span>
+                                            <span style="margin-left: 10px;">${statusTag}</span>
+                                        </div>
+                                        <div>${actionBtn}</div>
+                                    </div>
+                                `;
+                                atFeed.appendChild(div);
+                            });
+                        }
+                    }
+                } catch (e) { console.warn("Active tutor feed error:", e); }
 
-                // 공부 피드
-                const sFeed = document.getElementById("study-feed");
-                sFeed.innerHTML = "";
-                if (data.recent_studies.length === 0) {
-                    sFeed.innerHTML = "<div style='color:#94a3b8; font-size:0.85rem;'>기록된 공부 세션이 없습니다.</div>";
-                } else {
-                    data.recent_studies.forEach(s => {
-                        const div = document.createElement("div");
-                        div.style.cssText = "padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;";
-                        const statusBadge = s.is_distracted 
-                            ? "<span class='status-fail'>[딴짓 감지/정지]</span>" 
-                            : "<span class='status-success'>[정상 몰입완료]</span>";
-                        div.innerHTML = `
-                            <div>
-                                <span style="font-weight: 700; color: #f8fafc;">${s.student_name}</span> - 
-                                <span>⏱️ ${s.duration_min}분 측정</span>
-                                ${statusBadge}
-                            </div>
-                            <div style="font-size: 0.75rem; color: #94a3b8;">${s.created_at}</div>
-                        `;
-                        sFeed.appendChild(div);
-                    });
-                }
+                // 5. 학생 테이블
+                try {
+                    const tbody = document.getElementById("student-table-body");
+                    if (tbody) {
+                        tbody.innerHTML = "";
+                        if (!data.students || data.students.length === 0) {
+                            tbody.innerHTML = "<tr><td colspan='13' style='text-align: center; color: #94a3b8;'>등록된 재원생이 없습니다.</td></tr>";
+                        } else {
+                            data.students.forEach(s => {
+                                const tr = document.createElement("tr");
+                                const tierClass = `league-${(s.league_tier || 'bronze').toLowerCase()}`;
+                                tr.innerHTML = `
+                                    <td>#${s.id}</td>
+                                    <td style="font-weight: 700; color: #f8fafc;">${s.name}</td>
+                                    <td>${s.phone}</td>
+                                    <td>${s.high_school} (${s.grade}학년)</td>
+                                    <td>
+                                        <div style="font-size:0.8rem;">🦁 ${s.target_univ || "-"}</div>
+                                        <div style="font-size:0.75rem; color:#94a3b8;">🛡️ ${s.baseline_univ || "-"}</div>
+                                    </td>
+                                    <td>
+                                        <div style="font-size:0.78rem;">🌅 ${s.wake_target_time || "06:30"} / 🌃 ${s.sleep_target_time || "23:30"}</div>
+                                    </td>
+                                    <td><span style="color:#f59e0b; font-weight:700; font-size:0.8rem;">🔥 ${s.streak_days || 0}일</span></td>
+                                    <td><span class="league-badge ${tierClass}">${s.league_tier}</span></td>
+                                    <td style="font-weight: 700; color: #a78bfa;">${s.point_multiplier}x</td>
+                                    <td>${s.current_points} P</td>
+                                    <td style="color: #10b981; font-weight: 700;">+${s.diligence_score}점</td>
+                                    <td>🎫 ${s.golden_tickets_count}장</td>
+                                    <td>
+                                        ${s.is_banned 
+                                            ? `<div style="display:flex; flex-direction:column; gap:4px;"><span style="color:#ef4444; font-weight:700; font-size:0.75rem;">🚫 퇴거됨 (${s.ban_reason || '규칙위반'})</span><button onclick="unbanStudent(${s.id})" class="btn" style="padding:3px 8px; font-size:0.72rem; background:#3b82f6;">🔓 해제</button></div>` 
+                                            : `<button onclick="banStudent(${s.id})" class="btn" style="padding:4px 10px; font-size:0.75rem; background:#ef4444; font-weight:700;">🚫 강제 퇴거/차단</button>`
+                                        }
+                                    </td>
+                                `;
+                                tbody.appendChild(tr);
+                            });
+                        }
+                    }
+                } catch (e) { console.warn("Student table error:", e); }
 
+                // 6. 미션 피드
+                try {
+                    const mFeed = document.getElementById("mission-feed");
+                    if (mFeed) {
+                        mFeed.innerHTML = "";
+                        if (!data.recent_missions || data.recent_missions.length === 0) {
+                            mFeed.innerHTML = "<div style='color:#94a3b8; font-size:0.85rem;'>기록된 미션 로그가 없습니다.</div>";
+                        } else {
+                            data.recent_missions.forEach(m => {
+                                const div = document.createElement("div");
+                                div.style.cssText = "padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;";
+                                const statusBadge = m.status === "SUCCESS" 
+                                    ? "<span class='status-success'>[성공인증]</span>" 
+                                    : "<span class='status-fail'>[실패-문자발송]</span>";
+                                div.innerHTML = `
+                                    <div>
+                                        <span style="font-weight: 700; color: #f8fafc;">${m.student_name}</span> - 
+                                        <span>${m.mission_type === "WAKEUP" ? "🌅 기상 미션" : "🌃 취침 미션"}</span>
+                                        ${statusBadge}
+                                    </div>
+                                    <div style="font-size: 0.75rem; color: #94a3b8;">${m.created_at}</div>
+                                `;
+                                mFeed.appendChild(div);
+                            });
+                        }
+                // 7. 공부 피드
+                try {
+                    const sFeed = document.getElementById("study-feed");
+                    if (sFeed) {
+                        sFeed.innerHTML = "";
+                        if (!data.recent_studies || data.recent_studies.length === 0) {
+                            sFeed.innerHTML = "<div style='color:#94a3b8; font-size:0.85rem;'>기록된 공부 세션이 없습니다.</div>";
+                        } else {
+                            data.recent_studies.forEach(s => {
+                                const div = document.createElement("div");
+                                div.style.cssText = "padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;";
+                                const statusBadge = s.is_distracted 
+                                    ? "<span class='status-fail'>[딴짓 감지/정지]</span>" 
+                                    : "<span class='status-success'>[정상 몰입완료]</span>";
+                                div.innerHTML = `
+                                    <div>
+                                        <span style="font-weight: 700; color: #f8fafc;">${s.student_name}</span> - 
+                                        <span>⏱️ ${s.duration_min}분 측정</span>
+                                        ${statusBadge}
+                                    </div>
+                                    <div style="font-size: 0.75rem; color: #94a3b8;">${s.created_at}</div>
+                                `;
+                                sFeed.appendChild(div);
+                            });
+                        }
+                    }
+                } catch (e) { console.warn("Study feed error:", e); }
+
+                // 8. 공지사항 및 제미나이 상태
+                loadAdminNotices();
                 checkGeminiStatus();
             } catch (e) {
                 console.error("Dashboard load failed:", e);
@@ -734,13 +760,6 @@
                 console.error(e);
             }
         }
-
-        // 대시보드 로드 시 공지사항 목록도 함께 갱신
-        const originalFetchDashboardData = fetchDashboardData;
-        fetchDashboardData = async function() {
-            await originalFetchDashboardData();
-            loadAdminNotices();
-        };
     </script>
 </body>
 </html>
