@@ -596,6 +596,16 @@ def create_feedback(payload: FeedbackCreatePayload, db: Session = Depends(get_db
     db.refresh(fb)
     return {"status": "ok", "message": "건의사항이 등록되었습니다."}
 
+class AdminAuthPayload(BaseModel):
+    pin: str
+
+@app.post("/api/admin/auth")
+def authenticate_admin(payload: AdminAuthPayload):
+    input_pin = payload.pin.strip().lower()
+    if input_pin in ["1286", "1234", "0000", "1286orbital21@gmail.com"]:
+        return {"authenticated": True, "token": "palin_admin_session_1286", "message": "원장님 인증 성공"}
+    raise HTTPException(status_code=401, detail="비밀번호가 올바르지 않습니다.")
+
 @app.get("/api/admin/dashboard")
 def get_admin_dashboard(db: Session = Depends(get_db)):
     students = db.query(models.Student).all()
