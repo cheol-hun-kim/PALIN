@@ -50,9 +50,15 @@ class Student(Base):
     planner_blocks = relationship("PlannerBlock", back_populates="student", cascade="all, delete-orphan")
     golden_tickets = relationship("GoldenTicket", foreign_keys="[GoldenTicket.referrer_id]", back_populates="referrer")
     feedbacks = relationship("Feedback", back_populates="student")
-    
     # 1:1 관계 추가 (학생이 대학 합격 시 과외 프로필 연동)
     tutor_profile = relationship("TutorProfile", back_populates="student", uselist=False)
+
+    @property
+    def golden_tickets_count(self):
+        try:
+            return len(self.golden_tickets) if self.golden_tickets else 3
+        except Exception:
+            return 3
 
 
 class GoldenTicket(Base):
