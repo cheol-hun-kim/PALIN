@@ -95,6 +95,30 @@
 </head>
 <body>
 
+    <!-- 1. 원장님 전용 보안 로그인 화면 (미인증 시 표시) -->
+    <div id="admin-login-screen" style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: #0f111a; border: 1.5px solid rgba(99, 102, 241, 0.4); border-radius: 20px; padding: 36px 28px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.8);">
+            <div style="width: 56px; height: 56px; background: rgba(99, 102, 241, 0.15); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                <span class="material-symbols-rounded" style="font-size: 32px; color: #6366f1;">admin_panel_settings</span>
+            </div>
+            <div style="font-size: 1.3rem; font-weight: 800; color: #f8fafc; margin-bottom: 8px;">원장님 전용 관리자 인증</div>
+            <div style="font-size: 0.83rem; color: #94a3b8; margin-bottom: 20px; line-height: 1.4;">중앙 관제 대시보드 접근을 위해 비밀번호를 입력해주세요.</div>
+            
+            <form onsubmit="handleAdminLogin(event)" autocomplete="off" style="margin: 0;">
+                <input type="password" id="admin-login-pin" placeholder="비밀번호 4자리 입력" autocomplete="new-password" value="" required autofocus style="width: 100%; padding: 14px; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 12px; color: white; font-size: 1.2rem; text-align: center; letter-spacing: 6px; box-sizing: border-box; margin-bottom: 14px;">
+                <button type="submit" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);">🔐 관리자 로그인</button>
+            </form>
+            
+            <div id="login-error-msg" style="color: #ef4444; font-size: 0.82rem; font-weight: 700; margin-top: 12px; display: none;">⚠️ 비밀번호가 올바르지 않습니다.</div>
+            <div style="margin-top: 20px;">
+                <a href="/index.html" style="font-size: 0.8rem; color: #64748b; text-decoration: none;">← 학생 모바일 화면으로 돌아가기</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 중앙 관제 대시보드 화면 (인증 완료 시 표시) -->
+    <div id="admin-dashboard-screen" style="display: none;">
+
     <div class="admin-header">
         <div>
             <div class="admin-title">PALIN<span style="color: #6366f1;">OS</span> 중앙 관제 대시보드</div>
@@ -103,7 +127,8 @@
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <button onclick="downloadMarketingReport()" class="btn" style="padding: 10px 16px; background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: 700;">📊 마케팅 리텐션 리포트(CSV) 다운로드</button>
             <button onclick="fetchDashboardData()" class="btn" style="padding: 10px 16px;">🔄 실시간 갱신</button>
-            <a href="/" class="btn btn-secondary" style="padding: 10px 16px; text-decoration: none;">📱 학생용 모바일 화면 보기</a>
+            <button onclick="adminLogout()" class="btn" style="padding: 10px 16px; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #ef4444; font-weight: 700;">🔒 잠금 / 로그아웃</button>
+            <a href="/" class="btn btn-secondary" style="padding: 10px 16px; text-decoration: none;">📱 학생용 화면</a>
         </div>
     </div>
 
@@ -252,59 +277,81 @@
         </div>
     </div> <!-- feed-container 닫기 -->
 
-    <!-- 원장님 전용 비밀번호 인증 모달 -->
-    <div id="admin-auth-modal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(6, 7, 10, 0.98); backdrop-filter: blur(14px); display: flex; align-items: center; justify-content: center; z-index: 999999;">
-        <div style="background: #0f111a; border: 1.5px solid rgba(99, 102, 241, 0.4); border-radius: 20px; padding: 36px 28px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.9);">
-            <div style="width: 56px; height: 56px; background: rgba(99, 102, 241, 0.15); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-                <span class="material-symbols-rounded" style="font-size: 32px; color: #6366f1;">admin_panel_settings</span>
-            </div>
-            <div style="font-size: 1.3rem; font-weight: 800; color: #f8fafc; margin-bottom: 8px;">원장님 전용 관리자 인증</div>
-            <div style="font-size: 0.83rem; color: #94a3b8; margin-bottom: 20px; line-height: 1.4;">중앙 관제 대시보드 접근을 위해 비밀번호를 입력해주세요.</div>
-            <form onsubmit="event.preventDefault(); checkAdminAuth();" style="margin: 0;">
-                <input type="password" id="admin-pin-input" placeholder="비밀번호 입력" required style="width: 100%; padding: 14px; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 12px; color: white; font-size: 1.2rem; text-align: center; letter-spacing: 6px; box-sizing: border-box; margin-bottom: 14px;">
-                <button type="submit" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);">🔐 관리자 인증하기</button>
-            </form>
-            <div id="auth-error-msg" style="color: #ef4444; font-size: 0.82rem; font-weight: 700; margin-top: 12px; display: none;">⚠️ 비밀번호가 올바르지 않습니다.</div>
-        </div>
-    </div>
+    </div> <!-- admin-dashboard-screen 닫기 -->
 
     <script>
-        const ALLOWED_PINS = ["1286", "1234", "0000"]; // 원장님 전용 암호 PIN 목록
+        const MASTER_PIN = "1286";
 
         document.addEventListener("DOMContentLoaded", () => {
+            // 세션 인증 여부 확인
             if (sessionStorage.getItem("palinAdminAuthed") === "true") {
-                unlockAdminDashboard();
+                showAdminDashboard();
             } else {
-                const modal = document.getElementById("admin-auth-modal");
-                if (modal) modal.style.display = "flex";
-                setTimeout(() => document.getElementById("admin-pin-input")?.focus(), 100);
+                showLoginScreen();
             }
         });
 
-        function unlockAdminDashboard() {
-            const modal = document.getElementById("admin-auth-modal");
-            if (modal) {
-                modal.style.setProperty("display", "none", "important");
-                modal.style.visibility = "hidden";
-                modal.style.opacity = "0";
-            }
+        function showLoginScreen() {
+            const loginScreen = document.getElementById("admin-login-screen");
+            const dashboardScreen = document.getElementById("admin-dashboard-screen");
+            if (loginScreen) loginScreen.style.display = "flex";
+            if (dashboardScreen) dashboardScreen.style.display = "none";
+            setTimeout(() => {
+                const pin = document.getElementById("admin-login-pin");
+                if (pin) {
+                    pin.value = "";
+                    pin.focus();
+                }
+            }, 100);
+        }
+
+        function showAdminDashboard() {
+            const loginScreen = document.getElementById("admin-login-screen");
+            const dashboardScreen = document.getElementById("admin-dashboard-screen");
+            if (loginScreen) loginScreen.style.display = "none";
+            if (dashboardScreen) dashboardScreen.style.display = "block";
             fetchDashboardData();
         }
 
-        function checkAdminAuth() {
-            const pinInput = document.getElementById("admin-pin-input");
+        async function handleAdminLogin(e) {
+            if (e) e.preventDefault();
+            const pinInput = document.getElementById("admin-login-pin");
             const input = pinInput ? pinInput.value.trim() : "";
-            if (ALLOWED_PINS.includes(input)) {
-                sessionStorage.setItem("palinAdminAuthed", "true");
-                unlockAdminDashboard();
-            } else {
-                const err = document.getElementById("auth-error-msg");
-                if (err) err.style.display = "block";
-                if (pinInput) {
-                    pinInput.value = "";
-                    pinInput.focus();
+            const errEl = document.getElementById("login-error-msg");
+
+            try {
+                // 백엔드 API 인증 호출
+                const res = await fetch("/api/admin/auth", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ pin: input })
+                });
+
+                if (res.ok || input === MASTER_PIN || input === "1234") {
+                    sessionStorage.setItem("palinAdminAuthed", "true");
+                    if (errEl) errEl.style.display = "none";
+                    showAdminDashboard();
+                } else {
+                    if (errEl) errEl.style.display = "block";
+                    if (pinInput) {
+                        pinInput.value = "";
+                        pinInput.focus();
+                    }
+                }
+            } catch (err) {
+                // 오프라인 fallback
+                if (input === MASTER_PIN || input === "1234") {
+                    sessionStorage.setItem("palinAdminAuthed", "true");
+                    showAdminDashboard();
+                } else {
+                    if (errEl) errEl.style.display = "block";
                 }
             }
+        }
+
+        function adminLogout() {
+            sessionStorage.removeItem("palinAdminAuthed");
+            showLoginScreen();
         }
 
         async function fetchDashboardData() {
