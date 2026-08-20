@@ -47,26 +47,26 @@ class StudentResponse(BaseModel):
     high_school: str
     target_univ: str
     baseline_univ: str
-    wake_target_time: str = "06:30"
-    sleep_target_time: str = "23:30"
+    wake_target_time: Optional[str] = "06:30"
+    sleep_target_time: Optional[str] = "23:30"
     current_points: int
     parent_id: int
     
     # PALIN OS 필드
-    league_tier: str = "BRONZE"
-    point_multiplier: float = 1.0
-    golden_tickets_count: int = 3
-    diligence_score: int = 0
+    league_tier: Optional[str] = "BRONZE"
+    point_multiplier: Optional[float] = 1.0
+    golden_tickets_count: Optional[int] = 3
+    diligence_score: Optional[int] = 0
     referrer_id: Optional[int] = None
-    is_banned: bool = False
+    is_banned: Optional[bool] = False
     ban_reason: Optional[str] = None
     
     # 심리통제 & D-Day 확장
-    dday_date: str = "2026-11-19"
-    dday_title: str = "2027 수능"
-    streak_days: int = 0
-    max_streak_days: int = 0
-    medical_symbol: str = "GENERAL"
+    dday_date: Optional[str] = "2026-11-19"
+    dday_title: Optional[str] = "2027 수능"
+    streak_days: Optional[int] = 0
+    max_streak_days: Optional[int] = 0
+    medical_symbol: Optional[str] = "GENERAL"
 
     tutor_profile: Optional[TutorProfileResponse] = None # 연계 튜터 정보 연동 추가
     
