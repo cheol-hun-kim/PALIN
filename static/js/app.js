@@ -1164,6 +1164,13 @@ async function sendChatMessage() {
     // 대화 기록에 사용자 메시지 추가
     chatHistory.push({ role: "user", content: msg });
     
+    // 🤖 심도 있는 분석 로딩 버블 임시 노출
+    const loadingBubble = appendChatBubble("bot", "🤖 패스봇이 백서 지식을 기반으로 심도 있는 답변을 작성 중입니다... (약 10~20초 소요)");
+    if (loadingBubble) {
+        loadingBubble.style.opacity = "0.7";
+        loadingBubble.style.fontStyle = "italic";
+    }
+
     try {
         // 최근 20개 대화 기록만 전송 (토큰 제한 고려)
         const recentHistory = chatHistory.slice(-21, -1); // 현재 메시지 제외한 이전 대화
@@ -1181,12 +1188,24 @@ async function sendChatMessage() {
         if (!res.ok) {
             const errData = await res.json().catch(() => null);
             const errMsg = errData?.detail || `서버 오류 (HTTP ${res.status})`;
-            appendChatBubble("bot", `⚠️ ${errMsg}`);
+            if (loadingBubble) {
+                loadingBubble.innerText = `⚠️ ${errMsg}`;
+                loadingBubble.style.opacity = "1";
+                loadingBubble.style.fontStyle = "normal";
+            } else {
+                appendChatBubble("bot", `⚠️ ${errMsg}`);
+            }
             return;
         }
         
         const data = await res.json();
-        appendChatBubble("bot", data.reply);
+        if (loadingBubble) {
+            loadingBubble.innerText = data.reply;
+            loadingBubble.style.opacity = "1";
+            loadingBubble.style.fontStyle = "normal";
+        } else {
+            appendChatBubble("bot", data.reply);
+        }
         
         // 대화 기록에 봇 응답 추가
         chatHistory.push({ role: "bot", content: data.reply });
@@ -1194,7 +1213,13 @@ async function sendChatMessage() {
         document.getElementById("chat-limit-label").innerText = `오늘 남은 무료 대화: ${data.remaining_chats}회`;
     } catch (e) {
         console.error("Chat error:", e);
-        appendChatBubble("bot", `서버 연결 오류: ${e.message || "네트워크 문제"}`);
+        if (loadingBubble) {
+            loadingBubble.innerText = `서버 연결 오류: ${e.message || "네트워크 문제"}`;
+            loadingBubble.style.opacity = "1";
+            loadingBubble.style.fontStyle = "normal";
+        } else {
+            appendChatBubble("bot", `서버 연결 오류: ${e.message || "네트워크 문제"}`);
+        }
     }
 }
 
@@ -1206,6 +1231,7 @@ function appendChatBubble(sender, text) {
     
     container.appendChild(bubble);
     container.scrollTop = container.scrollHeight;
+    return bubble;
 }
 
 // === Prediction State ===
@@ -2151,18 +2177,16 @@ async function submitStudentFeedback() {
 // === 📚 기출문제 및 수험자료실 프론트엔드 연동 ===
 let currentExamSubject = "전체";
 
+function onExamSubjectSelectChange(subject) {
+    currentExamSubject = subject;
+    loadExamMaterials(subject);
+}
+
 async function filterExamMaterials(subject, btnEl) {
     currentExamSubject = subject;
-    const bar = document.getElementById("exam-subject-filter-bar");
-    if (bar) {
-        bar.querySelectorAll("button").forEach(b => {
-            b.className = "btn btn-secondary";
-            b.style.background = "";
-        });
-        if (btnEl) {
-            btnEl.className = "btn";
-            btnEl.style.background = "#6366f1";
-        }
+    const selectEl = document.getElementById("exam-subject-select");
+    if (selectEl) {
+        selectEl.value = subject;
     }
     loadExamMaterials(subject);
 }
