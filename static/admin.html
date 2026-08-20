@@ -156,6 +156,25 @@
         </div>
     </div>
 
+    <!-- 📢 원장 긴급 공지사항 등록 및 관리 -->
+    <div class="kpi-card" style="margin-bottom: 24px; border: 1px solid rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.03);">
+        <div class="section-title" style="color: #fcd34d;">
+            <span class="material-symbols-rounded">campaign</span>
+            📢 원장 긴급 공지사항 발송 (학생 메인 화면 상단 띠 배너 노출)
+        </div>
+        <form onsubmit="handleCreateNotice(event)" style="display: grid; grid-template-columns: 1fr 2fr 1fr auto; gap: 8px; margin-bottom: 12px;">
+            <select id="notice-cat" class="form-input" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px; border-radius: 8px;">
+                <option value="긴급공지" style="background:#1e293b;">🚨 긴급공지</option>
+                <option value="일반공지" selected style="background:#1e293b;">📢 일반공지</option>
+                <option value="이벤트" style="background:#1e293b;">🎁 이벤트</option>
+            </select>
+            <input type="text" id="notice-title" placeholder="공지 제목 (예: 6월 모평 대비 주말 특별 자습 안내)" required style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 12px; border-radius: 8px;">
+            <input type="text" id="notice-content" placeholder="공지 상세 내용" required style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 12px; border-radius: 8px;">
+            <button type="submit" class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); font-weight: 700; padding: 8px 16px; border-radius: 8px; white-space: nowrap;">공지 등록</button>
+        </form>
+        <div id="admin-notices-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+    </div>
+
     <!-- 🎓 과외선생님 검증 및 승인 대기 수신함 -->
     <div class="kpi-card" style="margin-bottom: 24px; border: 1px solid rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.04);">
         <div class="section-title" style="color: #a78bfa;">
@@ -181,17 +200,18 @@
                     <th>연락처</th>
                     <th>학교 / 학년</th>
                     <th>목표 / 마지노선 대학</th>
-                    <th>기상/취침 미션 설정</th>
-                    <th>성실도 리그 티어</th>
+                    <th>기상/취침 미션</th>
+                    <th>불꽃(Streak)</th>
+                    <th>성실도 리그</th>
                     <th>보상 배수</th>
                     <th>보유 포인트</th>
-                    <th>누적 성실도 자산</th>
+                    <th>누적 성실도</th>
                     <th>골든 티켓</th>
                     <th>원장 계정제재</th>
                 </tr>
             </thead>
             <tbody id="student-table-body">
-                <tr><td colspan="12" style="text-align: center; color: #94a3b8;">데이터 로딩 중...</td></tr>
+                <tr><td colspan="13" style="text-align: center; color: #94a3b8;">데이터 로딩 중...</td></tr>
             </tbody>
         </table>
     </div>
@@ -352,6 +372,7 @@
                         <td>
                             <div style="font-size:0.78rem;">🌅 ${s.wake_target_time || "06:30"} / 🌃 ${s.sleep_target_time || "23:30"}</div>
                         </td>
+                        <td><span style="color:#f59e0b; font-weight:700; font-size:0.8rem;">🔥 ${s.streak_days || 0}일</span></td>
                         <td><span class="league-badge ${tierClass}">${s.league_tier}</span></td>
                         <td style="font-weight: 700; color: #a78bfa;">${s.point_multiplier}x</td>
                         <td>${s.current_points} P</td>
@@ -568,6 +589,74 @@
                 alert("차단 해제 처리 중 오류가 발생했습니다.");
             }
         }
+
+        async function handleCreateNotice(e) {
+            e.preventDefault();
+            const cat = document.getElementById("notice-cat").value;
+            const title = document.getElementById("notice-title").value.trim();
+            const content = document.getElementById("notice-content").value.trim();
+            try {
+                const res = await fetch("/api/admin/notices", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ category: cat, title: title, content: content, is_pinned: cat === "긴급공지" })
+                });
+                if (res.ok) {
+                    alert("📢 공지사항이 학생 앱에 즉시 발송되었습니다!");
+                    document.getElementById("notice-title").value = "";
+                    document.getElementById("notice-content").value = "";
+                    loadAdminNotices();
+                } else {
+                    alert("공지 등록 실패");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("공지 등록 중 오류 발생");
+            }
+        }
+
+        async function loadAdminNotices() {
+            try {
+                const res = await fetch("/api/notices");
+                if (res.ok) {
+                    const notices = await res.json();
+                    const container = document.getElementById("admin-notices-list");
+                    if (!container) return;
+                    container.innerHTML = "";
+                    if (notices.length === 0) {
+                        container.innerHTML = "<div style='color:#94a3b8; font-size:0.75rem;'>등록된 공지사항이 없습니다.</div>";
+                    } else {
+                        notices.forEach(n => {
+                            container.innerHTML += `
+                                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:6px 10px; border-radius:6px; font-size:0.8rem;">
+                                    <div><span style="color:#fcd34d; font-weight:700;">[${n.category}]</span> <b>${n.title}</b> - <span style="color:#94a3b8;">${n.content}</span></div>
+                                    <button onclick="deleteNotice(${n.id})" class="btn" style="padding:2px 8px; font-size:0.7rem; background:#ef4444;">삭제</button>
+                                </div>
+                            `;
+                        });
+                    }
+                }
+            } catch (e) {
+                console.warn(e);
+            }
+        }
+
+        async function deleteNotice(noticeId) {
+            if (!confirm("해당 공지사항을 삭제하시겠습니까?")) return;
+            try {
+                await fetch(`/api/admin/notices/${noticeId}`, { method: "DELETE" });
+                loadAdminNotices();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // 대시보드 로드 시 공지사항 목록도 함께 갱신
+        const originalFetchDashboardData = fetchDashboardData;
+        fetchDashboardData = async function() {
+            await originalFetchDashboardData();
+            loadAdminNotices();
+        };
     </script>
 </body>
 </html>
