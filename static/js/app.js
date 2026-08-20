@@ -117,18 +117,48 @@ function hideOverlay(id) {
     document.getElementById(id).style.display = "none";
 }
 
-// --- 딴짓 감지 모듈 (Page Visibility API) ---
+// --- 딴짓 감지 모듈 (OS 화면 꺼짐 허용 & 타 앱 전환 감지 고도화) ---
+let isScreenOffGrace = false;
+let screenOffCheckTimeout = null;
+
 function setupDistractionDetection() {
+    // 1. 화면 꺼짐(Screen Off) vs 타 앱 전환(App Switch) 구분 로직
     document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === "hidden" && isTimerRunning) {
-            isDistracted = true;
-            pauseTimerOnDistraction();
+        if (!isTimerRunning) return;
+
+        if (document.visibilityState === "hidden") {
+            // 모바일 화면 꺼짐일 수 있으므로 1.5초 유예 타이머 시작
+            isScreenOffGrace = true;
+            screenOffCheckTimeout = setTimeout(() => {
+                // 백그라운드에서 타임스탬프 계산이 계속 유지되므로 화면 꺼짐 상태는 정상 자습 누적 인정!
+                isScreenOffGrace = false;
+            }, 1500);
+        } else if (document.visibilityState === "visible") {
+            if (screenOffCheckTimeout) {
+                clearTimeout(screenOffCheckTimeout);
+                screenOffCheckTimeout = null;
+            }
+            isScreenOffGrace = false;
+        }
+    });
+
+    // 2. 화면이 켜진 상태에서 타 브라우저 탭/타 앱으로 포커스 이탈 시 명백한 딴짓으로 판정
+    window.addEventListener("blur", () => {
+        if (isTimerRunning && !isScreenOffGrace) {
+            // 사용자가 화면이 켜진 상태에서 다른 창이나 앱을 조작한 경우
+            setTimeout(() => {
+                if (isTimerRunning && document.hasFocus && !document.hasFocus()) {
+                    isDistracted = true;
+                    pauseTimerOnDistraction();
+                }
+            }, 500);
         }
     });
 }
 
 function pauseTimerOnDistraction() {
-    alert("⚠️ [딴짓 감지!] 공부 타이머 측정 중에 다른 앱을 실행하거나 화면을 이탈하여 세션이 정지 및 무효화되었습니다. 학부모님께 경고 메시지가 전달됩니다.");
+    triggerLogoCrackEffect(); // 🌲 포레스트 목표 대학 로고 균열 애니메이션
+    alert("⚠️ [딴짓 감지!] 집중 타이머 측정 중 다른 앱으로 전환하여 목표 대학 로고에 금이 가고 측정이 강제 종료되었습니다. 학부모님께 경고 메시지가 전달됩니다.");
     stopTimerForcefully(true);
 }
 
@@ -168,6 +198,9 @@ async function fetchStudentInfo(studentId) {
         try { updateStudentUnivSelectors(); } catch(e) { console.warn("updateStudentUnivSelectors:", e); }
         
         // 데이터 로드
+        try { fetchNotices(); } catch(e) { console.warn("fetchNotices:", e); }
+        try { fetchMicroLeague(studentId); } catch(e) { console.warn("fetchMicroLeague:", e); }
+        try { renderAdmissionCalendar(); } catch(e) { console.warn("renderAdmissionCalendar:", e); }
         try { loadPage1Data(); } catch(e) { console.warn("loadPage1Data:", e); }
         try { loadPage2Data(); } catch(e) { console.warn("loadPage2Data:", e); }
         try { loadPage3Data(); } catch(e) { console.warn("loadPage3Data:", e); }
@@ -288,26 +321,52 @@ async function togglePremium() {
 
 // --- UI 업데이트 헬퍼 ---
 
+function calculateDDay(dateStr) {
+    if (!dateStr) return "D-250";
+    try {
+        const target = new Date(dateStr);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        target.setHours(0, 0, 0, 0);
+        const diffTime = target - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays > 0) return `D-${diffDays}`;
+        if (diffDays === 0) return "D-DAY";
+        return `D+${Math.abs(diffDays)}`;
+    } catch (e) {
+        return "D-250";
+    }
+}
+
+function getMedicalSymbolIcon(symbolKey) {
+    switch (symbolKey) {
+        case "MED": return "⚕️"; // 의대 (아스클레피오스의 지팡이)
+        case "DENT": return "🦷"; // 치대
+        case "PHARM": return "💊"; // 약대
+        case "KMED": return "🌿"; // 한의대
+        case "VET": return "🐾"; // 수의대
+        default: return "🦁"; // 일반 대학
+    }
+}
+
 function updateHeaderUI() {
     if (!currentStudent) return;
     document.getElementById("header-points").innerText = `${currentStudent.current_points} P`;
     document.getElementById("header-student-name").innerText = `${currentStudent.name} 학생`;
     
+    // 🔥 듀오링고 불꽃 (Streak) 렌더링
+    const streakEl = document.getElementById("header-streak-count");
+    if (streakEl) {
+        const count = currentStudent.streak_days || 0;
+        streakEl.innerText = `${count}일 연속`;
+    }
+
     // 마이페이지 모달 정보 갱신
     const fullname = document.getElementById("mypage-student-fullname");
     if (fullname) fullname.innerText = `${currentStudent.name} 학생`;
     const sub = document.getElementById("mypage-student-sub");
-    if (sub) sub.innerText = `${currentStudent.high_school} ${currentStudent.grade}학년 | ${currentStudent.region}`;
-
-    // 마이페이지 설정 폼 채우기
-    const targetInput = document.getElementById("edit-target-univ");
-    if (targetInput && targetInput.value === "") targetInput.value = currentStudent.target_univ || "";
-    const baselineInput = document.getElementById("edit-baseline-univ");
-    if (baselineInput && baselineInput.value === "") baselineInput.value = currentStudent.baseline_univ || "";
-    const wakeInput = document.getElementById("edit-wake-time");
-    if (wakeInput) wakeInput.value = currentStudent.wake_target_time || "06:30";
-    const sleepInput = document.getElementById("edit-sleep-time");
-    if (sleepInput) sleepInput.value = currentStudent.sleep_target_time || "23:30";
+    const gradeText = currentStudent.grade === 4 ? "N수생" : currentStudent.grade === 0 ? "기타" : `${currentStudent.grade}학년`;
+    if (sub) sub.innerText = `${currentStudent.high_school || "학교미설정"} ${gradeText} | ${currentStudent.region || "지역미설정"}`;
 
     // 메인화면 미션 라벨 업데이트
     const wakeLabel = document.getElementById("mission-wakeup-label");
@@ -349,13 +408,123 @@ async function fetchLeagueStatus(studentId) {
     }
 }
 
+function updateTargetBanner() {
+    if (!currentStudent) return;
+    const targetUnivEl = document.getElementById("banner-target-univ");
+    const baselineUnivEl = document.getElementById("banner-baseline-univ");
+    if (targetUnivEl) targetUnivEl.innerText = currentStudent.target_univ || "미설정";
+    if (baselineUnivEl) baselineUnivEl.innerText = currentStudent.baseline_univ || "미설정";
+
+    // D-Day 계산 렌더링
+    const ddayEl = document.getElementById("banner-dday");
+    const ddayTitleEl = document.getElementById("banner-dday-title");
+    if (ddayEl) ddayEl.innerText = calculateDDay(currentStudent.dday_date || "2026-11-19");
+    if (ddayTitleEl) ddayTitleEl.innerText = currentStudent.dday_title || "2027 수능";
+
+    // 🌲 포레스트 목표 대학 로고 & 엠블럼 렌더링
+    const emblemEl = document.getElementById("target-symbol-emblem");
+    const logoNameEl = document.getElementById("target-logo-name");
+    if (emblemEl) emblemEl.innerText = getMedicalSymbolIcon(currentStudent.medical_symbol);
+    if (logoNameEl) logoNameEl.innerText = `${currentStudent.target_univ || "목표 대학"} 수호 중`;
+}
+
+// 💥 포레스트 균열(Crack) 애니메이션 및 딴짓 타격감 발동
+function triggerLogoCrackEffect() {
+    const box = document.getElementById("univ-target-box");
+    if (box) {
+        box.classList.add("crack-active");
+        setTimeout(() => {
+            box.classList.remove("crack-active");
+        }, 2000);
+    }
+}
+
+async function fetchNotices() {
+    try {
+        const res = await fetch("/api/notices");
+        if (res.ok) {
+            const notices = await res.json();
+            const banner = document.getElementById("notice-banner-container");
+            const textEl = document.getElementById("notice-banner-text");
+            if (banner && textEl && notices.length > 0) {
+                const latest = notices[0];
+                textEl.innerHTML = `<strong>[${latest.category}]</strong> ${latest.title} - ${latest.content}`;
+                banner.style.display = "flex";
+            }
+        }
+    } catch (e) {
+        console.warn("Notice load:", e);
+    }
+}
+
+async function fetchMicroLeague(studentId) {
+    try {
+        const res = await fetch(`/api/micro-league/${studentId}`);
+        if (res.ok) {
+            const data = await res.json();
+            const titleEl = document.getElementById("micro-league-title");
+            const contentEl = document.getElementById("micro-league-content");
+            if (titleEl) titleEl.innerText = data.region_title;
+            if (contentEl) {
+                let html = `<div style="display:flex; flex-direction:column; gap:4px;">`;
+                data.region_rankings.forEach((r, idx) => {
+                    const highlight = r.is_me ? "color: #fcd34d; font-weight: 800;" : "";
+                    html += `<div style="display:flex; justify-content:space-between; ${highlight}"><span>${idx + 1}위 ${r.name} (${r.school})</span><span>+${r.score}점</span></div>`;
+                });
+                html += `</div>`;
+                contentEl.innerHTML = html;
+            }
+        }
+    } catch (e) {
+        console.warn("Micro league load:", e);
+    }
+}
+
+function renderAdmissionCalendar() {
+    const calendarData = [
+        { title: "2026학년도 3월 전국연합학력평가", date: "2026-03-26", dday: calculateDDay("2026-03-26"), cat: "모의고사" },
+        { title: "2026학년도 6월 모의평가 (평가원 출제)", date: "2026-06-04", dday: calculateDDay("2026-06-04"), cat: "평가원" },
+        { title: "2026학년도 9월 모의평가 (수능 바로미터)", date: "2026-09-02", dday: calculateDDay("2026-09-02"), cat: "평가원" },
+        { title: "2027학년도 대입 수시모집 원서접수", date: "2026-09-07", dday: calculateDDay("2026-09-07"), cat: "원서접수" },
+        { title: "2027학년도 대학수학능력시험 (본 수능)", date: "2026-11-19", dday: calculateDDay("2026-11-19"), cat: "수능시험" },
+        { title: "2027학년도 대입 정시모집 원서접수", date: "2026-12-28", dday: calculateDDay("2026-12-28"), cat: "원서접수" }
+    ];
+
+    const listEl = document.getElementById("admission-calendar-list");
+    if (!listEl) return;
+    listEl.innerHTML = "";
+    calendarData.forEach(item => {
+        const isUrgent = item.dday.startsWith("D-") && parseInt(item.dday.replace("D-", "")) <= 30;
+        const ddayColor = isUrgent ? "background: #ef4444; color: white;" : "background: #3b82f6; color: white;";
+        listEl.innerHTML += `
+            <div class="calendar-card">
+                <div>
+                    <div style="font-weight: 700; font-size: 0.88rem; color: #f8fafc;">${item.title}</div>
+                    <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 2px;">📅 ${item.date} (${item.cat})</div>
+                </div>
+                <div class="calendar-dday" style="${ddayColor}">
+                    ${item.dday}
+                </div>
+            </div>
+        `;
+    });
+}
+
 function openMyPageModal() {
     updateHeaderUI();
     if (currentStudent) {
-        document.getElementById("edit-target-univ").value = currentStudent.target_univ || "";
-        document.getElementById("edit-baseline-univ").value = currentStudent.baseline_univ || "";
+        document.getElementById("edit-high-school").value = currentStudent.high_school || "";
+        document.getElementById("edit-region").value = currentStudent.region || "";
+        document.getElementById("edit-grade").value = currentStudent.grade !== undefined ? currentStudent.grade : "3";
+        document.getElementById("edit-medical-symbol").value = currentStudent.medical_symbol || "GENERAL";
+        document.getElementById("edit-dday-title").value = currentStudent.dday_title || "2027 수능";
+        document.getElementById("edit-dday-date").value = currentStudent.dday_date || "2026-11-19";
         document.getElementById("edit-wake-time").value = currentStudent.wake_target_time || "06:30";
         document.getElementById("edit-sleep-time").value = currentStudent.sleep_target_time || "23:30";
+
+        // 대학 드롭다운 초기화
+        setupUnivDeptSelectors("edit-target-univ-select", "edit-target-dept-select");
+        setupUnivDeptSelectors("edit-baseline-univ-select", "edit-baseline-dept-select");
     }
     document.getElementById("mypage-modal").style.display = "flex";
 }
@@ -366,10 +535,22 @@ function closeMyPageModal() {
 
 async function saveStudentProfileSettings() {
     if (!currentStudent) return;
-    const targetUniv = document.getElementById("edit-target-univ").value.trim();
-    const baselineUniv = document.getElementById("edit-baseline-univ").value.trim();
+    const highSchool = document.getElementById("edit-high-school").value.trim();
+    const region = document.getElementById("edit-region").value.trim();
+    const grade = parseInt(document.getElementById("edit-grade").value);
+    const medicalSymbol = document.getElementById("edit-medical-symbol").value;
+    const ddayTitle = document.getElementById("edit-dday-title").value.trim();
+    const ddayDate = document.getElementById("edit-dday-date").value;
     const wakeTime = document.getElementById("edit-wake-time").value;
     const sleepTime = document.getElementById("edit-sleep-time").value;
+
+    const tUniv = document.getElementById("edit-target-univ-select")?.value;
+    const tDept = document.getElementById("edit-target-dept-select")?.value;
+    const bUniv = document.getElementById("edit-baseline-univ-select")?.value;
+    const bDept = document.getElementById("edit-baseline-dept-select")?.value;
+
+    const targetUniv = (tUniv && tDept) ? `${tUniv} ${tDept}` : currentStudent.target_univ;
+    const baselineUniv = (bUniv && bDept) ? `${bUniv} ${bDept}` : currentStudent.baseline_univ;
 
     try {
         const res = await fetch("/api/student/profile", {
