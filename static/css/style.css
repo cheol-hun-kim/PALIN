@@ -990,4 +990,154 @@ div[style*="grid-template-columns"] > * {
     border-radius: 8px;
 }
 
+/* ===================================================
+   ☀️ 데이 모드 (Day Mode) 전방위 고대비(High Contrast) 색상 체계
+   =================================================== */
+body.day-mode {
+    --bg-primary: #f1f5f9;
+    --bg-secondary: #ffffff;
+    --glass-bg: #ffffff;
+    --glass-border: rgba(0, 0, 0, 0.12);
+    --text-primary: #0f172a; /* 짙은 잉크 블랙 */
+    --text-secondary: #334155; /* 선명한 슬레이트 차콜 */
+    --color-accent: #4338ca; /* 선명한 인디고 */
+    color: #0f172a;
+    background-color: #e2e8f0;
+}
+
+body.day-mode .card,
+body.day-mode .auth-form,
+body.day-mode .trigger-content,
+body.day-mode .univ-logo-card,
+body.day-mode .calendar-card {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06) !important;
+}
+
+body.day-mode .form-input,
+body.day-mode select.form-input,
+body.day-mode .input-field {
+    background: #f8fafc !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    font-weight: 600 !important;
+}
+
+body.day-mode .form-input:focus,
+body.day-mode select.form-input:focus {
+    border-color: #4f46e5 !important;
+    background: #ffffff !important;
+}
+
+body.day-mode #mypage-student-fullname {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode #mypage-student-sub {
+    color: #475569 !important;
+    font-weight: 600 !important;
+}
+
+body.day-mode #target-logo-name {
+    color: #1e293b !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode #univ-target-box {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+}
+
+body.day-mode #micro-league-card {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+}
+
+body.day-mode #micro-league-title {
+    color: #4338ca !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode #micro-league-content {
+    color: #1e293b !important;
+}
+
+body.day-mode #micro-league-content span {
+    color: #1e293b !important;
+}
+
+body.day-mode #micro-league-content div[style*="color: #fcd34d"],
+body.day-mode #micro-league-content div[style*="color: #fcd34d"] span {
+    color: #b45309 !important; /* 데이 모드 1위 강조: 진한 앰버 브라운 */
+    font-weight: 800 !important;
+}
+
+body.day-mode .notice-banner {
+    background: #eef2ff !important;
+    border: 1px solid #c7d2fe !important;
+    color: #1e1b4b !important;
+}
+
+body.day-mode .streak-badge {
+    background: #fffbeb !important;
+    border: 1.5px solid #f59e0b !important;
+    color: #b45309 !important;
+}
+
+body.day-mode .timetable-cell {
+    border-color: #e2e8f0 !important;
+    color: #475569 !important;
+}
+
+body.day-mode .timetable-header {
+    background: #f8fafc !important;
+    color: #0f172a !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+}
+
+body.day-mode .subtab-btn {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+}
+
+body.day-mode .subtab-btn.active {
+    background: #4338ca;
+    color: #ffffff;
+}
+
+/* ===================================================
+   🌙 나이트 모드 (Night/Dark Mode) 선명한 텍스트 가독성 확보
+   =================================================== */
+body:not(.day-mode) #mypage-student-fullname {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+}
+
+body:not(.day-mode) #mypage-student-sub {
+    color: #cbd5e1 !important;
+    font-weight: 500 !important;
+}
+
+body:not(.day-mode) #target-logo-name {
+    color: #f8fafc !important;
+    font-weight: 700 !important;
+}
+
+body:not(.day-mode) #univ-target-box {
+    background: rgba(18, 20, 29, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+body:not(.day-mode) #micro-league-title {
+    color: #a78bfa !important;
+}
+
+body:not(.day-mode) #micro-league-content {
+    color: #e2e8f0 !important;
+}
+
 
