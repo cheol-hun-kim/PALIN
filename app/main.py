@@ -41,6 +41,15 @@ def init_db_schema():
                     if "medical_symbol" not in columns:
                         conn.execute(text("ALTER TABLE students ADD COLUMN medical_symbol VARCHAR DEFAULT 'GENERAL'"))
                     conn.commit()
+
+                # TutorProfile 컬럼 검사
+                tutor_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(tutor_profiles)")).fetchall()]
+                if tutor_cols:
+                    if "is_suspended" not in tutor_cols:
+                        conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN is_suspended BOOLEAN DEFAULT 0"))
+                    if "suspend_reason" not in tutor_cols:
+                        conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN suspend_reason VARCHAR"))
+                    conn.commit()
         except Exception as e:
             print("DB Schema Migration Warning:", e)
 
@@ -489,7 +498,10 @@ def accept_comment(comment_id: int, student_id: int, db: Session = Depends(get_d
 
 @app.get("/api/tutor/list", response_model=List[schemas.TutorProfileResponse])
 def get_tutor_list(db: Session = Depends(get_db)):
-    return db.query(models.TutorProfile).filter(models.TutorProfile.is_verified == True).all()
+    return db.query(models.TutorProfile).filter(
+        models.TutorProfile.is_verified == True,
+        models.TutorProfile.is_suspended == False
+    ).all()
 
 @app.post("/api/tutoring/request", response_model=schemas.TutorRequestResponse)
 def create_tutoring_request(payload: schemas.TutorRequestCreate, db: Session = Depends(get_db)):
@@ -639,7 +651,7 @@ def get_admin_dashboard(db: Session = Depends(get_db)):
             "status": m.status,
             "created_at": m.created_at.strftime("%m-%d %H:%M") if m.created_at else ""
         })
-        
+
     study_list = []
     for st in studies:
         s_name = st.student.name if st.student else "학생"
@@ -650,16 +662,35 @@ def get_admin_dashboard(db: Session = Depends(get_db)):
             "created_at": st.created_at.strftime("%m-%d %H:%M") if st.created_at else ""
         })
         
+    all_tutors_raw = db.query(models.TutorProfile).filter(models.TutorProfile.is_verified == True).order_by(models.TutorProfile.created_at.desc()).all()
+    all_tutors = []
+    for at in all_tutors_raw:
+        all_tutors.append({
+            "id": at.id,
+            "student_id": at.student_id,
+            "name": at.name,
+            "phone": at.phone,
+            "university": at.university,
+            "major": at.major,
+            "admission_year": at.admission_year,
+            "bio": at.bio,
+            "is_suspended": at.is_suspended,
+            "suspend_reason": at.suspend_reason or "",
+            "created_at": at.created_at.strftime("%Y-%m-%d %H:%M") if at.created_at else ""
+        })
+
     return {
         "summary": {
             "total_students": len(students),
             "total_parents": len(parents),
             "open_feedbacks": open_count,
             "pending_tutors_count": len(pending_tutors),
+            "active_tutors_count": len(all_tutors),
             "league_counts": tier_counts
         },
         "recent_feedbacks": feedback_list[:10],
         "pending_tutors": pending_tutors,
+        "all_tutors": all_tutors,
         "students": student_list,
         "recent_missions": mission_list,
         "recent_studies": study_list
@@ -708,6 +739,29 @@ def approve_tutor(tutor_id: int, db: Session = Depends(get_db)):
         tutor.student.current_points += 500  # 원장 승인 시 축하 500P 부여!
     db.commit()
     return {"status": "ok", "message": "합격증 검증 및 최종 승인이 완료되었습니다!"}
+
+class SuspendTutorPayload(BaseModel):
+    reason: str = "학생 불만 접수 및 지도 규정 위반"
+
+@app.post("/api/admin/tutors/{tutor_id}/suspend")
+def suspend_tutor(tutor_id: int, payload: SuspendTutorPayload, db: Session = Depends(get_db)):
+    tutor = db.query(models.TutorProfile).filter(models.TutorProfile.id == tutor_id).first()
+    if not tutor:
+        raise HTTPException(status_code=404, detail="과외선생님 정보를 찾을 수 없습니다.")
+    tutor.is_suspended = True
+    tutor.suspend_reason = payload.reason
+    db.commit()
+    return {"status": "ok", "message": f"과외선생님({tutor.name})이 활동 정지 처리되었습니다. (학생 목록에서 즉시 숨김 처리됨)"}
+
+@app.post("/api/admin/tutors/{tutor_id}/unsuspend")
+def unsuspend_tutor(tutor_id: int, db: Session = Depends(get_db)):
+    tutor = db.query(models.TutorProfile).filter(models.TutorProfile.id == tutor_id).first()
+    if not tutor:
+        raise HTTPException(status_code=404, detail="과외선생님 정보를 찾을 수 없습니다.")
+    tutor.is_suspended = False
+    tutor.suspend_reason = None
+    db.commit()
+    return {"status": "ok", "message": f"과외선생님({tutor.name})의 활동 정지가 해제되어 다시 매칭 목록에 노출됩니다."}
 
 class FeedbackStatusPayload(BaseModel):
     status: str
