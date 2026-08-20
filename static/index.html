@@ -38,6 +38,8 @@
                     <option value="1">고등학교 1학년</option>
                     <option value="2">고등학교 2학년</option>
                     <option value="3" selected>고등학교 3학년</option>
+                    <option value="4">N수생 (재수/삼수 이상)</option>
+                    <option value="0">기타 (직접입력)</option>
                 </select>
                 
                 <input type="text" id="reg-region" class="form-input" placeholder="지역 (예: 서울 강남구)" required>
@@ -97,6 +99,11 @@
                 <span class="logo-text" style="font-weight: 900; letter-spacing: -0.5px;">PALIN<span style="color: #6366f1;">OS</span></span>
             </div>
             <div class="user-status" style="display: flex; align-items: center; gap: 8px;">
+                <!-- 🔥 듀오링고 연속 출석 불꽃 -->
+                <div class="streak-badge" id="header-streak-badge" title="연속 미션 성공 기록 (1일이라도 실패 시 즉시 소멸)">
+                    <span>🔥</span>
+                    <span id="header-streak-count">0일 연속</span>
+                </div>
                 <div class="points-badge">
                     <span class="material-symbols-rounded" style="font-size: 1.1rem;">toll</span>
                     <span id="header-points">0 P</span>
@@ -116,7 +123,15 @@
                  ========================================== -->
             <div id="page1" class="page-view" style="display: block;">
                 
-                <!-- 🎯 목표대학 배너 (스크롤 시 함께 자연스럽게 올라감) -->
+                <!-- 📢 원장 전용 긴급 공지 띠 배너 -->
+                <div id="notice-banner-container" class="notice-banner" style="display: none;">
+                    <span class="material-symbols-rounded" style="color: #fcd34d; font-size: 1.2rem;">campaign</span>
+                    <div style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="notice-banner-text">
+                        공지사항을 불러오는 중입니다.
+                    </div>
+                </div>
+
+                <!-- 🎯 목표대학 & D-Day 배너 (D-Day 수동 변경 지원) -->
                 <div class="univ-banner" style="margin-bottom: 12px; border-radius: 16px; border: 1px solid var(--glass-border);">
                     <div>
                         <span class="target-label">🦁 목표 대학</span>
@@ -126,7 +141,21 @@
                         <span class="target-label">🛡️ 마지노선</span>
                         <span class="univ-name" id="banner-baseline-univ">로딩중..</span>
                     </div>
-                    <div class="dday">D-250</div>
+                    <div style="text-align: right;">
+                        <div class="dday" id="banner-dday" style="cursor: pointer;" onclick="openMyPageModal()" title="클릭하여 목표 D-Day 변경">D-250</div>
+                        <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;" id="banner-dday-title">2027 수능</div>
+                    </div>
+                </div>
+
+                <!-- 🏃 스트라바(Strava) 모델 - 게릴라 마이크로 리그전 카드 -->
+                <div class="card" id="micro-league-card" style="margin-bottom: 12px; background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.25);">
+                    <div class="card-title" style="color: #a78bfa; font-size: 0.88rem;">
+                        <span class="material-symbols-rounded" style="color: #818cf8;">leaderboard</span>
+                        <span id="micro-league-title">대치동 재원생 실시간 랭킹</span>
+                    </div>
+                    <div id="micro-league-content" style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5;">
+                        실시간 마이크로 리그 순위를 불러오는 중...
+                    </div>
                 </div>
 
                 <!-- 골든 티켓 초대 네트워크 카드 -->
@@ -179,12 +208,22 @@
                     </div>
                 </div>
 
-                <!-- 집중 공부 타이머 -->
-                <div class="card" style="text-align: center;">
+                <!-- 🌲 포레스트(Forest) 모델 - 목표 대학 로고 & 집중 공부 타이머 -->
+                <div class="card" id="univ-target-box" style="text-align: center; position: relative;">
+                    <!-- 딴짓 감지 시 균열 오버레이 -->
+                    <div class="crack-overlay" id="logo-crack-overlay"></div>
+                    
                     <div class="card-title" style="justify-content: center;">
                         <span class="material-symbols-rounded" style="color: var(--color-success)">hourglass_empty</span>
-                        공부 시간 타이머 (계획 연동 & 딴짓 방지)
+                        공부 시간 타이머 (목표 로고 수호 & 딴짓 방지)
                     </div>
+
+                    <!-- 목표 대학 & 메디컬 엠블럼 심볼 -->
+                    <div style="margin: 10px auto; width: 64px; height: 64px; background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 8px 20px rgba(0,0,0,0.4);" id="target-logo-wrapper">
+                        <span id="target-symbol-emblem" class="target-logo-img">⚕️</span>
+                    </div>
+                    <div style="font-size: 0.82rem; font-weight: 700; color: #f8fafc; margin-bottom: 8px;" id="target-logo-name">목표 대학 수호 중</div>
+
                     <div class="timer-container">
                         <div style="width:100%; max-width:280px; margin-bottom:12px;">
                             <label style="font-size:0.75rem; color:var(--text-secondary); display:block; text-align:left; margin-bottom:4px;">어떤 계획을 공부하시겠습니까?</label>
@@ -201,7 +240,7 @@
                         </div>
                         
                         <div style="font-size:0.68rem; color:var(--text-secondary); margin-top:14px; line-height:1.3;">
-                            ⚠️ 측정 중 스마트폰 화면을 끄거나 타 앱으로 전환(딴짓)하면 타이머가 중단되며 포인트가 적립되지 않고 부모님께 안내 문자가 발송됩니다.
+                            💡 <b>화면 꺼짐(Screen Off) 상태는 정상 자습으로 유지</b>됩니다. 단, 화면이 켜진 상태에서 타 앱으로 전환(딴짓) 시 목표 로고에 금이 가며 타이머가 강제 종료됩니다.
                         </div>
                     </div>
                 </div>
@@ -302,7 +341,24 @@
                 <div class="tab-header" id="p2-tabs">
                     <button class="tab-btn active" data-sub="chat">🤖 AI 챗봇</button>
                     <button class="tab-btn" data-sub="predict">🎯 합격 예측</button>
+                    <button class="tab-btn" data-sub="calendar">📅 입시 캘린더</button>
                     <button class="tab-btn" data-sub="archive">📚 기출문제</button>
+                </div>
+
+                <!-- 2-Cal: 연간 대입 입시 캘린더 탭 -->
+                <div id="p2-calendar" class="subtab-view-p2" style="display: none;">
+                    <div class="card">
+                        <div class="card-title" style="color: #60a5fa;">
+                            <span class="material-symbols-rounded" style="color: #3b82f6;">event_available</span>
+                            2026-2027학년도 대입 핵심 입시 일정표
+                        </div>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px;">
+                            평가원 모의고사, 수시/정시 원서접수, 수능 시험일 등 실시간 D-Day가 맵핑되어 있습니다.
+                        </div>
+                        <div id="admission-calendar-list">
+                            <!-- JS로 동적 렌더링 -->
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 2-A: AI 챗봇 탭 -->
@@ -791,31 +847,83 @@
                 </div>
             </div>
 
-            <!-- ⚙️ 개인 정보 및 목표/생활 규칙 직접 수정 -->
+            <!-- ⚙️ 개인 정보 및 목표/생활 규칙 직접 수정 (Phase 1.5 전면 개방) -->
             <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.2); padding: 14px; border-radius: 16px; margin-bottom: 16px;">
                 <div style="font-size: 0.9rem; font-weight: 700; color: #a78bfa; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-                    <span class="material-symbols-rounded" style="font-size: 1.1rem;">tune</span>
-                    목표 대학 & 생활 미션 시간 변경
+                    <span class="material-symbols-rounded" style="font-size: 1.1rem;">manage_accounts</span>
+                    개인정보 & 목표 입시 설정 수정
                 </div>
-                <div style="margin-bottom: 8px;">
-                    <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">🦁 목표 대학 (상향/적정)</label>
-                    <input type="text" id="edit-target-univ" class="form-input" placeholder="예: 서울대학교 의예과">
-                </div>
-                <div style="margin-bottom: 8px;">
-                    <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">🛡️ 마지노선 대학 (안정)</label>
-                    <input type="text" id="edit-baseline-univ" class="form-input" placeholder="예: 연세대학교 컴퓨터과학과">
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
                     <div>
-                        <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">🌅 목표 기상 시간</label>
+                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">출신 고교</label>
+                        <input type="text" id="edit-high-school" class="form-input" placeholder="고등학교명">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">지역</label>
+                        <input type="text" id="edit-region" class="form-input" placeholder="지역 (예: 서울 강남구)">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                    <div>
+                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">학년 선택</label>
+                        <select id="edit-grade" class="form-input">
+                            <option value="1">고등학교 1학년</option>
+                            <option value="2">고등학교 2학년</option>
+                            <option value="3">고등학교 3학년</option>
+                            <option value="4">N수생 (재수/삼수 이상)</option>
+                            <option value="0">기타 (직접입력)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">메디컬/전공 엠블럼</label>
+                        <select id="edit-medical-symbol" class="form-input">
+                            <option value="GENERAL">일반 🦁</option>
+                            <option value="MED">의예과 ⚕️</option>
+                            <option value="DENT">치의예과 🦷</option>
+                            <option value="PHARM">약학과 💊</option>
+                            <option value="KMED">한의예과 🌿</option>
+                            <option value="VET">수의예과 🐾</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="font-size: 0.75rem; color: #fcd34d; font-weight: 700; margin-top: 10px; margin-bottom: 4px;">🎯 목표 D-Day 커스텀 설정</div>
+                <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 8px; margin-bottom: 10px;">
+                    <div>
+                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">시험명</label>
+                        <input type="text" id="edit-dday-title" class="form-input" placeholder="예: 2027 수능 / 6월 모평">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">목표 날짜</label>
+                        <input type="date" id="edit-dday-date" class="form-input">
+                    </div>
+                </div>
+
+                <div style="font-size: 0.75rem; color: #a78bfa; font-weight: 700; margin-top: 8px; margin-bottom: 4px;">🦁 최종희망 대학 (11,688개 대학/학과 연동)</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px;">
+                    <select id="edit-target-univ-select" class="form-input"></select>
+                    <select id="edit-target-dept-select" class="form-input"></select>
+                </div>
+
+                <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; margin-top: 6px; margin-bottom: 4px;">🛡️ 마지노선 대학 (안정 백업)</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px;">
+                    <select id="edit-baseline-univ-select" class="form-input"></select>
+                    <select id="edit-baseline-dept-select" class="form-input"></select>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                    <div>
+                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">🌅 목표 기상 시간</label>
                         <input type="time" id="edit-wake-time" class="form-input" value="06:30">
                     </div>
                     <div>
-                        <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">🌃 목표 취침 시간</label>
+                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">🌃 목표 취침 시간</label>
                         <input type="time" id="edit-sleep-time" class="form-input" value="23:30">
                     </div>
                 </div>
-                <button onclick="saveStudentProfileSettings()" class="btn" style="width: 100%; padding: 8px 0; font-size: 0.85rem; background: linear-gradient(135deg, #10b981, #059669);">💾 개인 설정 즉시 저장</button>
+                <button onclick="saveStudentProfileSettings()" class="btn" style="width: 100%; padding: 10px 0; font-size: 0.88rem; background: linear-gradient(135deg, #10b981, #059669); font-weight: 700;">💾 변경된 개인정보 및 입시 설정 저장</button>
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
