@@ -6,7 +6,7 @@
     <title>PALIN OS - 데이터 기반 행동 통제 범용 OS</title>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=16.0">
+    <link rel="stylesheet" href="css/style.css?v=17.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -316,15 +316,15 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px;">
                         <div style="background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; text-align: center;">
                             <div style="font-size: 0.75rem; color: var(--text-secondary);">주간 총 공부시간</div>
-                            <div id="report-study-hours" style="font-size: 1.3rem; font-weight: 700; color: white; margin-top: 4px;">0시간</div>
+                            <div id="report-study-hours" style="font-size: 1.3rem; font-weight: 800; color: var(--text-primary); margin-top: 4px;">0시간</div>
                         </div>
                         <div style="background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; text-align: center;">
                             <div style="font-size: 0.75rem; color: var(--text-secondary);">미션 성공률</div>
-                            <div id="report-mission-rate" style="font-size: 1.3rem; font-weight: 700; color: white; margin-top: 4px;">0%</div>
+                            <div id="report-mission-rate" style="font-size: 1.3rem; font-weight: 800; color: var(--text-primary); margin-top: 4px;">0%</div>
                         </div>
                     </div>
                     <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
-                        <span>총 측정 횟수: <span id="report-total-sessions" style="color: white; font-weight: 600;">0회</span></span>
+                        <span>총 측정 횟수: <span id="report-total-sessions" style="color: var(--text-primary); font-weight: 700;">0회</span></span>
                         <button class="btn btn-secondary" id="premium-toggle-btn" style="padding: 4px 8px; font-size:0.65rem;" onclick="togglePremium()">⚡ 프리미엄 구독</button>
                     </div>
                     <div style="margin-top: 14px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
@@ -998,7 +998,7 @@
         </div>
     </div>
 
-    <script src="js/app.js?v=16.0"></script>
+    <script src="js/app.js?v=17.0"></script>
     <script>
     // Service Worker Registration
     if ('serviceWorker' in navigator) {
