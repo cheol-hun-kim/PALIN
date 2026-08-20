@@ -322,9 +322,9 @@ async function togglePremium() {
 // --- UI 업데이트 헬퍼 ---
 
 function calculateDDay(dateStr) {
-    if (!dateStr) return "D-250";
+    const targetDate = dateStr || "2026-11-19"; // 2027학년도 본 수능일 기준 기본값
     try {
-        const target = new Date(dateStr);
+        const target = new Date(targetDate);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         target.setHours(0, 0, 0, 0);
@@ -334,7 +334,7 @@ function calculateDDay(dateStr) {
         if (diffDays === 0) return "D-DAY";
         return `D+${Math.abs(diffDays)}`;
     } catch (e) {
-        return "D-250";
+        return "D-DAY";
     }
 }
 
