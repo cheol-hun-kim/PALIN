@@ -6,7 +6,7 @@
     <title>PALIN OS - 데이터 기반 행동 통제 범용 OS</title>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=26.0">
+    <link rel="stylesheet" href="css/style.css?v=27.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -364,13 +364,20 @@
                 <!-- 2-A: AI 챗봇 탭 -->
                 <div id="p2-chat" class="subtab-view-p2" style="display: block;">
                     <div class="card">
-                        <div class="card-title">
+                        <div class="card-title" style="margin-bottom: 6px;">
                             <span class="material-symbols-rounded" style="color: var(--color-accent)">forum</span>
                             대입 입시 전략 전문 멘토링
                         </div>
+                        
+                        <!-- 💡 심도 있는 답변 사전 안내 문구 -->
+                        <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 10px; padding: 8px 12px; margin-bottom: 12px; font-size: 0.76rem; color: #cbd5e1; display: flex; align-items: center; gap: 8px; line-height: 1.4;">
+                            <span style="font-size: 1.1rem; flex-shrink: 0;">💡</span>
+                            <div>수험생 백서 지식 기반으로 <b>심도 있는 맞춤형 답변을 분석/작성</b>하므로 질문 후 <b>약 10~20초</b>가량 소요될 수 있습니다.</div>
+                        </div>
+
                         <div class="chat-container" id="chat-box">
                             <div class="chat-bubble bot">
-                                안녕하세요! 저는 대입 수능 및 입시 상담을 도와주는 AI 멘토 "패스봇"입니다. 수능 대비 과목 공부법, 내신 수시전략, 생활습관 설정 등에 대해 언제든 물어보세요!
+                                안녕하세요! 저는 대입 수능 및 입시 상담을 도와주는 AI 멘토 "패스봇"입니다. 수능 대비 과목 공부법, 내신 수시전략, 생활습관 설정 등에 대해 언제든 물어보세요! (심도 있는 분석을 위해 답변 시 약 10~20초가량 소요될 수 있습니다.)
                             </div>
                         </div>
                         <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 8px;" id="chat-limit-label">
@@ -636,21 +643,26 @@
                 <!-- 2-C: 기출문제 자료실 탭 -->
                 <div id="p2-archive" class="subtab-view-p2" style="display: none;">
                     <div class="card">
-                        <div class="card-title" style="color: #818cf8;">
+                        <div class="card-title" style="color: #818cf8; margin-bottom: 4px;">
                             <span class="material-symbols-rounded" style="color: #6366f1">download</span>
                             평가원/교육청 기출 & 수험자료실
                         </div>
-                        <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom: 12px;">원장님이 엄선한 기출문제와 핵심 해설 자료를 자유롭게 다운로드하세요.</div>
+                        <div style="font-size:0.78rem; color:var(--text-secondary); margin-bottom: 12px;">원장님이 엄선한 기출문제와 핵심 해설 자료를 자유롭게 다운로드하세요.</div>
                         
-                        <!-- 과목 필터 버튼 바 -->
-                        <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px; scrollbar-width: none;" id="exam-subject-filter-bar">
-                            <button class="btn" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; background: #6366f1; white-space: nowrap;" onclick="filterExamMaterials('전체', this)">전체</button>
-                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; white-space: nowrap;" onclick="filterExamMaterials('국어', this)">📖 국어</button>
-                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; white-space: nowrap;" onclick="filterExamMaterials('수학', this)">📐 수학</button>
-                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; white-space: nowrap;" onclick="filterExamMaterials('영어', this)">🔤 영어</button>
-                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; white-space: nowrap;" onclick="filterExamMaterials('탐구', this)">🔬 탐구</button>
-                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; white-space: nowrap;" onclick="filterExamMaterials('논술', this)">✍️ 논술</button>
-                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; white-space: nowrap;" onclick="filterExamMaterials('경찰·사관', this)">🎖️ 경찰·사관</button>
+                        <!-- 🎯 화면 넘침 없는 깔끔한 과목 선택 셀렉터 & 칩 바 -->
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+                            <div style="flex: 1;">
+                                <select id="exam-subject-select" onchange="onExamSubjectSelectChange(this.value)" class="form-input" style="width: 100%; padding: 10px 14px; border-radius: 10px; font-weight: 700; font-size: 0.88rem; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(99, 102, 241, 0.3); color: white; cursor: pointer;">
+                                    <option value="전체" style="background:#1e293b;" selected>📚 전체 과목 자료 보기</option>
+                                    <option value="국어" style="background:#1e293b;">📖 국어 영역</option>
+                                    <option value="수학" style="background:#1e293b;">📐 수학 영역</option>
+                                    <option value="영어" style="background:#1e293b;">🔤 영어 영역</option>
+                                    <option value="탐구" style="background:#1e293b;">🔬 탐구 영역 (사탐/과탐)</option>
+                                    <option value="논술" style="background:#1e293b;">✍️ 논술 (수리/인문/약술형)</option>
+                                    <option value="경찰·사관" style="background:#1e293b;">🎖️ 경찰대 · 사관학교 1차</option>
+                                    <option value="기타" style="background:#1e293b;">📄 기타 수험 자료</option>
+                                </select>
+                            </div>
                         </div>
 
                         <!-- 기출문제 목록 컨테이너 -->
@@ -1005,7 +1017,7 @@
         </div>
     </div>
 
-    <script src="js/app.js?v=26.0"></script>
+    <script src="js/app.js?v=27.0"></script>
     <script>
     // Service Worker Registration
     if ('serviceWorker' in navigator) {
