@@ -188,6 +188,8 @@ class TutorProfile(Base):
     bio = Column(Text)
     contact_link = Column(String)
     is_verified = Column(Boolean, default=False)
+    is_suspended = Column(Boolean, default=False) # 원장 강제 활동정지 여부
+    suspend_reason = Column(String, nullable=True) # 활동정지 사유
     
     univ_emblem = Column(String, nullable=True)
     high_school_emblem = Column(String, nullable=True)
