@@ -5,61 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PALIN OS - 원장 전용 중앙 관제 대시보드</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=3.0">
+    <link rel="stylesheet" href="css/style.css?v=21.0">
     <style>
         body {
             background-color: #06070a;
             color: #f8fafc;
             font-family: 'Outfit', 'Noto Sans KR', sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 16px;
             display: block;
             min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .admin-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
         }
         .admin-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 20px;
+            padding-bottom: 16px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 24px;
+            margin-bottom: 20px;
+            gap: 12px;
+            flex-wrap: wrap;
         }
         .admin-title {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: 900;
             letter-spacing: -0.5px;
         }
         .admin-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
         }
         .kpi-card {
             background: rgba(18, 20, 29, 0.8);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 16px;
-            padding: 20px;
+            padding: 16px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
         }
         .kpi-title {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             color: #94a3b8;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             text-transform: uppercase;
+            font-weight: 600;
         }
         .kpi-value {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: 800;
             color: #6366f1;
         }
         .section-title {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 700;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 8px;
+            flex-wrap: wrap;
         }
         .data-table {
             width: 100%;
@@ -68,13 +78,14 @@
             border-radius: 16px;
             overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.08);
-            margin-bottom: 30px;
+            margin-bottom: 24px;
         }
         .data-table th, .data-table td {
-            padding: 12px 16px;
+            padding: 10px 14px;
             text-align: left;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 0.85rem;
+            font-size: 0.82rem;
+            white-space: nowrap;
         }
         .data-table th {
             background: rgba(255, 255, 255, 0.04);
@@ -86,10 +97,68 @@
         .feed-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 16px;
         }
+        .responsive-action-box {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .responsive-form-grid {
+            display: grid;
+            grid-template-columns: 140px 1fr 1fr auto;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        /* 📱 모바일 & 소형 태블릿 (768px 이하) */
         @media (max-width: 768px) {
+            body { padding: 12px; }
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .admin-header > div:last-child {
+                width: 100%;
+            }
+            .admin-header .btn {
+                flex: 1;
+                text-align: center;
+                font-size: 0.8rem;
+                padding: 8px 10px;
+            }
+            .admin-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .kpi-card { padding: 12px; }
+            .kpi-value { font-size: 1.3rem; }
             .feed-container { grid-template-columns: 1fr; }
+            .responsive-action-box {
+                flex-direction: column;
+            }
+            .responsive-action-box button {
+                width: 100%;
+            }
+            .responsive-form-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            .responsive-form-grid button {
+                width: 100%;
+            }
+            .gemini-header-box {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 6px;
+            }
+        }
+
+        /* 📱 초소형 모바일 (480px 이하) */
+        @media (max-width: 480px) {
+            .admin-title { font-size: 1.25rem; }
+            .kpi-value { font-size: 1.2rem; }
         }
     </style>
 </head>
@@ -151,49 +220,49 @@
     </div>
 
     <!-- 🤖 Gemini API Key 설정 카드 -->
-    <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15)); border: 1px solid rgba(168, 85, 247, 0.3); padding: 20px; border-radius: 16px; margin-bottom: 24px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+    <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15)); border: 1px solid rgba(168, 85, 247, 0.3); padding: 18px; border-radius: 16px; margin-bottom: 20px;">
+        <div class="gemini-header-box" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
             <div style="font-size: 1.05rem; font-weight: 800; color: #c084fc; display: flex; align-items: center; gap: 6px;">
                 <span class="material-symbols-rounded">psychology</span>
-                Gemini 2.5 AI 엔진 API 키 설정 (백서 100% 지식 탑재)
+                Gemini 2.5 AI 엔진 API 키 설정
             </div>
-            <span id="gemini-key-status" style="font-size: 0.8rem; font-weight: 700; color: #94a3b8;">상태 확인 중...</span>
+            <span id="gemini-key-status" style="font-size: 0.78rem; font-weight: 700; color: #94a3b8; word-break: break-all;">상태 확인 중...</span>
         </div>
-        <div style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 12px; line-height: 1.4;">
+        <div style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 12px; line-height: 1.4;">
             Google Gemini API Key를 입력하시면 즉시 재원생 챗봇에 <b>실제 Gemini 2.5 Flash AI</b>가 적용되어 수험생 백서 백그라운드 지식을 기반으로 100% 실시간 유연 대화를 진행합니다.
         </div>
-        <div style="display: flex; gap: 8px;">
-            <input type="password" id="gemini-key-input" placeholder="Google Gemini API Key (AIzaSy...)" style="flex: 1; padding: 10px 14px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: white; font-size: 0.88rem;">
-            <button onclick="saveGeminiKey()" class="btn" style="padding: 10px 20px; font-weight: 700; background: linear-gradient(135deg, #a855f7, #6366f1); border: none; white-space: nowrap;">⚡ API 키 저장 및 Gemini 탑재</button>
+        <div class="responsive-action-box">
+            <input type="password" id="gemini-key-input" placeholder="Google Gemini API Key (AIzaSy...)" style="flex: 1; min-width: 200px; padding: 10px 14px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: white; font-size: 0.88rem;">
+            <button onclick="saveGeminiKey()" class="btn" style="padding: 10px 20px; font-weight: 700; background: linear-gradient(135deg, #a855f7, #6366f1); border: none; white-space: nowrap;">⚡ API 키 저장</button>
         </div>
     </div>
 
     <!-- 학생 불편사항 & 아이디어 피드 -->
-    <div class="kpi-card" style="margin-bottom: 24px; border: 1px solid rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.03);">
+    <div class="kpi-card" style="margin-bottom: 20px; border: 1px solid rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.03);">
         <div class="section-title" style="color: #f59e0b;">
             <span class="material-symbols-rounded">feedback</span>
             학생 불편사항 & 개선 아이디어 실시간 수신함
         </div>
-        <div id="feedback-feed" style="display: flex; flex-direction: column; gap: 10px;">
+        <div id="feedback-feed" style="display: flex; flex-direction: column; gap: 8px;">
             <div style="color: #94a3b8; font-size: 0.85rem;">로딩중...</div>
         </div>
     </div>
 
     <!-- 📢 원장 긴급 공지사항 등록 및 관리 -->
-    <div class="kpi-card" style="margin-bottom: 24px; border: 1px solid rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.03);">
+    <div class="kpi-card" style="margin-bottom: 20px; border: 1px solid rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.03);">
         <div class="section-title" style="color: #fcd34d;">
             <span class="material-symbols-rounded">campaign</span>
             📢 원장 긴급 공지사항 발송 (학생 메인 화면 상단 띠 배너 노출)
         </div>
-        <form onsubmit="handleCreateNotice(event)" style="display: grid; grid-template-columns: 1fr 2fr 1fr auto; gap: 8px; margin-bottom: 12px;">
-            <select id="notice-cat" class="form-input" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px; border-radius: 8px;">
+        <form onsubmit="handleCreateNotice(event)" class="responsive-form-grid">
+            <select id="notice-cat" class="form-input" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 8px;">
                 <option value="긴급공지" style="background:#1e293b;">🚨 긴급공지</option>
                 <option value="일반공지" selected style="background:#1e293b;">📢 일반공지</option>
                 <option value="이벤트" style="background:#1e293b;">🎁 이벤트</option>
             </select>
-            <input type="text" id="notice-title" placeholder="공지 제목 (예: 6월 모평 대비 주말 특별 자습 안내)" required style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 12px; border-radius: 8px;">
-            <input type="text" id="notice-content" placeholder="공지 상세 내용" required style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 12px; border-radius: 8px;">
-            <button type="submit" class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); font-weight: 700; padding: 8px 16px; border-radius: 8px; white-space: nowrap;">공지 등록</button>
+            <input type="text" id="notice-title" placeholder="공지 제목 (예: 6월 모평 대비 주말 특별 자습 안내)" required style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 12px; border-radius: 8px;">
+            <input type="text" id="notice-content" placeholder="공지 상세 내용" required style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 12px; border-radius: 8px;">
+            <button type="submit" class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); font-weight: 700; padding: 10px 18px; border-radius: 8px; white-space: nowrap;">공지 등록</button>
         </form>
         <div id="admin-notices-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
     </div>
@@ -796,9 +865,12 @@
                     } else {
                         notices.forEach(n => {
                             container.innerHTML += `
-                                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:6px 10px; border-radius:6px; font-size:0.8rem;">
-                                    <div><span style="color:#fcd34d; font-weight:700;">[${n.category}]</span> <b>${n.title}</b> - <span style="color:#94a3b8;">${n.content}</span></div>
-                                    <button onclick="deleteNotice(${n.id})" class="btn" style="padding:2px 8px; font-size:0.7rem; background:#ef4444;">삭제</button>
+                                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:8px 12px; border-radius:8px; font-size:0.8rem; gap:10px; border:1px solid rgba(255,255,255,0.06);">
+                                    <div style="flex:1; min-width:0; line-height:1.4;">
+                                        <span style="color:#fcd34d; font-weight:700;">[${n.category}]</span> 
+                                        <b>${n.title}</b> - <span style="color:#94a3b8;">${n.content}</span>
+                                    </div>
+                                    <button onclick="deleteNotice(${n.id})" class="btn" style="padding:4px 10px; font-size:0.75rem; background:#ef4444; color:white; font-weight:700; white-space:nowrap; flex-shrink:0; border-radius:6px;">삭제</button>
                                 </div>
                             `;
                         });
