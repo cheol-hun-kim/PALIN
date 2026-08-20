@@ -101,20 +101,40 @@ function updateStudentUnivSelectors() {
 // --- 사용자 세션/인증 확인 ---
 function checkAuth() {
     const studentId = localStorage.getItem("studentId");
-    if (studentId) {
-        fetchStudentInfo(studentId);
+    if (studentId && !isNaN(parseInt(studentId))) {
+        fetchStudentInfo(parseInt(studentId));
     } else {
+        currentStudent = null;
+        localStorage.removeItem("studentId");
+        clearAllSensitiveUI();
         showOverlay("register-overlay");
     }
 }
 
+function clearAllSensitiveUI() {
+    const headerName = document.getElementById("header-student-name");
+    if (headerName) headerName.innerText = "로그인 필요";
+    const headerPoints = document.getElementById("header-points");
+    if (headerPoints) headerPoints.innerText = "0 P";
+    const targetUniv = document.getElementById("banner-target-univ");
+    if (targetUniv) targetUniv.innerText = "로그인 필요";
+    const baselineUniv = document.getElementById("banner-baseline-univ");
+    if (baselineUniv) baselineUniv.innerText = "로그인 필요";
+}
+
 function showOverlay(id) {
     document.querySelectorAll(".loader-overlay").forEach(el => el.style.display = "none");
-    document.getElementById(id).style.display = "flex";
+    const overlay = document.getElementById(id);
+    if (overlay) {
+        overlay.style.display = "flex";
+    }
 }
 
 function hideOverlay(id) {
-    document.getElementById(id).style.display = "none";
+    const overlay = document.getElementById(id);
+    if (overlay) {
+        overlay.style.display = "none";
+    }
 }
 
 // --- 딴짓 감지 모듈 (OS 화면 꺼짐 허용 & 타 앱 전환 감지 고도화) ---
@@ -646,10 +666,16 @@ async function handleSendFeedback(e) {
 }
 
 function logoutStudent() {
-    if (confirm("로그아웃 하시겠습니까? 계정이 변경되거나 신규 로그인 창으로 이동합니다.")) {
+    if (confirm("로그아웃 하시겠습니까? 계정이 초기화되고 신규 가입/로그인 창으로 이동합니다.")) {
         localStorage.removeItem("studentId");
-        closeMyPageModal();
-        showOverlay("register-overlay");
+        sessionStorage.clear();
+        currentStudent = null;
+        if ('caches' in window) {
+            caches.keys().then(names => {
+                for (let name of names) caches.delete(name);
+            });
+        }
+        location.reload();
     }
 }
 
