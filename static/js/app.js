@@ -291,15 +291,22 @@ async function handleLogin(e) {
             body: JSON.stringify({ email: email })
         });
         if (!res.ok) {
-            const err = await res.json();
-            alert(err.detail || "로그인 실패");
+            let errorMsg = "로그인 실패";
+            try {
+                const err = await res.json();
+                errorMsg = err.detail || errorMsg;
+            } catch (jsonErr) {
+                errorMsg = `서버 오류 (HTTP ${res.status})`;
+            }
+            alert(errorMsg);
             return;
         }
         const student = await res.json();
         localStorage.setItem("studentId", student.id);
         fetchStudentInfo(student.id);
     } catch (e) {
-        alert("서버 연결 실패");
+        console.error("Login error:", e);
+        alert("네트워크 연결 또는 서버 응답에 문제가 있습니다. 잠시 후 다시 시도해 주세요.");
     }
 }
 
