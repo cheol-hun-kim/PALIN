@@ -499,8 +499,8 @@ function renderAdmissionCalendar() {
         listEl.innerHTML += `
             <div class="calendar-card">
                 <div>
-                    <div style="font-weight: 700; font-size: 0.88rem; color: #f8fafc;">${item.title}</div>
-                    <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 2px;">📅 ${item.date} (${item.cat})</div>
+                    <div class="calendar-item-title" style="font-weight: 800; font-size: 0.88rem;">${item.title}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">📅 ${item.date} (${item.cat})</div>
                 </div>
                 <div class="calendar-dday" style="${ddayColor}">
                     ${item.dday}
