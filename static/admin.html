@@ -179,10 +179,21 @@
     <div class="kpi-card" style="margin-bottom: 24px; border: 1px solid rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.04);">
         <div class="section-title" style="color: #a78bfa;">
             <span class="material-symbols-rounded">school</span>
-            🎓 과외선생님 검증 및 승인 대기 수신함 (원장 직접 성적표/합격증 검증용)
+            🎓 과외선생님 신규 승인 대기 수신함 (원장 직접 성적표/합격증 검증용)
         </div>
         <div id="pending-tutor-feed" style="display: flex; flex-direction: column; gap: 10px;">
             <div style="color: #94a3b8; font-size: 0.85rem;">로딩중...</div>
+        </div>
+    </div>
+
+    <!-- 🛡️ 등록된 활동 과외선생님 목록 및 원장 강제 활동정지 제재 -->
+    <div class="kpi-card" style="margin-bottom: 24px; border: 1px solid rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.03);">
+        <div class="section-title" style="color: #f87171;">
+            <span class="material-symbols-rounded">gavel</span>
+            🛡️ 등록된 과외선생님 활동 관리 & 원장 강제 활동정지(블랙리스트) 제재
+        </div>
+        <div id="active-tutor-feed" style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="color: #94a3b8; font-size: 0.85rem;">과외선생님 목록 로딩중...</div>
         </div>
     </div>
 
@@ -350,6 +361,40 @@
                                 <div style="font-size: 0.85rem; color: #e2e8f0; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 6px;">자기소개: ${pt.bio}</div>
                             `;
                             ptFeed.appendChild(div);
+                        });
+                    }
+                }
+
+                // 🛡️ 활동 중인 과외선생님 목록 & 강제 활동정지 제재 렌더링
+                const atFeed = document.getElementById("active-tutor-feed");
+                if (atFeed) {
+                    atFeed.innerHTML = "";
+                    if (!data.all_tutors || data.all_tutors.length === 0) {
+                        atFeed.innerHTML = "<div style='color:#94a3b8; font-size:0.85rem;'>현재 등록되어 활동 중인 과외선생님이 없습니다.</div>";
+                    } else {
+                        data.all_tutors.forEach(t => {
+                            const div = document.createElement("div");
+                            div.style.cssText = "padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px;";
+                            const statusTag = t.is_suspended 
+                                ? `<span style="color:#ef4444; font-weight:800; font-size:0.8rem; background:rgba(239,68,68,0.15); padding:3px 8px; border-radius:12px;">🚫 활동정지됨 (${t.suspend_reason || '사유미기재'})</span>`
+                                : `<span style="color:#10b981; font-weight:800; font-size:0.8rem; background:rgba(16,185,129,0.15); padding:3px 8px; border-radius:12px;">🟢 정상 활동 중</span>`;
+                            
+                            const actionBtn = t.is_suspended
+                                ? `<button onclick="unsuspendTutor(${t.id})" class="btn" style="padding:4px 10px; font-size:0.75rem; background:#3b82f6; font-weight:700;">🔓 활동 재개</button>`
+                                : `<button onclick="suspendTutor(${t.id})" class="btn" style="padding:4px 10px; font-size:0.75rem; background:#ef4444; font-weight:700;">🚫 강제 활동정지</button>`;
+
+                            div.innerHTML = `
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <span style="font-weight: 700; color: #f8fafc;">${t.name} 선생님</span>
+                                        <span style="font-size: 0.82rem; color: #94a3b8; margin-left: 6px;">(${t.university} ${t.major} ${t.admission_year}학번)</span>
+                                        <span style="font-size: 0.78rem; color: #6366f1; margin-left: 8px;">📞 ${t.phone}</span>
+                                        <span style="margin-left: 10px;">${statusTag}</span>
+                                    </div>
+                                    <div>${actionBtn}</div>
+                                </div>
+                            `;
+                            atFeed.appendChild(div);
                         });
                     }
                 }
@@ -548,6 +593,45 @@
             } catch (e) {
                 console.error(e);
                 alert("승인 처리 중 오류가 발생했습니다.");
+            }
+        }
+
+        async function suspendTutor(tutorId) {
+            const reason = prompt("해당 과외선생님의 활동정지 사유를 입력하세요:", "학생 불만 접수 및 수업 불성실");
+            if (reason === null) return;
+            try {
+                const res = await fetch(`/api/admin/tutors/${tutorId}/suspend`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ reason: reason.trim() || "원장 직권 활동정지" })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.detail || "활동정지 처리 실패");
+                    return;
+                }
+                alert(data.message || "🚫 과외선생님이 활동정지 처리되었습니다.");
+                fetchDashboardData();
+            } catch (e) {
+                console.error(e);
+                alert("활동정지 처리 중 오류 발생");
+            }
+        }
+
+        async function unsuspendTutor(tutorId) {
+            if (!confirm("해당 과외선생님의 활동정지를 해제하고 매칭 목록에 다시 노출하시겠습니까?")) return;
+            try {
+                const res = await fetch(`/api/admin/tutors/${tutorId}/unsuspend`, { method: "POST" });
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.detail || "해제 실패");
+                    return;
+                }
+                alert(data.message || "🔓 활동정지가 해제되었습니다.");
+                fetchDashboardData();
+            } catch (e) {
+                console.error(e);
+                alert("해제 처리 중 오류 발생");
             }
         }
 
