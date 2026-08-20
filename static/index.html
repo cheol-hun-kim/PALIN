@@ -647,22 +647,24 @@
                             <span class="material-symbols-rounded" style="color: #6366f1">download</span>
                             평가원/교육청 기출 & 수험자료실
                         </div>
-                        <div style="font-size:0.78rem; color:var(--text-secondary); margin-bottom: 12px;">원장님이 엄선한 기출문제와 핵심 해설 자료를 자유롭게 다운로드하세요.</div>
+                        <div style="font-size:0.78rem; color:var(--text-secondary); margin-bottom: 14px;">원장님이 엄선한 기출문제와 핵심 해설 자료를 자유롭게 다운로드하세요.</div>
                         
-                        <!-- 🎯 화면 넘침 없는 깔끔한 과목 선택 셀렉터 & 칩 바 -->
-                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
-                            <div style="flex: 1;">
-                                <select id="exam-subject-select" onchange="onExamSubjectSelectChange(this.value)" class="form-input" style="width: 100%; padding: 10px 14px; border-radius: 10px; font-weight: 700; font-size: 0.88rem; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(99, 102, 241, 0.3); color: white; cursor: pointer;">
-                                    <option value="전체" style="background:#1e293b;" selected>📚 전체 과목 자료 보기</option>
-                                    <option value="국어" style="background:#1e293b;">📖 국어 영역</option>
-                                    <option value="수학" style="background:#1e293b;">📐 수학 영역</option>
-                                    <option value="영어" style="background:#1e293b;">🔤 영어 영역</option>
-                                    <option value="탐구" style="background:#1e293b;">🔬 탐구 영역 (사탐/과탐)</option>
-                                    <option value="논술" style="background:#1e293b;">✍️ 논술 (수리/인문/약술형)</option>
-                                    <option value="경찰·사관" style="background:#1e293b;">🎖️ 경찰대 · 사관학교 1차</option>
-                                    <option value="기타" style="background:#1e293b;">📄 기타 수험 자료</option>
-                                </select>
-                            </div>
+                        <!-- 🎯 관리자 화면과 동일한 과목 선택 드롭다운 -->
+                        <div style="margin-bottom: 14px;">
+                            <label style="display: flex; align-items: center; gap: 4px; font-size: 0.82rem; font-weight: 700; color: #a78bfa; margin-bottom: 6px;">
+                                <span class="material-symbols-rounded" style="font-size: 1.05rem;">tune</span>
+                                과목 카테고리 선택
+                            </label>
+                            <select id="exam-subject-select" onchange="onExamSubjectSelectChange(this.value)" class="form-input" style="width: 100%; padding: 12px 14px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; background: rgba(18, 20, 29, 0.9); border: 1.5px solid rgba(99, 102, 241, 0.4); color: #ffffff; cursor: pointer; box-sizing: border-box;">
+                                <option value="전체" style="background:#1e293b; color:#ffffff;" selected>📚 전체 과목 자료 보기</option>
+                                <option value="국어" style="background:#1e293b; color:#ffffff;">📖 국어 영역</option>
+                                <option value="수학" style="background:#1e293b; color:#ffffff;">📐 수학 영역</option>
+                                <option value="영어" style="background:#1e293b; color:#ffffff;">🔤 영어 영역</option>
+                                <option value="탐구" style="background:#1e293b; color:#ffffff;">🔬 탐구 영역 (사탐/과탐)</option>
+                                <option value="논술" style="background:#1e293b; color:#ffffff;">✍️ 논술 (수리/인문/약술형)</option>
+                                <option value="경찰·사관" style="background:#1e293b; color:#ffffff;">🎖️ 경찰대 · 사관학교 1차</option>
+                                <option value="기타" style="background:#1e293b; color:#ffffff;">📄 기타 수험 자료</option>
+                            </select>
                         </div>
 
                         <!-- 기출문제 목록 컨테이너 -->
