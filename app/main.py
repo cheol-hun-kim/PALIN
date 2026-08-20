@@ -13,32 +13,34 @@ from app import models, schemas, ai, predict
 
 app = FastAPI(title="PASS-MATE API")
 
-from sqlalchemy import text
+from sqlalchemy import text, inspect
 def init_db_schema():
     models.Base.metadata.create_all(bind=engine)
     with engine.connect() as conn:
         try:
-            columns = [row[1] for row in conn.execute(text("PRAGMA table_info(students)")).fetchall()]
-            if columns:
-                if "wake_target_time" not in columns:
-                    conn.execute(text("ALTER TABLE students ADD COLUMN wake_target_time VARCHAR DEFAULT '06:30'"))
-                if "sleep_target_time" not in columns:
-                    conn.execute(text("ALTER TABLE students ADD COLUMN sleep_target_time VARCHAR DEFAULT '23:30'"))
-                if "is_banned" not in columns:
-                    conn.execute(text("ALTER TABLE students ADD COLUMN is_banned BOOLEAN DEFAULT 0"))
-                if "ban_reason" not in columns:
-                    conn.execute(text("ALTER TABLE students ADD COLUMN ban_reason VARCHAR"))
-                if "dday_date" not in columns:
-                    conn.execute(text("ALTER TABLE students ADD COLUMN dday_date VARCHAR DEFAULT '2026-11-19'"))
-                if "dday_title" not in columns:
-                    conn.execute(text("ALTER TABLE students ADD COLUMN dday_title VARCHAR DEFAULT '2027 수능'"))
-                if "streak_days" not in columns:
-                    conn.execute(text("ALTER TABLE students ADD COLUMN streak_days INTEGER DEFAULT 0"))
-                if "max_streak_days" not in columns:
-                    conn.execute(text("ALTER TABLE students ADD COLUMN max_streak_days INTEGER DEFAULT 0"))
-                if "medical_symbol" not in columns:
-                    conn.execute(text("ALTER TABLE students ADD COLUMN medical_symbol VARCHAR DEFAULT 'GENERAL'"))
-                conn.commit()
+            # SQLite일 때만 PRAGMA 실행 (PostgreSQL은 models.Base.metadata.create_all로 완벽 생성)
+            if engine.dialect.name == "sqlite":
+                columns = [row[1] for row in conn.execute(text("PRAGMA table_info(students)")).fetchall()]
+                if columns:
+                    if "wake_target_time" not in columns:
+                        conn.execute(text("ALTER TABLE students ADD COLUMN wake_target_time VARCHAR DEFAULT '06:30'"))
+                    if "sleep_target_time" not in columns:
+                        conn.execute(text("ALTER TABLE students ADD COLUMN sleep_target_time VARCHAR DEFAULT '23:30'"))
+                    if "is_banned" not in columns:
+                        conn.execute(text("ALTER TABLE students ADD COLUMN is_banned BOOLEAN DEFAULT 0"))
+                    if "ban_reason" not in columns:
+                        conn.execute(text("ALTER TABLE students ADD COLUMN ban_reason VARCHAR"))
+                    if "dday_date" not in columns:
+                        conn.execute(text("ALTER TABLE students ADD COLUMN dday_date VARCHAR DEFAULT '2026-11-19'"))
+                    if "dday_title" not in columns:
+                        conn.execute(text("ALTER TABLE students ADD COLUMN dday_title VARCHAR DEFAULT '2027 수능'"))
+                    if "streak_days" not in columns:
+                        conn.execute(text("ALTER TABLE students ADD COLUMN streak_days INTEGER DEFAULT 0"))
+                    if "max_streak_days" not in columns:
+                        conn.execute(text("ALTER TABLE students ADD COLUMN max_streak_days INTEGER DEFAULT 0"))
+                    if "medical_symbol" not in columns:
+                        conn.execute(text("ALTER TABLE students ADD COLUMN medical_symbol VARCHAR DEFAULT 'GENERAL'"))
+                    conn.commit()
         except Exception as e:
             print("DB Schema Migration Warning:", e)
 
@@ -111,9 +113,11 @@ class LoginPayload(BaseModel):
 
 @app.post("/api/login", response_model=schemas.StudentResponse)
 def login_student(payload: LoginPayload, db: Session = Depends(get_db)):
-    student = db.query(models.Student).filter(models.Student.email == payload.email).first()
+    clean_email = payload.email.strip().lower()
+    from sqlalchemy import func
+    student = db.query(models.Student).filter(func.lower(models.Student.email) == clean_email).first()
     if not student:
-        raise HTTPException(status_code=404, detail="학생 정보를 찾을 수 없습니다.")
+        raise HTTPException(status_code=404, detail="학생 정보를 찾을 수 없습니다. (가입된 이메일을 확인하시거나 회원가입을 진행해 주세요.)")
     if student.is_banned:
         raise HTTPException(status_code=403, detail=f"원장님에 의해 이용이 정지/퇴거된 계정입니다. (사유: {student.ban_reason or '학원 규칙 위반'})")
     return student
