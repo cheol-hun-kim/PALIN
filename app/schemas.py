@@ -40,17 +40,17 @@ class StudentCreate(BaseModel):
 class StudentResponse(BaseModel):
     id: int
     email: str
-    name: str
-    phone: str
-    grade: int
-    region: str
-    high_school: str
-    target_univ: str
-    baseline_univ: str
+    name: Optional[str] = "학생"
+    phone: Optional[str] = "-"
+    grade: Optional[int] = 0
+    region: Optional[str] = "-"
+    high_school: Optional[str] = "-"
+    target_univ: Optional[str] = "-"
+    baseline_univ: Optional[str] = "-"
     wake_target_time: Optional[str] = "06:30"
     sleep_target_time: Optional[str] = "23:30"
-    current_points: int
-    parent_id: int
+    current_points: Optional[int] = 100
+    parent_id: Optional[int] = None
     
     # PALIN OS 필드
     league_tier: Optional[str] = "BRONZE"
