@@ -762,10 +762,21 @@ function switchRole(role) {
         
         // 내 선생님 프로필 정보 바인딩
         if (currentStudent && currentStudent.tutor_profile) {
-            document.getElementById("tutor-my-univ-badge").innerText = currentStudent.tutor_profile.univ_emblem;
-            document.getElementById("tutor-my-school-badge").innerText = currentStudent.tutor_profile.high_school_emblem;
-            document.getElementById("edit-tutor-bio").value = currentStudent.tutor_profile.bio;
-            document.getElementById("edit-tutor-link").value = currentStudent.tutor_profile.contact_link;
+            const tp = currentStudent.tutor_profile;
+            document.getElementById("tutor-my-univ-badge").innerText = tp.univ_emblem || `🎓 ${tp.university}`;
+            document.getElementById("tutor-my-school-badge").innerText = tp.high_school_emblem || `🏫 ${tp.high_school_type || '출신고'}`;
+            document.getElementById("edit-tutor-bio").value = tp.bio || "";
+            document.getElementById("edit-tutor-link").value = tp.contact_link || "";
+
+            // 🎯 원장 승인 상태 실시간 반영
+            const statusBadge = document.getElementById("tutor-verify-status-badge");
+            if (statusBadge) {
+                if (tp.is_verified) {
+                    statusBadge.innerHTML = `<span style="color: #10b981; font-weight: 800; background: rgba(16, 185, 129, 0.15); padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3);">✅ 인증 승인완료</span>`;
+                } else {
+                    statusBadge.innerHTML = `<span style="color: #f59e0b; font-weight: 800; background: rgba(245, 158, 11, 0.15); padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.3);">⏳ 원장 승인심사중...</span>`;
+                }
+            }
         }
     } else {
         document.getElementById("tutor-only-views").style.display = "none";
