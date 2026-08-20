@@ -103,7 +103,7 @@
             </div>
             <div style="font-size: 1.3rem; font-weight: 800; color: #f8fafc; margin-bottom: 8px;">원장님 전용 관리자 인증</div>
             <div style="margin: 0;">
-                <input type="password" id="admin-login-pin" placeholder="비밀번호 4자리 입력" autocomplete="off" value="" autofocus style="width: 100%; padding: 14px; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 12px; color: white; font-size: 1.2rem; text-align: center; letter-spacing: 6px; box-sizing: border-box; margin-bottom: 14px;" onkeydown="if(event.key==='Enter') handleAdminLogin();">
+                <input type="text" id="admin-login-pin" placeholder="비밀번호 4자리 입력" autocomplete="off" value="" autofocus style="width: 100%; padding: 14px; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 12px; color: white; font-size: 1.2rem; text-align: center; letter-spacing: 6px; box-sizing: border-box; margin-bottom: 14px; -webkit-text-security: disc;" onkeydown="if(event.key==='Enter') handleAdminLogin();">
                 <button type="button" onclick="handleAdminLogin()" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);">🔐 관리자 로그인</button>
             </div>
             
@@ -545,6 +545,9 @@
                                 mFeed.appendChild(div);
                             });
                         }
+                    }
+                } catch (e) { console.warn("Mission feed error:", e); }
+
                 // 7. 공부 피드
                 try {
                     const sFeed = document.getElementById("study-feed");
