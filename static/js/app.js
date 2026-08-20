@@ -737,6 +737,8 @@ function switchSubTabPage2(subTab) {
         if (typeof updateUnivDisplay === 'function') {
             updateUnivDisplay();
         }
+    } else if (subTab === "archive") {
+        loadExamMaterials();
     }
 }
 
@@ -2143,5 +2145,79 @@ async function submitStudentFeedback() {
     } catch(e) {
         console.error(e);
         alert("서버 연결 실패");
+    }
+}
+
+// === 📚 기출문제 및 수험자료실 프론트엔드 연동 ===
+let currentExamSubject = "전체";
+
+async function filterExamMaterials(subject, btnEl) {
+    currentExamSubject = subject;
+    const bar = document.getElementById("exam-subject-filter-bar");
+    if (bar) {
+        bar.querySelectorAll("button").forEach(b => {
+            b.className = "btn btn-secondary";
+            b.style.background = "";
+        });
+        if (btnEl) {
+            btnEl.className = "btn";
+            btnEl.style.background = "#6366f1";
+        }
+    }
+    loadExamMaterials(subject);
+}
+
+async function loadExamMaterials(subject = currentExamSubject) {
+    const container = document.getElementById("exam-materials-container");
+    if (!container) return;
+    
+    try {
+        const url = subject && subject !== "전체" ? `/api/materials?subject=${encodeURIComponent(subject)}` : "/api/materials";
+        const res = await fetch(url);
+        if (!res.ok) {
+            container.innerHTML = `<div style="text-align: center; color: var(--text-secondary); padding: 20px;">자료를 불러오지 못했습니다.</div>`;
+            return;
+        }
+        const materials = await res.json();
+        if (materials.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; color: var(--text-secondary); padding: 30px 10px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px dashed rgba(255,255,255,0.08);">
+                    <span class="material-symbols-rounded" style="font-size: 2rem; color: #64748b; margin-bottom: 6px;">folder_open</span>
+                    <div style="font-size: 0.85rem; font-weight: 600;">등록된 [${subject}] 자료가 없습니다.</div>
+                    <div style="font-size: 0.72rem; margin-top: 4px;">원장님이 새로운 기출자료를 업로드하면 실시간 노출됩니다.</div>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = "";
+        materials.forEach(m => {
+            const subjectBadges = {
+                "국어": { bg: "rgba(239, 68, 68, 0.15)", color: "#f87171", icon: "📖" },
+                "수학": { bg: "rgba(99, 102, 241, 0.15)", color: "#818cf8", icon: "📐" },
+                "영어": { bg: "rgba(16, 185, 129, 0.15)", color: "#34d399", icon: "🔤" },
+                "탐구": { bg: "rgba(245, 158, 11, 0.15)", color: "#fbbf24", icon: "🔬" }
+            };
+            const badgeInfo = subjectBadges[m.subject] || { bg: "rgba(255,255,255,0.1)", color: "#e2e8f0", icon: "📄" };
+            
+            container.innerHTML += `
+                <div style="background: rgba(255,255,255,0.02); padding: 12px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                            <span style="background: ${badgeInfo.bg}; color: ${badgeInfo.color}; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 800;">${badgeInfo.icon} ${m.subject}</span>
+                            ${m.year ? `<span style="font-size: 0.7rem; color: #94a3b8;">${m.year}년도</span>` : ''}
+                        </div>
+                        <div style="font-size: 0.88rem; font-weight: 700; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.title}</div>
+                        ${m.description ? `<div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.description}</div>` : ''}
+                    </div>
+                    <a href="${m.file_url}" target="_blank" download class="btn" style="padding: 7px 14px; font-size: 0.78rem; font-weight: 700; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; text-decoration: none; border-radius: 8px; white-space: nowrap; flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25);">
+                        <span>📥</span> 다운로드
+                    </a>
+                </div>
+            `;
+        });
+    } catch (e) {
+        console.error("Exam materials load error:", e);
+        container.innerHTML = `<div style="text-align: center; color: #ef4444; padding: 14px; font-size: 0.8rem;">자료 로딩 오류 발생</div>`;
     }
 }
