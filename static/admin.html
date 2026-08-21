@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PALIN OS - 원장 전용 중앙 관제 대시보드</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=41.0">
+    <link rel="stylesheet" href="css/style.css?v=42.0">
     <style>
         body {
             background-color: #06070a;
@@ -385,9 +385,16 @@
     </div>
 
     <!-- 📑 2. AI 심층 대입 전략 리포트 발급 실시간 검토실 -->
-    <div class="section-title" style="color: #818cf8;">
-        <span class="material-symbols-rounded" style="color: #6366f1;">description</span>
-        📑 발급된 3-Tier 대입 전략 백서 실시간 검토실 (학생 전달본 열람/다운로드)
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+        <div class="section-title" style="color: #818cf8; margin: 0;">
+            <span class="material-symbols-rounded" style="color: #6366f1;">description</span>
+            📑 발급된 3-Tier 대입 전략 백서 실시간 검토실 (학생 전달본 열람/다운로드)
+        </div>
+        <div style="display: flex; gap: 6px;">
+            <button onclick="previewSampleReport(1)" class="btn" style="padding: 5px 10px; font-size: 0.75rem; background: #334155; font-weight: 700;">🥉 Tier 1 샘플 보기</button>
+            <button onclick="previewSampleReport(2)" class="btn" style="padding: 5px 10px; font-size: 0.75rem; background: #1e3a8a; font-weight: 700;">🥈 Tier 2 샘플 보기</button>
+            <button onclick="previewSampleReport(3)" class="btn" style="padding: 5px 10px; font-size: 0.75rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); font-weight: 800;">🥇 Tier 3 올인원 샘플 보기</button>
+        </div>
     </div>
     <div style="overflow-x: auto; margin-bottom: 24px;">
         <table class="data-table">
@@ -985,9 +992,140 @@
                     return;
                 }
                 fetchDashboardData();
-            } catch (e) {
-                console.error("updateFeedbackStatus error:", e);
+        // ==========================================
+        // 🧪 Tier 1 / 2 / 3 샘플 리포트 즉시 시뮬레이션 열람
+        // ==========================================
+        function previewSampleReport(tier) {
+            const studentName = "김철훈 (예시 수험생)";
+            const targetUniv = "서울대학교 의예과";
+            const baselineUniv = "연세대학교 화공생명공학부";
+            
+            let sampleData = {};
+            if (tier === 1) {
+                sampleData = {
+                    summary_headline: "정시 전형 기준 상위 0.15% 안정권 진입을 위한 킬러 문항 집중 돌파 전략",
+                    admission_track_recommendation: "수능 100% 정시 전형 (100% 집중 권고)",
+                    target_univ_diagnosis: "서울대 의예과 예상 합격 누적백분위 0.08% 내외 대비, 현재 0.15% 위치로 과탐 1문항 극복 시 최종 합격 유력.",
+                    baseline_univ_diagnosis: "연세대 화공생명공학부 기준 안정 지원선(누백 0.65%) 대비 압도적 우위 확보.",
+                    chapters: [
+                        { title: "정시 전형 기준 현재 백분위 지원 가능선 정밀 분석", content: "수능 100% 정시전형 기준 현재 국어 99, 수학 98, 탐구 96의 백분위 환산점수는 의학계열 가/나군 지원선에 완전히 안착해 있습니다. 다만 서울대 의대 특유의 과탐 변환표준점수 반영 구조 상 물리/화학 킬러 3문항의 원점수 득점이 합격의 최종 분수령입니다." },
+                        { title: "목표 대학(서울대 의예과) 합격을 위한 킬러 취약 영역 극복 수칙", content: "수학 미적분 22번/30번 킬러 문항에 대한 시간 배분을 15분 이내로 단축하고, 비문학 과학/기술 지문에서 오답률을 0%로 통제하는 3단계 피드백 프로토콜을 즉시 가동하십시오." },
+                        { title: "정시 지원 시 수험생들이 가장 많이 범하는 치명적 착오 3가지", content: "1. 9월 모평 성적을 본 수능 점수로 맹신하는 태도\n2. 특정 과목 100점에 집착하여 탐구 과목의 데일리 밸런스를 잃는 것\n3. 수능 1주일 전 무리한 고난도 신유형 풀이로 멘탈 리듬을 붕괴시키는 행위" }
+                    ],
+                    mentor_closing: "수능은 지식의 시험이 아니라 행동 통제의 시험입니다. 하루 6시간의 순공과 06:30 기상 루틴을 완수하십시오."
+                };
+            } else if (tier === 2) {
+                sampleData = {
+                    summary_headline: "수시(학종/논술) 및 정시 3대 전형 풀스캔 비교 분석 및 최적 포트폴리오 산출",
+                    admission_track_recommendation: "정시 70% + 수리논술 20% + 학생부종합 10% 황금 비율",
+                    target_univ_diagnosis: "서울대 의예과(정시 소신/적정) 및 가톨릭대/성균관대 의예과(논술 상향 지원) 추천.",
+                    baseline_univ_diagnosis: "연세대 화공생명공학부 정시 100% 안정 합격 방어선 구축.",
+                    chapters: [
+                        { title: "3대 전형(학종/논술/정시) 상대적 유불리 갭 분석", content: "내신 1.4등급 대비 수능 모의고사 백분위(상위 0.15%)가 월등히 우수하므로, 일반 수시 학생부교과 전형에 올인하는 것은 심각한 납치 리스크를 유발합니다. 정시 수능 중심 전략을 70% 이상 기본축으로 설정해야 합니다." },
+                        { title: "추천 전형 포트폴리오 및 수시 6장 카드 조합 가이드라인", content: "수시 6장은 상향 4장(메이저 의대 수리논술) + 적정 2장(학종 심층면접)으로 설계하고, 납치 위험이 있는 대학은 원서 작성에서 전면 배제합니다." },
+                        { title: "목표 대학 및 마지노선 대학 3개년 실전 입결 컷 비교", content: "최근 3개년 서울대 의예과 정시 최종 등록자 70% 컷은 백분위 99.25점입니다. 탐구 1등급 컷 변환표준점수 산출 시 영어 1등급 방어가 필수적입니다." },
+                        { title: "정시 가/나/다군 실전 원서 배치 시뮬레이션", content: "가군: 서울대 의예과(적정/소신), 나군: 연세대 의예과(소신), 다군: 순천향대 의예과(안정)의 3단 콤보 구성을 추천합니다." }
+                    ],
+                    mentor_closing: "기회는 준비된 데이터 위에만 존재합니다. 냉철한 포트폴리오로 승리하십시오."
+                };
+            } else {
+                sampleData = {
+                    summary_headline: "PALIN 대입 전략 올인원 마스터 백서 (3대 전형 + 168시간 시간표 + 만점 비법 + 멘탈 통제)",
+                    admission_track_recommendation: "정시 75% + 수리논술 25% (학종 배제, 수능 극대화)",
+                    target_univ_diagnosis: "서울대학교 의예과 누백 0.08% 타겟 돌파 가능 (과탐Ⅱ 가산점 및 미적분 만점 프로토콜 가동)",
+                    baseline_univ_diagnosis: "연세대학교 화공생명공학부 / 고려대학교 바이오의공학부 100% 안정 방어선 확정",
+                    chapters: [
+                        { title: "제 1장. 3대 전형 심층 진단 및 최적 지원 로드맵 확정", content: "현재 수험생의 모의고사 성적 분포는 정시 최상위권 의학계열 궤적에 완벽히 진입해 있습니다. 수시 교과 카드는 전면 폐기하고, 논술 6장 카드 중 수능 최저학력기준 4합 5를 요구하는 메이저 의대 논술 4장과 카톨릭대 의대 1장을 배치합니다." },
+                        { title: "제 2장. 목표 대학(서울대 의예과) 학과별 환산점수 및 킬러 반영비율 정복", content: "서울대는 정시에서 국어 33.3%, 수학 40%, 탐구 26.7%를 반영합니다. 수학 1점의 가중치가 국어의 1.2배에 달하므로, 킬러 문항 1개를 더 맞히는 것이 국어 2개 문항보다 환산 점수에서 압도적 우위를 점합니다." },
+                        { title: "제 3장. 마지노선 대학 방어선 구축 및 리스크 헷지 전략", content: "수능 당일 만에 하나의 컨디션 난조로 국어 영역에서 2등급 컷이 발생하더라도, 수학/과탐 만점 방어로 연세대 공과대학 및 한양대 의예과를 방어선으로 완벽 구축합니다." },
+                        { title: "제 4장. 주간 168시간 분 단위 순공 시간표 마스터 플랜", content: "주 168시간 중 평일 6시간(야자 3시간 + 심야 3시간) = 30시간, 주말 12시간 몰입 = 24시간, 주당 총 순공 54시간을 고정 확보합니다. 딴짓과 스마트폰은 PALIN OS 타이머로 100% 차단합니다." },
+                        { title: "제 5장. 과목별 · 시험별 만점 극대화를 위한 국·수·영·탐 킬러 정복 학습 프로토콜", content: "국어는 기출 10개년 지문의 논리 구조도를 3회독 역설계하고, 수학은 사설 N제(드릴, 킬러코드) 하루 15문항을 풀이 후 3회 누적 오답노트를 작성합니다. 영어는 EBS 연계 구문 300개를 매일 20분씩 암기합니다." },
+                        { title: "제 6장. 수면 리듬(06:30 기상) 및 스마트폰 통제를 통한 수험 멘탈 관리", content: "수능 시험은 아침 08:40에 시작됩니다. 뇌가 최고 활성 상태에 도달하려면 최소 기상 후 2시간이 필요하므로, 매일 06:30 기상 미션을 엄격히 준수하십시오." }
+                    ],
+                    timetable_168h: {
+                        weekday: "06:30 기상 ➔ 07:30 등교 ➔ 17:00 방과후 ➔ 18:00~21:00 야자(국어/수학) ➔ 21:30~00:30 독서실(과탐/오답) ➔ 01:00 취침",
+                        weekend: "06:30 기상 ➔ 08:00~12:00 오전 실전 모의고사 ➔ 13:00~18:00 심층 킬러 N제 ➔ 19:00~23:30 취약점 클리닉 (총 12시간)",
+                        ratios: "수학 40% | 과탐 30% | 국어 20% | 영어 10%"
+                    },
+                    subject_strategies: {
+                        korean: "비문학 독서 지문 1일 3지문 구조도 요약, 문학 고전시가 완벽 암기",
+                        math: "미적분 킬러 4점 문항 발상 노트 작성 및 1일 15문항 3회 누적 풀이",
+                        english: "빈칸추론 31~34번 절대평가 1등급 방어 독해 훈련",
+                        tamgu: "과탐Ⅰ 개념 100% 빈틈 메우기 및 킬러 타임어택 25분 컷 완성"
+                    },
+                    mentor_closing: "원장 김철훈이 보증합니다. 이 168시간 시간표와 만점 프로토콜을 흔들림 없이 90일간 밀어붙인다면 합격증은 당신의 것입니다."
+                };
             }
+
+            document.getElementById("admin-modal-report-title").innerText = `📊 [Tier ${tier} 공식 샘플] ${studentName} 대입 전략 백서`;
+            document.getElementById("admin-modal-report-sub").innerText = `시뮬레이션 샘플 | 목표: ${targetUniv} | 마지노선: ${baselineUniv}`;
+
+            const body = document.getElementById("admin-modal-report-body");
+            let html = `
+                <div style="background: rgba(99, 102, 241, 0.12); border-left: 4px solid #6366f1; padding: 14px; border-radius: 8px; margin-bottom: 16px;">
+                    <div style="font-size: 1.05rem; font-weight: 800; color: #a5b4fc;">📌 총괄 진단: ${sampleData.summary_headline}</div>
+                    <div style="font-size: 0.85rem; color: #cbd5e1; margin-top: 6px;">전형 추천 비율: <strong>${sampleData.admission_track_recommendation}</strong></div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+                    <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                        <div style="font-weight: 700; color: #60a5fa; margin-bottom: 4px;">🎯 목표 대학 정밀 판정</div>
+                        <div style="font-size: 0.82rem; color: #e2e8f0;">${sampleData.target_univ_diagnosis}</div>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                        <div style="font-weight: 700; color: #f87171; margin-bottom: 4px;">🛡️ 마지노선 방어선 진단</div>
+                        <div style="font-size: 0.82rem; color: #e2e8f0;">${sampleData.baseline_univ_diagnosis}</div>
+                    </div>
+                </div>
+            `;
+
+            if (sampleData.chapters && sampleData.chapters.length > 0) {
+                html += `<div style="font-size: 1rem; font-weight: 800; color: #ffffff; margin-bottom: 10px;">📖 챕터별 심층 전략 프로토콜 (${sampleData.chapters.length}개 챕터)</div>`;
+                sampleData.chapters.forEach((chap, idx) => {
+                    html += `
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                            <div style="font-weight: 700; color: #fcd34d; margin-bottom: 6px;">제 ${idx + 1}장. ${chap.title}</div>
+                            <div style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.6; white-space: pre-wrap;">${chap.content}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            if (sampleData.timetable_168h) {
+                html += `
+                    <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); padding: 14px; border-radius: 10px; margin-bottom: 12px;">
+                        <div style="font-weight: 800; color: #34d399; margin-bottom: 6px; font-size: 0.95rem;">⏰ [🥇 Tier 3 독점] 주간 168시간 시간표</div>
+                        <div style="font-size: 0.82rem; color: #e2e8f0; margin-bottom: 4px;">📅 평일: ${sampleData.timetable_168h.weekday}</div>
+                        <div style="font-size: 0.82rem; color: #e2e8f0; margin-bottom: 4px;">🔥 주말: ${sampleData.timetable_168h.weekend}</div>
+                        <div style="font-size: 0.8rem; color: #a7f3d0; font-weight: 700;">과목 배분: ${sampleData.timetable_168h.ratios}</div>
+                    </div>
+                `;
+            }
+
+            if (sampleData.subject_strategies) {
+                html += `
+                    <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); padding: 14px; border-radius: 10px; margin-bottom: 12px;">
+                        <div style="font-weight: 800; color: #fbbf24; margin-bottom: 6px; font-size: 0.95rem;">📖 [🥇 Tier 3 독점] 과목별 · 시험별 만점 극대화 비법 지침</div>
+                        <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.6;">
+                            • 국어: ${sampleData.subject_strategies.korean}<br>
+                            • 수학: ${sampleData.subject_strategies.math}<br>
+                            • 영어: ${sampleData.subject_strategies.english}<br>
+                            • 탐구: ${sampleData.subject_strategies.tamgu}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (sampleData.mentor_closing) {
+                html += `
+                    <div style="font-size: 0.85rem; font-style: italic; color: #fca5a5; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); padding: 12px 16px; border-radius: 8px; margin-top: 14px;">
+                        "${sampleData.mentor_closing}"
+                    </div>
+                `;
+            }
+
+            body.innerHTML = html;
+            document.getElementById("admin-report-view-modal").style.display = "flex";
         }
 
         async function checkGeminiStatus() {
