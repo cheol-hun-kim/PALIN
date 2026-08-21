@@ -40,6 +40,16 @@ def init_db_schema():
                         conn.execute(text("ALTER TABLE students ADD COLUMN max_streak_days INTEGER DEFAULT 0"))
                     if "medical_symbol" not in columns:
                         conn.execute(text("ALTER TABLE students ADD COLUMN medical_symbol VARCHAR DEFAULT 'GENERAL'"))
+                    if "paid_cash" not in columns:
+                        conn.execute(text("ALTER TABLE students ADD COLUMN paid_cash INTEGER DEFAULT 0"))
+                    if "free_report_tickets" not in columns:
+                        conn.execute(text("ALTER TABLE students ADD COLUMN free_report_tickets INTEGER DEFAULT 0"))
+                    if "referral_code" not in columns:
+                        conn.execute(text("ALTER TABLE students ADD COLUMN referral_code VARCHAR"))
+                    if "referred_by" not in columns:
+                        conn.execute(text("ALTER TABLE students ADD COLUMN referred_by VARCHAR"))
+                    if "has_unlimited_chat" not in columns:
+                        conn.execute(text("ALTER TABLE students ADD COLUMN has_unlimited_chat BOOLEAN DEFAULT 0"))
                     conn.commit()
 
                 # TutorProfile 컬럼 검사
@@ -73,6 +83,11 @@ def init_db_schema():
                 conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS streak_days INTEGER DEFAULT 0"))
                 conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS max_streak_days INTEGER DEFAULT 0"))
                 conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS medical_symbol VARCHAR DEFAULT 'GENERAL'"))
+                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS paid_cash INTEGER DEFAULT 0"))
+                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS free_report_tickets INTEGER DEFAULT 0"))
+                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS referral_code VARCHAR"))
+                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS referred_by VARCHAR"))
+                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS has_unlimited_chat BOOLEAN DEFAULT FALSE"))
                 conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS is_suspended BOOLEAN DEFAULT FALSE"))
                 conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS suspend_reason VARCHAR"))
                 conn.execute(text("ALTER TABLE qa_posts ADD COLUMN IF NOT EXISTS is_anonymous BOOLEAN DEFAULT FALSE"))
@@ -92,15 +107,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-SMS_LOG_FILE = "sms_log.txt"
+from app.sms import send_sms, check_aligo_remain, save_sms_settings, load_sms_settings
+
 def send_mock_sms(to_phone: str, message: str):
-    log_msg = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] TO: {to_phone} | MSG: {message}\n"
-    print(log_msg.strip())
-    try:
-        with open(SMS_LOG_FILE, "a", encoding="utf-8") as f:
-            f.write(log_msg)
-    except:
-        pass
+    send_sms(to_phone=to_phone, message=message, title="[PALIN OS 행동통제 알림]")
 
 # --- 1. User & Auth ---
 
@@ -132,18 +142,35 @@ def register_student(payload: schemas.StudentCreate, db: Session = Depends(get_d
         db.commit()
         db.refresh(parent)
         
+    initial_points = 100
+    referred_by_code = payload.referred_by.strip().upper() if payload.referred_by else None
+    
     student = models.Student(
         email=payload.email, name=payload.name, phone=payload.phone,
         grade=payload.grade, region=payload.region, high_school=payload.high_school,
         target_univ=payload.target_univ, baseline_univ=payload.baseline_univ,
-        current_points=100, parent_id=parent.id
+        current_points=initial_points, paid_cash=0, free_report_tickets=0,
+        referred_by=referred_by_code, parent_id=parent.id
     )
     db.add(student)
     db.commit()
     db.refresh(student)
     
-    db.add(models.PointHistory(student_id=student.id, amount=100, description="가입 축하 포인트"))
+    # 내 고유 친구초대 코드 발급 (예: PL-0101)
+    student.referral_code = f"PL-{student.id:04d}"
+    
+    # 추천인 보상 로직: 추천인에게 19,000원 리포트 무료권 1장 지급 & 가입자에게 500P 추가 지급!
+    if referred_by_code:
+        inviter = db.query(models.Student).filter(models.Student.referral_code == referred_by_code).first()
+        if inviter:
+            inviter.free_report_tickets = (inviter.free_report_tickets or 0) + 1
+            student.current_points += 500
+            db.add(models.PointHistory(student_id=student.id, amount=500, description=f"친구({inviter.name}) 초대 코드 웰컴 보너스"))
+            db.add(models.PointHistory(student_id=inviter.id, amount=0, description=f"친구({student.name}) 초대 성공: 19,000원 리포트 무료권 획득!"))
+            
+    db.add(models.PointHistory(student_id=student.id, amount=initial_points, description="가입 축하 기본 포인트"))
     db.commit()
+    db.refresh(student)
     return student
 
 class LoginPayload(BaseModel):
@@ -447,6 +474,265 @@ def run_prediction(payload: PredictPayload):
         return res
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# --- 💎 B2C 유료 캐시 & 심층 리포트 & 기상 룰렛 엔드포인트 ---
+
+class CashChargePayload(BaseModel):
+    student_id: int
+    amount: int  # 충전할 캐시 금액 (예: 10000, 30000, 50000)
+
+@app.post("/api/cash/charge")
+def charge_cash(payload: CashChargePayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+    
+    bonus = 0
+    if payload.amount >= 50000:
+        bonus = int(payload.amount * 0.2)  # 20% 보너스
+    elif payload.amount >= 30000:
+        bonus = int(payload.amount * 0.1)  # 10% 보너스
+        
+    total_granted = payload.amount + bonus
+    student.paid_cash = (student.paid_cash or 0) + total_granted
+    db.add(models.PointHistory(
+        student_id=student.id,
+        amount=0,
+        description=f"💎 PALIN 캐시 {payload.amount:,}원 충전 완료 (+보너스 {bonus:,} 캐시)"
+    ))
+    db.commit()
+    db.refresh(student)
+    return {
+        "status": "ok",
+        "paid_cash": student.paid_cash,
+        "message": f"💎 {total_granted:,} PALIN 캐시가 성공적으로 충전되었습니다!"
+    }
+
+class DeepReportPayload(BaseModel):
+    student_id: int
+    kor_pct: float
+    math_pct: float
+    eng_raw: int
+    tam1_pct: float
+    tam2_pct: float
+    hist_raw: int
+    gyeyeol: str = "이과"
+    math_type: str = "미적"
+    target_univ: str = ""
+    baseline_univ: str = ""
+    tier: int = 3
+    track_choice: str = "정시"
+
+@app.post("/api/ai/deep-report")
+def get_deep_report(payload: DeepReportPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+    
+    tier_costs = {1: 16900, 2: 29900, 3: 34900}
+    original_cost = tier_costs.get(payload.tier, 34900)
+    final_cost = original_cost
+    used_ticket = False
+
+    # 1. 무료권(19,000원 가치) 적용 로직
+    if student.free_report_tickets and student.free_report_tickets > 0:
+        if payload.tier == 1:
+            # Tier 1은 100% 무료
+            student.free_report_tickets -= 1
+            used_ticket = True
+            final_cost = 0
+            db.add(models.PointHistory(
+                student_id=student.id,
+                amount=0,
+                description="🎟️ 친구 초대 무료권으로 Tier 1 리포트 100% 무료 열람"
+            ))
+        else:
+            # Tier 2 또는 Tier 3는 19,000원 할인 적용
+            student.free_report_tickets -= 1
+            used_ticket = True
+            final_cost = max(0, original_cost - 19000)
+            db.add(models.PointHistory(
+                student_id=student.id,
+                amount=0,
+                description=f"🎟️ 친구 초대 무료권 적용 (-19,000원 할인 ➔ 차액 {final_cost:,} 캐시 결제)"
+            ))
+
+    # 2. 캐시 차감 (남은 금액이 있는 경우)
+    if final_cost > 0:
+        current_cash = student.paid_cash or 0
+        if current_cash < final_cost:
+            raise HTTPException(
+                status_code=402,
+                detail=f"💎 PALIN 캐시가 부족합니다. (보유: {current_cash:,} 캐시 / 필요: {final_cost:,} 캐시). 상단 캐시 충전 후 이용해 주세요."
+            )
+        student.paid_cash -= final_cost
+        db.add(models.PointHistory(
+            student_id=student.id,
+            amount=0,
+            description=f"💎 Tier {payload.tier} 대입 전략 백서 리포트 열람 ({final_cost:,} 캐시 차감)"
+        ))
+        
+    db.commit()
+    db.refresh(student)
+
+    # 3. AI 심층 리포트 생성
+    t_univ = payload.target_univ or student.target_univ or "서울대학교"
+    b_univ = payload.baseline_univ or student.baseline_univ or "연세대학교"
+    
+    report_data = ai.generate_deep_admission_report(
+        student_name=student.name or "수험생",
+        grade=student.grade or 3,
+        high_school=student.high_school or "일반고",
+        target_univ=t_univ,
+        baseline_univ=b_univ,
+        kor_pct=payload.kor_pct,
+        math_pct=payload.math_pct,
+        eng_raw=payload.eng_raw,
+        tam1_pct=payload.tam1_pct,
+        tam2_pct=payload.tam2_pct,
+        hist_raw=payload.hist_raw,
+        gyeyeol=payload.gyeyeol,
+        math_type=payload.math_type,
+        tier=payload.tier,
+        track_choice=payload.track_choice
+    )
+
+    return {
+        "status": "ok",
+        "tier": payload.tier,
+        "used_ticket": used_ticket,
+        "charged_cost": final_cost,
+        "remaining_cash": student.paid_cash or 0,
+        "remaining_tickets": student.free_report_tickets or 0,
+        "report": report_data
+    }
+
+class VIPConsultingPayload(BaseModel):
+    student_id: int
+    is_in_person: bool = False  # False: 전화통화 30분 (30만원), True: 대면 70분 (50만원)
+    preferred_phone: str
+    memo: str = ""
+
+@app.post("/api/consulting/vip-request")
+def request_vip_consulting(payload: VIPConsultingPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+
+    cost = 500000 if payload.is_in_person else 300000
+    consulting_type_str = "원장 집무실 1:1 대면 상담 (50분)" if payload.is_in_person else "김철훈 원장 1:1 유선 심층 전화 상담 (30~40분)"
+
+    current_cash = student.paid_cash or 0
+    if current_cash < cost:
+        raise HTTPException(
+            status_code=402,
+            detail=f"💎 VIP 컨설팅 신청을 위한 캐시가 부족합니다. (보유: {current_cash:,} 캐시 / 필요: {cost:,} 캐시). 캐시 충전소에서 충전 후 신청해 주세요."
+        )
+
+    student.paid_cash -= cost
+    db.add(models.PointHistory(
+        student_id=student.id,
+        amount=0,
+        description=f"👑 VIP {consulting_type_str} 신청 ({cost:,} 캐시 차감)"
+    ))
+
+    # 학부모 및 학생에게 확인 SMS 발송
+    p_phone = payload.preferred_phone or (student.parent.phone if student.parent else student.phone)
+    msg_to_parent = f"[PALIN OS] 김철훈 원장 {consulting_type_str} 신청이 정상 접수되었습니다. 원장이 직접 24시간 내 유선 연락드려 정밀 일정을 조율합니다."
+    sms.send_sms(p_phone, msg_to_parent, "[PALIN VIP]")
+
+    db.commit()
+    db.refresh(student)
+
+    return {
+        "status": "ok",
+        "message": f"👑 {consulting_type_str} 신청이 완료되었습니다! 김철훈 원장이 직접 생기부와 성적을 분석한 뒤 24시간 내 전화로 일정을 조율합니다.",
+        "cost": cost,
+        "remaining_cash": student.paid_cash or 0
+    }
+
+class WakeRoulettePayload(BaseModel):
+    student_id: int
+
+@app.post("/api/mission/wake-roulette")
+def spin_wake_roulette(payload: WakeRoulettePayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+    
+    # 🎲 가변 보상 룰렛 확률 분포: 10P(40%), 30P(30%), 50P(20%), 100P(8%), 500P(2%)
+    import random
+    rand_val = random.random()
+    if rand_val < 0.02:
+        reward = 500
+    elif rand_val < 0.10:
+        reward = 100
+    elif rand_val < 0.30:
+        reward = 50
+    elif rand_val < 0.60:
+        reward = 30
+    else:
+        reward = 10
+
+    student.current_points = (student.current_points or 0) + reward
+    db.add(models.PointHistory(
+        student_id=student.id,
+        amount=reward,
+        description=f"🌅 새벽 기상 룰렛 행운 상자 당첨 (+{reward}P)"
+    ))
+    db.commit()
+    db.refresh(student)
+    return {
+        "status": "ok",
+        "reward_points": reward,
+        "current_points": student.current_points,
+        "message": f"🎉 축하합니다! 기상 룰렛에서 {reward}P를 획득하셨습니다!"
+    }
+
+class TutorMatchRequestPayload(BaseModel):
+    student_id: int
+    tutor_id: int
+
+@app.post("/api/tutor/request-match")
+def request_tutor_match(payload: TutorMatchRequestPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+    
+    tutor = db.query(models.TutorProfile).filter(models.TutorProfile.id == payload.tutor_id).first()
+    if not tutor or not tutor.is_verified:
+        raise HTTPException(status_code=404, detail="승인된 과외선생님을 찾을 수 없습니다.")
+        
+    cost = 29000
+    current_cash = student.paid_cash or 0
+    if current_cash < cost:
+        raise HTTPException(
+            status_code=402,
+            detail=f"💎 PALIN 캐시가 부족합니다. (보유: {current_cash:,} 캐시 / 필요: {cost:,} 캐시). 상단 캐시 충전 후 이용해 주세요."
+        )
+        
+    student.paid_cash -= cost
+    db.add(models.PointHistory(
+        student_id=student.id,
+        amount=0,
+        description=f"🎓 {tutor.name} 선생님 1:1 과외 매칭 요청서 발송 ({cost:,} 캐시 차감)"
+    ))
+    db.commit()
+    db.refresh(student)
+    
+    # 학부모/학생 SMS 통지
+    send_mock_sms(
+        to_phone=student.phone,
+        message=f"[PALIN OS] {student.name} 학생이 {tutor.university} {tutor.name} 선생님과의 1:1 과외 매칭을 신청했습니다. 선생님 카카오톡: {tutor.contact_link}"
+    )
+    
+    return {
+        "status": "ok",
+        "remaining_cash": student.paid_cash,
+        "tutor_contact": tutor.contact_link,
+        "tutor_phone": tutor.phone,
+        "message": f"🎓 {tutor.name} 선생님과의 매칭 요청이 완료되었습니다! 아래 연락처로 바로 문의하세요."
+    }
 
 # --- 4. Community & Tutor ---
 
@@ -980,6 +1266,39 @@ def delete_exam_material(material_id: int, db: Session = Depends(get_db)):
     db.delete(mat)
     db.commit()
     return {"status": "ok", "message": "자료가 삭제되었습니다."}
+
+# --- 📱 관리자 SMS 설정 및 실시간 잔여량 / 테스트 발송 엔드포인트 ---
+
+class SMSSettingsPayload(BaseModel):
+    aligo_key: str
+    aligo_user_id: str
+    aligo_sender: str
+
+@app.get("/api/admin/sms/settings")
+def get_sms_settings():
+    settings = load_sms_settings()
+    remain_info = check_aligo_remain()
+    return {
+        "settings": settings,
+        "remain": remain_info
+    }
+
+@app.post("/api/admin/sms/settings")
+def update_sms_settings(payload: SMSSettingsPayload):
+    ok = save_sms_settings(payload.aligo_key, payload.aligo_user_id, payload.aligo_sender)
+    if not ok:
+        raise HTTPException(status_code=500, detail="SMS 설정 저장 실패")
+    remain_info = check_aligo_remain()
+    return {"status": "ok", "message": "SMS 설정이 안전하게 저장되었습니다.", "remain": remain_info}
+
+class SMSTestPayload(BaseModel):
+    phone: str
+    message: str
+
+@app.post("/api/admin/sms/test")
+def test_send_sms(payload: SMSTestPayload):
+    res = send_sms(to_phone=payload.phone, message=payload.message, title="[PALIN OS 테스트]")
+    return {"status": "ok", "result": res}
 
 # Static files
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
