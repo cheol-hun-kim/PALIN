@@ -157,6 +157,7 @@ class QAPost(Base):
     content = Column(Text)
     reward_points = Column(Integer, default=0)
     is_resolved = Column(Boolean, default=False)
+    is_anonymous = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     student = relationship("Student", back_populates="qa_posts")
@@ -171,6 +172,7 @@ class QAComment(Base):
     student_id = Column(Integer, ForeignKey("students.id"))
     content = Column(Text)
     is_accepted = Column(Boolean, default=False)
+    is_anonymous = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     post = relationship("QAPost", back_populates="comments")
