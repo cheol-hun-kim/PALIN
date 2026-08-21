@@ -1299,4 +1299,57 @@ body:not(.day-mode) .mypage-action-btn:hover {
     background: rgba(255, 255, 255, 0.15) !important;
 }
 
+/* ===================================================
+   👤 헤더 사용자 프로필 버튼 & 텍스트 고대비 (Day/Night 100% 또렷함 보장)
+   =================================================== */
+body.day-mode .header-user-btn {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+}
+
+body.day-mode .header-user-btn span,
+body.day-mode #header-student-name {
+    color: #0f172a !important; /* 선명하고 진한 잉크 블랙 */
+    font-weight: 800 !important;
+}
+
+body:not(.day-mode) .header-user-btn {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+body:not(.day-mode) .header-user-btn span,
+body:not(.day-mode) #header-student-name {
+    color: #ffffff !important; /* 순백색 */
+    font-weight: 800 !important;
+}
+
+/* ===================================================
+   💡 AI 챗봇 10~20초 안내 박스 고대비 가독성 보장
+   =================================================== */
+body.day-mode .chatbot-notice-box {
+    background: #eef2ff !important;
+    border: 1.5px solid #c7d2fe !important;
+    color: #1e1b4b !important; /* 진하고 또렷한 인디고 네이비 */
+    font-weight: 600 !important;
+}
+
+body.day-mode .chatbot-notice-box b {
+    color: #4338ca !important;
+    font-weight: 800 !important;
+}
+
+body:not(.day-mode) .chatbot-notice-box {
+    background: rgba(99, 102, 241, 0.12) !important;
+    border: 1.5px solid rgba(99, 102, 241, 0.35) !important;
+    color: #e2e8f0 !important;
+    font-weight: 500 !important;
+}
+
+body:not(.day-mode) .chatbot-notice-box b {
+    color: #a5b4fc !important;
+    font-weight: 700 !important;
+}
+
 
