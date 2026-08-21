@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PALIN OS - 원장 전용 중앙 관제 대시보드</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=21.0">
+    <link rel="stylesheet" href="css/style.css?v=37.0">
     <style>
         body {
             background-color: #06070a;
@@ -357,6 +357,57 @@
         </div>
     </div>
 
+    <!-- 👑 1. VIP 1:1 김철훈 원장 직접 컨설팅 실시간 신청 접수 관제실 -->
+    <div class="section-title" style="color: #fbbf24; margin-top: 10px;">
+        <span class="material-symbols-rounded" style="color: #f59e0b;">diamond</span>
+        👑 VIP 1:1 김철훈 원장 직접 컨설팅 실시간 신청 접수 현황
+    </div>
+    <div style="overflow-x: auto; margin-bottom: 24px;">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>신청 일시</th>
+                    <th>학생명</th>
+                    <th>학생 연락처</th>
+                    <th>학부모 연락처</th>
+                    <th>신청 유형</th>
+                    <th>지망 대학</th>
+                    <th>결제 금액</th>
+                    <th>사전 메모/요청사항</th>
+                    <th>진행 상태</th>
+                    <th>원장 처리 액션</th>
+                </tr>
+            </thead>
+            <tbody id="consulting-table-body">
+                <tr><td colspan="10" style="text-align: center; color: #94a3b8;">신청 내역 로딩 중...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 📑 2. AI 심층 대입 전략 리포트 발급 실시간 검토실 -->
+    <div class="section-title" style="color: #818cf8;">
+        <span class="material-symbols-rounded" style="color: #6366f1;">description</span>
+        📑 발급된 3-Tier 대입 전략 백서 실시간 검토실 (학생 전달본 열람/다운로드)
+    </div>
+    <div style="overflow-x: auto; margin-bottom: 24px;">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>발급 일시</th>
+                    <th>학생명</th>
+                    <th>신청 티어</th>
+                    <th>선택 전형</th>
+                    <th>목표 대학</th>
+                    <th>마지노선 대학</th>
+                    <th>원장 검토 & 다운로드</th>
+                </tr>
+            </thead>
+            <tbody id="reports-table-body">
+                <tr><td colspan="7" style="text-align: center; color: #94a3b8;">리포트 발급 내역 로딩 중...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
     <!-- 재원생 리스트 및 성실도 리그전 현황 -->
     <div class="section-title">
         <span class="material-symbols-rounded" style="color: #6366f1;">groups</span>
@@ -413,6 +464,28 @@
     </div> <!-- feed-container 닫기 -->
 
     </div> <!-- admin-dashboard-screen 닫기 -->
+
+    <!-- 📑 관리자 전용 리포트 전문 검토 모달 -->
+    <div id="admin-report-view-modal" class="trigger-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 9999; justify-content: center; align-items: center; padding: 16px;">
+        <div class="trigger-content" style="max-width: 750px; width: 100%; max-height: 85vh; overflow-y: auto; background: #0f172a; border: 1.5px solid #6366f1; border-radius: 16px; padding: 24px; color: #ffffff;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 10px;">
+                <div>
+                    <div id="admin-modal-report-title" style="font-size: 1.25rem; font-weight: 900; color: #818cf8;">📊 대입 전략 백서 전문 검토</div>
+                    <div id="admin-modal-report-sub" style="font-size: 0.8rem; color: #94a3b8;">학생명 · 일시</div>
+                </div>
+                <button onclick="document.getElementById('admin-report-view-modal').style.display='none'" class="modal-close-btn" title="닫기">&times;</button>
+            </div>
+            
+            <div id="admin-modal-report-body" style="font-size: 0.88rem; line-height: 1.7; color: #e2e8f0;">
+                로딩 중...
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button onclick="window.print()" class="btn" style="flex: 1; padding: 11px 0; background: #334155; font-weight: 700;">🖨️ 리포트 PDF 저장 / 인쇄</button>
+                <button onclick="document.getElementById('admin-report-view-modal').style.display='none'" class="btn" style="flex: 1; padding: 11px 0; background: linear-gradient(135deg, #6366f1, #8b5cf6); font-weight: 800;">검토 완료 닫기</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         const MASTER_PIN = "12862386";
@@ -707,12 +780,196 @@
                     }
                 } catch (e) { console.warn("Study feed error:", e); }
 
-                // 8. 공지사항 및 기출자료 및 제미나이 상태
+                // 8. 👑 VIP 컨설팅 신청 현황 & 📑 발급된 입시 리포트 목록 로드
+                loadAdminConsultingRequests();
+                loadAdminReports();
+
+                // 9. 공지사항 및 기출자료 및 제미나이 상태
                 loadAdminNotices();
                 loadAdminMaterials();
                 checkGeminiStatus();
             } catch (e) {
                 console.error("Dashboard load failed:", e);
+            }
+        }
+
+        // ==========================================
+        // 👑 VIP 1:1 컨설팅 신청 관제 로직
+        // ==========================================
+        async function loadAdminConsultingRequests() {
+            try {
+                const res = await fetch("/api/admin/consulting-requests");
+                if (res.ok) {
+                    const reqs = await res.json();
+                    const tbody = document.getElementById("consulting-table-body");
+                    if (!tbody) return;
+                    tbody.innerHTML = "";
+                    if (reqs.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:#94a3b8; padding:16px;">신규 신청된 VIP 1:1 컨설팅 건이 없습니다.</td></tr>`;
+                        return;
+                    }
+                    reqs.forEach(q => {
+                        const tr = document.createElement("tr");
+                        const isDone = q.status === "상담완료";
+                        const statusBadge = isDone 
+                            ? `<span style="color:#10b981; font-weight:800; background:rgba(16,185,129,0.15); padding:3px 8px; border-radius:12px;">✅ 상담완료</span>`
+                            : `<span style="color:#f59e0b; font-weight:800; background:rgba(245,158,11,0.15); padding:3px 8px; border-radius:12px;">⏳ 접수대기</span>`;
+                        
+                        const actionBtn = isDone
+                            ? `<button onclick="updateConsultingStatus(${q.id}, '접수대기')" class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">대기 전환</button>`
+                            : `<button onclick="updateConsultingStatus(${q.id}, '상담완료')" class="btn" style="padding:4px 10px; font-size:0.75rem; background:#10b981; font-weight:800;">✅ 상담완료 처리</button>`;
+
+                        tr.innerHTML = `
+                            <td style="color:#94a3b8;">${q.created_at}</td>
+                            <td style="font-weight:800; color:#f8fafc;">${q.student_name}</td>
+                            <td style="color:#60a5fa;">📞 ${q.student_phone}</td>
+                            <td style="color:#fbbf24;">📞 ${q.parent_phone}</td>
+                            <td style="font-weight:700; color:#a78bfa;">${q.consulting_type}</td>
+                            <td>${q.target_univ || "-"}</td>
+                            <td style="font-weight:800; color:#fcd34d;">${(q.price || 0).toLocaleString()}원</td>
+                            <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; color:#cbd5e1;">${q.note || "-"}</td>
+                            <td>${statusBadge}</td>
+                            <td>${actionBtn}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (e) {
+                console.error("loadAdminConsultingRequests error:", e);
+            }
+        }
+
+        async function updateConsultingStatus(reqId, newStatus) {
+            try {
+                const res = await fetch(`/api/admin/consulting-requests/${reqId}/status`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                if (res.ok) {
+                    loadAdminConsultingRequests();
+                } else {
+                    alert("상태 변경 실패");
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // ==========================================
+        // 📑 발급된 입시 리포트 실시간 검토실 로직
+        // ==========================================
+        async function loadAdminReports() {
+            try {
+                const res = await fetch("/api/admin/reports");
+                if (res.ok) {
+                    const reports = await res.json();
+                    const tbody = document.getElementById("reports-table-body");
+                    if (!tbody) return;
+                    tbody.innerHTML = "";
+                    if (reports.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:16px;">발급된 입시 리포트가 없습니다.</td></tr>`;
+                        return;
+                    }
+                    reports.forEach(r => {
+                        const tr = document.createElement("tr");
+                        const tierBadge = r.tier === 1 
+                            ? `<span style="color:#ffffff; font-weight:800; background:rgba(255,255,255,0.15); padding:2px 8px; border-radius:10px;">🥉 Tier 1 (16,900)</span>`
+                            : r.tier === 2
+                            ? `<span style="color:#60a5fa; font-weight:800; background:rgba(96,165,250,0.15); padding:2px 8px; border-radius:10px;">🥈 Tier 2 (29,900)</span>`
+                            : `<span style="color:#fcd34d; font-weight:800; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:10px;">🥇 Tier 3 (34,900)</span>`;
+
+                        tr.innerHTML = `
+                            <td style="color:#94a3b8;">${r.created_at}</td>
+                            <td style="font-weight:800; color:#f8fafc;">${r.student_name}</td>
+                            <td>${tierBadge}</td>
+                            <td style="color:#cbd5e1;">${r.track_choice || "정시"}</td>
+                            <td style="font-weight:700; color:#60a5fa;">🎯 ${r.target_univ || "-"}</td>
+                            <td style="color:#94a3b8;">🛡️ ${r.baseline_univ || "-"}</td>
+                            <td>
+                                <button onclick="viewAdminReportModal(${r.id})" class="btn" style="padding:4px 12px; font-size:0.75rem; background:linear-gradient(135deg, #6366f1, #8b5cf6); font-weight:800;">👁️ 리포트 전문 열람 / PDF</button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (e) {
+                console.error("loadAdminReports error:", e);
+            }
+        }
+
+        async function viewAdminReportModal(reportId) {
+            try {
+                const res = await fetch(`/api/admin/reports/${reportId}`);
+                if (!res.ok) {
+                    alert("리포트를 불러오지 못했습니다.");
+                    return;
+                }
+                const data = await res.json();
+                const report = data.report_data;
+
+                document.getElementById("admin-modal-report-title").innerText = `📊 [Tier ${data.tier}] ${data.student_name} 학생 대입 전략 백서`;
+                document.getElementById("admin-modal-report-sub").innerText = `발급일시: ${data.created_at} | 목표: ${data.target_univ} | 마지노선: ${data.baseline_univ}`;
+
+                const body = document.getElementById("admin-modal-report-body");
+                let html = `
+                    <div style="background: rgba(99, 102, 241, 0.1); border-left: 4px solid #6366f1; padding: 14px; border-radius: 8px; margin-bottom: 16px;">
+                        <div style="font-size: 1.05rem; font-weight: 800; color: #a5b4fc;">📌 총괄 진단: ${report.summary_headline || "진단 요약"}</div>
+                        <div style="font-size: 0.85rem; color: #cbd5e1; margin-top: 6px;">전형 추천 비율: <strong>${report.admission_track_recommendation || "-"}</strong></div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+                        <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                            <div style="font-weight: 700; color: #60a5fa; margin-bottom: 4px;">🎯 목표 대학 정밀 판정</div>
+                            <div style="font-size: 0.82rem; color: #e2e8f0;">${report.target_univ_diagnosis || "-"}</div>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                            <div style="font-weight: 700; color: #f87171; margin-bottom: 4px;">🛡️ 마지노선 방어선 진단</div>
+                            <div style="font-size: 0.82rem; color: #e2e8f0;">${report.baseline_univ_diagnosis || "-"}</div>
+                        </div>
+                    </div>
+                `;
+
+                if (report.chapters && report.chapters.length > 0) {
+                    html += `<div style="font-size: 1rem; font-weight: 800; color: #ffffff; margin-bottom: 10px;">📖 챕터별 심층 전략 프로토콜</div>`;
+                    report.chapters.forEach((chap, idx) => {
+                        html += `
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                                <div style="font-weight: 700; color: #fcd34d; margin-bottom: 6px;">제 ${idx + 1}장. ${chap.title}</div>
+                                <div style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.6; white-space: pre-wrap;">${chap.content}</div>
+                            </div>
+                        `;
+                    });
+                }
+
+                if (report.timetable_168h) {
+                    html += `
+                        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                            <div style="font-weight: 800; color: #34d399; margin-bottom: 6px;">⏰ [Tier 3 독점] 주간 168시간 시간표</div>
+                            <div style="font-size: 0.82rem; color: #cbd5e1;">평일: ${report.timetable_168h.weekday || "-"} | 주말: ${report.timetable_168h.weekend || "-"}</div>
+                        </div>
+                    `;
+                }
+
+                if (report.subject_strategies) {
+                    html += `
+                        <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                            <div style="font-weight: 800; color: #fbbf24; margin-bottom: 6px;">📖 [Tier 3 독점] 과목별 만점 비법 지침</div>
+                            <div style="font-size: 0.8rem; color: #cbd5e1;">
+                                국어: ${report.subject_strategies.korean || "-"}<br>
+                                수학: ${report.subject_strategies.math || "-"}<br>
+                                영어: ${report.subject_strategies.english || "-"}<br>
+                                탐구: ${report.subject_strategies.tamgu || "-"}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                body.innerHTML = html;
+                document.getElementById("admin-report-view-modal").style.display = "flex";
+            } catch (e) {
+                console.error(e);
+                alert("리포트 조회 중 오류가 발생했습니다.");
             }
         }
 
