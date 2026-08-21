@@ -2364,7 +2364,15 @@ function openStudentCardModal() {
 }
 
 function downloadStudentIDCard() {
-    if (!currentStudent) return;
+    if (!currentStudent) {
+        alert("로그인 정보가 없습니다.");
+        return;
+    }
+
+    const tUniv = currentStudent.target_univ || "서울대학교 의예과";
+    const parts = tUniv.split(" ");
+    const univName = parts[0] || "서울대학교";
+    const deptName = parts.slice(1).join(" ") || "전공선택";
     
     // HTML5 Canvas로 1080x1350 인스타그램 스토리 규격 렌더링
     const canvas = document.createElement("canvas");
