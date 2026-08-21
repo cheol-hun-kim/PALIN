@@ -609,6 +609,22 @@ def get_deep_report(payload: DeepReportPayload, db: Session = Depends(get_db)):
         track_choice=payload.track_choice
     )
 
+    # 4. DB에 리포트 발급 이력 저장 (원장님 관리자 페이지 실시간 열람/다운로드용)
+    try:
+        db_report = models.AdmissionReport(
+            student_id=student.id,
+            student_name=student.name or "학생",
+            tier=payload.tier,
+            track_choice=payload.track_choice,
+            target_univ=t_univ,
+            baseline_univ=b_univ,
+            report_json=json.dumps(report_data, ensure_ascii=False)
+        )
+        db.add(db_report)
+        db.commit()
+    except Exception as e:
+        print("Admission report save error:", e)
+
     return {
         "status": "ok",
         "tier": payload.tier,
@@ -621,8 +637,8 @@ def get_deep_report(payload: DeepReportPayload, db: Session = Depends(get_db)):
 
 class VIPConsultingPayload(BaseModel):
     student_id: int
-    is_in_person: bool = False  # False: 전화통화 30분 (30만원), True: 대면 70분 (50만원)
-    preferred_phone: str
+    is_in_person: bool = False  # False: 전화통화 30~40분 (30만원), True: 대면 50분 (50만원)
+    preferred_phone: str = ""
     memo: str = ""
 
 @app.post("/api/consulting/vip-request")
@@ -648,10 +664,24 @@ def request_vip_consulting(payload: VIPConsultingPayload, db: Session = Depends(
         description=f"👑 VIP {consulting_type_str} 신청 ({cost:,} 캐시 차감)"
     ))
 
+    # DB에 VIP 컨설팅 신청 이력 저장 (관리자 대시보드 관제용)
+    parent_ph = payload.preferred_phone or (student.parent.phone if student.parent else student.phone)
+    consulting_record = models.ConsultingRequest(
+        student_id=student.id,
+        student_name=student.name,
+        student_phone=student.phone,
+        parent_phone=parent_ph,
+        consulting_type=consulting_type_str,
+        target_univ=student.target_univ,
+        price=cost,
+        note=payload.memo or "",
+        status="접수대기"
+    )
+    db.add(consulting_record)
+
     # 학부모 및 학생에게 확인 SMS 발송
-    p_phone = payload.preferred_phone or (student.parent.phone if student.parent else student.phone)
     msg_to_parent = f"[PALIN OS] 김철훈 원장 {consulting_type_str} 신청이 정상 접수되었습니다. 원장이 직접 24시간 내 유선 연락드려 정밀 일정을 조율합니다."
-    sms.send_sms(p_phone, msg_to_parent, "[PALIN VIP]")
+    sms.send_sms(parent_ph, msg_to_parent, "[PALIN VIP]")
 
     db.commit()
     db.refresh(student)
@@ -1171,6 +1201,73 @@ def get_micro_league(student_id: int, db: Session = Depends(get_db)):
         "univ_title": f"🎯 [{target_univ}] 지망생 몰입도 Top 5",
         "univ_rankings": [{"name": s.name[:1] + "*" + s.name[2:] if len(s.name) >= 3 else s.name[:1] + "*", "target": s.target_univ, "score": s.diligence_score, "is_me": s.id == student.id} for s in univ_students]
     }
+
+# === 📊 관리자 전용 입시 리포트 및 VIP 컨설팅 신청 관제 API ===
+
+@app.get("/api/admin/reports")
+def get_admin_admission_reports(db: Session = Depends(get_db)):
+    reports = db.query(models.AdmissionReport).order_by(models.AdmissionReport.created_at.desc()).limit(50).all()
+    res = []
+    for r in reports:
+        res.append({
+            "id": r.id,
+            "student_id": r.student_id,
+            "student_name": r.student_name or (r.student.name if r.student else "수험생"),
+            "tier": r.tier,
+            "track_choice": r.track_choice,
+            "target_univ": r.target_univ,
+            "baseline_univ": r.baseline_univ,
+            "created_at": r.created_at.strftime("%Y-%m-%d %H:%M") if r.created_at else ""
+        })
+    return res
+
+@app.get("/api/admin/reports/{report_id}")
+def get_admin_admission_report_detail(report_id: int, db: Session = Depends(get_db)):
+    r = db.query(models.AdmissionReport).filter(models.AdmissionReport.id == report_id).first()
+    if not r:
+        raise HTTPException(status_code=404, detail="리포트를 찾을 수 없습니다.")
+    return {
+        "id": r.id,
+        "student_name": r.student_name or (r.student.name if r.student else "수험생"),
+        "tier": r.tier,
+        "track_choice": r.track_choice,
+        "target_univ": r.target_univ,
+        "baseline_univ": r.baseline_univ,
+        "created_at": r.created_at.strftime("%Y-%m-%d %H:%M") if r.created_at else "",
+        "report_data": json.loads(r.report_json) if r.report_json else {}
+    }
+
+@app.get("/api/admin/consulting-requests")
+def get_admin_consulting_requests(db: Session = Depends(get_db)):
+    reqs = db.query(models.ConsultingRequest).order_by(models.ConsultingRequest.created_at.desc()).all()
+    res = []
+    for q in reqs:
+        res.append({
+            "id": q.id,
+            "student_id": q.student_id,
+            "student_name": q.student_name or (q.student.name if q.student else "수험생"),
+            "student_phone": q.student_phone or (q.student.phone if q.student else "-"),
+            "parent_phone": q.parent_phone or "-",
+            "consulting_type": q.consulting_type,
+            "target_univ": q.target_univ or (q.student.target_univ if q.student else "-"),
+            "price": q.price,
+            "note": q.note,
+            "status": q.status,
+            "created_at": q.created_at.strftime("%Y-%m-%d %H:%M") if q.created_at else ""
+        })
+    return res
+
+class ConsultingStatusPayload(BaseModel):
+    status: str
+
+@app.put("/api/admin/consulting-requests/{req_id}/status")
+def update_consulting_request_status(req_id: int, payload: ConsultingStatusPayload, db: Session = Depends(get_db)):
+    q = db.query(models.ConsultingRequest).filter(models.ConsultingRequest.id == req_id).first()
+    if not q:
+        raise HTTPException(status_code=404, detail="신청 내역을 찾을 수 없습니다.")
+    q.status = payload.status
+    db.commit()
+    return {"status": "ok", "message": f"상태가 '{payload.status}'(으)로 변경되었습니다."}
 
 @app.get("/api/admin/gemini-status")
 def get_gemini_status():
