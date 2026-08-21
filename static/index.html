@@ -6,7 +6,7 @@
     <title>PALIN OS - 데이터 기반 행동 통제 범용 OS</title>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=34.0">
+    <link rel="stylesheet" href="css/style.css?v=35.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -100,29 +100,19 @@
             </form>
         </div>
 
-        <!-- 2. 공통 헤더 (클린 마이페이지 통합형) -->
+        <!-- 2. 공통 헤더 (초깔끔 미니멀 헤더) -->
         <header>
             <div class="logo-container" style="display: flex; align-items: center; gap: 8px;">
                 <span class="logo-text" style="font-weight: 900; letter-spacing: -0.5px;">PALIN<span style="color: #6366f1;">OS</span></span>
             </div>
-            <div class="user-status" style="display: flex; align-items: center; gap: 6px;">
+            <div class="user-status" style="display: flex; align-items: center; gap: 8px;">
                 <!-- 🔥 듀오링고 연속 출석 불꽃 -->
                 <div class="streak-badge" id="header-streak-badge" title="연속 미션 성공 기록 (1일이라도 실패 시 즉시 소멸)">
                     <span>🔥</span>
                     <span id="header-streak-count">0일</span>
                 </div>
-                <!-- 🪙 무료 성실 포인트 -->
-                <div class="points-badge" title="자습 및 미션으로 획득한 무료 성실 포인트">
-                    <span class="material-symbols-rounded" style="font-size: 1rem; color: #f59e0b;">toll</span>
-                    <span id="header-points">0 P</span>
-                </div>
-                <!-- 💎 유료 PALIN 캐시 (클릭 시 충전 모달) -->
-                <button onclick="openCashModal()" class="btn" style="padding: 4px 8px; font-size: 0.76rem; border-radius: 14px; background: linear-gradient(135deg, #3b82f6, #6366f1); border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; gap: 3px; font-weight: 800; cursor: pointer; color: white;" title="유료 결제 캐시 충전">
-                    <span>💎</span>
-                    <span id="header-cash">0</span>
-                    <span style="font-size: 0.65rem; background: rgba(255,255,255,0.25); padding: 1px 4px; border-radius: 6px;">+충전</span>
-                </button>
-                <button id="header-mypage-btn" onclick="openMyPageModal()" class="header-user-btn" style="padding: 5px 10px; font-size: 0.8rem; display: flex; align-items: center; gap: 4px; border-radius: 20px; cursor: pointer;">
+                <!-- 👤 마이페이지 & 자산 관리 버튼 -->
+                <button id="header-mypage-btn" onclick="openMyPageModal()" class="header-user-btn" style="padding: 6px 12px; font-size: 0.82rem; display: flex; align-items: center; gap: 5px; border-radius: 20px; cursor: pointer;">
                     <span class="material-symbols-rounded header-user-icon" style="font-size: 1.15rem;">account_circle</span>
                     <span id="header-student-name" style="font-weight: 800; letter-spacing: -0.2px;">학생</span>
                 </button>
@@ -142,6 +132,22 @@
                     <span class="material-symbols-rounded" style="color: #fcd34d; font-size: 1.2rem;">campaign</span>
                     <div style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="notice-banner-text">
                         공지사항을 불러오는 중입니다.
+                    </div>
+                </div>
+
+                <!-- 📊 메인 퀵 배너: 2027 대입 전략 백서 & VIP 컨설팅 신청 -->
+                <div onclick="openReportTierModal()" style="margin-bottom: 12px; padding: 14px 16px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(139, 92, 246, 0.2)); border: 1.5px solid #818cf8; border-radius: 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 16px rgba(99, 102, 241, 0.25); transition: transform 0.2s;">
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
+                            <span style="background: linear-gradient(135deg, #ef4444, #f59e0b); color: white; font-size: 0.68rem; font-weight: 800; padding: 1px 6px; border-radius: 8px;">HOT</span>
+                            <span style="font-size: 0.88rem; font-weight: 900; color: #ffffff;">📊 2027 대입 전략 백서 & 1:1 컨설팅</span>
+                        </div>
+                        <div style="font-size: 0.72rem; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            수시/정시 진단 · 168시간 시간표 · 원장 직접 1:1 상담 (16,900원~)
+                        </div>
+                    </div>
+                    <div style="background: #6366f1; color: white; padding: 6px 12px; border-radius: 12px; font-weight: 800; font-size: 0.75rem; white-space: nowrap; margin-left: 8px;">
+                        신청하기 ➔
                     </div>
                 </div>
 
@@ -453,14 +459,74 @@
     </div>
 </div>
 
-<!-- 수시/정시 탭 토글 -->
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px;">
-    <button id="btn-susi" class="btn btn-secondary" style="padding: 10px; font-size: 0.88rem; font-weight: 700; border-radius: 12px;" onclick="switchAdmissionTab('susi')">
+<!-- 수시/정시/전략리포트 3대 탭 토글 -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px;">
+    <button id="btn-susi" class="btn btn-secondary" style="padding: 10px; font-size: 0.86rem; font-weight: 700; border-radius: 12px;" onclick="switchAdmissionTab('susi')">
         📋 수시 합격 예측
     </button>
-    <button id="btn-jeongsi" class="btn" style="padding: 10px; font-size: 0.88rem; font-weight: 700; border-radius: 12px; background: linear-gradient(135deg, #10b981, #059669);" onclick="switchAdmissionTab('jeongsi')">
+    <button id="btn-jeongsi" class="btn" style="padding: 10px; font-size: 0.86rem; font-weight: 700; border-radius: 12px; background: linear-gradient(135deg, #10b981, #059669);" onclick="switchAdmissionTab('jeongsi')">
         📊 정시 합격 예측
     </button>
+</div>
+<!-- 👑 수시/정시 통합 3-Tier 입시 전략 리포트 & VIP 컨설팅 전용 버튼 -->
+<button id="btn-report" class="btn btn-secondary" style="width: 100%; padding: 11px 0; font-size: 0.9rem; font-weight: 900; border-radius: 12px; margin-bottom: 12px; border: 1.5px solid #818cf8; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="switchAdmissionTab('report')">
+    <span>👑 2027 맞춤형 대입 전략 백서 & 1:1 컨설팅</span>
+    <span style="font-size: 0.68rem; background: linear-gradient(135deg, #ec4899, #f59e0b); color: white; padding: 2px 7px; border-radius: 10px; font-weight: 800;">HOT</span>
+</button>
+
+<!-- === 👑 대입 전략 리포트 & 1:1 컨설팅 전용 섹션 === -->
+<div id="report-tab-section" style="display: none;">
+    <div class="card" style="padding: 16px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.05)); border: 1.5px solid rgba(99, 102, 241, 0.4);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h3 style="margin: 0; color: #a5b4fc; font-size: 1.05rem;">👑 맞춤형 대입 전략 솔루션</h3>
+            <span style="font-size: 0.72rem; background: #6366f1; color: white; padding: 2px 8px; border-radius: 12px; font-weight: 800;">16,900원부터~</span>
+        </div>
+        <p style="font-size: 0.78rem; color: #cbd5e1; margin-bottom: 14px; line-height: 1.5;">
+            학생의 성적 및 목표 대학에 맞춘 <strong>AI 정밀 분석 리포트(Tier 1~3)</strong>와 <strong>김철훈 원장 직접 1:1 컨설팅</strong> 라인업입니다.
+        </p>
+
+        <!-- 4대 상품 프리뷰 그리드 -->
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
+            <div style="padding: 10px 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-weight: 800; font-size: 0.85rem; color: #93c5fd;">🥉 Tier 1. 단일 전형 포커스 진단서</div>
+                    <div style="font-size: 0.7rem; color: #94a3b8;">수시 OR 정시 택 1 집중 진단 (2~4p)</div>
+                </div>
+                <div style="font-weight: 900; font-size: 0.9rem; color: #ffffff;">16,900원</div>
+            </div>
+
+            <div style="padding: 10px 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-weight: 800; font-size: 0.85rem; color: #60a5fa;">🥈 Tier 2. 3대 전형 종합 비교 리포트</div>
+                    <div style="font-size: 0.7rem; color: #94a3b8;">수시(학종/논술) + 정시 풀스캔 비교 (4~8p)</div>
+                </div>
+                <div style="font-weight: 900; font-size: 0.9rem; color: #ffffff;">29,900원</div>
+            </div>
+
+            <div style="padding: 12px; background: rgba(99, 102, 241, 0.15); border: 1.5px solid #818cf8; border-radius: 10px; position: relative;">
+                <span style="position: absolute; top: -8px; right: 10px; background: linear-gradient(135deg, #ef4444, #f59e0b); color: white; font-size: 0.65rem; font-weight: 800; padding: 1px 6px; border-radius: 8px;">🔥 BEST 75% 선택</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <div style="font-weight: 900; font-size: 0.9rem; color: #a5b4fc;">🥇 Tier 3. 김철훈 원장 올인원 백서</div>
+                    <div style="font-weight: 900; font-size: 1.05rem; color: #fcd34d;">34,900원</div>
+                </div>
+                <div style="font-size: 0.72rem; color: #e2e8f0; line-height: 1.4;">
+                    Tier 2 전체 + <strong>168시간 시간표</strong> + <strong>4과목 1등급 비법</strong> + 🎁 <strong>과외 5,000원권</strong> (10~15p)
+                </div>
+            </div>
+
+            <div style="padding: 10px 12px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-weight: 800; font-size: 0.85rem; color: #fbbf24;">💎 VIP. 원장 1:1 직접 컨설팅</div>
+                    <div style="font-size: 0.7rem; color: #fde68a;">유선 전화(30~40분) 30만원 / 대면(50분) 50만원</div>
+                </div>
+                <div style="font-weight: 900; font-size: 0.9rem; color: #fbbf24;">300,000원~</div>
+            </div>
+        </div>
+
+        <button onclick="openReportTierModal()" class="btn" style="width: 100%; padding: 12px 0; font-size: 0.92rem; font-weight: 900; background: linear-gradient(135deg, #6366f1, #8b5cf6); box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);">
+            📑 대입 전략 리포트 & 컨설팅 신청하기 (무료권 / 캐시)
+        </button>
+    </div>
 </div>
 
 <!-- === 수시 합격 예측 (플레이스홀더) === -->
@@ -896,12 +962,40 @@
                 <button onclick="closeMyPageModal()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8rem; border: none;">&times; 닫기</button>
             </div>
             
-            <div style="background: rgba(255,255,255,0.04); padding: 14px; border-radius: 16px; margin-bottom: 16px;">
+            <div style="background: rgba(255,255,255,0.04); padding: 14px; border-radius: 16px; margin-bottom: 12px;">
                 <div style="font-size: 1rem; font-weight: 700; color: var(--text-primary);" id="mypage-student-fullname">홍길동 학생</div>
                 <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px;" id="mypage-student-sub">대치고 3학년 | 서울 강남구</div>
                 <div style="margin-top: 10px; display: flex; gap: 8px; align-items: center;">
                     <span style="font-size: 0.78rem; color: var(--text-secondary);">성실도 리그:</span>
                     <span id="mypage-league-badge" class="league-badge league-bronze">BRONZE (1.0x)</span>
+                </div>
+            </div>
+
+            <!-- 💰 내 보유 자산 대시보드 (성실 포인트 & 유료 캐시 & 무료권) -->
+            <div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9)); border: 1.5px solid rgba(99, 102, 241, 0.35); border-radius: 16px; padding: 14px; margin-bottom: 16px; box-shadow: 0 4px 14px rgba(0,0,0,0.3);">
+                <div style="font-size: 0.82rem; font-weight: 800; color: #a5b4fc; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <span>💰 내 보유 자산 현황</span>
+                    <span style="font-size: 0.7rem; color: #94a3b8;">포인트 / 캐시 통합 지갑</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                    <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 10px;">
+                        <div style="font-size: 0.7rem; color: #fcd34d; font-weight: 700;">🪙 무료 성실 포인트</div>
+                        <div style="font-size: 1.15rem; font-weight: 900; color: #fbbf24; margin-top: 2px;" id="mypage-points">0 P</div>
+                        <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;">자습/기상 미션 보상</div>
+                    </div>
+                    <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 10px; padding: 10px;">
+                        <div style="font-size: 0.7rem; color: #93c5fd; font-weight: 700;">💎 PALIN 캐시</div>
+                        <div style="font-size: 1.15rem; font-weight: 900; color: #60a5fa; margin-top: 2px;"><span id="mypage-cash">0</span></div>
+                        <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;">리포트/과외 전용</div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button onclick="openCashModal()" class="btn" style="flex: 1; padding: 9px 0; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #3b82f6, #6366f1); border-radius: 10px;">
+                        💎 캐시 충전하기
+                    </button>
+                    <button onclick="openReferralModal()" class="btn btn-secondary" style="flex: 1; padding: 9px 0; font-size: 0.8rem; font-weight: 700; border-radius: 10px;">
+                        🎁 리포트 무료권 (<strong id="mypage-tickets" style="color: #fcd34d;">0</strong>장)
+                    </button>
                 </div>
             </div>
 
@@ -1006,14 +1100,14 @@
             </div>
             
             <!-- 실물 학생증 캔버스 렌더링 컨테이너 -->
-            <div id="student-card-preview" style="background: linear-gradient(135deg, #1e1b4b, #0f172a); border: 2px solid #6366f1; border-radius: 16px; padding: 20px; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4); margin-bottom: 16px; position: relative; overflow: hidden;">
-                <div style="position: absolute; right: -20px; bottom: -20px; font-size: 8rem; opacity: 0.06; font-weight: 900; color: white;">27</div>
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+            <div id="student-card-preview" class="student-id-card-preview" style="margin-bottom: 16px;">
+                <div style="position: absolute; right: 10px; bottom: 5px; font-size: 7.5rem; opacity: 0.07; font-weight: 900; color: white; user-select: none; font-family: monospace;">27</div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; position: relative; z-index: 1;">
                     <div>
                         <div style="font-size: 0.72rem; letter-spacing: 2px; color: #a5b4fc; font-weight: 700;">STUDENT IDENTIFICATION CARD</div>
-                        <div id="card-univ-title" style="font-size: 1.25rem; font-weight: 900; color: #ffffff; margin-top: 2px;">서울대학교</div>
+                        <div id="card-univ-title" style="font-size: 1.3rem; font-weight: 900; color: #ffffff; margin-top: 2px;">서울대학교</div>
                     </div>
-                    <div id="card-emblem-badge" style="background: rgba(99, 102, 241, 0.25); border: 1px solid #818cf8; color: #c7d2fe; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 800;">27학번 합격생</div>
+                    <div id="card-emblem-badge" style="background: rgba(99, 102, 241, 0.35); border: 1.5px solid #818cf8; color: #e0e7ff; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 800; box-shadow: 0 0 10px rgba(99,102,241,0.4);">27학번 합격생</div>
                 </div>
 
                 <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 16px;">
@@ -1101,11 +1195,11 @@
                     <div style="font-size: 0.75rem; color: #94a3b8;">수시(학종) + 수시(논술) + 정시 3대 전형 풀스캔 & 최적 추천 전형 비율 제시 (4~8페이지)</div>
                 </div>
 
-                <!-- 👑 Tier 3 (Hero Best) -->
+                <!-- 🥇 Tier 3 (Hero Best) -->
                 <div onclick="selectTier(3)" id="tier-card-3" style="border: 2px solid #818cf8; background: rgba(99, 102, 241, 0.08); border-radius: 10px; padding: 14px; cursor: pointer; transition: all 0.2s; position: relative;">
                     <span style="position: absolute; top: -10px; right: 14px; background: linear-gradient(135deg, #ef4444, #f59e0b); color: white; font-size: 0.68rem; font-weight: 800; padding: 2px 8px; border-radius: 10px;">🔥 압도적 75% 선택 (BEST)</span>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <div style="font-weight: 900; font-size: 1rem; color: #a5b4fc;">👑 Tier 3. 김철훈 원장 대입 올인원 백서</div>
+                        <div style="font-weight: 900; font-size: 1rem; color: #a5b4fc;">🥇 Tier 3. 김철훈 원장 대입 올인원 백서</div>
                         <div style="font-weight: 900; font-size: 1.15rem; color: #fcd34d;">34,900원</div>
                     </div>
                     <div style="font-size: 0.76rem; color: #cbd5e1; line-height: 1.4;">
@@ -1201,12 +1295,12 @@
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(30, 41, 59, 0.7); border: 1.5px solid rgba(56, 189, 248, 0.35); border-radius: 8px;">
                     <div>
-                        <div style="font-weight: 700; color: #ffffff;">💎 10,000 캐시</div>
-                        <div style="font-size: 0.72rem; color: #94a3b8;">기본 패키지</div>
+                        <div style="font-weight: 800; color: #38bdf8; font-size: 0.95rem;">💎 10,000 캐시</div>
+                        <div style="font-size: 0.72rem; color: #cbd5e1;">기본 패키지</div>
                     </div>
-                    <button onclick="chargeCash(10000)" class="btn" style="padding: 8px 16px; font-size: 0.82rem; background: #2563eb; font-weight: 700;">10,000원 결제</button>
+                    <button onclick="chargeCash(10000)" class="btn" style="padding: 8px 16px; font-size: 0.82rem; background: #0284c7; font-weight: 700;">10,000원 결제</button>
                 </div>
 
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px;">
@@ -1275,7 +1369,7 @@
     </div>
     </div>
 
-    <script src="js/app.js?v=34.0"></script>
+    <script src="js/app.js?v=35.0"></script>
     <script>
     // Service Worker Registration
     if ('serviceWorker' in navigator) {
