@@ -36,6 +36,7 @@ class StudentCreate(BaseModel):
     baseline_univ: str
     parent_name: str
     parent_phone: str
+    referred_by: Optional[str] = None # 추천인 코드
 
 class StudentResponse(BaseModel):
     id: int
@@ -52,10 +53,17 @@ class StudentResponse(BaseModel):
     current_points: Optional[int] = 100
     parent_id: Optional[int] = None
     
+    # 💎 B2C 유료 캐시 & 친구 초대 바이럴 필드
+    paid_cash: Optional[int] = 0
+    free_report_tickets: Optional[int] = 0
+    referral_code: Optional[str] = None
+    referred_by: Optional[str] = None
+    has_unlimited_chat: Optional[bool] = False
+    
     # PALIN OS 필드
     league_tier: Optional[str] = "BRONZE"
     point_multiplier: Optional[float] = 1.0
-    golden_tickets_count: Optional[int] = 3
+    golden_tickets_count: Optional[int] = 0
     diligence_score: Optional[int] = 0
     referrer_id: Optional[int] = None
     is_banned: Optional[bool] = False
