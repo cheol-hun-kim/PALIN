@@ -226,7 +226,7 @@ def evaluate_univ_admission_extended(gpa, kor_pct, math_pct, eng_score, tam1_pct
                 f'Susi tier: {susi_tier}, Jeongsi tier: {jeongsi_tier}\n'
                 f'Give 1 sentence advice each for susi and jeongsi as JSON: {{"susi_comment": "...", "jeongsi_comment": "..."}}'
             )
-            response = client.models.generate_content(model='gemini-3.6-flash', contents=prompt)
+            response = client.models.generate_content(model='gemini-2.5-flash', contents=prompt)
             text_cleaned = response.text.strip().replace('```json', '').replace('```', '')
             ai_data = json.loads(text_cleaned)
             if 'susi_comment' in ai_data: susi_tip += f' (AI: {ai_data["susi_comment"]})'
@@ -235,4 +235,110 @@ def evaluate_univ_admission_extended(gpa, kor_pct, math_pct, eng_score, tam1_pct
     return {
         'susi': {'university': f'{university_name} {department_name}', 'result_tier': susi_tier, 'tip': susi_tip},
         'jeongsi': {'university': f'{university_name} {department_name}', 'result_tier': jeongsi_tier, 'tip': jeongsi_tip}
+    }
+
+def generate_deep_admission_report(
+    student_name: str,
+    grade: int,
+    high_school: str,
+    target_univ: str,
+    baseline_univ: str,
+    kor_pct: float,
+    math_pct: float,
+    eng_raw: int,
+    tam1_pct: float,
+    tam2_pct: float,
+    hist_raw: int,
+    gyeyeol: str = "이과",
+    math_type: str = "미적",
+    tier: int = 3,
+    track_choice: str = "정시"
+) -> dict:
+    """Tier 1(16,900원 단일전형), Tier 2(29,900원 3대전형 비교), Tier 3(34,900원 10대 챕터 마스터 올인원 백서) 생성"""
+    client = get_gemini_client()
+    eng_grade = get_english_grade(eng_raw)
+    hist_grade = get_history_grade(hist_raw)
+    avg_pct = round((kor_pct + math_pct + (tam1_pct + tam2_pct)/2) / 3, 1)
+
+    system_instruction = (
+        "You are Kim Chul-Hun, a 13-year veteran premium CSAT & admission consulting director in Bundang/Daechi. "
+        "Generate a highly authoritative, sharply practical admission strategy report according to the requested Tier level. "
+        "Tone: Highly professional, razor-sharp, deeply practical, caring and motivating. "
+        "Return ONLY a clean JSON object without markdown code blocks matching this structure:\n"
+        "{\n"
+        '  "tier": 3,\n'
+        '  "tier_title": "리포트 등급 타이틀",\n'
+        '  "summary_headline": "한 줄 총괄 전략 헤드라인",\n'
+        '  "admission_track_recommendation": "최적 추천 전형 비율 및 방향성",\n'
+        '  "target_univ_diagnosis": "목표대학 합격선 및 유불리 진단",\n'
+        '  "baseline_univ_diagnosis": "마지노선 대학 안전성 분석",\n'
+        '  "chapters": [\n'
+        '     {"title": "장 제목", "content": "상세 분석 및 처방 내용"}\n'
+        '  ],\n'
+        '  "subject_strategies": {\n'
+        '     "korean": "국어 1등급 공략법", "math": "수학 4점 준킬러 공략법", "english": "영어 90점 방어법", "tamgu": "탐구 변표 극대화"\n'
+        '  },\n'
+        '  "timetable_168h": {\n'
+        '     "weekday": "평일 6시간 루틴", "weekend": "주말 12시간 루틴", "ratios": "과목별 배분"\n'
+        '  },\n'
+        '  "mentor_closing": "김철훈 원장의 결의 메시지"\n'
+        "}"
+    )
+
+    tier_prompts = {
+        1: f"Tier 1 [단일 전형 포커스 리포트 (16,900원)]:\n- 선택한 전형: {track_choice}\n- 집중 분석: 현재 성적으로 갈 수 있는 대학 진단, 합격 컷 상승 전략, 공부방법, 원서 접수 시 치명적 실수 3가지 (2~4페이지 분량).",
+        2: f"Tier 2 [3대 전형 종합 비교 리포트 (29,900원)]:\n- 수시(학생부) & 수시(논술) & 정시 3대 전형의 모든 특징과 가능성 정밀 진단.\n- 학생 맞춤형 최적 추천 전형 비율 제시 및 수시 6장 + 정시 3장 조합 설계 (4~8페이지 분량).",
+        3: f"Tier 3 [김철훈 원장 올인원 마스터 대입 백서 (34,900원 BEST)]:\n- 3대 전형 정밀 진단 + 추천 전형 비율 제시\n- 주간 168시간 분 단위 시간표 설계도\n- 국어/수학/영어/탐구 4과목 1등급 비법서\n- 수면/스마트폰 생활 통제 & 수시/정시 원서 실전 시뮬레이션 (10~15페이지급 풀세트)."
+    }
+
+    prompt = (
+        f"학생 데이터:\n"
+        f"- 이름: {student_name} ({high_school} {grade}학년)\n"
+        f"- 계열: {gyeyeol} (수학: {math_type})\n"
+        f"- 목표 대학: {target_univ} | 마지노선: {baseline_univ}\n"
+        f"- 성적: 국어 {kor_pct}% | 수학 {math_pct}% | 영어 {eng_raw}점({eng_grade}등급) | 탐구1 {tam1_pct}% | 탐구2 {tam2_pct}% | 한국사 {hist_raw}점({hist_grade}등급) | 평균 {avg_pct}%\n\n"
+        f"{tier_prompts.get(tier, tier_prompts[3])}\n\n"
+        f"위 데이터를 분석하여 완성도 높은 JSON 리포트를 작성해 주세요."
+    )
+
+    models_to_try = ['gemini-3.6-flash', 'gemini-2.5-flash', 'gemini-1.5-flash']
+    for m in models_to_try:
+        try:
+            if not client: break
+            resp = client.models.generate_content(
+                model=m,
+                contents=prompt,
+                config={'system_instruction': system_instruction, 'temperature': 0.5, 'max_output_tokens': 6000}
+            )
+            raw = resp.text.strip().replace('```json', '').replace('```', '')
+            data = json.loads(raw)
+            data["tier"] = tier
+            return data
+        except Exception as e:
+            print(f"Deep report generation error on {m}: {e}")
+
+    # Fallback 기본 구조
+    return {
+        "tier": tier,
+        "tier_title": f"Tier {tier} 맞춤형 대입 전략 리포트",
+        "summary_headline": f"{target_univ} 진학을 위한 정시 초집중 및 수시 백업 포트폴리오",
+        "admission_track_recommendation": "정시 집중 75% + 수시 상향 지원 25%",
+        "target_univ_diagnosis": f"목표 {target_univ}: 수학/탐구 반영비율 가중치 활용 시 합격 가능성 우수",
+        "baseline_univ_diagnosis": f"마지노선 {baseline_univ}: 현재 백분위로 적정~안정권 유지",
+        "chapters": [
+            {"title": "제1장. 전형별 유불리 정밀 진단", "content": f"현재 평균 백분위 {avg_pct}%는 정시 전형에서 매우 강력합니다. 수시는 상향 6장을 적극 활용하고 메인 에너지는 수능 100% 정시에 집중해야 합니다."},
+            {"title": "제2장. 목표 대학 합격 컷 집중 분석", "content": f"{target_univ} 합격을 위해 수학 준킬러 4점 문항 및 탐구 2과목 변표 방어가 당락의 핵심입니다."}
+        ],
+        "subject_strategies": {
+            "korean": "매일 아침 08:40 비문학 3지문 실전 리듬 독해",
+            "math": "4점 준킬러 10분 돌파 및 오답노트 유형별 단권화",
+            "english": "절대평가 90점 방어 빈칸추론 3단계 독해",
+            "tamgu": "6/9월 평가원 신유형 개념 빈틈 제로화"
+        },
+        "timetable_168h": {
+            "weekday": "06:30 기상 ➔ 07:30 국어 비문학 ➔ 방과 후 18:00~23:30 수학/탐구 몰입 5.5시간",
+            "weekend": "07:30 기상 ➔ 08:40 전과목 실전 모의고사 ➔ 14:00~23:00 오답 드릴",
+            "ratios": "수학 40%, 국어 30%, 탐구 20%, 영어 10%"
+        },
+        "mentor_closing": "입시는 100m 달리기가 아니라 1년의 페이스 조절이다. 너는 반드시 해낼 수 있다. 끝까지 함께 달린다!"
     }
