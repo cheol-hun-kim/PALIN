@@ -1512,11 +1512,42 @@ body:not(.day-mode) .modal-close-btn:hover {
 #report-tier-modal .modal-close-btn,
 #deep-report-modal .modal-close-btn,
 #student-card-modal .modal-close-btn,
+#cash-modal .modal-close-btn,
 #referral-modal .modal-close-btn,
 #admin-report-view-modal .modal-close-btn {
     background: rgba(255, 255, 255, 0.18) !important;
     border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
     color: #ffffff !important;
+}
+
+/* 다크 전용 팝업 모달은 라이트 모드(Day mode)에서도 항상 다크 럭셔리 배경 유지 */
+body.day-mode #student-card-modal .trigger-content,
+body.day-mode #cash-modal .trigger-content,
+body.day-mode #report-tier-modal .trigger-content,
+body.day-mode #deep-report-modal .trigger-content,
+body.day-mode #referral-modal .trigger-content {
+    background: #0f172a !important;
+    color: #ffffff !important;
+}
+
+body.day-mode #student-card-modal .modal-close-btn,
+body.day-mode #cash-modal .modal-close-btn,
+body.day-mode #report-tier-modal .modal-close-btn,
+body.day-mode #deep-report-modal .modal-close-btn,
+body.day-mode #referral-modal .modal-close-btn {
+    background: rgba(255, 255, 255, 0.18) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+    color: #ffffff !important;
+}
+
+/* 학생증 실물 카드 (항상 럭셔리 블랙 골드) */
+.student-id-card-preview {
+    background: linear-gradient(135deg, #090d16 0%, #111827 50%, #030712 100%) !important;
+    border: 2px solid #6366f1 !important;
+    border-radius: 16px !important;
+    padding: 18px !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.25) !important;
 }
 
 /* 2페이지 입시리포트 설명 텍스트 고선명도 */
@@ -1529,6 +1560,18 @@ body:not(.day-mode) .report-intro-text {
     color: #cbd5e1 !important;
     font-weight: 500 !important;
 }
+
+/* 마이페이지 목표 D-Day 커스텀 설정 텍스트 고선명도 */
+body.day-mode .dday-custom-title {
+    color: #4338ca !important;
+    font-weight: 800 !important;
+}
+
+body:not(.day-mode) .dday-custom-title {
+    color: #fcd34d !important;
+    font-weight: 800 !important;
+}
+
 
 /* ===================================================
    📱 마이페이지 프리미엄 모던 리스트 메뉴 (토스/애플 스타일)
