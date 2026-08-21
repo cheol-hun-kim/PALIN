@@ -34,6 +34,13 @@ class Student(Base):
     max_streak_days = Column(Integer, default=0)     # 최고 연속 기록
     medical_symbol = Column(String, default="GENERAL") # 메디컬/전공 엠블럼 심볼 (MED, DENT, PHARM, KMED, VET, GENERAL)
 
+    # 💎 B2C 유료 캐시 & 친구 초대 바이럴 루프 필드
+    paid_cash = Column(Integer, default=0)                # 유료 결제 PALIN 캐시 (1캐시=1원)
+    free_report_tickets = Column(Integer, default=0)      # 19,000원 상당 AI 심층 리포트 무료 열람권 (친구초대 보상)
+    referral_code = Column(String, unique=True, index=True, nullable=True) # 내 고유 친구 초대 코드
+    referred_by = Column(String, nullable=True)           # 나를 초대한 친구 코드
+    has_unlimited_chat = Column(Boolean, default=False)   # AI 멘토 무제한 패스 보유 여부
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     parent_id = Column(Integer, ForeignKey("parents.id"))
