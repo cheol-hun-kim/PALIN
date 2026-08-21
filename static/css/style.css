@@ -1358,4 +1358,91 @@ body:not(.day-mode) .chatbot-notice-box b {
     font-weight: 700 !important;
 }
 
+/* ===================================================
+   📱 모바일 헤더 슬림화 & 글자 잘림 완전 방지 (360px 완벽 대응)
+   =================================================== */
+header {
+    padding: 8px 10px !important;
+    gap: 4px !important;
+}
+
+.logo-container {
+    gap: 4px !important;
+}
+
+.logo-text {
+    font-size: 1.0rem !important;
+}
+
+.user-status {
+    gap: 3px !important;
+}
+
+.streak-badge {
+    padding: 3px 6px !important;
+    font-size: 0.72rem !important;
+}
+
+.points-badge {
+    padding: 3px 6px !important;
+    font-size: 0.72rem !important;
+}
+
+#header-student-name {
+    max-width: 54px;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
+@media (max-width: 390px) {
+    header {
+        padding: 6px 8px !important;
+        gap: 2px !important;
+    }
+    .logo-text {
+        font-size: 0.92rem !important;
+    }
+    .streak-badge, .points-badge {
+        padding: 2px 5px !important;
+        font-size: 0.68rem !important;
+    }
+    .header-user-btn {
+        padding: 3px 6px !important;
+        font-size: 0.72rem !important;
+    }
+    #header-student-name {
+        max-width: 44px;
+    }
+}
+
+/* ===================================================
+   🪪 가상 학생증 럭셔리 워터마크 & 홀로그램 스타일
+   =================================================== */
+.student-id-card-preview {
+    position: relative;
+    background: linear-gradient(135deg, #090d16 0%, #111827 50%, #030712 100%);
+    border: 2px solid #6366f1;
+    border-radius: 20px;
+    padding: 20px;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.2);
+    overflow: hidden;
+}
+
+.student-card-watermark {
+    position: absolute;
+    right: -25px;
+    bottom: -25px;
+    font-size: 9rem;
+    opacity: 0.12;
+    pointer-events: none;
+    user-select: none;
+    transform: rotate(-15deg);
+    filter: blur(0.5px);
+}
+
+
 
