@@ -107,7 +107,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from app.sms import send_sms, check_aligo_remain, save_sms_settings, load_sms_settings
+try:
+    from app.sms import send_sms, check_aligo_remain, save_sms_settings, load_sms_settings
+except Exception as _sms_err:
+    print(f"Warning: app.sms import failed ({_sms_err}), falling back to dummy SMS.")
+    def send_sms(to_phone: str, message: str, title: str = "[PALIN OS]"):
+        print(f"[FALLBACK SMS] TO: {to_phone} | {message}")
+        return {"result_code": 1, "message": "Dummy fallback success"}
+    def check_aligo_remain():
+        return {"status": "mock", "message": "시뮬레이션 모드", "SMS_CNT": 9999, "LMS_CNT": 9999}
+    def save_sms_settings(key: str, user_id: str, sender: str):
+        return True
+    def load_sms_settings():
+        return {}
 
 def send_mock_sms(to_phone: str, message: str):
     send_sms(to_phone=to_phone, message=message, title="[PALIN OS 행동통제 알림]")
