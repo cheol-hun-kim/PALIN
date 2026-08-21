@@ -415,7 +415,7 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
         return schemas.AIChatResponse(reply=reply, remaining_chats=remaining)
     except Exception as e:
         print(f"CHAT ENDPOINT ERROR: {e}")
-        return schemas.AIChatResponse(reply=f"AI 대화 처리 중 오류가 발생했습니다. ({str(e)})", remaining_chats=remaining)
+        return schemas.AIChatResponse(reply="지금 구글 AI 서버에 순간적인 접속 트래픽이 몰려서 답변이 지연되었어. 1~2초 뒤에 질문을 다시 보내주면 바로 답변해줄게!", remaining_chats=remaining)
 
 @app.get("/api/predict/universities")
 def get_predict_univs():
