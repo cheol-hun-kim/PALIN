@@ -2700,7 +2700,7 @@ async function executeTierOrder() {
     const modal = document.getElementById("deep-report-modal");
     const content = document.getElementById("deep-report-content");
     modal.style.display = "flex";
-    content.innerHTML = `<div style="text-align:center; padding: 40px;"><span class="material-symbols-rounded" style="font-size:3.2rem; color:#6366f1; animation: spin 1s infinite linear;">sync</span><div style="font-weight:900; font-size:1.15rem; margin-top:14px; color:#ffffff;">김철훈 AI 멘토가 Tier ${selectedReportTier} 맞춤형 대입 전략 백서를 집필 중입니다... (약 10초)</div></div>`;
+    content.innerHTML = `<div style="text-align:center; padding: 40px;"><span class="material-symbols-rounded" style="font-size:3.2rem; color:#6366f1; animation: spin 1s infinite linear;">sync</span><div style="font-weight:900; font-size:1.15rem; margin-top:14px; color:#ffffff;">PALIN 대입 데이터 분석실에서 Tier ${selectedReportTier} 맞춤형 전략 백서를 분석/작성 중입니다... (약 10초)</div></div>`;
 
     try {
         const res = await fetch("/api/ai/deep-report", {
