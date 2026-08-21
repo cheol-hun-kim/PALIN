@@ -1464,30 +1464,43 @@ body:not(.day-mode) .tier-price-text { color: #fcd34d !important; font-weight: 9
 
 
 /* ===================================================
-   🪪 가상 학생증 럭셔리 워터마크 & 홀로그램 스타일
+   ❌ 선명한 모달 닫기 버튼 & 입시 리포트 텍스트 선명화
    =================================================== */
-.student-id-card-preview {
-    position: relative;
-    background: linear-gradient(135deg, #090d16 0%, #111827 50%, #030712 100%);
-    border: 2px solid #6366f1;
-    border-radius: 20px;
-    padding: 20px;
-    color: white;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.2);
-    overflow: hidden;
+.modal-close-btn {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.18) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+    color: #ffffff !important;
+    font-size: 1.35rem !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    flex-shrink: 0 !important;
 }
 
-.student-card-watermark {
-    position: absolute;
-    right: -25px;
-    bottom: -25px;
-    font-size: 9rem;
-    opacity: 0.12;
-    pointer-events: none;
-    user-select: none;
-    transform: rotate(-15deg);
-    filter: blur(0.5px);
+.modal-close-btn:hover {
+    background: rgba(239, 68, 68, 0.85) !important;
+    border-color: #ef4444 !important;
+    transform: scale(1.05) !important;
 }
+
+/* 2페이지 입시리포트 설명 텍스트 고선명도 */
+body.day-mode .report-intro-text {
+    color: #334155 !important;
+    font-weight: 600 !important;
+}
+
+body:not(.day-mode) .report-intro-text {
+    color: #cbd5e1 !important;
+    font-weight: 500 !important;
+}
+
 
 
 
