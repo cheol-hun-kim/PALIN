@@ -137,49 +137,29 @@ function hideOverlay(id) {
     }
 }
 
-// --- 딴짓 감지 모듈 (OS 화면 꺼짐 허용 & 타 앱 전환 감지 고도화) ---
-let isScreenOffGrace = false;
-let screenOffCheckTimeout = null;
+// --- 공부 타이머 백그라운드 & 절전 모드 지원 모듈 ---
+let timerStartTime = null;
 
 function setupDistractionDetection() {
-    // 1. 화면 꺼짐(Screen Off) vs 타 앱 전환(App Switch) 구분 로직
+    // 화면이 꺼졌다가 다시 켜졌을 때(visibilityState === "visible") 즉시 타임스탬프 계산하여 시간 동기화
     document.addEventListener("visibilitychange", () => {
-        if (!isTimerRunning) return;
-
-        if (document.visibilityState === "hidden") {
-            // 모바일 화면 꺼짐일 수 있으므로 1.5초 유예 타이머 시작
-            isScreenOffGrace = true;
-            screenOffCheckTimeout = setTimeout(() => {
-                // 백그라운드에서 타임스탬프 계산이 계속 유지되므로 화면 꺼짐 상태는 정상 자습 누적 인정!
-                isScreenOffGrace = false;
-            }, 1500);
-        } else if (document.visibilityState === "visible") {
-            if (screenOffCheckTimeout) {
-                clearTimeout(screenOffCheckTimeout);
-                screenOffCheckTimeout = null;
+        if (isTimerRunning && timerStartTime && document.visibilityState === "visible") {
+            const currentElapsed = Math.floor((Date.now() - timerStartTime) / 1000);
+            if (currentElapsed >= 0) {
+                timerSeconds = currentElapsed;
+                updateTimerDisplay(timerSeconds);
             }
-            isScreenOffGrace = false;
-        }
-    });
-
-    // 2. 화면이 켜진 상태에서 타 브라우저 탭/타 앱으로 포커스 이탈 시 명백한 딴짓으로 판정
-    window.addEventListener("blur", () => {
-        if (isTimerRunning && !isScreenOffGrace) {
-            // 사용자가 화면이 켜진 상태에서 다른 창이나 앱을 조작한 경우
-            setTimeout(() => {
-                if (isTimerRunning && document.hasFocus && !document.hasFocus()) {
-                    isDistracted = true;
-                    pauseTimerOnDistraction();
-                }
-            }, 500);
         }
     });
 }
 
-function pauseTimerOnDistraction() {
-    triggerLogoCrackEffect(); // 🌲 포레스트 목표 대학 로고 균열 애니메이션
-    alert("⚠️ [딴짓 감지!] 집중 타이머 측정 중 다른 앱으로 전환하여 목표 대학 로고에 금이 가고 측정이 강제 종료되었습니다. 학부모님께 경고 메시지가 전달됩니다.");
-    stopTimerForcefully(true);
+function updateTimerDisplay(seconds) {
+    const circle = document.getElementById("timer-circle");
+    if (!circle) return;
+    const hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
+    const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+    const secs = String(seconds % 60).padStart(2, '0');
+    circle.innerText = `${hrs}:${mins}:${secs}`;
 }
 
 
@@ -1104,9 +1084,11 @@ async function startTimer() {
         isTimerRunning = true;
         isDistracted = false;
         
+        timerStartTime = Date.now();
         timerSeconds = 0;
         const circle = document.getElementById("timer-circle");
         circle.classList.add("active");
+        updateTimerDisplay(0);
         
         const timerBtn = document.getElementById("timer-toggle-btn");
         timerBtn.innerText = "집중 종료";
@@ -1115,11 +1097,10 @@ async function startTimer() {
         document.getElementById("timer-current-study").innerText = `🎯 진행 중: ${studyTitle}`;
         
         timerInterval = setInterval(() => {
-            timerSeconds++;
-            const hrs = String(Math.floor(timerSeconds / 3600)).padStart(2, '0');
-            const mins = String(Math.floor((timerSeconds % 3600) / 60)).padStart(2, '0');
-            const secs = String(timerSeconds % 60).padStart(2, '0');
-            circle.innerText = `${hrs}:${mins}:${secs}`;
+            if (timerStartTime) {
+                timerSeconds = Math.floor((Date.now() - timerStartTime) / 1000);
+                updateTimerDisplay(timerSeconds);
+            }
         }, 1000);
     } catch (e) {
         alert("타이머 시작 실패");
@@ -1132,6 +1113,9 @@ async function stopTimerForcefully(triggeredByDistraction = false) {
     clearInterval(timerInterval);
     timerInterval = null;
     isTimerRunning = false;
+    
+    const finalSeconds = timerStartTime ? Math.floor((Date.now() - timerStartTime) / 1000) : timerSeconds;
+    timerStartTime = null;
     
     const circle = document.getElementById("timer-circle");
     circle.classList.remove("active");
@@ -1156,9 +1140,10 @@ async function stopTimerForcefully(triggeredByDistraction = false) {
         const session = await res.json();
         
         if (triggeredByDistraction) {
-            alert(`⚠️ 집중 중 딴짓이 기록되었습니다. 포인트가 지급되지 않으며 학부모님께 즉시 문자가 발송되었습니다. (sms_log.txt 파일 확인)`);
+            alert(`⚠️ 집중 중 딴짓이 기록되었습니다. 포인트가 지급되지 않으며 학부모님께 즉시 문자가 발송되었습니다.`);
         } else {
-            alert(`⏱️ 정상 공부 완료! ${Math.floor(session.duration_sec/60)}분간 정상 집중하여 포인트가 정산 지급되었습니다.`);
+            const displayMin = Math.floor((session.duration_sec || finalSeconds) / 60);
+            alert(`⏱️ 정상 공부 완료! ${displayMin}분간 정성껏 집중하여 공부 시간이 안전하게 기록되었습니다.`);
         }
         
         fetchStudentInfo(currentStudent.id);
@@ -1739,6 +1724,8 @@ async function createQAPost() {
         return;
     }
 
+    const isAnonymous = document.getElementById("qa-post-anonymous")?.checked || false;
+
     try {
         const res = await fetch("/api/qa/post", {
             method: "POST",
@@ -1748,14 +1735,18 @@ async function createQAPost() {
                 subject,
                 title,
                 content,
-                reward_points: reward
+                reward_points: reward,
+                is_anonymous: isAnonymous
             })
         });
         if (res.ok) {
-            alert("질문이 업로드되었습니다.");
+            alert(isAnonymous ? "🔒 익명으로 질문이 등록되었습니다!" : "질문이 업로드되었습니다.");
             document.getElementById("qa-post-title").value = "";
             document.getElementById("qa-post-content").value = "";
-            document.getElementById("qa-post-reward").value = "0";
+            document.getElementById("qa-post-reward").value = "50";
+            if (document.getElementById("qa-post-anonymous")) {
+                document.getElementById("qa-post-anonymous").checked = false;
+            }
             fetchStudentInfo(currentStudent.id);
             loadQAPosts();
         }
