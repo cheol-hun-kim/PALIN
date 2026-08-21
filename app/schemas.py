@@ -270,18 +270,21 @@ class QAPostCreate(BaseModel):
     title: str
     content: str
     reward_points: int
+    is_anonymous: Optional[bool] = False
 
 class QACommentCreate(BaseModel):
     student_id: int
     content: str
+    is_anonymous: Optional[bool] = False
 
 class QACommentResponse(BaseModel):
     id: int
     post_id: int
-    student_id: int
+    student_id: Optional[int] = None
     student_name: Optional[str] = None
     content: str
     is_accepted: bool
+    is_anonymous: Optional[bool] = False
     created_at: datetime
 
     class Config:
@@ -289,13 +292,14 @@ class QACommentResponse(BaseModel):
 
 class QAPostResponse(BaseModel):
     id: int
-    student_id: int
+    student_id: Optional[int] = None
     student_name: Optional[str] = None
     subject: str
     title: str
     content: str
     reward_points: int
     is_resolved: bool
+    is_anonymous: Optional[bool] = False
     created_at: datetime
     comments: List[QACommentResponse] = []
 
