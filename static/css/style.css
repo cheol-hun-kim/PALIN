@@ -1464,17 +1464,14 @@ body:not(.day-mode) .tier-price-text { color: #fcd34d !important; font-weight: 9
 
 
 /* ===================================================
-   ❌ 선명한 모달 닫기 버튼 & 입시 리포트 텍스트 선명화
+   ❌ 선명한 모달 닫기 버튼 (라이트/다크 모드 완벽 분기)
    =================================================== */
 .modal-close-btn {
-    width: 34px !important;
-    height: 34px !important;
+    width: 32px !important;
+    height: 32px !important;
     border-radius: 50% !important;
-    background: rgba(255, 255, 255, 0.18) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
-    color: #ffffff !important;
     font-size: 1.35rem !important;
-    font-weight: 700 !important;
+    font-weight: 800 !important;
     line-height: 1 !important;
     display: flex !important;
     align-items: center !important;
@@ -1482,12 +1479,44 @@ body:not(.day-mode) .tier-price-text { color: #fcd34d !important; font-weight: 9
     cursor: pointer !important;
     transition: all 0.2s ease !important;
     flex-shrink: 0 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
 }
 
-.modal-close-btn:hover {
+/* 라이트 모드 (흰 배경 모달) */
+body.day-mode .modal-close-btn {
+    background: #e2e8f0 !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #1e293b !important;
+}
+
+body.day-mode .modal-close-btn:hover {
+    background: #ef4444 !important;
+    border-color: #dc2626 !important;
+    color: #ffffff !important;
+}
+
+/* 다크 모드 */
+body:not(.day-mode) .modal-close-btn {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
+    color: #ffffff !important;
+}
+
+body:not(.day-mode) .modal-close-btn:hover {
     background: rgba(239, 68, 68, 0.85) !important;
     border-color: #ef4444 !important;
-    transform: scale(1.05) !important;
+    color: #ffffff !important;
+}
+
+/* 항상 다크 테마인 전용 팝업 모달들 */
+#report-tier-modal .modal-close-btn,
+#deep-report-modal .modal-close-btn,
+#student-card-modal .modal-close-btn,
+#referral-modal .modal-close-btn,
+#admin-report-view-modal .modal-close-btn {
+    background: rgba(255, 255, 255, 0.18) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+    color: #ffffff !important;
 }
 
 /* 2페이지 입시리포트 설명 텍스트 고선명도 */
