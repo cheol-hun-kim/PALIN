@@ -6,7 +6,7 @@
     <title>PALIN OS - 데이터 기반 행동 통제 범용 OS</title>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=42.0">
+    <link rel="stylesheet" href="css/style.css?v=43.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -1316,22 +1316,25 @@
 
     <!-- 🔗 4. 친구 초대 & 16,900원 리포트 무료권 모달 -->
     <div id="referral-modal" class="trigger-modal" style="display: none;">
-        <div class="trigger-content" style="max-width: 420px; text-align: center; border-color: #ec4899; background: #0f172a; padding: 22px;">
-            <div style="font-size: 1.3rem; font-weight: 900; color: #f43f5e; margin-bottom: 6px;">🎁 친구 초대 & 리포트 무료권</div>
-            <div style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 16px;">친구 1명이 가입할 때마다 <strong>16,900원 상당 입시 리포트 무료 열람권 1장</strong> 즉시 지급!</div>
+        <div class="trigger-content" style="max-width: 420px; border-color: #ec4899; background: #0f172a !important; color: #ffffff !important; padding: 22px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 10px;">
+                <div style="font-size: 1.25rem; font-weight: 900; color: #f43f5e;">🎁 친구 초대 & 리포트 무료권</div>
+                <button onclick="document.getElementById('referral-modal').style.display='none'" class="modal-close-btn" title="닫기" style="background: rgba(255, 255, 255, 0.2) !important; color: #ffffff !important; border: 1.5px solid rgba(255, 255, 255, 0.4) !important; width: 34px; height: 34px; border-radius: 50%; font-size: 1.3rem; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</button>
+            </div>
+            <div style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 16px; text-align: center;">친구 1명이 가입할 때마다 <strong>16,900원 상당 입시 리포트 무료 열람권 1장</strong> 즉시 지급!</div>
 
-            <div style="background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+            <div style="background: rgba(236, 72, 153, 0.12); border: 1.5px solid rgba(236, 72, 153, 0.35); border-radius: 12px; padding: 16px; margin-bottom: 16px; text-align: center;">
                 <div style="font-size: 0.78rem; color: #fbcfe8; margin-bottom: 6px;">내 고유 친구 초대 코드</div>
                 <div id="referral-my-code" style="font-size: 1.6rem; font-weight: 900; color: #ffffff; letter-spacing: 2px; font-family: monospace;">PL-0000</div>
                 <div style="font-size: 0.75rem; color: #fda4af; margin-top: 6px;">가입한 친구도 500P 웰컴 포인트를 받습니다.</div>
             </div>
 
-            <div style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 14px;">
-                🎟️ 현재 보유 무료 리포트 티켓: <strong id="referral-ticket-count" style="color: #fcd34d; font-size: 1.05rem;">0</strong>장
+            <div style="font-size: 0.85rem; color: #cbd5e1; margin-bottom: 14px; text-align: center;">
+                🎟️ 현재 보유 무료 리포트 티켓: <strong id="referral-ticket-count" style="color: #fcd34d; font-size: 1.1rem;">0</strong>장
             </div>
 
             <button onclick="copyReferralLink()" class="btn" style="width: 100%; padding: 12px 0; background: linear-gradient(135deg, #ec4899, #f43f5e); font-weight: 800; font-size: 0.92rem; margin-bottom: 8px;">🔗 초대 링크 및 코드 복사하기</button>
-            <button onclick="document.getElementById('referral-modal').style.display='none'" class="btn btn-secondary" style="width: 100%; padding: 8px 0; font-size: 0.82rem;">닫기</button>
+            <button onclick="document.getElementById('referral-modal').style.display='none'" class="btn" style="width: 100%; padding: 10px 0; font-size: 0.85rem; font-weight: 700; background: #334155; color: #ffffff !important; border-radius: 8px;">확인 완료 닫기</button>
         </div>
     </div>
 
@@ -1343,7 +1346,7 @@
                     <div style="font-size: 1.2rem; font-weight: 900; color: #60a5fa;">💎 PALIN 캐시 충전소</div>
                     <div style="font-size: 0.75rem; color: #94a3b8;">1:1 명문대 과외 매칭 및 AI 심층 리포트 전용 캐시</div>
                 </div>
-                <button onclick="document.getElementById('cash-modal').style.display='none'" class="modal-close-btn" title="닫기">&times;</button>
+                <button onclick="document.getElementById('cash-modal').style.display='none'" class="modal-close-btn" title="닫기" style="background: rgba(255, 255, 255, 0.2) !important; color: #ffffff !important; border: 1.5px solid rgba(255, 255, 255, 0.4) !important; width: 34px; height: 34px; border-radius: 50%; font-size: 1.3rem; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</button>
             </div>
 
             <div style="background: rgba(59, 130, 246, 0.12); border: 1.5px solid rgba(59, 130, 246, 0.4); border-radius: 12px; padding: 14px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
@@ -1429,7 +1432,7 @@
     </div>
     </div>
 
-    <script src="js/app.js?v=42.0"></script>
+    <script src="js/app.js?v=43.0"></script>
     <script>
     // Service Worker Registration
     if ('serviceWorker' in navigator) {
