@@ -306,3 +306,37 @@ class ExamMaterial(Base):
     year = Column(Integer, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+
+class AdmissionReport(Base):
+    __tablename__ = "admission_reports"
+
+    id = Column(Integer, primary_key=True, index=True)
+    student_id = Column(Integer, ForeignKey("students.id"), nullable=True)
+    student_name = Column(String, nullable=True)
+    tier = Column(Integer, default=3)
+    track_choice = Column(String, default="정시")
+    target_univ = Column(String, nullable=True)
+    baseline_univ = Column(String, nullable=True)
+    report_json = Column(Text)  # JSON 전문 저장
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    student = relationship("Student")
+
+
+class ConsultingRequest(Base):
+    __tablename__ = "consulting_requests"
+
+    id = Column(Integer, primary_key=True, index=True)
+    student_id = Column(Integer, ForeignKey("students.id"), nullable=True)
+    student_name = Column(String)
+    student_phone = Column(String, nullable=True)
+    parent_phone = Column(String, nullable=True)
+    consulting_type = Column(String, default="유선 전화 상담 (30~40분)")  # 유선 전화 상담 (30~40분) | 원장 집무실 1:1 대면 상담 (50분)
+    target_univ = Column(String, nullable=True)
+    status = Column(String, default="접수대기")  # 접수대기 | 상담일정확정 | 상담완료 | 취소
+    price = Column(Integer, default=300000)
+    note = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    student = relationship("Student")
+
