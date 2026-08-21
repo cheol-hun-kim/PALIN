@@ -2803,21 +2803,15 @@ function renderDeepReport(report, usedTicket, chargedCost) {
                 <div style="font-size: 0.82rem; color: #a7f3d0; font-weight: 700;">과목별 배분: ${timetable.ratios || ""}</div>
             </div>
 
-            <!-- 4과목 1등급 비법 -->
+            <!-- 과목별/시험별 만점 비법 -->
             <div style="margin-bottom: 16px; background: rgba(245, 158, 11, 0.05); padding: 16px; border-radius: 10px; border: 1px solid rgba(245, 158, 11, 0.25);">
-                <div style="font-size: 1rem; font-weight: 800; color: #fbbf24; margin-bottom: 10px;">📖 [🥇 Tier 3 독점] 국·수·영·탐 4과목 1등급 킬러 공략법</div>
+                <div style="font-size: 1rem; font-weight: 800; color: #fbbf24; margin-bottom: 10px;">📖 [🥇 Tier 3 독점] 과목별 · 시험별 만점 극대화 비법 지침</div>
                 <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.6;">
                     • <strong>국어:</strong> ${subjects.korean || ""}<br>
                     • <strong>수학:</strong> ${subjects.math || ""}<br>
                     • <strong>영어:</strong> ${subjects.english || ""}<br>
                     • <strong>탐구:</strong> ${subjects.tamgu || ""}
                 </div>
-            </div>
-
-            <!-- 5,000원 과외 쿠폰 보너스 -->
-            <div style="background: linear-gradient(135deg, rgba(236,72,153,0.15), rgba(139,92,246,0.15)); border: 1px dashed #ec4899; border-radius: 10px; padding: 14px; margin-bottom: 16px; text-align: center;">
-                <div style="font-size: 0.95rem; font-weight: 900; color: #f472b6;">🎁 Tier 3 구매자 전용 특급 혜택</div>
-                <div style="font-size: 0.8rem; color: #ffffff; margin-top: 4px;">명문대 1:1 과외선생님 매칭 신청 시 <strong>5,000 캐시 즉시 할인 혜택</strong>이 적용됩니다.</div>
             </div>
         `;
     }
