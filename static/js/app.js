@@ -378,24 +378,33 @@ function getMedicalSymbolIcon(symbolKey) {
 
 function updateHeaderUI() {
     if (!currentStudent) return;
-    document.getElementById("header-points").innerText = `${currentStudent.current_points || 0} P`;
     
-    // 💎 유료 캐시 뱃지
+    // 🪙 무료 성실 포인트
+    const headerPoints = document.getElementById("header-points");
+    if (headerPoints) headerPoints.innerText = `${currentStudent.current_points || 0} P`;
+    const mypagePoints = document.getElementById("mypage-points");
+    if (mypagePoints) mypagePoints.innerText = `${(currentStudent.current_points || 0).toLocaleString()} P`;
+    
+    // 💎 유료 PALIN 캐시
     const cashEl = document.getElementById("header-cash");
     if (cashEl) cashEl.innerText = `${(currentStudent.paid_cash || 0).toLocaleString()}`;
-    
+    const mypageCash = document.getElementById("mypage-cash");
+    if (mypageCash) mypageCash.innerText = `${(currentStudent.paid_cash || 0).toLocaleString()}`;
     const cashModalBal = document.getElementById("cash-modal-balance");
     if (cashModalBal) cashModalBal.innerText = `${(currentStudent.paid_cash || 0).toLocaleString()}`;
 
     // 🎟️ 무료 리포트 티켓
     const ticketEl = document.getElementById("referral-ticket-count");
     if (ticketEl) ticketEl.innerText = `${currentStudent.free_report_tickets || 0}`;
+    const mypageTickets = document.getElementById("mypage-tickets");
+    if (mypageTickets) mypageTickets.innerText = `${currentStudent.free_report_tickets || 0}`;
 
     // 🔗 내 추천인 코드
     const refCodeEl = document.getElementById("referral-my-code");
     if (refCodeEl) refCodeEl.innerText = currentStudent.referral_code || `PL-${String(currentStudent.id).padStart(4, '0')}`;
 
-    document.getElementById("header-student-name").innerText = `${currentStudent.name} 학생`;
+    const studentNameEl = document.getElementById("header-student-name");
+    if (studentNameEl) studentNameEl.innerText = `${currentStudent.name} 학생`;
     
     // 🔥 듀오링고 불꽃 (Streak) 렌더링
     const streakEl = document.getElementById("header-streak-count");
@@ -2069,27 +2078,63 @@ function setupUnivDeptSelectors(univSelId, deptSelId, initialUniv = "", initialD
     }
 }
 
-// === 수시/정시 탭 전환 ===
+// === 수시/정시/입시전략리포트 3대 탭 전환 ===
 function switchAdmissionTab(tab) {
     const susiSection = document.getElementById('susi-section');
     const jeongsiSection = document.getElementById('jeongsi-section');
+    const reportSection = document.getElementById('report-tab-section');
     const btnSusi = document.getElementById('btn-susi');
     const btnJeongsi = document.getElementById('btn-jeongsi');
+    const btnReport = document.getElementById('btn-report');
     
     if (tab === 'susi') {
-        susiSection.style.display = 'block';
-        jeongsiSection.style.display = 'none';
-        btnSusi.className = 'btn';
-        btnSusi.style.background = 'linear-gradient(135deg, #6366f1, #8b5cf6)';
-        btnJeongsi.className = 'btn btn-secondary';
-        btnJeongsi.style.background = '';
-    } else {
-        susiSection.style.display = 'none';
-        jeongsiSection.style.display = 'block';
-        btnJeongsi.className = 'btn';
-        btnJeongsi.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-        btnSusi.className = 'btn btn-secondary';
-        btnSusi.style.background = '';
+        if (susiSection) susiSection.style.display = 'block';
+        if (jeongsiSection) jeongsiSection.style.display = 'none';
+        if (reportSection) reportSection.style.display = 'none';
+        if (btnSusi) {
+            btnSusi.className = 'btn';
+            btnSusi.style.background = 'linear-gradient(135deg, #6366f1, #8b5cf6)';
+        }
+        if (btnJeongsi) {
+            btnJeongsi.className = 'btn btn-secondary';
+            btnJeongsi.style.background = '';
+        }
+        if (btnReport) {
+            btnReport.className = 'btn btn-secondary';
+            btnReport.style.background = '';
+        }
+    } else if (tab === 'jeongsi') {
+        if (susiSection) susiSection.style.display = 'none';
+        if (jeongsiSection) jeongsiSection.style.display = 'block';
+        if (reportSection) reportSection.style.display = 'none';
+        if (btnJeongsi) {
+            btnJeongsi.className = 'btn';
+            btnJeongsi.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        }
+        if (btnSusi) {
+            btnSusi.className = 'btn btn-secondary';
+            btnSusi.style.background = '';
+        }
+        if (btnReport) {
+            btnReport.className = 'btn btn-secondary';
+            btnReport.style.background = '';
+        }
+    } else if (tab === 'report') {
+        if (susiSection) susiSection.style.display = 'none';
+        if (jeongsiSection) jeongsiSection.style.display = 'none';
+        if (reportSection) reportSection.style.display = 'block';
+        if (btnReport) {
+            btnReport.className = 'btn';
+            btnReport.style.background = 'linear-gradient(135deg, #6366f1, #8b5cf6)';
+        }
+        if (btnSusi) {
+            btnSusi.className = 'btn btn-secondary';
+            btnSusi.style.background = '';
+        }
+        if (btnJeongsi) {
+            btnJeongsi.className = 'btn btn-secondary';
+            btnJeongsi.style.background = '';
+        }
     }
 }
 
@@ -2329,21 +2374,21 @@ function downloadStudentIDCard() {
 
     // 1. 다크 그라데이션 배경
     const bgGrad = ctx.createLinearGradient(0, 0, 1080, 1350);
-    bgGrad.addColorStop(0, "#090d16");
-    bgGrad.addColorStop(0.5, "#111827");
-    bgGrad.addColorStop(1, "#030712");
+    bgGrad.addColorStop(0, "#080c14");
+    bgGrad.addColorStop(0.5, "#0f172a");
+    bgGrad.addColorStop(1, "#020617");
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, 1080, 1350);
 
     // 2. 배경 장식 원/글로우
-    const glowGrad = ctx.createRadialGradient(540, 450, 50, 540, 450, 500);
+    const glowGrad = ctx.createRadialGradient(540, 500, 50, 540, 500, 600);
     glowGrad.addColorStop(0, "rgba(99, 102, 241, 0.25)");
     glowGrad.addColorStop(1, "rgba(99, 102, 241, 0)");
     ctx.fillStyle = glowGrad;
     ctx.fillRect(0, 0, 1080, 1350);
 
     // 3. 학생증 카드 바디 (둥근 사각형)
-    const cardX = 90, cardY = 180, cardW = 900, cardH = 990, radius = 40;
+    const cardX = 90, cardY = 160, cardW = 900, cardH = 1020, radius = 40;
     ctx.save();
     ctx.beginPath();
     ctx.moveTo(cardX + radius, cardY);
@@ -2358,8 +2403,9 @@ function downloadStudentIDCard() {
     ctx.closePath();
 
     const cardGrad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
-    cardGrad.addColorStop(0, "#1e1b4b");
-    cardGrad.addColorStop(1, "#0f172a");
+    cardGrad.addColorStop(0, "#131b2e");
+    cardGrad.addColorStop(0.6, "#0b0f19");
+    cardGrad.addColorStop(1, "#040711");
     ctx.fillStyle = cardGrad;
     ctx.fill();
 
@@ -2368,64 +2414,69 @@ function downloadStudentIDCard() {
     ctx.stroke();
     ctx.restore();
 
-    // 4. 헤더 텍스트
-    const tUniv = currentStudent.target_univ || "서울대학교 의예과";
-    const parts = tUniv.split(" ");
-    const univName = parts[0] || "서울대학교";
-    const deptName = parts.slice(1).join(" ") || "전공선택";
+    // 4. 2027 기하학적 미니멀 워터마크 (배경 우측 하단)
+    ctx.save();
+    ctx.globalAlpha = 0.06;
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "900 320px monospace";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "bottom";
+    ctx.fillText("27", cardX + cardW - 30, cardY + cardH - 20);
+    ctx.restore();
 
+    // 5. 헤더 텍스트
     ctx.fillStyle = "#a5b4fc";
     ctx.font = "bold 28px Pretendard, sans-serif";
-    ctx.fillText("STUDENT IDENTIFICATION CARD", 150, 270);
+    ctx.fillText("STUDENT IDENTIFICATION CARD", 150, 250);
 
     ctx.fillStyle = "#ffffff";
     ctx.font = "900 68px Pretendard, sans-serif";
-    ctx.fillText(univName, 150, 360);
+    ctx.fillText(univName, 150, 340);
 
     // 27학번 엠블럼 뱃지
     ctx.fillStyle = "rgba(99, 102, 241, 0.35)";
-    ctx.fillRect(720, 300, 210, 60);
+    ctx.fillRect(700, 280, 230, 64);
     ctx.strokeStyle = "#818cf8";
     ctx.lineWidth = 2;
-    ctx.strokeRect(720, 300, 210, 60);
+    ctx.strokeRect(700, 280, 230, 64);
 
     ctx.fillStyle = "#c7d2fe";
-    ctx.font = "bold 30px Pretendard, sans-serif";
-    ctx.fillText("27학번 합격생", 745, 342);
+    ctx.font = "bold 32px Pretendard, sans-serif";
+    ctx.fillText("27학번 합격생", 725, 324);
 
     // 증명사진 플레이스홀더
     ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
-    ctx.fillRect(150, 440, 240, 310);
+    ctx.fillRect(150, 420, 240, 310);
     ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
-    ctx.strokeRect(150, 440, 240, 310);
+    ctx.strokeRect(150, 420, 240, 310);
 
     ctx.fillStyle = "#818cf8";
     ctx.font = "bold 80px sans-serif";
-    ctx.fillText("👤", 230, 615);
+    ctx.fillText("👤", 230, 595);
 
     // 학생 정보 필드
     ctx.fillStyle = "#94a3b8";
     ctx.font = "bold 32px Pretendard, sans-serif";
-    ctx.fillText("성  명 :", 430, 510);
-    ctx.fillText("소  속 :", 430, 580);
-    ctx.fillText("목  표 :", 430, 650);
-    ctx.fillText("식  별 :", 430, 720);
+    ctx.fillText("성  명 :", 430, 490);
+    ctx.fillText("소  속 :", 430, 560);
+    ctx.fillText("목  표 :", 430, 630);
+    ctx.fillText("식  별 :", 430, 700);
 
     ctx.fillStyle = "#ffffff";
-    ctx.font = "900 42px Pretendard, sans-serif";
-    ctx.fillText(`${currentStudent.name} 학생`, 560, 510);
+    ctx.font = "900 44px Pretendard, sans-serif";
+    ctx.fillText(`${currentStudent.name} 학생`, 560, 490);
 
     ctx.fillStyle = "#e2e8f0";
     ctx.font = "600 34px Pretendard, sans-serif";
-    ctx.fillText(`${currentStudent.high_school || "일반고"} (${currentStudent.grade === 4 ? 'N수생' : currentStudent.grade + '학년'})`, 560, 580);
+    ctx.fillText(`${currentStudent.high_school || "일반고"} (${currentStudent.grade === 4 ? 'N수생' : currentStudent.grade + '학년'})`, 560, 560);
 
     ctx.fillStyle = "#fcd34d";
-    ctx.font = "900 36px Pretendard, sans-serif";
-    ctx.fillText(deptName, 560, 650);
+    ctx.font = "900 38px Pretendard, sans-serif";
+    ctx.fillText(deptName, 560, 630);
 
     ctx.fillStyle = "#a5b4fc";
     ctx.font = "bold 32px monospace";
-    ctx.fillText(currentStudent.referral_code || `PL-2027-${String(currentStudent.id).padStart(4, '0')}`, 560, 720);
+    ctx.fillText(currentStudent.referral_code || `PL-2027-${String(currentStudent.id).padStart(4, '0')}`, 560, 700);
 
     // 하단 구분선 및 직인
     ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
@@ -2446,7 +2497,7 @@ function downloadStudentIDCard() {
     // 하단 인스타그램 바이럴 문구
     ctx.fillStyle = "#64748b";
     ctx.font = "bold 24px Pretendard, sans-serif";
-    ctx.fillText("공부 행동통제 및 1:1 과외 매칭 OS ➔ https://palin-os.onrender.com", 220, 1240);
+    ctx.fillText("공부 행동통제 및 1:1 과외 매칭 OS ➔ https://palin-os.onrender.com", 220, 1260);
 
     // 다운로드 트리거
     const link = document.createElement("a");
@@ -2746,7 +2797,7 @@ function renderDeepReport(report, usedTicket, chargedCost) {
         html += `
             <!-- 168시간 시간표 -->
             <div style="margin-bottom: 16px; background: rgba(16, 185, 129, 0.05); padding: 16px; border-radius: 10px; border: 1px solid rgba(16, 185, 129, 0.25);">
-                <div style="font-size: 1rem; font-weight: 800; color: #34d399; margin-bottom: 8px;">⏰ [Tier 3 독점] 주간 168시간 순공 극대화 타임테이블</div>
+                <div style="font-size: 1rem; font-weight: 800; color: #34d399; margin-bottom: 8px;">⏰ [🥇 Tier 3 독점] 주간 168시간 순공 극대화 타임테이블</div>
                 <div style="font-size: 0.85rem; color: #e2e8f0; margin-bottom: 6px;">📅 <strong>평일 루틴:</strong> ${timetable.weekday || ""}</div>
                 <div style="font-size: 0.85rem; color: #e2e8f0; margin-bottom: 6px;">🔥 <strong>주말 몰입:</strong> ${timetable.weekend || ""}</div>
                 <div style="font-size: 0.82rem; color: #a7f3d0; font-weight: 700;">과목별 배분: ${timetable.ratios || ""}</div>
@@ -2754,7 +2805,7 @@ function renderDeepReport(report, usedTicket, chargedCost) {
 
             <!-- 4과목 1등급 비법 -->
             <div style="margin-bottom: 16px; background: rgba(245, 158, 11, 0.05); padding: 16px; border-radius: 10px; border: 1px solid rgba(245, 158, 11, 0.25);">
-                <div style="font-size: 1rem; font-weight: 800; color: #fbbf24; margin-bottom: 10px;">📖 [Tier 3 독점] 국·수·영·탐 4과목 1등급 킬러 공략법</div>
+                <div style="font-size: 1rem; font-weight: 800; color: #fbbf24; margin-bottom: 10px;">📖 [🥇 Tier 3 독점] 국·수·영·탐 4과목 1등급 킬러 공략법</div>
                 <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.6;">
                     • <strong>국어:</strong> ${subjects.korean || ""}<br>
                     • <strong>수학:</strong> ${subjects.math || ""}<br>
