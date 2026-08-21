@@ -6,7 +6,7 @@
     <title>PALIN OS - 데이터 기반 행동 통제 범용 OS</title>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=41.0">
+    <link rel="stylesheet" href="css/style.css?v=42.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -440,70 +440,70 @@
 
 <!-- === 👑 대입 전략 리포트 & 1:1 컨설팅 전용 섹션 === -->
 <div id="report-tab-section" style="display: none;">
-    <div class="card" style="padding: 16px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.05)); border: 1.5px solid rgba(99, 102, 241, 0.4);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <h3 style="margin: 0; color: #a5b4fc; font-size: 1.05rem;">👑 맞춤형 대입 전략 솔루션</h3>
-            <span style="font-size: 0.72rem; background: linear-gradient(135deg, #ef4444, #f59e0b); color: white; padding: 2px 8px; border-radius: 12px; font-weight: 800;">🔥 재원생 50~65% 특별할인</span>
+    <div class="card" style="padding: 14px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.05)); border: 1.5px solid rgba(99, 102, 241, 0.4);">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 8px;">
+            <h3 style="margin: 0; color: #a5b4fc; font-size: 0.95rem; font-weight: 800; white-space: nowrap;">👑 맞춤형 대입 전략 솔루션</h3>
+            <span style="font-size: 0.68rem; background: linear-gradient(135deg, #ef4444, #f59e0b); color: white; padding: 2px 7px; border-radius: 10px; font-weight: 800; white-space: nowrap; flex-shrink: 0;">🔥 50~65% 특가</span>
         </div>
-        <p class="report-intro-text" style="font-size: 0.82rem; margin-bottom: 14px; line-height: 1.5;">
-            학생의 성적 및 목표 대학에 맞춘 <strong>AI 정밀 분석 리포트(Tier 1~3)</strong>와 <strong>김철훈 원장 직접 1:1 컨설팅</strong> 라인업입니다.
+        <p class="report-intro-text" style="font-size: 0.8rem; margin-bottom: 12px; line-height: 1.45;">
+            성적/목표 대학에 맞춘 <strong>AI 정밀 리포트(Tier 1~3)</strong>와 <strong>원장 1:1 컨설팅</strong> 라인업입니다.
         </p>
 
         <!-- 4대 상품 프리뷰 그리드 (재원생 할인가 & 고선명) -->
-        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
             <!-- Tier 1 -->
-            <div class="tier-item-card" onclick="openReportTierModal()" style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <div class="tier-title-t1" style="font-size: 0.92rem; margin-bottom: 3px;">🥉 Tier 1. 단일 전형 포커스 진단서</div>
-                    <div class="tier-desc-text" style="font-size: 0.76rem;">수시 OR 정시 택 1 집중 진단 (2~4p)</div>
+            <div class="tier-item-card" onclick="openReportTierModal()" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px !important;">
+                <div style="min-width: 0; flex: 1;">
+                    <div class="tier-title-t1" style="font-size: 0.88rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">🥉 Tier 1. 단일 전형 포커스 진단서</div>
+                    <div class="tier-desc-text" style="font-size: 0.74rem;">수시 OR 정시 택 1 집중 진단 (2~4p)</div>
                 </div>
-                <div class="tier-price-text" style="font-size: 0.95rem; white-space: nowrap; margin-left: 8px; text-align: right;">
-                    <div style="font-size: 0.72rem; text-decoration: line-through; opacity: 0.55; font-weight: 600;">35,000원</div>
+                <div class="tier-price-text" style="font-size: 0.92rem; white-space: nowrap; margin-left: 8px; text-align: right; flex-shrink: 0;">
+                    <div style="font-size: 0.7rem; text-decoration: line-through; opacity: 0.55; font-weight: 600;">35,000원</div>
                     <div>16,900원</div>
                 </div>
             </div>
 
             <!-- Tier 2 -->
-            <div class="tier-item-card" onclick="openReportTierModal()" style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <div class="tier-title-t2" style="font-size: 0.92rem; margin-bottom: 3px;">🥈 Tier 2. 3대 전형 종합 비교 리포트</div>
-                    <div class="tier-desc-text" style="font-size: 0.76rem;">수시(학종/논술) + 정시 풀스캔 비교 (4~8p)</div>
+            <div class="tier-item-card" onclick="openReportTierModal()" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px !important;">
+                <div style="min-width: 0; flex: 1;">
+                    <div class="tier-title-t2" style="font-size: 0.88rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">🥈 Tier 2. 3대 전형 종합 비교 리포트</div>
+                    <div class="tier-desc-text" style="font-size: 0.74rem;">수시(학종/논술) + 정시 풀스캔 비교 (4~8p)</div>
                 </div>
-                <div class="tier-price-text" style="font-size: 0.95rem; white-space: nowrap; margin-left: 8px; text-align: right;">
-                    <div style="font-size: 0.72rem; text-decoration: line-through; opacity: 0.55; font-weight: 600;">60,000원</div>
+                <div class="tier-price-text" style="font-size: 0.92rem; white-space: nowrap; margin-left: 8px; text-align: right; flex-shrink: 0;">
+                    <div style="font-size: 0.7rem; text-decoration: line-through; opacity: 0.55; font-weight: 600;">60,000원</div>
                     <div>29,900원</div>
                 </div>
             </div>
 
             <!-- Tier 3 -->
-            <div class="tier-item-card" onclick="openReportTierModal()" style="position: relative; border-color: #818cf8 !important;">
-                <span style="position: absolute; top: -9px; right: 12px; background: linear-gradient(135deg, #ef4444, #f59e0b); color: white; font-size: 0.68rem; font-weight: 800; padding: 2px 8px; border-radius: 8px; box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);">🔥 BEST 75% 선택</span>
+            <div class="tier-item-card" onclick="openReportTierModal()" style="position: relative; border-color: #818cf8 !important; padding: 12px 14px !important;">
+                <span style="position: absolute; top: -9px; right: 12px; background: linear-gradient(135deg, #ef4444, #f59e0b); color: white; font-size: 0.65rem; font-weight: 800; padding: 2px 7px; border-radius: 8px; box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4); white-space: nowrap;">🔥 BEST 75% 선택</span>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <div class="tier-title-t3" style="font-size: 0.95rem;">🥇 Tier 3. 김철훈 원장 올인원 백서</div>
-                    <div class="tier-price-text" style="font-size: 1.1rem; color: #f59e0b !important; text-align: right;">
-                        <span style="font-size: 0.75rem; text-decoration: line-through; opacity: 0.55; color: #cbd5e1; font-weight: 600; margin-right: 3px;">100,000원</span>34,900원
+                    <div class="tier-title-t3" style="font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">🥇 Tier 3. 김철훈 원장 올인원 백서</div>
+                    <div class="tier-price-text" style="font-size: 1.05rem; color: #f59e0b !important; text-align: right; white-space: nowrap; flex-shrink: 0;">
+                        <span style="font-size: 0.72rem; text-decoration: line-through; opacity: 0.55; color: #cbd5e1; font-weight: 600; margin-right: 3px;">100,000원</span>34,900원
                     </div>
                 </div>
-                <div class="tier-desc-text" style="font-size: 0.78rem; line-height: 1.45;">
-                    Tier 2 전체 + <strong>168시간 시간표</strong> + <strong>과목별/시험별 만점 비법</strong> + <strong>생활/멘탈 통제</strong> (10~15p)
+                <div class="tier-desc-text" style="font-size: 0.76rem; line-height: 1.4;">
+                    Tier 2 전체 + <strong>168시간 시간표</strong> + <strong>과목별/시험별 만점 비법</strong> + <strong>생활 통제</strong> (10~15p)
                 </div>
             </div>
 
             <!-- VIP -->
-            <div class="tier-item-card" onclick="openReportTierModal()" style="display: flex; justify-content: space-between; align-items: center; border-color: rgba(245, 158, 11, 0.5) !important;">
-                <div>
-                    <div class="tier-title-vip" style="font-size: 0.92rem; margin-bottom: 3px;">💎 VIP. 원장 1:1 직접 컨설팅</div>
-                    <div class="tier-desc-text" style="font-size: 0.76rem;">유선 전화(30~40분) 30만원 / 대면(50분) 50만원</div>
+            <div class="tier-item-card" onclick="openReportTierModal()" style="display: flex; justify-content: space-between; align-items: center; border-color: rgba(245, 158, 11, 0.5) !important; padding: 12px 14px !important;">
+                <div style="min-width: 0; flex: 1;">
+                    <div class="tier-title-vip" style="font-size: 0.88rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">💎 VIP. 원장 1:1 직접 컨설팅</div>
+                    <div class="tier-desc-text" style="font-size: 0.74rem;">유선 전화(30~40분) 30만원 / 대면(50분) 50만원</div>
                 </div>
-                <div class="tier-price-text" style="font-size: 0.95rem; color: #d97706 !important; white-space: nowrap; margin-left: 8px; text-align: right;">
-                    <div style="font-size: 0.72rem; text-decoration: line-through; opacity: 0.55; font-weight: 600;">600,000원</div>
+                <div class="tier-price-text" style="font-size: 0.92rem; color: #d97706 !important; white-space: nowrap; margin-left: 8px; text-align: right; flex-shrink: 0;">
+                    <div style="font-size: 0.7rem; text-decoration: line-through; opacity: 0.55; font-weight: 600;">600,000원</div>
                     <div>300,000원~</div>
                 </div>
             </div>
         </div>
 
-        <button onclick="openReportTierModal()" class="btn" style="width: 100%; padding: 13px 0; font-size: 0.95rem; font-weight: 900; background: linear-gradient(135deg, #6366f1, #8b5cf6); box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4); border-radius: 10px;">
-            📑 대입 전략 리포트 & 컨설팅 신청하기 (무료권 / 캐시)
+        <button onclick="openReportTierModal()" class="btn" style="width: 100%; padding: 12px 6px; font-size: 0.88rem; font-weight: 900; background: linear-gradient(135deg, #6366f1, #8b5cf6); box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4); border-radius: 10px; white-space: nowrap; display: flex; align-items: center; justify-content: center;">
+            📑 대입 전략 리포트 & 컨설팅 신청 (무료권 / 캐시)
         </button>
     </div>
 </div>
@@ -1020,7 +1020,7 @@
                     </div>
                 </div>
 
-                <div style="font-size: 0.75rem; color: #fcd34d; font-weight: 700; margin-top: 10px; margin-bottom: 4px;">🎯 목표 D-Day 커스텀 설정</div>
+                <div class="dday-custom-title" style="font-size: 0.78rem; font-weight: 800; margin-top: 10px; margin-bottom: 4px;">🎯 목표 D-Day 커스텀 설정</div>
                 <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 8px; margin-bottom: 10px;">
                     <div>
                         <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">시험명</label>
@@ -1337,43 +1337,46 @@
 
     <!-- 💎 5. PALIN 캐시 충전 모달 -->
     <div id="cash-modal" class="trigger-modal" style="display: none;">
-        <div class="trigger-content" style="max-width: 440px; border-color: #3b82f6; background: #0f172a; padding: 22px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <div class="trigger-content" style="max-width: 440px; border-color: #3b82f6; background: #0f172a !important; color: #ffffff !important; padding: 22px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 10px;">
                 <div>
                     <div style="font-size: 1.2rem; font-weight: 900; color: #60a5fa;">💎 PALIN 캐시 충전소</div>
                     <div style="font-size: 0.75rem; color: #94a3b8;">1:1 명문대 과외 매칭 및 AI 심층 리포트 전용 캐시</div>
                 </div>
-                <button onclick="document.getElementById('cash-modal').style.display='none'" class="btn btn-secondary" style="padding: 4px 8px; border: none;">&times;</button>
+                <button onclick="document.getElementById('cash-modal').style.display='none'" class="modal-close-btn" title="닫기">&times;</button>
             </div>
 
-            <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 10px; padding: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 0.85rem; color: #cbd5e1;">현재 보유 캐시:</span>
-                <span style="font-size: 1.2rem; font-weight: 900; color: #93c5fd;"><span id="cash-modal-balance">0</span> 캐시</span>
+            <div style="background: rgba(59, 130, 246, 0.12); border: 1.5px solid rgba(59, 130, 246, 0.4); border-radius: 12px; padding: 14px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.85rem; color: #cbd5e1; font-weight: 600;">현재 보유 캐시:</span>
+                <span style="font-size: 1.25rem; font-weight: 900; color: #60a5fa;"><span id="cash-modal-balance">0</span> 캐시</span>
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(30, 41, 59, 0.7); border: 1.5px solid rgba(56, 189, 248, 0.35); border-radius: 8px;">
+                <!-- 10,000 -->
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: rgba(255, 255, 255, 0.05); border: 1.5px solid rgba(56, 189, 248, 0.4); border-radius: 10px;">
                     <div>
                         <div style="font-weight: 800; color: #38bdf8; font-size: 0.95rem;">💎 10,000 캐시</div>
                         <div style="font-size: 0.72rem; color: #cbd5e1;">기본 패키지</div>
                     </div>
-                    <button onclick="chargeCash(10000)" class="btn" style="padding: 8px 16px; font-size: 0.82rem; background: #0284c7; font-weight: 700;">10,000원 결제</button>
+                    <button onclick="chargeCash(10000)" class="btn" style="padding: 8px 16px; font-size: 0.82rem; background: #0284c7; font-weight: 800; border-radius: 8px;">10,000원 결제</button>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px;">
+                <!-- 33,000 -->
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: rgba(59, 130, 246, 0.1); border: 1.5px solid rgba(59, 130, 246, 0.5); border-radius: 10px;">
                     <div>
-                        <div style="font-weight: 700; color: #60a5fa;">💎 33,000 캐시 <span style="font-size: 0.72rem; background: #ec4899; color: white; padding: 1px 6px; border-radius: 10px;">+10% 보너스</span></div>
-                        <div style="font-size: 0.72rem; color: #94a3b8;">과외 매칭(29,000원) 추천 팩</div>
+                        <div style="font-weight: 800; color: #60a5fa; font-size: 0.95rem;">💎 33,000 캐시 <span style="font-size: 0.68rem; background: #ec4899; color: white; padding: 2px 6px; border-radius: 8px; font-weight: 800;">+10% 보너스</span></div>
+                        <div style="font-size: 0.72rem; color: #cbd5e1;">과외 매칭(29,000원) 추천 팩</div>
                     </div>
-                    <button onclick="chargeCash(30000)" class="btn" style="padding: 8px 16px; font-size: 0.82rem; background: linear-gradient(135deg, #2563eb, #4f46e5); font-weight: 800;">30,000원 결제</button>
+                    <button onclick="chargeCash(30000)" class="btn" style="padding: 8px 16px; font-size: 0.82rem; background: linear-gradient(135deg, #2563eb, #4f46e5); font-weight: 800; border-radius: 8px;">30,000원 결제</button>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.4); border-radius: 8px;">
+                <!-- 60,000 -->
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: rgba(139, 92, 246, 0.12); border: 1.5px solid rgba(139, 92, 246, 0.5); border-radius: 10px;">
                     <div>
-                        <div style="font-weight: 800; color: #c084fc;">💎 60,000 캐시 <span style="font-size: 0.72rem; background: #f59e0b; color: #1e1b4b; padding: 1px 6px; border-radius: 10px; font-weight: 800;">+20% 보너스</span></div>
-                        <div style="font-size: 0.72rem; color: #94a3b8;">과외 2회 + 심층리포트 풀세트</div>
+                        <div style="font-weight: 800; color: #c084fc; font-size: 0.95rem;">💎 60,000 캐시 <span style="font-size: 0.68rem; background: #f59e0b; color: #1e1b4b; padding: 2px 6px; border-radius: 8px; font-weight: 800;">+20% 보너스</span></div>
+                        <div style="font-size: 0.72rem; color: #cbd5e1;">과외 2회 + 심층리포트 풀세트</div>
                     </div>
-                    <button onclick="chargeCash(50000)" class="btn" style="padding: 8px 16px; font-size: 0.82rem; background: linear-gradient(135deg, #7c3aed, #9333ea); font-weight: 800;">50,000원 결제</button>
+                    <button onclick="chargeCash(50000)" class="btn" style="padding: 8px 16px; font-size: 0.82rem; background: linear-gradient(135deg, #7c3aed, #9333ea); font-weight: 800; border-radius: 8px;">50,000원 결제</button>
                 </div>
             </div>
             <div style="font-size: 0.72rem; color: #94a3b8; line-height: 1.4; text-align: center;">결제 즉시 캐시가 자동 적립되며, 영수증 및 환불은 고객센터로 문의 바랍니다.</div>
@@ -1426,7 +1429,7 @@
     </div>
     </div>
 
-    <script src="js/app.js?v=41.0"></script>
+    <script src="js/app.js?v=42.0"></script>
     <script>
     // Service Worker Registration
     if ('serviceWorker' in navigator) {
