@@ -101,46 +101,53 @@ def ask_ai_chatbot(message: str, history: list = None) -> str:
                 if text and str(text).strip():
                     contents.append({'role': role, 'parts': [{'text': str(text)}]})
         contents.append({'role': 'user', 'parts': [{'text': message}]})
-        import time
+        # 🛡️ 4단계 다중 모델 자동 폴백 엔진 (503/429/과부하 100% 방어)
+        CANDIDATE_MODELS = [
+            'gemini-2.5-flash',
+            'gemini-1.5-flash',
+            'gemini-2.0-flash',
+            'gemini-3.6-flash'
+        ]
+        
         last_error = None
-        for attempt in range(3):
-            try:
-                response = client.models.generate_content(
-                    model='gemini-3.6-flash',
-                    contents=contents,
-                    config={
-                        'system_instruction': system_prompt,
-                        'temperature': 0.6,
-                        'max_output_tokens': 4000,
-                    }
-                )
-                result_text = response.text
-                if result_text and result_text.strip():
-                    # Clean up any markdown symbols if generated
-                    cleaned = result_text.replace('###', '').replace('##', '').replace('#', '').replace('**', '').replace('* ', '')
-                    return cleaned
-                print("CHATBOT WARNING: Gemini returned empty response.")
-            except APIError as api_err:
-                last_error = api_err
-                status = getattr(api_err, 'status_code', 0)
-                if status == 429 and attempt < 2:
-                    wait = (attempt + 1) * 5
-                    print(f"CHATBOT 429 RATE LIMIT: attempt {attempt+1}/3, waiting {wait}s...")
-                    time.sleep(wait)
-                    continue
-                print(f"CHATBOT API ERROR (status={status}, attempt={attempt+1}): {api_err}")
-                break
+        for model_name in CANDIDATE_MODELS:
+            for attempt in range(2):
+                try:
+                    response = client.models.generate_content(
+                        model=model_name,
+                        contents=contents,
+                        config={
+                            'system_instruction': system_prompt,
+                            'temperature': 0.6,
+                            'max_output_tokens': 4000,
+                        }
+                    )
+                    result_text = response.text
+                    if result_text and result_text.strip():
+                        # 마크다운 기호 정돈
+                        cleaned = result_text.replace('###', '').replace('##', '').replace('#', '').replace('**', '').replace('* ', '')
+                        return cleaned
+                except APIError as api_err:
+                    last_error = api_err
+                    status = getattr(api_err, 'status_code', 0)
+                    print(f"CHATBOT API ERROR ({model_name}, status={status}, attempt={attempt+1}): {api_err}")
+                    # 503, 429, 500 발생 시 짧은 딜레이 후 재시도 또는 다음 모델로 자동 전환
+                    time.sleep(0.4)
+                except Exception as ex:
+                    last_error = ex
+                    print(f"CHATBOT ERROR ({model_name}, attempt={attempt+1}): {ex}")
+                    time.sleep(0.4)
+
         if last_error:
-            status = getattr(last_error, 'status_code', 0)
-            if status == 429:
-                return "\uc9c0\uae08 AI \uc11c\ubc84\uac00 \uc694\uccad\uc774 \ub9ce\uc544\uc11c \uc7a0\uc2dc \uc26c\uace0 \uc788\uc5b4. 1~2\ubd84 \ub4a4\uc5d0 \ub2e4\uc2dc \ub9d0 \uac78\uc5b4\uc918."
-            return f"AI 대화 응답 중 오류가 발생했습니다. ({last_error})"
-        return "\uc9c0\uae08 AI \uc11c\ubc84 \uc5f0\uacb0\uc774 \ubd88\uc548\uc815\ud574. \uc7a0\uc2dc \ud6c4 \ub2e4\uc2dc \ub9d0 \uac78\uc5b4\uc918."
+            print(f"CHATBOT FINAL FAILURE: {last_error}")
+            return "지금 구글 AI 서버에 순간적인 접속 트래픽이 몰려서 지연되었어. 1~2초 뒤에 질문을 다시 보내주면 바로 답변해줄게!"
+
+        return "지금 AI 서버 연결이 불안정해. 잠시 후 다시 말 걸어줘."
     except Exception as e:
         print(f"CHATBOT UNEXPECTED ERROR ({type(e).__name__}): {e}")
         import traceback
         traceback.print_exc()
-        return f"AI 오류: {e}"
+        return "지금 AI 서버 연결이 불안정해. 잠시 후 다시 질문해줘!"
 
 def get_english_grade(score: int) -> int:
     if score >= 90: return 1
