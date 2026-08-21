@@ -224,9 +224,10 @@ async function handleRegister(e) {
         return;
     }
 
+    const termsCheck = document.getElementById("reg-terms-check");
     const privacyCheck = document.getElementById("reg-privacy-check");
-    if (privacyCheck && !privacyCheck.checked) {
-        alert("개인정보 수집·이용 동의서 항목에 동의해주셔야 가입 및 서비스 이용이 가능합니다.");
+    if ((termsCheck && !termsCheck.checked) || (privacyCheck && !privacyCheck.checked)) {
+        alert("서비스 이용약관 및 개인정보 수집 동의서에 모두 체크해 주셔야 가입이 완료됩니다.");
         return;
     }
 
@@ -240,7 +241,8 @@ async function handleRegister(e) {
         target_univ: `${targetUniv} ${targetDept}`,
         baseline_univ: `${baselineUniv} ${baselineDept}`,
         parent_name: document.getElementById("reg-pname").value,
-        parent_phone: document.getElementById("reg-pphone").value
+        parent_phone: document.getElementById("reg-pphone").value,
+        referred_by: (document.getElementById("reg-referred-by")?.value || "").trim().toUpperCase() || null
     };
 
     try {
@@ -257,6 +259,13 @@ async function handleRegister(e) {
         const student = await res.json();
         localStorage.setItem("studentId", student.id);
         fetchStudentInfo(student.id);
+        
+        // 가입 완료 축하 팝업 후 학생증 발급 모달 오픈 안내
+        setTimeout(() => {
+            if (confirm("🎉 가입을 진심으로 축하합니다! 2027학번 목표 대학 가상 학생증을 지금 바로 발급하시겠습니까?")) {
+                openStudentCardModal();
+            }
+        }, 500);
     } catch (e) {
         alert("서버 연결 실패");
     }
@@ -369,14 +378,30 @@ function getMedicalSymbolIcon(symbolKey) {
 
 function updateHeaderUI() {
     if (!currentStudent) return;
-    document.getElementById("header-points").innerText = `${currentStudent.current_points} P`;
+    document.getElementById("header-points").innerText = `${currentStudent.current_points || 0} P`;
+    
+    // 💎 유료 캐시 뱃지
+    const cashEl = document.getElementById("header-cash");
+    if (cashEl) cashEl.innerText = `${(currentStudent.paid_cash || 0).toLocaleString()}`;
+    
+    const cashModalBal = document.getElementById("cash-modal-balance");
+    if (cashModalBal) cashModalBal.innerText = `${(currentStudent.paid_cash || 0).toLocaleString()}`;
+
+    // 🎟️ 무료 리포트 티켓
+    const ticketEl = document.getElementById("referral-ticket-count");
+    if (ticketEl) ticketEl.innerText = `${currentStudent.free_report_tickets || 0}`;
+
+    // 🔗 내 추천인 코드
+    const refCodeEl = document.getElementById("referral-my-code");
+    if (refCodeEl) refCodeEl.innerText = currentStudent.referral_code || `PL-${String(currentStudent.id).padStart(4, '0')}`;
+
     document.getElementById("header-student-name").innerText = `${currentStudent.name} 학생`;
     
     // 🔥 듀오링고 불꽃 (Streak) 렌더링
     const streakEl = document.getElementById("header-streak-count");
     if (streakEl) {
         const count = currentStudent.streak_days || 0;
-        streakEl.innerText = `${count}일 연속`;
+        streakEl.innerText = `${count}일`;
     }
 
     // 마이페이지 모달 정보 갱신
@@ -1040,6 +1065,11 @@ async function verifyMission(type, triggerFail = false) {
         
         if (result.status === "SUCCESS") {
             alert(`🎉 미션 성공! +${result.earned_points}P 적립되었습니다.`);
+            if (type === "WAKEUP") {
+                setTimeout(() => {
+                    openWakeRouletteModal();
+                }, 400);
+            }
         } else {
             alert(`⚠️ 미션 인증 실패! 부모님께 안내 메시지가 발송되었습니다. sms_log.txt에서 발송 이력을 확인하세요.`);
         }
@@ -1781,9 +1811,9 @@ async function loadTutors() {
                     
                     <div class="tutor-bio" style="margin-top: 6px;">${tutor.bio}</div>
                     
-                    <div style="font-size:0.75rem; color:var(--text-secondary); display:flex; justify-content:space-between; align-items:center; margin-top: 4px;">
-                        <span>학적 및 생기부 검증 완료 ✅</span>
-                        <button class="btn" style="padding: 4px 10px; font-size:0.7rem;" onclick="requestTutorDirect(${tutor.id})">과외 신청 (150P)</button>
+                    <div style="font-size:0.75rem; color:var(--text-secondary); display:flex; justify-content:space-between; align-items:center; margin-top: 6px;">
+                        <span style="color:#10b981; font-weight:700;">원장 합격증 검증 완료 ✅</span>
+                        <button class="btn" style="padding: 6px 12px; font-size:0.75rem; background: linear-gradient(135deg, #3b82f6, #6366f1); font-weight:800;" onclick="requestTutorMatch(${tutor.id})">1:1 과외 매칭 신청 (29,000 캐시)</button>
                     </div>
                 </div>
             `;
@@ -2262,5 +2292,628 @@ async function loadExamMaterials(subject = currentExamSubject) {
     } catch (e) {
         console.error("Exam materials load error:", e);
         container.innerHTML = `<div style="text-align: center; color: #ef4444; padding: 14px; font-size: 0.8rem;">자료 로딩 오류 발생</div>`;
+    }
+}
+
+// ==========================================
+// 🪪 1. 2027학번 목표 대학 가상 학생증 발급 & PNG 다운로드
+// ==========================================
+
+function openStudentCardModal() {
+    if (!currentStudent) return;
+    const modal = document.getElementById("student-card-modal");
+    if (!modal) return;
+
+    const tUniv = currentStudent.target_univ || "서울대학교 의예과";
+    const parts = tUniv.split(" ");
+    const univName = parts[0] || "서울대학교";
+    const deptName = parts.slice(1).join(" ") || "전공선택";
+
+    document.getElementById("card-univ-title").innerText = univName;
+    document.getElementById("card-name").innerText = `${currentStudent.name} 학생`;
+    document.getElementById("card-school").innerText = `${currentStudent.high_school || "일반고"} (${currentStudent.grade === 4 ? 'N수생' : currentStudent.grade + '학년'})`;
+    document.getElementById("card-dept").innerText = deptName;
+    document.getElementById("card-id-code").innerText = currentStudent.referral_code || `PL-2027-${String(currentStudent.id).padStart(4, '0')}`;
+
+    modal.style.display = "flex";
+}
+
+function downloadStudentIDCard() {
+    if (!currentStudent) return;
+    
+    // HTML5 Canvas로 1080x1350 인스타그램 스토리 규격 렌더링
+    const canvas = document.createElement("canvas");
+    canvas.width = 1080;
+    canvas.height = 1350;
+    const ctx = canvas.getContext("2d");
+
+    // 1. 다크 그라데이션 배경
+    const bgGrad = ctx.createLinearGradient(0, 0, 1080, 1350);
+    bgGrad.addColorStop(0, "#090d16");
+    bgGrad.addColorStop(0.5, "#111827");
+    bgGrad.addColorStop(1, "#030712");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, 1080, 1350);
+
+    // 2. 배경 장식 원/글로우
+    const glowGrad = ctx.createRadialGradient(540, 450, 50, 540, 450, 500);
+    glowGrad.addColorStop(0, "rgba(99, 102, 241, 0.25)");
+    glowGrad.addColorStop(1, "rgba(99, 102, 241, 0)");
+    ctx.fillStyle = glowGrad;
+    ctx.fillRect(0, 0, 1080, 1350);
+
+    // 3. 학생증 카드 바디 (둥근 사각형)
+    const cardX = 90, cardY = 180, cardW = 900, cardH = 990, radius = 40;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(cardX + radius, cardY);
+    ctx.lineTo(cardX + cardW - radius, cardY);
+    ctx.quadraticCurveTo(cardX + cardW, cardY, cardX + cardW, cardY + radius);
+    ctx.lineTo(cardX + cardW, cardY + cardH - radius);
+    ctx.quadraticCurveTo(cardX + cardW, cardY + cardH, cardX + cardW - radius, cardY + cardH);
+    ctx.lineTo(cardX + radius, cardY + cardH);
+    ctx.quadraticCurveTo(cardX, cardY + cardH, cardX, cardY + cardH - radius);
+    ctx.lineTo(cardX, cardY + radius);
+    ctx.quadraticCurveTo(cardX, cardY, cardX + radius, cardY);
+    ctx.closePath();
+
+    const cardGrad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
+    cardGrad.addColorStop(0, "#1e1b4b");
+    cardGrad.addColorStop(1, "#0f172a");
+    ctx.fillStyle = cardGrad;
+    ctx.fill();
+
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = "#6366f1";
+    ctx.stroke();
+    ctx.restore();
+
+    // 4. 헤더 텍스트
+    const tUniv = currentStudent.target_univ || "서울대학교 의예과";
+    const parts = tUniv.split(" ");
+    const univName = parts[0] || "서울대학교";
+    const deptName = parts.slice(1).join(" ") || "전공선택";
+
+    ctx.fillStyle = "#a5b4fc";
+    ctx.font = "bold 28px Pretendard, sans-serif";
+    ctx.fillText("STUDENT IDENTIFICATION CARD", 150, 270);
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "900 68px Pretendard, sans-serif";
+    ctx.fillText(univName, 150, 360);
+
+    // 27학번 엠블럼 뱃지
+    ctx.fillStyle = "rgba(99, 102, 241, 0.35)";
+    ctx.fillRect(720, 300, 210, 60);
+    ctx.strokeStyle = "#818cf8";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(720, 300, 210, 60);
+
+    ctx.fillStyle = "#c7d2fe";
+    ctx.font = "bold 30px Pretendard, sans-serif";
+    ctx.fillText("27학번 합격생", 745, 342);
+
+    // 증명사진 플레이스홀더
+    ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
+    ctx.fillRect(150, 440, 240, 310);
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+    ctx.strokeRect(150, 440, 240, 310);
+
+    ctx.fillStyle = "#818cf8";
+    ctx.font = "bold 80px sans-serif";
+    ctx.fillText("👤", 230, 615);
+
+    // 학생 정보 필드
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "bold 32px Pretendard, sans-serif";
+    ctx.fillText("성  명 :", 430, 510);
+    ctx.fillText("소  속 :", 430, 580);
+    ctx.fillText("목  표 :", 430, 650);
+    ctx.fillText("식  별 :", 430, 720);
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "900 42px Pretendard, sans-serif";
+    ctx.fillText(`${currentStudent.name} 학생`, 560, 510);
+
+    ctx.fillStyle = "#e2e8f0";
+    ctx.font = "600 34px Pretendard, sans-serif";
+    ctx.fillText(`${currentStudent.high_school || "일반고"} (${currentStudent.grade === 4 ? 'N수생' : currentStudent.grade + '학년'})`, 560, 580);
+
+    ctx.fillStyle = "#fcd34d";
+    ctx.font = "900 36px Pretendard, sans-serif";
+    ctx.fillText(deptName, 560, 650);
+
+    ctx.fillStyle = "#a5b4fc";
+    ctx.font = "bold 32px monospace";
+    ctx.fillText(currentStudent.referral_code || `PL-2027-${String(currentStudent.id).padStart(4, '0')}`, 560, 720);
+
+    // 하단 구분선 및 직인
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(150, 830);
+    ctx.lineTo(930, 830);
+    ctx.stroke();
+
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "600 28px Pretendard, sans-serif";
+    ctx.fillText("🏛️ PALIN OS 초정밀 데이터 기반 합격 궤적", 150, 920);
+
+    ctx.fillStyle = "#ef4444";
+    ctx.font = "bold 26px Pretendard, sans-serif";
+    ctx.fillText("[ 김철훈 원장 직인 ]", 730, 920);
+
+    // 하단 인스타그램 바이럴 문구
+    ctx.fillStyle = "#64748b";
+    ctx.font = "bold 24px Pretendard, sans-serif";
+    ctx.fillText("공부 행동통제 및 1:1 과외 매칭 OS ➔ https://palin-os.onrender.com", 220, 1240);
+
+    // 다운로드 트리거
+    const link = document.createElement("a");
+    link.download = `PALIN_2027_${currentStudent.name}_학생증.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+    alert("📸 2027학번 가상 학생증이 고화질 PNG 이미지로 저장되었습니다!\n인스타그램 스토리나 프로필에 자랑해 보세요!");
+}
+
+// ==========================================
+// 🎁 2. 새벽 6:30 기상 룰렛 행운 상자
+// ==========================================
+
+function openWakeRouletteModal() {
+    const modal = document.getElementById("wake-roulette-modal");
+    if (!modal) return;
+    document.getElementById("roulette-result-msg").innerText = "";
+    const spinBtn = document.getElementById("roulette-spin-btn");
+    if (spinBtn) spinBtn.disabled = false;
+    modal.style.display = "flex";
+}
+
+async function executeWakeRoulette() {
+    if (!currentStudent) return;
+    const spinBtn = document.getElementById("roulette-spin-btn");
+    const wheel = document.getElementById("roulette-wheel");
+    const resultMsg = document.getElementById("roulette-result-msg");
+    if (spinBtn) spinBtn.disabled = true;
+
+    // 회전 애니메이션
+    const randomDeg = 1800 + Math.floor(Math.random() * 360);
+    if (wheel) wheel.style.transform = `rotate(${randomDeg}deg)`;
+
+    try {
+        const res = await fetch("/api/mission/wake-roulette", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: currentStudent.id })
+        });
+        const data = await res.json();
+        
+        setTimeout(() => {
+            if (data.status === "ok") {
+                currentStudent.current_points = data.current_points;
+                updateHeaderUI();
+                resultMsg.innerHTML = `🎉 <strong>+${data.reward_points}P</strong> 당첨! (보유: ${data.current_points}P)`;
+            } else {
+                resultMsg.innerText = data.detail || "오류 발생";
+            }
+        }, 3000);
+    } catch (e) {
+        console.error(e);
+        resultMsg.innerText = "서버 통신 오류";
+    }
+}
+
+// ==========================================
+// 📊 3. 3-Tier 대입 전략 리포트 & VIP 1:1 직접 컨설팅
+// ==========================================
+
+let selectedReportTier = 3;
+let isVIPInPerson = false;
+
+function openReportTierModal() {
+    if (!currentStudent) return;
+    const modal = document.getElementById("report-tier-modal");
+    if (!modal) return;
+
+    document.getElementById("tier-modal-my-cash").innerText = (currentStudent.paid_cash || 0).toLocaleString();
+    document.getElementById("tier-modal-my-tickets").innerText = currentStudent.free_report_tickets || 0;
+
+    selectTier(3); // 기본값 Tier 3 BEST 선택
+    modal.style.display = "flex";
+}
+
+function selectTier(tier) {
+    selectedReportTier = tier;
+    
+    // 카드 활성화 스타일 갱신
+    for (let t = 1; t <= 4; t++) {
+        const card = document.getElementById(`tier-card-${t}`);
+        if (!card) continue;
+        if (t === tier) {
+            card.style.borderColor = (t === 4) ? "#f59e0b" : "#818cf8";
+            card.style.background = (t === 4) ? "rgba(245, 158, 11, 0.12)" : "rgba(99, 102, 241, 0.12)";
+        } else {
+            card.style.borderColor = "rgba(255,255,255,0.1)";
+            card.style.background = "rgba(255,255,255,0.02)";
+        }
+    }
+
+    // Tier 1 서브옵션 노출
+    const t1Opt = document.getElementById("tier-1-options");
+    if (t1Opt) t1Opt.style.display = (tier === 1) ? "block" : "none";
+
+    // VIP 서브옵션 노출
+    const vipOpt = document.getElementById("vip-options");
+    if (vipOpt) vipOpt.style.display = (tier === 4) ? "block" : "none";
+
+    updateTierModalPayAmount();
+}
+
+function toggleVIPInPerson(checked) {
+    isVIPInPerson = checked;
+    const priceDisplay = document.getElementById("vip-price-display");
+    if (priceDisplay) {
+        priceDisplay.innerText = checked ? "500,000원 (대면 50분)" : "300,000원 (전화 30~40분)";
+    }
+    updateTierModalPayAmount();
+}
+
+function updateTierModalPayAmount() {
+    const payEl = document.getElementById("tier-modal-pay-amount");
+    if (!payEl) return;
+
+    const tickets = currentStudent.free_report_tickets || 0;
+
+    if (selectedReportTier === 1) {
+        if (tickets > 0) {
+            payEl.innerHTML = `<span style="color:#fcd34d;">🎟️ 무료권 1장 적용 (0원 결제)</span>`;
+        } else {
+            payEl.innerText = "결제 예정: 16,900원";
+        }
+    } else if (selectedReportTier === 2) {
+        if (tickets > 0) {
+            payEl.innerHTML = `<span style="color:#fcd34d;">🎟️ 무료권 1장 적용 (-19,000원 할인) ➔ 10,900원</span>`;
+        } else {
+            payEl.innerText = "결제 예정: 29,900원";
+        }
+    } else if (selectedReportTier === 3) {
+        if (tickets > 0) {
+            payEl.innerHTML = `<span style="color:#fcd34d;">🎟️ 무료권 1장 적용 (-19,000원 할인) ➔ 15,900원</span>`;
+        } else {
+            payEl.innerText = "결제 예정: 34,900원";
+        }
+    } else if (selectedReportTier === 4) {
+        const vipCost = isVIPInPerson ? 500000 : 300000;
+        payEl.innerText = `결제 예정: ${vipCost.toLocaleString()}원`;
+    }
+}
+
+async function executeTierOrder() {
+    if (!currentStudent) return;
+
+    // 1. VIP 원장 직접 컨설팅 신청인 경우
+    if (selectedReportTier === 4) {
+        const vipCost = isVIPInPerson ? 500000 : 300000;
+        const consultType = isVIPInPerson ? "대면 50분 집무실 상담" : "유선 심층 전화 상담 (30~40분)";
+        if (!confirm(`👑 [김철훈 원장 1:1 ${consultType}]\n\n비용: ${vipCost.toLocaleString()} PALIN 캐시\n\n신청 시 원장이 직접 24시간 내 유선으로 일정을 조율합니다. 신청하시겠습니까?`)) {
+            return;
+        }
+
+        try {
+            const res = await fetch("/api/consulting/vip-request", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    student_id: currentStudent.id,
+                    is_in_person: isVIPInPerson,
+                    preferred_phone: currentStudent.parent ? currentStudent.parent.phone : currentStudent.phone,
+                    memo: "VIP 직접 컨설팅 신청"
+                })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                currentStudent.paid_cash = data.remaining_cash;
+                updateHeaderUI();
+                document.getElementById("report-tier-modal").style.display = "none";
+                alert(`🎉 ${data.message}`);
+            } else {
+                if (res.status === 402) {
+                    if (confirm("💎 캐시가 부족합니다. 캐시 충전소로 이동하시겠습니까?")) {
+                        document.getElementById("report-tier-modal").style.display = "none";
+                        openCashModal();
+                    }
+                } else {
+                    alert(data.detail || "신청 실패");
+                }
+            }
+        } catch (e) {
+            console.error(e);
+            alert("서버 연결 실패");
+        }
+        return;
+    }
+
+    // 2. AI 리포트 (Tier 1 / Tier 2 / Tier 3) 신청인 경우
+    document.getElementById("report-tier-modal").style.display = "none";
+
+    const kor = parseFloat(document.getElementById('pred-kor')?.value) || 85;
+    const math = parseFloat(document.getElementById('pred-math')?.value) || 85;
+    const eng = parseInt(document.getElementById('pred-eng')?.value) || 85;
+    const hist = parseInt(document.getElementById('pred-hist')?.value) || 40;
+    const tam1 = parseFloat(document.getElementById('pred-tam1')?.value) || 85;
+    const tam2 = parseFloat(document.getElementById('pred-tam2')?.value) || 85;
+    const mathType = document.getElementById('pred-math-type')?.value || '미적';
+    const gyeyeol = document.getElementById('pred-gyeyeol')?.value || '이과';
+    const trackChoice = document.getElementById('tier-1-track')?.value || '정시전형';
+
+    const modal = document.getElementById("deep-report-modal");
+    const content = document.getElementById("deep-report-content");
+    modal.style.display = "flex";
+    content.innerHTML = `<div style="text-align:center; padding: 40px;"><span class="material-symbols-rounded" style="font-size:3.2rem; color:#6366f1; animation: spin 1s infinite linear;">sync</span><div style="font-weight:900; font-size:1.15rem; margin-top:14px; color:#ffffff;">김철훈 AI 멘토가 Tier ${selectedReportTier} 맞춤형 대입 전략 백서를 집필 중입니다... (약 10초)</div></div>`;
+
+    try {
+        const res = await fetch("/api/ai/deep-report", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: currentStudent.id,
+                kor_pct: kor,
+                math_pct: math,
+                eng_raw: eng,
+                tam1_pct: tam1,
+                tam2_pct: tam2,
+                hist_raw: hist,
+                gyeyeol: gyeyeol,
+                math_type: mathType,
+                target_univ: currentStudent.target_univ,
+                baseline_univ: currentStudent.baseline_univ,
+                tier: selectedReportTier,
+                track_choice: trackChoice
+            })
+        });
+
+        if (!res.ok) {
+            const err = await res.json();
+            content.innerHTML = `
+                <div style="text-align: center; padding: 30px;">
+                    <div style="color: #ef4444; font-weight: 800; font-size: 1.1rem; margin-bottom: 8px;">❌ 리포트 열람 실패</div>
+                    <div style="color: #cbd5e1; font-size: 0.85rem; margin-bottom: 16px;">${err.detail || "캐시가 부족합니다."}</div>
+                    <button onclick="document.getElementById('deep-report-modal').style.display='none'; openCashModal();" class="btn" style="padding: 10px 20px; background: #2563eb; font-weight: 700;">💎 PALIN 캐시 충전하러 가기</button>
+                </div>
+            `;
+            return;
+        }
+
+        const data = await res.json();
+        currentStudent.paid_cash = data.remaining_cash;
+        currentStudent.free_report_tickets = data.remaining_tickets;
+        updateHeaderUI();
+
+        renderDeepReport(data.report, data.used_ticket, data.charged_cost);
+    } catch (e) {
+        console.error(e);
+        content.innerHTML = `<div style="text-align:center; color:#ef4444; padding:30px;">리포트 생성 중 통신 오류가 발생했습니다.</div>`;
+    }
+}
+
+function renderDeepReport(report, usedTicket, chargedCost) {
+    const content = document.getElementById("deep-report-content");
+    const viewTitle = document.getElementById("report-view-title");
+    if (!content || !report) return;
+
+    const tier = report.tier || 3;
+    if (viewTitle) viewTitle.innerText = `📊 Tier ${tier} 맞춤형 대입 전략 백서`;
+
+    const chapters = report.chapters || [];
+    const subjects = report.subject_strategies || {};
+    const timetable = report.timetable_168h || {};
+
+    let html = `
+        <div style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.35); border-radius: 12px; padding: 16px; margin-bottom: 18px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800;">🎯 총괄 전략 디렉션 (Tier ${tier})</span>
+                ${usedTicket ? '<span style="font-size:0.7rem; background:#ec4899; color:white; padding:2px 8px; border-radius:10px; font-weight:800;">🎟️ 무료권 적용</span>' : ''}
+            </div>
+            <div style="font-size: 1.15rem; font-weight: 900; color: #ffffff; margin-top: 6px;">${report.summary_headline || "정시 100% 집중 포트폴리오"}</div>
+            <div style="font-size: 0.85rem; color: #34d399; font-weight: 800; margin-top: 4px;">추천 전형: ${report.admission_track_recommendation || "정시 위주"}</div>
+        </div>
+
+        <!-- 대학 진단 -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px;">
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px;">
+                <div style="font-size: 0.72rem; color: #94a3b8; margin-bottom: 4px;">🎯 목표 대학 진단</div>
+                <div style="font-size: 0.82rem; color: #fcd34d; font-weight: 700; line-height: 1.4;">${report.target_univ_diagnosis || "-"}</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px;">
+                <div style="font-size: 0.72rem; color: #94a3b8; margin-bottom: 4px;">🛡️ 마지노선 대학 분석</div>
+                <div style="font-size: 0.82rem; color: #60a5fa; font-weight: 700; line-height: 1.4;">${report.baseline_univ_diagnosis || "-"}</div>
+            </div>
+        </div>
+    `;
+
+    // 챕터 목록
+    chapters.forEach(ch => {
+        html += `
+            <div style="margin-bottom: 16px; background: rgba(255,255,255,0.02); padding: 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
+                <div style="font-size: 0.98rem; font-weight: 800; color: #818cf8; margin-bottom: 8px;">${ch.title}</div>
+                <div style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.65; white-space: pre-wrap;">${ch.content}</div>
+            </div>
+        `;
+    });
+
+    // Tier 3 전용 프리미엄 섹션: 168시간 시간표 & 4과목 1등급 비법
+    if (tier === 3) {
+        html += `
+            <!-- 168시간 시간표 -->
+            <div style="margin-bottom: 16px; background: rgba(16, 185, 129, 0.05); padding: 16px; border-radius: 10px; border: 1px solid rgba(16, 185, 129, 0.25);">
+                <div style="font-size: 1rem; font-weight: 800; color: #34d399; margin-bottom: 8px;">⏰ [Tier 3 독점] 주간 168시간 순공 극대화 타임테이블</div>
+                <div style="font-size: 0.85rem; color: #e2e8f0; margin-bottom: 6px;">📅 <strong>평일 루틴:</strong> ${timetable.weekday || ""}</div>
+                <div style="font-size: 0.85rem; color: #e2e8f0; margin-bottom: 6px;">🔥 <strong>주말 몰입:</strong> ${timetable.weekend || ""}</div>
+                <div style="font-size: 0.82rem; color: #a7f3d0; font-weight: 700;">과목별 배분: ${timetable.ratios || ""}</div>
+            </div>
+
+            <!-- 4과목 1등급 비법 -->
+            <div style="margin-bottom: 16px; background: rgba(245, 158, 11, 0.05); padding: 16px; border-radius: 10px; border: 1px solid rgba(245, 158, 11, 0.25);">
+                <div style="font-size: 1rem; font-weight: 800; color: #fbbf24; margin-bottom: 10px;">📖 [Tier 3 독점] 국·수·영·탐 4과목 1등급 킬러 공략법</div>
+                <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.6;">
+                    • <strong>국어:</strong> ${subjects.korean || ""}<br>
+                    • <strong>수학:</strong> ${subjects.math || ""}<br>
+                    • <strong>영어:</strong> ${subjects.english || ""}<br>
+                    • <strong>탐구:</strong> ${subjects.tamgu || ""}
+                </div>
+            </div>
+
+            <!-- 5,000원 과외 쿠폰 보너스 -->
+            <div style="background: linear-gradient(135deg, rgba(236,72,153,0.15), rgba(139,92,246,0.15)); border: 1px dashed #ec4899; border-radius: 10px; padding: 14px; margin-bottom: 16px; text-align: center;">
+                <div style="font-size: 0.95rem; font-weight: 900; color: #f472b6;">🎁 Tier 3 구매자 전용 특급 혜택</div>
+                <div style="font-size: 0.8rem; color: #ffffff; margin-top: 4px;">명문대 1:1 과외선생님 매칭 신청 시 <strong>5,000 캐시 즉시 할인 혜택</strong>이 적용됩니다.</div>
+            </div>
+        `;
+    }
+
+    // 원장님 결의 메시지
+    if (report.mentor_closing) {
+        html += `
+            <div style="font-size: 0.85rem; font-style: italic; color: #fca5a5; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); padding: 12px 16px; border-radius: 8px;">
+                "${report.mentor_closing}"
+            </div>
+        `;
+    }
+
+    content.innerHTML = html;
+}
+
+// ==========================================
+// 🔗 4. 친구 초대 & 무료권 모달
+// ==========================================
+
+function openReferralModal() {
+    if (!currentStudent) return;
+    const modal = document.getElementById("referral-modal");
+    if (!modal) return;
+    document.getElementById("referral-my-code").innerText = currentStudent.referral_code || `PL-${String(currentStudent.id).padStart(4, '0')}`;
+    document.getElementById("referral-ticket-count").innerText = currentStudent.free_report_tickets || 0;
+    modal.style.display = "flex";
+}
+
+function copyReferralLink() {
+    if (!currentStudent) return;
+    const code = currentStudent.referral_code || `PL-${String(currentStudent.id).padStart(4, '0')}`;
+    const textToCopy = `[PALIN OS] 목표 대학 27학번 가상 학생증 발급 & 19,000원 입시 심층 리포트 무료권 획득!\n가입할 때 내 초대코드 [ ${code} ] 를 입력하면 500P 웰컴 보너스 즉시 지급!\n👉 접속: https://palin-os.onrender.com`;
+    
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        alert(`🔗 초대 링크와 코드(${code})가 클립보드에 복사되었습니다!\n친구들에게 카카오톡으로 공유해 보세요!`);
+    }).catch(() => {
+        prompt("아래 초대 텍스트를 복사하세요:", textToCopy);
+    });
+}
+
+// ==========================================
+// 💎 5. PALIN 캐시 충전 모달
+// ==========================================
+
+function openCashModal() {
+    if (!currentStudent) return;
+    const modal = document.getElementById("cash-modal");
+    if (!modal) return;
+    document.getElementById("cash-modal-balance").innerText = (currentStudent.paid_cash || 0).toLocaleString();
+    modal.style.display = "flex";
+}
+
+async function chargeCash(amount) {
+    if (!currentStudent) return;
+    if (!confirm(`💎 ${amount.toLocaleString()}원 상당의 PALIN 캐시를 충전하시겠습니까?`)) return;
+
+    try {
+        const res = await fetch("/api/cash/charge", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: currentStudent.id, amount: amount })
+        });
+        const data = await res.json();
+        if (data.status === "ok") {
+            currentStudent.paid_cash = data.paid_cash;
+            updateHeaderUI();
+            alert(data.message);
+        } else {
+            alert(data.detail || "충전 실패");
+        }
+    } catch (e) {
+        console.error(e);
+        alert("충전 서버 연결 오류");
+    }
+}
+
+// ==========================================
+// ⚖️ 6. 이용약관 & 개인정보 동의서 전문 모달
+// ==========================================
+
+function openTermsModal(type) {
+    const modal = document.getElementById("terms-modal");
+    const title = document.getElementById("terms-modal-title");
+    const body = document.getElementById("terms-modal-body");
+    if (!modal || !title || !body) return;
+
+    if (type === "terms") {
+        title.innerText = "📜 PALIN OS 서비스 이용약관";
+        body.innerText = `[제1조 목적]
+본 약관은 PALIN OS(이하 '회사/학원')가 제공하는 학습 행동 통제, 대입 예측 및 1:1 과외 매칭 서비스의 이용 조건 및 절차를 규정합니다.
+
+[제2조 원장의 회원 제재 및 강제 퇴거 권한]
+1. 회원은 학원의 학습 분위기 저해, 무단결석, 딴짓 방조, 타 회원에 대한 불쾌감 조성 시 원장의 직권으로 즉시 경고 또는 영구 계정 제재(강제 퇴거 및 블랙리스트 등록) 처분을 받을 수 있습니다.
+2. 강제 퇴거된 회원은 동일한 이메일 및 전화번호로 재가입이 영구 금지됩니다.
+
+[제3조 유료 결제 및 환불 규정]
+1. PALIN 캐시 및 1:1 과외 매칭 요청서, AI 심층 리포트 등 디지털 콘텐츠는 열람 또는 매칭 정보 제공 즉시 서비스가 완료된 것으로 간주되어 환불이 제한됩니다.
+2. 단순 변심에 의한 환불은 디지털 콘텐츠 특성상 전자상거래법에 의거하여 제한될 수 있습니다.`;
+    } else {
+        title.innerText = "🔒 개인정보 수집·이용 및 학부모 문자 발송 동의서";
+        body.innerText = `[1. 수집 항목]
+- 필수항목: 학생 이름, 이메일, 휴대전화번호, 학교, 학년, 목표 대학, 학부모 이름, 학부모 휴대전화번호
+- 학습데이터: 기상/취침 미션 인증 사진 및 시간, 순공 타이머 기록, 모의고사 성적
+
+[2. 수집 및 이용 목적]
+- 수험생 일일 생활 패턴 및 자습 몰입도 AI 분석
+- 기상 실패, 딴짓 발생 시 학부모 휴대전화로 실시간 SMS/알림톡 발송
+- 맞춤형 1:1 과외 선생님 매칭 및 대입 예측 서비스 제공
+
+[3. 보유 및 이용 기간]
+- 회원 탈퇴 시 또는 입시 종료 시까지 안전하게 보관 후 파기됩니다.`;
+    }
+
+    modal.style.display = "flex";
+}
+
+// ==========================================
+// 🎓 7. 과외선생님 1:1 매칭 신청
+// ==========================================
+
+async function requestTutorMatch(tutorId) {
+    if (!currentStudent) return;
+    if (!confirm("🎓 해당 과외선생님에게 1:1 매칭 요청서를 발송하시겠습니까?\n(필요 캐시: 29,000 PALIN 캐시 차감)")) return;
+
+    try {
+        const res = await fetch("/api/tutor/request-match", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: currentStudent.id, tutor_id: tutorId })
+        });
+        const data = await res.json();
+        if (data.status === "ok") {
+            currentStudent.paid_cash = data.remaining_cash;
+            updateHeaderUI();
+            alert(`🎉 ${data.message}\n선생님 카카오톡 링크: ${data.tutor_contact}\n연락처: ${data.tutor_phone}`);
+        } else {
+            if (res.status === 402) {
+                if (confirm("💎 캐시가 부족합니다. 캐시 충전소로 이동하시겠습니까?")) {
+                    openCashModal();
+                }
+            } else {
+                alert(data.detail || "매칭 요청 실패");
+            }
+        }
+    } catch (e) {
+        console.error(e);
+        alert("서버 연결 실패");
     }
 }
