@@ -2517,7 +2517,10 @@ function downloadStudentIDCard() {
     if (imgContainer && renderedImg) {
         renderedImg.src = dataUrl;
         imgContainer.style.display = "block";
-        imgContainer.scrollIntoView({ behavior: 'smooth' });
+        const modalContent = document.querySelector("#student-card-modal .trigger-content");
+        if (modalContent) {
+            modalContent.scrollTo({ top: modalContent.scrollHeight, behavior: 'smooth' });
+        }
     }
 
     // 2. 파일 다운로드 링크 자동 트리거
