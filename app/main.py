@@ -49,7 +49,19 @@ def init_db_schema():
                         conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN is_suspended BOOLEAN DEFAULT 0"))
                     if "suspend_reason" not in tutor_cols:
                         conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN suspend_reason VARCHAR"))
-                    conn.commit()
+
+                # QAPost 컬럼 검사
+                qa_post_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(qa_posts)")).fetchall()]
+                if qa_post_cols:
+                    if "is_anonymous" not in qa_post_cols:
+                        conn.execute(text("ALTER TABLE qa_posts ADD COLUMN is_anonymous BOOLEAN DEFAULT 0"))
+
+                # QAComment 컬럼 검사
+                qa_comment_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(qa_comments)")).fetchall()]
+                if qa_comment_cols:
+                    if "is_anonymous" not in qa_comment_cols:
+                        conn.execute(text("ALTER TABLE qa_comments ADD COLUMN is_anonymous BOOLEAN DEFAULT 0"))
+                conn.commit()
             else:
                 # PostgreSQL (Supabase) 자동 마이그레이션 실행
                 conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS wake_target_time VARCHAR DEFAULT '06:30'"))
@@ -63,6 +75,8 @@ def init_db_schema():
                 conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS medical_symbol VARCHAR DEFAULT 'GENERAL'"))
                 conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS is_suspended BOOLEAN DEFAULT FALSE"))
                 conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS suspend_reason VARCHAR"))
+                conn.execute(text("ALTER TABLE qa_posts ADD COLUMN IF NOT EXISTS is_anonymous BOOLEAN DEFAULT FALSE"))
+                conn.execute(text("ALTER TABLE qa_comments ADD COLUMN IF NOT EXISTS is_anonymous BOOLEAN DEFAULT FALSE"))
                 conn.commit()
                 print("PostgreSQL Schema Migration Complete!")
         except Exception as e:
@@ -480,9 +494,18 @@ def update_tutor_profile(payload: TutorUpdatePayload, db: Session = Depends(get_
 def get_qa_posts(db: Session = Depends(get_db)):
     posts = db.query(models.QAPost).order_by(models.QAPost.created_at.desc()).all()
     for p in posts:
-        p.student_name = p.student.name if p.student else "\uc54c\uc218\uc5c6\uc74c"
+        if getattr(p, "is_anonymous", False):
+            # 익명 질문일 경우 안전한 닉네임 마스킹
+            region_str = f" ({p.student.region})" if p.student and p.student.region else ""
+            p.student_name = f"익명의 수험생{region_str} 🔒"
+        else:
+            p.student_name = p.student.name if p.student else "\uc54c\uc218\uc5c6\uc74c"
+            
         for c in p.comments:
-            c.student_name = c.student.name if c.student else "\uc54c\uc218\uc5c6\uc74c"
+            if getattr(c, "is_anonymous", False):
+                c.student_name = "익명의 답변자 🔒"
+            else:
+                c.student_name = c.student.name if c.student else "\uc54c\uc218\uc5c6\uc74c"
     return posts
 
 @app.post("/api/qa/post", response_model=schemas.QAPostResponse)
@@ -498,7 +521,12 @@ def create_qa_post(payload: schemas.QAPostCreate, db: Session = Depends(get_db))
 
 @app.post("/api/qa/post/{post_id}/comment")
 def create_comment(post_id: int, payload: schemas.QACommentCreate, db: Session = Depends(get_db)):
-    c = models.QAComment(post_id=post_id, student_id=payload.student_id, content=payload.content)
+    c = models.QAComment(
+        post_id=post_id,
+        student_id=payload.student_id,
+        content=payload.content,
+        is_anonymous=getattr(payload, "is_anonymous", False)
+    )
     db.add(c)
     db.commit()
     return {"status": "ok"}
