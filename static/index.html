@@ -6,7 +6,7 @@
     <title>PALIN OS - 데이터 기반 행동 통제 범용 OS</title>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=30.0">
+    <link rel="stylesheet" href="css/style.css?v=31.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -108,8 +108,8 @@
                     <span class="material-symbols-rounded" style="font-size: 1.1rem;">toll</span>
                     <span id="header-points">0 P</span>
                 </div>
-                <button onclick="openMyPageModal()" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.8rem; display: flex; align-items: center; gap: 4px; border-radius: 20px; background: rgba(255,255,255,0.06);">
-                    <span class="material-symbols-rounded" style="font-size: 1.1rem; color: #a78bfa;">account_circle</span>
+                <button onclick="openMyPageModal()" class="btn btn-secondary header-user-btn" style="padding: 6px 12px; font-size: 0.82rem; display: flex; align-items: center; gap: 5px; border-radius: 20px; cursor: pointer;">
+                    <span class="material-symbols-rounded" style="font-size: 1.15rem; color: #6366f1;">account_circle</span>
                     <span id="header-student-name">학생</span>
                 </button>
             </div>
@@ -370,8 +370,8 @@
                         </div>
                         
                         <!-- 💡 심도 있는 답변 사전 안내 문구 -->
-                        <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 10px; padding: 8px 12px; margin-bottom: 12px; font-size: 0.76rem; color: #cbd5e1; display: flex; align-items: center; gap: 8px; line-height: 1.4;">
-                            <span style="font-size: 1.1rem; flex-shrink: 0;">💡</span>
+                        <div class="chatbot-notice-box" style="border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; font-size: 0.78rem; display: flex; align-items: center; gap: 8px; line-height: 1.45;">
+                            <span style="font-size: 1.2rem; flex-shrink: 0;">💡</span>
                             <div>수험생 백서 지식 기반으로 <b>심도 있는 맞춤형 답변을 분석/작성</b>하므로 질문 후 <b>약 10~20초</b>가량 소요될 수 있습니다.</div>
                         </div>
 
@@ -701,7 +701,16 @@
                             </div>
                             <input type="text" id="qa-post-title" class="form-input" placeholder="질문 제목">
                             <textarea id="qa-post-content" class="form-input" style="height:70px; resize:none;" placeholder="세부 내용을 작성해 주세요.."></textarea>
-                            <button class="btn" style="width: 100%;" onclick="createQAPost()">올리기</button>
+                            
+                            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(99, 102, 241, 0.08); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(99, 102, 241, 0.2);">
+                                <label for="qa-post-anonymous" style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; user-select: none;">
+                                    <input type="checkbox" id="qa-post-anonymous" style="width: 16px; height: 16px; accent-color: #6366f1; cursor: pointer;">
+                                    <span>🕶️ 익명으로 질문하기 (실명 비공개)</span>
+                                </label>
+                                <span style="font-size: 0.72rem; color: var(--text-secondary);">안심 질문</span>
+                            </div>
+                            
+                            <button class="btn" style="width: 100%; padding: 11px 0; font-size: 0.9rem; font-weight: 700;" onclick="createQAPost()">질문 등록하기</button>
                         </div>
                     </div>
 
@@ -1019,7 +1028,7 @@
         </div>
     </div>
 
-    <script src="js/app.js?v=30.0"></script>
+    <script src="js/app.js?v=31.0"></script>
     <script>
     // Service Worker Registration
     if ('serviceWorker' in navigator) {
