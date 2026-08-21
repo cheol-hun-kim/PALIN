@@ -2499,12 +2499,43 @@ function downloadStudentIDCard() {
     ctx.font = "bold 24px Pretendard, sans-serif";
     ctx.fillText("공부 행동통제 및 1:1 과외 매칭 OS ➔ https://palin-os.onrender.com", 220, 1260);
 
-    // 다운로드 트리거
-    const link = document.createElement("a");
-    link.download = `PALIN_2027_${currentStudent.name}_학생증.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-    alert("📸 2027학번 가상 학생증이 고화질 PNG 이미지로 저장되었습니다!\n인스타그램 스토리나 프로필에 자랑해 보세요!");
+    // 다운로드 트리거 (모바일 Web Share API 및 고화질 Blob 다운로드 지원)
+    const fileName = `PALIN_2027_${currentStudent.name}_학생증.png`;
+    
+    canvas.toBlob(async (blob) => {
+        if (!blob) {
+            alert("학생증 렌더링에 실패했습니다. 다시 시도해 주세요.");
+            return;
+        }
+
+        const file = new File([blob], fileName, { type: "image/png" });
+
+        // 1. 모바일 환경: Web Share API로 인스타/카카오/사진 앱 직접 공유 지원
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+                await navigator.share({
+                    files: [file],
+                    title: "2027학번 목표대학 가상 학생증",
+                    text: `PALIN OS에서 발급받은 ${univName} ${deptName} 2027학번 가상 학생증입니다!`
+                });
+                return;
+            } catch (shareErr) {
+                // 사용자가 공유 취소했거나 미지원 시 일반 다운로드로 폴백
+            }
+        }
+
+        // 2. 일반 브라우저 및 PC 환경: Blob ObjectURL 다운로드
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.download = fileName;
+        link.href = blobUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+        alert("📸 2027학번 가상 학생증이 고화질 PNG 이미지로 저장되었습니다!\n인스타그램 스토리나 프로필에 자랑해 보세요!");
+    }, "image/png");
 }
 
 // ==========================================
