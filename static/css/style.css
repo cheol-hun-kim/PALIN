@@ -1304,23 +1304,29 @@ body:not(.day-mode) .mypage-action-btn:hover {
    =================================================== */
 body.day-mode .header-user-btn {
     background: #ffffff !important;
-    border: 1.5px solid #cbd5e1 !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+    border: 1.5px solid #94a3b8 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
 }
 
-body.day-mode .header-user-btn span,
-body.day-mode #header-student-name {
+body.day-mode .header-user-btn .header-user-icon {
+    color: #4f46e5 !important;
+}
+
+body.day-mode .header-user-btn #header-student-name {
     color: #0f172a !important; /* 선명하고 진한 잉크 블랙 */
     font-weight: 800 !important;
 }
 
 body:not(.day-mode) .header-user-btn {
-    background: rgba(255, 255, 255, 0.08) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
 }
 
-body:not(.day-mode) .header-user-btn span,
-body:not(.day-mode) #header-student-name {
+body:not(.day-mode) .header-user-btn .header-user-icon {
+    color: #a78bfa !important;
+}
+
+body:not(.day-mode) .header-user-btn #header-student-name {
     color: #ffffff !important; /* 순백색 */
     font-weight: 800 !important;
 }
