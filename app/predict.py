@@ -101,25 +101,24 @@ def predict_admission(
         summary[verdict] += 1
         
         res = {
-            '대학교': entry.get('대학교'),
-            '전공': entry.get('전공'),
+            '대학교': entry.get('대학교', ''),
+            '전공': entry.get('전공', ''),
             '대학구분': entry.get('대학구분', ''),
             '모집군': entry.get('모집군', ''),
             '시도': entry.get('시도', ''),
-            '정원': entry.get('정원', 0),
             '대학약칭': entry.get('대학약칭', ''),
             '전공약칭': entry.get('전공약칭', ''),
-            'student_nuback': round(student_nuback, 4),
+            'student_nuback': round(student_nuback, 2),
             'verdict': verdict,
-            '적정누백': entry.get('적정누백'),
-            '예상누백': entry.get('예상누백'),
-            '소신누백': entry.get('소신누백'),
+            '적정누백': entry.get('적정누백', 0),
+            '예상누백': entry.get('예상누백', 0),
+            '소신누백': entry.get('소신누백', 0),
         }
         results.append(res)
         
         # 목표 대학 매칭 (대학명만으로도 첫 매칭 가능)
         if target_univ and target_result is None:
-            univ_match = target_univ in res['대학교'] or target_univ in entry.get('대학약칭', '')
+            univ_match = (target_univ in res['대학교']) or (entry.get('대학약칭') and target_univ in entry.get('대학약칭'))
             dept_match = (not target_dept) or (target_dept in res['전공'])
             if univ_match and dept_match:
                 target_result = res
