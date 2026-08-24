@@ -1005,6 +1005,103 @@ async function updateDailyMissionUI() {
     }
 }
 
+// === 🗓️ 시간표 과목 퀵버튼 & 원터치 등록 엔진 ===
+let currentQuickSubject = "수학";
+
+function setQuickSubject(subject, btnEl) {
+    currentQuickSubject = subject;
+    
+    // 1. 버튼 액티브 스타일 즉시 갱신
+    document.querySelectorAll(".quick-sub-btn").forEach(btn => {
+        btn.classList.remove("active");
+        btn.style.background = "#334155";
+        btn.style.color = "#cbd5e1";
+    });
+    if (btnEl) {
+        btnEl.classList.add("active");
+        btnEl.style.background = "#6366f1";
+        btnEl.style.color = "#ffffff";
+    }
+    
+    // 2. 상단 라벨 변경
+    const labelEl = document.getElementById("quick-subject-selected");
+    if (labelEl) {
+        labelEl.innerText = `[${subject}] 선택됨`;
+    }
+    
+    // 3. 하단 폼 계획명 입력창에 자동 반영
+    const planTitleInput = document.getElementById("plan-title");
+    if (planTitleInput) {
+        planTitleInput.value = `${subject} 집중 학습`;
+    }
+}
+
+async function handleTimetableGridClick(dayIndex, event) {
+    if (!currentStudent) {
+        alert("로그인이 필요합니다.");
+        return;
+    }
+    
+    // 삭제 버튼이나 기존 블록 클릭 시 중복 추가 방지
+    if (event.target.closest(".timetable-block")) return;
+    
+    const col = event.currentTarget;
+    const rect = col.getBoundingClientRect();
+    const clickY = event.clientY - rect.top; // 컬럼 내부 Y좌표 (0 ~ 450px)
+    
+    // 30px = 1시간 (09:00 ~ 24:00)
+    let startHourFloat = 9 + (clickY / 30);
+    let startHour = Math.floor(startHourFloat);
+    let startMin = Math.floor((startHourFloat - startHour) * 60);
+    // 30분 단위로 스냅(Snap)
+    startMin = startMin < 30 ? 0 : 30;
+    
+    let endHour = startHour + 1;
+    let endMin = startMin + 30;
+    if (endMin >= 60) {
+        endHour += 1;
+        endMin -= 60;
+    }
+    if (endHour > 24) {
+        endHour = 24;
+        endMin = 0;
+    }
+    
+    const startTimeStr = `${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`;
+    const endTimeStr = `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
+    const titleStr = `${currentQuickSubject || '자습'} 집중 학습`;
+    
+    // 하단 폼 입력값도 동기화
+    const daySelect = document.getElementById("plan-day");
+    const startInput = document.getElementById("plan-start");
+    const endInput = document.getElementById("plan-end");
+    const titleInput = document.getElementById("plan-title");
+    if (daySelect) daySelect.value = String(dayIndex);
+    if (startInput) startInput.value = startTimeStr;
+    if (endInput) endInput.value = endTimeStr;
+    if (titleInput) titleInput.value = titleStr;
+    
+    // 즉시 시간표 블록 추가
+    try {
+        const res = await fetch("/api/planner/block", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: currentStudent.id,
+                day_of_week: dayIndex,
+                start_time: startTimeStr,
+                end_time: endTimeStr,
+                title: titleStr
+            })
+        });
+        if (res.ok) {
+            await loadTimetable();
+        }
+    } catch (e) {
+        console.error("Grid click add block error:", e);
+    }
+}
+
 async function loadTimetable() {
     if (!currentStudent) return;
     try {
@@ -1021,12 +1118,18 @@ async function loadTimetable() {
             document.getElementById("col-day-6")
         ];
         
-        dayColumns.forEach(col => {
-            if (col) col.innerHTML = "";
+        dayColumns.forEach((col, dayIdx) => {
+            if (col) {
+                col.innerHTML = "";
+                // 원터치 터치/클릭 이벤트 등록
+                col.onclick = (e) => handleTimetableGridClick(dayIdx, e);
+            }
         });
 
         const timerSelect = document.getElementById("timer-schedule-select");
-        timerSelect.innerHTML = "<option value='none'>직접 자유 공부하기</option>";
+        if (timerSelect) {
+            timerSelect.innerHTML = "<option value='none'>직접 자유 공부하기</option>";
+        }
 
         blocks.forEach((block, index) => {
             const col = dayColumns[block.day_of_week];
@@ -1054,7 +1157,9 @@ async function loadTimetable() {
             `;
             col.appendChild(blockEl);
 
-            timerSelect.innerHTML += `<option value="${block.id}" data-title="${block.title}">${block.title} (${block.start_time}~${block.end_time})</option>`;
+            if (timerSelect) {
+                timerSelect.innerHTML += `<option value="${block.id}" data-title="${block.title}">${block.title} (${block.start_time}~${block.end_time})</option>`;
+            }
         });
     } catch (e) {
         console.error("시간표 로드 오류:", e);
