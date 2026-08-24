@@ -1,60 +1,45 @@
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 import os
-import traceback
 
-RAW_DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./palin_data.db")
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./palin_data.db")
 
-def build_engine(url_str: str):
-    if url_str.startswith("postgres://"):
-        url_str = url_str.replace("postgres://", "postgresql://", 1)
-        
-    if url_str.startswith("sqlite"):
-        return create_engine(url_str, connect_args={"check_same_thread": False})
-    else:
-        # PostgreSQL / Supabase
-        connect_args = {
-            "connect_timeout": 10,
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+if "pooler.supabase.com:5432" in DATABASE_URL:
+    DATABASE_URL = DATABASE_URL.replace("pooler.supabase.com:5432", "pooler.supabase.com:6543")
+
+if not DATABASE_URL.startswith("sqlite"):
+    if "sslmode=" not in DATABASE_URL:
+        sep = "&" if "?" in DATABASE_URL else "?"
+        DATABASE_URL = f"{DATABASE_URL}{sep}sslmode=require"
+
+if DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(
+        DATABASE_URL,
+        connect_args={"check_same_thread": False}
+    )
+else:
+    engine = create_engine(
+        DATABASE_URL,
+        connect_args={
+            "sslmode": "require",
+            "connect_timeout": 5,
             "keepalives": 1,
             "keepalives_idle": 30,
             "keepalives_interval": 10,
             "keepalives_count": 5
-        }
-        if "sslmode=" not in url_str:
-            sep = "&" if "?" in url_str else "?"
-            url_str = f"{url_str}{sep}sslmode=require"
-            
-        return create_engine(
-            url_str,
-            connect_args=connect_args,
-            poolclass=NullPool,
-            pool_pre_ping=True
-        )
-
-# 1차 시도: 환경변수 DATABASE_URL
-engine = None
-is_postgres_active = False
-
-if not RAW_DATABASE_URL.startswith("sqlite"):
-    try:
-        candidate_engine = build_engine(RAW_DATABASE_URL)
-        with candidate_engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
-        engine = candidate_engine
-        is_postgres_active = True
-        print("✅ [DATABASE] PostgreSQL (Supabase) Database Connected Successfully!")
-    except Exception as pg_err:
-        print(f"⚠️ [DATABASE WARNING] PostgreSQL connection failed ({pg_err}). Falling back to robust SQLite engine...")
-        engine = build_engine("sqlite:///./palin_data.db")
-else:
-    engine = build_engine(RAW_DATABASE_URL)
+        },
+        poolclass=NullPool,
+        pool_pre_ping=True
+    )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# DB 세션 의존성 주입용 헬퍼 (무중단 세션 보장)
 def get_db():
     db = SessionLocal()
     try:
