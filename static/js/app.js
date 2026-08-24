@@ -322,34 +322,62 @@ function toggleLoginForm() {
 
 async function handleLogin(e) {
     e.preventDefault();
-    const email = document.getElementById("login-email").value.trim();
+    const emailInput = document.getElementById("login-email");
+    const email = (emailInput?.value || "").trim();
     if (!email) {
-        alert("이메일을 입력해 주세요.");
+        alert("가입하신 이메일 주소를 입력해 주세요.");
         return;
     }
+    
+    const submitBtn = e.target.querySelector("button[type='submit']");
+    const originalBtnText = submitBtn ? submitBtn.innerText : "로그인";
+    if (submitBtn) {
+        submitBtn.innerText = "로그인 확인 중...";
+        submitBtn.disabled = true;
+    }
+
     try {
         const res = await fetch("/api/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email: email })
         });
+        
         if (!res.ok) {
             let errorMsg = "로그인 실패";
             try {
                 const err = await res.json();
                 errorMsg = err.detail || errorMsg;
             } catch (jsonErr) {
-                errorMsg = `서버 오류 (HTTP ${res.status})`;
+                errorMsg = `서버 응답 오류 (HTTP ${res.status})`;
             }
             alert(errorMsg);
+            if (res.status === 404) {
+                // 가입되지 않은 이메일인 경우 친절하게 회원가입 폼으로 전환
+                toggleLoginForm();
+                const regEmail = document.getElementById("reg-email");
+                if (regEmail) regEmail.value = email;
+            }
             return;
         }
+        
         const student = await res.json();
         localStorage.setItem("studentId", student.id);
-        fetchStudentInfo(student.id);
+        
+        // 즉시 오버레이 닫기
+        hideOverlay("register-overlay");
+        
+        // 학생 정보 및 화면 데이터 로드
+        await fetchStudentInfo(student.id);
+        alert(`🎉 반갑습니다, ${student.name} 학생! 정상 로그인되었습니다.`);
     } catch (e) {
         console.error("Login error:", e);
-        alert("네트워크 연결 또는 서버 응답에 문제가 있습니다. 잠시 후 다시 시도해 주세요.");
+        alert(`⚠️ 서버 연결 실패: 인터넷 연결 또는 서버 상태를 확인해 주세요. (${e.message || e})`);
+    } finally {
+        if (submitBtn) {
+            submitBtn.innerText = originalBtnText;
+            submitBtn.disabled = false;
+        }
     }
 }
 
