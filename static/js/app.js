@@ -199,14 +199,14 @@ async function fetchStudentInfo(studentId) {
             const err = await res.json().catch(() => ({}));
             if (res.status === 403) {
                 alert(`⚠️ ${err.detail || "원장님에 의해 이용이 정지/퇴거된 계정입니다. 학원 집무실로 문의해 주세요."}`);
+                localStorage.removeItem("studentId");
+                showOverlay("register-overlay");
             }
-            localStorage.removeItem("studentId");
-            showOverlay("register-overlay");
             return;
         }
         currentStudent = await res.json();
         
-        // 인증 성공 → 즉시 오버레이 숨김 및 UI 즉시 렌더링
+        // 인증 성공 → 즉시 오버레이 완전 차단 및 UI 즉시 렌더링
         hideOverlay("register-overlay");
         updateHeaderUI();
         updateTargetBanner();
@@ -224,9 +224,9 @@ async function fetchStudentInfo(studentId) {
             loadPage3Data()
         ]).catch(err => console.warn("Background fetch warning:", err));
     } catch (e) {
-        console.error("인증 실패:", e);
-        localStorage.removeItem("studentId");
-        showOverlay("register-overlay");
+        console.warn("fetchStudentInfo warning:", e);
+        // 네트워크 일시 오류 시 이미 로그인된 세션을 날리지 않음
+        hideOverlay("register-overlay");
     }
 }
 
@@ -356,12 +356,11 @@ async function handleLogin(e) {
         const student = await res.json();
         localStorage.setItem("studentId", student.id);
         
-        // 즉시 오버레이 닫기
+        // 즉시 오버레이 완전 차단
         hideOverlay("register-overlay");
         
-        // 학생 정보 및 화면 데이터 로드
+        // 학생 정보 및 화면 데이터 즉시 로드 (팝업 없이 자연스럽게 대시보드 진입)
         await fetchStudentInfo(student.id);
-        alert(`🎉 반갑습니다, ${student.name} 학생! 정상 로그인되었습니다.`);
     } catch (e) {
         console.error("Login error:", e);
         alert(`⚠️ 서버 연결 실패: 인터넷 연결 또는 서버 상태를 확인해 주세요. (${e.message || e})`);
