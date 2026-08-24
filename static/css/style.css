@@ -1650,7 +1650,37 @@ body.day-mode .mypage-menu-desc {
     color: #64748b !important;
 }
 
+/* ===================================================
+   📚 기출문제 자료실 라이트모드 텍스트 고대비 보정
+   =================================================== */
+.material-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 12px;
+    transition: all 0.2s ease;
+}
 
+.material-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #ffffff;
+}
 
+body.day-mode .material-card {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+}
 
+body.day-mode .material-title {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
 
+body.day-mode #exam-materials-container .material-card div {
+    color: #334155 !important;
+}
+
+body.day-mode #exam-materials-container .material-card .material-title {
+    color: #0f172a !important;
+}
