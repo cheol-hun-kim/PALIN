@@ -6,7 +6,7 @@
     <title>PALIN OS - 데이터 기반 행동 통제 범용 OS</title>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=46.0">
+    <link rel="stylesheet" href="css/style.css?v=47.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -45,31 +45,33 @@
                 <input type="text" id="reg-region" class="form-input" placeholder="지역 (예: 서울 강남구)" required>
                 <input type="text" id="reg-school" class="form-input" placeholder="소속 고등학교 (예: 대치고)" required>
                 
-                <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 10px; margin-bottom: 4px;">🎯 최종희망 대학설정 (상향/적정 목표 대학)</div>
+                <div style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 4px;">목표 대학 및 학과 설정</div>
                 <div style="display: flex; gap: 6px; width: 100%;">
                     <select id="reg-target-univ" class="form-input" required style="width: 50%;">
                         <option value="" disabled selected>목표 대학 선택</option>
                     </select>
-                    <select id="reg-target-dept" class="form-input" required style="width: 50%;">
+                    <select id="reg-target-dept" class="form-input" required style="width: 50%;" onchange="checkCustomDept(this, 'reg-target-dept-custom')">
                         <option value="" disabled selected>학과 선택</option>
                     </select>
                 </div>
+                <input type="text" id="reg-target-dept-custom" class="form-input" placeholder="직접 입력 (예: 디자인학부 / 체육교육과 / 실용음악과)" style="display: none; margin-top: 6px;">
 
-                <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 10px; margin-bottom: 4px;">🛡️ 마지노선 대학설정 (안정 지원 백업 대학)</div>
+                <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 10px; margin-bottom: 4px;">안정 마지노선 대학 설정 (백업 지원)</div>
                 <div style="display: flex; gap: 6px; width: 100%;">
                     <select id="reg-baseline-univ" class="form-input" required style="width: 50%;">
                         <option value="" disabled selected>마지노선 대학 선택</option>
                     </select>
-                    <select id="reg-baseline-dept" class="form-input" required style="width: 50%;">
+                    <select id="reg-baseline-dept" class="form-input" required style="width: 50%;" onchange="checkCustomDept(this, 'reg-baseline-dept-custom')">
                         <option value="" disabled selected>학과 선택</option>
                     </select>
                 </div>
+                <input type="text" id="reg-baseline-dept-custom" class="form-input" placeholder="직접 입력 (예: 디자인학부 / 체육교육과 / 실용음악과)" style="display: none; margin-top: 6px;">
                 
-                <div style="font-size: 0.95rem; font-weight: 700; color: #a78bfa; margin-top: 14px; margin-bottom: 6px;">[부모님 연락처 연동]</div>
+                <div style="font-size: 0.95rem; font-weight: 700; color: #a78bfa; margin-top: 14px; margin-bottom: 6px;">[학부모 연락처 연동]</div>
                 <input type="text" id="reg-pname" class="form-input" placeholder="학부모 이름" required>
                 <input type="tel" id="reg-pphone" class="form-input" placeholder="학부모 연락처 (알림톡/SMS 실시간 수신)" required>
 
-                <div style="font-size: 0.95rem; font-weight: 700; color: #10b981; margin-top: 14px; margin-bottom: 6px;">[🎁 친구 초대 코드 (선택)]</div>
+                <div style="font-size: 0.95rem; font-weight: 700; color: #10b981; margin-top: 14px; margin-bottom: 6px;">[친구 초대 코드 (선택)]</div>
                 <input type="text" id="reg-referred-by" class="form-input" placeholder="친구 초대 코드 (예: PL-0020 입력 시 500P 추가!)" style="text-transform: uppercase;">
 
                 <div style="margin-top: 12px; font-size: 0.78rem; color: #94a3b8; text-align: left; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 8px;">
@@ -135,14 +137,14 @@
                     </div>
                 </div>
 
-                <!-- 🎯 목표대학 & D-Day 배너 (D-Day 수동 변경 지원) -->
+                <!-- 목표대학 & D-Day 배너 (D-Day 수동 변경 지원) -->
                 <div class="univ-banner" style="margin-bottom: 12px; border-radius: 16px; border: 1px solid var(--glass-border);">
                     <div>
-                        <span class="target-label">🦁 목표 대학</span>
+                        <span class="target-label">목표 대학</span>
                         <span class="univ-name" id="banner-target-univ">로딩중..</span>
                     </div>
                     <div style="margin-top: 4px;">
-                        <span class="target-label">🛡️ 마지노선</span>
+                        <span class="target-label">안정 마지노선</span>
                         <span class="univ-name" id="banner-baseline-univ">로딩중..</span>
                     </div>
                     <div style="text-align: right;">
@@ -151,11 +153,11 @@
                     </div>
                 </div>
 
-                <!-- 🏃 스트라바(Strava) 모델 - 게릴라 마이크로 리그전 카드 -->
+                <!-- 스트라바(Strava) 모델 - 게릴라 마이크로 리그전 카드 -->
                 <div class="card" id="micro-league-card" style="margin-bottom: 12px; background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.25);">
                     <div class="card-title" style="color: #a78bfa; font-size: 0.88rem;">
                         <span class="material-symbols-rounded" style="color: #818cf8;">leaderboard</span>
-                        <span id="micro-league-title">대치동 재원생 실시간 랭킹</span>
+                        <span id="micro-league-title">재원생 실시간 몰입 랭킹</span>
                     </div>
                     <div id="micro-league-content" style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5;">
                         실시간 마이크로 리그 순위를 불러오는 중...
@@ -171,7 +173,7 @@
                     
                     <div class="mission-row">
                         <div class="mission-info" style="min-width: 0;">
-                            <span class="mission-name" id="mission-wakeup-label">🌅 기상 미션 (06:30)</span>
+                            <span class="mission-name" id="mission-wakeup-label">[기상] 06:30</span>
                             <span class="mission-time">실패 시 부모님께 안내메시지 즉시 발송</span>
                         </div>
                         <div style="display: flex; gap: 6px; flex-shrink: 0;">
@@ -182,7 +184,7 @@
                     
                     <div class="mission-row">
                         <div class="mission-info" style="min-width: 0;">
-                            <span class="mission-name" id="mission-sleep-label">🌃 취침 미션 (23:30)</span>
+                            <span class="mission-name" id="mission-sleep-label">[취침] 23:30</span>
                             <span class="mission-time">수면 모드 시작 및 기기 동작 모니터링</span>
                         </div>
                         <div style="display: flex; gap: 6px; flex-shrink: 0;">
@@ -192,19 +194,19 @@
                     </div>
                 </div>
 
-                <!-- 🌲 포레스트(Forest) 모델 - 목표 대학 로고 & 집중 공부 타이머 -->
+                <!-- 포레스트(Forest) 모델 - 목표 대학 로고 & 집중 공부 타이머 -->
                 <div class="card" id="univ-target-box" style="text-align: center; position: relative;">
                     <!-- 딴짓 감지 시 균열 오버레이 -->
                     <div class="crack-overlay" id="logo-crack-overlay"></div>
                     
                     <div class="card-title" style="justify-content: center;">
                         <span class="material-symbols-rounded" style="color: var(--color-success)">hourglass_empty</span>
-                        공부 시간 타이머 (목표 로고 수호 & 딴짓 방지)
+                        집중 공부 타이머 (딴짓 방지)
                     </div>
 
                     <!-- 목표 대학 & 메디컬 엠블럼 심볼 -->
                     <div style="margin: 10px auto; width: 64px; height: 64px; background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 8px 20px rgba(0,0,0,0.4);" id="target-logo-wrapper">
-                        <span id="target-symbol-emblem" class="target-logo-img">⚕️</span>
+                        <span id="target-symbol-emblem" class="target-logo-img">🏛️</span>
                     </div>
                     <div style="font-size: 0.82rem; font-weight: 700; color: #f8fafc; margin-bottom: 8px;" id="target-logo-name">목표 대학 수호 중</div>
 
@@ -216,7 +218,7 @@
                             </select>
                         </div>
                         
-                        <div id="timer-current-study" style="font-size:0.8rem; font-weight:600; color:#a78bfa; margin-bottom:12px;">🎯 대기 중: 할 일을 골라 측정을 시작하세요</div>
+                        <div id="timer-current-study" style="font-size:0.8rem; font-weight:600; color:#a78bfa; margin-bottom:12px;">대기 중: 할 일을 선택하여 측정을 시작하세요</div>
                         
                         <div class="timer-circle" id="timer-circle">00:00:00</div>
                         <div class="timer-controls">
@@ -224,18 +226,34 @@
                         </div>
                         
                         <div style="font-size:0.68rem; color:var(--text-secondary); margin-top:14px; line-height:1.3;">
-                            💡 <b>화면 꺼짐(Screen Off) 상태는 정상 자습으로 유지</b>됩니다. 단, 화면이 켜진 상태에서 타 앱으로 전환(딴짓) 시 목표 로고에 금이 가며 타이머가 강제 종료됩니다.
+                            💡 <b>화면 꺼짐(Screen Off) 상태는 정상 자습으로 유지</b>됩니다. 단, 타 앱으로 전환(딴짓) 시 3초 후 타이머가 일시정지됩니다.
                         </div>
                     </div>
                 </div>
 
-                <!-- 에브리타임 스타일 주간 계획 시간표 -->
+                <!-- 에브리타임 스타일 주간 계획 시간표 (원터치 과목 퀵 블록 지원) -->
                 <div class="card">
                     <div class="card-title">
                         <span class="material-symbols-rounded" style="color: var(--color-warning)">calendar_view_week</span>
                         주간 계획표
                     </div>
                     
+                    <!-- 과목 원터치 퀵버튼 바 -->
+                    <div style="margin-bottom: 10px;">
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px; display: flex; justify-content: space-between;">
+                            <span>과목 빠른 선택 후 시간표를 터치하세요:</span>
+                            <span id="quick-subject-selected" style="color: #818cf8; font-weight: 700;">[수학] 선택됨</span>
+                        </div>
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="quick-subject-bar">
+                            <button type="button" class="btn quick-sub-btn active" data-subject="수학" onclick="setQuickSubject('수학', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #6366f1; color: white;">수학</button>
+                            <button type="button" class="btn quick-sub-btn" data-subject="국어" onclick="setQuickSubject('국어', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #334155; color: #cbd5e1;">국어</button>
+                            <button type="button" class="btn quick-sub-btn" data-subject="영어" onclick="setQuickSubject('영어', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #334155; color: #cbd5e1;">영어</button>
+                            <button type="button" class="btn quick-sub-btn" data-subject="탐구" onclick="setQuickSubject('탐구', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #334155; color: #cbd5e1;">탐구</button>
+                            <button type="button" class="btn quick-sub-btn" data-subject="자습" onclick="setQuickSubject('자습', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #334155; color: #cbd5e1;">자습</button>
+                            <button type="button" class="btn quick-sub-btn" data-subject="인강" onclick="setQuickSubject('인강', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #334155; color: #cbd5e1;">인강</button>
+                        </div>
+                    </div>
+
                     <form onsubmit="addPlannerBlock(event)" style="display:grid; grid-template-columns: 1fr 1.2fr 1.2fr 2.2fr; gap:6px; margin-bottom:12px;">
                         <select id="plan-day" class="form-input" style="padding:6px; font-size:0.75rem;">
                             <option value="0">월</option>
@@ -249,7 +267,7 @@
                         <input type="time" id="plan-start" class="form-input" style="padding:6px; font-size:0.75rem;" value="09:00">
                         <input type="time" id="plan-end" class="form-input" style="padding:6px; font-size:0.75rem;" value="11:30">
                         <div style="display:flex; gap:4px; min-width:0; flex:1;">
-                            <input type="text" id="plan-title" class="form-input" style="padding:6px; font-size:0.75rem; min-width:0; width:100%;" placeholder="계획명">
+                            <input type="text" id="plan-title" class="form-input" style="padding:6px; font-size:0.75rem; min-width:0; width:100%;" placeholder="계획명 (예: 수학 미적)">
                             <button type="submit" class="btn" style="padding:6px 8px; font-size:0.72rem; white-space:nowrap;">추가</button>
                         </div>
                     </form>
@@ -778,7 +796,7 @@
                             <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(99, 102, 241, 0.08); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(99, 102, 241, 0.2);">
                                 <label for="qa-post-anonymous" style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; user-select: none;">
                                     <input type="checkbox" id="qa-post-anonymous" style="width: 16px; height: 16px; accent-color: #6366f1; cursor: pointer;">
-                                    <span>🕶️ 익명으로 질문하기 (실명 비공개)</span>
+                                    <span>익명으로 질문하기 (실명 비공개)</span>
                                 </label>
                                 <span style="font-size: 0.72rem; color: var(--text-secondary);">안심 질문</span>
                             </div>
@@ -950,35 +968,35 @@
                 </div>
             </div>
 
-            <!-- 💰 내 보유 자산 대시보드 (성실 포인트 & 유료 캐시 & 무료권) -->
+            <!-- 내 보유 자산 대시보드 (성실 포인트 & 유료 캐시 & 무료권) -->
             <div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9)); border: 1.5px solid rgba(99, 102, 241, 0.35); border-radius: 16px; padding: 14px; margin-bottom: 16px; box-shadow: 0 4px 14px rgba(0,0,0,0.3);">
                 <div style="font-size: 0.82rem; font-weight: 800; color: #a5b4fc; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                    <span>💰 내 보유 자산 현황</span>
+                    <span>내 보유 자산 현황</span>
                     <span style="font-size: 0.7rem; color: #94a3b8;">포인트 / 캐시 통합 지갑</span>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
                     <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 10px;">
-                        <div style="font-size: 0.7rem; color: #fcd34d; font-weight: 700;">🪙 무료 성실 포인트</div>
+                        <div style="font-size: 0.7rem; color: #fcd34d; font-weight: 700;">무료 성실 포인트</div>
                         <div style="font-size: 1.15rem; font-weight: 900; color: #fbbf24; margin-top: 2px;" id="mypage-points">0 P</div>
                         <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;">자습/기상 미션 보상</div>
                     </div>
                     <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 10px; padding: 10px;">
-                        <div style="font-size: 0.7rem; color: #93c5fd; font-weight: 700;">💎 PALIN 캐시</div>
+                        <div style="font-size: 0.7rem; color: #93c5fd; font-weight: 700;">PALIN 캐시</div>
                         <div style="font-size: 1.15rem; font-weight: 900; color: #60a5fa; margin-top: 2px;"><span id="mypage-cash">0</span></div>
                         <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;">리포트/과외 전용</div>
                     </div>
                 </div>
                 <div style="display: flex; gap: 8px;">
                     <button onclick="openCashModal()" class="btn" style="flex: 1; padding: 10px 4px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #3b82f6, #6366f1); border-radius: 10px; color: #ffffff !important; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 3px;">
-                        <span>💎</span> <span>캐시 충전하기</span>
+                        <span>캐시 충전하기</span>
                     </button>
                     <button onclick="openReferralModal()" class="btn" style="flex: 1; padding: 10px 4px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, rgba(236, 72, 153, 0.35), rgba(244, 63, 94, 0.4)); border: 1.5px solid #ec4899; border-radius: 10px; color: #ffffff !important; box-shadow: 0 2px 8px rgba(236, 72, 153, 0.25); white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 3px;">
-                        <span>🎁</span> <span>리포트 무료권 (<strong id="mypage-tickets" style="color: #fcd34d;">0</strong>장)</span>
+                        <span>리포트 무료권 (<strong id="mypage-tickets" style="color: #fcd34d;">0</strong>장)</span>
                     </button>
                 </div>
             </div>
 
-            <!-- ⚙️ 개인 정보 및 목표/생활 규칙 직접 수정 (Phase 1.5 전면 개방) -->
+            <!-- 개인 정보 및 목표/생활 규칙 직접 수정 -->
             <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.2); padding: 14px; border-radius: 16px; margin-bottom: 16px;">
                 <div style="font-size: 0.9rem; font-weight: 700; color: #a78bfa; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
                     <span class="material-symbols-rounded" style="font-size: 1.1rem;">manage_accounts</span>
@@ -1008,19 +1026,19 @@
                         </select>
                     </div>
                     <div>
-                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">메디컬/전공 엠블럼</label>
+                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">전공 엠블럼</label>
                         <select id="edit-medical-symbol" class="form-input">
-                            <option value="GENERAL">일반 🦁</option>
-                            <option value="MED">의예과 ⚕️</option>
-                            <option value="DENT">치의예과 🦷</option>
-                            <option value="PHARM">약학과 💊</option>
-                            <option value="KMED">한의예과 🌿</option>
-                            <option value="VET">수의예과 🐾</option>
+                            <option value="GENERAL">일반 인문/자연</option>
+                            <option value="MED">의예과</option>
+                            <option value="DENT">치의예과</option>
+                            <option value="PHARM">약학과</option>
+                            <option value="KMED">한의예과</option>
+                            <option value="VET">수의예과</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="dday-custom-title" style="font-size: 0.78rem; font-weight: 800; margin-top: 10px; margin-bottom: 4px;">🎯 목표 D-Day 커스텀 설정</div>
+                <div class="dday-custom-title" style="font-size: 0.78rem; font-weight: 800; margin-top: 10px; margin-bottom: 4px;">목표 D-Day 설정</div>
                 <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 8px; margin-bottom: 10px;">
                     <div>
                         <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">시험명</label>
@@ -1032,25 +1050,27 @@
                     </div>
                 </div>
 
-                <div style="font-size: 0.75rem; color: #a78bfa; font-weight: 700; margin-top: 8px; margin-bottom: 4px;">🦁 최종희망 대학 (11,688개 대학/학과 연동)</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px;">
+                <div style="font-size: 0.75rem; color: #a78bfa; font-weight: 700; margin-top: 8px; margin-bottom: 4px;">목표 희망 대학 (11,688개 대학/학과 연동)</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 4px;">
                     <select id="edit-target-univ-select" class="form-input"></select>
-                    <select id="edit-target-dept-select" class="form-input"></select>
+                    <select id="edit-target-dept-select" class="form-input" onchange="checkCustomDept(this, 'edit-target-dept-custom')"></select>
                 </div>
+                <input type="text" id="edit-target-dept-custom" class="form-input" placeholder="직접 입력 (예: 디자인학부 / 체육교육과 / 실용음악과)" style="display: none; margin-bottom: 8px;">
 
-                <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; margin-top: 6px; margin-bottom: 4px;">🛡️ 마지노선 대학 (안정 백업)</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px;">
+                <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; margin-top: 6px; margin-bottom: 4px;">안정 마지노선 대학 (안정 백업)</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 4px;">
                     <select id="edit-baseline-univ-select" class="form-input"></select>
-                    <select id="edit-baseline-dept-select" class="form-input"></select>
+                    <select id="edit-baseline-dept-select" class="form-input" onchange="checkCustomDept(this, 'edit-baseline-dept-custom')"></select>
                 </div>
+                <input type="text" id="edit-baseline-dept-custom" class="form-input" placeholder="직접 입력 (예: 디자인학부 / 체육교육과 / 실용음악과)" style="display: none; margin-bottom: 8px;">
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; margin-top: 6px;">
                     <div>
-                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">🌅 목표 기상 시간</label>
+                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">목표 기상 시간</label>
                         <input type="time" id="edit-wake-time" class="form-input" value="06:30">
                     </div>
                     <div>
-                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">🌃 목표 취침 시간</label>
+                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">목표 취침 시간</label>
                         <input type="time" id="edit-sleep-time" class="form-input" value="23:30">
                     </div>
                 </div>
@@ -1191,24 +1211,61 @@
         </div>
     </div>
 
-    <!-- 🎁 2. 새벽 6:30 기상 룰렛 행운 상자 모달 -->
+    <!-- 2. 일일 미션 달성 룰렛 모달 -->
     <div id="wake-roulette-modal" class="trigger-modal" style="display: none;">
-        <div class="trigger-content" style="max-width: 380px; text-align: center; border-color: #f59e0b; background: #0f172a; padding: 24px;">
-            <div style="font-size: 1.3rem; font-weight: 900; color: #f59e0b; margin-bottom: 6px;">🌅 새벽 6:30 기상 룰렛 행운 상자</div>
-            <div style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 16px;">정시 기상 인증 완료! 오늘의 도파민 랜덤 포인트를 뽑아보세요.</div>
+        <div class="trigger-content" style="max-width: 380px; text-align: center; border-color: #f59e0b; background: #0f172a; padding: 22px;">
+            <div style="font-size: 1.25rem; font-weight: 900; color: #f59e0b; margin-bottom: 6px;">일일 미션 달성 룰렛</div>
+            <div style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 16px;">오늘의 미션 완료! 랜덤 보너스 포인트를 뽑아보세요.</div>
             
             <!-- 룰렛 휠 애니메이션 그래픽 -->
-            <div style="position: relative; width: 180px; height: 180px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
-                <div id="roulette-wheel" style="width: 180px; height: 180px; border-radius: 50%; border: 6px solid #f59e0b; background: conic-gradient(#10b981 0deg 72deg, #3b82f6 72deg 144deg, #8b5cf6 144deg 216deg, #ec4899 216deg 288deg, #f59e0b 288deg 360deg); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(245, 158, 11, 0.4); transition: transform 3s cubic-bezier(0.15, 0.9, 0.25, 1);">
-                    <div style="width: 60px; height: 60px; background: #0f172a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem; color: #fcd34d;">
-                        🎁
-                    </div>
+            <div style="position: relative; width: 200px; height: 200px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
+                <canvas id="roulette-canvas" width="200" height="200" style="width: 200px; height: 200px; border-radius: 50%; box-shadow: 0 0 25px rgba(245, 158, 11, 0.4); transition: transform 3s cubic-bezier(0.15, 0.9, 0.25, 1);"></canvas>
+                <div style="position: absolute; width: 44px; height: 44px; background: #0f172a; border-radius: 50%; border: 2px solid #f59e0b; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.8rem; color: #fcd34d; z-index: 2;">
+                    PALIN
                 </div>
-                <div style="position: absolute; top: -8px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 16px solid #ef4444;"></div>
+                <div style="position: absolute; top: -6px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 18px solid #ef4444; z-index: 3;"></div>
             </div>
 
             <div id="roulette-result-msg" style="font-size: 0.95rem; font-weight: 800; color: #34d399; margin-bottom: 14px; min-height: 24px;"></div>
-            <button id="roulette-spin-btn" onclick="executeWakeRoulette()" class="btn" style="width: 100%; padding: 12px 0; font-size: 0.95rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706);">🎲 룰렛 돌리고 포인트 받기!</button>
+
+            <div style="display: flex; gap: 8px;">
+                <button id="roulette-spin-btn" onclick="executeWakeRoulette()" class="btn" style="flex: 1; padding: 12px 0; background: linear-gradient(135deg, #f59e0b, #d97706); font-weight: 800; font-size: 0.95rem;">룰렛 돌리기</button>
+                <button onclick="document.getElementById('wake-roulette-modal').style.display='none'" class="btn" style="padding: 12px 18px; font-size: 0.85rem; font-weight: 700; background: #334155; color: #ffffff !important; border-radius: 8px;">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔥 3. 듀오링고 스타일 연속 학습 스트릭 모달 -->
+    <div id="streak-modal" class="trigger-modal" style="display: none;">
+        <div class="trigger-content" style="max-width: 380px; text-align: center; border-color: #f97316; background: #0f172a; padding: 22px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 8px;">
+                <div style="font-size: 1.2rem; font-weight: 900; color: #fb923c;" id="streak-modal-title">🔥 4일 연속 학습</div>
+                <button onclick="document.getElementById('streak-modal').style.display='none'" class="modal-close-btn" title="닫기" style="background: rgba(255, 255, 255, 0.2) !important; color: #ffffff !important; border: 1.5px solid rgba(255, 255, 255, 0.4) !important; width: 34px; height: 34px; border-radius: 50%; font-size: 1.3rem; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</button>
+            </div>
+            
+            <div style="font-size: 0.85rem; color: #cbd5e1; margin-bottom: 16px;">
+                매일 기상/자습 미션을 완수하여 불꽃을 유지하세요!
+            </div>
+
+            <!-- 이번 주 7일 출석 도장 현황판 -->
+            <div style="background: rgba(249, 115, 22, 0.1); border: 1.5px solid rgba(249, 115, 22, 0.3); border-radius: 12px; padding: 14px 10px; margin-bottom: 16px;">
+                <div style="font-size: 0.75rem; color: #fed7aa; margin-bottom: 10px; font-weight: 700;">이번 주 미션 완주 현황</div>
+                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;" id="streak-week-days">
+                    <div style="text-align: center;"><div style="font-size: 0.7rem; color: #94a3b8; margin-bottom: 4px;">월</div><div style="width: 32px; height: 32px; border-radius: 50%; background: #f97316; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; margin: 0 auto;">🔥</div></div>
+                    <div style="text-align: center;"><div style="font-size: 0.7rem; color: #94a3b8; margin-bottom: 4px;">화</div><div style="width: 32px; height: 32px; border-radius: 50%; background: #f97316; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; margin: 0 auto;">🔥</div></div>
+                    <div style="text-align: center;"><div style="font-size: 0.7rem; color: #94a3b8; margin-bottom: 4px;">수</div><div style="width: 32px; height: 32px; border-radius: 50%; background: #f97316; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; margin: 0 auto;">🔥</div></div>
+                    <div style="text-align: center;"><div style="font-size: 0.7rem; color: #94a3b8; margin-bottom: 4px;">목</div><div style="width: 32px; height: 32px; border-radius: 50%; background: #f97316; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; margin: 0 auto;">🔥</div></div>
+                    <div style="text-align: center;"><div style="font-size: 0.7rem; color: #94a3b8; margin-bottom: 4px;">금</div><div style="width: 32px; height: 32px; border-radius: 50%; background: #334155; color: #64748b; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; margin: 0 auto;">-</div></div>
+                    <div style="text-align: center;"><div style="font-size: 0.7rem; color: #94a3b8; margin-bottom: 4px;">토</div><div style="width: 32px; height: 32px; border-radius: 50%; background: #334155; color: #64748b; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; margin: 0 auto;">-</div></div>
+                    <div style="text-align: center;"><div style="font-size: 0.7rem; color: #94a3b8; margin-bottom: 4px;">일</div><div style="width: 32px; height: 32px; border-radius: 50%; background: #334155; color: #64748b; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; margin: 0 auto;">👑</div></div>
+                </div>
+            </div>
+
+            <div style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 14px;">
+                💡 7일 연속 완주 시 <strong>주간 잭팟 보너스 (+100P)</strong>가 지급됩니다.
+            </div>
+
+            <button onclick="document.getElementById('streak-modal').style.display='none'" class="btn" style="width: 100%; padding: 11px 0; font-size: 0.88rem; font-weight: 700; background: #334155; color: #ffffff !important; border-radius: 8px;">확인 완료 닫기</button>
         </div>
     </div>
 
@@ -1442,7 +1499,7 @@
     </div>
     </div>
 
-    <script src="js/app.js?v=46.0"></script>
+    <script src="js/app.js?v=47.0"></script>
     <script>
     // Service Worker Registration
     if ('serviceWorker' in navigator) {
