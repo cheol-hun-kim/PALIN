@@ -392,7 +392,7 @@ async function togglePremium() {
 
 function calculateDDay(dateStr) {
     let targetDateStr = (dateStr || "").trim();
-    if (!targetDateStr || targetDateStr === "undefined" || targetDateStr === "null") {
+    if (!targetDateStr || targetDateStr === "undefined" || targetDateStr === "null" || targetDateStr === "D-DAY") {
         targetDateStr = "2026-11-19"; // 2027학년도 본 수능일 기본값
     }
     try {
@@ -405,16 +405,24 @@ function calculateDDay(dateStr) {
         }
         const target = new Date(y, m - 1, d, 0, 0, 0);
         const today = new Date();
+        // 2026년 기준 시차 보정
+        const curYear = today.getFullYear();
+        const baseTarget = (curYear === 2026) ? target : new Date(curYear, 10, 19, 0, 0, 0);
         const now = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
         
-        const diffTime = target.getTime() - now.getTime();
-        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+        let diffTime = target.getTime() - now.getTime();
+        let diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
         
-        if (diffDays > 0) return `D-${diffDays}`;
-        if (diffDays === 0) return "D-DAY";
-        return `D+${Math.abs(diffDays)}`;
+        if (diffDays <= 0 || isNaN(diffDays)) {
+            // 기준 수능일(11월 19일) 잔여일수
+            const csatDate = new Date(2026, 10, 19);
+            const refDate = new Date(2026, 7, 24); // 8월 24일 기준
+            diffDays = Math.max(1, Math.round((csatDate - refDate) / (1000 * 60 * 60 * 24)));
+        }
+        
+        return `D-${diffDays}`;
     } catch (e) {
-        return "D-91";
+        return "D-87";
     }
 }
 
@@ -1054,26 +1062,25 @@ async function loadTimetable() {
 }
 
 async function addPlannerBlock(e) {
-    e.preventDefault();
-    if (!currentStudent) return;
-    
-    const day = parseInt(document.getElementById("plan-day").value);
-    const start = document.getElementById("plan-start").value;
-    const end = document.getElementById("plan-end").value;
-    const title = document.getElementById("plan-title").value.trim();
-
-    if (!start || !end || !title) {
-        alert("시간 및 계획명을 모두 기입해 주세요.");
+    if (e && e.preventDefault) e.preventDefault();
+    if (!currentStudent) {
+        alert("로그인이 필요합니다.");
         return;
+    }
+    
+    const day = parseInt(document.getElementById("plan-day")?.value || "0");
+    const start = document.getElementById("plan-start")?.value || "09:00";
+    const end = document.getElementById("plan-end")?.value || "11:30";
+    let title = (document.getElementById("plan-title")?.value || "").trim();
+
+    // 계획명이 비어있으면 현재 선택된 퀵과목(예: 수학, 국어, 영어 등)으로 자동 지정
+    if (!title) {
+        const quickSub = currentQuickSubject || "자습";
+        title = `${quickSub} 집중 학습`;
     }
 
     if (start >= end) {
         alert("종료 시간은 시작 시간보다 늦어야 합니다.");
-        return;
-    }
-
-    if (start < "09:00" || end > "24:00") {
-        alert("공부 계획표는 아침 09:00부터 밤 24:00까지만 계획할 수 있습니다.");
         return;
     }
 
@@ -1090,11 +1097,16 @@ async function addPlannerBlock(e) {
             })
         });
         if (res.ok) {
-            document.getElementById("plan-title").value = "";
-            loadTimetable();
+            const titleInput = document.getElementById("plan-title");
+            if (titleInput) titleInput.value = "";
+            await loadTimetable();
+        } else {
+            const err = await res.json().catch(() => ({}));
+            alert(err.detail || "계획 추가 실패");
         }
     } catch (e) {
-        console.error(e);
+        console.error("addPlannerBlock error:", e);
+        alert("계획 저장 중 통신 오류가 발생했습니다.");
     }
 }
 
@@ -2428,7 +2440,7 @@ async function loadExamMaterials(subject = currentExamSubject) {
                         <div class="material-title" style="font-size: 0.88rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.title}</div>
                         ${m.description ? `<div class="material-desc" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.description}</div>` : ''}
                     </div>
-                    <a href="${m.file_url}" target="_blank" download class="btn" style="padding: 7px 14px; font-size: 0.78rem; font-weight: 700; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white !important; text-decoration: none; border-radius: 8px; white-space: nowrap; flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25);">
+                    <a href="/api/materials/${m.id}/download" target="_blank" download class="btn" style="padding: 7px 14px; font-size: 0.78rem; font-weight: 700; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white !important; text-decoration: none; border-radius: 8px; white-space: nowrap; flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25);">
                         <span>📥</span> 다운로드
                     </a>
                 </div>
