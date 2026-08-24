@@ -9,6 +9,10 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./dev.db")
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
+# Supabase Pooler 포트 5432(세션모드 타임아웃) -> 6543(트랜잭션모드 안정연결) 자동 최적화
+if "pooler.supabase.com:5432" in DATABASE_URL:
+    DATABASE_URL = DATABASE_URL.replace("pooler.supabase.com:5432", "pooler.supabase.com:6543")
+
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {
     "connect_timeout": 10,
     "keepalives": 1,
