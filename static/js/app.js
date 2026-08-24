@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     setupUnivDeptSelectors("reg-baseline-univ", "reg-baseline-dept");
     setupUnivDeptSelectors("tutor-up-univ", "tutor-up-major");
     
+    document.getElementById("header-streak-badge")?.addEventListener("click", openStreakModal);
     document.getElementById("theme-toggle-btn")?.addEventListener("click", togglePALINTheme);
 });
 
@@ -139,15 +140,41 @@ function hideOverlay(id) {
 
 // --- 공부 타이머 백그라운드 & 절전 모드 지원 모듈 ---
 let timerStartTime = null;
+let distractionTimeout = null;
+let isDistractedState = false;
 
 function setupDistractionDetection() {
-    // 화면이 꺼졌다가 다시 켜졌을 때(visibilityState === "visible") 즉시 타임스탬프 계산하여 시간 동기화
     document.addEventListener("visibilitychange", () => {
-        if (isTimerRunning && timerStartTime && document.visibilityState === "visible") {
-            const currentElapsed = Math.floor((Date.now() - timerStartTime) / 1000);
-            if (currentElapsed >= 0) {
-                timerSeconds = currentElapsed;
-                updateTimerDisplay(timerSeconds);
+        if (!isTimerRunning) return;
+
+        if (document.visibilityState === "hidden") {
+            // 타 앱 전환 또는 백그라운드 이탈 시 3초 타이머 가동
+            distractionTimeout = setTimeout(() => {
+                isDistractedState = true;
+                // 타이머 일시정지 처리
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+            }, 3000);
+        } else if (document.visibilityState === "visible") {
+            // 3초 내에 복귀한 경우 (화면 깜빡임 또는 단순 알림 확인)
+            if (distractionTimeout) {
+                clearTimeout(distractionTimeout);
+                distractionTimeout = null;
+            }
+
+            if (isDistractedState) {
+                isDistractedState = false;
+                stopTimerForcefully(true);
+                alert("⚠️ 딴짓 감지! 화면을 3초 이상 이탈(타 앱 전환)하여 타이머가 중단되었습니다. 공부에 집중해 주세요!");
+            } else if (timerStartTime) {
+                // 정상 복귀 시 시간 보정
+                const currentElapsed = Math.floor((Date.now() - timerStartTime) / 1000);
+                if (currentElapsed >= 0) {
+                    timerSeconds = currentElapsed;
+                    updateTimerDisplay(timerSeconds);
+                }
             }
         }
     });
@@ -215,12 +242,19 @@ async function fetchStudentInfo(studentId) {
 async function handleRegister(e) {
     e.preventDefault();
     const targetUniv = document.getElementById("reg-target-univ").value;
-    const targetDept = document.getElementById("reg-target-dept").value;
+    let targetDept = document.getElementById("reg-target-dept").value;
+    if (targetDept === "__CUSTOM__") {
+        targetDept = (document.getElementById("reg-target-dept-custom")?.value || "").trim();
+    }
+
     const baselineUniv = document.getElementById("reg-baseline-univ").value;
-    const baselineDept = document.getElementById("reg-baseline-dept").value;
+    let baselineDept = document.getElementById("reg-baseline-dept").value;
+    if (baselineDept === "__CUSTOM__") {
+        baselineDept = (document.getElementById("reg-baseline-dept-custom")?.value || "").trim();
+    }
     
     if (!targetUniv || !targetDept || !baselineUniv || !baselineDept) {
-        alert("목표 대학/학과 및 마지노선 대학/학과를 모두 선택해 주세요.");
+        alert("목표 대학/학과 및 마지노선 대학/학과를 모두 선택 또는 직접 입력해 주세요.");
         return;
     }
 
@@ -597,9 +631,16 @@ async function saveStudentProfileSettings() {
     const sleepTime = document.getElementById("edit-sleep-time").value;
 
     const tUniv = document.getElementById("edit-target-univ-select")?.value;
-    const tDept = document.getElementById("edit-target-dept-select")?.value;
+    let tDept = document.getElementById("edit-target-dept-select")?.value;
+    if (tDept === "__CUSTOM__") {
+        tDept = (document.getElementById("edit-target-dept-custom")?.value || "").trim();
+    }
+
     const bUniv = document.getElementById("edit-baseline-univ-select")?.value;
-    const bDept = document.getElementById("edit-baseline-dept-select")?.value;
+    let bDept = document.getElementById("edit-baseline-dept-select")?.value;
+    if (bDept === "__CUSTOM__") {
+        bDept = (document.getElementById("edit-baseline-dept-custom")?.value || "").trim();
+    }
 
     const targetUniv = (tUniv && tDept) ? `${tUniv} ${tDept}` : currentStudent.target_univ;
     const baselineUniv = (bUniv && bDept) ? `${bUniv} ${bDept}` : currentStudent.baseline_univ;
@@ -2001,7 +2042,19 @@ function findMatchingUniv(cleanInitUniv, univList) {
     return "";
 }
 
-// --- 대학교 학과 드롭다운 연결 헬퍼 ---
+// --- 예체능/자율전공 직접 입력 토글 헬퍼 ---
+function checkCustomDept(selectEl, customInputId) {
+    const customInput = document.getElementById(customInputId);
+    if (!customInput) return;
+    if (selectEl.value === "__CUSTOM__") {
+        customInput.style.display = "block";
+        customInput.focus();
+    } else {
+        customInput.style.display = "none";
+    }
+}
+
+// --- 대학교 학과 드롭다운 연결 헬퍼 (예체능 직접입력 지원) ---
 function setupUnivDeptSelectors(univSelId, deptSelId, initialUniv = "", initialDept = "") {
     const univSelect = document.getElementById(univSelId);
     const deptSelect = document.getElementById(deptSelId);
@@ -2050,6 +2103,12 @@ function setupUnivDeptSelectors(univSelId, deptSelId, initialUniv = "", initialD
             opt.textContent = dept;
             deptSelect.appendChild(opt);
         });
+
+        // 예체능/자율전공 직접 입력 옵션 추가
+        const customOpt = document.createElement("option");
+        customOpt.value = "__CUSTOM__";
+        customOpt.textContent = "✏️ 직접 입력 (예체능/자율전공 등)";
+        deptSelect.appendChild(customOpt);
     };
 
     // 3. 초기 학과 옵션 렌더링
@@ -2063,18 +2122,40 @@ function setupUnivDeptSelectors(univSelId, deptSelId, initialUniv = "", initialD
         if (!cleanInitDept) defaultDeptOpt.selected = true;
         deptSelect.appendChild(defaultDeptOpt);
 
+        let isDeptInList = false;
         depts.forEach(dept => {
             const opt = document.createElement("option");
             opt.value = dept;
             opt.textContent = dept;
-            if (dept === cleanInitDept) opt.selected = true;
+            if (dept === cleanInitDept) {
+                opt.selected = true;
+                isDeptInList = true;
+            }
             deptSelect.appendChild(opt);
         });
-        if (cleanInitDept && depts.includes(cleanInitDept)) {
+
+        // 예체능/자율전공 직접 입력 옵션 추가
+        const customOpt = document.createElement("option");
+        customOpt.value = "__CUSTOM__";
+        customOpt.textContent = "✏️ 직접 입력 (예체능/자율전공 등)";
+        deptSelect.appendChild(customOpt);
+
+        if (cleanInitDept && !isDeptInList) {
+            // 기존 등록된 학과가 목록에 없으면(예체능 직접입력 학과인 경우)
+            customOpt.selected = true;
+            const customInputId = deptSelId === "edit-target-dept-select" ? "edit-target-dept-custom" : (deptSelId === "edit-baseline-dept-select" ? "edit-baseline-dept-custom" : "");
+            if (customInputId) {
+                const cInput = document.getElementById(customInputId);
+                if (cInput) {
+                    cInput.value = cleanInitDept;
+                    cInput.style.display = "block";
+                }
+            }
+        } else if (cleanInitDept && isDeptInList) {
             deptSelect.value = cleanInitDept;
         }
     } else {
-        deptSelect.innerHTML = `<option value="" disabled selected>학과 선택</option>`;
+        deptSelect.innerHTML = `<option value="" disabled selected>학과 선택</option><option value="__CUSTOM__">✏️ 직접 입력 (예체능/자율전공 등)</option>`;
     }
 }
 
