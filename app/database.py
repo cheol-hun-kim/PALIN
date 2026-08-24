@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import NullPool
 import os
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./dev.db")
@@ -13,26 +14,26 @@ if DATABASE_URL.startswith("postgres://"):
 if "pooler.supabase.com:5432" in DATABASE_URL:
     DATABASE_URL = DATABASE_URL.replace("pooler.supabase.com:5432", "pooler.supabase.com:6543")
 
-connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {
-    "connect_timeout": 10,
-    "keepalives": 1,
-    "keepalives_idle": 30,
-    "keepalives_interval": 10,
-    "keepalives_count": 5
-}
-
 if DATABASE_URL.startswith("sqlite"):
+    connect_args = {"check_same_thread": False}
     engine = create_engine(DATABASE_URL, connect_args=connect_args)
 else:
-    # Supabase / PostgreSQL Connection Pooler 최적화 (ECHECKOUTTIMEOUT 방지)
+    # Supabase PgBouncer Pooler 공식 권장 설정 (server didn't return client encoding 해결)
+    connect_args = {
+        "connect_timeout": 15,
+        "keepalives": 1,
+        "keepalives_idle": 30,
+        "keepalives_interval": 10,
+        "keepalives_count": 5,
+        "options": "-c client_encoding=utf8"
+    }
+    
+    # Supabase 트랜잭션 풀러(6543)와 SQLAlchemy 이중 풀링 충돌 방지 -> NullPool 사용 (공식 권장)
     engine = create_engine(
         DATABASE_URL,
         connect_args=connect_args,
-        pool_pre_ping=True,
-        pool_recycle=300,
-        pool_size=5,
-        max_overflow=10,
-        pool_timeout=30
+        poolclass=NullPool,
+        pool_pre_ping=True
     )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
