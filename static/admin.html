@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PALIN OS - 원장 전용 중앙 관제 대시보드</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=49.0">
+    <link rel="stylesheet" href="css/style.css?v=50.0">
     <style>
         body {
             background-color: #06070a;
@@ -787,14 +787,14 @@
                     }
                 } catch (e) { console.warn("Study feed error:", e); }
 
-                // 8. 👑 VIP 컨설팅 신청 현황 & 📑 발급된 입시 리포트 목록 로드
-                loadAdminConsultingRequests();
-                loadAdminReports();
-
-                // 9. 공지사항 및 기출자료 및 제미나이 상태
-                loadAdminNotices();
-                loadAdminMaterials();
-                checkGeminiStatus();
+                // 8. 서브 대시보드 데이터 병렬 비동기(Promise.allSettled) 즉시 로드 (초고속 렌더링)
+                Promise.allSettled([
+                    loadAdminConsultingRequests(),
+                    loadAdminReports(),
+                    loadAdminNotices(),
+                    loadAdminMaterials(),
+                    checkGeminiStatus()
+                ]).catch(err => console.warn("Admin sub-fetch warning:", err));
             } catch (e) {
                 console.error("Dashboard load failed:", e);
             }
