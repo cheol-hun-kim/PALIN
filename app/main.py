@@ -16,88 +16,94 @@ app = FastAPI(title="PASS-MATE API")
 
 from sqlalchemy import text, inspect
 def init_db_schema():
-    models.Base.metadata.create_all(bind=engine)
-    with engine.connect() as conn:
-        try:
-            if engine.dialect.name == "sqlite":
-                columns = [row[1] for row in conn.execute(text("PRAGMA table_info(students)")).fetchall()]
-                if columns:
-                    if "wake_target_time" not in columns:
-                        conn.execute(text("ALTER TABLE students ADD COLUMN wake_target_time VARCHAR DEFAULT '06:30'"))
-                    if "sleep_target_time" not in columns:
-                        conn.execute(text("ALTER TABLE students ADD COLUMN sleep_target_time VARCHAR DEFAULT '23:30'"))
-                    if "is_banned" not in columns:
-                        conn.execute(text("ALTER TABLE students ADD COLUMN is_banned BOOLEAN DEFAULT 0"))
-                    if "ban_reason" not in columns:
-                        conn.execute(text("ALTER TABLE students ADD COLUMN ban_reason VARCHAR"))
-                    if "dday_date" not in columns:
-                        conn.execute(text("ALTER TABLE students ADD COLUMN dday_date VARCHAR DEFAULT '2026-11-19'"))
-                    if "dday_title" not in columns:
-                        conn.execute(text("ALTER TABLE students ADD COLUMN dday_title VARCHAR DEFAULT '2027 수능'"))
-                    if "streak_days" not in columns:
-                        conn.execute(text("ALTER TABLE students ADD COLUMN streak_days INTEGER DEFAULT 0"))
-                    if "max_streak_days" not in columns:
-                        conn.execute(text("ALTER TABLE students ADD COLUMN max_streak_days INTEGER DEFAULT 0"))
-                    if "medical_symbol" not in columns:
-                        conn.execute(text("ALTER TABLE students ADD COLUMN medical_symbol VARCHAR DEFAULT 'GENERAL'"))
-                    if "paid_cash" not in columns:
-                        conn.execute(text("ALTER TABLE students ADD COLUMN paid_cash INTEGER DEFAULT 0"))
-                    if "free_report_tickets" not in columns:
-                        conn.execute(text("ALTER TABLE students ADD COLUMN free_report_tickets INTEGER DEFAULT 0"))
-                    if "referral_code" not in columns:
-                        conn.execute(text("ALTER TABLE students ADD COLUMN referral_code VARCHAR"))
-                    if "referred_by" not in columns:
-                        conn.execute(text("ALTER TABLE students ADD COLUMN referred_by VARCHAR"))
-                    if "has_unlimited_chat" not in columns:
-                        conn.execute(text("ALTER TABLE students ADD COLUMN has_unlimited_chat BOOLEAN DEFAULT 0"))
+    try:
+        models.Base.metadata.create_all(bind=engine)
+        with engine.connect() as conn:
+            try:
+                if engine.dialect.name == "sqlite":
+                    columns = [row[1] for row in conn.execute(text("PRAGMA table_info(students)")).fetchall()]
+                    if columns:
+                        if "wake_target_time" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN wake_target_time VARCHAR DEFAULT '06:30'"))
+                        if "sleep_target_time" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN sleep_target_time VARCHAR DEFAULT '23:30'"))
+                        if "is_banned" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN is_banned BOOLEAN DEFAULT 0"))
+                        if "ban_reason" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN ban_reason VARCHAR"))
+                        if "dday_date" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN dday_date VARCHAR DEFAULT '2026-11-19'"))
+                        if "dday_title" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN dday_title VARCHAR DEFAULT '2027 수능'"))
+                        if "streak_days" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN streak_days INTEGER DEFAULT 0"))
+                        if "max_streak_days" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN max_streak_days INTEGER DEFAULT 0"))
+                        if "medical_symbol" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN medical_symbol VARCHAR DEFAULT 'GENERAL'"))
+                        if "paid_cash" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN paid_cash INTEGER DEFAULT 0"))
+                        if "free_report_tickets" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN free_report_tickets INTEGER DEFAULT 0"))
+                        if "referral_code" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN referral_code VARCHAR"))
+                        if "referred_by" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN referred_by VARCHAR"))
+                        if "has_unlimited_chat" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN has_unlimited_chat BOOLEAN DEFAULT 0"))
+                        conn.commit()
+
+                    # TutorProfile 컬럼 검사
+                    tutor_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(tutor_profiles)")).fetchall()]
+                    if tutor_cols:
+                        if "is_suspended" not in tutor_cols:
+                            conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN is_suspended BOOLEAN DEFAULT 0"))
+                        if "suspend_reason" not in tutor_cols:
+                            conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN suspend_reason VARCHAR"))
+
+                    # QAPost 컬럼 검사
+                    qa_post_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(qa_posts)")).fetchall()]
+                    if qa_post_cols:
+                        if "is_anonymous" not in qa_post_cols:
+                            conn.execute(text("ALTER TABLE qa_posts ADD COLUMN is_anonymous BOOLEAN DEFAULT 0"))
+
+                    # QAComment 컬럼 검사
+                    qa_comment_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(qa_comments)")).fetchall()]
+                    if qa_comment_cols:
+                        if "is_anonymous" not in qa_comment_cols:
+                            conn.execute(text("ALTER TABLE qa_comments ADD COLUMN is_anonymous BOOLEAN DEFAULT 0"))
                     conn.commit()
+                else:
+                    # PostgreSQL (Supabase) 자동 마이그레이션 실행
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS wake_target_time VARCHAR DEFAULT '06:30'"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS sleep_target_time VARCHAR DEFAULT '23:30'"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS is_banned BOOLEAN DEFAULT FALSE"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS ban_reason VARCHAR"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS dday_date VARCHAR DEFAULT '2026-11-19'"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS dday_title VARCHAR DEFAULT '2027 수능'"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS streak_days INTEGER DEFAULT 0"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS max_streak_days INTEGER DEFAULT 0"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS medical_symbol VARCHAR DEFAULT 'GENERAL'"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS paid_cash INTEGER DEFAULT 0"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS free_report_tickets INTEGER DEFAULT 0"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS referral_code VARCHAR"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS referred_by VARCHAR"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS has_unlimited_chat BOOLEAN DEFAULT FALSE"))
+                    conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS is_suspended BOOLEAN DEFAULT FALSE"))
+                    conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS suspend_reason VARCHAR"))
+                    conn.execute(text("ALTER TABLE qa_posts ADD COLUMN IF NOT EXISTS is_anonymous BOOLEAN DEFAULT FALSE"))
+                    conn.execute(text("ALTER TABLE qa_comments ADD COLUMN IF NOT EXISTS is_anonymous BOOLEAN DEFAULT FALSE"))
+                    conn.commit()
+                    print("PostgreSQL Schema Migration Complete!")
+            except Exception as e:
+                print("DB Schema Migration Warning:", e)
+    except Exception as e:
+        print("DB Connection/Init Warning (Non-blocking):", e)
 
-                # TutorProfile 컬럼 검사
-                tutor_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(tutor_profiles)")).fetchall()]
-                if tutor_cols:
-                    if "is_suspended" not in tutor_cols:
-                        conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN is_suspended BOOLEAN DEFAULT 0"))
-                    if "suspend_reason" not in tutor_cols:
-                        conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN suspend_reason VARCHAR"))
-
-                # QAPost 컬럼 검사
-                qa_post_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(qa_posts)")).fetchall()]
-                if qa_post_cols:
-                    if "is_anonymous" not in qa_post_cols:
-                        conn.execute(text("ALTER TABLE qa_posts ADD COLUMN is_anonymous BOOLEAN DEFAULT 0"))
-
-                # QAComment 컬럼 검사
-                qa_comment_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(qa_comments)")).fetchall()]
-                if qa_comment_cols:
-                    if "is_anonymous" not in qa_comment_cols:
-                        conn.execute(text("ALTER TABLE qa_comments ADD COLUMN is_anonymous BOOLEAN DEFAULT 0"))
-                conn.commit()
-            else:
-                # PostgreSQL (Supabase) 자동 마이그레이션 실행
-                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS wake_target_time VARCHAR DEFAULT '06:30'"))
-                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS sleep_target_time VARCHAR DEFAULT '23:30'"))
-                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS is_banned BOOLEAN DEFAULT FALSE"))
-                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS ban_reason VARCHAR"))
-                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS dday_date VARCHAR DEFAULT '2026-11-19'"))
-                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS dday_title VARCHAR DEFAULT '2027 수능'"))
-                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS streak_days INTEGER DEFAULT 0"))
-                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS max_streak_days INTEGER DEFAULT 0"))
-                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS medical_symbol VARCHAR DEFAULT 'GENERAL'"))
-                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS paid_cash INTEGER DEFAULT 0"))
-                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS free_report_tickets INTEGER DEFAULT 0"))
-                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS referral_code VARCHAR"))
-                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS referred_by VARCHAR"))
-                conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS has_unlimited_chat BOOLEAN DEFAULT FALSE"))
-                conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS is_suspended BOOLEAN DEFAULT FALSE"))
-                conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS suspend_reason VARCHAR"))
-                conn.execute(text("ALTER TABLE qa_posts ADD COLUMN IF NOT EXISTS is_anonymous BOOLEAN DEFAULT FALSE"))
-                conn.execute(text("ALTER TABLE qa_comments ADD COLUMN IF NOT EXISTS is_anonymous BOOLEAN DEFAULT FALSE"))
-                conn.commit()
-                print("PostgreSQL Schema Migration Complete!")
-        except Exception as e:
-            print("DB Schema Migration Warning:", e)
-
-init_db_schema()
+try:
+    init_db_schema()
+except Exception as e:
+    print("Async DB Init Warning:", e)
 
 app.add_middleware(
     CORSMiddleware,
