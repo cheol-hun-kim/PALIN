@@ -1651,13 +1651,13 @@ body.day-mode .mypage-menu-desc {
 }
 
 /* ===================================================
-   📚 기출문제 자료실 라이트모드 텍스트 고대비 보정
+   📚 기출문제 자료실 라이트/다크 모드 완벽 고대비 보정
    =================================================== */
 .material-card {
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
-    padding: 12px;
+    padding: 12px 14px;
     transition: all 0.2s ease;
 }
 
@@ -1667,14 +1667,24 @@ body.day-mode .mypage-menu-desc {
     color: #ffffff;
 }
 
+.material-desc {
+    color: #94a3b8;
+}
+
 body.day-mode .material-card {
-    background: #f8fafc !important;
-    border: 1px solid #e2e8f0 !important;
+    background: #ffffff !important;
+    border: 1.5px solid #e2e8f0 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
 }
 
 body.day-mode .material-title {
     color: #0f172a !important;
     font-weight: 800 !important;
+}
+
+body.day-mode .material-desc {
+    color: #475569 !important;
+    font-weight: 500 !important;
 }
 
 body.day-mode #exam-materials-container .material-card div {
