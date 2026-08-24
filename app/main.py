@@ -144,52 +144,83 @@ def get_univ_data():
     except:
         return {}
 
-@app.post("/api/register", response_model=schemas.StudentResponse)
+@app.post("/api/register")
 def register_student(payload: schemas.StudentCreate, db: Session = Depends(get_db)):
-    # 블랙리스트 검사
-    banned = db.query(models.Blacklist).filter(
-        (models.Blacklist.email == payload.email) | (models.Blacklist.phone == payload.phone)
-    ).first()
-    if banned:
-        raise HTTPException(status_code=403, detail=f"원장님에 의해 이용이 정지/퇴거된 계정입니다. (사유: {banned.reason or '학원 규칙 위반'})")
-
-    parent = db.query(models.Parent).filter(models.Parent.phone == payload.parent_phone).first()
-    if not parent:
-        parent = models.Parent(name=payload.parent_name, phone=payload.parent_phone, is_premium_subscribed=False)
-        db.add(parent)
-        db.commit()
-        db.refresh(parent)
+    try:
+        clean_email = payload.email.strip().lower()
         
-    initial_points = 100
-    referred_by_code = payload.referred_by.strip().upper() if payload.referred_by else None
-    
-    student = models.Student(
-        email=payload.email, name=payload.name, phone=payload.phone,
-        grade=payload.grade, region=payload.region, high_school=payload.high_school,
-        target_univ=payload.target_univ, baseline_univ=payload.baseline_univ,
-        current_points=initial_points, paid_cash=0, free_report_tickets=0,
-        referred_by=referred_by_code, parent_id=parent.id
-    )
-    db.add(student)
-    db.commit()
-    db.refresh(student)
-    
-    # 내 고유 친구초대 코드 발급 (예: PL-0101)
-    student.referral_code = f"PL-{student.id:04d}"
-    
-    # 추천인 보상 로직: 추천인에게 19,000원 리포트 무료권 1장 지급 & 가입자에게 500P 추가 지급!
-    if referred_by_code:
-        inviter = db.query(models.Student).filter(models.Student.referral_code == referred_by_code).first()
-        if inviter:
-            inviter.free_report_tickets = (inviter.free_report_tickets or 0) + 1
-            student.current_points += 500
-            db.add(models.PointHistory(student_id=student.id, amount=500, description=f"친구({inviter.name}) 초대 코드 웰컴 보너스"))
-            db.add(models.PointHistory(student_id=inviter.id, amount=0, description=f"친구({student.name}) 초대 성공: 19,000원 리포트 무료권 획득!"))
+        # 중복 이메일 가입 방지 및 기존 계정 자동 로그인 안내
+        existing = db.query(models.Student).filter(models.Student.email == clean_email).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="이미 가입된 이메일 주소입니다. [기존 계정으로 로그인]을 이용해 주세요.")
+
+        # 블랙리스트 검사
+        banned = db.query(models.Blacklist).filter(
+            (models.Blacklist.email == clean_email) | (models.Blacklist.phone == payload.phone)
+        ).first()
+        if banned:
+            raise HTTPException(status_code=403, detail=f"원장님에 의해 이용이 정지/퇴거된 계정입니다. (사유: {banned.reason or '학원 규칙 위반'})")
+
+        parent = db.query(models.Parent).filter(models.Parent.phone == payload.parent_phone).first()
+        if not parent:
+            parent = models.Parent(name=payload.parent_name, phone=payload.parent_phone, is_premium_subscribed=False)
+            db.add(parent)
+            db.commit()
+            db.refresh(parent)
             
-    db.add(models.PointHistory(student_id=student.id, amount=initial_points, description="가입 축하 기본 포인트"))
-    db.commit()
-    db.refresh(student)
-    return student
+        initial_points = 100
+        referred_by_code = payload.referred_by.strip().upper() if payload.referred_by else None
+        
+        student = models.Student(
+            email=clean_email, name=payload.name, phone=payload.phone,
+            grade=payload.grade, region=payload.region, high_school=payload.high_school,
+            target_univ=payload.target_univ, baseline_univ=payload.baseline_univ,
+            current_points=initial_points, paid_cash=0, free_report_tickets=0,
+            referred_by=referred_by_code, parent_id=parent.id
+        )
+        db.add(student)
+        db.commit()
+        db.refresh(student)
+        
+        # 내 고유 친구초대 코드 발급 (예: PL-0101)
+        student.referral_code = f"PL-{student.id:04d}"
+        
+        # 추천인 보상 로직: 추천인에게 19,000원 리포트 무료권 1장 지급 & 가입자에게 500P 추가 지급!
+        if referred_by_code:
+            inviter = db.query(models.Student).filter(models.Student.referral_code == referred_by_code).first()
+            if inviter:
+                inviter.free_report_tickets = (inviter.free_report_tickets or 0) + 1
+                student.current_points += 500
+                db.add(models.PointHistory(student_id=student.id, amount=500, description=f"친구({inviter.name}) 초대 코드 웰컴 보너스"))
+                db.add(models.PointHistory(student_id=inviter.id, amount=0, description=f"친구({student.name}) 초대 성공: 19,000원 리포트 무료권 획득!"))
+                
+        db.add(models.PointHistory(student_id=student.id, amount=initial_points, description="가입 축하 기본 포인트"))
+        db.commit()
+        db.refresh(student)
+        
+        return {
+            "id": student.id,
+            "email": student.email,
+            "name": student.name,
+            "phone": student.phone,
+            "grade": student.grade,
+            "region": student.region,
+            "high_school": student.high_school,
+            "target_univ": student.target_univ,
+            "baseline_univ": student.baseline_univ,
+            "wake_target_time": student.wake_target_time or "06:30",
+            "sleep_target_time": student.sleep_target_time or "23:30",
+            "current_points": student.current_points,
+            "parent_id": student.parent_id,
+            "referral_code": student.referral_code,
+            "streak_days": student.streak_days or 0
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        print("Register Internal Error:", traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"회원가입 처리 중 오류 발생: {str(e)}")
 
 class LoginPayload(BaseModel):
     email: str
