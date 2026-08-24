@@ -194,29 +194,97 @@ def register_student(payload: schemas.StudentCreate, db: Session = Depends(get_d
 class LoginPayload(BaseModel):
     email: str
 
-@app.post("/api/login", response_model=schemas.StudentResponse)
+@app.post("/api/login")
 def login_student(payload: LoginPayload, db: Session = Depends(get_db)):
-    clean_email = payload.email.strip().lower()
-    from sqlalchemy import func
-    # 대소문자 무시 검색 + 공백 제거 매칭
-    student = db.query(models.Student).filter(
-        (func.lower(models.Student.email) == clean_email) |
-        (models.Student.email == payload.email.strip())
-    ).first()
-    if not student:
-        raise HTTPException(status_code=404, detail="학생 정보를 찾을 수 없습니다. (가입된 이메일을 확인하시거나 회원가입을 진행해 주세요.)")
-    if student.is_banned:
-        raise HTTPException(status_code=403, detail=f"원장님에 의해 이용이 정지/퇴거된 계정입니다. (사유: {student.ban_reason or '학원 규칙 위반'})")
-    return student
+    try:
+        clean_email = payload.email.strip().lower()
+        from sqlalchemy import func
+        # 대소문자 무시 검색 + 공백 제거 매칭
+        student = db.query(models.Student).filter(
+            (func.lower(models.Student.email) == clean_email) |
+            (models.Student.email == payload.email.strip())
+        ).first()
+        
+        if not student:
+            raise HTTPException(status_code=404, detail="등록되지 않은 이메일입니다. [← 회원가입으로 돌아가기] 버튼을 눌러 먼저 회원가입을 완료해 주세요.")
+            
+        if student.is_banned:
+            raise HTTPException(status_code=403, detail=f"원장님에 의해 이용이 정지/퇴거된 계정입니다. (사유: {student.ban_reason or '학원 규칙 위반'})")
+            
+        return {
+            "id": student.id,
+            "email": student.email,
+            "name": student.name or "학생",
+            "phone": student.phone or "-",
+            "grade": student.grade if student.grade is not None else 3,
+            "region": student.region or "-",
+            "high_school": student.high_school or "-",
+            "target_univ": student.target_univ or "-",
+            "baseline_univ": student.baseline_univ or "-",
+            "wake_target_time": student.wake_target_time or "06:30",
+            "sleep_target_time": student.sleep_target_time or "23:30",
+            "current_points": student.current_points if student.current_points is not None else 100,
+            "parent_id": student.parent_id,
+            "paid_cash": student.paid_cash or 0,
+            "free_report_tickets": student.free_report_tickets or 0,
+            "referral_code": student.referral_code,
+            "referred_by": student.referred_by,
+            "has_unlimited_chat": bool(student.has_unlimited_chat),
+            "league_tier": student.league_tier or "BRONZE",
+            "point_multiplier": student.point_multiplier or 1.0,
+            "golden_tickets_count": getattr(student, "golden_tickets_count", 0) or 0,
+            "diligence_score": student.diligence_score or 0,
+            "is_banned": bool(student.is_banned),
+            "dday_date": student.dday_date or "2026-11-19",
+            "dday_title": student.dday_title or "2027 수능",
+            "streak_days": student.streak_days or 0,
+            "max_streak_days": student.max_streak_days or 0,
+            "medical_symbol": student.medical_symbol or "GENERAL"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        print("Login Internal Error:", traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"로그인 처리 중 오류 발생: {str(e)}")
 
-@app.get("/api/student/{student_id}", response_model=schemas.StudentResponse)
+@app.get("/api/student/{student_id}")
 def get_student(student_id: int, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == student_id).first()
     if not student:
         raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
     if student.is_banned:
         raise HTTPException(status_code=403, detail=f"원장님에 의해 이용이 정지/퇴거된 계정입니다. (사유: {student.ban_reason or '학원 규칙 위반'})")
-    return student
+    return {
+        "id": student.id,
+        "email": student.email,
+        "name": student.name or "학생",
+        "phone": student.phone or "-",
+        "grade": student.grade if student.grade is not None else 3,
+        "region": student.region or "-",
+        "high_school": student.high_school or "-",
+        "target_univ": student.target_univ or "-",
+        "baseline_univ": student.baseline_univ or "-",
+        "wake_target_time": student.wake_target_time or "06:30",
+        "sleep_target_time": student.sleep_target_time or "23:30",
+        "current_points": student.current_points if student.current_points is not None else 100,
+        "parent_id": student.parent_id,
+        "paid_cash": student.paid_cash or 0,
+        "free_report_tickets": student.free_report_tickets or 0,
+        "referral_code": student.referral_code,
+        "referred_by": student.referred_by,
+        "has_unlimited_chat": bool(student.has_unlimited_chat),
+        "league_tier": student.league_tier or "BRONZE",
+        "point_multiplier": student.point_multiplier or 1.0,
+        "golden_tickets_count": getattr(student, "golden_tickets_count", 0) or 0,
+        "diligence_score": student.diligence_score or 0,
+        "is_banned": bool(student.is_banned),
+        "dday_date": student.dday_date or "2026-11-19",
+        "dday_title": student.dday_title or "2027 수능",
+        "streak_days": student.streak_days or 0,
+        "max_streak_days": student.max_streak_days or 0,
+        "medical_symbol": student.medical_symbol or "GENERAL"
+    }
 
 @app.get("/api/student/{student_id}/parent", response_model=schemas.ParentResponse)
 def get_student_parent(student_id: int, db: Session = Depends(get_db)):
