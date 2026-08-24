@@ -702,17 +702,15 @@ def spin_wake_roulette(payload: WakeRoulettePayload, db: Session = Depends(get_d
     if not student:
         raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
     
-    # 🎲 가변 보상 룰렛 확률 분포: 10P(40%), 30P(30%), 50P(20%), 100P(8%), 500P(2%)
+    # 🎲 가변 보상 룰렛 확률 분포 (인플레이션 방지): 10P(60%), 20P(30%), 30P(8%), 50P(2% 잭팟)
     import random
     rand_val = random.random()
     if rand_val < 0.02:
-        reward = 500
-    elif rand_val < 0.10:
-        reward = 100
-    elif rand_val < 0.30:
         reward = 50
-    elif rand_val < 0.60:
+    elif rand_val < 0.10:
         reward = 30
+    elif rand_val < 0.40:
+        reward = 20
     else:
         reward = 10
 
@@ -720,7 +718,7 @@ def spin_wake_roulette(payload: WakeRoulettePayload, db: Session = Depends(get_d
     db.add(models.PointHistory(
         student_id=student.id,
         amount=reward,
-        description=f"🌅 새벽 기상 룰렛 행운 상자 당첨 (+{reward}P)"
+        description=f"일일 미션 달성 룰렛 보상 (+{reward}P)"
     ))
     db.commit()
     db.refresh(student)
@@ -728,7 +726,7 @@ def spin_wake_roulette(payload: WakeRoulettePayload, db: Session = Depends(get_d
         "status": "ok",
         "reward_points": reward,
         "current_points": student.current_points,
-        "message": f"🎉 축하합니다! 기상 룰렛에서 {reward}P를 획득하셨습니다!"
+        "message": f"일일 미션 룰렛에서 {reward}P를 획득하셨습니다!"
     }
 
 class TutorMatchRequestPayload(BaseModel):
