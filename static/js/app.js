@@ -206,31 +206,23 @@ async function fetchStudentInfo(studentId) {
         }
         currentStudent = await res.json();
         
-        // 학부모 프리미엄 구독 여부 가져오기
-        try {
-            const pRes = await fetch(`/api/student/${studentId}/parent`);
-            const parent = await pRes.json();
-            currentStudent.parent = parent;
-        } catch (pe) {
-            console.warn("학부모 정보 로드 실패:", pe);
-        }
-
-        // 인증 성공 → 즉시 오버레이 숨김 (이후 데이터 로드 실패와 무관)
+        // 인증 성공 → 즉시 오버레이 숨김 및 UI 즉시 렌더링
         hideOverlay("register-overlay");
+        updateHeaderUI();
+        updateTargetBanner();
+        updateStudentUnivSelectors();
 
-        // UI 업데이트 (개별 try-catch로 하나가 실패해도 나머지 진행)
-        try { updateHeaderUI(); } catch(e) { console.warn("updateHeaderUI:", e); }
-        try { updateTargetBanner(); } catch(e) { console.warn("updateTargetBanner:", e); }
-        try { await fetchLeagueStatus(studentId); } catch(e) { console.warn("fetchLeagueStatus:", e); }
-        try { updateStudentUnivSelectors(); } catch(e) { console.warn("updateStudentUnivSelectors:", e); }
-        
-        // 데이터 로드
-        try { fetchNotices(); } catch(e) { console.warn("fetchNotices:", e); }
-        try { fetchMicroLeague(studentId); } catch(e) { console.warn("fetchMicroLeague:", e); }
-        try { renderAdmissionCalendar(); } catch(e) { console.warn("renderAdmissionCalendar:", e); }
-        try { loadPage1Data(); } catch(e) { console.warn("loadPage1Data:", e); }
-        try { loadPage2Data(); } catch(e) { console.warn("loadPage2Data:", e); }
-        try { loadPage3Data(); } catch(e) { console.warn("loadPage3Data:", e); }
+        // 부가 데이터는 병렬 비동기(Promise.allSettled)로 즉각 백그라운드 로드
+        Promise.allSettled([
+            fetch(`/api/student/${studentId}/parent`).then(r => r.ok ? r.json() : null).then(p => { if (p) currentStudent.parent = p; }),
+            fetchLeagueStatus(studentId),
+            fetchNotices(),
+            fetchMicroLeague(studentId),
+            renderAdmissionCalendar(),
+            loadPage1Data(),
+            loadPage2Data(),
+            loadPage3Data()
+        ]).catch(err => console.warn("Background fetch warning:", err));
     } catch (e) {
         console.error("인증 실패:", e);
         localStorage.removeItem("studentId");
@@ -472,7 +464,7 @@ function updateHeaderUI() {
     const streakEl = document.getElementById("header-streak-count");
     if (streakEl) {
         const count = currentStudent.streak_days || 0;
-        streakEl.innerText = `${count}일`;
+        streakEl.innerText = `연속 ${count}일`;
     }
 
     // 마이페이지 모달 정보 갱신
@@ -482,11 +474,11 @@ function updateHeaderUI() {
     const gradeText = currentStudent.grade === 4 ? "N수생" : currentStudent.grade === 0 ? "기타" : `${currentStudent.grade}학년`;
     if (sub) sub.innerText = `${currentStudent.high_school || "학교미설정"} ${gradeText} | ${currentStudent.region || "지역미설정"}`;
 
-    // 메인화면 미션 라벨 업데이트
+    // 메인화면 미션 라벨 업데이트 (이모지 없이 깔끔하게 표기)
     const wakeLabel = document.getElementById("mission-wakeup-label");
-    if (wakeLabel) wakeLabel.innerText = `🌅 기상 미션 (${currentStudent.wake_target_time || "06:30"})`;
+    if (wakeLabel) wakeLabel.innerText = `기상 미션 (${currentStudent.wake_target_time || "06:30"})`;
     const sleepLabel = document.getElementById("mission-sleep-label");
-    if (sleepLabel) sleepLabel.innerText = `🌃 취침 미션 (${currentStudent.sleep_target_time || "23:30"})`;
+    if (sleepLabel) sleepLabel.innerText = `취침 미션 (${currentStudent.sleep_target_time || "23:30"})`;
 
     const premiumBtn = document.getElementById("premium-toggle-btn");
     if (premiumBtn) {
@@ -2428,16 +2420,16 @@ async function loadExamMaterials(subject = currentExamSubject) {
             const badgeInfo = subjectBadges[m.subject] || { bg: "rgba(255,255,255,0.1)", color: "#e2e8f0", icon: "📄" };
             
             container.innerHTML += `
-                <div style="background: rgba(255,255,255,0.02); padding: 12px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                <div class="material-card" style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
                     <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
                             <span style="background: ${badgeInfo.bg}; color: ${badgeInfo.color}; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 800;">${badgeInfo.icon} ${m.subject}</span>
-                            ${m.year ? `<span style="font-size: 0.7rem; color: #94a3b8;">${m.year}년도</span>` : ''}
+                            ${m.year ? `<span style="font-size: 0.7rem; color: var(--text-secondary);">${m.year}년도</span>` : ''}
                         </div>
-                        <div style="font-size: 0.88rem; font-weight: 700; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.title}</div>
-                        ${m.description ? `<div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.description}</div>` : ''}
+                        <div class="material-title" style="font-size: 0.88rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.title}</div>
+                        ${m.description ? `<div class="material-desc" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.description}</div>` : ''}
                     </div>
-                    <a href="${m.file_url}" target="_blank" download class="btn" style="padding: 7px 14px; font-size: 0.78rem; font-weight: 700; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; text-decoration: none; border-radius: 8px; white-space: nowrap; flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25);">
+                    <a href="${m.file_url}" target="_blank" download class="btn" style="padding: 7px 14px; font-size: 0.78rem; font-weight: 700; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white !important; text-decoration: none; border-radius: 8px; white-space: nowrap; flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25);">
                         <span>📥</span> 다운로드
                     </a>
                 </div>
