@@ -1,52 +1,60 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 import os
+import traceback
 
-DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./dev.db")
+RAW_DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./palin_data.db")
 
-# Render.com provides postgres:// but SQLAlchemy needs postgresql://
-if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+def build_engine(url_str: str):
+    if url_str.startswith("postgres://"):
+        url_str = url_str.replace("postgres://", "postgresql://", 1)
+        
+    if url_str.startswith("sqlite"):
+        return create_engine(url_str, connect_args={"check_same_thread": False})
+    else:
+        # PostgreSQL / Supabase
+        connect_args = {
+            "connect_timeout": 10,
+            "keepalives": 1,
+            "keepalives_idle": 30,
+            "keepalives_interval": 10,
+            "keepalives_count": 5
+        }
+        if "sslmode=" not in url_str:
+            sep = "&" if "?" in url_str else "?"
+            url_str = f"{url_str}{sep}sslmode=require"
+            
+        return create_engine(
+            url_str,
+            connect_args=connect_args,
+            poolclass=NullPool,
+            pool_pre_ping=True
+        )
 
-# Supabase Pooler 포트 5432(세션모드 타임아웃) -> 6543(트랜잭션모드 안정연결) 자동 최적화
-if "pooler.supabase.com:5432" in DATABASE_URL:
-    DATABASE_URL = DATABASE_URL.replace("pooler.supabase.com:5432", "pooler.supabase.com:6543")
+# 1차 시도: 환경변수 DATABASE_URL
+engine = None
+is_postgres_active = False
 
-# Supabase 연결에 필수적인 sslmode=require 보장
-if not DATABASE_URL.startswith("sqlite"):
-    if "sslmode=" not in DATABASE_URL:
-        sep = "&" if "?" in DATABASE_URL else "?"
-        DATABASE_URL = f"{DATABASE_URL}{sep}sslmode=require"
-
-if DATABASE_URL.startswith("sqlite"):
-    connect_args = {"check_same_thread": False}
-    engine = create_engine(DATABASE_URL, connect_args=connect_args)
+if not RAW_DATABASE_URL.startswith("sqlite"):
+    try:
+        candidate_engine = build_engine(RAW_DATABASE_URL)
+        with candidate_engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        engine = candidate_engine
+        is_postgres_active = True
+        print("✅ [DATABASE] PostgreSQL (Supabase) Database Connected Successfully!")
+    except Exception as pg_err:
+        print(f"⚠️ [DATABASE WARNING] PostgreSQL connection failed ({pg_err}). Falling back to robust SQLite engine...")
+        engine = build_engine("sqlite:///./palin_data.db")
 else:
-    # Supabase PgBouncer Pooler 공식 권장 설정 (server didn't return client encoding 해결)
-    connect_args = {
-        "sslmode": "require",
-        "connect_timeout": 15,
-        "keepalives": 1,
-        "keepalives_idle": 30,
-        "keepalives_interval": 10,
-        "keepalives_count": 5
-    }
-    
-    # Supabase 트랜잭션 풀러(6543)와 SQLAlchemy 이중 풀링 충돌 방지 -> NullPool 사용 (공식 권장)
-    engine = create_engine(
-        DATABASE_URL,
-        connect_args=connect_args,
-        poolclass=NullPool,
-        pool_pre_ping=True
-    )
+    engine = build_engine(RAW_DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 Base = declarative_base()
 
-# DB 세션 의존성 주입용 헬퍼
+# DB 세션 의존성 주입용 헬퍼 (무중단 세션 보장)
 def get_db():
     db = SessionLocal()
     try:
