@@ -485,11 +485,11 @@ main::-webkit-scrollbar {
 .day-column {
     position: relative;
     border-right: 1px solid rgba(255, 255, 255, 0.12);
-    height: 450px;
-    min-height: 450px;
+    height: 540px;
+    min-height: 540px;
     cursor: pointer;
     box-sizing: border-box;
-    /* 09:00 ~ 24:00까지 1시간(30px)마다 선명한 가로 눈금선 100% 렌더링 */
+    /* 06:00 ~ 24:00까지 1시간(30px)마다 선명한 가로 눈금선 100% 렌더링 */
     background: repeating-linear-gradient(
         to bottom,
         rgba(255, 255, 255, 0.1) 0px,
