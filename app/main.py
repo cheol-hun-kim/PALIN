@@ -102,7 +102,13 @@ def init_db_schema():
                             conn.execute(text("ALTER TABLE qa_comments ADD COLUMN is_anonymous BOOLEAN DEFAULT 0"))
                     conn.commit()
                 else:
-                    # PostgreSQL (Supabase) 자동 마이그레이션 실행
+                    # PostgreSQL (Supabase / Render) 자동 마이그레이션 실행
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS sido VARCHAR DEFAULT '경기도'"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS sigungu VARCHAR DEFAULT '성남시 분당구'"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS high_school_type VARCHAR DEFAULT '일반고'"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS is_vip BOOLEAN DEFAULT FALSE"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS escrow_deposit INTEGER DEFAULT 50000"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS escrow_deductions INTEGER DEFAULT 0"))
                     conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS wake_target_time VARCHAR DEFAULT '06:30'"))
                     conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS sleep_target_time VARCHAR DEFAULT '23:30'"))
                     conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS is_banned BOOLEAN DEFAULT FALSE"))
@@ -117,8 +123,16 @@ def init_db_schema():
                     conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS referral_code VARCHAR"))
                     conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS referred_by VARCHAR"))
                     conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS has_unlimited_chat BOOLEAN DEFAULT FALSE"))
+
                     conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS is_suspended BOOLEAN DEFAULT FALSE"))
                     conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS suspend_reason VARCHAR"))
+                    conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS tier VARCHAR DEFAULT 'SR'"))
+                    conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS diligence_verified_badge BOOLEAN DEFAULT TRUE"))
+
+                    conn.execute(text("ALTER TABLE exam_materials ADD COLUMN IF NOT EXISTS answer_file_url VARCHAR"))
+                    conn.execute(text("ALTER TABLE exam_materials ADD COLUMN IF NOT EXISTS answer_file_name VARCHAR"))
+                    conn.execute(text("ALTER TABLE exam_materials ADD COLUMN IF NOT EXISTS year INTEGER DEFAULT 2027"))
+
                     conn.execute(text("ALTER TABLE qa_posts ADD COLUMN IF NOT EXISTS is_anonymous BOOLEAN DEFAULT FALSE"))
                     conn.execute(text("ALTER TABLE qa_comments ADD COLUMN IF NOT EXISTS is_anonymous BOOLEAN DEFAULT FALSE"))
                     conn.commit()
