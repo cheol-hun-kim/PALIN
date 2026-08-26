@@ -711,27 +711,29 @@ input[type="time"] {
     letter-spacing: -0.2px;
 }
 
+/* 다크 모드: 시계 아이콘을 100% 선명한 흰색으로 표시 */
 input[type="time"]::-webkit-calendar-picker-indicator {
-    filter: invert(0.9) brightness(1.2);
-    cursor: pointer;
-    opacity: 0.9;
-    padding: 2px;
-    border-radius: 4px;
-    transition: transform 0.15s ease;
+    filter: invert(1) brightness(2) contrast(2) !important;
+    cursor: pointer !important;
+    opacity: 1 !important;
+    padding: 3px !important;
+    border-radius: 4px !important;
+    display: inline-block !important;
+    transition: transform 0.15s ease, filter 0.15s ease;
 }
 
 input[type="time"]::-webkit-calendar-picker-indicator:hover {
-    opacity: 1.0;
-    transform: scale(1.15);
+    transform: scale(1.2);
 }
 
 body.day-mode input[type="time"] {
     color-scheme: light;
 }
 
+/* 라이트 모드 (Day mode): 시계 아이콘을 100% 또렷한 검은색으로 표시 */
 body.day-mode input[type="time"]::-webkit-calendar-picker-indicator {
-    filter: none;
-    opacity: 0.75;
+    filter: invert(0) brightness(0.2) contrast(2) !important;
+    opacity: 0.9 !important;
 }
 
 /* 합격 예측 */
