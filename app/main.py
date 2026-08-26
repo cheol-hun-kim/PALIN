@@ -448,9 +448,22 @@ def get_mission_status(student_id: int, db: Session = Depends(get_db)):
 def verify_mission(payload: schemas.MissionVerify, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
     if not student:
-        raise HTTPException(status_code=404)
+        raise HTTPException(status_code=404, detail="학생 정보를 찾을 수 없습니다.")
         
     status_val = "SUCCESS" if payload.img_data == "success" else "FAIL"
+    
+    # 🔒 오늘 이미 성공 인증을 완료한 미션인지 중복 체크 (어뷰징 및 무한 포인트 복사 100% 원천 차단)
+    today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    if status_val == "SUCCESS":
+        already_done = db.query(models.MissionLog).filter(
+            models.MissionLog.student_id == student.id,
+            models.MissionLog.mission_type == payload.mission_type,
+            models.MissionLog.status == "SUCCESS",
+            models.MissionLog.created_at >= today_start
+        ).first()
+        if already_done:
+            raise HTTPException(status_code=400, detail=f"오늘의 {'기상' if payload.mission_type == 'WAKEUP' else '취침'} 미션은 이미 성공 인증을 완료했습니다. 내일 다시 도전해 주세요!")
+
     log = models.MissionLog(student_id=student.id, mission_type=payload.mission_type, status=status_val, scheduled_time=datetime.now())
     db.add(log)
     
@@ -459,8 +472,8 @@ def verify_mission(payload: schemas.MissionVerify, db: Session = Depends(get_db)
         earned = 10
         if student.parent and student.parent.is_premium_subscribed:
             earned *= 2
-        earned = int(earned * student.point_multiplier)
-        student.current_points += earned
+        earned = int(earned * (student.point_multiplier or 1.0))
+        student.current_points = (student.current_points or 0) + earned
         
         # 듀오링고 불꽃(Streak) 증가
         student.streak_days = (student.streak_days or 0) + 1
