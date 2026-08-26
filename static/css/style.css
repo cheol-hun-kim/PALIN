@@ -919,19 +919,21 @@ body.day-mode .time-custom-clock-icon {
 /* 하단 플로팅 네비게이션 */
 .bottom-nav {
     position: absolute;
-    bottom: 20px;
-    left: 20px;
-    right: 20px;
+    bottom: 16px;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: calc(100% - 32px) !important;
+    max-width: 440px !important;
     height: 64px;
-    background: rgba(15, 23, 42, 0.8);
+    background: rgba(15, 23, 42, 0.95);
     backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 32px;
     display: flex;
     justify-content: space-around;
     align-items: center;
     z-index: 100;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 .nav-item {
@@ -1337,11 +1339,6 @@ body.day-mode .subtab-btn.active {
 /* ===================================================
    📱 하단 플로팅 네비게이션 고선명 가독성 (항상 또렷함 보장)
    =================================================== */
-.bottom-nav {
-    background: rgba(15, 23, 42, 0.95) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
-}
 
 .nav-item {
     color: #94a3b8 !important; /* 비활성 탭: 밝은 실버 그레이 */
