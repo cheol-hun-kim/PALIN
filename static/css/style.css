@@ -1169,20 +1169,25 @@ body.day-mode .calendar-card {
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06) !important;
 }
 
-/* 회원가입/로그인 오버레이는 원래의 다크 프리미엄 테마 100% 보존 */
+/* 회원가입/로그인 오버레이는 완벽한 불투명 다크 테마 및 최상위 레이어로 뒤쪽 간섭 100% 차단 */
 .loader-overlay,
 #register-overlay {
-    background-color: rgba(11, 15, 25, 0.95) !important;
+    background-color: #0b0f19 !important;
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 999 !important;
 }
 
 .auth-form {
     background: transparent !important;
     color: #f8fafc !important;
+    width: 100%;
 }
 
 .auth-form .form-input,
-#register-overlay .form-input {
-    background: rgba(0, 0, 0, 0.4) !important;
+#register-overlay .form-input,
+#register-overlay select {
+    background: #161a29 !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
     color: #ffffff !important;
 }
