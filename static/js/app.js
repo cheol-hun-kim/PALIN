@@ -30,10 +30,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 function initPALINThemeEngine() {
     const hour = new Date().getHours();
     const savedTheme = localStorage.getItem("palinTheme");
-    if (savedTheme === "day" || (savedTheme === null && hour >= 6 && hour < 21)) {
+    const isDay = savedTheme === "day" || (savedTheme === null && hour >= 6 && hour < 21);
+    if (isDay) {
         document.body.classList.add("day-mode");
     } else {
         document.body.classList.remove("day-mode");
+    }
+    updateThemeToggleIcon(isDay);
+}
+
+function updateThemeToggleIcon(isDay) {
+    const iconEl = document.getElementById("theme-toggle-icon");
+    if (iconEl) {
+        iconEl.innerText = isDay ? "☀️" : "🌙";
     }
 }
 
@@ -41,6 +50,7 @@ function togglePALINTheme() {
     document.body.classList.toggle("day-mode");
     const isDay = document.body.classList.contains("day-mode");
     localStorage.setItem("palinTheme", isDay ? "day" : "night");
+    updateThemeToggleIcon(isDay);
 }
 
 async function fetchUnivData() {
@@ -138,44 +148,45 @@ function hideOverlay(id) {
     }
 }
 
-// --- 공부 타이머 백그라운드 & 절전 모드 지원 모듈 ---
+// --- 공부 타이머 백그라운드 & 화면 꺼짐 방지(Wake Lock) 모듈 ---
 let timerStartTime = null;
-let distractionTimeout = null;
-let isDistractedState = false;
+let wakeLockSentinel = null;
+
+async function requestScreenWakeLock() {
+    try {
+        if ('wakeLock' in navigator) {
+            wakeLockSentinel = await navigator.wakeLock.request('screen');
+            wakeLockSentinel.addEventListener('release', () => {
+                wakeLockSentinel = null;
+            });
+        }
+    } catch (err) {
+        console.log("Wake Lock not supported or denied:", err);
+    }
+}
+
+function releaseScreenWakeLock() {
+    if (wakeLockSentinel) {
+        wakeLockSentinel.release().catch(() => {});
+        wakeLockSentinel = null;
+    }
+}
 
 function setupDistractionDetection() {
     document.addEventListener("visibilitychange", () => {
         if (!isTimerRunning) return;
 
-        if (document.visibilityState === "hidden") {
-            // 타 앱 전환 또는 백그라운드 이탈 시 3초 타이머 가동
-            distractionTimeout = setTimeout(() => {
-                isDistractedState = true;
-                // 타이머 일시정지 처리
-                if (timerInterval) {
-                    clearInterval(timerInterval);
-                    timerInterval = null;
-                }
-            }, 3000);
-        } else if (document.visibilityState === "visible") {
-            // 3초 내에 복귀한 경우 (화면 깜빡임 또는 단순 알림 확인)
-            if (distractionTimeout) {
-                clearTimeout(distractionTimeout);
-                distractionTimeout = null;
-            }
-
-            if (isDistractedState) {
-                isDistractedState = false;
-                stopTimerForcefully(true);
-                alert("⚠️ 딴짓 감지! 화면을 3초 이상 이탈(타 앱 전환)하여 타이머가 중단되었습니다. 공부에 집중해 주세요!");
-            } else if (timerStartTime) {
-                // 정상 복귀 시 시간 보정
+        if (document.visibilityState === "visible") {
+            // 화면 복귀 시 실제 경과 시간(Date.now - timerStartTime)으로 즉시 오차 없이 동기화
+            if (timerStartTime) {
                 const currentElapsed = Math.floor((Date.now() - timerStartTime) / 1000);
                 if (currentElapsed >= 0) {
                     timerSeconds = currentElapsed;
                     updateTimerDisplay(timerSeconds);
                 }
             }
+            // 다시 활성화되면 Wake Lock 재요청
+            requestScreenWakeLock();
         }
     });
 }
@@ -392,7 +403,7 @@ async function togglePremium() {
 
 function calculateDDay(dateStr) {
     let targetDateStr = (dateStr || "").trim();
-    if (!targetDateStr || targetDateStr === "undefined" || targetDateStr === "null" || targetDateStr === "D-DAY") {
+    if (!targetDateStr || targetDateStr === "undefined" || targetDateStr === "null" || targetDateStr === "D-DAY" || targetDateStr.startsWith("D-")) {
         targetDateStr = "2026-11-19"; // 2027학년도 본 수능일 기본값
     }
     try {
@@ -405,24 +416,16 @@ function calculateDDay(dateStr) {
         }
         const target = new Date(y, m - 1, d, 0, 0, 0);
         const today = new Date();
-        // 2026년 기준 시차 보정
-        const curYear = today.getFullYear();
-        const baseTarget = (curYear === 2026) ? target : new Date(curYear, 10, 19, 0, 0, 0);
         const now = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
         
-        let diffTime = target.getTime() - now.getTime();
-        let diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+        const diffTime = target.getTime() - now.getTime();
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
         
-        if (diffDays <= 0 || isNaN(diffDays)) {
-            // 기준 수능일(11월 19일) 잔여일수
-            const csatDate = new Date(2026, 10, 19);
-            const refDate = new Date(2026, 7, 24); // 8월 24일 기준
-            diffDays = Math.max(1, Math.round((csatDate - refDate) / (1000 * 60 * 60 * 24)));
-        }
-        
-        return `D-${diffDays}`;
+        if (diffDays > 0) return `D-${diffDays}`;
+        if (diffDays === 0) return "D-DAY";
+        return `D+${Math.abs(diffDays)}`;
     } catch (e) {
-        return "D-87";
+        return "D-DAY";
     }
 }
 
@@ -1007,6 +1010,7 @@ async function updateDailyMissionUI() {
 
 // === 🗓️ 시간표 과목 퀵버튼 & 원터치 등록 엔진 ===
 let currentQuickSubject = "수학";
+let currentQuickDuration = 2.0; // 기본 2시간
 
 function setQuickSubject(subject, btnEl) {
     currentQuickSubject = subject;
@@ -1024,16 +1028,59 @@ function setQuickSubject(subject, btnEl) {
     }
     
     // 2. 상단 라벨 변경
-    const labelEl = document.getElementById("quick-subject-selected");
-    if (labelEl) {
-        labelEl.innerText = `[${subject}] 선택됨`;
-    }
+    updateQuickHeaderLabel();
     
     // 3. 하단 폼 계획명 입력창에 자동 반영
     const planTitleInput = document.getElementById("plan-title");
     if (planTitleInput) {
         planTitleInput.value = `${subject} 집중 학습`;
     }
+}
+
+function setQuickDuration(hours, btnEl) {
+    currentQuickDuration = parseFloat(hours);
+    
+    document.querySelectorAll(".quick-dur-btn").forEach(btn => {
+        btn.classList.remove("active");
+        btn.classList.add("btn-secondary");
+        btn.style.background = "";
+        btn.style.color = "";
+    });
+    if (btnEl) {
+        btnEl.classList.remove("btn-secondary");
+        btnEl.classList.add("active");
+        btnEl.style.background = "#6366f1";
+        btnEl.style.color = "#ffffff";
+    }
+    
+    updateQuickHeaderLabel();
+    syncPlanEndTime();
+}
+
+function updateQuickHeaderLabel() {
+    const labelEl = document.getElementById("quick-subject-selected");
+    if (labelEl) {
+        const durText = currentQuickDuration === 1.0 ? "1시간" : currentQuickDuration === 1.5 ? "1.5시간" : currentQuickDuration === 2.0 ? "2시간" : `${currentQuickDuration}시간`;
+        labelEl.innerText = `[${currentQuickSubject}] ${durText}`;
+    }
+}
+
+function syncPlanEndTime() {
+    const startInput = document.getElementById("plan-start");
+    const endInput = document.getElementById("plan-end");
+    if (!startInput || !endInput) return;
+    
+    const startVal = startInput.value || "09:00";
+    const parts = startVal.split(":");
+    let h = parseInt(parts[0], 10);
+    let m = parseInt(parts[1], 10);
+    
+    let totalMinutes = h * 60 + m + Math.round(currentQuickDuration * 60);
+    let endH = Math.floor(totalMinutes / 60);
+    let endM = totalMinutes % 60;
+    if (endH > 24) { endH = 24; endM = 0; }
+    
+    endInput.value = `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`;
 }
 
 async function handleTimetableGridClick(dayIndex, event) {
@@ -1056,12 +1103,10 @@ async function handleTimetableGridClick(dayIndex, event) {
     // 30분 단위로 스냅(Snap)
     startMin = startMin < 30 ? 0 : 30;
     
-    let endHour = startHour + 1;
-    let endMin = startMin + 30;
-    if (endMin >= 60) {
-        endHour += 1;
-        endMin -= 60;
-    }
+    let durationMin = Math.round(currentQuickDuration * 60);
+    let totalEndMinutes = (startHour * 60 + startMin) + durationMin;
+    let endHour = Math.floor(totalEndMinutes / 60);
+    let endMin = totalEndMinutes % 60;
     if (endHour > 24) {
         endHour = 24;
         endMin = 0;
@@ -1306,6 +1351,9 @@ async function startTimer() {
         circle.classList.add("active");
         updateTimerDisplay(0);
         
+        // 💡 화면 꺼짐 방지(Screen Wake Lock) 즉시 활성화
+        requestScreenWakeLock();
+        
         const timerBtn = document.getElementById("timer-toggle-btn");
         timerBtn.innerText = "집중 종료";
         timerBtn.style.backgroundColor = "var(--color-danger)";
@@ -1325,6 +1373,9 @@ async function startTimer() {
 
 async function stopTimerForcefully(triggeredByDistraction = false) {
     if (!isTimerRunning) return;
+    
+    // 💡 화면 꺼짐 방지 해제
+    releaseScreenWakeLock();
     
     clearInterval(timerInterval);
     timerInterval = null;
