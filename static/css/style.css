@@ -450,14 +450,16 @@ main::-webkit-scrollbar {
     height: 450px; /* 09:00 ~ 24:00 (15시간) -> 1시간당 30px 정밀 매핑 */
     display: grid;
     grid-template-columns: 45px repeat(7, 1fr);
-    overflow: hidden;
+    background-color: rgba(15, 23, 42, 0.4);
+    box-sizing: border-box;
 }
 
 .time-axis {
     position: relative;
-    height: 100%;
+    height: 450px;
     border-right: 1.5px solid rgba(255, 255, 255, 0.15);
-    background: rgba(0, 0, 0, 0.25);
+    background: rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
 }
 
 .time-axis-slot {
@@ -473,7 +475,7 @@ main::-webkit-scrollbar {
 }
 
 .time-axis-slot:first-child {
-    transform: translateY(2px);
+    transform: translateY(4px);
 }
 
 .time-axis-slot:last-child {
@@ -483,11 +485,19 @@ main::-webkit-scrollbar {
 .day-column {
     position: relative;
     border-right: 1px solid rgba(255, 255, 255, 0.12);
-    height: 100%;
+    height: 450px;
+    min-height: 450px;
     cursor: pointer;
-    background-image: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 0px, rgba(255, 255, 255, 0.08) 1px, transparent 1px, transparent 30px);
+    box-sizing: border-box;
+    /* 09:00 ~ 24:00까지 1시간(30px)마다 선명한 가로 눈금선 100% 렌더링 */
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.1) 0px,
+        rgba(255, 255, 255, 0.1) 1px,
+        transparent 1px,
+        transparent 30px
+    );
     transition: background-color 0.15s ease;
-    overflow: hidden;
 }
 
 .day-column:hover {
@@ -595,7 +605,11 @@ body.day-mode .time-axis {
 
 body.day-mode .day-column {
     border-right: 1px solid #e2e8f0 !important;
-    background-image: repeating-linear-gradient(to bottom, #e2e8f0 0px, #e2e8f0 1px, transparent 1px, transparent 30px) !important;
+    background: #ffffff !important;
+}
+
+body.day-mode .grid-hour-line {
+    border-bottom: 1px solid #e2e8f0 !important;
 }
 
 body.day-mode .day-column:hover {
