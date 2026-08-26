@@ -13,13 +13,300 @@ let chatHistory = []; // AI 챗봇 대화 기록
 
 // --- 앱 초기화 및 로딩 ---
 let UNIVERSITY_DEPARTMENTS = {};
-let REGIONS_DATA = {};
+const DEFAULT_REGIONS_DATA = {
+  "서울특별시": [
+    "강남구",
+    "강동구",
+    "강북구",
+    "강서구",
+    "관악구",
+    "광진구",
+    "구로구",
+    "금천구",
+    "노원구",
+    "도봉구",
+    "동대문구",
+    "동작구",
+    "마포구",
+    "서대문구",
+    "서초구",
+    "성동구",
+    "성북구",
+    "송파구",
+    "양천구",
+    "영등포구",
+    "용산구",
+    "은평구",
+    "종로구",
+    "중구",
+    "중랑구"
+  ],
+  "경기도": [
+    "성남시 분당구",
+    "성남시 수정구",
+    "성남시 중원구",
+    "수원시 영통구",
+    "수원시 팔달구",
+    "수원시 장안구",
+    "수원시 권선구",
+    "용인시 수지구",
+    "용인시 기흥구",
+    "용인시 처인구",
+    "고양시 일산동구",
+    "고양시 일산서구",
+    "고양시 덕양구",
+    "안양시 동안구",
+    "안양시 만안구",
+    "부천시",
+    "화성시",
+    "남양주시",
+    "평택시",
+    "시흥시",
+    "파주시",
+    "김포시",
+    "의정부시",
+    "광주시",
+    "하남시",
+    "광명시",
+    "군포시",
+    "오산시",
+    "양주시",
+    "이천시",
+    "구리시",
+    "안성시",
+    "포천시",
+    "의왕시",
+    "여주시",
+    "양평군",
+    "동두천시",
+    "가평군",
+    "연천군"
+  ],
+  "인천광역시": [
+    "연수구",
+    "남동구",
+    "부평구",
+    "서구",
+    "미추홀구",
+    "계양구",
+    "중구",
+    "동구",
+    "강화군",
+    "옹진군"
+  ],
+  "부산광역시": [
+    "해운대구",
+    "수영구",
+    "동래구",
+    "남구",
+    "부산진구",
+    "금정구",
+    "연제구",
+    "사하구",
+    "북구",
+    "중구",
+    "동구",
+    "서구",
+    "영도구",
+    "강서구",
+    "사상구",
+    "기장군"
+  ],
+  "대구광역시": [
+    "수성구",
+    "달서구",
+    "중구",
+    "동구",
+    "서구",
+    "남구",
+    "북구",
+    "달성군",
+    "군위군"
+  ],
+  "대전광역시": [
+    "유성구",
+    "서구",
+    "중구",
+    "동구",
+    "대덕구"
+  ],
+  "광주광역시": [
+    "남구",
+    "서구",
+    "북구",
+    "동구",
+    "광산구"
+  ],
+  "울산광역시": [
+    "남구",
+    "중구",
+    "동구",
+    "북구",
+    "울주군"
+  ],
+  "세종특별자치시": [
+    "세종시"
+  ],
+  "강원특별자치도": [
+    "춘천시",
+    "원주시",
+    "강릉시",
+    "동해시",
+    "태백시",
+    "속초시",
+    "삼척시",
+    "홍천군",
+    "횡성군",
+    "영월군",
+    "평창군",
+    "정선군",
+    "철원군",
+    "화천군",
+    "양구군",
+    "인제군",
+    "고성군",
+    "양양군"
+  ],
+  "충청북도": [
+    "청주시 상당구",
+    "청주시 서원구",
+    "청주시 흥덕구",
+    "청주시 청원구",
+    "충주시",
+    "제천시",
+    "보은군",
+    "옥천군",
+    "영동군",
+    "증평군",
+    "진천군",
+    "괴산군",
+    "음성군",
+    "단양군"
+  ],
+  "충청남도": [
+    "천안시 서북구",
+    "천안시 동남구",
+    "공주시",
+    "보령시",
+    "아산시",
+    "서산시",
+    "논산시",
+    "계룡시",
+    "당진시",
+    "금산군",
+    "부여군",
+    "서천군",
+    "청양군",
+    "홍성군",
+    "예산군",
+    "태안군"
+  ],
+  "전북특별자치도": [
+    "전주시 완산구",
+    "전주시 덕진구",
+    "군산시",
+    "익산시",
+    "정읍시",
+    "남원시",
+    "김제시",
+    "완주군",
+    "진안군",
+    "무주군",
+    "장수군",
+    "임실군",
+    "순창군",
+    "고창군",
+    "부안군"
+  ],
+  "전라남도": [
+    "목포시",
+    "여수시",
+    "순천시",
+    "나주시",
+    "광양시",
+    "담양군",
+    "곡성군",
+    "구례군",
+    "고흥군",
+    "보성군",
+    "화순군",
+    "장흥군",
+    "강진군",
+    "해남군",
+    "영암군",
+    "무안군",
+    "함평군",
+    "영광군",
+    "장성군",
+    "완도군",
+    "진도군",
+    "신안군"
+  ],
+  "경상북도": [
+    "포항시 남구",
+    "포항시 북구",
+    "경주시",
+    "김천시",
+    "안동시",
+    "구미시",
+    "영주시",
+    "영천시",
+    "상주시",
+    "문경시",
+    "경산시",
+    "의성군",
+    "청송군",
+    "영양군",
+    "영덕군",
+    "청도군",
+    "고령군",
+    "성주군",
+    "칠곡군",
+    "예천군",
+    "봉화군",
+    "울진군",
+    "울릉군"
+  ],
+  "경상남도": [
+    "창원시 의창구",
+    "창원시 성산구",
+    "창원시 마산합포구",
+    "창원시 마산회원구",
+    "창원시 진해구",
+    "진주시",
+    "통영시",
+    "사천시",
+    "김해시",
+    "밀양시",
+    "거제시",
+    "양산시",
+    "의령군",
+    "함안군",
+    "창녕군",
+    "고성군",
+    "남해군",
+    "하동군",
+    "산청군",
+    "함양군",
+    "거창군",
+    "합천군"
+  ],
+  "제주특별자치도": [
+    "제주시",
+    "서귀포시"
+  ]
+};
+let REGIONS_DATA = DEFAULT_REGIONS_DATA;
 let HIGHSCHOOLS_DATA = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
     initPALINThemeEngine();
     
-    // 비동기 데이터 로딩을 안전하게 병렬 처리
+    // 1. 내장 정적 지역 데이터로 즉시 드롭다운 채우기 (0.001초 즉시 렌더링 보장)
+    populateSidoOptions("reg-sido");
+    populateSidoOptions("edit-sido");
+    
+    // 2. 비동기 데이터 로딩을 안전하게 병렬 처리
     try {
         await Promise.all([
             fetchUnivData(),
@@ -1244,14 +1531,16 @@ async function handleTimetableGridClick(dayIndex, event) {
     
     const col = event.currentTarget;
     const rect = col.getBoundingClientRect();
-    const clickY = event.clientY - rect.top; // 컬럼 내부 Y좌표 (0 ~ 450px)
+    const clickY = event.clientY - rect.top; // 컬럼 내부 Y좌표 (0 ~ 540px)
     
-    // 30px = 1시간 (09:00 ~ 24:00)
-    let startHourFloat = 9 + (clickY / 30);
+    // 30px = 1시간 (06:00 ~ 24:00 총 18시간)
+    let startHourFloat = 6 + (clickY / 30);
     let startHour = Math.floor(startHourFloat);
     let startMin = Math.floor((startHourFloat - startHour) * 60);
     // 30분 단위로 스냅(Snap)
     startMin = startMin < 30 ? 0 : 30;
+    if (startHour < 6) startHour = 6;
+    if (startHour >= 24) startHour = 23;
     
     let durationMin = Math.round(currentQuickDuration * 60);
     let totalEndMinutes = (startHour * 60 + startMin) + durationMin;
@@ -1384,9 +1673,9 @@ async function loadTimetable() {
         
         dayColumns.forEach((col, dayIdx) => {
             if (col) {
-                // 09:00 ~ 24:00 (15시간) 전체를 덮는 15개 명시적 격자 라인 생성
+                // 06:00 ~ 24:00 (18시간) 전체를 덮는 18개 명시적 격자 라인 생성 (총 540px)
                 let gridLinesHtml = '';
-                for (let h = 0; h < 15; h++) {
+                for (let h = 0; h < 18; h++) {
                     gridLinesHtml += `<div class="grid-hour-line" style="position:absolute; top:${h*30}px; left:0; right:0; height:30px; border-bottom:1px solid rgba(255,255,255,0.08); pointer-events:none; box-sizing:border-box;"></div>`;
                 }
                 col.innerHTML = gridLinesHtml;
@@ -1415,13 +1704,13 @@ async function loadTimetable() {
             let startHour = parseInt(startParts[0], 10) + (parseInt(startParts[1], 10) || 0)/60;
             let endHour = parseInt(endParts[0], 10) + (parseInt(endParts[1], 10) || 0)/60;
             
-            // 09:00 ~ 24:00 범위 보정 (시간표 이탈 방지)
-            if (startHour < 9) startHour = 9;
+            // 06:00 ~ 24:00 범위 보정 (시간표 이탈 방지)
+            if (startHour < 6) startHour = 6;
             if (endHour > 24) endHour = 24;
             if (endHour <= startHour) endHour = startHour + 1;
             
-            const topPx = Math.max(0, Math.min(430, (startHour - 9) * 30));
-            const heightPx = Math.max(22, Math.min(450 - topPx, (endHour - startHour) * 30));
+            const topPx = Math.max(0, Math.min(510, (startHour - 6) * 30));
+            const heightPx = Math.max(22, Math.min(540 - topPx, (endHour - startHour) * 30));
             
             const colorClass = `color-${index % 7}`;
 
