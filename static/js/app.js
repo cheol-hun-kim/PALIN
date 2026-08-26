@@ -12,20 +12,27 @@ let isDistracted = false;
 let chatHistory = []; // AI 챗봇 대화 기록
 
 // --- 앱 초기화 및 로딩 ---
+let UNIVERSITY_DEPARTMENTS = {};
 let REGIONS_DATA = {};
 let HIGHSCHOOLS_DATA = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
     initPALINThemeEngine();
-    await fetchUnivData();
-    await loadRegionsData();
-    await loadHighSchoolsData();
+    
+    // 비동기 데이터 로딩을 안전하게 병렬 처리
+    try {
+        await Promise.all([
+            fetchUnivData(),
+            loadRegionsData(),
+            loadHighSchoolsData()
+        ]);
+    } catch (err) {
+        console.error("Initial data loading error:", err);
+    }
+    
     checkAuth();
     setupEventListeners();
     setupDistractionDetection();
-    setupUnivDeptSelectors("reg-target-univ", "reg-target-dept");
-    setupUnivDeptSelectors("reg-baseline-univ", "reg-baseline-dept");
-    setupUnivDeptSelectors("tutor-up-univ", "tutor-up-major");
     
     document.getElementById("header-streak-badge")?.addEventListener("click", openStreakModal);
     document.getElementById("theme-toggle-btn")?.addEventListener("click", togglePALINTheme);
@@ -385,15 +392,19 @@ async function handleRegister(e) {
 function toggleLoginForm() {
     const regForm = document.getElementById("register-form");
     const loginForm = document.getElementById("login-form");
-    const toggleArea = regForm.nextElementSibling; // the toggle button div
-    if (loginForm.style.display === "none") {
+    const toggleArea = document.getElementById("login-toggle-area");
+    
+    if (!regForm || !loginForm) return;
+
+    if (loginForm.style.display === "none" || !loginForm.style.display) {
         regForm.style.display = "none";
-        if (toggleArea && toggleArea.tagName !== "FORM") toggleArea.style.display = "none";
+        if (toggleArea) toggleArea.style.display = "none";
         loginForm.style.display = "block";
+        document.getElementById("login-email")?.focus();
     } else {
         loginForm.style.display = "none";
         regForm.style.display = "block";
-        if (toggleArea && toggleArea.tagName !== "FORM") toggleArea.style.display = "block";
+        if (toggleArea) toggleArea.style.display = "block";
     }
 }
 
@@ -2472,8 +2483,7 @@ function requestTutorDirect(tutorId) {
     alert("선배에게 매칭 요청이 발송되었습니다. 선배가 제안을 수락할 시 포인트가 차감되고 매칭이 완료됩니다.");
 }
 
-// --- 대학 및 학과 동적 목록 데이터 ---
-let UNIVERSITY_DEPARTMENTS = {};
+// --- 대학 및 학과 동적 목록 데이터 매칭 헬퍼 ---
 
 function findMatchingUniv(cleanInitUniv, univList) {
     if (!cleanInitUniv) return "";
@@ -2792,8 +2802,6 @@ async function submitStudentFeedback() {
 }
 
 // === 📚 기출문제 및 수험자료실 프론트엔드 연동 ===
-let currentExamSubject = "전체";
-
 let currentExamSubject = "전체";
 let currentExamYear = 0;
 
