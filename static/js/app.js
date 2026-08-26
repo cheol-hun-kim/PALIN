@@ -76,15 +76,39 @@ async function loadHighSchoolsData() {
         const res = await fetch("/api/data/high-schools");
         if (res.ok) {
             HIGHSCHOOLS_DATA = await res.json();
-            const dl = document.getElementById("highschool-datalist");
-            if (dl) {
-                dl.innerHTML = "";
-                HIGHSCHOOLS_DATA.forEach(hs => {
-                    dl.innerHTML += `<option value="${hs.name}">[${hs.type}] ${hs.region || ''}</option>`;
-                });
-            }
+            filterHighSchoolsBySido("reg-sido", "highschool-datalist");
+            filterHighSchoolsBySido("edit-sido", "edit-highschool-datalist");
         }
     } catch (e) { console.warn("High schools load error:", e); }
+}
+
+// 🏫 선택된 시/도에 따라 고등학교 선택지(Datalist) 실시간 자동 필터링
+function filterHighSchoolsBySido(sidoSelectId, datalistId) {
+    const sido = document.getElementById(sidoSelectId)?.value;
+    const dl = document.getElementById(datalistId);
+    if (!dl || !HIGHSCHOOLS_DATA || HIGHSCHOOLS_DATA.length === 0) return;
+
+    dl.innerHTML = "";
+    
+    let matchedSchools = [];
+    let otherSpecialSchools = [];
+
+    if (sido) {
+        // 해당 시/도 소속 고등학교
+        matchedSchools = HIGHSCHOOLS_DATA.filter(hs => hs.region === sido);
+        // 전국 단위 자사/특목/영재고 중 타지역
+        otherSpecialSchools = HIGHSCHOOLS_DATA.filter(hs => hs.region !== sido && (hs.type === "자사고" || hs.type === "영재고" || hs.type === "과고" || hs.type === "외고"));
+    } else {
+        matchedSchools = HIGHSCHOOLS_DATA;
+    }
+
+    matchedSchools.forEach(hs => {
+        dl.innerHTML += `<option value="${hs.name}">[${hs.region || '전국'} ${hs.type}] ${hs.name}</option>`;
+    });
+
+    otherSpecialSchools.forEach(hs => {
+        dl.innerHTML += `<option value="${hs.name}">[전국모집 ${hs.type}] ${hs.name} (${hs.region})</option>`;
+    });
 }
 
 // 📱 아코디언 드롭다운 토글 제어 엔진
@@ -722,10 +746,13 @@ function openMyPageModal() {
         const curSido = rParts[0] || "경기도";
         const curSigungu = rParts.slice(1).join(" ") || "성남시 분당구";
         
+        // 1. 시도 옵션 렌더링 후 값 설정
+        populateSidoOptions("edit-sido");
         const sidoEl = document.getElementById("edit-sido");
         if (sidoEl) {
             sidoEl.value = curSido;
             onSidoChange("edit-sido", "edit-sigungu", curSigungu);
+            filterHighSchoolsBySido("edit-sido", "edit-highschool-datalist");
         }
         
         document.getElementById("edit-grade").value = currentStudent.grade !== undefined ? currentStudent.grade : "3";
