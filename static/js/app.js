@@ -1165,7 +1165,12 @@ async function loadTimetable() {
         
         dayColumns.forEach((col, dayIdx) => {
             if (col) {
-                col.innerHTML = "";
+                // 09:00 ~ 24:00 (15시간) 전체를 덮는 15개 명시적 격자 라인 생성
+                let gridLinesHtml = '';
+                for (let h = 0; h < 15; h++) {
+                    gridLinesHtml += `<div class="grid-hour-line" style="position:absolute; top:${h*30}px; left:0; right:0; height:30px; border-bottom:1px solid rgba(255,255,255,0.08); pointer-events:none; box-sizing:border-box;"></div>`;
+                }
+                col.innerHTML = gridLinesHtml;
                 // 원터치 터치/클릭 이벤트 등록
                 col.onclick = (e) => handleTimetableGridClick(dayIdx, e);
             }
@@ -1300,12 +1305,7 @@ async function verifyMission(type, triggerFail = false) {
         }
         
         if (result.status === "SUCCESS") {
-            alert(`🎉 미션 성공! +${result.earned_points}P 적립되었습니다.`);
-            if (type === "WAKEUP") {
-                setTimeout(() => {
-                    openWakeRouletteModal();
-                }, 400);
-            }
+            alert(`🎉 ${type === 'WAKEUP' ? '기상' : '취침'} 미션 성공! +${result.earned_points}P가 안전하게 적립되었습니다.`);
         } else {
             alert(`⚠️ 미션 인증 실패! 부모님께 안내 메시지가 발송되었습니다. sms_log.txt에서 발송 이력을 확인하세요.`);
         }
@@ -2828,52 +2828,7 @@ function downloadStudentIDCard() {
     }
 }
 
-// ==========================================
-// 🎁 2. 새벽 6:30 기상 룰렛 행운 상자
-// ==========================================
 
-function openWakeRouletteModal() {
-    const modal = document.getElementById("wake-roulette-modal");
-    if (!modal) return;
-    document.getElementById("roulette-result-msg").innerText = "";
-    const spinBtn = document.getElementById("roulette-spin-btn");
-    if (spinBtn) spinBtn.disabled = false;
-    modal.style.display = "flex";
-}
-
-async function executeWakeRoulette() {
-    if (!currentStudent) return;
-    const spinBtn = document.getElementById("roulette-spin-btn");
-    const wheel = document.getElementById("roulette-wheel");
-    const resultMsg = document.getElementById("roulette-result-msg");
-    if (spinBtn) spinBtn.disabled = true;
-
-    // 회전 애니메이션
-    const randomDeg = 1800 + Math.floor(Math.random() * 360);
-    if (wheel) wheel.style.transform = `rotate(${randomDeg}deg)`;
-
-    try {
-        const res = await fetch("/api/mission/wake-roulette", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ student_id: currentStudent.id })
-        });
-        const data = await res.json();
-        
-        setTimeout(() => {
-            if (data.status === "ok") {
-                currentStudent.current_points = data.current_points;
-                updateHeaderUI();
-                resultMsg.innerHTML = `🎉 <strong>+${data.reward_points}P</strong> 당첨! (보유: ${data.current_points}P)`;
-            } else {
-                resultMsg.innerText = data.detail || "오류 발생";
-            }
-        }, 3000);
-    } catch (e) {
-        console.error(e);
-        resultMsg.innerText = "서버 통신 오류";
-    }
-}
 
 // ==========================================
 // 📊 3. 3-Tier 대입 전략 리포트 & VIP 1:1 직접 컨설팅
