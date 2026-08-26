@@ -1870,10 +1870,36 @@ body.day-mode .modal-close-btn:hover, body.day-mode .btn-close:hover {
     color: #0f172a !important;
 }
 
+/* ===================================================
+   ⏰ 시간표 시간 선택 박스 내부 시계 아이콘 완벽 정렬
+   =================================================== */
+.time-input-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.time-input-box input[type="time"] {
+    width: 100%;
+    height: 38px;
+    padding: 6px 28px 6px 8px !important;
+    font-size: 0.8rem !important;
+    font-weight: 700;
+    box-sizing: border-box;
+}
+.time-input-box .time-picker-icon {
+    position: absolute;
+    right: 7px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.15rem;
+    pointer-events: none;
+    line-height: 1;
+}
+
 /* 시계 아이콘 명도 대비 보장 */
 body.day-mode .time-picker-icon, body.day-mode .clock-icon {
     color: #1e293b !important;
 }
 body:not(.day-mode) .time-picker-icon, body:not(.day-mode) .clock-icon {
-    color: #f8fafc !important;
+    color: #cbd5e1 !important;
 }
