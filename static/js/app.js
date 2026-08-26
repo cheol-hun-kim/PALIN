@@ -59,8 +59,10 @@ const DEFAULT_REGIONS_DATA = {
     "안양시 만안구",
     "부천시",
     "화성시",
-    "남양주시",
     "평택시",
+    "남양주시",
+    "안산시 상록구",
+    "안산시 단원구",
     "시흥시",
     "파주시",
     "김포시",
@@ -69,83 +71,83 @@ const DEFAULT_REGIONS_DATA = {
     "하남시",
     "광명시",
     "군포시",
-    "오산시",
     "양주시",
+    "오산시",
     "이천시",
-    "구리시",
     "안성시",
-    "포천시",
+    "구리시",
     "의왕시",
-    "여주시",
+    "포천시",
     "양평군",
+    "여주시",
     "동두천시",
     "가평군",
     "연천군"
   ],
   "인천광역시": [
+    "중구",
+    "동구",
+    "미추홀구",
     "연수구",
     "남동구",
     "부평구",
-    "서구",
-    "미추홀구",
     "계양구",
-    "중구",
-    "동구",
+    "서구",
     "강화군",
     "옹진군"
   ],
   "부산광역시": [
-    "해운대구",
-    "수영구",
+    "중구",
+    "서구",
+    "동구",
+    "영도구",
+    "부산진구",
     "동래구",
     "남구",
-    "부산진구",
-    "금정구",
-    "연제구",
-    "사하구",
     "북구",
-    "중구",
-    "동구",
-    "서구",
-    "영도구",
+    "해운대구",
+    "사하구",
+    "금정구",
     "강서구",
+    "연제구",
+    "수영구",
     "사상구",
     "기장군"
   ],
   "대구광역시": [
-    "수성구",
-    "달서구",
     "중구",
     "동구",
     "서구",
     "남구",
     "북구",
+    "수성구",
+    "달서구",
     "달성군",
     "군위군"
   ],
-  "대전광역시": [
-    "유성구",
-    "서구",
-    "중구",
-    "동구",
-    "대덕구"
-  ],
   "광주광역시": [
-    "남구",
-    "서구",
-    "북구",
     "동구",
+    "서구",
+    "남구",
+    "북구",
     "광산구"
   ],
-  "울산광역시": [
-    "남구",
+  "대전광역시": [
+    "동구",
     "중구",
+    "서구",
+    "유성구",
+    "대덕구"
+  ],
+  "울산광역시": [
+    "중구",
+    "남구",
     "동구",
     "북구",
     "울주군"
   ],
   "세종특별자치시": [
-    "세종시"
+    "세종특별자치시"
   ],
   "강원특별자치도": [
     "춘천시",
@@ -184,8 +186,8 @@ const DEFAULT_REGIONS_DATA = {
     "단양군"
   ],
   "충청남도": [
-    "천안시 서북구",
     "천안시 동남구",
+    "천안시 서북구",
     "공주시",
     "보령시",
     "아산시",
@@ -1567,10 +1569,15 @@ async function loadRegionsData() {
 function populateSidoOptions(selectId) {
     const el = document.getElementById(selectId);
     if (!el) return;
-    el.innerHTML = '<option value="" disabled selected>시/도 선택</option>';
-    Object.keys(REGIONS_DATA).forEach(sido => {
-        el.innerHTML += `<option value="${sido}">${sido}</option>`;
+    const currentVal = el.value;
+    const sidos = Object.keys(REGIONS_DATA).length > 0 ? Object.keys(REGIONS_DATA) : Object.keys(DEFAULT_REGIONS_DATA);
+    
+    let html = '<option value="" disabled' + (!currentVal ? ' selected' : '') + '>시/도 선택</option>';
+    sidos.forEach(sido => {
+        const isSelected = sido === currentVal ? ' selected' : '';
+        html += `<option value="${sido}"${isSelected}>${sido}</option>`;
     });
+    el.innerHTML = html;
 }
 
 function onSidoChange(sidoSelectId, sigunguSelectId, defaultSigungu = "") {
@@ -1578,12 +1585,13 @@ function onSidoChange(sidoSelectId, sigunguSelectId, defaultSigungu = "") {
     const sigunguEl = document.getElementById(sigunguSelectId);
     if (!sigunguEl || !sido) return;
     
-    const sigungus = REGIONS_DATA[sido] || [];
-    sigunguEl.innerHTML = '<option value="" disabled selected>시/군/구 선택</option>';
+    const sigungus = REGIONS_DATA[sido] || DEFAULT_REGIONS_DATA[sido] || [];
+    let html = '<option value="" disabled' + (!defaultSigungu ? ' selected' : '') + '>시/군/구 선택</option>';
     sigungus.forEach(sg => {
-        const isSelected = sg === defaultSigungu ? "selected" : "";
-        sigunguEl.innerHTML += `<option value="${sg}" ${isSelected}>${sg}</option>`;
+        const isSelected = sg === defaultSigungu ? " selected" : "";
+        html += `<option value="${sg}"${isSelected}>${sg}</option>`;
     });
+    sigunguEl.innerHTML = html;
 }
 
 async function loadHighSchoolsData() {
@@ -2563,6 +2571,28 @@ function setupEventListeners() {
     document.getElementById("register-form").addEventListener("submit", handleRegister);
     document.getElementById("login-form")?.addEventListener("submit", handleLogin);
     document.getElementById("tutor-upgrade-form")?.addEventListener("submit", upgradeStudentToTutor);
+
+    // 📊 정시 예측 점수 실시간 강제 제한 (100 / 50 초과 원천 차단)
+    ['pred-kor', 'pred-math', 'pred-eng', 'pred-tam1', 'pred-tam2'].forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            ['input', 'keyup', 'change', 'blur'].forEach(evt => {
+                input.addEventListener(evt, () => {
+                    if (input.value !== "" && Number(input.value) > 100) input.value = 100;
+                    if (input.value !== "" && Number(input.value) < 0) input.value = 0;
+                });
+            });
+        }
+    });
+    const histInput = document.getElementById('pred-hist');
+    if (histInput) {
+        ['input', 'keyup', 'change', 'blur'].forEach(evt => {
+            histInput.addEventListener(evt, () => {
+                if (histInput.value !== "" && Number(histInput.value) > 50) histInput.value = 50;
+                if (histInput.value !== "" && Number(histInput.value) < 0) histInput.value = 0;
+            });
+        });
+    }
     
     document.querySelectorAll(".nav-item").forEach(item => {
         item.addEventListener("click", () => {
