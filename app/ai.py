@@ -55,23 +55,39 @@ def get_gemini_client():
 KNOWLEDGE_PATH = os.path.join(os.path.dirname(__file__), "..", "knowledge.txt")
 
 def get_expert_knowledge():
+    base_knowledge = ""
     if os.path.exists(KNOWLEDGE_PATH):
         try:
             with open(KNOWLEDGE_PATH, "r", encoding="utf-8") as f:
-                return f.read()
+                base_knowledge = f.read()
         except Exception:
             pass
-    return ""
+
+    # DB에서 원장님이 추가 학습시킨 지식 결합
+    try:
+        from app.database import engine
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            rows = conn.execute(text("SELECT title, category, content FROM admin_knowledge WHERE is_active = 1 ORDER BY id DESC")).fetchall()
+            extra_knowledges = []
+            for r in rows:
+                extra_knowledges.append(f"\n[원장 추가 실전 지침 - {r[0]} ({r[1]})]\n{r[2]}")
+            if extra_knowledges:
+                base_knowledge += "\n\n=== 원장 최신 추가 칼럼 및 실전 지도 지침 ===\n" + "\n".join(extra_knowledges)
+    except Exception as e:
+        print("DB knowledge fetch error (ignorable):", e)
+
+    return base_knowledge
 
 def ask_ai_chatbot(message: str, history: list = None) -> str:
     client = get_gemini_client()
     if not client:
         print("CHATBOT ERROR: No Gemini client available.")
-        return "\uc9c0\uae08 AI \uc11c\ubc84 \uc5f0\uacb0\uc774 \ubd88\uc548\uc815\ud574. \uc7a0\uc2dc \ud6c4 \ub2e4\uc2dc \ub9d0 \uac78\uc5b4\uc918."
+        return "지금 AI 서버 연결이 불안정해. 잠시 후 다시 말 걸어줘."
     try:
         knowledge = get_expert_knowledge()
-        if len(knowledge) > 35000:
-            knowledge = knowledge[:35000]
+        if len(knowledge) > 45000:
+            knowledge = knowledge[:45000]
         system_prompt = (
             "You are PALIN BOT (Kim Chul-Hun). Respond ONLY in Korean.\n\n"
             "IDENTITY: You are Kim Chul-Hun - a 13-year veteran CSAT Korean instructor and director of Ilwon Academy in Bundang. You personally failed the CSAT twice before succeeding on your third attempt. Speak directly from your own personal memories, philosophy, and real-world student counseling experience.\n\n"
@@ -262,12 +278,12 @@ def generate_deep_admission_report(
     avg_pct = round((kor_pct + math_pct + (tam1_pct + tam2_pct)/2) / 3, 1)
 
     system_instruction = (
-        "You are the Senior Data Analyst at 'PALIN Admission Data Strategy Institute (PALIN 대입 데이터 전략 분석실)'. "
-        "Do NOT mention any personal names such as 'Kim Chul-Hun'. Speak strictly as an official institutional data intelligence team. "
+        "You are the Senior Chief Analyst at 'PALIN Admission Intelligence & Strategy Institute (PALIN 대입 데이터 전략 분석실)'. "
+        "Do NOT mention any personal names such as 'Kim Chul-Hun'. Speak strictly as an official premier institutional data intelligence team. "
         "Tone & Manner Rules:\n"
-        "1. Strictly use formal, highly polite, authoritative Korean honorifics ('~하십시오', '~분석됩니다', '~을 권고합니다', '~하여야 합니다').\n"
-        "2. Be razor-sharp, objective, strict, and uncompromisingly realistic. Never offer vague comfort or emotional words. Base every judgment on percentiles, cutoffs, and statistical facts.\n"
-        "3. Provide rich, actionable, granular guidance according to the requested Tier.\n"
+        "1. Strictly use formal, highly authoritative Korean institutional honorifics ('~하십시오', '~분석됩니다', '~을 엄정 권고합니다', '~하여야만 합니다').\n"
+        "2. Be razor-sharp, objective, strict, and uncompromisingly realistic. Never offer vague comfort or emotional words. Base every judgment on exact percentiles, cutoffs, and statistical facts.\n"
+        "3. Provide massive, richly detailed, granular guidance according to the requested Tier. Each chapter in 'chapters' MUST be extensive (at least 3-4 comprehensive paragraphs with specific action steps, tabular breakdown points, and tactical rules).\n"
         "4. Return ONLY a valid JSON object without markdown code fences:\n"
         "{\n"
         '  "tier": 3,\n'
@@ -277,15 +293,15 @@ def generate_deep_admission_report(
         '  "target_univ_diagnosis": "목표대학 합격선 누적백분위 및 지원 유불리 판정",\n'
         '  "baseline_univ_diagnosis": "마지노선 대학 방어선 및 리스크 요인 분석",\n'
         '  "chapters": [\n'
-        '     {"title": "장 제목", "content": "심층 분석 및 구체적 행동 프로토콜 내용 (단호한 하십시오체)"}\n'
+        '     {"title": "장 제목", "content": "심층 분석 및 구체적 행동 프로토콜 내용 (단호한 하십시오체로 최소 400자 이상 상세 서술)"}\n'
         '  ],\n'
         '  "subject_strategies": {\n'
-        '     "korean": "국어 1등급 필수 공략 지침", "math": "수학 킬러/준킬러 득점 프로토콜", "english": "영어 1등급 절대평가 방어 수칙", "tamgu": "탐구 변환표준점수 극대화 전략"\n'
+        '     "korean": "국어 1등급 필수 공략 지침 및 기출 분석 프로토콜", "math": "수학 킬러/준킬러 득점 프로토콜", "english": "영어 1등급 절대평가 방어 수칙", "tamgu": "탐구 변환표준점수 극대화 전략"\n'
         '  },\n'
         '  "timetable_168h": {\n'
-        '     "weekday": "주중 6시간 순공 확보 시간표", "weekend": "주말 12시간 몰입 훈련 타임테이블", "ratios": "과목별 투입 황금비율"\n'
+        '     "weekday": "주중 6시간 순공 확보 시간표 및 시간대별 배치", "weekend": "주말 12시간 몰입 훈련 타임테이블", "ratios": "과목별 투입 황금비율 (국:수:영:탐)"\n'
         '  },\n'
-        '  "mentor_closing": "PALIN 데이터 분석실의 최종 권고사항 및 실행 지침"\n'
+        '  "mentor_closing": "PALIN 데이터 분석실의 최종 엄정 권고사항 및 실행 지침"\n'
         "}"
     )
 
@@ -293,7 +309,7 @@ def generate_deep_admission_report(
         1: (
             f"=== 🥉 Tier 1 [단일 전형 포커스 진단서 (16,900원 규격)] ===\n"
             f"- 대상 전형: [{track_choice}] 단일 전형 집중 분석\n"
-            f"- 필수 포함 챕터 (2~4페이지 분량, 최소 3개 챕터):\n"
+            f"- 필수 포함 챕터 (최소 3개 챕터, 각 챕터 풍성한 분량 작성):\n"
             f"  1. [{track_choice}] 기준 현재 백분위/내신 지원 가능 대학 군 및 합격선 정밀 판정\n"
             f"  2. 목표 대학({target_univ}) 합격을 위해 성적을 끌어올려야 하는 킬러 취약 과목 및 상승 전략\n"
             f"  3. 해당 전형 지원 시 수험생들이 가장 많이 범하는 치명적 과오 3가지 및 방어 수칙\n"
@@ -302,7 +318,7 @@ def generate_deep_admission_report(
         2: (
             f"=== 🥈 Tier 2 [3대 전형 종합 비교 리포트 (29,900원 규격)] ===\n"
             f"- 분석 범위: 수시(학생부교과/종합) & 수시(논술) & 정시(수능 100%) 3대 전형 전방위 정밀 비교\n"
-            f"- 필수 포함 챕터 (4~8페이지 분량, 최소 4개 챕터):\n"
+            f"- 필수 포함 챕터 (최소 4개 챕터 이상, 각 챕터 정밀 분석):\n"
             f"  1. 3대 전형별 수험생의 상대적 유불리 및 모의고사/내신 갭 분석\n"
             f"  2. 수험생 맞춤 최적 추천 전형 포트폴리오 비율 산출 (예: 정시 70% + 논술 20% + 학종 10%)\n"
             f"  3. 목표 대학({target_univ}) 및 마지노선 대학({baseline_univ}) 3개년 입결 컷 비교 및 돌파 전략\n"
@@ -310,16 +326,16 @@ def generate_deep_admission_report(
             f"- 문체: 'PALIN 대입 데이터 분석실' 명의의 객관적이고 단호한 하십시오체"
         ),
         3: (
-            f"=== 🥇 Tier 3 [PALIN 대입 전략 올인원 마스터 백서 (34,900원 최고급 풀세트)] ===\n"
-            f"- 분석 범위: 3대 전형 풀스캔 + 168시간 시간표 + 과목별/시험별 만점 비법 + 생활 통제 (10~15페이지급 마스터피스)\n"
-            f"- 필수 포함 챕터 (최소 6개 챕터 이상 상세 작성):\n"
-            f"  1. 3대 전형(학종/논술/정시) 정밀 진단 및 최적 추천 전형 비율 확정\n"
-            f"  2. 목표 대학({target_univ}) 학과별 환산점수 및 킬러 반영비율 공략법\n"
-            f"  3. 마지노선 대학({baseline_univ}) 방어선 구축 및 리스크 헷지 전략\n"
-            f"  4. 주간 168시간 분 단위 순공 시간표 (평일 6시간 / 주말 12시간 루틴)\n"
-            f"  5. 과목별 · 시험별 만점 극대화를 위한 국·수·영·탐 킬러 정복 학습 프로토콜\n"
-            f"  6. 수면 리듬(06:30 기상) 및 스마트폰 통제를 통한 수험 멘탈 관리 지침\n"
-            f"  7. 수시 6장 + 정시 가/나/다군 실전 원서 배치 시뮬레이션\n"
+            f"=== 🥇 Tier 3 [PALIN 대입 전략 올인원 마스터 백서 (A4 15페이지급 최고급 풀세트)] ===\n"
+            f"- 분석 범위: 3대 전형 풀스캔 + 168시간 시간표 + 과목별 킬러 만점 비법 + 수면/생활 통제 + 실전 원서배치표 (압도적인 텍스트 볼륨)\n"
+            f"- 필수 포함 챕터 (아래 7개 챕터를 반드시 모두 포함하여 각 챕터당 3~4문단 이상의 디테일한 지침 작성):\n"
+            f"  1. [총괄 판정] 3대 전형(학종/논술/정시) 정밀 진단 및 최적 추천 전형 비율 확정\n"
+            f"  2. [목표 대학 정밀 타격] 목표 대학({target_univ}) 학과별 환산점수 및 킬러 반영비율 공략법\n"
+            f"  3. [마지노선 방어선 구축] 마지노선 대학({baseline_univ}) 3개년 입결 컷 방어 및 리스크 헷지 전략\n"
+            f"  4. [168시간 순공 타임테이블] 주간 168시간 분 단위 순공 시간표 (평일 6시간 / 주말 12시간 루틴)\n"
+            f"  5. [과목별 킬러 격파 프로토콜] 국·수·영·탐 취약 영역 진단 및 변환표준점수 극대화 학습법\n"
+            f"  6. [수험 생활 및 멘탈 철통 통제] 수면 리듬(06:30 기상) 및 스마트폰 완전 통제를 통한 수험 멘탈 관리 지침\n"
+            f"  7. [원서 배치 시뮬레이션] 수시 6장 카드 + 정시 가/나/다군 실전 원서 조합 로드맵\n"
             f"- subject_strategies, timetable_168h 필드도 매우 구체적이고 디테일하게 작성\n"
             f"- 문체: 'PALIN 대입 데이터 분석실' 명의의 단호하고 압도적인 권위의 하십시오체"
         )
@@ -332,7 +348,7 @@ def generate_deep_admission_report(
         f"- 목표 대학: {target_univ} | 마지노선: {baseline_univ}\n"
         f"- 수능 모의 성적: 국어 {kor_pct}% | 수학 {math_pct}% | 영어 {eng_raw}점({eng_grade}등급) | 탐구1 {tam1_pct}% | 탐구2 {tam2_pct}% | 한국사 {hist_raw}점({hist_grade}등급) | 평균 백분위 {avg_pct}%\n\n"
         f"{tier_prompts.get(tier, tier_prompts[3])}\n\n"
-        f"위 수험생의 데이터를 바탕으로 공신력 있는 대입 전략 연구소의 공식 백서 규격에 맞추어 JSON 데이터를 작성하십시오."
+        f"위 수험생의 데이터를 바탕으로 공신력 있는 대입 전략 연구소의 공식 백서 규격에 맞추어 JSON 데이터를 충실하고 방대하게 작성하십시오."
     )
 
     models_to_try = ['gemini-3.6-flash', 'gemini-2.5-flash', 'gemini-1.5-flash']
@@ -342,7 +358,7 @@ def generate_deep_admission_report(
             resp = client.models.generate_content(
                 model=m,
                 contents=prompt,
-                config={'system_instruction': system_instruction, 'temperature': 0.4, 'max_output_tokens': 6000}
+                config={'system_instruction': system_instruction, 'temperature': 0.4, 'max_output_tokens': 8192}
             )
             raw = resp.text.strip().replace('```json', '').replace('```', '')
             data = json.loads(raw)
