@@ -6,7 +6,7 @@
     <title>PALIN OS - 데이터 기반 행동 통제 범용 OS</title>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=55.0">
+    <link rel="stylesheet" href="css/style.css?v=56.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -266,21 +266,34 @@
                         </div>
                     </div>
 
-                    <form onsubmit="addPlannerBlock(event)" style="display:grid; grid-template-columns: 1fr 1.2fr 1.2fr 2fr; gap:6px; margin-bottom:12px;">
-                        <select id="plan-day" class="form-input" style="padding:6px; font-size:0.75rem;">
-                            <option value="0">월요일</option>
-                            <option value="1">화요일</option>
-                            <option value="2">수요일</option>
-                            <option value="3">목요일</option>
-                            <option value="4">금요일</option>
-                            <option value="5">토요일</option>
-                            <option value="6">일요일</option>
-                        </select>
-                        <input type="time" id="plan-start" class="form-input" style="padding:6px; font-size:0.75rem;" value="09:00" onchange="syncPlanEndTime()">
-                        <input type="time" id="plan-end" class="form-input" style="padding:6px; font-size:0.75rem;" value="11:00">
-                        <div style="display:flex; gap:4px; min-width:0; flex:1;">
-                            <input type="text" id="plan-title" class="form-input" style="padding:6px; font-size:0.75rem; min-width:0; width:100%;" placeholder="계획명 (예: 수학 미적)">
-                            <button type="submit" class="btn" style="padding:6px 12px; font-size:0.75rem; font-weight: 700; white-space:nowrap; background: linear-gradient(135deg, #6366f1, #4f46e5);">+ 추가</button>
+                    <form onsubmit="addPlannerBlock(event)" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px;">
+                        <!-- 1행: 요일 및 시간 설정 (넉넉한 너비로 글자/시계아이콘 잘림 100% 방지) -->
+                        <div style="display: grid; grid-template-columns: 1fr 1.25fr 1.25fr; gap: 8px; align-items: center;">
+                            <div>
+                                <label style="font-size: 0.68rem; color: var(--text-secondary); margin-bottom: 3px; display: block; font-weight: 600;">요일 선택</label>
+                                <select id="plan-day" class="form-input" style="padding: 7px 8px; font-size: 0.82rem; font-weight: 700; width: 100%;">
+                                    <option value="0">월요일</option>
+                                    <option value="1">화요일</option>
+                                    <option value="2">수요일</option>
+                                    <option value="3">목요일</option>
+                                    <option value="4">금요일</option>
+                                    <option value="5">토요일</option>
+                                    <option value="6">일요일</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.68rem; color: var(--text-secondary); margin-bottom: 3px; display: block; font-weight: 600;">시작 시간</label>
+                                <input type="time" id="plan-start" class="form-input" style="padding: 7px 8px; font-size: 0.82rem; font-weight: 700; width: 100%;" value="09:00" onchange="syncPlanEndTime()">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.68rem; color: var(--text-secondary); margin-bottom: 3px; display: block; font-weight: 600;">종료 시간</label>
+                                <input type="time" id="plan-end" class="form-input" style="padding: 7px 8px; font-size: 0.82rem; font-weight: 700; width: 100%;" value="11:00">
+                            </div>
+                        </div>
+                        <!-- 2행: 계획명 & 추가 버튼 -->
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="text" id="plan-title" class="form-input" style="flex: 1; padding: 8px 12px; font-size: 0.82rem; font-weight: 600;" placeholder="계획명 (예: 수학 미적분 집중 자습)">
+                            <button type="submit" class="btn" style="padding: 8px 18px; font-size: 0.82rem; font-weight: 800; white-space: nowrap; background: linear-gradient(135deg, #6366f1, #4f46e5); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">+ 추가</button>
                         </div>
                     </form>
 
@@ -1489,7 +1502,7 @@
     </div>
     </div>
 
-    <script src="js/app.js?v=55.0"></script>
+    <script src="js/app.js?v=56.0"></script>
     <script>
     // Service Worker Registration
     if ('serviceWorker' in navigator) {
