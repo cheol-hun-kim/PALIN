@@ -1083,6 +1083,20 @@ function syncPlanEndTime() {
     endInput.value = `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`;
 }
 
+function openTimePicker(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    if (typeof input.showPicker === 'function') {
+        try {
+            input.showPicker();
+        } catch (e) {
+            input.focus();
+        }
+    } else {
+        input.focus();
+    }
+}
+
 async function handleTimetableGridClick(dayIndex, event) {
     if (!currentStudent) {
         alert("로그인이 필요합니다.");
