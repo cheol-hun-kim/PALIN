@@ -6,7 +6,7 @@
     <title>PALIN OS - 데이터 기반 행동 통제 범용 OS</title>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=58.0">
+    <link rel="stylesheet" href="css/style.css?v=59.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -42,8 +42,20 @@
                     <option value="0">기타 (직접입력)</option>
                 </select>
                 
-                <input type="text" id="reg-region" class="form-input" placeholder="지역 (예: 서울 강남구)" required>
-                <input type="text" id="reg-school" class="form-input" placeholder="소속 고등학교 (예: 대치고)" required>
+                <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 6px; margin-bottom: 4px;">지역 설정 (시/도 및 시/군/구)</div>
+                <div style="display: flex; gap: 6px; width: 100%;">
+                    <select id="reg-sido" class="form-input" required style="width: 50%;" onchange="onSidoChange('reg-sido', 'reg-sigungu')">
+                        <option value="" disabled selected>시/도 선택</option>
+                    </select>
+                    <select id="reg-sigungu" class="form-input" required style="width: 50%;">
+                        <option value="" disabled selected>시/군/구 선택</option>
+                    </select>
+                </div>
+                <input type="hidden" id="reg-region">
+
+                <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 10px; margin-bottom: 4px;">소속 고등학교 선택 (전국 일반/자사/특목/과고/영재고)</div>
+                <input type="text" id="reg-school" class="form-input" placeholder="고등학교명 검색 (예: 낙생고, 대원외고, 하나고)" list="highschool-datalist" required>
+                <datalist id="highschool-datalist"></datalist>
                 
                 <div style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 4px;">목표 대학 및 학과 설정</div>
                 <div style="display: flex; gap: 6px; width: 100%;">
@@ -198,64 +210,81 @@
                     </div>
                 </div>
 
-                <!-- 포레스트(Forest) 모델 - 목표 대학 로고 & 집중 공부 타이머 -->
-                <div class="card" id="univ-target-box" style="text-align: center; position: relative;">
-                    <!-- 딴짓 감지 시 균열 오버레이 -->
-                    <div class="crack-overlay" id="logo-crack-overlay"></div>
-                    
-                    <div class="card-title" style="justify-content: center;">
-                        <span class="material-symbols-rounded" style="color: var(--color-success)">hourglass_empty</span>
-                        집중 공부 타이머 (딴짓 방지)
+                <!-- 포레스트(Forest) 모델 - 목표 대학 로고 & 집중 공부 타이머 (아코디언 드롭다운) -->
+                <div class="card" id="univ-target-box" style="text-align: center; position: relative; padding: 0; overflow: hidden;">
+                    <!-- 아코디언 헤더 바 (기본 상시 노출) -->
+                    <div class="accordion-header" onclick="toggleAccordion('timer-accordion-body', 'timer-accordion-icon')" style="padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: rgba(255,255,255,0.02);">
+                        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.95rem;">
+                            <span class="material-symbols-rounded" style="color: var(--color-success)">hourglass_empty</span>
+                            <span>집중 공부 타이머</span>
+                            <span id="timer-badge-status" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 12px; background: rgba(16,185,129,0.15); color: #10b981; font-weight: 800;">00:00:00 대기중</span>
+                        </div>
+                        <span class="material-symbols-rounded" id="timer-accordion-icon" style="transition: transform 0.3s ease; color: var(--text-secondary);">expand_more</span>
                     </div>
 
-                    <!-- 목표 대학 & 메디컬 엠블럼 심볼 -->
-                    <div style="margin: 10px auto; width: 64px; height: 64px; background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 8px 20px rgba(0,0,0,0.4);" id="target-logo-wrapper">
-                        <span id="target-symbol-emblem" class="target-logo-img">🏛️</span>
-                    </div>
-                    <div style="font-size: 0.82rem; font-weight: 700; color: #f8fafc; margin-bottom: 8px;" id="target-logo-name">목표 대학 수호 중</div>
+                    <!-- 아코디언 본체 (접힘/펼침) -->
+                    <div id="timer-accordion-body" style="display: none; padding: 16px;">
+                        <!-- 딴짓 감지 시 균열 오버레이 -->
+                        <div class="crack-overlay" id="logo-crack-overlay"></div>
 
-                    <div class="timer-container">
-                        <div style="width:100%; max-width:320px; margin-bottom:12px;">
-                            <label style="font-size:0.75rem; color:var(--text-secondary); display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                                <span style="font-weight: 700;">어떤 계획을 공부하시겠습니까?</span>
-                                <span id="timer-selected-day-label" style="color: #818cf8; font-weight: 800; font-size: 0.72rem;">오늘 요일</span>
-                            </label>
-                            
-                            <!-- 📅 타이머 요일 선택 탭 -->
-                            <div style="display: flex; gap: 4px; justify-content: center; margin-bottom: 8px;" id="timer-day-tabs">
-                                <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(0, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">월</button>
-                                <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(1, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">화</button>
-                                <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(2, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">수</button>
-                                <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(3, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">목</button>
-                                <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(4, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">금</button>
-                                <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(5, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">토</button>
-                                <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(6, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">일</button>
-                                <button type="button" class="btn btn-secondary timer-day-btn" onclick="filterTimerScheduleByDay('all', this)" style="padding: 3px 6px; font-size: 0.72rem;">전체</button>
+                        <!-- 목표 대학 & 메디컬 엠블럼 심볼 -->
+                        <div style="margin: 6px auto 10px; width: 56px; height: 56px; background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 8px 20px rgba(0,0,0,0.4);" id="target-logo-wrapper">
+                            <span id="target-symbol-emblem" class="target-logo-img">🏛️</span>
+                        </div>
+                        <div style="font-size: 0.82rem; font-weight: 700; color: #f8fafc; margin-bottom: 8px;" id="target-logo-name">목표 대학 수호 중</div>
+
+                        <div class="timer-container">
+                            <div style="width:100%; max-width:320px; margin-bottom:12px;">
+                                <label style="font-size:0.75rem; color:var(--text-secondary); display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                    <span style="font-weight: 700;">어떤 계획을 공부하시겠습니까?</span>
+                                    <span id="timer-selected-day-label" style="color: #818cf8; font-weight: 800; font-size: 0.72rem;">오늘 요일</span>
+                                </label>
+                                
+                                <!-- 📅 타이머 요일 선택 탭 -->
+                                <div style="display: flex; gap: 4px; justify-content: center; margin-bottom: 8px;" id="timer-day-tabs">
+                                    <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(0, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">월</button>
+                                    <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(1, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">화</button>
+                                    <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(2, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">수</button>
+                                    <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(3, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">목</button>
+                                    <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(4, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">금</button>
+                                    <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(5, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">토</button>
+                                    <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(6, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">일</button>
+                                    <button type="button" class="btn btn-secondary timer-day-btn" onclick="filterTimerScheduleByDay('all', this)" style="padding: 3px 6px; font-size: 0.72rem;">전체</button>
+                                </div>
+
+                                <select id="timer-schedule-select" class="form-input" style="width:100%; padding:8px 10px; font-size: 0.82rem; font-weight: 600;">
+                                    <option value="none">직접 자유 공부하기</option>
+                                </select>
                             </div>
-
-                            <select id="timer-schedule-select" class="form-input" style="width:100%; padding:8px 10px; font-size: 0.82rem; font-weight: 600;">
-                                <option value="none">직접 자유 공부하기</option>
-                            </select>
-                        </div>
-                        
-                        <div id="timer-current-study" style="font-size:0.8rem; font-weight:600; color:#a78bfa; margin-bottom:12px;">대기 중: 할 일을 선택하여 측정을 시작하세요</div>
-                        
-                        <div class="timer-circle" id="timer-circle">00:00:00</div>
-                        <div class="timer-controls">
-                            <button class="btn" id="timer-toggle-btn" style="background-color: var(--color-success); box-shadow: 0 4px 12px var(--color-success-glow); padding: 10px 24px; font-size: 0.95rem;" onclick="toggleTimer()">공부 시작</button>
-                        </div>
-                        
-                        <div style="font-size:0.68rem; color:var(--text-secondary); margin-top:14px; line-height:1.3;">
-                            💡 <b>화면 꺼짐(Screen Off) 상태는 정상 자습으로 유지</b>됩니다. 단, 타 앱으로 전환(딴짓) 시 3초 후 타이머가 일시정지됩니다.
+                            
+                            <div id="timer-current-study" style="font-size:0.8rem; font-weight:600; color:#a78bfa; margin-bottom:12px;">대기 중: 할 일을 선택하여 측정을 시작하세요</div>
+                            
+                            <div class="timer-circle" id="timer-circle">00:00:00</div>
+                            <div class="timer-controls">
+                                <button class="btn" id="timer-toggle-btn" style="background-color: var(--color-success); box-shadow: 0 4px 12px var(--color-success-glow); padding: 10px 24px; font-size: 0.95rem;" onclick="requestStartTimer()">공부 시작</button>
+                            </div>
+                            
+                            <div style="font-size:0.68rem; color:var(--text-secondary); margin-top:14px; line-height:1.3;">
+                                💡 <b>화면 꺼짐(Screen Off) 상태는 정상 자습으로 유지</b>됩니다. 단, 타 앱으로 전환(딴짓) 시 3초 후 타이머가 일시정지됩니다.
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 에브리타임 스타일 주간 계획 시간표 (원터치 과목 퀵 블록 지원) -->
-                <div class="card">
-                    <div class="card-title">
-                        <span class="material-symbols-rounded" style="color: var(--color-warning)">calendar_view_week</span>
-                        주간 계획표
+                <!-- 에브리타임 스타일 주간 계획 시간표 (아코디언 드롭다운) -->
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <!-- 아코디언 헤더 바 (기본 상시 노출) -->
+                    <div class="accordion-header" onclick="toggleAccordion('timetable-accordion-body', 'timetable-accordion-icon')" style="padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: rgba(255,255,255,0.02);">
+                        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.95rem;">
+                            <span class="material-symbols-rounded" style="color: var(--color-warning)">calendar_view_week</span>
+                            <span>주간 공부 계획표</span>
+                            <span id="timetable-badge-count" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 12px; background: rgba(234,179,8,0.15); color: #eab308; font-weight: 800;">계획 보기</span>
+                        </div>
+                        <span class="material-symbols-rounded" id="timetable-accordion-icon" style="transition: transform 0.3s ease; color: var(--text-secondary);">expand_more</span>
+                    </div>
+
+                    <!-- 아코디언 본체 (접힘/펼침) -->
+                    <div id="timetable-accordion-body" style="display: none; padding: 16px;">
                     </div>
                     
                     <!-- 과목 원터치 퀵버튼 바 -->
@@ -355,6 +384,29 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- 🔒 마이크로 서약 모달 (Noom 모델 - 타이머 시작 전 강제 타이핑 인증) -->
+            <div id="micro-pledge-modal" class="modal" style="display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 10000; position: fixed; inset: 0;">
+                <div class="card" style="width: 90%; max-width: 400px; padding: 20px; border: 1.5px solid #ef4444; background: #0f172a; box-shadow: 0 10px 30px rgba(239,68,68,0.3); text-align: center;">
+                    <div style="font-size: 1.8rem; margin-bottom: 8px;">🔥</div>
+                    <div style="font-size: 1.1rem; font-weight: 800; color: #f87171; margin-bottom: 6px;">[수험생 마이크로 결의 서약]</div>
+                    <p style="font-size: 0.78rem; color: #94a3b8; line-height: 1.4; margin-bottom: 14px;">
+                        순공 집중 타이머를 시작하기 전, 아래 서약 문구를 <b>한 글자도 틀리지 않고 정확히 입력</b>하십시오.
+                    </p>
+                    
+                    <div style="background: rgba(239, 68, 68, 0.1); border: 1px dashed #ef4444; padding: 10px; border-radius: 8px; font-size: 0.85rem; font-weight: 800; color: #fca5a5; margin-bottom: 12px; word-break: keep-all;" id="pledge-target-text">
+                        나는 지금 이 순간부터 딴짓을 하면 올해 입시는 무조건 실패한다
+                    </div>
+
+                    <input type="text" id="pledge-input-text" class="form-input" placeholder="위 서약 문구를 그대로 입력하세요" style="font-size: 0.85rem; font-weight: 700; text-align: center; border-color: #ef4444; margin-bottom: 12px;" autocomplete="off" onkeyup="if(event.key==='Enter') submitMicroPledge()">
+
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" class="btn btn-secondary" onclick="closeMicroPledgeModal()" style="flex: 1; padding: 10px; font-size: 0.85rem;">취소</button>
+                        <button type="button" class="btn" onclick="submitMicroPledge()" style="flex: 2; padding: 10px; font-size: 0.88rem; font-weight: 800; background: linear-gradient(135deg, #ef4444, #dc2626);">서약하고 시작</button>
+                    </div>
+                </div>
+            </div>
 
                 <!-- 부모님 전송 주간 리포트 -->
                 <div class="card" style="border: 1px dashed var(--color-accent); background: rgba(99, 102, 241, 0.04);">
@@ -642,57 +694,66 @@
 <div id="jeongsi-section">
 <!-- 합격예측 입력 -->
 <div class="card" id="predict-section">
-    <h3 style="margin-bottom: 12px;">📊 정시 합격 예측</h3>
-    <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 16px;">모의고사/수능 성적을 입력하면 대학별 합격 가능성을 예측합니다.</p>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 style="margin: 0;">📊 정시 통합 합격 예측</h3>
+        <span style="font-size: 0.7rem; background: rgba(16,185,129,0.15); color: #10b981; padding: 2px 8px; border-radius: 10px; font-weight: 800;">사탐/과탐 교차지원 지원</span>
+    </div>
+    <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 16px;">
+        2025~2027 전면 개편 반영: 사탐 응시자의 이공계열(건국대 등) 교차지원 및 과탐 가산점(3~5%)이 자동 반영됩니다.
+    </p>
     
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-        <div>
-            <label class="input-label">계열</label>
-            <select id="pred-gyeyeol" class="input-field">
-                <option value="이과">이과 (미적/기하 + 과탐)</option>
-                <option value="문과">문과 (확통/사탐)</option>
-            </select>
-        </div>
-        <div>
-            <label class="input-label">수학 선택</label>
-            <select id="pred-math-type" class="input-field">
-                <option value="미적">미적분</option>
-                <option value="기하">기하</option>
-                <option value="확통">확률과통계</option>
-            </select>
-        </div>
+    <div style="margin-bottom: 12px;">
+        <label class="input-label">수학 선택과목</label>
+        <select id="pred-math-type" class="input-field">
+            <option value="미적">미적분 (이공/인문 교차 가능)</option>
+            <option value="기하">기하 (이공/인문 교차 가능)</option>
+            <option value="확통">확률과통계 (인문 및 자율전공/사탐허용 이공계열)</option>
+        </select>
     </div>
     
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
         <div>
-            <label class="input-label">국어 백분위</label>
+            <label class="input-label">국어 백분위 (0~100)</label>
             <input type="number" id="pred-kor" class="input-field" placeholder="0~100" min="0" max="100" step="1">
         </div>
         <div>
-            <label class="input-label">수학 백분위</label>
+            <label class="input-label">수학 백분위 (0~100)</label>
             <input type="number" id="pred-math" class="input-field" placeholder="0~100" min="0" max="100" step="1">
         </div>
     </div>
     
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
         <div>
-            <label class="input-label">영어 원점수</label>
+            <label class="input-label">영어 원점수 (0~100)</label>
             <input type="number" id="pred-eng" class="input-field" placeholder="0~100" min="0" max="100" step="1">
         </div>
         <div>
-            <label class="input-label">한국사 원점수</label>
+            <label class="input-label">한국사 원점수 (0~50)</label>
             <input type="number" id="pred-hist" class="input-field" placeholder="0~50" min="0" max="50" step="1">
         </div>
     </div>
     
+    <!-- 탐구1 & 탐구2 (과탐/사탐 선택 및 백분위) -->
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
         <div>
-            <label class="input-label">탐구1 백분위</label>
-            <input type="number" id="pred-tam1" class="input-field" placeholder="0~100" min="0" max="100" step="1">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label class="input-label" style="margin: 0;">탐구 1</label>
+                <select id="pred-tam1-type" style="padding: 2px 6px; font-size: 0.72rem; border-radius: 6px; background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,255,255,0.15);">
+                    <option value="과탐">과탐 (가산점)</option>
+                    <option value="사탐">사탐</option>
+                </select>
+            </div>
+            <input type="number" id="pred-tam1" class="input-field" placeholder="백분위 0~100" min="0" max="100" step="1">
         </div>
         <div>
-            <label class="input-label">탐구2 백분위</label>
-            <input type="number" id="pred-tam2" class="input-field" placeholder="0~100" min="0" max="100" step="1">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label class="input-label" style="margin: 0;">탐구 2</label>
+                <select id="pred-tam2-type" style="padding: 2px 6px; font-size: 0.72rem; border-radius: 6px; background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,255,255,0.15);">
+                    <option value="과탐">과탐 (가산점)</option>
+                    <option value="사탐">사탐</option>
+                </select>
+            </div>
+            <input type="number" id="pred-tam2" class="input-field" placeholder="백분위 0~100" min="0" max="100" step="1">
         </div>
     </div>
 
@@ -785,24 +846,28 @@
                             <span class="material-symbols-rounded" style="color: #6366f1">download</span>
                             평가원/교육청 기출 & 수험자료실
                         </div>
-                        <div style="font-size:0.78rem; color:var(--text-secondary); margin-bottom: 14px;">원장님이 엄선한 기출문제와 핵심 해설 자료를 자유롭게 다운로드하세요.</div>
+                        <div style="font-size:0.78rem; color:var(--text-secondary); margin-bottom: 12px;">원장님이 엄선한 연도별 평가원/교육청 공식 기출문제와 정답·해설지를 다운로드하세요.</div>
                         
-                        <!-- 🎯 관리자 화면과 동일한 과목 선택 드롭다운 -->
-                        <div style="margin-bottom: 14px;">
-                            <label style="display: flex; align-items: center; gap: 4px; font-size: 0.82rem; font-weight: 700; color: #a78bfa; margin-bottom: 6px;">
-                                <span class="material-symbols-rounded" style="font-size: 1.05rem;">tune</span>
-                                과목 카테고리 선택
-                            </label>
-                            <select id="exam-subject-select" onchange="onExamSubjectSelectChange(this.value)" class="form-input" style="width: 100%; padding: 12px 14px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; background: rgba(18, 20, 29, 0.9); border: 1.5px solid rgba(99, 102, 241, 0.4); color: #ffffff; cursor: pointer; box-sizing: border-box;">
-                                <option value="전체" style="background:#1e293b; color:#ffffff;" selected>📚 전체 과목 자료 보기</option>
-                                <option value="국어" style="background:#1e293b; color:#ffffff;">📖 국어 영역</option>
-                                <option value="수학" style="background:#1e293b; color:#ffffff;">📐 수학 영역</option>
-                                <option value="영어" style="background:#1e293b; color:#ffffff;">🔤 영어 영역</option>
-                                <option value="탐구" style="background:#1e293b; color:#ffffff;">🔬 탐구 영역 (사탐/과탐)</option>
-                                <option value="논술" style="background:#1e293b; color:#ffffff;">✍️ 논술 (수리/인문/약술형)</option>
-                                <option value="경찰·사관" style="background:#1e293b; color:#ffffff;">🎖️ 경찰대 · 사관학교 1차</option>
-                                <option value="기타" style="background:#1e293b; color:#ffffff;">📄 기타 수험 자료</option>
-                            </select>
+                        <!-- 1. 과목별 상단 탭 -->
+                        <div style="margin-bottom: 8px;">
+                            <div style="display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none;" id="exam-subject-tabs">
+                                <button type="button" class="btn exam-subj-btn active" onclick="switchExamSubject('전체', this)" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; border-radius: 8px;">전체</button>
+                                <button type="button" class="btn btn-secondary exam-subj-btn" onclick="switchExamSubject('국어', this)" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; border-radius: 8px;">국어</button>
+                                <button type="button" class="btn btn-secondary exam-subj-btn" onclick="switchExamSubject('수학', this)" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; border-radius: 8px;">수학</button>
+                                <button type="button" class="btn btn-secondary exam-subj-btn" onclick="switchExamSubject('영어', this)" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; border-radius: 8px;">영어</button>
+                                <button type="button" class="btn btn-secondary exam-subj-btn" onclick="switchExamSubject('과탐', this)" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; border-radius: 8px;">과탐</button>
+                                <button type="button" class="btn btn-secondary exam-subj-btn" onclick="switchExamSubject('사탐', this)" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; border-radius: 8px;">사탐</button>
+                                <button type="button" class="btn btn-secondary exam-subj-btn" onclick="switchExamSubject('논술', this)" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; border-radius: 8px;">논술</button>
+                            </div>
+                        </div>
+
+                        <!-- 2. 년도별 서브 탭 -->
+                        <div style="margin-bottom: 14px; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 8px; display: flex; gap: 4px; overflow-x: auto;">
+                            <button type="button" class="btn exam-year-btn active" onclick="switchExamYear(0, this)" style="flex: 1; padding: 4px 8px; font-size: 0.72rem; min-width: 50px;">전체년도</button>
+                            <button type="button" class="btn btn-secondary exam-year-btn" onclick="switchExamYear(2027, this)" style="flex: 1; padding: 4px 8px; font-size: 0.72rem; min-width: 50px;">2027</button>
+                            <button type="button" class="btn btn-secondary exam-year-btn" onclick="switchExamYear(2026, this)" style="flex: 1; padding: 4px 8px; font-size: 0.72rem; min-width: 50px;">2026</button>
+                            <button type="button" class="btn btn-secondary exam-year-btn" onclick="switchExamYear(2025, this)" style="flex: 1; padding: 4px 8px; font-size: 0.72rem; min-width: 50px;">2025</button>
+                            <button type="button" class="btn btn-secondary exam-year-btn" onclick="switchExamYear(2024, this)" style="flex: 1; padding: 4px 8px; font-size: 0.72rem; min-width: 50px;">2024</button>
                         </div>
 
                         <!-- 기출문제 목록 컨테이너 -->
@@ -817,10 +882,12 @@
                  3페이지: 커뮤니티 공간
                  ========================================== -->
             <div id="page3" class="page-view" style="display: none;">
-                <!-- 서브탭 메뉴 -->
-                <div class="tab-header" id="p3-tabs">
-                    <button class="tab-btn active" data-sub="qa">❓ 공부 Q&A</button>
-                    <button class="tab-btn" data-sub="matching">🎓 과외 매칭</button>
+                <!-- 서브탭 메뉴 (Q&A / 과외매칭 / 마이크로랭킹 / VIP 블랙 라운지) -->
+                <div class="tab-header" id="p3-tabs" style="display: flex; gap: 4px; overflow-x: auto; padding-bottom: 2px;">
+                    <button class="tab-btn active" data-sub="qa" style="flex: 1; padding: 10px 6px; font-size: 0.78rem; white-space: nowrap;">❓ 공부 Q&A</button>
+                    <button class="tab-btn" data-sub="matching" style="flex: 1; padding: 10px 6px; font-size: 0.78rem; white-space: nowrap;">🎓 선배 과외</button>
+                    <button class="tab-btn" data-sub="ranking" style="flex: 1; padding: 10px 6px; font-size: 0.78rem; white-space: nowrap;">🏆 동네/학교 랭킹</button>
+                    <button class="tab-btn" data-sub="blacklounge" style="flex: 1; padding: 10px 6px; font-size: 0.78rem; white-space: nowrap; color: #f59e0b; font-weight: 800;">👑 1% 라운지</button>
                 </div>
 
                 <!-- 3-A: 공부 Q&A 게시판 -->
@@ -976,8 +1043,68 @@
                     </div>
 
                 </div>
-            </div>
 
+                <!-- 3-C: 🏆 마이크로 지역/고교 랭킹 리더보드 (Strava 모델) -->
+                <div id="p3-ranking" class="subtab-view-p3" style="display: none;">
+                    <div class="card" style="background: linear-gradient(135deg, rgba(234, 179, 8, 0.08), rgba(245, 158, 11, 0.04)); border: 1.5px solid rgba(234, 179, 8, 0.3);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div style="font-weight: 800; font-size: 0.95rem; color: #fbbf24;">🏆 마이크로 실시간 랭킹</div>
+                            <span style="font-size: 0.68rem; background: rgba(234, 179, 8, 0.2); color: #fbbf24; padding: 2px 7px; border-radius: 10px; font-weight: 800;">LIVE</span>
+                        </div>
+                        <p style="font-size: 0.76rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4;">
+                            전국 수십만 명이 아닌, <b>내가 사는 동네와 우리 학교 친구들 사이의 실시간 순위</b>입니다.
+                        </p>
+
+                        <!-- 내 지역 / 학교 하이라이트 배너 -->
+                        <div style="background: rgba(0,0,0,0.3); border-radius: 10px; padding: 12px; margin-bottom: 12px; display: flex; justify-content: space-around; text-align: center;">
+                            <div>
+                                <div style="font-size: 0.7rem; color: #94a3b8;" id="my-ranking-region-name">성남시 분당구</div>
+                                <div style="font-size: 1.1rem; font-weight: 900; color: #fbbf24; margin-top: 2px;" id="my-ranking-region-pos">자습 1위 🥇</div>
+                            </div>
+                            <div style="width: 1px; background: rgba(255,255,255,0.1);"></div>
+                            <div>
+                                <div style="font-size: 0.7rem; color: #94a3b8;" id="my-ranking-school-name">낙생고등학교</div>
+                                <div style="font-size: 1.1rem; font-weight: 900; color: #38bdf8; margin-top: 2px;" id="my-ranking-school-pos">전교 2위 🥈</div>
+                            </div>
+                        </div>
+
+                        <!-- 랭킹 목록 -->
+                        <div style="display: flex; flex-direction: column; gap: 6px;" id="micro-ranking-list">
+                            <!-- 동적 랭킹 렌더링 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3-D: 👑 VIP 1% 블랙 라운지 (폐쇄형 독점 Q&A) -->
+                <div id="p3-blacklounge" class="subtab-view-p3" style="display: none;">
+                    <div class="card" style="background: linear-gradient(135deg, #090d16, #0f172a); border: 1.5px solid #d97706; box-shadow: 0 8px 24px rgba(217, 119, 6, 0.25);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <div style="font-weight: 900; font-size: 1rem; color: #f59e0b; display: flex; align-items: center; gap: 6px;">
+                                <span>👑 상위 1% VIP 블랙 라운지</span>
+                            </div>
+                            <span style="font-size: 0.68rem; background: linear-gradient(135deg, #d97706, #b45309); color: white; padding: 2px 8px; border-radius: 12px; font-weight: 800;">TOP 1% ONLY</span>
+                        </div>
+                        <p style="font-size: 0.76rem; color: #cbd5e1; margin-bottom: 12px; line-height: 1.4;">
+                            주간 연속 자습 상위 1% 수험생과 의치한약수 멘토만 입장할 수 있는 비공개 VIP 전략 라운지입니다.
+                        </p>
+
+                        <!-- 글 작성 폼 -->
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 10px; padding: 10px; margin-bottom: 14px;">
+                            <input type="text" id="black-post-title" class="form-input" placeholder="VIP 라운지 질문/토론 제목" style="font-size: 0.82rem; margin-bottom: 6px;">
+                            <textarea id="black-post-content" class="form-input" style="height: 60px; font-size: 0.8rem; resize: none; margin-bottom: 6px;" placeholder="최상위권 수험생 및 메디컬 튜터에게 조언을 구하세요.."></textarea>
+                            <button class="btn" style="width: 100%; padding: 8px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706); color: #0f172a;" onclick="submitBlackLoungePost()">
+                                ✍️ VIP 라운지에 질문 등록
+                            </button>
+                        </div>
+
+                        <!-- 게시글 목록 -->
+                        <div style="display: flex; flex-direction: column; gap: 6px;" id="black-lounge-posts-container">
+                            <div style="text-align: center; color: #94a3b8; font-size: 0.78rem; padding: 16px;">VIP 게시글을 불러오는 중입니다...</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </main>
 
         <!-- 5. 하단 플로팅 탭바 네비게이션 -->
@@ -1050,16 +1177,44 @@
                     개인정보 & 목표 입시 설정 수정
                 </div>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
-                    <div>
-                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">출신 고교</label>
-                        <input type="text" id="edit-high-school" class="form-input" placeholder="고등학교명">
+                <!-- 💰 금융 인질 성실 보증금 에스크로 현황 카드 -->
+                <div style="background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <span style="font-size: 0.8rem; font-weight: 800; color: #f87171;">🛡️ 성실 보증금 에스크로 (Beeminder)</span>
+                        <span style="font-size: 0.68rem; color: #94a3b8;">미션 실패 시 차감</span>
                     </div>
-                    <div>
-                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">지역</label>
-                        <input type="text" id="edit-region" class="form-input" placeholder="지역 (예: 서울 강남구)">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="font-size: 0.72rem; color: var(--text-secondary);">보증금 잔액:</span>
+                            <strong id="mypage-escrow-deposit" style="color: #4ade80; font-size: 0.95rem; margin-left: 4px;">50,000원</strong>
+                        </div>
+                        <div>
+                            <span style="font-size: 0.72rem; color: var(--text-secondary);">누적 벌금:</span>
+                            <strong id="mypage-escrow-deductions" style="color: #f87171; font-size: 0.95rem; margin-left: 4px;">0원</strong>
+                        </div>
                     </div>
                 </div>
+
+                <div style="margin-bottom: 8px;">
+                    <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">출신 고교</label>
+                    <input type="text" id="edit-high-school" class="form-input" placeholder="고등학교명 검색" list="highschool-datalist">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                    <div>
+                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">시/도</label>
+                        <select id="edit-sido" class="form-input" onchange="onSidoChange('edit-sido', 'edit-sigungu')">
+                            <option value="">시/도 선택</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">시/군/구</label>
+                        <select id="edit-sigungu" class="form-input">
+                            <option value="">시/군/구 선택</option>
+                        </select>
+                    </div>
+                </div>
+                <input type="hidden" id="edit-region">
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
                     <div>
@@ -1524,7 +1679,7 @@
     </div>
     </div>
 
-    <script src="js/app.js?v=58.0"></script>
+    <script src="js/app.js?v=59.0"></script>
     <script>
     // Service Worker Registration
     if ('serviceWorker' in navigator) {
