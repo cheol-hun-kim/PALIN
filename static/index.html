@@ -6,7 +6,7 @@
     <title>PALIN OS - 데이터 기반 행동 통제 범용 OS</title>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=60.0">
+    <link rel="stylesheet" href="css/style.css?v=61.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -285,108 +285,112 @@
 
                     <!-- 아코디언 본체 (접힘/펼침) -->
                     <div id="timetable-accordion-body" style="display: none; padding: 16px;">
-                    </div>
-                    
-                    <!-- 과목 원터치 퀵버튼 바 -->
-                    <div style="margin-bottom: 10px;">
-                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
-                            <span>과목 & 학습시간 선택 후 시간표를 터치하세요:</span>
-                            <span id="quick-subject-selected" style="color: #818cf8; font-weight: 800;">[수학] 2시간</span>
-                        </div>
-                        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;" id="quick-subject-bar">
-                            <button type="button" class="btn quick-sub-btn active" data-subject="수학" onclick="setQuickSubject('수학', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #6366f1; color: white;">수학</button>
-                            <button type="button" class="btn quick-sub-btn" data-subject="국어" onclick="setQuickSubject('국어', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #334155; color: #cbd5e1;">국어</button>
-                            <button type="button" class="btn quick-sub-btn" data-subject="영어" onclick="setQuickSubject('영어', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #334155; color: #cbd5e1;">영어</button>
-                            <button type="button" class="btn quick-sub-btn" data-subject="탐구" onclick="setQuickSubject('탐구', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #334155; color: #cbd5e1;">탐구</button>
-                            <button type="button" class="btn quick-sub-btn" data-subject="자습" onclick="setQuickSubject('자습', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #334155; color: #cbd5e1;">자습</button>
-                            <button type="button" class="btn quick-sub-btn" data-subject="인강" onclick="setQuickSubject('인강', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #334155; color: #cbd5e1;">인강</button>
-                        </div>
-                        <!-- 시간 길이 프리셋 바 -->
-                        <div style="display: flex; gap: 4px; align-items: center;">
-                            <span style="font-size: 0.7rem; color: var(--text-secondary); margin-right: 4px;">시간 길이:</span>
-                            <button type="button" class="btn btn-secondary quick-dur-btn" onclick="setQuickDuration(1.0, this)" style="padding: 2px 8px; font-size: 0.7rem;">1시간</button>
-                            <button type="button" class="btn quick-dur-btn" onclick="setQuickDuration(1.5, this)" style="padding: 2px 8px; font-size: 0.7rem;">1.5시간</button>
-                            <button type="button" class="btn quick-dur-btn active" onclick="setQuickDuration(2.0, this)" style="padding: 2px 8px; font-size: 0.7rem; background: #6366f1; color: white;">2시간</button>
-                            <button type="button" class="btn btn-secondary quick-dur-btn" onclick="setQuickDuration(3.0, this)" style="padding: 2px 8px; font-size: 0.7rem;">3시간</button>
-                        </div>
-                    </div>
-
-                    <form onsubmit="addPlannerBlock(event)" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px;">
-                        <!-- 1행: 요일 및 시간 설정 (커스텀 시계 아이콘 100% 명확 노출) -->
-                        <div style="display: grid; grid-template-columns: 1fr 1.25fr 1.25fr; gap: 8px; align-items: center;">
-                            <div>
-                                <label style="font-size: 0.68rem; color: var(--text-secondary); margin-bottom: 3px; display: block; font-weight: 600;">요일 선택</label>
-                                <select id="plan-day" class="form-input" style="padding: 7px 8px; font-size: 0.82rem; font-weight: 700; width: 100%;">
-                                    <option value="0">월요일</option>
-                                    <option value="1">화요일</option>
-                                    <option value="2">수요일</option>
-                                    <option value="3">목요일</option>
-                                    <option value="4">금요일</option>
-                                    <option value="5">토요일</option>
-                                    <option value="6">일요일</option>
-                                </select>
+                        <!-- 과목 원터치 퀵버튼 바 -->
+                        <div style="margin-bottom: 10px;">
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
+                                <span>과목 & 학습시간 선택 후 시간표를 터치하세요:</span>
+                                <span id="quick-subject-selected" style="color: #818cf8; font-weight: 800;">[수학] 2시간</span>
                             </div>
-                            <div>
-                                <label style="font-size: 0.68rem; color: var(--text-secondary); margin-bottom: 3px; display: block; font-weight: 600;">시작 시간</label>
-                                <div class="time-input-wrapper" onclick="openTimePicker('plan-start')">
-                                    <input type="time" id="plan-start" class="form-input custom-time-input" value="09:00" onchange="syncPlanEndTime()">
-                                    <span class="material-symbols-rounded time-custom-clock-icon">schedule</span>
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;" id="quick-subject-bar">
+                                <button type="button" class="btn quick-sub-btn active" data-subject="수학" onclick="setQuickSubject('수학', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #6366f1; color: white;">수학</button>
+                                <button type="button" class="btn quick-sub-btn" data-subject="국어" onclick="setQuickSubject('국어', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #334155; color: #cbd5e1;">국어</button>
+                                <button type="button" class="btn quick-sub-btn" data-subject="영어" onclick="setQuickSubject('영어', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #334155; color: #cbd5e1;">영어</button>
+                                <button type="button" class="btn quick-sub-btn" data-subject="탐구" onclick="setQuickSubject('탐구', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #334155; color: #cbd5e1;">탐구</button>
+                                <button type="button" class="btn quick-sub-btn" data-subject="자습" onclick="setQuickSubject('자습', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #334155; color: #cbd5e1;">자습</button>
+                                <button type="button" class="btn quick-sub-btn" data-subject="인강" onclick="setQuickSubject('인강', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #334155; color: #cbd5e1;">인강</button>
+                            </div>
+                            <!-- 시간 길이 프리셋 바 -->
+                            <div style="display: flex; gap: 4px; align-items: center;">
+                                <span style="font-size: 0.7rem; color: var(--text-secondary); margin-right: 4px;">시간 길이:</span>
+                                <button type="button" class="btn btn-secondary quick-dur-btn" onclick="setQuickDuration(1.0, this)" style="padding: 2px 8px; font-size: 0.7rem;">1시간</button>
+                                <button type="button" class="btn quick-dur-btn" onclick="setQuickDuration(1.5, this)" style="padding: 2px 8px; font-size: 0.7rem;">1.5시간</button>
+                                <button type="button" class="btn quick-dur-btn active" onclick="setQuickDuration(2.0, this)" style="padding: 2px 8px; font-size: 0.7rem; background: #6366f1; color: white;">2시간</button>
+                                <button type="button" class="btn btn-secondary quick-dur-btn" onclick="setQuickDuration(3.0, this)" style="padding: 2px 8px; font-size: 0.7rem;">3시간</button>
+                            </div>
+                        </div>
+
+                        <form onsubmit="addPlannerBlock(event)" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px;">
+                            <!-- 1행: 요일 및 시간 설정 (커스텀 시계 아이콘 100% 명확 노출) -->
+                            <div style="display: grid; grid-template-columns: 1fr 1.25fr 1.25fr; gap: 6px; align-items: center;">
+                                <div>
+                                    <label style="font-size: 0.68rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">요일 선택</label>
+                                    <select id="plan-day" class="form-input" style="padding: 7px 6px; font-size: 0.78rem; width: 100%;">
+                                        <option value="0">월요일</option>
+                                        <option value="1">화요일</option>
+                                        <option value="2">수요일</option>
+                                        <option value="3">목요일</option>
+                                        <option value="4">금요일</option>
+                                        <option value="5">토요일</option>
+                                        <option value="6">일요일</option>
+                                    </select>
+                                </div>
+                                <div style="position: relative;">
+                                    <label style="font-size: 0.68rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">시작 시간</label>
+                                    <input type="time" id="plan-start-time" class="form-input custom-time-input" value="09:00" style="padding: 7px 26px 7px 6px; font-size: 0.78rem; width: 100%;">
+                                    <span class="material-symbols-rounded time-picker-icon" onclick="openNativeTimePicker('plan-start-time')">schedule</span>
+                                </div>
+                                <div style="position: relative;">
+                                    <label style="font-size: 0.68rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">종료 시간</label>
+                                    <input type="time" id="plan-end-time" class="form-input custom-time-input" value="11:00" style="padding: 7px 26px 7px 6px; font-size: 0.78rem; width: 100%;">
+                                    <span class="material-symbols-rounded time-picker-icon" onclick="openNativeTimePicker('plan-end-time')">schedule</span>
                                 </div>
                             </div>
-                            <div>
-                                <label style="font-size: 0.68rem; color: var(--text-secondary); margin-bottom: 3px; display: block; font-weight: 600;">종료 시간</label>
-                                <div class="time-input-wrapper" onclick="openTimePicker('plan-end')">
-                                    <input type="time" id="plan-end" class="form-input custom-time-input" value="11:00">
-                                    <span class="material-symbols-rounded time-custom-clock-icon">schedule</span>
-                                </div>
+                            <!-- 2행: 계획명 및 추가 버튼 -->
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <input type="text" id="plan-title" class="form-input" placeholder="계획명 (예: 수학 미적분 집중 자습)" required style="flex: 1; padding: 8px 10px; font-size: 0.8rem;">
+                                <button type="submit" class="btn" style="padding: 8px 14px; font-size: 0.8rem; flex-shrink: 0; background: linear-gradient(135deg, var(--color-accent), #4338ca); font-weight: 700;">+ 추가</button>
                             </div>
-                        </div>
-                        <!-- 2행: 계획명 & 추가 버튼 -->
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <input type="text" id="plan-title" class="form-input" style="flex: 1; padding: 8px 12px; font-size: 0.82rem; font-weight: 600;" placeholder="계획명 (예: 수학 미적분 집중 자습)">
-                            <button type="submit" class="btn" style="padding: 8px 18px; font-size: 0.82rem; font-weight: 800; white-space: nowrap; background: linear-gradient(135deg, #6366f1, #4f46e5); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">+ 추가</button>
-                        </div>
-                    </form>
+                        </form>
 
-                    <div class="timetable-container">
-                        <div class="timetable-header">
-                            <div>시간</div>
-                            <div>월</div>
-                            <div>화</div>
-                            <div>수</div>
-                            <div>목</div>
-                            <div>금</div>
-                            <div>토</div>
-                            <div>일</div>
-                        </div>
-                        <div class="timetable-body">
-                            <div class="time-axis">
-                                <div class="time-axis-slot" style="top: 0px;">09:00</div>
-                                <div class="time-axis-slot" style="top: 90px;">12:00</div>
-                                <div class="time-axis-slot" style="top: 180px;">15:00</div>
-                                <div class="time-axis-slot" style="top: 270px;">18:00</div>
-                                <div class="time-axis-slot" style="top: 360px;">21:00</div>
-                                <div class="time-axis-slot" style="top: 432px;">24:00</div>
+                        <!-- 주간 시간표 격자 뷰어 (에브리타임 스타일 06:00~24:00) -->
+                        <div class="timetable-wrapper" style="position: relative; margin-top: 4px; overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid var(--glass-border);">
+                            <div class="timetable-header" style="display: grid; grid-template-columns: 36px repeat(7, 1fr); text-align: center; font-size: 0.7rem; font-weight: 700; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--glass-border); padding: 6px 0;">
+                                <div style="color: var(--text-secondary);">시간</div>
+                                <div>월</div>
+                                <div>화</div>
+                                <div>수</div>
+                                <div>목</div>
+                                <div>금</div>
+                                <div style="color: #60a5fa;">토</div>
+                                <div style="color: #f87171;">일</div>
                             </div>
-                            
-                            <div class="day-column" id="col-day-0"></div>
-                            <div class="day-column" id="col-day-1"></div>
-                            <div class="day-column" id="col-day-2"></div>
-                            <div class="day-column" id="col-day-3"></div>
-                            <div class="day-column" id="col-day-4"></div>
-                            <div class="day-column" id="col-day-5"></div>
-                            <div class="day-column" id="col-day-6"></div>
-                            
-                            <div class="timetable-grid-line" style="top: 90px;"></div>
-                            <div class="timetable-grid-line" style="top: 180px;"></div>
-                            <div class="timetable-grid-line" style="top: 270px;"></div>
-                            <div class="timetable-grid-line" style="top: 360px;"></div>
+                            <div class="timetable-body" id="timetable-grid" style="position: relative; height: 450px; display: grid; grid-template-columns: 36px repeat(7, 1fr);" onclick="handleTimetableGridClick(event)">
+                                <!-- 시간 라벨 (06:00 ~ 24:00, 2시간 간격) -->
+                                <div class="timetable-time-col" style="border-right: 1px solid var(--glass-border); font-size: 0.62rem; color: var(--text-secondary); text-align: center;">
+                                    <div style="height: 50px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-top: 2px;">06:00</div>
+                                    <div style="height: 50px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-top: 2px;">08:00</div>
+                                    <div style="height: 50px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-top: 2px;">10:00</div>
+                                    <div style="height: 50px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-top: 2px;">12:00</div>
+                                    <div style="height: 50px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-top: 2px;">14:00</div>
+                                    <div style="height: 50px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-top: 2px;">16:00</div>
+                                    <div style="height: 50px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-top: 2px;">18:00</div>
+                                    <div style="height: 50px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-top: 2px;">20:00</div>
+                                    <div style="height: 50px; padding-top: 2px;">22:00</div>
+                                </div>
+                                <!-- 7개 요일 컬럼 (클릭 시 블록 자동 생성) -->
+                                <div class="timetable-day-col" data-day="0" style="position: relative; border-right: 1px solid rgba(255,255,255,0.05);"></div>
+                                <div class="timetable-day-col" data-day="1" style="position: relative; border-right: 1px solid rgba(255,255,255,0.05);"></div>
+                                <div class="timetable-day-col" data-day="2" style="position: relative; border-right: 1px solid rgba(255,255,255,0.05);"></div>
+                                <div class="timetable-day-col" data-day="3" style="position: relative; border-right: 1px solid rgba(255,255,255,0.05);"></div>
+                                <div class="timetable-day-col" data-day="4" style="position: relative; border-right: 1px solid rgba(255,255,255,0.05);"></div>
+                                <div class="timetable-day-col" data-day="5" style="position: relative; border-right: 1px solid rgba(255,255,255,0.05);"></div>
+                                <div class="timetable-day-col" data-day="6" style="position: relative;"></div>
+                                
+                                <!-- 가로 점선 보조선 -->
+                                <div class="timetable-grid-line" style="top: 50px;"></div>
+                                <div class="timetable-grid-line" style="top: 100px;"></div>
+                                <div class="timetable-grid-line" style="top: 150px;"></div>
+                                <div class="timetable-grid-line" style="top: 200px;"></div>
+                                <div class="timetable-grid-line" style="top: 250px;"></div>
+                                <div class="timetable-grid-line" style="top: 300px;"></div>
+                                <div class="timetable-grid-line" style="top: 350px;"></div>
+                                <div class="timetable-grid-line" style="top: 400px;"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- 🔒 마이크로 서약 모달 (Noom 모델 - 타이머 시작 전 강제 타이핑 인증) -->
+                <!-- 🔒 마이크로 서약 모달 (Noom 모델 - 타이머 시작 전 강제 타이핑 인증) -->
             <div id="micro-pledge-modal" class="modal" style="display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 10000; position: fixed; inset: 0;">
                 <div class="card" style="width: 90%; max-width: 400px; padding: 20px; border: 1.5px solid #ef4444; background: #0f172a; box-shadow: 0 10px 30px rgba(239,68,68,0.3); text-align: center;">
                     <div style="font-size: 1.8rem; margin-bottom: 8px;">🔥</div>
@@ -1677,9 +1681,8 @@
             </form>
         </div>
     </div>
-    </div>
 
-    <script src="js/app.js?v=60.0"></script>
+    <script src="js/app.js?v=61.0"></script>
     <script>
     // Service Worker Registration
     if ('serviceWorker' in navigator) {
