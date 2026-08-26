@@ -1443,6 +1443,20 @@ def get_high_schools_data():
 
 # === 🧠 원장님 전용 AI 지식 증강 스튜디오 & 칼럼 학습 API ===
 
+class WhiteLabelPayload(BaseModel):
+    cheolhoon_enabled: bool
+
+@app.get("/api/admin/system/white-label")
+def get_white_label_status():
+    return {"cheolhoon_enabled": ai.is_cheolhoon_enabled()}
+
+@app.post("/api/admin/system/white-label")
+def update_white_label_status(payload: WhiteLabelPayload):
+    ok = ai.set_cheolhoon_enabled(payload.cheolhoon_enabled)
+    if not ok:
+        raise HTTPException(status_code=500, detail="화이트라벨 설정 저장 실패")
+    return {"status": "ok", "cheolhoon_enabled": payload.cheolhoon_enabled}
+
 class KnowledgePayload(BaseModel):
     title: str
     category: str = "입시철학"
