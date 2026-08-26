@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PALIN OS - 원장 전용 중앙 관제 대시보드</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=58.0">
+    <link rel="stylesheet" href="css/style.css?v=59.0">
     <style>
         body {
             background-color: #06070a;
@@ -238,13 +238,50 @@
         </div>
     </div>
 
-    <!-- 학생 불편사항 & 아이디어 피드 -->
-    <div class="kpi-card" style="margin-bottom: 20px; border: 1px solid rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.03);">
-        <div class="section-title" style="color: #f59e0b;">
-            <span class="material-symbols-rounded">feedback</span>
-            학생 불편사항 & 개선 아이디어 실시간 수신함
+    <!-- 🧠 원장님 전용 실시간 AI 지식 증강 스튜디오 (Knowledge Studio) -->
+    <div class="kpi-card" style="margin-bottom: 20px; border: 1.5px solid #818cf8; background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.04));">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div class="section-title" style="color: #a5b4fc; margin: 0;">
+                <span class="material-symbols-rounded">psychology</span>
+                🧠 원장 전용 AI 지식 증강 스튜디오 (김철훈 뇌에 새로운 칼럼·지도철학 추가 학습)
+            </div>
+            <span style="font-size: 0.72rem; background: #6366f1; color: white; padding: 3px 8px; border-radius: 10px; font-weight: 800;">LIVE KNOWLEDGE</span>
         </div>
-        <div id="feedback-feed" style="display: flex; flex-direction: column; gap: 8px;">
+        <p style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 12px; line-height: 1.4;">
+            원장님이 새로운 입시 칼럼, 과목별 공부법, 상담 팁을 입력하시면 <b>기존 김철훈 철학 및 수험생 백서 위에 실시간으로 결합</b>되어 AI 챗봇이 더욱 똑똑하게 수험생들을 지도합니다.
+        </p>
+        <form onsubmit="handleAddAdminKnowledge(event)" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
+            <div style="display: grid; grid-template-columns: 140px 1fr; gap: 8px;">
+                <select id="know-cat" class="form-input" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 8px;">
+                    <option value="입시철학">🎯 입시 철학</option>
+                    <option value="국어공부법">📖 국어 공부법</option>
+                    <option value="수시정시전략">📊 수시/정시 전략</option>
+                    <option value="멘탈통제">🔥 멘탈/생활 통제</option>
+                </select>
+                <input type="text" id="know-title" placeholder="칼럼/지침 제목 (예: 6월 모평 이후 국어 독서 킬러 지문 격파법)" required style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 12px; border-radius: 8px;">
+            </div>
+            <textarea id="know-content" placeholder="원장님의 실전 지도 지침, 칼럼 본문, 학생들에게 해주고 싶은 조언을 상세히 입력하세요..." required style="height: 90px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 12px; border-radius: 8px; font-size: 0.82rem; resize: none;"></textarea>
+            <button type="submit" class="btn" style="padding: 10px; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5);">+ 원장 지식 AI 뇌에 즉시 주입·학습</button>
+        </form>
+        <div style="font-size: 0.82rem; font-weight: 700; color: #a5b4fc; margin-bottom: 6px;">현재 AI 뇌에 추가 탑재된 원장 지식 목록</div>
+        <div id="admin-knowledge-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto;"></div>
+    </div>
+
+    <!-- 학생 불편사항 & 아이디어 피드 (전체 보기 / 스크롤 뷰) -->
+    <div class="kpi-card" style="margin-bottom: 20px; border: 1px solid rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.03);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+            <div class="section-title" style="color: #f59e0b; margin: 0;">
+                <span class="material-symbols-rounded">feedback</span>
+                학생 불편사항 & 개선 아이디어 수신함 (전체 보존)
+            </div>
+            <!-- 필터 버튼 -->
+            <div style="display: flex; gap: 4px;">
+                <button type="button" class="btn fb-filter-btn active" onclick="loadAdminFeedbacks('전체', this)" style="padding: 4px 8px; font-size: 0.72rem;">전체</button>
+                <button type="button" class="btn btn-secondary fb-filter-btn" onclick="loadAdminFeedbacks('접수됨', this)" style="padding: 4px 8px; font-size: 0.72rem; color: #f59e0b;">접수됨</button>
+                <button type="button" class="btn btn-secondary fb-filter-btn" onclick="loadAdminFeedbacks('완료', this)" style="padding: 4px 8px; font-size: 0.72rem; color: #10b981;">처리완료</button>
+            </div>
+        </div>
+        <div id="feedback-feed" style="display: flex; flex-direction: column; gap: 8px; max-height: 420px; overflow-y: auto; padding-right: 4px;">
             <div style="color: #94a3b8; font-size: 0.85rem;">로딩중...</div>
         </div>
     </div>
@@ -268,29 +305,41 @@
         <div id="admin-notices-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
     </div>
 
-    <!-- 📚 기출문제 & 수험자료 업로드 및 관리 (국/수/영/탐) -->
+    <!-- 📚 기출문제 & 수험자료 업로드 및 관리 (문제지 & 정답지 분리 업로드) -->
     <div class="kpi-card" style="margin-bottom: 20px; border: 1px solid rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.04);">
         <div class="section-title" style="color: #818cf8;">
             <span class="material-symbols-rounded">upload_file</span>
-            📚 기출문제 & 수험자료실 파일 업로드 및 관리 (국어·수학·영어·탐구)
+            📚 기출문제 & 수험자료실 파일 업로드 (문제지 및 정답/해설지 분리 지원)
         </div>
         <div style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 12px;">
-            원장님이 PDF, HWP 문제지나 해설지 파일을 업로드하시면 학생들의 <b>[2페이지 > 기출문제 자료실]</b>에 즉시 과목별로 노출되어 무료 다운로드할 수 있습니다.
+            문제지와 정답·해설지(PDF 또는 이미지)를 각각 분리 업로드하시면 학생들의 <b>[2페이지 > 기출자료실]</b>에 다운로드 버튼이 개별 노출됩니다.
         </div>
-        <form onsubmit="handleUploadMaterial(event)" style="display: grid; grid-template-columns: 110px 1.5fr 1fr 1fr auto; gap: 8px; margin-bottom: 12px;" class="responsive-form-grid" id="material-upload-form">
-            <select id="mat-subject" class="form-input" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 8px;" required>
-                <option value="국어" style="background:#1e293b;">📖 국어</option>
-                <option value="수학" selected style="background:#1e293b;">📐 수학</option>
-                <option value="영어" style="background:#1e293b;">🔤 영어</option>
-                <option value="탐구" style="background:#1e293b;">🔬 탐구</option>
-                <option value="논술" style="background:#1e293b;">✍️ 논술</option>
-                <option value="경찰·사관" style="background:#1e293b;">🎖️ 경찰·사관</option>
-                <option value="기타" style="background:#1e293b;">📄 기타</option>
-            </select>
-            <input type="text" id="mat-title" placeholder="자료명 (예: 2026학년도 6월 모평 수학 공통+선택)" required style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 12px; border-radius: 8px;">
-            <input type="text" id="mat-desc" placeholder="상세 설명 (예: 킬러 문항 손글씨 해설 포함)" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 12px; border-radius: 8px;">
-            <input type="file" id="mat-file" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px; border-radius: 8px; font-size: 0.8rem;">
-            <button type="submit" id="mat-upload-btn" class="btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 700; padding: 10px 18px; border-radius: 8px; white-space: nowrap;">자료 등록</button>
+        <form onsubmit="handleUploadMaterial(event)" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;" id="material-upload-form">
+            <div style="display: grid; grid-template-columns: 100px 110px 1.5fr 1fr; gap: 8px;">
+                <input type="number" id="mat-year" value="2027" placeholder="학년도" required style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 12px; border-radius: 8px; font-weight: 700;">
+                <select id="mat-subject" class="form-input" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 8px;" required>
+                    <option value="국어" style="background:#1e293b;">📖 국어</option>
+                    <option value="수학" selected style="background:#1e293b;">📐 수학</option>
+                    <option value="영어" style="background:#1e293b;">🔤 영어</option>
+                    <option value="과탐" style="background:#1e293b;">🔬 과탐</option>
+                    <option value="사탐" style="background:#1e293b;">🌏 사탐</option>
+                    <option value="논술" style="background:#1e293b;">✍️ 논술</option>
+                    <option value="기타" style="background:#1e293b;">📄 기타</option>
+                </select>
+                <input type="text" id="mat-title" placeholder="자료명 (예: 2027학년도 6월 모평 수학 공통+미적분)" required style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 12px; border-radius: 8px;">
+                <input type="text" id="mat-desc" placeholder="상세 설명 (예: 킬러 문항 손글씨 해설 포함)" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 12px; border-radius: 8px;">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px;">
+                <div>
+                    <label style="font-size: 0.72rem; color: #94a3b8; display: block; margin-bottom: 2px;">📖 문제지 파일 (PDF/HWP)</label>
+                    <input type="file" id="mat-file" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px; border-radius: 8px; font-size: 0.78rem; width: 100%;">
+                </div>
+                <div>
+                    <label style="font-size: 0.72rem; color: #94a3b8; display: block; margin-bottom: 2px;">📝 정답 및 해설지 파일 (PDF 또는 이미지)</label>
+                    <input type="file" id="mat-answer-file" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px; border-radius: 8px; font-size: 0.78rem; width: 100%;">
+                </div>
+                <button type="submit" id="mat-upload-btn" class="btn" style="align-self: flex-end; background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 700; padding: 10px 20px; border-radius: 8px; white-space: nowrap;">자료 등록</button>
+            </div>
         </form>
         <div id="admin-materials-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
     </div>
@@ -584,45 +633,9 @@
                     const topCount = (lCounts.PLATINUM || 0) + (lCounts.GOLD || 0);
                     document.getElementById("stat-top-league").innerText = `${topCount}명`;
                     loadAdminSMSSettings();
+                    loadAdminKnowledge();
+                    loadAdminFeedbacks("전체");
                 } catch (e) { console.warn("KPI error:", e); }
-
-                // 2. 건의사항 수신함
-                try {
-                    const fFeed = document.getElementById("feedback-feed");
-                    if (fFeed) {
-                        fFeed.innerHTML = "";
-                        if (!data.recent_feedbacks || data.recent_feedbacks.length === 0) {
-                            fFeed.innerHTML = "<div style='color:#94a3b8; font-size:0.85rem;'>수신된 건의사항이 없습니다.</div>";
-                        } else {
-                            data.recent_feedbacks.forEach(fb => {
-                                const div = document.createElement("div");
-                                div.style.cssText = "padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);";
-                                const isDone = fb.status === "완료";
-                                const statusBadge = isDone 
-                                    ? "<span style='color:#10b981; font-weight:700;'>[완료]</span>" 
-                                    : "<span style='color:#f59e0b; font-weight:700;'>[접수됨]</span>";
-                                const actionBtn = !isDone 
-                                    ? `<button onclick="updateFeedbackStatus(${fb.id}, '완료')" class="btn" style="padding: 4px 10px; font-size: 0.75rem; background: #10b981; margin-left: auto;">✅ 완료 처리</button>`
-                                    : `<span style="font-size: 0.75rem; color: #10b981;">처리 완료</span>`;
-
-                                div.innerHTML = `
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                        <div>
-                                            ${statusBadge} <span style="font-weight: 700; color: #fcd34d;">[${fb.category}]</span> 
-                                            <span style="font-weight: 700; color: #f8fafc;">${fb.student_name}</span> (${fb.user_email || "이메일미입력"})
-                                        </div>
-                                        <div style="display: flex; gap: 8px; align-items: center;">
-                                            <span style="font-size: 0.75rem; color: #94a3b8;">${fb.created_at}</span>
-                                            ${actionBtn}
-                                        </div>
-                                    </div>
-                                    <div style="font-size: 0.85rem; color: #cbd5e1; white-space: pre-wrap; line-height: 1.4;">${fb.content}</div>
-                                `;
-                                fFeed.appendChild(div);
-                            });
-                        }
-                    }
-                } catch (e) { console.warn("Feedback feed error:", e); }
 
                 // 3. 🎓 과외선생님 승인 대기 수신함
                 try {
@@ -1367,25 +1380,153 @@
             }
         }
 
-        // === 📚 기출문제 & 수험자료 관리 스크립트 ===
+        // === 🧠 원장 AI 지식 증강 스튜디오 관리 스크립트 ===
+        async function loadAdminKnowledge() {
+            try {
+                const res = await fetch("/api/admin/knowledge");
+                if (res.ok) {
+                    const items = await res.json();
+                    const container = document.getElementById("admin-knowledge-list");
+                    if (!container) return;
+                    container.innerHTML = "";
+                    if (items.length === 0) {
+                        container.innerHTML = "<div style='color:#94a3b8; font-size:0.78rem;'>추가 등록된 원장 지식이 없습니다. (기본 백서로 동작 중)</div>";
+                    } else {
+                        items.forEach(k => {
+                            container.innerHTML += `
+                                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:8px 12px; border-radius:8px; font-size:0.8rem; gap:10px; border:1px solid rgba(255,255,255,0.06);">
+                                    <div style="flex:1; min-width:0; line-height:1.4;">
+                                        <span style="color:#a5b4fc; font-weight:700;">[${k.category}]</span> 
+                                        <b>${k.title}</b>
+                                        <span style="font-size:0.7rem; color:#64748b; margin-left:6px;">(${k.created_at})</span>
+                                    </div>
+                                    <button onclick="deleteAdminKnowledge(${k.id})" class="btn" style="padding:3px 8px; font-size:0.72rem; background:#ef4444; color:white; border-radius:6px; flex-shrink:0;">삭제</button>
+                                </div>
+                            `;
+                        });
+                    }
+                }
+            } catch (e) {
+                console.warn("Knowledge load error:", e);
+            }
+        }
+
+        async function handleAddAdminKnowledge(e) {
+            e.preventDefault();
+            const cat = document.getElementById("know-cat").value;
+            const title = document.getElementById("know-title").value.trim();
+            const content = document.getElementById("know-content").value.trim();
+            if (!title || !content) return;
+
+            try {
+                const res = await fetch("/api/admin/knowledge", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ category: cat, title: title, content: content })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert("🧠 새로운 원장 지식이 AI 챗봇 뇌에 실시간으로 성공적으로 학습되었습니다!");
+                    document.getElementById("know-title").value = "";
+                    document.getElementById("know-content").value = "";
+                    loadAdminKnowledge();
+                } else {
+                    alert(data.detail || "지식 주입 실패");
+                }
+            } catch (err) {
+                alert("지식 등록 중 오류 발생");
+            }
+        }
+
+        async function deleteAdminKnowledge(id) {
+            if (!confirm("해당 지식을 AI 뇌에서 삭제하시겠습니까?")) return;
+            try {
+                await fetch(`/api/admin/knowledge/${id}`, { method: "DELETE" });
+                loadAdminKnowledge();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // === 📝 건의사항 전체 목록 (필터링 & 페이징 지원) ===
+        async function loadAdminFeedbacks(filter = "전체", btnEl = null) {
+            if (btnEl) {
+                document.querySelectorAll(".fb-filter-btn").forEach(b => {
+                    b.classList.remove("active");
+                    b.classList.add("btn-secondary");
+                });
+                btnEl.classList.add("active");
+                btnEl.classList.remove("btn-secondary");
+            }
+            try {
+                const url = filter === "전체" ? "/api/admin/feedbacks" : `/api/admin/feedbacks?status_filter=${encodeURIComponent(filter)}`;
+                const res = await fetch(url);
+                if (res.ok) {
+                    const feedbacks = await res.json();
+                    const fFeed = document.getElementById("feedback-feed");
+                    if (!fFeed) return;
+                    fFeed.innerHTML = "";
+                    if (feedbacks.length === 0) {
+                        fFeed.innerHTML = "<div style='color:#94a3b8; font-size:0.85rem;'>해당 조건의 건의사항이 없습니다.</div>";
+                    } else {
+                        feedbacks.forEach(fb => {
+                            const div = document.createElement("div");
+                            div.style.cssText = "padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);";
+                            const isDone = fb.status === "완료";
+                            const statusBadge = isDone 
+                                ? "<span style='color:#10b981; font-weight:700;'>[완료]</span>" 
+                                : "<span style='color:#f59e0b; font-weight:700;'>[접수됨]</span>";
+                            const actionBtn = !isDone 
+                                ? `<button onclick="updateFeedbackStatus(${fb.id}, '완료')" class="btn" style="padding: 4px 10px; font-size: 0.75rem; background: #10b981; margin-left: auto;">✅ 완료 처리</button>`
+                                : `<span style="font-size: 0.75rem; color: #10b981; font-weight: 700;">처리 완료</span>`;
+
+                            div.innerHTML = `
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <div>
+                                        ${statusBadge} <span style="font-weight: 700; color: #fcd34d;">[${fb.category}]</span> 
+                                        <span style="font-weight: 700; color: #f8fafc;">${fb.student_name}</span> (${fb.user_email || "이메일미입력"})
+                                    </div>
+                                    <div style="display: flex; gap: 8px; align-items: center;">
+                                        <span style="font-size: 0.75rem; color: #94a3b8;">${fb.created_at}</span>
+                                        ${actionBtn}
+                                    </div>
+                                </div>
+                                <div style="font-size: 0.85rem; color: #cbd5e1; white-space: pre-wrap; line-height: 1.4;">${fb.content}</div>
+                            `;
+                            fFeed.appendChild(div);
+                        });
+                    }
+                }
+            } catch (e) {
+                console.warn("Feedback load error:", e);
+            }
+        }
+
+        // === 📚 기출문제 & 수험자료 관리 스크립트 (문제지 & 답지 분리) ===
         async function handleUploadMaterial(e) {
             e.preventDefault();
+            const year = parseInt(document.getElementById("mat-year").value) || 2027;
             const subject = document.getElementById("mat-subject").value;
             const title = document.getElementById("mat-title").value.trim();
             const desc = document.getElementById("mat-desc").value.trim();
             const fileInput = document.getElementById("mat-file");
+            const answerFileInput = document.getElementById("mat-answer-file");
             const btn = document.getElementById("mat-upload-btn");
 
             if (!fileInput.files || fileInput.files.length === 0) {
-                alert("업로드할 파일을 선택해 주세요 (PDF, HWP, ZIP 등).");
+                alert("문제지 파일을 선택해 주세요 (PDF, HWP 등).");
                 return;
             }
 
             const formData = new FormData();
+            formData.append("year", year);
             formData.append("subject", subject);
             formData.append("title", title);
             formData.append("description", desc);
             formData.append("file", fileInput.files[0]);
+            if (answerFileInput.files && answerFileInput.files.length > 0) {
+                formData.append("answer_file", answerFileInput.files[0]);
+            }
 
             btn.disabled = true;
             btn.innerText = "업로드 중...";
@@ -1397,10 +1538,11 @@
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    alert("📚 기출자료가 성공적으로 업로드되어 학생 자료실에 노출됩니다!");
+                    alert("📚 기출문제 및 정답지가 성공적으로 등록되었습니다!");
                     document.getElementById("mat-title").value = "";
                     document.getElementById("mat-desc").value = "";
                     fileInput.value = "";
+                    answerFileInput.value = "";
                     loadAdminMaterials();
                 } else {
                     alert(data.detail || "업로드 실패");
@@ -1409,6 +1551,10 @@
                 console.error(e);
                 alert("파일 업로드 중 오류가 발생했습니다.");
             } finally {
+                btn.disabled = false;
+                btn.innerText = "자료 등록";
+            }
+        }
                 btn.disabled = false;
                 btn.innerText = "자료 등록";
             }
