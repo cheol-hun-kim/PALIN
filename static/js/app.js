@@ -12,9 +12,14 @@ let isDistracted = false;
 let chatHistory = []; // AI 챗봇 대화 기록
 
 // --- 앱 초기화 및 로딩 ---
+let REGIONS_DATA = {};
+let HIGHSCHOOLS_DATA = [];
+
 document.addEventListener("DOMContentLoaded", async () => {
     initPALINThemeEngine();
     await fetchUnivData();
+    await loadRegionsData();
+    await loadHighSchoolsData();
     checkAuth();
     setupEventListeners();
     setupDistractionDetection();
@@ -25,6 +30,70 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("header-streak-badge")?.addEventListener("click", openStreakModal);
     document.getElementById("theme-toggle-btn")?.addEventListener("click", togglePALINTheme);
 });
+
+async function loadRegionsData() {
+    try {
+        const res = await fetch("/api/data/regions");
+        if (res.ok) {
+            REGIONS_DATA = await res.json();
+            populateSidoOptions("reg-sido");
+            populateSidoOptions("edit-sido");
+        }
+    } catch (e) { console.warn("Regions load error:", e); }
+}
+
+function populateSidoOptions(selectId) {
+    const el = document.getElementById(selectId);
+    if (!el) return;
+    el.innerHTML = '<option value="" disabled selected>시/도 선택</option>';
+    Object.keys(REGIONS_DATA).forEach(sido => {
+        el.innerHTML += `<option value="${sido}">${sido}</option>`;
+    });
+}
+
+function onSidoChange(sidoSelectId, sigunguSelectId, defaultSigungu = "") {
+    const sido = document.getElementById(sidoSelectId)?.value;
+    const sigunguEl = document.getElementById(sigunguSelectId);
+    if (!sigunguEl || !sido) return;
+    
+    const sigungus = REGIONS_DATA[sido] || [];
+    sigunguEl.innerHTML = '<option value="" disabled selected>시/군/구 선택</option>';
+    sigungus.forEach(sg => {
+        const isSelected = sg === defaultSigungu ? "selected" : "";
+        sigunguEl.innerHTML += `<option value="${sg}" ${isSelected}>${sg}</option>`;
+    });
+}
+
+async function loadHighSchoolsData() {
+    try {
+        const res = await fetch("/api/data/high-schools");
+        if (res.ok) {
+            HIGHSCHOOLS_DATA = await res.json();
+            const dl = document.getElementById("highschool-datalist");
+            if (dl) {
+                dl.innerHTML = "";
+                HIGHSCHOOLS_DATA.forEach(hs => {
+                    dl.innerHTML += `<option value="${hs.name}">[${hs.type}] ${hs.region || ''}</option>`;
+                });
+            }
+        }
+    } catch (e) { console.warn("High schools load error:", e); }
+}
+
+// 📱 아코디언 드롭다운 토글 제어 엔진
+function toggleAccordion(bodyId, iconId) {
+    const body = document.getElementById(bodyId);
+    const icon = document.getElementById(iconId);
+    if (!body) return;
+    
+    if (body.style.display === "none" || !body.style.display) {
+        body.style.display = "block";
+        if (icon) icon.style.transform = "rotate(180deg)";
+    } else {
+        body.style.display = "none";
+        if (icon) icon.style.transform = "rotate(0deg)";
+    }
+}
 
 // PALIN OS 타임라인 기반 자동 테마 전환 엔진 (06시~21시: 데이 모드, 21시~06시: 딥 블랙 야간 모드)
 function initPALINThemeEngine() {
@@ -268,13 +337,18 @@ async function handleRegister(e) {
         return;
     }
 
+    const sidoVal = document.getElementById("reg-sido")?.value || "경기도";
+    const sigunguVal = document.getElementById("reg-sigungu")?.value || "성남시 분당구";
+    const fullRegion = `${sidoVal} ${sigunguVal}`.trim();
+    const schoolName = document.getElementById("reg-school")?.value || "낙생고등학교";
+
     const payload = {
         email: document.getElementById("reg-email").value,
         name: document.getElementById("reg-name").value,
         phone: document.getElementById("reg-phone").value,
         grade: parseInt(document.getElementById("reg-grade").value),
-        region: document.getElementById("reg-region").value,
-        high_school: document.getElementById("reg-school").value,
+        region: fullRegion,
+        high_school: schoolName,
         target_univ: `${targetUniv} ${targetDept}`,
         baseline_univ: `${baselineUniv} ${baselineDept}`,
         parent_name: document.getElementById("reg-pname").value,
@@ -630,13 +704,28 @@ function openMyPageModal() {
     updateHeaderUI();
     if (currentStudent) {
         document.getElementById("edit-high-school").value = currentStudent.high_school || "";
-        document.getElementById("edit-region").value = currentStudent.region || "";
+        
+        // 지역 (시도 / 시군구 분리 바인딩)
+        const curRegion = currentStudent.region || "경기도 성남시 분당구";
+        const rParts = curRegion.split(" ");
+        const curSido = rParts[0] || "경기도";
+        const curSigungu = rParts.slice(1).join(" ") || "성남시 분당구";
+        
+        const sidoEl = document.getElementById("edit-sido");
+        if (sidoEl) {
+            sidoEl.value = curSido;
+            onSidoChange("edit-sido", "edit-sigungu", curSigungu);
+        }
+        
         document.getElementById("edit-grade").value = currentStudent.grade !== undefined ? currentStudent.grade : "3";
         document.getElementById("edit-medical-symbol").value = currentStudent.medical_symbol || "GENERAL";
         document.getElementById("edit-dday-title").value = currentStudent.dday_title || "2027 수능";
         document.getElementById("edit-dday-date").value = currentStudent.dday_date || "2026-11-19";
         document.getElementById("edit-wake-time").value = currentStudent.wake_target_time || "06:30";
         document.getElementById("edit-sleep-time").value = currentStudent.sleep_target_time || "23:30";
+
+        // 금융 인질 에스크로 잔액 조회
+        fetchEscrowStatus(currentStudent.id);
 
         // 대학 드롭다운 초기화
         setupUnivDeptSelectors("edit-target-univ-select", "edit-target-dept-select");
@@ -652,7 +741,9 @@ function closeMyPageModal() {
 async function saveStudentProfileSettings() {
     if (!currentStudent) return;
     const highSchool = document.getElementById("edit-high-school").value.trim();
-    const region = document.getElementById("edit-region").value.trim();
+    const editSido = document.getElementById("edit-sido")?.value || "경기도";
+    const editSigungu = document.getElementById("edit-sigungu")?.value || "성남시 분당구";
+    const region = `${editSido} ${editSigungu}`.trim();
     const grade = parseInt(document.getElementById("edit-grade").value);
     const medicalSymbol = document.getElementById("edit-medical-symbol").value;
     const ddayTitle = document.getElementById("edit-dday-title").value.trim();
@@ -856,10 +947,17 @@ function switchSubTabPage2(subTab) {
 function switchSubTabPage3(subTab) {
     activeSubTabPage3 = subTab;
     document.querySelectorAll(".subtab-view-p3").forEach(el => el.style.display = "none");
-    document.getElementById(`p3-${subTab}`).style.display = "block";
+    const targetEl = document.getElementById(`p3-${subTab}`);
+    if (targetEl) targetEl.style.display = "block";
 
     document.querySelectorAll("#p3-tabs .tab-btn").forEach(el => el.classList.remove("active"));
-    document.querySelector(`#p3-tabs .tab-btn[data-sub="${subTab}"]`).classList.add("active");
+    document.querySelector(`#p3-tabs .tab-btn[data-sub="${subTab}"]`)?.classList.add("active");
+
+    if (subTab === "ranking") {
+        loadMicroRankings();
+    } else if (subTab === "blacklounge") {
+        loadBlackLoungePosts();
+    }
 }
 
 // 신규: 과외선생님 ⇄ 학생 역할 전환 토글
@@ -1403,12 +1501,66 @@ async function verifyMission(type, triggerFail = false) {
     }
 }
 
-async function toggleTimer() {
+// 🔒 마이크로 결의 서약 모달 제어
+function requestStartTimer() {
     if (isTimerRunning) {
         stopTimerForcefully(false);
+        return;
+    }
+    const modal = document.getElementById("micro-pledge-modal");
+    const input = document.getElementById("pledge-input-text");
+    if (modal) {
+        if (input) input.value = "";
+        modal.style.display = "flex";
+        setTimeout(() => input?.focus(), 100);
     } else {
         startTimer();
     }
+}
+
+function closeMicroPledgeModal() {
+    const modal = document.getElementById("micro-pledge-modal");
+    if (modal) modal.style.display = "none";
+}
+
+async function submitMicroPledge() {
+    const input = document.getElementById("pledge-input-text");
+    const textVal = (input?.value || "").trim();
+    if (!textVal) {
+        alert("서약 문구를 입력해 주세요.");
+        return;
+    }
+
+    if (!currentStudent) {
+        alert("로그인이 필요합니다.");
+        return;
+    }
+
+    try {
+        const res = await fetch("/api/timer/pledge", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: currentStudent.id,
+                pledge_text: textVal
+            })
+        });
+
+        if (!res.ok) {
+            const err = await res.json();
+            alert(err.detail || "서약 문구가 일치하지 않습니다.");
+            return;
+        }
+
+        closeMicroPledgeModal();
+        startTimer();
+    } catch (e) {
+        alert("서약 처리 중 오류가 발생했습니다.");
+    }
+}
+
+async function toggleTimer() {
+    requestStartTimer();
 }
 
 async function startTimer() {
@@ -1496,7 +1648,21 @@ async function stopTimerForcefully(triggeredByDistraction = false) {
         const session = await res.json();
         
         if (triggeredByDistraction) {
-            alert(`⚠️ 집중 중 딴짓이 기록되었습니다. 포인트가 지급되지 않으며 학부모님께 즉시 문자가 발송되었습니다.`);
+            try {
+                const whRes = await fetch("/api/timer/webhook-distraction", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        student_id: currentStudent.id,
+                        event_type: "DISTRACTION_DETECTED",
+                        details: "공부 타이머 실행 중 타 앱 전환(딴짓) 감지"
+                    })
+                });
+                const whData = await whRes.json();
+                alert(`⚠️ 집중 중 딴짓이 감지되었습니다!\n성실 보증금 1,000원이 차감되었으며 학부모님께 긴급 경고 문자가 발송되었습니다.`);
+            } catch (whErr) {
+                alert(`⚠️ 집중 중 딴짓이 기록되었습니다. 포인트가 지급되지 않으며 학부모님께 즉시 문자가 발송되었습니다.`);
+            }
         } else {
             const displayMin = Math.floor((session.duration_sec || finalSeconds) / 60);
             alert(`⏱️ 정상 공부 완료! ${displayMin}분간 정성껏 집중하여 공부 시간이 안전하게 기록되었습니다.`);
@@ -1673,8 +1839,9 @@ async function runPrediction() {
     const hist = parseInt(document.getElementById('pred-hist').value);
     const tam1 = parseFloat(document.getElementById('pred-tam1').value);
     const tam2 = parseFloat(document.getElementById('pred-tam2').value);
-    const mathType = document.getElementById('pred-math-type').value;
-    const gyeyeol = document.getElementById('pred-gyeyeol').value;
+    const mathType = document.getElementById('pred-math-type')?.value || '미적';
+    const tam1Type = document.getElementById('pred-tam1-type')?.value || '과탐';
+    const tam2Type = document.getElementById('pred-tam2-type')?.value || '과탐';
     
     if (isNaN(kor) || isNaN(math) || isNaN(eng) || isNaN(tam1) || isNaN(tam2) || isNaN(hist)) {
         alert('모든 성적을 입력해주세요.');
@@ -1683,7 +1850,7 @@ async function runPrediction() {
     
     // Show loading
     document.getElementById('predict-result').style.display = 'block';
-    document.getElementById('pred-results-list').innerHTML = '<div style="text-align:center; padding: 20px;">분석 중...</div>';
+    document.getElementById('pred-results-list').innerHTML = '<div style="text-align:center; padding: 20px;">사탐/과탐 교차지원 및 대학별 환산점수 계산 중...</div>';
     
     try {
         const res = await fetch('/api/ai/predict', {
@@ -1697,7 +1864,8 @@ async function runPrediction() {
                 tam2_pct: tam2,
                 hist_raw: hist,
                 math_type: mathType,
-                gyeyeol: gyeyeol,
+                tam1_type: tam1Type,
+                tam2_type: tam2Type,
                 target_univ: '',
                 target_dept: ''
             })
@@ -2626,26 +2794,57 @@ async function submitStudentFeedback() {
 // === 📚 기출문제 및 수험자료실 프론트엔드 연동 ===
 let currentExamSubject = "전체";
 
+let currentExamSubject = "전체";
+let currentExamYear = 0;
+
+function switchExamSubject(subject, btnEl) {
+    currentExamSubject = subject;
+    document.querySelectorAll(".exam-subj-btn").forEach(b => {
+        b.classList.remove("active");
+        b.classList.add("btn-secondary");
+    });
+    if (btnEl) {
+        btnEl.classList.add("active");
+        btnEl.classList.remove("btn-secondary");
+    }
+    loadExamMaterials();
+}
+
+function switchExamYear(year, btnEl) {
+    currentExamYear = parseInt(year) || 0;
+    document.querySelectorAll(".exam-year-btn").forEach(b => {
+        b.classList.remove("active");
+        b.classList.add("btn-secondary");
+    });
+    if (btnEl) {
+        btnEl.classList.add("active");
+        btnEl.classList.remove("btn-secondary");
+    }
+    loadExamMaterials();
+}
+
 function onExamSubjectSelectChange(subject) {
     currentExamSubject = subject;
-    loadExamMaterials(subject);
+    loadExamMaterials();
 }
 
 async function filterExamMaterials(subject, btnEl) {
-    currentExamSubject = subject;
-    const selectEl = document.getElementById("exam-subject-select");
-    if (selectEl) {
-        selectEl.value = subject;
-    }
-    loadExamMaterials(subject);
+    switchExamSubject(subject, btnEl);
 }
 
-async function loadExamMaterials(subject = currentExamSubject) {
+async function loadExamMaterials() {
     const container = document.getElementById("exam-materials-container");
     if (!container) return;
     
     try {
-        const url = subject && subject !== "전체" ? `/api/materials?subject=${encodeURIComponent(subject)}` : "/api/materials";
+        let params = [];
+        if (currentExamSubject && currentExamSubject !== "전체") {
+            params.push(`subject=${encodeURIComponent(currentExamSubject)}`);
+        }
+        if (currentExamYear && currentExamYear !== 0) {
+            params.push(`year=${currentExamYear}`);
+        }
+        const url = params.length > 0 ? `/api/materials?${params.join("&")}` : "/api/materials";
         const res = await fetch(url);
         if (!res.ok) {
             container.innerHTML = `<div style="text-align: center; color: var(--text-secondary); padding: 20px;">자료를 불러오지 못했습니다.</div>`;
@@ -2656,7 +2855,7 @@ async function loadExamMaterials(subject = currentExamSubject) {
             container.innerHTML = `
                 <div style="text-align: center; color: var(--text-secondary); padding: 30px 10px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px dashed rgba(255,255,255,0.08);">
                     <span class="material-symbols-rounded" style="font-size: 2rem; color: #64748b; margin-bottom: 6px;">folder_open</span>
-                    <div style="font-size: 0.85rem; font-weight: 600;">등록된 [${subject}] 자료가 없습니다.</div>
+                    <div style="font-size: 0.85rem; font-weight: 600;">선택하신 조건의 기출 자료가 없습니다.</div>
                     <div style="font-size: 0.72rem; margin-top: 4px;">원장님이 새로운 기출자료를 업로드하면 실시간 노출됩니다.</div>
                 </div>
             `;
@@ -2669,25 +2868,35 @@ async function loadExamMaterials(subject = currentExamSubject) {
                 "국어": { bg: "rgba(239, 68, 68, 0.15)", color: "#f87171", icon: "📖" },
                 "수학": { bg: "rgba(99, 102, 241, 0.15)", color: "#818cf8", icon: "📐" },
                 "영어": { bg: "rgba(16, 185, 129, 0.15)", color: "#34d399", icon: "🔤" },
-                "탐구": { bg: "rgba(245, 158, 11, 0.15)", color: "#fbbf24", icon: "🔬" },
-                "논술": { bg: "rgba(168, 85, 247, 0.15)", color: "#c084fc", icon: "✍️" },
-                "경찰·사관": { bg: "rgba(59, 130, 246, 0.15)", color: "#60a5fa", icon: "🎖️" }
+                "과탐": { bg: "rgba(245, 158, 11, 0.15)", color: "#fbbf24", icon: "🔬" },
+                "사탐": { bg: "rgba(59, 130, 246, 0.15)", color: "#60a5fa", icon: "🌏" },
+                "논술": { bg: "rgba(168, 85, 247, 0.15)", color: "#c084fc", icon: "✍️" }
             };
             const badgeInfo = subjectBadges[m.subject] || { bg: "rgba(255,255,255,0.1)", color: "#e2e8f0", icon: "📄" };
             
+            const hasAnswer = !!m.answer_file_url;
+            const answerBtn = hasAnswer ? `
+                <a href="/api/materials/${m.id}/download-answer" target="_blank" download class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.75rem; font-weight: 700; color: #10b981 !important; border-color: #10b981; border-radius: 8px; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
+                    <span>📝</span> 정답/해설
+                </a>
+            ` : '';
+
             container.innerHTML += `
-                <div class="material-card" style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                <div class="material-card" style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
                     <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
                             <span style="background: ${badgeInfo.bg}; color: ${badgeInfo.color}; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 800;">${badgeInfo.icon} ${m.subject}</span>
-                            ${m.year ? `<span style="font-size: 0.7rem; color: var(--text-secondary);">${m.year}년도</span>` : ''}
+                            ${m.year ? `<span style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">${m.year}학년도</span>` : ''}
                         </div>
                         <div class="material-title" style="font-size: 0.88rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.title}</div>
                         ${m.description ? `<div class="material-desc" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.description}</div>` : ''}
                     </div>
-                    <a href="/api/materials/${m.id}/download" target="_blank" download class="btn" style="padding: 7px 14px; font-size: 0.78rem; font-weight: 700; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white !important; text-decoration: none; border-radius: 8px; white-space: nowrap; flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25);">
-                        <span>📥</span> 다운로드
-                    </a>
+                    <div style="display: flex; gap: 6px; flex-shrink: 0; align-items: center;">
+                        <a href="/api/materials/${m.id}/download" target="_blank" download class="btn" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 700; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white !important; text-decoration: none; border-radius: 8px; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
+                            <span>📖</span> 문제지
+                        </a>
+                        ${answerBtn}
+                    </div>
                 </div>
             `;
         });
@@ -3321,4 +3530,144 @@ async function requestTutorMatch(tutorId) {
         console.error(e);
         alert("서버 연결 실패");
     }
+}
+
+// ==========================================
+// 🏆 8. 마이크로 지역/고교 랭킹 리더보드 (Strava 모델)
+// ==========================================
+
+async function loadMicroRankings() {
+    const listEl = document.getElementById("micro-ranking-list");
+    if (!listEl) return;
+    
+    const myRegion = currentStudent?.region || "성남시 분당구";
+    const mySchool = currentStudent?.high_school || "낙생고등학교";
+    
+    document.getElementById("my-ranking-region-name").innerText = myRegion;
+    document.getElementById("my-ranking-school-name").innerText = mySchool;
+    
+    // 시뮬레이션 및 실시간 랭킹 목록 렌더링
+    const dummyRankers = [
+        { rank: 1, name: currentStudent?.name || "나", school: mySchool, region: myRegion, studyHours: "14시간 20분", streak: 18, isMe: true },
+        { rank: 2, name: "이*준", school: mySchool, region: myRegion, studyHours: "13시간 50분", streak: 14, isMe: false },
+        { rank: 3, name: "박*우", school: "분당대진고", region: myRegion, studyHours: "12시간 40분", streak: 12, isMe: false },
+        { rank: 4, name: "최*진", school: "서현고", region: myRegion, studyHours: "11시간 10분", streak: 9, isMe: false },
+        { rank: 5, name: "정*원", school: "중앙고", region: myRegion, studyHours: "10시간 30분", streak: 8, isMe: false }
+    ];
+    
+    listEl.innerHTML = "";
+    dummyRankers.forEach(r => {
+        const medal = r.rank === 1 ? "🥇" : (r.rank === 2 ? "🥈" : (r.rank === 3 ? "🥉" : `${r.rank}위`));
+        const bg = r.isMe ? "rgba(234, 179, 8, 0.15)" : "rgba(255,255,255,0.03)";
+        const border = r.isMe ? "1.5px solid #eab308" : "1px solid rgba(255,255,255,0.06)";
+        
+        listEl.innerHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: ${bg}; border-radius: 8px; border: ${border};">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-weight: 800; font-size: 0.95rem; min-width: 24px;">${medal}</span>
+                    <div>
+                        <div style="font-weight: 700; font-size: 0.85rem; color: #ffffff;">
+                            ${r.name} ${r.isMe ? '<span style="font-size:0.68rem; background:#eab308; color:#000; padding:1px 6px; border-radius:8px; font-weight:800; margin-left:4px;">ME</span>' : ''}
+                        </div>
+                        <div style="font-size: 0.72rem; color: var(--text-secondary);">${r.school} · ${r.region}</div>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.82rem; font-weight: 800; color: #fbbf24;">${r.studyHours}</div>
+                    <div style="font-size: 0.68rem; color: #34d399;">연속 ${r.streak}일 달성 🔥</div>
+                </div>
+            </div>
+        `;
+    });
+}
+
+// ==========================================
+// 👑 9. VIP 1% 블랙 라운지
+// ==========================================
+
+async function loadBlackLoungePosts() {
+    const container = document.getElementById("black-lounge-posts-container");
+    if (!container) return;
+    
+    try {
+        const res = await fetch("/api/black-lounge/posts");
+        if (res.ok) {
+            const posts = await res.json();
+            container.innerHTML = "";
+            if (posts.length === 0) {
+                container.innerHTML = "<div style='text-align:center; color:#94a3b8; font-size:0.8rem; padding:16px;'>등록된 VIP 게시글이 없습니다. 첫 질문을 남겨보세요!</div>";
+            } else {
+                posts.forEach(p => {
+                    container.innerHTML += `
+                        <div style="padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(217, 119, 6, 0.25);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <div style="font-weight: 800; font-size: 0.85rem; color: #f59e0b;">${p.title}</div>
+                                <span style="font-size: 0.7rem; color: #64748b;">${p.created_at}</span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: #e2e8f0; line-height: 1.45; white-space: pre-wrap; margin-bottom: 6px;">${p.content}</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: var(--text-secondary);">
+                                <span>✍️ ${p.author_name} (${p.author_univ_target || '의치한약수/SKY 목표'})</span>
+                                <span style="color: #fbbf24; font-weight: 700;">멘토 피드백 대기중 💬</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+    } catch (e) {
+        console.warn(e);
+    }
+}
+
+async function submitBlackLoungePost() {
+    const title = document.getElementById("black-post-title")?.value.trim();
+    const content = document.getElementById("black-post-content")?.value.trim();
+    if (!title || !content) {
+        alert("제목과 내용을 모두 입력해 주세요.");
+        return;
+    }
+    if (!currentStudent) {
+        alert("로그인이 필요합니다.");
+        return;
+    }
+
+    try {
+        const res = await fetch("/api/black-lounge/posts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: currentStudent.id,
+                title: title,
+                content: content
+            })
+        });
+        if (res.ok) {
+            alert("👑 VIP 블랙 라운지에 질문이 등록되었습니다!");
+            document.getElementById("black-post-title").value = "";
+            document.getElementById("black-post-content").value = "";
+            loadBlackLoungePosts();
+        } else {
+            const err = await res.json();
+            alert(err.detail || "작성 실패");
+        }
+    } catch (e) {
+        alert("서버 통신 오류");
+    }
+}
+
+// ==========================================
+// 🛡️ 10. 금융 인질 에스크로 잔액 조회
+// ==========================================
+
+async function fetchEscrowStatus(studentId) {
+    try {
+        const res = await fetch(`/api/escrow/status/${studentId}`);
+        if (res.ok) {
+            const data = await res.json();
+            const depEl = document.getElementById("mypage-escrow-deposit");
+            const dedEl = document.getElementById("mypage-escrow-deductions");
+            if (depEl) depEl.innerText = `${(data.escrow_deposit || 50000).toLocaleString()}원`;
+            if (dedEl) dedEl.innerText = `${(data.escrow_deductions || 0).toLocaleString()}원`;
+        }
+    } catch (e) { console.warn("Escrow status error:", e); }
 }
