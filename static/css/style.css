@@ -422,25 +422,27 @@ main::-webkit-scrollbar {
 
 
 /* 에브리타임 스타일 주간 시간표(Timetable) 디자인 */
+/* 에브리타임 스타일 주간 시간표(Timetable) 디자인 */
 .timetable-container {
     position: relative;
-    border: 1px solid var(--glass-border);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
     border-radius: 12px;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(15, 23, 42, 0.6);
     overflow: hidden;
     margin-top: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
 .timetable-header {
     display: grid;
     grid-template-columns: 45px repeat(7, 1fr);
-    background: rgba(255, 255, 255, 0.04);
-    border-bottom: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.08);
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.15);
     text-align: center;
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 6px 0;
-    color: var(--text-secondary);
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 8px 0;
+    color: #e2e8f0;
 }
 
 .timetable-body {
@@ -454,30 +456,30 @@ main::-webkit-scrollbar {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    border-right: 1px solid var(--glass-border);
-    font-size: 0.65rem;
-    color: var(--text-secondary);
+    border-right: 1.5px solid rgba(255, 255, 255, 0.15);
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #94a3b8;
     text-align: center;
     padding: 4px 0;
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.25);
 }
 
 .day-column {
     position: relative;
-    border-right: 1px solid rgba(255, 255, 255, 0.04);
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
     height: 100%;
+    cursor: pointer;
+    background-image: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 0px, rgba(255, 255, 255, 0.08) 1px, transparent 1px, transparent 30px);
+    transition: background-color 0.15s ease;
+}
+
+.day-column:hover {
+    background-color: rgba(99, 102, 241, 0.08);
 }
 
 .day-column:last-child {
     border-right: none;
-}
-
-.timetable-grid-line {
-    position: absolute;
-    left: 45px;
-    right: 0;
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.03);
-    pointer-events: none;
 }
 
 .timetable-block {
@@ -487,16 +489,17 @@ main::-webkit-scrollbar {
     border-radius: 6px;
     padding: 4px;
     font-size: 0.68rem;
-    font-weight: 600;
+    font-weight: 700;
     color: white;
     overflow: hidden;
     text-overflow: ellipsis;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    border-left: 3px solid rgba(255, 255, 255, 0.4);
+    border-left: 3px solid rgba(255, 255, 255, 0.6);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     transition: var(--transition-smooth);
+    z-index: 2;
 }
 
 .timetable-block:hover {
@@ -506,7 +509,7 @@ main::-webkit-scrollbar {
 
 .timetable-block .block-title {
     font-size: 0.68rem;
-    font-weight: 700;
+    font-weight: 800;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -514,19 +517,26 @@ main::-webkit-scrollbar {
 
 .timetable-block .block-time {
     font-size: 0.58rem;
-    opacity: 0.8;
+    opacity: 0.9;
+    font-weight: 600;
 }
 
 .timetable-block .btn-delete-block {
     position: absolute;
     right: 2px;
     top: 2px;
-    background: transparent;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border: none;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.9);
     font-size: 0.75rem;
     cursor: pointer;
-    opacity: 0;
+    opacity: 0.8;
     transition: var(--transition-smooth);
 }
 
@@ -535,13 +545,41 @@ main::-webkit-scrollbar {
 }
 
 /* 주간 시간표 컬러 팔레트 */
-.color-0 { background-color: rgba(99, 102, 241, 0.8); } /* Indigo */
-.color-1 { background-color: rgba(16, 185, 129, 0.8); } /* Emerald */
-.color-2 { background-color: rgba(245, 158, 11, 0.8); } /* Amber */
-.color-3 { background-color: rgba(139, 92, 246, 0.8); } /* Violet */
-.color-4 { background-color: rgba(236, 72, 153, 0.8); } /* Pink */
-.color-5 { background-color: rgba(20, 184, 166, 0.8); } /* Teal */
-.color-6 { background-color: rgba(239, 68, 68, 0.8); }  /* Rose */
+.color-0 { background-color: rgba(99, 102, 241, 0.9); } /* Indigo */
+.color-1 { background-color: rgba(16, 185, 129, 0.9); } /* Emerald */
+.color-2 { background-color: rgba(245, 158, 11, 0.9); } /* Amber */
+.color-3 { background-color: rgba(139, 92, 246, 0.9); } /* Violet */
+.color-4 { background-color: rgba(236, 72, 153, 0.9); } /* Pink */
+.color-5 { background-color: rgba(20, 184, 166, 0.9); } /* Teal */
+.color-6 { background-color: rgba(239, 68, 68, 0.9); }  /* Rose */
+
+/* 라이트 모드 (Day mode) 시간표 고대비 스타일 */
+body.day-mode .timetable-container {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+}
+
+body.day-mode .timetable-header {
+    background: #f8fafc !important;
+    border-bottom: 1.5px solid #cbd5e1 !important;
+    color: #1e293b !important;
+}
+
+body.day-mode .time-axis {
+    background: #f1f5f9 !important;
+    border-right: 1.5px solid #cbd5e1 !important;
+    color: #475569 !important;
+}
+
+body.day-mode .day-column {
+    border-right: 1px solid #e2e8f0 !important;
+    background-image: repeating-linear-gradient(to bottom, #e2e8f0 0px, #e2e8f0 1px, transparent 1px, transparent 30px) !important;
+}
+
+body.day-mode .day-column:hover {
+    background-color: rgba(99, 102, 241, 0.06) !important;
+}
 
 
 /* 2페이지: 학습공간 */
