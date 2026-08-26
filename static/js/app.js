@@ -1183,11 +1183,16 @@ async function loadTimetable() {
             const startParts = block.start_time.split(":");
             const endParts = block.end_time.split(":");
             
-            const startHour = parseInt(startParts[0]) + parseInt(startParts[1])/60;
-            const endHour = parseInt(endParts[0]) + parseInt(endParts[1])/60;
+            let startHour = parseInt(startParts[0], 10) + (parseInt(startParts[1], 10) || 0)/60;
+            let endHour = parseInt(endParts[0], 10) + (parseInt(endParts[1], 10) || 0)/60;
             
-            const topPx = (startHour - 9) * 30;
-            const heightPx = (endHour - startHour) * 30;
+            // 09:00 ~ 24:00 범위 보정 (시간표 이탈 방지)
+            if (startHour < 9) startHour = 9;
+            if (endHour > 24) endHour = 24;
+            if (endHour <= startHour) endHour = startHour + 1;
+            
+            const topPx = Math.max(0, Math.min(430, (startHour - 9) * 30));
+            const heightPx = Math.max(22, Math.min(450 - topPx, (endHour - startHour) * 30));
             
             const colorClass = `color-${index % 7}`;
 
@@ -1198,7 +1203,7 @@ async function loadTimetable() {
             blockEl.innerHTML = `
                 <div class="block-title">${block.title}</div>
                 <div class="block-time">${block.start_time}~${block.end_time}</div>
-                <button class="btn-delete-block" onclick="deletePlannerBlock(event, ${block.id})">&times;</button>
+                <button class="btn-delete-block" title="계획 삭제" onclick="deletePlannerBlock(event, ${block.id})">&times;</button>
             `;
             col.appendChild(blockEl);
 
