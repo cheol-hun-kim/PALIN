@@ -297,14 +297,1242 @@ const DEFAULT_REGIONS_DATA = {
   ]
 };
 let REGIONS_DATA = DEFAULT_REGIONS_DATA;
-let HIGHSCHOOLS_DATA = [];
+const DEFAULT_HIGHSCHOOLS_DATA = [
+  {
+    "name": "휘문고등학교",
+    "sido": "서울특별시",
+    "sigungu": "강남구",
+    "type": "자사고"
+  },
+  {
+    "name": "중동고등학교",
+    "sido": "서울특별시",
+    "sigungu": "강남구",
+    "type": "자사고"
+  },
+  {
+    "name": "단국대학교사범대학부속고등학교",
+    "sido": "서울특별시",
+    "sigungu": "강남구",
+    "type": "일반고"
+  },
+  {
+    "name": "경기고등학교",
+    "sido": "서울특별시",
+    "sigungu": "강남구",
+    "type": "일반고"
+  },
+  {
+    "name": "개포고등학교",
+    "sido": "서울특별시",
+    "sigungu": "강남구",
+    "type": "일반고"
+  },
+  {
+    "name": "압구정고등학교",
+    "sido": "서울특별시",
+    "sigungu": "강남구",
+    "type": "일반고"
+  },
+  {
+    "name": "중산고등학교",
+    "sido": "서울특별시",
+    "sigungu": "강남구",
+    "type": "일반고"
+  },
+  {
+    "name": "숙명여자고등학교",
+    "sido": "서울특별시",
+    "sigungu": "강남구",
+    "type": "일반고"
+  },
+  {
+    "name": "은광여자고등학교",
+    "sido": "서울특별시",
+    "sigungu": "강남구",
+    "type": "일반고"
+  },
+  {
+    "name": "진선여자고등학교",
+    "sido": "서울특별시",
+    "sigungu": "강남구",
+    "type": "일반고"
+  },
+  {
+    "name": "경기여자고등학교",
+    "sido": "서울특별시",
+    "sigungu": "강남구",
+    "type": "일반고"
+  },
+  {
+    "name": "서울고등학교",
+    "sido": "서울특별시",
+    "sigungu": "서초구",
+    "type": "일반고"
+  },
+  {
+    "name": "상문고등학교",
+    "sido": "서울특별시",
+    "sigungu": "서초구",
+    "type": "일반고"
+  },
+  {
+    "name": "세화고등학교",
+    "sido": "서울특별시",
+    "sigungu": "서초구",
+    "type": "자사고"
+  },
+  {
+    "name": "세화여자고등학교",
+    "sido": "서울특별시",
+    "sigungu": "서초구",
+    "type": "자사고"
+  },
+  {
+    "name": "반포고등학교",
+    "sido": "서울특별시",
+    "sigungu": "서초구",
+    "type": "일반고"
+  },
+  {
+    "name": "서초고등학교",
+    "sido": "서울특별시",
+    "sigungu": "서초구",
+    "type": "일반고"
+  },
+  {
+    "name": "동덕여자고등학교",
+    "sido": "서울특별시",
+    "sigungu": "서초구",
+    "type": "일반고"
+  },
+  {
+    "name": "보성고등학교",
+    "sido": "서울특별시",
+    "sigungu": "송파구",
+    "type": "자사고"
+  },
+  {
+    "name": "배명고등학교",
+    "sido": "서울특별시",
+    "sigungu": "송파구",
+    "type": "일반고"
+  },
+  {
+    "name": "잠실고등학교",
+    "sido": "서울특별시",
+    "sigungu": "송파구",
+    "type": "일반고"
+  },
+  {
+    "name": "잠신고등학교",
+    "sido": "서울특별시",
+    "sigungu": "송파구",
+    "type": "일반고"
+  },
+  {
+    "name": "정신여자고등학교",
+    "sido": "서울특별시",
+    "sigungu": "송파구",
+    "type": "일반고"
+  },
+  {
+    "name": "창덕여자고등학교",
+    "sido": "서울특별시",
+    "sigungu": "송파구",
+    "type": "일반고"
+  },
+  {
+    "name": "한영고등학교",
+    "sido": "서울특별시",
+    "sigungu": "강동구",
+    "type": "일반고"
+  },
+  {
+    "name": "한영외국어고등학교",
+    "sido": "서울특별시",
+    "sigungu": "강동구",
+    "type": "외고"
+  },
+  {
+    "name": "배재고등학교",
+    "sido": "서울특별시",
+    "sigungu": "강동구",
+    "type": "자사고"
+  },
+  {
+    "name": "명일여자고등학교",
+    "sido": "서울특별시",
+    "sigungu": "강동구",
+    "type": "일반고"
+  },
+  {
+    "name": "강서고등학교",
+    "sido": "서울특별시",
+    "sigungu": "양천구",
+    "type": "일반고"
+  },
+  {
+    "name": "양정고등학교",
+    "sido": "서울특별시",
+    "sigungu": "양천구",
+    "type": "자사고"
+  },
+  {
+    "name": "신목고등학교",
+    "sido": "서울특별시",
+    "sigungu": "양천구",
+    "type": "일반고"
+  },
+  {
+    "name": "목동고등학교",
+    "sido": "서울특별시",
+    "sigungu": "양천구",
+    "type": "일반고"
+  },
+  {
+    "name": "진명여자고등학교",
+    "sido": "서울특별시",
+    "sigungu": "양천구",
+    "type": "일반고"
+  },
+  {
+    "name": "대일고등학교",
+    "sido": "서울특별시",
+    "sigungu": "강서구",
+    "type": "일반고"
+  },
+  {
+    "name": "명덕고등학교",
+    "sido": "서울특별시",
+    "sigungu": "강서구",
+    "type": "일반고"
+  },
+  {
+    "name": "명덕외국어고등학교",
+    "sido": "서울특별시",
+    "sigungu": "강서구",
+    "type": "외고"
+  },
+  {
+    "name": "구리고등학교",
+    "sido": "서울특별시",
+    "sigungu": "구로구",
+    "type": "일반고"
+  },
+  {
+    "name": "구로고등학교",
+    "sido": "서울특별시",
+    "sigungu": "구로구",
+    "type": "일반고"
+  },
+  {
+    "name": "여의도고등학교",
+    "sido": "서울특별시",
+    "sigungu": "영등포구",
+    "type": "일반고"
+  },
+  {
+    "name": "여의도여자고등학교",
+    "sido": "서울특별시",
+    "sigungu": "영등포구",
+    "type": "일반고"
+  },
+  {
+    "name": "장훈고등학교",
+    "sido": "서울특별시",
+    "sigungu": "영등포구",
+    "type": "일반고"
+  },
+  {
+    "name": "숭의여자고등학교",
+    "sido": "서울특별시",
+    "sigungu": "동작구",
+    "type": "일반고"
+  },
+  {
+    "name": "성남고등학교",
+    "sido": "서울특별시",
+    "sigungu": "동작구",
+    "type": "일반고"
+  },
+  {
+    "name": "미림여자고등학교",
+    "sido": "서울특별시",
+    "sigungu": "관악구",
+    "type": "일반고"
+  },
+  {
+    "name": "남강고등학교",
+    "sido": "서울특별시",
+    "sigungu": "관악구",
+    "type": "일반고"
+  },
+  {
+    "name": "서울과학고등학교",
+    "sido": "서울특별시",
+    "sigungu": "종로구",
+    "type": "영재학교"
+  },
+  {
+    "name": "중앙고등학교",
+    "sido": "서울특별시",
+    "sigungu": "종로구",
+    "type": "자사고"
+  },
+  {
+    "name": "경복고등학교",
+    "sido": "서울특별시",
+    "sigungu": "종로구",
+    "type": "일반고"
+  },
+  {
+    "name": "이화여자외국어고등학교",
+    "sido": "서울특별시",
+    "sigungu": "중구",
+    "type": "외고"
+  },
+  {
+    "name": "이화여자고등학교",
+    "sido": "서울특별시",
+    "sigungu": "중구",
+    "type": "자사고"
+  },
+  {
+    "name": "용산고등학교",
+    "sido": "서울특별시",
+    "sigungu": "용산구",
+    "type": "일반고"
+  },
+  {
+    "name": "오산고등학교",
+    "sido": "서울특별시",
+    "sigungu": "용산구",
+    "type": "일반고"
+  },
+  {
+    "name": "한양대학교사범대학부속고등학교",
+    "sido": "서울특별시",
+    "sigungu": "성동구",
+    "type": "자사고"
+  },
+  {
+    "name": "대원외국어고등학교",
+    "sido": "서울특별시",
+    "sigungu": "광진구",
+    "type": "외고"
+  },
+  {
+    "name": "대원고등학교",
+    "sido": "서울특별시",
+    "sigungu": "광진구",
+    "type": "일반고"
+  },
+  {
+    "name": "대원여자고등학교",
+    "sido": "서울특별시",
+    "sigungu": "광진구",
+    "type": "일반고"
+  },
+  {
+    "name": "경희고등학교",
+    "sido": "서울특별시",
+    "sigungu": "동대문구",
+    "type": "자사고"
+  },
+  {
+    "name": "대광고등학교",
+    "sido": "서울특별시",
+    "sigungu": "동대문구",
+    "type": "자사고"
+  },
+  {
+    "name": "중계고등학교",
+    "sido": "서울특별시",
+    "sigungu": "노원구",
+    "type": "일반고"
+  },
+  {
+    "name": "서라벌고등학교",
+    "sido": "서울특별시",
+    "sigungu": "노원구",
+    "type": "일반고"
+  },
+  {
+    "name": "대진고등학교",
+    "sido": "서울특별시",
+    "sigungu": "노원구",
+    "type": "일반고"
+  },
+  {
+    "name": "대진여자고등학교",
+    "sido": "서울특별시",
+    "sigungu": "노원구",
+    "type": "일반고"
+  },
+  {
+    "name": "재현고등학교",
+    "sido": "서울특별시",
+    "sigungu": "노원구",
+    "type": "일반고"
+  },
+  {
+    "name": "선덕고등학교",
+    "sido": "서울특별시",
+    "sigungu": "도봉구",
+    "type": "자사고"
+  },
+  {
+    "name": "정의여자고등학교",
+    "sido": "서울특별시",
+    "sigungu": "도봉구",
+    "type": "일반고"
+  },
+  {
+    "name": "신일고등학교",
+    "sido": "서울특별시",
+    "sigungu": "강북구",
+    "type": "자사고"
+  },
+  {
+    "name": "대일외국어고등학교",
+    "sido": "서울특별시",
+    "sigungu": "성북구",
+    "type": "외고"
+  },
+  {
+    "name": "하나고등학교",
+    "sido": "서울특별시",
+    "sigungu": "은평구",
+    "type": "자사고"
+  },
+  {
+    "name": "숭실고등학교",
+    "sido": "서울특별시",
+    "sigungu": "은평구",
+    "type": "일반고"
+  },
+  {
+    "name": "이화여자대학교사범대학부속이화금란고등학교",
+    "sido": "서울특별시",
+    "sigungu": "서대문구",
+    "type": "자사고"
+  },
+  {
+    "name": "한성고등학교",
+    "sido": "서울특별시",
+    "sigungu": "서대문구",
+    "type": "일반고"
+  },
+  {
+    "name": "서울외국어고등학교",
+    "sido": "서울특별시",
+    "sigungu": "도봉구",
+    "type": "외고"
+  },
+  {
+    "name": "낙생고등학교",
+    "sido": "경기도",
+    "sigungu": "성남시 분당구",
+    "type": "일반고"
+  },
+  {
+    "name": "서현고등학교",
+    "sido": "경기도",
+    "sigungu": "성남시 분당구",
+    "type": "일반고"
+  },
+  {
+    "name": "분당대진고등학교",
+    "sido": "경기도",
+    "sigungu": "성남시 분당구",
+    "type": "일반고"
+  },
+  {
+    "name": "분당중앙고등학교",
+    "sido": "경기도",
+    "sigungu": "성남시 분당구",
+    "type": "일반고"
+  },
+  {
+    "name": "분당고등학교",
+    "sido": "경기도",
+    "sigungu": "성남시 분당구",
+    "type": "일반고"
+  },
+  {
+    "name": "수내고등학교",
+    "sido": "경기도",
+    "sigungu": "성남시 분당구",
+    "type": "일반고"
+  },
+  {
+    "name": "보평고등학교",
+    "sido": "경기도",
+    "sigungu": "성남시 분당구",
+    "type": "일반고"
+  },
+  {
+    "name": "판교고등학교",
+    "sido": "경기도",
+    "sigungu": "성남시 분당구",
+    "type": "일반고"
+  },
+  {
+    "name": "운중고등학교",
+    "sido": "경기도",
+    "sigungu": "성남시 분당구",
+    "type": "일반고"
+  },
+  {
+    "name": "태원고등학교",
+    "sido": "경기도",
+    "sigungu": "성남시 분당구",
+    "type": "일반고"
+  },
+  {
+    "name": "이매고등학교",
+    "sido": "경기도",
+    "sigungu": "성남시 분당구",
+    "type": "일반고"
+  },
+  {
+    "name": "야탑고등학교",
+    "sido": "경기도",
+    "sigungu": "성남시 분당구",
+    "type": "일반고"
+  },
+  {
+    "name": "돌마고등학교",
+    "sido": "경기도",
+    "sigungu": "성남시 분당구",
+    "type": "일반고"
+  },
+  {
+    "name": "불곡고등학교",
+    "sido": "경기도",
+    "sigungu": "성남시 분당구",
+    "type": "일반고"
+  },
+  {
+    "name": "구미고등학교",
+    "sido": "경기도",
+    "sigungu": "성남시 분당구",
+    "type": "일반고"
+  },
+  {
+    "name": "늘푸른고등학교",
+    "sido": "경기도",
+    "sigungu": "성남시 분당구",
+    "type": "일반고"
+  },
+  {
+    "name": "송림고등학교",
+    "sido": "경기도",
+    "sigungu": "성남시 분당구",
+    "type": "일반고"
+  },
+  {
+    "name": "영덕여자고등학교",
+    "sido": "경기도",
+    "sigungu": "성남시 분당구",
+    "type": "일반고"
+  },
+  {
+    "name": "성남외국어고등학교",
+    "sido": "경기도",
+    "sigungu": "성남시 분당구",
+    "type": "외고"
+  },
+  {
+    "name": "용인한국외국어대학교부설고등학교 (외대부고)",
+    "sido": "경기도",
+    "sigungu": "용인시 처인구",
+    "type": "자사고"
+  },
+  {
+    "name": "수지고등학교",
+    "sido": "경기도",
+    "sigungu": "용인시 수지구",
+    "type": "일반고"
+  },
+  {
+    "name": "풍덕고등학교",
+    "sido": "경기도",
+    "sigungu": "용인시 수지구",
+    "type": "일반고"
+  },
+  {
+    "name": "보정고등학교",
+    "sido": "경기도",
+    "sigungu": "용인시 기흥구",
+    "type": "일반고"
+  },
+  {
+    "name": "동백고등학교",
+    "sido": "경기도",
+    "sigungu": "용인시 기흥구",
+    "type": "일반고"
+  },
+  {
+    "name": "경기과학고등학교",
+    "sido": "경기도",
+    "sigungu": "수원시 장안구",
+    "type": "영재학교"
+  },
+  {
+    "name": "수원외국어고등학교",
+    "sido": "경기도",
+    "sigungu": "수원시 영통구",
+    "type": "외고"
+  },
+  {
+    "name": "유신고등학교",
+    "sido": "경기도",
+    "sigungu": "수원시 팔달구",
+    "type": "일반고"
+  },
+  {
+    "name": "창현고등학교",
+    "sido": "경기도",
+    "sigungu": "수원시 팔달구",
+    "type": "일반고"
+  },
+  {
+    "name": "화성고등학교",
+    "sido": "경기도",
+    "sigungu": "화성시",
+    "type": "일반고"
+  },
+  {
+    "name": "동탄국제고등학교",
+    "sido": "경기도",
+    "sigungu": "화성시",
+    "type": "국제고"
+  },
+  {
+    "name": "신성고등학교",
+    "sido": "경기도",
+    "sigungu": "안양시 만안구",
+    "type": "일반고"
+  },
+  {
+    "name": "안양외국어고등학교",
+    "sido": "경기도",
+    "sigungu": "안양시 만안구",
+    "type": "외고"
+  },
+  {
+    "name": "백영고등학교",
+    "sido": "경기도",
+    "sigungu": "안양시 동안구",
+    "type": "일반고"
+  },
+  {
+    "name": "평촌고등학교",
+    "sido": "경기도",
+    "sigungu": "안양시 동안구",
+    "type": "일반고"
+  },
+  {
+    "name": "고양국제고등학교",
+    "sido": "경기도",
+    "sigungu": "고양시 일산동구",
+    "type": "국제고"
+  },
+  {
+    "name": "고양외국어고등학교",
+    "sido": "경기도",
+    "sigungu": "고양시 덕양구",
+    "type": "외고"
+  },
+  {
+    "name": "백석고등학교",
+    "sido": "경기도",
+    "sigungu": "고양시 일산동구",
+    "type": "일반고"
+  },
+  {
+    "name": "운정고등학교",
+    "sido": "경기도",
+    "sigungu": "파주시",
+    "type": "일반고"
+  },
+  {
+    "name": "청심국제고등학교",
+    "sido": "경기도",
+    "sigungu": "가평군",
+    "type": "국제고"
+  },
+  {
+    "name": "김포외국어고등학교",
+    "sido": "경기도",
+    "sigungu": "김포시",
+    "type": "외고"
+  },
+  {
+    "name": "인천하늘고등학교",
+    "sido": "인천광역시",
+    "sigungu": "중구",
+    "type": "자사고"
+  },
+  {
+    "name": "인천포스코고등학교",
+    "sido": "인천광역시",
+    "sigungu": "연수구",
+    "type": "자사고"
+  },
+  {
+    "name": "인천과학예술영재학교",
+    "sido": "인천광역시",
+    "sigungu": "연수구",
+    "type": "영재학교"
+  },
+  {
+    "name": "인천국제고등학교",
+    "sido": "인천광역시",
+    "sigungu": "중구",
+    "type": "국제고"
+  },
+  {
+    "name": "인천외국어고등학교",
+    "sido": "인천광역시",
+    "sigungu": "부평구",
+    "type": "외고"
+  },
+  {
+    "name": "송도고등학교",
+    "sido": "인천광역시",
+    "sigungu": "연수구",
+    "type": "일반고"
+  },
+  {
+    "name": "인천고등학교",
+    "sido": "인천광역시",
+    "sigungu": "미추홀구",
+    "type": "일반고"
+  },
+  {
+    "name": "제물포고등학교",
+    "sido": "인천광역시",
+    "sigungu": "중구",
+    "type": "일반고"
+  },
+  {
+    "name": "한국과학영재학교",
+    "sido": "부산광역시",
+    "sigungu": "부산진구",
+    "type": "영재학교"
+  },
+  {
+    "name": "부산과학고등학교",
+    "sido": "부산광역시",
+    "sigungu": "금정구",
+    "type": "과학고"
+  },
+  {
+    "name": "해운대고등학교",
+    "sido": "부산광역시",
+    "sigungu": "해운대구",
+    "type": "자사고"
+  },
+  {
+    "name": "부산외국어고등학교",
+    "sido": "부산광역시",
+    "sigungu": "연제구",
+    "type": "외고"
+  },
+  {
+    "name": "부산국제고등학교",
+    "sido": "부산광역시",
+    "sigungu": "부산진구",
+    "type": "국제고"
+  },
+  {
+    "name": "동래고등학교",
+    "sido": "부산광역시",
+    "sigungu": "동래구",
+    "type": "일반고"
+  },
+  {
+    "name": "센텀고등학교",
+    "sido": "부산광역시",
+    "sigungu": "해운대구",
+    "type": "일반고"
+  },
+  {
+    "name": "남성여자고등학교",
+    "sido": "부산광역시",
+    "sigungu": "중구",
+    "type": "일반고"
+  },
+  {
+    "name": "대구과학고등학교",
+    "sido": "대구광역시",
+    "sigungu": "수성구",
+    "type": "영재학교"
+  },
+  {
+    "name": "대륜고등학교",
+    "sido": "대구광역시",
+    "sigungu": "수성구",
+    "type": "일반고"
+  },
+  {
+    "name": "경신고등학교",
+    "sido": "대구광역시",
+    "sigungu": "수성구",
+    "type": "일반고"
+  },
+  {
+    "name": "대구여자고등학교",
+    "sido": "대구광역시",
+    "sigungu": "수성구",
+    "type": "일반고"
+  },
+  {
+    "name": "정화여자고등학교",
+    "sido": "대구광역시",
+    "sigungu": "수성구",
+    "type": "일반고"
+  },
+  {
+    "name": "능인고등학교",
+    "sido": "대구광역시",
+    "sigungu": "수성구",
+    "type": "일반고"
+  },
+  {
+    "name": "계성고등학교",
+    "sido": "대구광역시",
+    "sigungu": "서구",
+    "type": "자사고"
+  },
+  {
+    "name": "대구외국어고등학교",
+    "sido": "대구광역시",
+    "sigungu": "중구",
+    "type": "외고"
+  },
+  {
+    "name": "광주과학고등학교",
+    "sido": "광주광역시",
+    "sigungu": "북구",
+    "type": "영재학교"
+  },
+  {
+    "name": "광주인성고등학교",
+    "sido": "광주광역시",
+    "sigungu": "남구",
+    "type": "일반고"
+  },
+  {
+    "name": "광덕고등학교",
+    "sido": "광주광역시",
+    "sigungu": "서구",
+    "type": "일반고"
+  },
+  {
+    "name": "숭덕고등학교",
+    "sido": "광주광역시",
+    "sigungu": "광산구",
+    "type": "자사고"
+  },
+  {
+    "name": "살레시오고등학교",
+    "sido": "광주광역시",
+    "sigungu": "서구",
+    "type": "일반고"
+  },
+  {
+    "name": "광주수피아여자고등학교",
+    "sido": "광주광역시",
+    "sigungu": "남구",
+    "type": "일반고"
+  },
+  {
+    "name": "대전과학고등학교",
+    "sido": "대전광역시",
+    "sigungu": "유성구",
+    "type": "영재학교"
+  },
+  {
+    "name": "대전대신고등학교",
+    "sido": "대전광역시",
+    "sigungu": "서구",
+    "type": "자사고"
+  },
+  {
+    "name": "대성고등학교",
+    "sido": "대전광역시",
+    "sigungu": "중구",
+    "type": "자사고"
+  },
+  {
+    "name": "대전외국어고등학교",
+    "sido": "대전광역시",
+    "sigungu": "유성구",
+    "type": "외고"
+  },
+  {
+    "name": "충남고등학교",
+    "sido": "대전광역시",
+    "sigungu": "서구",
+    "type": "일반고"
+  },
+  {
+    "name": "유성고등학교",
+    "sido": "대전광역시",
+    "sigungu": "유성구",
+    "type": "일반고"
+  },
+  {
+    "name": "현대청운고등학교",
+    "sido": "울산광역시",
+    "sigungu": "동구",
+    "type": "자사고"
+  },
+  {
+    "name": "울산과학고등학교",
+    "sido": "울산광역시",
+    "sigungu": "울주군",
+    "type": "과학고"
+  },
+  {
+    "name": "울산외국어고등학교",
+    "sido": "울산광역시",
+    "sigungu": "북구",
+    "type": "외고"
+  },
+  {
+    "name": "학성고등학교",
+    "sido": "울산광역시",
+    "sigungu": "남구",
+    "type": "일반고"
+  },
+  {
+    "name": "우신고등학교",
+    "sido": "울산광역시",
+    "sigungu": "남구",
+    "type": "일반고"
+  },
+  {
+    "name": "세종과학예술영재학교",
+    "sido": "세종특별자치시",
+    "sigungu": "세종특별자치시",
+    "type": "영재학교"
+  },
+  {
+    "name": "세종국제고등학교",
+    "sido": "세종특별자치시",
+    "sigungu": "세종특별자치시",
+    "type": "국제고"
+  },
+  {
+    "name": "한솔고등학교",
+    "sido": "세종특별자치시",
+    "sigungu": "세종특별자치시",
+    "type": "일반고"
+  },
+  {
+    "name": "도담고등학교",
+    "sido": "세종특별자치시",
+    "sigungu": "세종특별자치시",
+    "type": "일반고"
+  },
+  {
+    "name": "아름고등학교",
+    "sido": "세종특별자치시",
+    "sigungu": "세종특별자치시",
+    "type": "일반고"
+  },
+  {
+    "name": "민족사관고등학교 (민사고)",
+    "sido": "강원특별자치도",
+    "sigungu": "횡성군",
+    "type": "자사고"
+  },
+  {
+    "name": "강원과학고등학교",
+    "sido": "강원특별자치도",
+    "sigungu": "원주시",
+    "type": "과학고"
+  },
+  {
+    "name": "강원외국어고등학교",
+    "sido": "강원특별자치도",
+    "sigungu": "양구군",
+    "type": "외고"
+  },
+  {
+    "name": "춘천고등학교",
+    "sido": "강원특별자치도",
+    "sigungu": "춘천시",
+    "type": "일반고"
+  },
+  {
+    "name": "강릉고등학교",
+    "sido": "강원특별자치도",
+    "sigungu": "강릉시",
+    "type": "일반고"
+  },
+  {
+    "name": "충북과학고등학교",
+    "sido": "충청북도",
+    "sigungu": "청주시 상당구",
+    "type": "과학고"
+  },
+  {
+    "name": "청주외국어고등학교",
+    "sido": "충청북도",
+    "sigungu": "청주시 흥덕구",
+    "type": "외고"
+  },
+  {
+    "name": "청주고등학교",
+    "sido": "충청북도",
+    "sigungu": "청주시 서원구",
+    "type": "일반고"
+  },
+  {
+    "name": "세광고등학교",
+    "sido": "충청북도",
+    "sigungu": "청주시 서원구",
+    "type": "일반고"
+  },
+  {
+    "name": "충주고등학교",
+    "sido": "충청북도",
+    "sigungu": "충주시",
+    "type": "일반고"
+  },
+  {
+    "name": "공주사범대학부설고등학교 (공주사대부고)",
+    "sido": "충청남도",
+    "sigungu": "공주시",
+    "type": "일반고(전국단위)"
+  },
+  {
+    "name": "한일고등학교",
+    "sido": "충청남도",
+    "sigungu": "공주시",
+    "type": "일반고(전국단위)"
+  },
+  {
+    "name": "충남과학고등학교",
+    "sido": "충청남도",
+    "sigungu": "공주시",
+    "type": "과학고"
+  },
+  {
+    "name": "충남삼성고등학교",
+    "sido": "충청남도",
+    "sigungu": "아산시",
+    "type": "자사고"
+  },
+  {
+    "name": "충남외국어고등학교",
+    "sido": "충청남도",
+    "sigungu": "아산시",
+    "type": "외고"
+  },
+  {
+    "name": "천안고등학교",
+    "sido": "충청남도",
+    "sigungu": "천안시 동남구",
+    "type": "일반고"
+  },
+  {
+    "name": "북일고등학교",
+    "sido": "충청남도",
+    "sigungu": "천안시 동남구",
+    "type": "자사고"
+  },
+  {
+    "name": "상산고등학교",
+    "sido": "전북특별자치도",
+    "sigungu": "전주시 완산구",
+    "type": "자사고"
+  },
+  {
+    "name": "전북과학고등학교",
+    "sido": "전북특별자치도",
+    "sigungu": "익산시",
+    "type": "과학고"
+  },
+  {
+    "name": "전북외국어고등학교",
+    "sido": "전북특별자치도",
+    "sigungu": "군산시",
+    "type": "외고"
+  },
+  {
+    "name": "전주고등학교",
+    "sido": "전북특별자치도",
+    "sigungu": "전주시 완산구",
+    "type": "일반고"
+  },
+  {
+    "name": "군산고등학교",
+    "sido": "전북특별자치도",
+    "sigungu": "군산시",
+    "type": "일반고"
+  },
+  {
+    "name": "전남과학고등학교",
+    "sido": "전라남도",
+    "sigungu": "나주시",
+    "type": "과학고"
+  },
+  {
+    "name": "광양제철고등학교",
+    "sido": "전라남도",
+    "sigungu": "광양시",
+    "type": "자사고"
+  },
+  {
+    "name": "전남외국어고등학교",
+    "sido": "전라남도",
+    "sigungu": "나주시",
+    "type": "외고"
+  },
+  {
+    "name": "순천고등학교",
+    "sido": "전라남도",
+    "sigungu": "순천시",
+    "type": "일반고"
+  },
+  {
+    "name": "목포고등학교",
+    "sido": "전라남도",
+    "sigungu": "목포시",
+    "type": "일반고"
+  },
+  {
+    "name": "포항제철고등학교",
+    "sido": "경상북도",
+    "sigungu": "포항시 남구",
+    "type": "자사고"
+  },
+  {
+    "name": "김천고등학교",
+    "sido": "경상북도",
+    "sigungu": "김천시",
+    "type": "자사고"
+  },
+  {
+    "name": "경북과학고등학교",
+    "sido": "경상북도",
+    "sigungu": "포항시 남구",
+    "type": "과학고"
+  },
+  {
+    "name": "경북외국어고등학교",
+    "sido": "경상북도",
+    "sigungu": "구미시",
+    "type": "외고"
+  },
+  {
+    "name": "안동고등학교",
+    "sido": "경상북도",
+    "sigungu": "안동시",
+    "type": "일반고"
+  },
+  {
+    "name": "경남과학고등학교",
+    "sido": "경상남도",
+    "sigungu": "진주시",
+    "type": "과학고"
+  },
+  {
+    "name": "경남외국어고등학교",
+    "sido": "경상남도",
+    "sigungu": "양산시",
+    "type": "외고"
+  },
+  {
+    "name": "김해외국어고등학교",
+    "sido": "경상남도",
+    "sigungu": "김해시",
+    "type": "외고"
+  },
+  {
+    "name": "창원과학고등학교",
+    "sido": "경상남도",
+    "sigungu": "창원시 의창구",
+    "type": "과학고"
+  },
+  {
+    "name": "마산고등학교",
+    "sido": "경상남도",
+    "sigungu": "창원시 마산합포구",
+    "type": "일반고"
+  },
+  {
+    "name": "진주고등학교",
+    "sido": "경상남도",
+    "sigungu": "진주시",
+    "type": "일반고"
+  },
+  {
+    "name": "거제고등학교",
+    "sido": "경상남도",
+    "sigungu": "거제시",
+    "type": "일반고"
+  },
+  {
+    "name": "제주과학고등학교",
+    "sido": "제주특별자치도",
+    "sigungu": "제주시",
+    "type": "과학고"
+  },
+  {
+    "name": "제주외국어고등학교",
+    "sido": "제주특별자치도",
+    "sigungu": "제주시",
+    "type": "외고"
+  },
+  {
+    "name": "오현고등학교",
+    "sido": "제주특별자치도",
+    "sigungu": "제주시",
+    "type": "일반고"
+  },
+  {
+    "name": "대기고등학교",
+    "sido": "제주특별자치도",
+    "sigungu": "제주시",
+    "type": "일반고"
+  },
+  {
+    "name": "제주일고 (제주제일고등학교)",
+    "sido": "제주특별자치도",
+    "sigungu": "제주시",
+    "type": "일반고"
+  },
+  {
+    "name": "서귀포고등학교",
+    "sido": "제주특별자치도",
+    "sigungu": "서귀포시",
+    "type": "일반고"
+  },
+  {
+    "name": "신성여자고등학교",
+    "sido": "제주특별자치도",
+    "sigungu": "제주시",
+    "type": "일반고"
+  }
+];
+let HIGHSCHOOLS_DATA = DEFAULT_HIGHSCHOOLS_DATA;
 
 document.addEventListener("DOMContentLoaded", async () => {
     initPALINThemeEngine();
     
-    // 1. 내장 정적 지역 데이터로 즉시 드롭다운 채우기 (0.001초 즉시 렌더링 보장)
+    // 1. 내장 정적 지역 및 고등학교 데이터로 즉시 렌더링 (0.001초 즉시 렌더링 보장)
     populateSidoOptions("reg-sido");
     populateSidoOptions("edit-sido");
+    filterHighSchoolsBySido("reg-sido", "highschool-datalist");
+    filterHighSchoolsBySido("edit-sido", "edit-highschool-datalist");
     
     // 2. 비동기 데이터 로딩을 안전하게 병렬 처리
     try {
@@ -382,19 +1610,24 @@ function filterHighSchoolsBySido(sidoSelectId, datalistId) {
 
     if (sido) {
         // 해당 시/도 소속 고등학교
-        matchedSchools = HIGHSCHOOLS_DATA.filter(hs => hs.region === sido);
+        matchedSchools = HIGHSCHOOLS_DATA.filter(hs => (hs.sido === sido || hs.region === sido));
         // 전국 단위 자사/특목/영재고 중 타지역
-        otherSpecialSchools = HIGHSCHOOLS_DATA.filter(hs => hs.region !== sido && (hs.type === "자사고" || hs.type === "영재고" || hs.type === "과고" || hs.type === "외고"));
+        otherSpecialSchools = HIGHSCHOOLS_DATA.filter(hs => (hs.sido !== sido && hs.region !== sido) && (hs.type === "자사고" || hs.type === "영재고" || hs.type === "과학고" || hs.type === "과고" || hs.type === "외고" || hs.type === "국제고" || (hs.type && hs.type.includes("전국"))));
     } else {
         matchedSchools = HIGHSCHOOLS_DATA;
     }
 
     matchedSchools.forEach(hs => {
-        dl.innerHTML += `<option value="${hs.name}">[${hs.region || '전국'} ${hs.type}] ${hs.name}</option>`;
+        const rName = hs.sido || hs.region || '지역';
+        const sType = hs.type || '고교';
+        const loc = hs.sigungu ? ` (${hs.sigungu})` : '';
+        dl.innerHTML += `<option value="${hs.name}">[${rName} ${sType}] ${hs.name}${loc}</option>`;
     });
 
     otherSpecialSchools.forEach(hs => {
-        dl.innerHTML += `<option value="${hs.name}">[전국모집 ${hs.type}] ${hs.name} (${hs.region})</option>`;
+        const rName = hs.sido || hs.region || '전국';
+        const sType = hs.type || '특목고';
+        dl.innerHTML += `<option value="${hs.name}">[전국 ${sType}] ${hs.name} (${rName})</option>`;
     });
 }
 
@@ -1028,10 +2261,14 @@ function openMyPageModal() {
         document.getElementById("edit-high-school").value = currentStudent.high_school || "";
         
         // 지역 (시도 / 시군구 분리 바인딩)
-        const curRegion = currentStudent.region || "경기도 성남시 분당구";
+        const curRegion = currentStudent.region || "서울특별시 강남구";
         const rParts = curRegion.split(" ");
-        const curSido = rParts[0] || "경기도";
-        const curSigungu = rParts.slice(1).join(" ") || "성남시 분당구";
+        let rawSido = rParts[0] || "서울특별시";
+        let curSigungu = rParts.slice(1).join(" ") || "강남구";
+        
+        // 17개 시도 키값과 정확 매칭
+        const allSidos = Object.keys(DEFAULT_REGIONS_DATA);
+        const curSido = allSidos.find(s => s === rawSido || s.startsWith(rawSido) || rawSido.startsWith(s.slice(0, 2))) || "서울특별시";
         
         // 1. 시도 옵션 렌더링 후 값 설정
         populateSidoOptions("edit-sido");
@@ -2143,6 +3380,21 @@ function getVerdictBgColor(verdict) {
     }
 }
 
+// 📊 백분위 및 원점수 최대값(100/50) 실시간 강제 제한 헬퍼
+function validatePercentileInput(el, maxVal = 100) {
+    if (!el || el.value === "") return;
+    let val = parseFloat(el.value);
+    if (isNaN(val)) {
+        el.value = "";
+        return;
+    }
+    if (val < 0) {
+        el.value = 0;
+    } else if (val > maxVal) {
+        el.value = maxVal;
+    }
+}
+
 async function loadUniversityList() {
     try {
         const res = await fetch('/api/predict/universities');
@@ -2160,18 +3412,38 @@ async function loadUniversityList() {
 }
 
 async function runPrediction() {
-    const kor = parseFloat(document.getElementById('pred-kor').value);
-    const math = parseFloat(document.getElementById('pred-math').value);
-    const eng = parseInt(document.getElementById('pred-eng').value);
-    const hist = parseInt(document.getElementById('pred-hist').value);
-    const tam1 = parseFloat(document.getElementById('pred-tam1').value);
-    const tam2 = parseFloat(document.getElementById('pred-tam2').value);
+    let kor = parseFloat(document.getElementById('pred-kor').value);
+    let math = parseFloat(document.getElementById('pred-math').value);
+    let eng = parseInt(document.getElementById('pred-eng').value);
+    let hist = parseInt(document.getElementById('pred-hist').value);
+    let tam1 = parseFloat(document.getElementById('pred-tam1').value);
+    let tam2 = parseFloat(document.getElementById('pred-tam2').value);
     const mathType = document.getElementById('pred-math-type')?.value || '미적';
     const tam1Type = document.getElementById('pred-tam1-type')?.value || '과탐';
     const tam2Type = document.getElementById('pred-tam2-type')?.value || '과탐';
     
     if (isNaN(kor) || isNaN(math) || isNaN(eng) || isNaN(tam1) || isNaN(tam2) || isNaN(hist)) {
-        alert('모든 성적을 입력해주세요.');
+        alert('모든 성적(국어, 수학, 영어, 한국사, 탐구1, 탐구2)을 빠짐없이 입력해주세요.');
+        return;
+    }
+    
+    // 최대치 초과 자동 보정 및 방어
+    if (kor > 100 || math > 100 || tam1 > 100 || tam2 > 100) {
+        alert('백분위는 최대 100을 넘을 수 없습니다. 0~100 사이로 입력해주세요.');
+        return;
+    }
+    if (eng > 100) {
+        alert('영어 원점수는 최대 100점입니다.');
+        return;
+    }
+    if (hist > 50) {
+        alert('한국사 원점수는 최대 50점입니다.');
+        return;
+    }
+    
+    // 음수 방지
+    if (kor < 0 || math < 0 || eng < 0 || hist < 0 || tam1 < 0 || tam2 < 0) {
+        alert('성적은 0 이상이어야 합니다.');
         return;
     }
     
@@ -3144,6 +4416,11 @@ function switchExamYear(year, btnEl) {
         btnEl.classList.add("active");
         btnEl.classList.remove("btn-secondary");
     }
+    loadExamMaterials();
+}
+
+function switchExamYearSelect(yearVal) {
+    currentExamYear = parseInt(yearVal) || 0;
     loadExamMaterials();
 }
 
