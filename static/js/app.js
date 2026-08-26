@@ -1147,11 +1147,80 @@ async function handleTimetableGridClick(dayIndex, event) {
     }
 }
 
+// === 📅 타이머 요일별 맞춤 할 일 필터 엔진 ===
+let allPlannerBlocksCache = [];
+let currentTimerSelectedDay = null; // null이면 오늘 요일
+
+function getTodayDayIndex() {
+    // JS getDay(): 0(일), 1(월), 2(화), 3(수), 4(목), 5(금), 6(토)
+    // 앱 기준: 0(월), 1(화), 2(수), 3(목), 4(금), 5(토), 6(일)
+    const jsDay = new Date().getDay();
+    return jsDay === 0 ? 6 : jsDay - 1;
+}
+
+function filterTimerScheduleByDay(dayIndex, btnEl) {
+    currentTimerSelectedDay = dayIndex;
+    
+    // 버튼 액티브 스타일 갱신
+    document.querySelectorAll(".timer-day-btn").forEach(btn => {
+        btn.classList.remove("active");
+        btn.classList.add("btn-secondary");
+        btn.style.background = "#334155";
+        btn.style.color = "#cbd5e1";
+    });
+    if (btnEl) {
+        btnEl.classList.remove("btn-secondary");
+        btnEl.classList.add("active");
+        btnEl.style.background = "#6366f1";
+        btnEl.style.color = "#ffffff";
+    }
+    
+    // 상단 라벨 갱신
+    const dayNames = ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"];
+    const labelEl = document.getElementById("timer-selected-day-label");
+    if (labelEl) {
+        if (dayIndex === 'all') {
+            labelEl.innerText = "전체 요일";
+        } else {
+            const todayIdx = getTodayDayIndex();
+            labelEl.innerText = dayIndex === todayIdx ? `오늘 (${dayNames[dayIndex]})` : dayNames[dayIndex];
+        }
+    }
+    
+    // 셀렉트 박스 갱신
+    populateTimerSelect();
+}
+
+function populateTimerSelect() {
+    const timerSelect = document.getElementById("timer-schedule-select");
+    if (!timerSelect) return;
+    
+    const dayNames = ["월", "화", "수", "목", "금", "토", "일"];
+    timerSelect.innerHTML = "<option value='none'>직접 자유 공부하기</option>";
+    
+    const targetDay = currentTimerSelectedDay === null ? getTodayDayIndex() : currentTimerSelectedDay;
+    
+    let filteredBlocks = allPlannerBlocksCache;
+    if (targetDay !== 'all') {
+        filteredBlocks = allPlannerBlocksCache.filter(b => b.day_of_week === targetDay);
+    }
+    
+    if (filteredBlocks.length === 0 && targetDay !== 'all') {
+        timerSelect.innerHTML += `<option disabled value="">${dayNames[targetDay]}요일에 등록된 시간표 계획이 없습니다</option>`;
+    } else {
+        filteredBlocks.forEach(block => {
+            const dayPrefix = targetDay === 'all' ? `[${dayNames[block.day_of_week]}] ` : '';
+            timerSelect.innerHTML += `<option value="${block.id}" data-title="${block.title}">${dayPrefix}${block.title} (${block.start_time}~${block.end_time})</option>`;
+        });
+    }
+}
+
 async function loadTimetable() {
     if (!currentStudent) return;
     try {
         const res = await fetch(`/api/planner/blocks/${currentStudent.id}`);
         const blocks = await res.json();
+        allPlannerBlocksCache = blocks || [];
         
         const dayColumns = [
             document.getElementById("col-day-0"),
@@ -1176,10 +1245,15 @@ async function loadTimetable() {
             }
         });
 
-        const timerSelect = document.getElementById("timer-schedule-select");
-        if (timerSelect) {
-            timerSelect.innerHTML = "<option value='none'>직접 자유 공부하기</option>";
+        // 오늘 요일 기본 탭 활성화 및 타이머 셀렉트 채우기
+        const todayIdx = getTodayDayIndex();
+        const tabs = document.querySelectorAll(".timer-day-btn");
+        if (tabs && tabs.length > todayIdx && currentTimerSelectedDay === null) {
+            tabs[todayIdx].classList.add("active");
+            tabs[todayIdx].style.background = "#6366f1";
+            tabs[todayIdx].style.color = "#ffffff";
         }
+        populateTimerSelect();
 
         blocks.forEach((block, index) => {
             const col = dayColumns[block.day_of_week];
@@ -1211,10 +1285,6 @@ async function loadTimetable() {
                 <button class="btn-delete-block" title="계획 삭제" onclick="deletePlannerBlock(event, ${block.id})">&times;</button>
             `;
             col.appendChild(blockEl);
-
-            if (timerSelect) {
-                timerSelect.innerHTML += `<option value="${block.id}" data-title="${block.title}">${block.title} (${block.start_time}~${block.end_time})</option>`;
-            }
         });
     } catch (e) {
         console.error("시간표 로드 오류:", e);
