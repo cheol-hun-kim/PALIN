@@ -1268,8 +1268,8 @@ async function handleTimetableGridClick(dayIndex, event) {
     
     // 하단 폼 입력값도 동기화
     const daySelect = document.getElementById("plan-day");
-    const startInput = document.getElementById("plan-start");
-    const endInput = document.getElementById("plan-end");
+    const startInput = document.getElementById("plan-start-time") || document.getElementById("plan-start");
+    const endInput = document.getElementById("plan-end-time") || document.getElementById("plan-end");
     const titleInput = document.getElementById("plan-title");
     if (daySelect) daySelect.value = String(dayIndex);
     if (startInput) startInput.value = startTimeStr;
@@ -1449,8 +1449,8 @@ async function addPlannerBlock(e) {
     }
     
     const day = parseInt(document.getElementById("plan-day")?.value || "0");
-    const start = document.getElementById("plan-start")?.value || "09:00";
-    const end = document.getElementById("plan-end")?.value || "11:30";
+    const start = (document.getElementById("plan-start-time") || document.getElementById("plan-start"))?.value || "09:00";
+    const end = (document.getElementById("plan-end-time") || document.getElementById("plan-end"))?.value || "11:30";
     let title = (document.getElementById("plan-title")?.value || "").trim();
 
     // 계획명이 비어있으면 현재 선택된 퀵과목(예: 수학, 국어, 영어 등)으로 자동 지정
