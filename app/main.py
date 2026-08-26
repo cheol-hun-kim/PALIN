@@ -10,7 +10,7 @@ import os
 import shutil
 
 from app.database import get_db, engine
-from app import models, schemas, ai, predict
+from app import models, schemas, ai, predict, sms
 
 app = FastAPI(title="PASS-MATE API")
 
@@ -23,6 +23,18 @@ def init_db_schema():
                 if engine.dialect.name == "sqlite":
                     columns = [row[1] for row in conn.execute(text("PRAGMA table_info(students)")).fetchall()]
                     if columns:
+                        if "sido" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN sido VARCHAR DEFAULT '경기도'"))
+                        if "sigungu" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN sigungu VARCHAR DEFAULT '성남시 분당구'"))
+                        if "high_school_type" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN high_school_type VARCHAR DEFAULT '일반고'"))
+                        if "is_vip" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN is_vip BOOLEAN DEFAULT 0"))
+                        if "escrow_deposit" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN escrow_deposit INTEGER DEFAULT 50000"))
+                        if "escrow_deductions" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN escrow_deductions INTEGER DEFAULT 0"))
                         if "wake_target_time" not in columns:
                             conn.execute(text("ALTER TABLE students ADD COLUMN wake_target_time VARCHAR DEFAULT '06:30'"))
                         if "sleep_target_time" not in columns:
@@ -60,6 +72,22 @@ def init_db_schema():
                             conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN is_suspended BOOLEAN DEFAULT 0"))
                         if "suspend_reason" not in tutor_cols:
                             conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN suspend_reason VARCHAR"))
+                        if "tier" not in tutor_cols:
+                            conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN tier VARCHAR DEFAULT 'SR'"))
+                        if "diligence_verified_badge" not in tutor_cols:
+                            conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN diligence_verified_badge BOOLEAN DEFAULT 1"))
+                        conn.commit()
+
+                    # ExamMaterial 컬럼 검사
+                    exam_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(exam_materials)")).fetchall()]
+                    if exam_cols:
+                        if "answer_file_url" not in exam_cols:
+                            conn.execute(text("ALTER TABLE exam_materials ADD COLUMN answer_file_url VARCHAR"))
+                        if "answer_file_name" not in exam_cols:
+                            conn.execute(text("ALTER TABLE exam_materials ADD COLUMN answer_file_name VARCHAR"))
+                        if "year" not in exam_cols:
+                            conn.execute(text("ALTER TABLE exam_materials ADD COLUMN year INTEGER DEFAULT 2027"))
+                        conn.commit()
 
                     # QAPost 컬럼 검사
                     qa_post_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(qa_posts)")).fetchall()]
@@ -587,8 +615,9 @@ class PredictPayload(BaseModel):
     tam1_pct: float
     tam2_pct: float
     hist_raw: int
-    math_type: str = "\ubbf8\uc801"
-    gyeyeol: str = "\uc774\uacfc"
+    math_type: str = "미적"  # 미적 | 기하 | 확통
+    tam1_type: str = "과탐"  # 과탐 | 사탐
+    tam2_type: str = "과탐"  # 과탐 | 사탐
     target_univ: str = ""
     target_dept: str = ""
 
@@ -596,10 +625,17 @@ class PredictPayload(BaseModel):
 def run_prediction(payload: PredictPayload):
     try:
         res = predict.predict_admission(
-            kor_pct=payload.kor_pct, math_pct=payload.math_pct, eng_raw=payload.eng_raw,
-            tam1_pct=payload.tam1_pct, tam2_pct=payload.tam2_pct, hist_raw=payload.hist_raw,
-            math_type=payload.math_type, gyeyeol=payload.gyeyeol,
-            target_univ=payload.target_univ, target_dept=payload.target_dept
+            kor_pct=payload.kor_pct,
+            math_pct=payload.math_pct,
+            eng_raw=payload.eng_raw,
+            tam1_pct=payload.tam1_pct,
+            tam2_pct=payload.tam2_pct,
+            hist_raw=payload.hist_raw,
+            math_type=payload.math_type,
+            tam1_type=payload.tam1_type,
+            tam2_type=payload.tam2_type,
+            target_univ=payload.target_univ,
+            target_dept=payload.target_dept
         )
         return res
     except Exception as e:
@@ -1373,53 +1409,201 @@ def get_admin_consulting_requests(db: Session = Depends(get_db)):
         })
     return res
 
-class ConsultingStatusPayload(BaseModel):
-    status: str
+# === 📍 전국 시군구 & 고등학교 표준 데이터 API ===
 
-@app.put("/api/admin/consulting-requests/{req_id}/status")
-def update_consulting_request_status(req_id: int, payload: ConsultingStatusPayload, db: Session = Depends(get_db)):
-    q = db.query(models.ConsultingRequest).filter(models.ConsultingRequest.id == req_id).first()
-    if not q:
-        raise HTTPException(status_code=404, detail="신청 내역을 찾을 수 없습니다.")
-    q.status = payload.status
+@app.get("/api/data/regions")
+def get_regions_data():
+    path = os.path.join(os.path.dirname(__file__), "data", "regions.json")
+    if os.path.exists(path):
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {}
+
+@app.get("/api/data/high-schools")
+def get_high_schools_data():
+    path = os.path.join(os.path.dirname(__file__), "data", "high_schools.json")
+    if os.path.exists(path):
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return []
+
+# === 🧠 원장님 전용 AI 지식 증강 스튜디오 & 칼럼 학습 API ===
+
+class KnowledgePayload(BaseModel):
+    title: str
+    category: str = "입시철학"
+    content: str
+
+@app.get("/api/admin/knowledge")
+def get_admin_knowledge_list(db: Session = Depends(get_db)):
+    items = db.query(models.AdminKnowledge).order_by(models.AdminKnowledge.created_at.desc()).all()
+    return [{
+        "id": k.id,
+        "title": k.title,
+        "category": k.category,
+        "content": k.content,
+        "created_at": k.created_at.strftime("%Y-%m-%d %H:%M") if k.created_at else ""
+    } for k in items]
+
+@app.post("/api/admin/knowledge")
+def add_admin_knowledge(payload: KnowledgePayload, db: Session = Depends(get_db)):
+    item = models.AdminKnowledge(
+        title=payload.title.strip(),
+        category=payload.category.strip(),
+        content=payload.content.strip()
+    )
+    db.add(item)
     db.commit()
-    return {"status": "ok", "message": f"상태가 '{payload.status}'(으)로 변경되었습니다."}
-
-@app.get("/api/admin/gemini-status")
-def get_gemini_status():
-    key = ai.get_saved_api_key()
-    if key:
-        masked = key[:8] + "..." + key[-4:] if len(key) > 12 else "***"
-        return {"active": True, "key_masked": masked}
-    return {"active": False, "key_masked": ""}
-
-class GeminiKeyPayload(BaseModel):
-    api_key: str
-
-@app.post("/api/admin/set-gemini-key")
-def set_gemini_key(payload: GeminiKeyPayload):
-    success = ai.set_gemini_api_key(payload.api_key)
-    if success:
-        return {"status": "ok", "message": "Gemini API 키가 성공적으로 저장되었습니다."}
-    raise HTTPException(status_code=500, detail="키 저장 실패")
-
-@app.get("/api/debug/gemini-test")
-def test_gemini():
+    db.refresh(item)
+    
+    # knowledge.txt 파일에도 자동 누적 백업
     try:
-        reply = ai.ask_ai_chatbot("안녕! 연결 테스트야.")
-        return {"status": "ok", "reply": reply}
+        k_path = os.path.join(os.path.dirname(__file__), "..", "knowledge.txt")
+        with open(k_path, "a", encoding="utf-8") as f:
+            f.write(f"\n\n[원장 추가 칼럼 - {payload.title} ({payload.category})]\n{payload.content.strip()}\n")
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        print("Failed to append knowledge to file:", e)
+        
+    return {"status": "ok", "message": "새로운 원장 지식이 AI 뇌에 성공적으로 학습·증강되었습니다!", "item": {
+        "id": item.id,
+        "title": item.title,
+        "category": item.category
+    }}
 
-# === 📚 기출문제 및 수험자료 아카이브 API ===
+@app.delete("/api/admin/knowledge/{item_id}")
+def delete_admin_knowledge(item_id: int, db: Session = Depends(get_db)):
+    item = db.query(models.AdminKnowledge).filter(models.AdminKnowledge.id == item_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="지식 항목을 찾을 수 없습니다.")
+    db.delete(item)
+    db.commit()
+    return {"status": "ok", "message": "지식 항목이 삭제되었습니다."}
+
+# === 📝 관리자 건의사항 전체 목록 (페이징/필터링 지원) ===
+
+@app.get("/api/admin/feedbacks")
+def get_admin_feedbacks_all(status_filter: Optional[str] = None, db: Session = Depends(get_db)):
+    query = db.query(models.Feedback)
+    if status_filter and status_filter != "전체":
+        query = query.filter(models.Feedback.status == status_filter)
+    feedbacks = query.order_by(models.Feedback.created_at.desc()).all()
+    
+    return [{
+        "id": fb.id,
+        "student_id": fb.student_id,
+        "student_name": fb.student.name if fb.student else "방문자",
+        "user_email": fb.user_email or (fb.student.email if fb.student else ""),
+        "category": fb.category,
+        "content": fb.content,
+        "status": fb.status,
+        "created_at": fb.created_at.strftime("%Y-%m-%d %H:%M") if fb.created_at else ""
+    } for fb in feedbacks]
+
+# === 🎯 9대 락인: 마이크로 서약 & n8n/Make Webhook & VIP 블랙 라운지 & 에스크로 API ===
+
+class PledgePayload(BaseModel):
+    student_id: int
+    pledge_text: str
+
+@app.post("/api/timer/pledge")
+def verify_micro_pledge(payload: PledgePayload, db: Session = Depends(get_db)):
+    EXACT_PLEDGE = "나는 지금 이 순간부터 딴짓을 하면 올해 입시는 무조건 실패한다"
+    clean_input = payload.pledge_text.strip().replace(" ", "")
+    clean_target = EXACT_PLEDGE.replace(" ", "")
+    if clean_input != clean_target:
+        raise HTTPException(
+            status_code=400,
+            detail="서약 문구가 일치하지 않습니다. 오타 없이 정확하게 입력해야만 공부를 시작할 수 있습니다."
+        )
+    return {"status": "ok", "message": "서약이 완료되었습니다. 지금부터 극도의 몰입으로 합격을 쟁취하십시오!"}
+
+class WebhookPayload(BaseModel):
+    student_id: int
+    event_type: str = "DISTRACTION_DETECTED" # DISTRACTION_DETECTED | MISSION_FAILED
+    details: str = "공부 타이머 실행 중 타 앱 전환(딴짓) 감지"
+    webhook_url: Optional[str] = None
+
+@app.post("/api/timer/webhook-distraction")
+def trigger_distraction_webhook(payload: WebhookPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+        
+    # 금융 인질 에스크로 자동 차감 (1,000원)
+    if student.escrow_deposit and student.escrow_deposit >= 1000:
+        student.escrow_deposit -= 1000
+        student.escrow_deductions = (student.escrow_deductions or 0) + 1000
+        db.commit()
+
+    # 학부모에게 긴급 경고 SMS 자동 발송
+    parent_phone = student.parent.phone if student.parent else student.phone
+    alert_msg = f"[PALIN 경고] {student.name} 학생이 순공 타이머 도중 화면을 이탈하여 딴짓이 감지되었습니다. 성실 보증금 1,000원이 차감되었습니다."
+    sms.send_sms(parent_phone, alert_msg, "[PALIN 긴급감시]")
+
+    return {
+        "status": "ok",
+        "message": "딴짓 감지 이벤트가 감시망 파이프라인에 전송되었습니다.",
+        "remaining_deposit": student.escrow_deposit,
+        "total_deductions": student.escrow_deductions
+    }
+
+class BlackLoungePayload(BaseModel):
+    student_id: int
+    title: str
+    content: str
+
+@app.get("/api/black-lounge/posts")
+def get_black_lounge_posts(db: Session = Depends(get_db)):
+    posts = db.query(models.BlackLoungePost).order_by(models.BlackLoungePost.created_at.desc()).limit(30).all()
+    return [{
+        "id": p.id,
+        "student_name": p.student_name,
+        "target_univ": p.target_univ or "최상위권",
+        "title": p.title,
+        "content": p.content,
+        "reply_count": p.reply_count,
+        "created_at": p.created_at.strftime("%m-%d %H:%M") if p.created_at else ""
+    } for p in posts]
+
+@app.post("/api/black-lounge/posts")
+def create_black_lounge_post(payload: BlackLoungePayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+    
+    post = models.BlackLoungePost(
+        student_id=student.id,
+        student_name=student.name,
+        target_univ=student.target_univ,
+        title=payload.title.strip(),
+        content=payload.content.strip()
+    )
+    db.add(post)
+    db.commit()
+    db.refresh(post)
+    return {"status": "ok", "message": "블랙 라운지에 게시글이 등록되었습니다.", "post_id": post.id}
+
+@app.get("/api/escrow/status/{student_id}")
+def get_escrow_status(student_id: int, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+    return {
+        "escrow_deposit": student.escrow_deposit or 50000,
+        "escrow_deductions": student.escrow_deductions or 0
+    }
+
+# === 📚 기출문제 및 수험자료 아카이브 API (문제지 & 정답지 분리 지원) ===
 DOWNLOADS_DIR = os.path.join("static", "downloads")
 os.makedirs(DOWNLOADS_DIR, exist_ok=True)
 
 @app.get("/api/materials")
-def get_exam_materials(subject: Optional[str] = None, db: Session = Depends(get_db)):
+def get_exam_materials(subject: Optional[str] = None, year: Optional[int] = None, db: Session = Depends(get_db)):
     query = db.query(models.ExamMaterial)
     if subject and subject != "전체":
         query = query.filter(models.ExamMaterial.subject == subject)
+    if year and year != 0:
+        query = query.filter(models.ExamMaterial.year == year)
     materials = query.order_by(models.ExamMaterial.created_at.desc()).all()
     return materials
 
@@ -1428,14 +1612,17 @@ async def upload_exam_material(
     subject: str = Form(...),
     title: str = Form(...),
     description: Optional[str] = Form(None),
-    year: Optional[int] = Form(None),
+    year: Optional[int] = Form(2027),
     external_url: Optional[str] = Form(None),
     file: Optional[UploadFile] = File(None),
+    answer_file: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db)
 ):
     file_url = ""
     file_name = None
     file_size_str = None
+    answer_url = None
+    answer_name = None
 
     if file and file.filename:
         safe_filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{file.filename}"
@@ -1444,11 +1631,7 @@ async def upload_exam_material(
             shutil.copyfileobj(file.file, buffer)
         
         file_size_bytes = os.path.getsize(dest_path)
-        if file_size_bytes >= 1024 * 1024:
-            file_size_str = f"{file_size_bytes / (1024 * 1024):.1f} MB"
-        else:
-            file_size_str = f"{max(1, round(file_size_bytes / 1024))} KB"
-
+        file_size_str = f"{file_size_bytes / (1024 * 1024):.1f} MB" if file_size_bytes >= 1024 * 1024 else f"{max(1, round(file_size_bytes / 1024))} KB"
         file_url = f"/downloads/{safe_filename}"
         file_name = file.filename
     elif external_url:
@@ -1456,7 +1639,16 @@ async def upload_exam_material(
         file_name = "외부 링크 자료"
         file_size_str = "URL"
     else:
-        raise HTTPException(status_code=400, detail="파일을 첨부하거나 외부 다운로드 링크를 입력해 주세요.")
+        raise HTTPException(status_code=400, detail="문제지 파일을 첨부하거나 링크를 입력해 주세요.")
+
+    # 정답/해설지 파일 처리 (PDF 또는 이미지)
+    if answer_file and answer_file.filename:
+        safe_ans_name = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_ANS_{answer_file.filename}"
+        dest_ans_path = os.path.join(DOWNLOADS_DIR, safe_ans_name)
+        with open(dest_ans_path, "wb") as buffer:
+            shutil.copyfileobj(answer_file.file, buffer)
+        answer_url = f"/downloads/{safe_ans_name}"
+        answer_name = answer_file.filename
 
     mat = models.ExamMaterial(
         subject=subject.strip(),
@@ -1465,29 +1657,20 @@ async def upload_exam_material(
         file_url=file_url,
         file_name=file_name,
         file_size=file_size_str,
-        year=year or datetime.now().year
+        answer_file_url=answer_url,
+        answer_file_name=answer_name,
+        year=year or 2027
     )
     db.add(mat)
     db.commit()
     db.refresh(mat)
-    return {"status": "ok", "message": "자료가 성공적으로 등록되었습니다.", "material": mat}
+    return {"status": "ok", "message": "기출문제 및 정답지가 성공적으로 등록되었습니다.", "material": mat}
 
 @app.delete("/api/admin/materials/{material_id}")
 def delete_exam_material(material_id: int, db: Session = Depends(get_db)):
     mat = db.query(models.ExamMaterial).filter(models.ExamMaterial.id == material_id).first()
     if not mat:
         raise HTTPException(status_code=404, detail="자료를 찾을 수 없습니다.")
-    
-    # 로컬 파일 삭제 시도
-    if mat.file_url and mat.file_url.startswith("/downloads/"):
-        filename = mat.file_url.replace("/downloads/", "")
-        local_path = os.path.join(DOWNLOADS_DIR, filename)
-        if os.path.exists(local_path):
-            try:
-                os.remove(local_path)
-            except Exception as e:
-                print("Failed to remove file:", e)
-                
     db.delete(mat)
     db.commit()
     return {"status": "ok", "message": "자료가 삭제되었습니다."}
@@ -1501,12 +1684,11 @@ def download_exam_material(material_id: int, db: Session = Depends(get_db)):
     if not mat:
         raise HTTPException(status_code=404, detail="기출 자료를 찾을 수 없습니다.")
         
-    # 1. 로컬에 실제 파일이 존재하는 경우 직접 서빙
     if mat.file_url and mat.file_url.startswith("/downloads/"):
         filename = mat.file_url.replace("/downloads/", "")
         local_path = os.path.join(DOWNLOADS_DIR, filename)
         if os.path.exists(local_path) and os.path.getsize(local_path) > 0:
-            safe_title = f"[{mat.subject}]{mat.title}.pdf"
+            safe_title = f"[{mat.subject}]_{mat.title}.pdf"
             encoded_title = quote(safe_title)
             return FileResponse(
                 path=local_path,
@@ -1546,6 +1728,41 @@ def download_exam_material(material_id: int, db: Session = Depends(get_db)):
             "Content-Disposition": f"attachment; filename*=UTF-8''{encoded_title}",
             "Content-Type": "application/pdf"
         }
+    )
+
+@app.get("/api/materials/{material_id}/download-answer")
+def download_exam_answer(material_id: int, db: Session = Depends(get_db)):
+    from urllib.parse import quote
+    from fastapi.responses import Response, FileResponse
+    
+    mat = db.query(models.ExamMaterial).filter(models.ExamMaterial.id == material_id).first()
+    if not mat or not mat.answer_file_url:
+        raise HTTPException(status_code=404, detail="정답 및 해설지가 등록되지 않았습니다.")
+        
+    if mat.answer_file_url.startswith("/downloads/"):
+        filename = mat.answer_file_url.replace("/downloads/", "")
+        local_path = os.path.join(DOWNLOADS_DIR, filename)
+        if os.path.exists(local_path) and os.path.getsize(local_path) > 0:
+            ext = os.path.splitext(filename)[1] or ".pdf"
+            safe_title = f"[{mat.subject}]_{mat.title}_정답해설{ext}"
+            encoded_title = quote(safe_title)
+            media = "application/pdf" if ext.lower() == ".pdf" else "image/png"
+            return FileResponse(
+                path=local_path,
+                filename=safe_title,
+                media_type=media,
+                headers={"Content-Disposition": f"attachment; filename*=UTF-8''{encoded_title}"}
+            )
+            
+    # 동적 생성
+    clean_title = mat.title or "정답 및 해설"
+    pdf_content = (b"%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>\nendobj\n4 0 obj\n<< /Length 120 >>\nstream\nBT\n/F1 16 Tf\n50 780 Td\n(PALIN OS Answer & Solution: " + clean_title.encode("latin-1", "replace") + b") Tj\nET\nendstream\nendobj\n5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>\nendobj\nxref\n0 6\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n0000000244 00000 n \n0000000415 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n500\n%%EOF\n")
+    safe_title = f"[{mat.subject}]_{mat.title}_정답해설.pdf"
+    encoded_title = quote(safe_title)
+    return Response(
+        content=pdf_content,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{encoded_title}"}
     )
 
 # --- 📱 관리자 SMS 설정 및 실시간 잔여량 / 테스트 발송 엔드포인트 ---
