@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PALIN OS - 원장 전용 중앙 관제 대시보드</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=65.0">
+    <link rel="stylesheet" href="css/style.css?v=66.0">
     <style>
         body {
             background-color: #06070a;
@@ -332,8 +332,24 @@
             문제지와 정답·해설지(PDF 또는 이미지)를 각각 분리 업로드하시면 학생들의 <b>[2페이지 > 기출자료실]</b>에 다운로드 버튼이 개별 노출됩니다.
         </div>
         <form onsubmit="handleUploadMaterial(event)" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;" id="material-upload-form">
-            <div style="display: grid; grid-template-columns: 100px 110px 1.5fr 1fr; gap: 8px;">
-                <input type="number" id="mat-year" value="2027" placeholder="학년도" required style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 12px; border-radius: 8px; font-weight: 700;">
+            <div style="display: grid; grid-template-columns: 120px 110px 1.5fr 1fr; gap: 8px;">
+                <select id="mat-year" class="form-input" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 8px; font-weight: 700;" required>
+                    <option value="2027" selected style="background:#1e293b;">2027 학년도</option>
+                    <option value="2026" style="background:#1e293b;">2026 학년도</option>
+                    <option value="2025" style="background:#1e293b;">2025 학년도</option>
+                    <option value="2024" style="background:#1e293b;">2024 학년도</option>
+                    <option value="2023" style="background:#1e293b;">2023 학년도</option>
+                    <option value="2022" style="background:#1e293b;">2022 학년도</option>
+                    <option value="2021" style="background:#1e293b;">2021 학년도</option>
+                    <option value="2020" style="background:#1e293b;">2020 학년도</option>
+                    <option value="2019" style="background:#1e293b;">2019 학년도</option>
+                    <option value="2018" style="background:#1e293b;">2018 학년도</option>
+                    <option value="2017" style="background:#1e293b;">2017 학년도</option>
+                    <option value="2016" style="background:#1e293b;">2016 학년도</option>
+                    <option value="2015" style="background:#1e293b;">2015 학년도</option>
+                    <option value="2014" style="background:#1e293b;">2014 학년도</option>
+                    <option value="2013" style="background:#1e293b;">2013 학년도</option>
+                </select>
                 <select id="mat-subject" class="form-input" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 8px;" required>
                     <option value="국어" style="background:#1e293b;">📖 국어</option>
                     <option value="수학" selected style="background:#1e293b;">📐 수학</option>
