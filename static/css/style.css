@@ -447,22 +447,37 @@ main::-webkit-scrollbar {
 
 .timetable-body {
     position: relative;
-    height: 450px; /* 09:00 ~ 24:00 (15시간) -> 1시간당 30px 매핑 */
+    height: 450px; /* 09:00 ~ 24:00 (15시간) -> 1시간당 30px 정밀 매핑 */
     display: grid;
     grid-template-columns: 45px repeat(7, 1fr);
+    overflow: hidden;
 }
 
 .time-axis {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    position: relative;
+    height: 100%;
     border-right: 1.5px solid rgba(255, 255, 255, 0.15);
-    font-size: 0.68rem;
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.time-axis-slot {
+    position: absolute;
+    left: 0;
+    right: 0;
+    font-size: 0.65rem;
     font-weight: 700;
     color: #94a3b8;
     text-align: center;
-    padding: 4px 0;
-    background: rgba(0, 0, 0, 0.25);
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.time-axis-slot:first-child {
+    transform: translateY(2px);
+}
+
+.time-axis-slot:last-child {
+    transform: translateY(-100%);
 }
 
 .day-column {
@@ -472,6 +487,7 @@ main::-webkit-scrollbar {
     cursor: pointer;
     background-image: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 0px, rgba(255, 255, 255, 0.08) 1px, transparent 1px, transparent 30px);
     transition: background-color 0.15s ease;
+    overflow: hidden;
 }
 
 .day-column:hover {
@@ -487,7 +503,7 @@ main::-webkit-scrollbar {
     left: 2px;
     right: 2px;
     border-radius: 6px;
-    padding: 4px;
+    padding: 3px 4px;
     font-size: 0.68rem;
     font-weight: 700;
     color: white;
@@ -500,6 +516,7 @@ main::-webkit-scrollbar {
     justify-content: space-between;
     transition: var(--transition-smooth);
     z-index: 2;
+    box-sizing: border-box;
 }
 
 .timetable-block:hover {
@@ -513,19 +530,21 @@ main::-webkit-scrollbar {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    padding-right: 14px;
 }
 
 .timetable-block .block-time {
-    font-size: 0.58rem;
+    font-size: 0.55rem;
     opacity: 0.9;
     font-weight: 600;
+    line-height: 1.1;
 }
 
 .timetable-block .btn-delete-block {
     position: absolute;
     right: 2px;
     top: 2px;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.45);
     border-radius: 50%;
     width: 14px;
     height: 14px;
@@ -533,15 +552,17 @@ main::-webkit-scrollbar {
     align-items: center;
     justify-content: center;
     border: none;
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 0.7rem;
     cursor: pointer;
-    opacity: 0.8;
+    opacity: 0.85;
     transition: var(--transition-smooth);
+    z-index: 5;
 }
 
 .timetable-block:hover .btn-delete-block {
     opacity: 1;
+    background: #ef4444;
 }
 
 /* 주간 시간표 컬러 팔레트 */
