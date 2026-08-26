@@ -1817,3 +1817,61 @@ body.day-mode #exam-materials-container .material-card div {
 body.day-mode #exam-materials-container .material-card .material-title {
     color: #0f172a !important;
 }
+
+/* ===================================================
+   📱 1페이지 아코디언 접힘 바 & 회전 애니메이션
+   =================================================== */
+.accordion-header {
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s ease;
+}
+.accordion-header:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+.accordion-icon {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===================================================
+   🔒 마이크로 서약 모달 타이핑 박스 고대비 스타일
+   =================================================== */
+#pledge-input-text {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1.5px solid rgba(239, 68, 68, 0.4);
+    color: #ffffff;
+    font-weight: 700;
+    transition: border-color 0.2s ease;
+}
+#pledge-input-text:focus {
+    border-color: #ef4444;
+    outline: none;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+}
+
+/* ===================================================
+   ☀️ 데이 모드 & 🌙 나이트 모드 X(닫기) 및 아이콘 시인성 보장
+   =================================================== */
+.modal-close-btn, .btn-close {
+    color: #94a3b8 !important;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+.modal-close-btn:hover, .btn-close:hover {
+    color: #f8fafc !important;
+    opacity: 1;
+}
+body.day-mode .modal-close-btn, body.day-mode .btn-close {
+    color: #475569 !important;
+}
+body.day-mode .modal-close-btn:hover, body.day-mode .btn-close:hover {
+    color: #0f172a !important;
+}
+
+/* 시계 아이콘 명도 대비 보장 */
+body.day-mode .time-picker-icon, body.day-mode .clock-icon {
+    color: #1e293b !important;
+}
+body:not(.day-mode) .time-picker-icon, body:not(.day-mode) .clock-icon {
+    color: #f8fafc !important;
+}
