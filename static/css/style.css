@@ -97,6 +97,20 @@ body.day-mode .vip-lounge-btn {
     font-weight: 800 !important;
 }
 
+/* 주간 모드 전체 텍스트 명도대비(WCAG AA+) 일괄 보정 */
+body.day-mode .card {
+    color: #0f172a !important;
+}
+body.day-mode .report-intro-text,
+body.day-mode .mission-time,
+body.day-mode .target-label {
+    color: #334155 !important;
+}
+body.day-mode .univ-name {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+
 /* PALIN OS League Badges */
 .league-badge {
     display: inline-flex;
