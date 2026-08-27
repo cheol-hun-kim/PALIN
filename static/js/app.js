@@ -2168,11 +2168,14 @@ function updateTargetBanner() {
     if (targetUnivEl) targetUnivEl.innerText = currentStudent.target_univ || "미설정";
     if (baselineUnivEl) baselineUnivEl.innerText = currentStudent.baseline_univ || "미설정";
 
-    // D-Day 계산 렌더링
+    // D-Day 계산 렌더링 (사용자 핀고정 우선)
     const ddayEl = document.getElementById("banner-dday");
     const ddayTitleEl = document.getElementById("banner-dday-title");
-    if (ddayEl) ddayEl.innerText = calculateDDay(currentStudent.dday_date || "2026-11-19");
-    if (ddayTitleEl) ddayTitleEl.innerText = currentStudent.dday_title || "2027 수능";
+    const activeDate = localStorage.getItem('pinnedDDayDate') || currentStudent.dday_date || "2026-11-19";
+    const activeTitle = localStorage.getItem('pinnedDDayTitle') || currentStudent.dday_title || "2027 수능";
+    
+    if (ddayEl) ddayEl.innerText = calculateDDay(activeDate);
+    if (ddayTitleEl) ddayTitleEl.innerText = activeTitle.replace("2027학년도 ", "").replace("2026학년도 ", "");
 
     // 🌲 포레스트 목표 대학 로고 & 엠블럼 렌더링
     const emblemEl = document.getElementById("target-symbol-emblem");
@@ -2233,30 +2236,60 @@ async function fetchMicroLeague(studentId) {
     }
 }
 
+function setPrimaryDDay(title, dateStr) {
+    localStorage.setItem('pinnedDDayTitle', title);
+    localStorage.setItem('pinnedDDayDate', dateStr);
+    
+    // 1페이지 배너 즉시 반영
+    const ddayEl = document.getElementById("banner-dday");
+    const ddayTitleEl = document.getElementById("banner-dday-title");
+    if (ddayEl) ddayEl.innerText = calculateDDay(dateStr);
+    if (ddayTitleEl) ddayTitleEl.innerText = title.replace("2027학년도 ", "").replace("2026학년도 ", "");
+    
+    alert(`📌 [${title}] 일정이 1페이지 홈 배너의 D-Day로 설정되었습니다!`);
+    renderAdmissionCalendar();
+}
+
 function renderAdmissionCalendar() {
-    const calendarData = [
-        { title: "2026학년도 3월 전국연합학력평가", date: "2026-03-26", dday: calculateDDay("2026-03-26"), cat: "모의고사" },
-        { title: "2026학년도 6월 모의평가 (평가원 출제)", date: "2026-06-04", dday: calculateDDay("2026-06-04"), cat: "평가원" },
-        { title: "2026학년도 9월 모의평가 (수능 바로미터)", date: "2026-09-02", dday: calculateDDay("2026-09-02"), cat: "평가원" },
-        { title: "2027학년도 대입 수시모집 원서접수", date: "2026-09-07", dday: calculateDDay("2026-09-07"), cat: "원서접수" },
-        { title: "2027학년도 대학수학능력시험 (본 수능)", date: "2026-11-19", dday: calculateDDay("2026-11-19"), cat: "수능시험" },
-        { title: "2027학년도 대입 정시모집 원서접수", date: "2026-12-28", dday: calculateDDay("2026-12-28"), cat: "원서접수" }
+    const rawCalendarData = [
+        { title: "2026학년도 9월 모의평가 (수능 바로미터)", date: "2026-09-02", cat: "평가원" },
+        { title: "2027학년도 대입 수시모집 원서접수", date: "2026-09-07", cat: "원서접수" },
+        { title: "2027학년도 대학수학능력시험 (본 수능)", date: "2026-11-19", cat: "수능시험" },
+        { title: "2027학년도 대입 정시모집 원서접수", date: "2026-12-28", cat: "원서접수" }
     ];
 
     const listEl = document.getElementById("admission-calendar-list");
     if (!listEl) return;
     listEl.innerHTML = "";
-    calendarData.forEach(item => {
-        const isUrgent = item.dday.startsWith("D-") && parseInt(item.dday.replace("D-", "")) <= 30;
+    
+    const pinnedDate = localStorage.getItem('pinnedDDayDate') || "2026-11-19";
+    
+    rawCalendarData.forEach(item => {
+        const ddayText = calculateDDay(item.date);
+        // 이미 지난 일정(D+)은 자동 제외
+        if (ddayText.startsWith("D+")) return;
+        
+        const isPinned = (item.date === pinnedDate);
+        const isUrgent = ddayText.startsWith("D-") && parseInt(ddayText.replace("D-", "")) <= 30;
         const ddayColor = isUrgent ? "background: #ef4444; color: white;" : "background: #3b82f6; color: white;";
+        const pinBtnText = isPinned ? "✅ 노출 중" : "📌 1페이지 노출";
+        const pinBtnStyle = isPinned 
+            ? "background: #10b981; color: white; border: none;" 
+            : "background: rgba(255,255,255,0.08); color: var(--text-primary); border: 1px solid var(--glass-border);";
+            
         listEl.innerHTML += `
-            <div class="calendar-card">
-                <div>
-                    <div class="calendar-item-title" style="font-weight: 800; font-size: 0.88rem;">${item.title}</div>
-                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">📅 ${item.date} (${item.cat})</div>
+            <div class="calendar-card" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; margin-bottom: 8px;">
+                <div style="flex: 1; min-width: 0;">
+                    <div class="calendar-item-title" style="font-weight: 800; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.title}</div>
+                    <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px;">📅 ${item.date} (${item.cat})</div>
                 </div>
-                <div class="calendar-dday" style="${ddayColor}">
-                    ${item.dday}
+                <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                    <button class="btn" style="padding: 4px 8px; font-size: 0.72rem; border-radius: 6px; font-weight: 700; ${pinBtnStyle}" onclick="setPrimaryDDay('${item.title}', '${item.date}')">
+                        ${pinBtnText}
+                    </button>
+                    <div class="calendar-dday" style="${ddayColor} padding: 4px 8px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; min-width: 48px; text-align: center;">
+                        ${ddayText}
+                    </div>
                 </div>
             </div>
         `;
