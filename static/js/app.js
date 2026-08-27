@@ -5211,23 +5211,28 @@ async function loadMicroRankings() {
     listEl.innerHTML = "";
     dummyRankers.forEach(r => {
         const medal = r.rank === 1 ? "🥇" : (r.rank === 2 ? "🥈" : (r.rank === 3 ? "🥉" : `${r.rank}위`));
-        const bg = r.isMe ? "rgba(234, 179, 8, 0.15)" : "rgba(255,255,255,0.03)";
-        const border = r.isMe ? "1.5px solid #eab308" : "1px solid rgba(255,255,255,0.06)";
+        const isDayMode = document.body.classList.contains('day-mode');
+        const bg = r.isMe 
+            ? (isDayMode ? "#fef3c7" : "rgba(234, 179, 8, 0.15)") 
+            : (isDayMode ? "#ffffff" : "rgba(255,255,255,0.03)");
+        const border = r.isMe 
+            ? "1.5px solid #eab308" 
+            : (isDayMode ? "1px solid #cbd5e1" : "1px solid rgba(255,255,255,0.06)");
         
         listEl.innerHTML += `
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: ${bg}; border-radius: 8px; border: ${border};">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: ${bg}; border-radius: 8px; border: ${border}; margin-bottom: 4px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <span style="font-weight: 800; font-size: 0.95rem; min-width: 24px;">${medal}</span>
                     <div>
-                        <div style="font-weight: 700; font-size: 0.85rem; color: #ffffff;">
+                        <div style="font-weight: 700; font-size: 0.85rem; color: var(--text-primary);">
                             ${r.name} ${r.isMe ? '<span style="font-size:0.68rem; background:#eab308; color:#000; padding:1px 6px; border-radius:8px; font-weight:800; margin-left:4px;">ME</span>' : ''}
                         </div>
                         <div style="font-size: 0.72rem; color: var(--text-secondary);">${r.school} · ${r.region}</div>
                     </div>
                 </div>
                 <div style="text-align: right;">
-                    <div style="font-size: 0.82rem; font-weight: 800; color: #fbbf24;">${r.studyHours}</div>
-                    <div style="font-size: 0.68rem; color: #34d399;">연속 ${r.streak}일 달성 🔥</div>
+                    <div style="font-size: 0.82rem; font-weight: 800; color: #d97706;">${r.studyHours}</div>
+                    <div style="font-size: 0.68rem; color: #059669; font-weight: 700;">연속 ${r.streak}일 달성 🔥</div>
                 </div>
             </div>
         `;
