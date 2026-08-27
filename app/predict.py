@@ -53,10 +53,9 @@ def predict_admission(
     target_dept: str = None
 ) -> dict:
     """
-    2025~2027 대입 전면 개편 반영 정시 합격 예측 엔진:
-    - 문/이과 계열 제한 철폐 및 사탐·과탐 교차지원 전면 개방
-    - 서울대 자연계 등 일부 과탐 필수 지정 대학 엄격 필터링
-    - 자연계열 지원 시 과탐 응시자 가산점(3~5%) 및 미적/기하 가산점 정밀 환산
+    2026~2027 통합수능 전면 개편 반영 정시 합격 예측 엔진:
+    - 사탐 응시자의 이공계열 교차지원 전면 허용 (건국대, 서강대, 성균관대, 한양대, 연세대, 고려대 등)
+    - 자연계열 지원 시 과탐 선택자 가산점(3~5%) 및 미적/기하 가산점 정밀 환산
     """
     entries = load_entries()
     
@@ -75,7 +74,7 @@ def predict_admission(
     science_tam_count = (1 if tam1_type == '과탐' else 0) + (1 if tam2_type == '과탐' else 0)
     is_calc_math = math_type in ['미적', '기하']
 
-    # 과탐 필수 지정 대학 (서울대 자연계, 고려대 일부 자연계, 일부 의치한약수)
+    # 과탐 필수 지정 대학 (서울대 자연계 등 일부 특수 전형만 제한)
     STRICT_SCIENCE_UNIVS = ['서울대학교', '서울대']
 
     results = []
@@ -84,77 +83,88 @@ def predict_admission(
 
     for entry in entries:
         univ_name = entry.get('대학교', '')
+        dept_name = entry.get('전공', '')
         gyeyeol = entry.get('계열', '') # 이과 / 문과
         
-        # 1. 서울대 등 과탐 필수 지정 대학 지원 자격 체크
+        # 1. 서울대 등 과탐 필수 지정 대학 체크 (사탐 선택자는 제외)
         if gyeyeol == '이과' and any(s_univ in univ_name for s_univ in STRICT_SCIENCE_UNIVS):
             if science_tam_count < 2 or not is_calc_math:
-                # 과탐 2과목 및 미적/기하 미충족 시 지원 불가 처리
                 continue
 
-        # 2. 탐구 가산점 계산 (자연계열 지원 시 과탐 선택자에게 백분위 3~5% 가산)
+        # 2. 가산점 계산 (이공계열 지원 시 과탐 응시자에게 3% 가산, 미적/기하 응시자 가산)
         tam1_effective = tam1_pct
         tam2_effective = tam2_pct
         if gyeyeol == '이과':
-            # 건국대, 성균관대, 중앙대, 경희대 등 자연계 과탐 가산점 부여
             if tam1_type == '과탐':
                 tam1_effective = min(100.0, tam1_pct * 1.03)
             if tam2_type == '과탐':
                 tam2_effective = min(100.0, tam2_pct * 1.03)
 
-        kor_weight = entry.get('국어구성비', 0)
-        math_weight = entry.get('수학구성비', 0)
-        tam_weight = entry.get('탐구구성비', 0)
+        kor_weight = entry.get('국어구성비', 0.3)
+        math_weight = entry.get('수학구성비', 0.35)
+        tam_weight = entry.get('탐구구성비', 0.35)
         
         total_weight = kor_weight + math_weight + tam_weight
         if total_weight == 0:
-            continue
+            total_weight = 1.0
             
         avg_pct = (kor_pct * kor_weight + math_pct * math_weight + ((tam1_effective + tam2_effective) / 2) * tam_weight) / total_weight
         student_nuback = 100.0 - avg_pct
         
-        # Add eng grade penalty
-        eng_shifts = entry.get('영어누백조정', [])
-        if eng_shifts and 0 <= eng_grade - 1 < len(eng_shifts):
-            student_nuback += eng_shifts[eng_grade - 1]
+        # 영어 등급 감점 (새 엑셀 데이터의 영어환산 배열 적용)
+        eng_conversions = entry.get('영어환산', [])
+        if eng_conversions and len(eng_conversions) >= 9:
+            # 1등급(0점 감점) 대비 감점 폭을 누백 보정치로 환산 (예: -6점 -> +0.15% 누백)
+            grade_deduction = abs(eng_conversions[eng_grade - 1]) if eng_grade <= len(eng_conversions) else 0.0
+            student_nuback += (grade_deduction * 0.02)
+        else:
+            # 기본 영어 등급 감점 (1등급 0, 2등급 +0.2, 3등급 +0.5 등)
+            eng_penalties = [0, 0.15, 0.4, 0.8, 1.3, 2.0, 3.0, 4.5, 6.0]
+            if 1 <= eng_grade <= 9:
+                student_nuback += eng_penalties[eng_grade - 1]
             
         student_nuback += hist_penalty
 
         verdict = '위험'
-        if student_nuback <= entry.get('적정누백', 0):
+        safe_cut = entry.get('적정누백', 0)
+        proper_cut = entry.get('예상누백', 0)
+        sosin_cut = entry.get('소신누백', 0)
+
+        if student_nuback <= safe_cut:
             verdict = '안정'
-        elif student_nuback <= entry.get('예상누백', 0):
+        elif student_nuback <= proper_cut:
             verdict = '적정'
-        elif student_nuback <= entry.get('소신누백', 0):
+        elif student_nuback <= sosin_cut:
             verdict = '소신'
             
         summary[verdict] += 1
         
         res = {
-            '대학교': entry.get('대학교', ''),
-            '전공': entry.get('전공', ''),
+            '대학교': univ_name,
+            '전공': dept_name,
             '계열': gyeyeol,
             '대학구분': entry.get('대학구분', ''),
             '모집군': entry.get('모집군', ''),
             '시도': entry.get('시도', ''),
+            '시군구': entry.get('시군구', ''),
             '대학약칭': entry.get('대학약칭', ''),
             '전공약칭': entry.get('전공약칭', ''),
             'student_nuback': round(student_nuback, 2),
             'verdict': verdict,
-            '적정누백': entry.get('적정누백', 0),
-            '예상누백': entry.get('예상누백', 0),
-            '소신누백': entry.get('소신누백', 0),
+            '적정누백': safe_cut,
+            '예상누백': proper_cut,
+            '소신누백': sosin_cut,
         }
         results.append(res)
         
         # 목표 대학 매칭
         if target_univ and target_result is None:
-            univ_match = (target_univ in res['대학교']) or (entry.get('대학약칭') and target_univ in entry.get('대학약칭'))
-            dept_match = (not target_dept) or (target_dept in res['전공'])
+            univ_match = (target_univ in univ_name) or (entry.get('대학약칭') and target_univ in entry.get('대학약칭'))
+            dept_match = (not target_dept) or (target_dept in dept_name)
             if univ_match and dept_match:
                 target_result = res
                 
-    # Sort results
+    # Sort results (안정 -> 적정 -> 소신 -> 위험 순)
     verdict_order = {'안정': 0, '적정': 1, '소신': 2, '위험': 3}
     results.sort(key=lambda x: (verdict_order[x['verdict']], x['student_nuback']))
 
