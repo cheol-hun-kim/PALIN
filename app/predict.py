@@ -1,12 +1,9 @@
-import json
-import os
+import json, os
 
-# Cache
-_entries = []
+_entries_science = None
+_entries_humanities = None
 
 def raw_to_eng_grade(raw_score: int) -> int:
-    """Convert 영어 원점수 to 등급.
-    90이상=1, 80이상=2, 70이상=3, 60이상=4, 50이상=5, 40이상=6, 30이상=7, 20이상=8, 나머지=9"""
     if raw_score >= 90: return 1
     if raw_score >= 80: return 2
     if raw_score >= 70: return 3
@@ -18,8 +15,6 @@ def raw_to_eng_grade(raw_score: int) -> int:
     return 9
 
 def raw_to_hist_grade(raw_score: int) -> int:
-    """Convert 한국사 원점수 to 등급.
-    40이상=1, 35이상=2, 30이상=3, 25이상=4, 20이상=5, 15이상=6, 10이상=7, 5이상=8, 나머지=9"""
     if raw_score >= 40: return 1
     if raw_score >= 35: return 2
     if raw_score >= 30: return 3
@@ -30,99 +25,105 @@ def raw_to_hist_grade(raw_score: int) -> int:
     if raw_score >= 5: return 8
     return 9
 
-def load_entries() -> list:
-    """Load univ_entries.json. Cache in memory after first load."""
-    global _entries
-    if not _entries:
-        file_path = os.path.join(os.path.dirname(__file__), 'data', 'univ_entries.json')
-        with open(file_path, 'r', encoding='utf-8') as f:
-            _entries = json.load(f)
-    return _entries
+def load_science_entries():
+    global _entries_science
+    if _entries_science is None:
+        data_path = os.path.join(os.path.dirname(__file__), "data", "univ_entries_science.json")
+        if os.path.exists(data_path):
+            with open(data_path, 'r', encoding='utf-8') as f:
+                _entries_science = json.load(f)
+        else:
+            _entries_science = []
+    return _entries_science
 
-def avg_pct_to_nuback(avg_pct: float) -> float:
-    """
-    수능 4영역 통합 다변량 정규분포(Multivariate Normal CDF) 기반 누적백분위 변환기:
-    단순 백분위 평균 98% -> 누백 ~0.65% (SKY)
-    단순 백분위 평균 95% -> 누백 ~1.85% (서성한/중경외시)
-    단순 백분위 평균 92% -> 누백 ~3.65% (건동홍 라인 안정/적정)
-    단순 백분위 평균 88% -> 누백 ~6.55% (국숭세단 라인)
-    """
+def load_humanities_entries():
+    global _entries_humanities
+    if _entries_humanities is None:
+        data_path = os.path.join(os.path.dirname(__file__), "data", "univ_entries_humanities.json")
+        if os.path.exists(data_path):
+            with open(data_path, 'r', encoding='utf-8') as f:
+                _entries_humanities = json.load(f)
+        else:
+            _entries_humanities = []
+    return _entries_humanities
+
+def load_entries():
+    return load_science_entries() + load_humanities_entries()
+
+def avg_pct_to_nuback_science(avg_pct: float) -> float:
+    """미적/과탐 이과 응시자 기준 누백 (Sheet 4 스케일: 96% -> ~3.9%, 94% -> ~8.4%, 90% -> ~17.4%)"""
     if avg_pct >= 100.0: return 0.01
     if avg_pct <= 0.0: return 99.9
-    
-    diff = 100.0 - avg_pct # 결손값 (예: 92% -> 8.0)
-    
-    if diff <= 1.0:
-        nuback = diff * 0.15
-    elif diff <= 3.0:
-        nuback = 0.15 + (diff - 1.0) * 0.35
-    elif diff <= 6.0:
-        nuback = 0.85 + (diff - 3.0) * 0.50
-    elif diff <= 10.0:
-        nuback = 2.35 + (diff - 6.0) * 0.65
-    elif diff <= 15.0:
-        nuback = 4.95 + (diff - 10.0) * 0.80
-    elif diff <= 25.0:
-        nuback = 8.95 + (diff - 15.0) * 0.95
-    else:
-        nuback = 18.45 + (diff - 25.0) * 1.05
-        
-    return round(max(0.01, min(99.9, nuback)), 2)
+    diff = 100.0 - avg_pct
+    if diff <= 1.0: return round(diff * 0.5, 3)
+    elif diff <= 2.0: return round(0.5 + (diff - 1.0) * 0.8, 3)
+    elif diff <= 4.0: return round(1.3 + (diff - 2.0) * 1.3, 3)
+    elif diff <= 7.0: return round(3.9 + (diff - 4.0) * 1.5, 3)
+    elif diff <= 12.0: return round(8.4 + (diff - 7.0) * 1.8, 3)
+    elif diff <= 20.0: return round(17.4 + (diff - 12.0) * 2.0, 3)
+    else: return round(33.4 + (diff - 20.0) * 2.2, 3)
+
+def avg_pct_to_nuback_unified(avg_pct: float) -> float:
+    """확통/사탐 및 전국 통합 기준 누백 (Sheet 5 스케일: 96% -> ~1.2%, 94% -> ~2.4%, 90% -> ~4.5%)"""
+    if avg_pct >= 100.0: return 0.01
+    if avg_pct <= 0.0: return 99.9
+    diff = 100.0 - avg_pct
+    if diff <= 1.0: return round(diff * 0.15, 3)
+    elif diff <= 3.0: return round(0.15 + (diff - 1.0) * 0.35, 3)
+    elif diff <= 6.0: return round(0.85 + (diff - 3.0) * 0.50, 3)
+    elif diff <= 10.0: return round(2.35 + (diff - 6.0) * 0.65, 3)
+    elif diff <= 15.0: return round(4.95 + (diff - 10.0) * 0.80, 3)
+    elif diff <= 25.0: return round(8.95 + (diff - 15.0) * 0.95, 3)
+    else: return round(18.45 + (diff - 25.0) * 1.05, 3)
 
 def predict_admission(
-    kor_pct: float,          # 국어 백분위 0-100
-    math_pct: float,         # 수학 백분위 0-100
-    eng_raw: int,            # 영어 원점수 0-100
-    tam1_pct: float,         # 탐구1 백분위 0-100
-    tam2_pct: float,         # 탐구2 백분위 0-100
-    hist_raw: int,           # 한국사 원점수 0-50
-    math_type: str = '미적',  # 미적 | 기하 | 확통
-    tam1_type: str = '과탐',  # 과탐 | 사탐
-    tam2_type: str = '과탐',  # 과탐 | 사탐
+    kor_pct: float,
+    math_pct: float,
+    eng_raw: int,
+    tam1_pct: float,
+    tam2_pct: float,
+    hist_raw: int,
+    math_type: str = '미적',
+    tam1_type: str = '과탐',
+    tam2_type: str = '과탐',
     target_univ: str = None,
     target_dept: str = None
 ) -> dict:
-    """
-    2026~2027 통합수능 전면 개편 반영 정시 합격 예측 엔진:
-    - 사탐 응시자의 이공계열 교차지원 전면 허용 (건국대, 서강대, 성균관대, 한양대, 연세대, 고려대 등)
-    - 자연계열 지원 시 과탐 선택자 가산점(3~5%) 및 미적/기하 가산점 정밀 환산
-    - 다변량 정규분포 CDF 기반 전국 통합 수능 누적백분위 정밀 산출
-    """
-    entries = load_entries()
-    
     eng_grade = raw_to_eng_grade(eng_raw)
     hist_grade = raw_to_hist_grade(hist_raw)
     
     hist_penalty = 0.0
-    if hist_grade == 4:
-        hist_penalty = 0.05
-    elif hist_grade == 5:
-        hist_penalty = 0.15
-    elif hist_grade >= 6:
-        hist_penalty = 0.3
+    if hist_grade == 4: hist_penalty = 0.05
+    elif hist_grade == 5: hist_penalty = 0.15
+    elif hist_grade >= 6: hist_penalty = 0.3
 
-    # 탐구 과탐 개수 계산 (0개, 1개, 2개)
+    is_math_calc = math_type in ['미적', '기하']
     science_tam_count = (1 if tam1_type == '과탐' else 0) + (1 if tam2_type == '과탐' else 0)
-    is_calc_math = math_type in ['미적', '기하']
+    
+    # 1. 자연계 순수 응시 (미적/기하 + 과탐 2개)
+    is_pure_science = is_math_calc and science_tam_count == 2
+    
+    if is_pure_science:
+        entries = load_science_entries()
+        nuback_converter = avg_pct_to_nuback_science
+    else:
+        entries = load_humanities_entries()
+        nuback_converter = avg_pct_to_nuback_unified
 
-    # 과탐 필수 지정 대학 (서울대 자연계 등 일부 특수 전형만 제한)
     STRICT_SCIENCE_UNIVS = ['서울대학교', '서울대']
 
     results = []
-    target_result = None
     summary = {'안정': 0, '적정': 0, '소신': 0, '위험': 0}
 
     for entry in entries:
         univ_name = entry.get('대학교', '')
         dept_name = entry.get('전공', '')
-        gyeyeol = entry.get('계열', '') # 이과 / 문과
+        gyeyeol = entry.get('계열', '')
         
-        # 1. 서울대 등 과탐 필수 지정 대학 체크 (사탐 선택자는 제외)
         if gyeyeol == '이과' and any(s_univ in univ_name for s_univ in STRICT_SCIENCE_UNIVS):
-            if science_tam_count < 2 or not is_calc_math:
+            if science_tam_count < 2 or not is_math_calc:
                 continue
 
-        # 2. 가산점 계산 (이공계열 지원 시 과탐 응시자에게 3% 가산)
         tam1_effective = tam1_pct
         tam2_effective = tam2_pct
         if gyeyeol == '이과':
@@ -136,21 +137,18 @@ def predict_admission(
         tam_weight = entry.get('탐구구성비', 0.35)
         
         total_weight = kor_weight + math_weight + tam_weight
-        if total_weight == 0:
-            total_weight = 1.0
+        if total_weight == 0: total_weight = 1.0
             
         avg_pct = (kor_pct * kor_weight + math_pct * math_weight + ((tam1_effective + tam2_effective) / 2) * tam_weight) / total_weight
         
-        # 통합 정시 누적백분위(누백) 변환
-        student_nuback = avg_pct_to_nuback(avg_pct)
+        student_nuback = nuback_converter(avg_pct)
         
-        # 영어 등급 감점 (새 엑셀 데이터의 영어환산 배열 적용)
         eng_conversions = entry.get('영어환산', [])
         if eng_conversions and len(eng_conversions) >= 9:
             grade_deduction = abs(eng_conversions[eng_grade - 1]) if eng_grade <= len(eng_conversions) else 0.0
-            student_nuback += (grade_deduction * 0.015)
+            student_nuback += (grade_deduction * (0.05 if is_pure_science else 0.015))
         else:
-            eng_penalties = [0, 0.1, 0.25, 0.5, 0.9, 1.4, 2.0, 3.0, 4.0]
+            eng_penalties = [0, 0.2, 0.5, 1.0, 1.8, 2.8, 4.0, 5.5, 7.0]
             if 1 <= eng_grade <= 9:
                 student_nuback += eng_penalties[eng_grade - 1]
             
@@ -170,37 +168,37 @@ def predict_admission(
             
         summary[verdict] += 1
         
-        res = {
+        results.append({
             '대학교': univ_name,
             '전공': dept_name,
+            '대학약칭': entry.get('대학약칭', univ_name),
+            '전공약칭': entry.get('전공약칭', dept_name),
             '계열': gyeyeol,
-            '대학구분': entry.get('대학구분', ''),
-            '모집군': entry.get('모집군', ''),
-            '시도': entry.get('시도', ''),
+            '대학구분': entry.get('대학구분', '4년제'),
+            '모집군': entry.get('모집군', '가'),
+            '시도': entry.get('시도', '서울'),
             '시군구': entry.get('시군구', ''),
-            '대학약칭': entry.get('대학약칭', ''),
-            '전공약칭': entry.get('전공약칭', ''),
             'student_nuback': round(student_nuback, 2),
             'verdict': verdict,
             '적정누백': safe_cut,
             '예상누백': proper_cut,
-            '소신누백': sosin_cut,
-        }
-        results.append(res)
-        
-        # 목표 대학 매칭
-        if target_univ and target_result is None:
-            univ_match = (target_univ in univ_name) or (entry.get('대학약칭') and target_univ in entry.get('대학약칭'))
-            dept_match = (not target_dept) or (target_dept in dept_name)
-            if univ_match and dept_match:
-                target_result = res
-                
-    # Sort results (안정 -> 적정 -> 소신 -> 위험 순)
-    verdict_order = {'안정': 0, '적정': 1, '소신': 2, '위험': 3}
-    results.sort(key=lambda x: (verdict_order[x['verdict']], x['student_nuback']))
+            '소신누백': sosin_cut
+        })
+
+    target_result = None
+    if target_univ and target_dept:
+        t_clean = target_univ.replace('대학교', '').replace('대', '')
+        d_clean = target_dept.strip()
+        matched = [r for r in results if (t_clean in r['대학교'] or t_clean in r['대학약칭'])]
+        if d_clean:
+            dept_matched = [r for r in matched if (r['전공'] == d_clean or r['전공'] == d_clean + '과' or r['전공'].startswith(d_clean) or (d_clean in r['전공'] and not ('수의' in r['전공'] and '의예' in d_clean)))]
+            if dept_matched:
+                target_result = dept_matched[0]
+        if not target_result and matched:
+            target_result = matched[0]
 
     return {
-        'target_result': target_result,
         'results': results,
-        'summary': summary
+        'summary': summary,
+        'target_result': target_result
     }
