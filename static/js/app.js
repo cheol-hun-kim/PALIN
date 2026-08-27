@@ -3528,21 +3528,31 @@ async function runPrediction() {
         const bUniv = baselineParts[0] || '';
         const bDept = baselineParts.slice(1).join(' ') || '';
         
-        // 결과에서 대학 찾기 (정확 매칭 우선)
+        // 결과에서 대학 및 학과 정밀 매칭
         function findUnivResult(results, univName, deptName) {
             if (!univName) return null;
-            // 1. 대학교명 + 학과명 정확 매칭
-            let found = results.find(r => r.대학교 === univName && deptName && r.전공 === deptName);
-            if (found) return found;
-            // 2. 대학교명 정확 + 학과명 포함
-            found = results.find(r => r.대학교 === univName && deptName && r.전공 && r.전공.includes(deptName));
-            if (found) return found;
-            // 3. 대학교명만 정확 매칭 (첫 번째 결과)
-            found = results.find(r => r.대학교 === univName);
-            if (found) return found;
-            // 4. 대학약칭으로 정확 매칭
-            found = results.find(r => r.대학약칭 === univName);
-            return found;
+            const uClean = univName.replace(/대학교$/, '').replace(/대$/, '');
+            const dClean = (deptName || '').trim();
+            
+            // 1. 대학교명(또는 약칭) 일치 + 학과명 포함 (본교 우선)
+            let matches = results.filter(r => 
+                (r.대학교.includes(uClean) || (r.대학약칭 && r.대학약칭.includes(uClean))) &&
+                (dClean ? (r.전공.includes(dClean) || (r.전공약칭 && r.전공약칭.includes(dClean))) : true)
+            );
+            
+            if (matches.length > 0) {
+                // 본교(분교/글로컬/미래 제외) 우선 정렬
+                const mainCampus = matches.find(r => !r.대학교.includes('(') && !r.대학교.includes('미래') && !r.대학교.includes('글로컬'));
+                return mainCampus || matches[0];
+            }
+            
+            // 2. 대학교명만 일치
+            matches = results.filter(r => r.대학교.includes(uClean) || (r.대학약칭 && r.대학약칭.includes(uClean)));
+            if (matches.length > 0) {
+                const mainCampus = matches.find(r => !r.대학교.includes('(') && !r.대학교.includes('미래') && !r.대학교.includes('글로컬'));
+                return mainCampus || matches[0];
+            }
+            return null;
         }
         
         // 희망대학 카드 업데이트
@@ -5199,13 +5209,13 @@ async function loadMicroRankings() {
     document.getElementById("my-ranking-region-name").innerText = myRegion;
     document.getElementById("my-ranking-school-name").innerText = mySchool;
     
-    // 시뮬레이션 및 실시간 랭킹 목록 렌더링
+    const myStreak = currentStudent?.consecutive_days || currentStudent?.streak_days || 2;
     const dummyRankers = [
-        { rank: 1, name: currentStudent?.name || "나", school: mySchool, region: myRegion, studyHours: "14시간 20분", streak: 18, isMe: true },
-        { rank: 2, name: "이*준", school: mySchool, region: myRegion, studyHours: "13시간 50분", streak: 14, isMe: false },
-        { rank: 3, name: "박*우", school: "분당대진고", region: myRegion, studyHours: "12시간 40분", streak: 12, isMe: false },
-        { rank: 4, name: "최*진", school: "서현고", region: myRegion, studyHours: "11시간 10분", streak: 9, isMe: false },
-        { rank: 5, name: "정*원", school: "중앙고", region: myRegion, studyHours: "10시간 30분", streak: 8, isMe: false }
+        { rank: 1, name: currentStudent?.name || "나", school: mySchool, region: myRegion, studyHours: "14시간 20분", streak: myStreak, isMe: true },
+        { rank: 2, name: "이*준", school: mySchool, region: myRegion, studyHours: "13시간 50분", streak: Math.max(1, myStreak - 1), isMe: false },
+        { rank: 3, name: "박*우", school: "분당대진고", region: myRegion, studyHours: "12시간 40분", streak: Math.max(1, myStreak - 1), isMe: false },
+        { rank: 4, name: "최*진", school: "서현고", region: myRegion, studyHours: "11시간 10분", streak: Math.max(1, myStreak - 2), isMe: false },
+        { rank: 5, name: "정*원", school: "중앙고", region: myRegion, studyHours: "10시간 30분", streak: Math.max(1, myStreak - 2), isMe: false }
     ];
     
     listEl.innerHTML = "";
