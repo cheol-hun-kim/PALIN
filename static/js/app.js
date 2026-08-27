@@ -3540,10 +3540,8 @@ async function runPrediction() {
                 math_type: mathType,
                 tam1_type: tam1Type,
                 tam2_type: tam2Type,
-                target_univ: tUniv,
-                target_dept: tDept,
-                baseline_univ: bUniv,
-                baseline_dept: bDept
+                target_univ: '',
+                target_dept: ''
             })
         });
         
