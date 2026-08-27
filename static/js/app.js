@@ -3561,31 +3561,46 @@ async function runPrediction() {
         const bUniv = baselineParts[0] || '';
         const bDept = baselineParts.slice(1).join(' ') || '';
         
-        // 결과에서 대학 및 학과 정밀 매칭
+        // 결과에서 대학 및 학과 정밀 양방향 매칭
         function findUnivResult(results, univName, deptName) {
-            if (!univName) return null;
-            const uClean = univName.replace(/대학교$/, '').replace(/대$/, '');
-            const dClean = (deptName || '').trim();
+            if (!univName || !results || results.length === 0) return null;
+            const uClean = univName.replace(/대학교$/, '').replace(/대$/, '').trim();
+            const dClean = (deptName || '').replace(/학과$/, '').replace(/학부$/, '').replace(/전공$/, '').trim();
             
-            // 1. 대학교명(또는 약칭) 일치 + 학과명 포함 (본교 우선)
-            let matches = results.filter(r => 
-                (r.대학교.includes(uClean) || (r.대학약칭 && r.대학약칭.includes(uClean))) &&
-                (dClean ? (r.전공.includes(dClean) || (r.전공약칭 && r.전공약칭.includes(dClean))) : true)
+            // 1. 대학교명(약칭) 일치 대학들 추출
+            let univMatches = results.filter(r => 
+                (r.대학교 && r.대학교.includes(uClean)) || 
+                (r.대학약칭 && r.대학약칭.includes(uClean))
             );
+            if (univMatches.length === 0) return null;
             
-            if (matches.length > 0) {
-                // 본교(분교/글로컬/미래 제외) 우선 정렬
-                const mainCampus = matches.find(r => !r.대학교.includes('(') && !r.대학교.includes('미래') && !r.대학교.includes('글로컬'));
-                return mainCampus || matches[0];
+            // 본교(분교/글로컬/미래 제외) 우선 정렬
+            univMatches.sort((a, b) => {
+                const aIsBranch = a.대학교.includes('(') || a.대학교.includes('미래') || a.대학교.includes('글로컬');
+                const bIsBranch = b.대학교.includes('(') || b.대학교.includes('미래') || b.대학교.includes('글로컬');
+                return aIsBranch - bIsBranch;
+            });
+            
+            // 2. 학과명 양방향 정밀 매칭 (예: '의예과' <-> '의예', '화공생명공학부' <-> '화공')
+            if (dClean) {
+                // 2-A: 학과명 시작 일치 또는 정확 일치 (예: '의예과' vs '의예' - 수의예과 엄격 배제)
+                let exactDept = univMatches.find(r => {
+                    const rClean = (r.전공 || '').replace(/학과$/, '').replace(/학부$/, '').replace(/전공$/, '').trim();
+                    if (dClean === '의예' && rClean.includes('수의')) return false;
+                    return rClean === dClean || rClean.startsWith(dClean) || dClean.startsWith(rClean);
+                });
+                if (exactDept) return exactDept;
+                
+                // 2-B: 학과명 포함 일치
+                let partialDept = univMatches.find(r => {
+                    const rClean = (r.전공 || '').replace(/학과$/, '').replace(/학부$/, '').replace(/전공$/, '').trim();
+                    if (dClean === '의예' && rClean.includes('수의')) return false;
+                    return rClean.includes(dClean) || dClean.includes(rClean);
+                });
+                if (partialDept) return partialDept;
             }
             
-            // 2. 대학교명만 일치
-            matches = results.filter(r => r.대학교.includes(uClean) || (r.대학약칭 && r.대학약칭.includes(uClean)));
-            if (matches.length > 0) {
-                const mainCampus = matches.find(r => !r.대학교.includes('(') && !r.대학교.includes('미래') && !r.대학교.includes('글로컬'));
-                return mainCampus || matches[0];
-            }
-            return null;
+            return univMatches[0];
         }
         
         // 희망대학 카드 업데이트
