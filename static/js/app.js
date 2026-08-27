@@ -3604,14 +3604,34 @@ function renderPredResults() {
     if (!predictionResults) return;
     
     const search = (document.getElementById('pred-search').value || '').trim().toLowerCase();
+    const regionFilter = document.getElementById('pred-region-filter')?.value || '전체';
     let results = predictionResults.results;
     
-    // Apply filter
+    // 1. 판정 필터 적용
     if (currentFilter !== '전체') {
         results = results.filter(r => r.verdict === currentFilter);
     }
+
+    // 2. 지역 필터 적용
+    if (regionFilter !== '전체') {
+        if (regionFilter === '영남권') {
+            const ynList = ['부산광역시', '대구광역시', '울산광역시', '경상북도', '경상남도', '부산', '대구', '울산', '경북', '경남'];
+            results = results.filter(r => ynList.some(y => (r.시도 || '').includes(y)));
+        } else if (regionFilter === '호남권') {
+            const hnList = ['광주광역시', '전북특별자치도', '전라남도', '광주', '전북', '전남'];
+            results = results.filter(r => hnList.some(h => (r.시도 || '').includes(h)));
+        } else if (regionFilter === '충청권') {
+            const ccList = ['대전광역시', '세종특별자치시', '충청북도', '충청남도', '대전', '세종', '충북', '충남'];
+            results = results.filter(r => ccList.some(c => (r.시도 || '').includes(c)));
+        } else if (regionFilter === '강원·제주') {
+            const gjList = ['강원특별자치도', '제주특별자치도', '강원', '제주'];
+            results = results.filter(r => gjList.some(g => (r.시도 || '').includes(g)));
+        } else {
+            results = results.filter(r => (r.시도 || '').includes(regionFilter) || regionFilter.includes(r.시도 || ''));
+        }
+    }
     
-    // Apply search
+    // 3. 검색어 필터
     if (search) {
         results = results.filter(r => 
             r.대학교.toLowerCase().includes(search) || 
@@ -3631,11 +3651,12 @@ function renderPredResults() {
         const bgColor = getVerdictBgColor(r.verdict);
         const verdictTextColor = r.verdict === '소신' ? '#92400e' : 'white';
         const verdictBg = r.verdict === '소신' ? '#eab308' : color;
+        const sidoBadge = r.시도 ? ` · ${r.시도}` : '';
         container.innerHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.06); background: ${bgColor}; border-radius: 6px; margin-bottom: 4px;">
                 <div style="flex: 1; min-width: 0;">
                     <div style="font-weight: 700; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${r.대학약칭 || r.대학교}</div>
-                    <div style="font-size: 0.72rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${r.전공약칭 || r.전공} · ${r.모집군}군 · ${r.시도}</div>
+                    <div style="font-size: 0.72rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${r.전공약칭 || r.전공} · ${r.모집군}군${sidoBadge} · ${r.계열}</div>
                 </div>
                 <div style="background: ${verdictBg}; color: ${verdictTextColor}; padding: 3px 10px; border-radius: 12px; font-weight: 700; font-size: 0.78rem; flex-shrink: 0; margin-left: 8px;">
                     ${r.verdict}
@@ -3644,8 +3665,9 @@ function renderPredResults() {
         `;
     });
     
+    const regionText = regionFilter !== '전체' ? `[${regionFilter}] ` : '';
     document.getElementById('pred-results-count').innerText = 
-        `${results.length}개 중 ${displayed.length}개 표시 (${currentFilter} 필터)`;
+        `${regionText}${results.length}개 결과 중 ${displayed.length}개 표시 (${currentFilter} 필터)`;
 }
 
 
