@@ -3595,7 +3595,7 @@ async function runPrediction() {
         document.getElementById('pred-count-sosin').innerText = data.summary['소신'] || 0;
         document.getElementById('pred-count-danger').innerText = data.summary['위험'] || 0;
         
-        // 희망대학 카드 업데이트
+        // 희망대학 카드 업데이트 (정식 명칭 우선)
         const targetResult = data.target_result || {
             대학교: tUniv,
             전공: tDept,
@@ -3603,14 +3603,14 @@ async function runPrediction() {
         };
         const tc = getVerdictColor(targetResult.verdict);
         const vtc = targetResult.verdict === '소신' ? '#92400e' : 'white';
-        document.getElementById('pred-target-univ-name').innerText = targetResult.대학약칭 || targetResult.대학교;
-        document.getElementById('pred-target-dept-name').innerText = targetResult.전공약칭 || targetResult.전공;
+        document.getElementById('pred-target-univ-name').innerText = targetResult.대학교 || targetResult.대학약칭 || tUniv;
+        document.getElementById('pred-target-dept-name').innerText = targetResult.전공 || targetResult.전공약칭 || tDept;
         const tv = document.getElementById('pred-target-verdict');
         tv.innerText = targetResult.verdict;
         tv.style.background = targetResult.verdict === '소신' ? '#eab308' : tc;
         tv.style.color = vtc;
         
-        // 마지노선 대학 카드 업데이트
+        // 마지노선 대학 카드 업데이트 (정식 명칭 우선)
         const baselineResult = data.baseline_result || {
             대학교: bUniv,
             전공: bDept,
@@ -3618,8 +3618,8 @@ async function runPrediction() {
         };
         const bc = getVerdictColor(baselineResult.verdict);
         const vbc = baselineResult.verdict === '소신' ? '#92400e' : 'white';
-        document.getElementById('pred-baseline-univ-name').innerText = baselineResult.대학약칭 || baselineResult.대학교;
-        document.getElementById('pred-baseline-dept-name').innerText = baselineResult.전공약칭 || baselineResult.전공;
+        document.getElementById('pred-baseline-univ-name').innerText = baselineResult.대학교 || baselineResult.대학약칭 || bUniv;
+        document.getElementById('pred-baseline-dept-name').innerText = baselineResult.전공 || baselineResult.전공약칭 || bDept;
         const bv = document.getElementById('pred-baseline-verdict');
         bv.innerText = baselineResult.verdict;
         bv.style.background = baselineResult.verdict === '소신' ? '#eab308' : bc;
@@ -3644,7 +3644,7 @@ function renderPredResults() {
     
     const search = (document.getElementById('pred-search').value || '').trim().toLowerCase();
     const regionFilter = document.getElementById('pred-region-filter')?.value || '전체';
-    let results = predictionResults.results;
+    let results = predictionResults.results || [];
     
     // 1. 판정 필터 적용
     if (currentFilter !== '전체') {
@@ -3673,36 +3673,42 @@ function renderPredResults() {
     // 3. 검색어 필터
     if (search) {
         results = results.filter(r => 
-            r.대학교.toLowerCase().includes(search) || 
-            r.전공.toLowerCase().includes(search) ||
-            (r.대학약칭 && r.대학약칭.toLowerCase().includes(search))
+            (r.대학교 && r.대학교.toLowerCase().includes(search)) || 
+            (r.전공 && r.전공.toLowerCase().includes(search)) ||
+            (r.대학약칭 && r.대학약칭.toLowerCase().includes(search)) ||
+            (r.전공약칭 && r.전공약칭.toLowerCase().includes(search))
         );
     }
     
-    // Limit display to 100
-    const displayed = results.slice(0, 100);
+    // Limit display to 150
+    const displayed = results.slice(0, 150);
     
     const container = document.getElementById('pred-results-list');
     container.innerHTML = '';
     
-    displayed.forEach(r => {
-        const color = getVerdictColor(r.verdict);
-        const bgColor = getVerdictBgColor(r.verdict);
-        const verdictTextColor = r.verdict === '소신' ? '#92400e' : 'white';
-        const verdictBg = r.verdict === '소신' ? '#eab308' : color;
-        const sidoBadge = r.시도 ? ` · ${r.시도}` : '';
-        container.innerHTML += `
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.06); background: ${bgColor}; border-radius: 6px; margin-bottom: 4px;">
-                <div style="flex: 1; min-width: 0;">
-                    <div style="font-weight: 700; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${r.대학약칭 || r.대학교}</div>
-                    <div style="font-size: 0.72rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${r.전공약칭 || r.전공} · ${r.모집군}군${sidoBadge} · ${r.계열}</div>
+    if (displayed.length === 0) {
+        container.innerHTML = `<div style="text-align: center; padding: 24px; color: var(--text-secondary); font-size: 0.85rem;">해당 조건에 일치하는 대학이 없습니다.</div>`;
+    } else {
+        displayed.forEach(r => {
+            const color = getVerdictColor(r.verdict);
+            const bgColor = getVerdictBgColor(r.verdict);
+            const verdictTextColor = r.verdict === '소신' ? '#92400e' : 'white';
+            const verdictBg = r.verdict === '소신' ? '#eab308' : color;
+            const sidoBadge = r.시도 ? ` · ${r.시도}` : '';
+            const safeNuback = r.적정누백 ? ` (적정 ${r.적정누백}%)` : '';
+            container.innerHTML += `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 10px; border-bottom: 1px solid rgba(255,255,255,0.06); background: ${bgColor}; border-radius: 6px; margin-bottom: 5px;">
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-weight: 700; font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary);">${r.대학교 || r.대학약칭}</div>
+                        <div style="font-size: 0.74rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${r.전공 || r.전공약칭} · ${r.모집군}군${sidoBadge} · ${r.계열}${safeNuback}</div>
+                    </div>
+                    <div style="background: ${verdictBg}; color: ${verdictTextColor}; padding: 4px 12px; border-radius: 12px; font-weight: 800; font-size: 0.82rem; flex-shrink: 0; margin-left: 10px;">
+                        ${r.verdict}
+                    </div>
                 </div>
-                <div style="background: ${verdictBg}; color: ${verdictTextColor}; padding: 3px 10px; border-radius: 12px; font-weight: 700; font-size: 0.78rem; flex-shrink: 0; margin-left: 8px;">
-                    ${r.verdict}
-                </div>
-            </div>
-        `;
-    });
+            `;
+        });
+    }
     
     const regionText = regionFilter !== '전체' ? `[${regionFilter}] ` : '';
     document.getElementById('pred-results-count').innerText = 
