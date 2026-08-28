@@ -47,13 +47,7 @@ def load_science_entries():
             with open(p, "r", encoding="utf-8") as f:
                 _entries_science = json.load(f)
         else:
-            p_uni = _find_data_file("univ_entries.json")
-            if p_uni and os.path.exists(p_uni):
-                with open(p_uni, "r", encoding="utf-8") as f:
-                    all_ent = json.load(f)
-                    _entries_science = [e for e in all_ent if e.get("계열") == "이과"]
-            else:
-                _entries_science = []
+            _entries_science = []
     return _entries_science
 
 def load_humanities_entries():
@@ -64,16 +58,10 @@ def load_humanities_entries():
             with open(p, "r", encoding="utf-8") as f:
                 _entries_humanities = json.load(f)
         else:
-            p_uni = _find_data_file("univ_entries.json")
-            if p_uni and os.path.exists(p_uni):
-                with open(p_uni, "r", encoding="utf-8") as f:
-                    all_ent = json.load(f)
-                    _entries_humanities = [e for e in all_ent if e.get("계열") == "문과" or e.get("계열") == "인문"]
-            else:
-                _entries_humanities = []
+            _entries_humanities = []
     return _entries_humanities
 
-# 고속성장분석기 엑셀 1:1 실측 누적백분위 변환 공식
+# 고속성장분석기 엑셀 1:1 이과 누적백분위 변환 공식 (95,501명 이과 표본)
 def avg_pct_to_nuback_science(avg_pct: float) -> float:
     sum300 = avg_pct * 3.0
     if sum300 >= 299.5: nb = 0.01
@@ -91,16 +79,21 @@ def avg_pct_to_nuback_science(avg_pct: float) -> float:
     else: nb = min(99.0, 46.00 + (220.0 - sum300) * 0.70)
     return round(nb, 3)
 
-def avg_pct_to_nuback_unified(avg_pct: float) -> float:
+# 고속성장분석기 엑셀 1:1 문과 누적백분위 변환 공식 (375,873명 문과 표본)
+def avg_pct_to_nuback_humanities(avg_pct: float) -> float:
     sum300 = avg_pct * 3.0
-    if sum300 >= 298.0: nb = 0.05
-    elif sum300 >= 295.0: nb = 0.05 + (298.0 - sum300) / 3.0 * 0.50
-    elif sum300 >= 290.0: nb = 0.55 + (295.0 - sum300) / 5.0 * 1.50
-    elif sum300 >= 285.0: nb = 2.05 + (290.0 - sum300) / 5.0 * 2.20
-    elif sum300 >= 280.0: nb = 4.25 + (285.0 - sum300) / 5.0 * 2.60
-    elif sum300 >= 270.0: nb = 6.85 + (280.0 - sum300) / 10.0 * 5.0
-    elif sum300 >= 250.0: nb = 11.85 + (270.0 - sum300) / 20.0 * 10.0
-    else: nb = min(99.0, 21.85 + (250.0 - sum300) * 0.75)
+    if sum300 >= 298.0: nb = 0.01
+    elif sum300 >= 295.0: nb = 0.01 + (298.0 - sum300) / 3.0 * 0.06
+    elif sum300 >= 290.0: nb = 0.07 + (295.0 - sum300) / 5.0 * 0.29
+    elif sum300 >= 285.0: nb = 0.36 + (290.0 - sum300) / 5.0 * 0.54
+    elif sum300 >= 280.0: nb = 0.90 + (285.0 - sum300) / 5.0 * 0.80
+    elif sum300 >= 275.0: nb = 1.70 + (280.0 - sum300) / 5.0 * 0.99
+    elif sum300 >= 270.0: nb = 2.69 + (275.0 - sum300) / 5.0 * 1.08
+    elif sum300 >= 260.0: nb = 3.77 + (270.0 - sum300) / 10.0 * 2.69
+    elif sum300 >= 250.0: nb = 6.46 + (260.0 - sum300) / 10.0 * 3.00
+    elif sum300 >= 240.0: nb = 9.46 + (250.0 - sum300) / 10.0 * 3.64
+    elif sum300 >= 220.0: nb = 13.10 + (240.0 - sum300) / 20.0 * 8.40
+    else: nb = min(99.0, 21.50 + (220.0 - sum300) * 0.47)
     return round(nb, 3)
 
 def match_target_univ(results, univ_str, dept_str):
@@ -116,7 +109,6 @@ def match_target_univ(results, univ_str, dept_str):
         univ_matches = [r for r in results if (r.get("대학교") and u_clean in r.get("대학교")) or (r.get("대학약칭") and u_clean in r.get("대학약칭"))]
         
     if not univ_matches: return None
-    
     univ_matches.sort(key=lambda x: 1 if ("(" in x.get("대학교", "") or "미래" in x.get("대학교", "") or "글로컬" in x.get("대학교", "")) else 0)
     
     if d_clean:
@@ -165,12 +157,11 @@ def predict_admission(
     science_tam_count = (1 if tam1_type == "과탐" else 0) + (1 if tam2_type == "과탐" else 0)
     is_pure_science = is_math_calc and science_tam_count == 2
     
+    # 순수 이과 vs 문과/교차지원 엑셀 시트 선택
     if is_pure_science:
         entries = load_science_entries()
-        nuback_converter = avg_pct_to_nuback_science
     else:
         entries = load_humanities_entries()
-        nuback_converter = avg_pct_to_nuback_unified
 
     STRICT_SCIENCE_UNIVS = ["서울대학교", "서울대"]
 
@@ -182,17 +173,16 @@ def predict_admission(
         dept_name = entry.get("전공", "")
         entry_gyeyeol = entry.get("계열", "")
         
+        # 서울대 등 미적+과탐 필수 대학 필터
         if entry_gyeyeol == "이과" and any(s_univ in univ_name for s_univ in STRICT_SCIENCE_UNIVS):
             if science_tam_count < 2 or not is_math_calc:
                 continue
 
         tam1_effective = tam1_pct
         tam2_effective = tam2_pct
-        if entry_gyeyeol == "이과":
-            if tam1_type == "과탐":
-                tam1_effective = min(100.0, tam1_pct * 1.03)
-            if tam2_type == "과탐":
-                tam2_effective = min(100.0, tam2_pct * 1.03)
+        if entry_gyeyeol == "이과" and is_pure_science:
+            if tam1_type == "과탐": tam1_effective = min(100.0, tam1_pct * 1.03)
+            if tam2_type == "과탐": tam2_effective = min(100.0, tam2_pct * 1.03)
 
         kor_weight = entry.get("국어구성비", 0.3)
         math_weight = entry.get("수학구성비", 0.35)
@@ -202,8 +192,15 @@ def predict_admission(
         if total_weight == 0: total_weight = 1.0
             
         avg_pct = (kor_pct * kor_weight + math_pct * math_weight + ((tam1_effective + tam2_effective) / 2) * tam_weight) / total_weight
-        student_nuback = nuback_converter(avg_pct)
         
+        # 계열별 정확한 누백 계산식 매핑 (문과 표본 vs 이과 표본)
+        if is_pure_science:
+            student_nuback = avg_pct_to_nuback_science(avg_pct)
+        else:
+            # 확통/사탐 응시자의 경우 문과 시트의 컷과 비교하므로 문과 누백 적용!
+            student_nuback = avg_pct_to_nuback_humanities(avg_pct)
+        
+        # 영어 등급 감점
         eng_conversions = entry.get("영어환산", [])
         if eng_conversions and len(eng_conversions) >= 9:
             top_score = eng_conversions[0]
@@ -221,7 +218,7 @@ def predict_admission(
             else:
                 student_nuback += (score_diff * 0.10)
         else:
-            eng_penalties = [0, 0.8, 1.8, 3.2, 5.0, 7.5, 10.5, 14.0, 18.0]
+            eng_penalties = [0, 0.5, 1.2, 2.2, 3.8, 5.5, 8.0, 11.0, 15.0] if not is_pure_science else [0, 0.8, 1.8, 3.2, 5.0, 7.5, 10.5, 14.0, 18.0]
             if 1 <= eng_grade <= 9:
                 student_nuback += eng_penalties[eng_grade - 1]
             
@@ -254,7 +251,6 @@ def predict_admission(
             "모집군": entry.get("모집군", "가"),
             "대학구분": entry.get("대학구분", "일반"),
             "시도": entry.get("시도", "전국"),
-            "수능일반": entry.get("수능일반", "일반"),
             "student_nuback": student_nuback,
             "verdict": verdict,
             "적정누백": safe_cut,
