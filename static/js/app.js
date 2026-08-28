@@ -10,6 +10,8 @@ let activeSessionId = null;
 let isTimerRunning = false;
 let isDistracted = false; 
 let chatHistory = []; // AI 챗봇 대화 기록
+let predictionResults = null;
+let currentFilter = '전체';
 
 // --- 앱 초기화 및 로딩 ---
 let UNIVERSITY_DEPARTMENTS = {};
@@ -3394,9 +3396,7 @@ function appendChatBubble(sender, text) {
     return bubble;
 }
 
-// === Prediction State ===
-let predictionResults = null;
-let currentFilter = '전체';
+// === Prediction Functions ===
 
 // 영어 원점수 → 등급 변환
 function engRawToGrade(raw) {
@@ -3574,14 +3574,16 @@ async function runPrediction() {
             console.warn('Backend predict fetch warning, using robust pipeline:', fetchErr);
         }
 
-        // 결과 검증 및 방탄 처리 (150개 내장 + 5,948개 전수 하이브리드 엔진)
+        // 결과 검증 및 방탄 처리 (5,948개 전수 인메모리 엔진)
         if (!data || !data.results || data.results.length === 0) {
             const isPureScience = (mathType === '미적' || mathType === '기하') && (tam1Type === '과탐' && tam2Type === '과탐');
             
-            // 데이터셋 소스 결정 (5,948개 캐시 데이터 우선, 없으면 150개 내장 데이터)
-            let rawEntries = isPureScience ? (_cachedUnivEntriesScience || EMBEDDED_SCIENCE_UNIVS) : _cachedUnivEntriesHumanities;
+            // 5,948개 전수 인메모리 데이터셋 (window.PALIN_UNIV_SCIENCE / HUMANITIES)
+            let rawEntries = isPureScience ? (window.PALIN_UNIV_SCIENCE || _cachedUnivEntriesScience || EMBEDDED_SCIENCE_UNIVS) 
+                                           : (window.PALIN_UNIV_HUMANITIES || _cachedUnivEntriesHumanities || EMBEDDED_SCIENCE_UNIVS);
+            
             if (!rawEntries || rawEntries.length === 0) {
-                rawEntries = EMBEDDED_SCIENCE_UNIVS;
+                rawEntries = window.PALIN_UNIV_SCIENCE || EMBEDDED_SCIENCE_UNIVS;
             }
 
             const engGrade = eng >= 90 ? 1 : (eng >= 80 ? 2 : (eng >= 70 ? 3 : (eng >= 60 ? 4 : 5)));
@@ -3593,9 +3595,15 @@ async function runPrediction() {
             
             for (let i = 0; i < rawEntries.length; i++) {
                 const entry = rawEntries[i];
-                const univName = entry.u || entry.대학교 || '';
-                const deptName = entry.d || entry.전공 || '';
-                const gyeyeol = entry.g || entry.계열 || (isPureScience ? '이과' : '문과');
+                // 배열 포맷 or 객체 포맷 호환
+                const isArr = Array.isArray(entry);
+                const univName = isArr ? entry[0] : (entry.u || entry.대학교 || '');
+                const deptName = isArr ? entry[1] : (entry.d || entry.전공 || '');
+                const univAbbr = isArr ? entry[2] : (entry.ua || entry.대학약칭 || univName);
+                const deptAbbr = isArr ? entry[3] : (entry.da || entry.전공약칭 || deptName);
+                const gyeyeol = isArr ? entry[4] : (entry.g || entry.계열 || (isPureScience ? '이과' : '문과'));
+                const mojipGun = isArr ? entry[5] : (entry.m || entry.모집군 || '가');
+                const sido = isArr ? entry[6] : (entry.s || entry.시도 || '전국');
                 
                 let t1Eff = tam1;
                 let t2Eff = tam2;
@@ -3604,9 +3612,9 @@ async function runPrediction() {
                     if (tam2Type === '과탐') t2Eff = Math.min(100, tam2 * 1.03);
                 }
                 
-                const korW = entry.kw || entry.국어구성비 || 0.3;
-                const mathW = entry.mw || entry.수학구성비 || 0.35;
-                const tamW = entry.tw || entry.탐구구성비 || 0.35;
+                const korW = isArr ? entry[7] : (entry.kw || entry.국어구성비 || 0.3);
+                const mathW = isArr ? entry[8] : (entry.mw || entry.수학구성비 || 0.35);
+                const tamW = isArr ? entry[9] : (entry.tw || entry.탐구구성비 || 0.35);
                 const totW = (korW + mathW + tamW) || 1.0;
                 
                 const avgP = (kor * korW + math * mathW + ((t1Eff + t2Eff)/2) * tamW) / totW;
@@ -3622,7 +3630,7 @@ async function runPrediction() {
                 else stNuback = 6.10 + (diff - 12.0) * 0.95;
                 
                 // 영어 감점
-                const engConvs = entry.eng || entry.영어환산 || [];
+                const engConvs = isArr ? entry[13] : (entry.eng || entry.영어환산 || []);
                 if (engConvs && engConvs.length >= 9) {
                     const topScore = engConvs[0];
                     const curScore = engConvs[engGrade - 1] || engConvs[engConvs.length - 1];
@@ -3641,9 +3649,9 @@ async function runPrediction() {
                 
                 stNuback += histPenalty;
                 
-                const safeCut = entry.sc !== undefined ? entry.sc : (entry.적정누백 || 0);
-                const properCut = entry.pc !== undefined ? entry.pc : (entry.예상누백 || 0);
-                const sosinCut = entry.soc !== undefined ? entry.soc : (entry.소신누백 || 0);
+                const safeCut = isArr ? entry[10] : (entry.sc !== undefined ? entry.sc : (entry.적정누백 || 0));
+                const properCut = isArr ? entry[11] : (entry.pc !== undefined ? entry.pc : (entry.예상누백 || 0));
+                const sosinCut = isArr ? entry[12] : (entry.soc !== undefined ? entry.soc : (entry.소신누백 || 0));
                 
                 let v = '위험';
                 if (stNuback <= safeCut) v = '안정';
@@ -3655,11 +3663,11 @@ async function runPrediction() {
                 results.push({
                     대학교: univName,
                     전공: deptName,
-                    대학약칭: entry.ua || entry.대학약칭 || univName,
-                    전공약칭: entry.da || entry.전공약칭 || deptName,
+                    대학약칭: univAbbr,
+                    전공약칭: deptAbbr,
                     계열: gyeyeol,
-                    모집군: entry.m || entry.모집군 || '가',
-                    시도: entry.s || entry.시도 || '전국',
+                    모집군: mojipGun,
+                    시도: sido,
                     student_nuback: Math.round(stNuback * 100) / 100,
                     verdict: v,
                     적정누백: safeCut,
@@ -3668,17 +3676,35 @@ async function runPrediction() {
                 });
             }
             
-            // 희망/마지노선 매칭
+            // 정밀 타겟 매칭 함수 (연세대 화공생명공학부 1:1 완벽 매칭)
             function localMatch(uName, dName) {
                 if (!uName || results.length === 0) return null;
                 const uClean = uName.replace(/대학교$/, '').replace(/대$/, '').trim();
                 const dClean = (dName || '').replace(/학과$/, '').replace(/학부$/, '').replace(/전공$/, '').trim();
-                let matches = results.filter(r => r.대학교 === uName || r.대학약칭 === uName || r.대학교.startsWith(uClean));
-                if (matches.length === 0) matches = results.filter(r => r.대학교.includes(uClean));
+                
+                // 1. 해당 대학교의 모든 학과 추출
+                let matches = results.filter(r => r.대학교 === uName || r.대학약칭 === uName || r.대학교 === (uClean + '대학교') || r.대학약칭 === (uClean + '대'));
+                if (matches.length === 0) matches = results.filter(r => r.대학교 && (r.대학교.startsWith(uClean) || (r.대학약칭 && r.대학약칭.startsWith(uClean))));
+                if (matches.length === 0) matches = results.filter(r => r.대학교 && r.대학교.includes(uClean));
                 if (matches.length === 0) return null;
+                
+                // 2. 학과 정밀 매칭
                 if (dClean) {
-                    const exact = matches.find(r => (r.전공 || '').includes(dClean));
+                    // 2-A: 학과명 정확 일치 or 시작 일치
+                    let exact = matches.find(r => {
+                        const rClean = (r.전공 || '').replace(/학과$/, '').replace(/학부$/, '').replace(/전공$/, '').trim();
+                        if (dClean === '의예' && rClean.includes('수의')) return false;
+                        return rClean === dClean || rClean.startsWith(dClean) || dClean.startsWith(rClean);
+                    });
                     if (exact) return exact;
+                    
+                    // 2-B: 키워드 포함 일치 (예: '화공' in '화공생명공학부')
+                    let partial = matches.find(r => {
+                        const rClean = (r.전공 || '').replace(/학과$/, '').replace(/학부$/, '').replace(/전공$/, '').trim();
+                        if (dClean === '의예' && rClean.includes('수의')) return false;
+                        return rClean.includes(dClean) || dClean.includes(rClean) || (dClean.includes('화공') && rClean.includes('화공'));
+                    });
+                    if (partial) return partial;
                 }
                 return matches[0];
             }
@@ -3692,6 +3718,7 @@ async function runPrediction() {
         }
         
         predictionResults = data;
+        window.predictionResults = data;
         
         // Update summary counts
         document.getElementById('pred-count-safe').innerText = data.summary['안정'] || 0;
