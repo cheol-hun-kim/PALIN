@@ -3560,33 +3560,48 @@ async function runPrediction() {
         document.getElementById('pred-count-sosin').innerText = data.summary['소신'] || 0;
         document.getElementById('pred-count-danger').innerText = data.summary['위험'] || 0;
         
-        // 결과에서 대학 및 학과 정밀 양방향 매칭
+        // 결과에서 대학 및 학과 정밀 매칭 (정확 일치 > 접두사 > 포함 순위)
         function findUnivResult(results, univName, deptName) {
             if (!univName || !results || results.length === 0) return null;
-            const uClean = univName.replace(/대학교$/, '').replace(/대$/, '').trim();
+            const uRaw = univName.trim();
+            const uClean = uRaw.replace(/대학교$/, '').replace(/대$/, '').trim();
             const dClean = (deptName || '').replace(/학과$/, '').replace(/학부$/, '').replace(/전공$/, '').trim();
             
-            let univMatches = results.filter(r => 
-                (r.대학교 && r.대학교.includes(uClean)) || 
-                (r.대학약칭 && r.대학약칭.includes(uClean))
-            );
-            if (univMatches.length === 0) return null;
+            // 1. 해당 대학교의 모든 학과 추출 (정확한 대학교 우선)
+            // 1-A: 정확히 대학교명이 일치하는 경우 (예: "서울대학교" == "서울대학교")
+            let targetUnivList = results.filter(r => r.대학교 === uRaw || r.대학약칭 === uRaw || r.대학교 === (uClean + "대학교") || r.대학약칭 === (uClean + "대"));
             
-            univMatches.sort((a, b) => {
-                const aIsBranch = a.대학교.includes('(') || a.대학교.includes('미래') || a.대학교.includes('글로컬');
-                const bIsBranch = b.대학교.includes('(') || b.대학교.includes('미래') || b.대학교.includes('글로컬');
+            // 1-B: 없으면 접두사 일치 (예: "서울대학교" -> r.대학교.startsWith("서울대"))
+            if (targetUnivList.length === 0) {
+                targetUnivList = results.filter(r => r.대학교 && (r.대학교.startsWith(uClean) || (r.대학약칭 && r.대학약칭.startsWith(uClean))));
+            }
+            
+            // 1-C: 없으면 부분 일치 (본교 우선)
+            if (targetUnivList.length === 0) {
+                targetUnivList = results.filter(r => (r.대학교 && r.대학교.includes(uClean)) || (r.대학약칭 && r.대학약칭.includes(uClean)));
+            }
+            
+            if (targetUnivList.length === 0) return null;
+            
+            // 분교/캠퍼스 제외 본교 우선 정렬
+            targetUnivList.sort((a, b) => {
+                const aIsBranch = (a.대학교 || '').includes('(') || (a.대학교 || '').includes('미래') || (a.대학교 || '').includes('글로컬');
+                const bIsBranch = (b.대학교 || '').includes('(') || (b.대학교 || '').includes('미래') || (b.대학교 || '').includes('글로컬');
                 return aIsBranch - bIsBranch;
             });
             
+            // 2. 학과 매칭
             if (dClean) {
-                let exactDept = univMatches.find(r => {
+                // 2-A: 학과명 정확 일치 또는 시작 일치 (예: '의예과' -> '의예', '수의예'는 배제)
+                let exactDept = targetUnivList.find(r => {
                     const rClean = (r.전공 || '').replace(/학과$/, '').replace(/학부$/, '').replace(/전공$/, '').trim();
                     if (dClean === '의예' && rClean.includes('수의')) return false;
                     return rClean === dClean || rClean.startsWith(dClean) || dClean.startsWith(rClean);
                 });
                 if (exactDept) return exactDept;
                 
-                let partialDept = univMatches.find(r => {
+                // 2-B: 학과명 포함 일치
+                let partialDept = targetUnivList.find(r => {
                     const rClean = (r.전공 || '').replace(/학과$/, '').replace(/학부$/, '').replace(/전공$/, '').trim();
                     if (dClean === '의예' && rClean.includes('수의')) return false;
                     return rClean.includes(dClean) || dClean.includes(rClean);
@@ -3594,10 +3609,10 @@ async function runPrediction() {
                 if (partialDept) return partialDept;
             }
             
-            return univMatches[0];
+            return targetUnivList[0];
         }
         
-        // 희망대학 카드 업데이트 (서버 직접 연산 결과 우선)
+        // 희망대학 카드 업데이트
         const targetResult = data.target_result || findUnivResult(data.results, tUniv, tDept);
         if (targetResult) {
             const tc = getVerdictColor(targetResult.verdict);
@@ -3617,7 +3632,7 @@ async function runPrediction() {
             tv.style.color = 'white';
         }
         
-        // 마지노선 대학 카드 업데이트 (서버 직접 연산 결과 우선)
+        // 마지노선 대학 카드 업데이트
         const baselineResult = data.baseline_result || findUnivResult(data.results, bUniv, bDept);
         if (baselineResult) {
             const bc = getVerdictColor(baselineResult.verdict);
