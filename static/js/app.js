@@ -3459,6 +3459,7 @@ function validatePercentileInput(el, maxVal = 100) {
 }
 
 async function loadUniversityList() {
+    preloadPredictionDatasets();
     try {
         const res = await fetch('/api/predict/universities');
         if (res.ok) {
@@ -3472,6 +3473,22 @@ async function loadUniversityList() {
             }
         }
     } catch (e) { console.error(e); }
+}
+
+let _cachedUnivEntriesScience = null;
+let _cachedUnivEntriesHumanities = null;
+
+async function preloadPredictionDatasets() {
+    try {
+        if (!_cachedUnivEntriesScience) {
+            const res = await fetch('/data/univ_entries_science.json');
+            if (res.ok) _cachedUnivEntriesScience = await res.json();
+        }
+        if (!_cachedUnivEntriesHumanities) {
+            const res = await fetch('/data/univ_entries_humanities.json');
+            if (res.ok) _cachedUnivEntriesHumanities = await res.json();
+        }
+    } catch(e) { console.warn('Preload datasets failed:', e); }
 }
 
 async function runPrediction() {
@@ -3556,120 +3573,129 @@ async function runPrediction() {
             console.warn('Backend predict fetch warning, using robust pipeline:', fetchErr);
         }
 
-        // 결과 검증 및 방탄 처리
+        // 결과 검증 및 방탄 처리 (5,948개 전수 하이브리드 엔진)
         if (!data || !data.results || data.results.length === 0) {
-            // 비상 로컬 연산 백업 파이프라인
+            const isPureScience = (mathType === '미적' || mathType === '기하') && (tam1Type === '과탐' && tam2Type === '과탐');
+            
+            // 데이터셋 로드
+            let rawEntries = isPureScience ? _cachedUnivEntriesScience : _cachedUnivEntriesHumanities;
+            if (!rawEntries) {
+                try {
+                    const res = await fetch(isPureScience ? '/data/univ_entries_science.json' : '/data/univ_entries_humanities.json');
+                    if (res.ok) {
+                        rawEntries = await res.json();
+                        if (isPureScience) _cachedUnivEntriesScience = rawEntries;
+                        else _cachedUnivEntriesHumanities = rawEntries;
+                    }
+                } catch(e) {}
+            }
+
             const engGrade = eng >= 90 ? 1 : (eng >= 80 ? 2 : (eng >= 70 ? 3 : (eng >= 60 ? 4 : 5)));
-            const avgPct = (kor * 0.3 + math * 0.35 + ((tam1 + tam2)/2) * 0.35);
-            let approxNuback = Math.max(0.01, (100 - avgPct) * 0.35);
+            const histGrade = hist >= 40 ? 1 : (hist >= 35 ? 2 : (hist >= 30 ? 3 : 4));
+            const histPenalty = histGrade === 4 ? 0.05 : 0;
             
-            // 기본 50개 대표 대학/학과 템플릿
-            const baseEntries = [
-                { 대학교: '서울대학교', 전공: '의예과', 계열: '이과', 모집군: '나', 시도: '서울특별시', 적정누백: 0.06, 예상누백: 0.09, 소신누백: 0.16 },
-                { 대학교: '서울대학교', 전공: '컴퓨터공학부', 계열: '이과', 모집군: '나', 시도: '서울특별시', 적정누백: 0.45, 예상누백: 0.70, 소신누백: 1.10 },
-                { 대학교: '서울대학교', 전공: '전기정보공학부', 계열: '이과', 모집군: '나', 시도: '서울특별시', 적정누백: 0.55, 예상누백: 0.85, 소신누백: 1.25 },
-                { 대학교: '서울대학교', 전공: '화학생물공학부', 계열: '이과', 모집군: '나', 시도: '서울특별시', 적정누백: 0.75, 예상누백: 1.10, 소신누백: 1.60 },
-                { 대학교: '서울대학교', 전공: '기계공학부', 계열: '이과', 모집군: '나', 시도: '서울특별시', 적정누백: 0.95, 예상누백: 1.30, 소신누백: 1.85 },
-                { 대학교: '연세대학교', 전공: '의예과', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 0.08, 예상누백: 0.12, 소신누백: 0.22 },
-                { 대학교: '연세대학교', 전공: '시스템반도체공학과', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 1.20, 예상누백: 1.80, 소신누백: 2.50 },
-                { 대학교: '연세대학교', 전공: '전기전자공학부', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 1.50, 예상누백: 2.20, 소신누백: 3.10 },
-                { 대학교: '연세대학교', 전공: '화공생명공학부', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 1.80, 예상누백: 2.60, 소신누백: 3.60 },
-                { 대학교: '연세대학교', 전공: '인공지능학과', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 1.40, 예상누백: 2.00, 소신누백: 2.90 },
-                { 대학교: '고려대학교', 전공: '의과대학', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 0.12, 예상누백: 0.18, 소신누백: 0.30 },
-                { 대학교: '고려대학교', 전공: '반도체공학과', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 1.30, 예상누백: 1.90, 소신누백: 2.70 },
-                { 대학교: '고려대학교', 전공: '컴퓨터학과', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 1.50, 예상누백: 2.20, 소신누백: 3.00 },
-                { 대학교: '고려대학교', 전공: '화공생명공학과', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 1.85, 예상누백: 2.70, 소신누백: 3.70 },
-                { 대학교: '고려대학교', 전공: '전기전자공학부', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 1.65, 예상누백: 2.40, 소신누백: 3.30 },
-                { 대학교: '서강대학교', 전공: '시스템반도체공학과', 계열: '이과', 모집군: '나', 시도: '서울특별시', 적정누백: 2.20, 예상누백: 3.10, 소신누백: 4.20 },
-                { 대학교: '서강대학교', 전공: '컴퓨터공학과', 계열: '이과', 모집군: '나', 시도: '서울특별시', 적정누백: 2.50, 예상누백: 3.50, 소신누백: 4.80 },
-                { 대학교: '서강대학교', 전공: '전자공학과', 계열: '이과', 모집군: '나', 시도: '서울특별시', 적정누백: 2.80, 예상누백: 3.90, 소신누백: 5.20 },
-                { 대학교: '성균관대학교', 전공: '의예과', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 0.08, 예상누백: 0.13, 소신누백: 0.25 },
-                { 대학교: '성균관대학교', 전공: '반도체시스템공학', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 1.40, 예상누백: 2.10, 소신누백: 2.90 },
-                { 대학교: '성균관대학교', 전공: '소프트웨어학', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 2.10, 예상누백: 3.00, 소신누백: 4.10 },
-                { 대학교: '성균관대학교', 전공: '전자전기공학부', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 2.70, 예상누백: 3.80, 소신누백: 5.00 },
-                { 대학교: '한양대학교', 전공: '의예과', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 0.10, 예상누백: 0.16, 소신누백: 0.28 },
-                { 대학교: '한양대학교', 전공: '반도체공학과', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 1.60, 예상누백: 2.40, 소신누백: 3.30 },
-                { 대학교: '한양대학교', 전공: '컴퓨터소프트웨어학부', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 2.30, 예상누백: 3.30, 소신누백: 4.40 },
-                { 대학교: '한양대학교', 전공: '화학공학과', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 2.90, 예상누백: 4.10, 소신누백: 5.40 },
-                { 대학교: '중앙대학교', 전공: '소프트웨어학부', 계열: '이과', 모집군: '다', 시도: '서울특별시', 적정누백: 3.50, 예상누백: 4.80, 소신누백: 6.30 },
-                { 대학교: '중앙대학교', 전공: '전자전기공학부', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 3.80, 예상누백: 5.20, 소신누백: 6.80 },
-                { 대학교: '경희대학교', 전공: '의예과', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 0.12, 예상누백: 0.18, 소신누백: 0.30 },
-                { 대학교: '경희대학교', 전공: '컴퓨터공학과', 계열: '이과', 모집군: '나', 시도: '경기도', 적정누백: 4.20, 예상누백: 5.60, 소신누백: 7.20 },
-                { 대학교: '경희대학교', 전공: '화학공학과', 계열: '이과', 모집군: '나', 시도: '경기도', 적정누백: 4.50, 예상누백: 6.00, 소신누백: 7.60 },
-                { 대학교: '서울시립대학교', 전공: '인공지능학과', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 3.60, 예상누백: 4.90, 소신누백: 6.40 },
-                { 대학교: '서울시립대학교', 전공: '컴퓨터과학부', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 3.90, 예상누백: 5.30, 소신누백: 6.90 },
-                { 대학교: '건국대학교', 전공: '컴퓨터공학부', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 5.50, 예상누백: 7.20, 소신누백: 9.00 },
-                { 대학교: '건국대학교', 전공: '화공생명에너지공학부', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 6.00, 예상누백: 7.80, 소신누백: 9.60 },
-                { 대학교: '동국대학교', 전공: 'AI소프트웨어융합학부', 계열: '이과', 모집군: '가', 시도: '서울특별시', 적정누백: 5.80, 예상누백: 7.50, 소신누백: 9.30 },
-                { 대학교: '홍익대학교', 전공: '컴퓨터공학과', 계열: '이과', 모집군: '다', 시도: '서울특별시', 적정누백: 6.20, 예상누백: 8.00, 소신누백: 9.90 },
-                { 대학교: '아주대학교', 전공: '의학과', 계열: '이과', 모집군: '가', 시도: '경기도', 적정누백: 0.15, 예상누백: 0.22, 소신누백: 0.35 },
-                { 대학교: '아주대학교', 전공: '소프트웨어학과', 계열: '이과', 모집군: '다', 시도: '경기도', 적정누백: 6.50, 예상누백: 8.40, 소신누백: 10.50 },
-                { 대학교: '인하대학교', 전공: '의예과', 계열: '이과', 모집군: '가', 시도: '인천광역시', 적정누백: 0.16, 예상누백: 0.24, 소신누백: 0.38 },
-                { 대학교: '인하대학교', 전공: '컴퓨터공학과', 계열: '이과', 모집군: '가', 시도: '인천광역시', 적정누백: 6.80, 예상누백: 8.70, 소신누백: 10.80 },
-                { 대학교: '경북대학교', 전공: '의예과', 계열: '이과', 모집군: '가', 시도: '영남권', 적정누백: 0.18, 예상누백: 0.28, 소신누백: 0.42 },
-                { 대학교: '경북대학교', 전공: '전자공학부', 계열: '이과', 모집군: '가', 시도: '영남권', 적정누백: 5.80, 예상누백: 7.50, 소신누백: 9.30 },
-                { 대학교: '부산대학교', 전공: '의예과', 계열: '이과', 모집군: '가', 시도: '영남권', 적정누백: 0.18, 예상누백: 0.28, 소신누백: 0.42 },
-                { 대학교: '부산대학교', 전공: '기계공학부', 계열: '이과', 모집군: '가', 시도: '영남권', 적정누백: 6.00, 예상누백: 7.80, 소신누백: 9.60 },
-                { 대학교: '전남대학교', 전공: '의예과', 계열: '이과', 모집군: '가', 시도: '호남권', 적정누백: 0.22, 예상누백: 0.32, 소신누백: 0.48 },
-                { 대학교: '충남대학교', 전공: '의예과', 계열: '이과', 모집군: '가', 시도: '충청권', 적정누백: 0.22, 예상누백: 0.32, 소신누백: 0.48 },
-                { 대학교: '충북대학교', 전공: '의예과', 계열: '이과', 모집군: '가', 시도: '충청권', 적정누백: 0.25, 예상누백: 0.35, 소신누백: 0.52 },
-                { 대학교: '가천대학교', 전공: '의예과', 계열: '이과', 모집군: '가', 시도: '경기도', 적정누백: 0.14, 예상누백: 0.20, 소신누백: 0.32 },
-                { 대학교: '가천대학교', 전공: '컴퓨터공학전공', 계열: '이과', 모집군: '가', 시도: '경기도', 적정누백: 8.50, 예상누백: 10.80, 소신누백: 13.20 }
-            ];
+            const results = [];
+            const summary = { '안정': 0, '적정': 0, '소신': 0, '위험': 0 };
             
-            const fallbackResults = [];
-            let safeCnt = 0, properCnt = 0, sosinCnt = 0, dangerCnt = 0;
-            
-            baseEntries.forEach(be => {
-                let stNuback = approxNuback;
-                if (be.대학교 === '연세대학교') {
-                    if (engGrade === 2) stNuback += 3.8;
-                    else if (engGrade >= 3) stNuback += 8.5;
-                } else if (be.대학교 === '고려대학교') {
-                    if (engGrade >= 2) stNuback += 0.9;
+            if (rawEntries && rawEntries.length > 0) {
+                for (let i = 0; i < rawEntries.length; i++) {
+                    const entry = rawEntries[i];
+                    const univName = entry.대학교 || '';
+                    const deptName = entry.전공 || '';
+                    const gyeyeol = entry.계열 || (isPureScience ? '이과' : '문과');
+                    
+                    let t1Eff = tam1;
+                    let t2Eff = tam2;
+                    if (gyeyeol === '이과') {
+                        if (tam1Type === '과탐') t1Eff = Math.min(100, tam1 * 1.03);
+                        if (tam2Type === '과탐') t2Eff = Math.min(100, tam2 * 1.03);
+                    }
+                    
+                    const korW = entry.국어구성비 || 0.3;
+                    const mathW = entry.수학구성비 || 0.35;
+                    const tamW = entry.탐구구성비 || 0.35;
+                    const totW = (korW + mathW + tamW) || 1.0;
+                    
+                    const avgP = (kor * korW + math * mathW + ((t1Eff + t2Eff)/2) * tamW) / totW;
+                    
+                    // 누적백분위 변환
+                    const diff = 100 - avgP;
+                    let stNuback = 0;
+                    if (diff <= 1.0) stNuback = diff * 0.15;
+                    else if (diff <= 2.0) stNuback = 0.15 + (diff - 1.0) * 0.25;
+                    else if (diff <= 4.0) stNuback = 0.40 + (diff - 2.0) * 0.35;
+                    else if (diff <= 7.0) stNuback = 1.10 + (diff - 4.0) * 0.50;
+                    else if (diff <= 12.0) stNuback = 2.60 + (diff - 7.0) * 0.70;
+                    else stNuback = 6.10 + (diff - 12.0) * 0.95;
+                    
+                    // 영어 감점
+                    const engConvs = entry.영어환산 || [];
+                    if (engConvs && engConvs.length >= 9) {
+                        const topScore = engConvs[0];
+                        const curScore = engConvs[engGrade - 1] || engConvs[engConvs.length - 1];
+                        const sDiff = Math.abs(topScore - curScore);
+                        if (univName.includes('연세')) {
+                            if (engGrade === 2) stNuback += 3.8;
+                            else if (engGrade === 3) stNuback += 8.5;
+                            else if (engGrade >= 4) stNuback += 15.0;
+                        } else if (sDiff >= 4.0) stNuback += (sDiff * 0.45);
+                        else if (sDiff >= 2.0) stNuback += (sDiff * 0.25);
+                        else stNuback += (sDiff * 0.10);
+                    } else {
+                        const penalties = [0, 0.8, 1.8, 3.2, 5.0, 7.5, 10.5, 14.0, 18.0];
+                        stNuback += penalties[engGrade - 1] || 0;
+                    }
+                    
+                    stNuback += histPenalty;
+                    
+                    const safeCut = entry.적정누백 || 0;
+                    const properCut = entry.예상누백 || 0;
+                    const sosinCut = entry.소신누백 || 0;
+                    
+                    let v = '위험';
+                    if (stNuback <= safeCut) v = '안정';
+                    else if (stNuback <= properCut) v = '적정';
+                    else if (stNuback <= sosinCut) v = '소신';
+                    
+                    summary[v] = (summary[v] || 0) + 1;
+                    
+                    results.push({
+                        대학교: univName,
+                        전공: deptName,
+                        대학약칭: entry.대학약칭 || univName,
+                        전공약칭: entry.전공약칭 || deptName,
+                        계열: gyeyeol,
+                        모집군: entry.모집군 || '가',
+                        시도: entry.시도 || '전국',
+                        student_nuback: Math.round(stNuback * 100) / 100,
+                        verdict: v,
+                        적정누백: safeCut,
+                        예상누백: properCut,
+                        소신누백: sosinCut
+                    });
                 }
-                
-                let v = '위험';
-                if (stNuback <= be.적정누백) { v = '안정'; safeCnt++; }
-                else if (stNuback <= be.예상누백) { v = '적정'; properCnt++; }
-                else if (stNuback <= be.소신누백) { v = '소신'; sosinCnt++; }
-                else { v = '위험'; dangerCnt++; }
-                
-                fallbackResults.push({
-                    대학교: be.대학교,
-                    전공: be.전공,
-                    대학약칭: be.대학교.replace(/대학교$/, '').replace(/대$/, ''),
-                    전공약칭: be.전공.replace(/학과$/, '').replace(/학부$/, ''),
-                    계열: be.계열,
-                    모집군: be.모집군,
-                    시도: be.시도,
-                    student_nuback: Math.round(stNuback * 100) / 100,
-                    verdict: v,
-                    적정누백: be.적정누백,
-                    예상누백: be.예상누백,
-                    소신누백: be.소신누백
-                });
-            });
+            }
+            
+            // 희망/마지노선 매칭
+            function localMatch(uName, dName) {
+                if (!uName || results.length === 0) return null;
+                const uClean = uName.replace(/대학교$/, '').replace(/대$/, '').trim();
+                const dClean = (dName || '').replace(/학과$/, '').replace(/학부$/, '').replace(/전공$/, '').trim();
+                let matches = results.filter(r => r.대학교 === uName || r.대학약칭 === uName || r.대학교.startsWith(uClean));
+                if (matches.length === 0) matches = results.filter(r => r.대학교.includes(uClean));
+                if (matches.length === 0) return null;
+                if (dClean) {
+                    const exact = matches.find(r => (r.전공 || '').includes(dClean));
+                    if (exact) return exact;
+                }
+                return matches[0];
+            }
             
             data = {
-                summary: { '안정': safeCnt || 5712, '적정': properCnt || 120, '소신': sosinCnt || 65, '위험': dangerCnt || 51 },
-                target_result: {
-                    대학교: tUniv,
-                    전공: tDept,
-                    대학약칭: tUniv.replace(/대학교$/, '').replace(/대$/, ''),
-                    전공약칭: tDept.replace(/학과$/, '').replace(/학부$/, ''),
-                    verdict: '위험',
-                    student_nuback: 1.66
-                },
-                baseline_result: {
-                    대학교: bUniv,
-                    전공: bDept,
-                    대학약칭: bUniv.replace(/대학교$/, '').replace(/대$/, ''),
-                    전공약칭: bDept.replace(/학과$/, '').replace(/학부$/, ''),
-                    verdict: (engGrade >= 2 ? '소신' : '안정'),
-                    student_nuback: (engGrade >= 2 ? approxNuback + 3.8 : approxNuback)
-                },
-                results: fallbackResults
+                summary: summary,
+                target_result: localMatch(tUniv, tDept) || { 대학교: tUniv, 전공: tDept, verdict: '위험' },
+                baseline_result: localMatch(bUniv, bDept) || { 대학교: bUniv, 전공: bDept, verdict: '소신' },
+                results: results
             };
         }
         
@@ -3766,8 +3792,8 @@ function renderPredResults() {
         );
     }
     
-    // Limit display to 150
-    const displayed = results.slice(0, 150);
+    // Limit display to 300
+    const displayed = results.slice(0, 300);
     
     const container = document.getElementById('pred-results-list');
     container.innerHTML = '';
