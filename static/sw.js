@@ -1,4 +1,4 @@
-const CACHE_NAME = 'palin-os-v2';
+const CACHE_NAME = 'palin-os-v83';
 const STATIC_ASSETS = [
   '/',
   '/css/style.css',
