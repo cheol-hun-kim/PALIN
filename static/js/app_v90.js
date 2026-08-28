@@ -3612,15 +3612,22 @@ async function runPrediction() {
                 
                 const avgP = (kor * korW + math * mathW + ((t1Eff + t2Eff)/2) * tamW) / totW;
                 
-                // 누적백분위 변환
-                const diff = 100 - avgP;
+                // 고속성장분석기 엑셀 1:1 실측 누적백분위 변환 공식 (백분위합 300점 기준)
+                const sum300 = avgP * 3.0;
                 let stNuback = 0;
-                if (diff <= 1.0) stNuback = diff * 0.15;
-                else if (diff <= 2.0) stNuback = 0.15 + (diff - 1.0) * 0.25;
-                else if (diff <= 4.0) stNuback = 0.40 + (diff - 2.0) * 0.35;
-                else if (diff <= 7.0) stNuback = 1.10 + (diff - 4.0) * 0.50;
-                else if (diff <= 12.0) stNuback = 2.60 + (diff - 7.0) * 0.70;
-                else stNuback = 6.10 + (diff - 12.0) * 0.95;
+                if (sum300 >= 299.5) stNuback = 0.01;
+                else if (sum300 >= 298.0) stNuback = 0.01 + (299.5 - sum300) / 1.5 * 0.19;
+                else if (sum300 >= 295.0) stNuback = 0.20 + (298.0 - sum300) / 3.0 * 0.60;
+                else if (sum300 >= 290.0) stNuback = 0.80 + (295.0 - sum300) / 5.0 * 1.70;
+                else if (sum300 >= 285.0) stNuback = 2.50 + (290.0 - sum300) / 5.0 * 2.15;
+                else if (sum300 >= 280.0) stNuback = 4.65 + (285.0 - sum300) / 5.0 * 2.55;
+                else if (sum300 >= 275.0) stNuback = 7.20 + (280.0 - sum300) / 5.0 * 2.70;
+                else if (sum300 >= 270.0) stNuback = 9.90 + (275.0 - sum300) / 5.0 * 2.75;
+                else if (sum300 >= 260.0) stNuback = 12.65 + (270.0 - sum300) / 10.0 * 6.45;
+                else if (sum300 >= 250.0) stNuback = 19.10 + (260.0 - sum300) / 10.0 * 6.40;
+                else if (sum300 >= 240.0) stNuback = 25.50 + (250.0 - sum300) / 10.0 * 6.50;
+                else if (sum300 >= 220.0) stNuback = 32.00 + (240.0 - sum300) / 20.0 * 14.0;
+                else stNuback = Math.min(99.0, 46.00 + (220.0 - sum300) * 0.70);
                 
                 // 영어 감점
                 const engConvs = isArr ? entry[13] : (entry.eng || entry.영어환산 || []);
@@ -3650,6 +3657,7 @@ async function runPrediction() {
                 if (stNuback <= safeCut) v = '안정';
                 else if (stNuback <= properCut) v = '적정';
                 else if (stNuback <= sosinCut) v = '소신';
+                else v = '위험';
                 
                 summary[v] = (summary[v] || 0) + 1;
                 
