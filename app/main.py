@@ -634,6 +634,8 @@ class PredictPayload(BaseModel):
     tam2_type: str = "과탐"  # 과탐 | 사탐
     target_univ: str = ""
     target_dept: str = ""
+    baseline_univ: str = ""
+    baseline_dept: str = ""
 
 @app.post("/api/ai/predict")
 def run_prediction(payload: PredictPayload):
@@ -649,7 +651,9 @@ def run_prediction(payload: PredictPayload):
             tam1_type=payload.tam1_type,
             tam2_type=payload.tam2_type,
             target_univ=payload.target_univ,
-            target_dept=payload.target_dept
+            target_dept=payload.target_dept,
+            baseline_univ=payload.baseline_univ,
+            baseline_dept=payload.baseline_dept
         )
         return res
     except Exception as e:
