@@ -623,12 +623,12 @@ def get_predict_univs():
     return sorted(univs)
 
 class PredictPayload(BaseModel):
-    kor_pct: float
-    math_pct: float
-    eng_raw: int
-    tam1_pct: float
-    tam2_pct: float
-    hist_raw: int
+    kor_pct: float = 0.0
+    math_pct: float = 0.0
+    eng_raw: int = 0
+    tam1_pct: float = 0.0
+    tam2_pct: float = 0.0
+    hist_raw: int = 0
     math_type: str = "미적"  # 미적 | 기하 | 확통
     tam1_type: str = "과탐"  # 과탐 | 사탐
     tam2_type: str = "과탐"  # 과탐 | 사탐
@@ -641,22 +641,24 @@ class PredictPayload(BaseModel):
 def run_prediction(payload: PredictPayload):
     try:
         res = predict.predict_admission(
-            kor_pct=payload.kor_pct,
-            math_pct=payload.math_pct,
-            eng_raw=payload.eng_raw,
-            tam1_pct=payload.tam1_pct,
-            tam2_pct=payload.tam2_pct,
-            hist_raw=payload.hist_raw,
-            math_type=payload.math_type,
-            tam1_type=payload.tam1_type,
-            tam2_type=payload.tam2_type,
-            target_univ=payload.target_univ,
-            target_dept=payload.target_dept,
-            baseline_univ=payload.baseline_univ,
-            baseline_dept=payload.baseline_dept
+            kor_pct=float(payload.kor_pct),
+            math_pct=float(payload.math_pct),
+            eng_raw=int(payload.eng_raw),
+            tam1_pct=float(payload.tam1_pct),
+            tam2_pct=float(payload.tam2_pct),
+            hist_raw=int(payload.hist_raw),
+            math_type=str(payload.math_type or "미적"),
+            tam1_type=str(payload.tam1_type or "과탐"),
+            tam2_type=str(payload.tam2_type or "과탐"),
+            target_univ=str(payload.target_univ or ""),
+            target_dept=str(payload.target_dept or ""),
+            baseline_univ=str(payload.baseline_univ or ""),
+            baseline_dept=str(payload.baseline_dept or "")
         )
         return res
     except Exception as e:
+        import traceback
+        print(f"Prediction Error: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # --- 💎 B2C 유료 캐시 & 심층 리포트 & 기상 룰렛 엔드포인트 ---
