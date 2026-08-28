@@ -1,8 +1,8 @@
-const CACHE_NAME = 'palin-os-v89';
+const CACHE_NAME = 'palin-os-v90';
 const STATIC_ASSETS = [
   '/',
-  '/css/style.css?v=89.0',
-  '/js/app.js?v=89.0',
+  '/css/style.css?v=90.0',
+  '/js/app.js?v=90.0',
   '/manifest.json'
 ];
 
