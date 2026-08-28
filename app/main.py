@@ -412,6 +412,31 @@ def update_univ(student_id: int, payload: UpdateUnivPayload, db: Session = Depen
     db.refresh(student)
     return student
 
+@app.delete("/api/student/{student_id}")
+@app.delete("/api/students/{student_id}")
+def delete_student_account(student_id: int, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="\ud559\uc0dd \uacc4\uc815\uc744 \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.")
+    try:
+        # 연관 데이터 안전 삭제
+        db.query(models.MissionLog).filter(models.MissionLog.student_id == student_id).delete(synchronize_session=False)
+        db.query(models.StudySession).filter(models.StudySession.student_id == student_id).delete(synchronize_session=False)
+        db.query(models.PlannerBlock).filter(models.PlannerBlock.student_id == student_id).delete(synchronize_session=False)
+        db.query(models.PredictRequest).filter(models.PredictRequest.student_id == student_id).delete(synchronize_session=False)
+        
+        if student.parent_id:
+            parent = db.query(models.Parent).filter(models.Parent.id == student.parent_id).first()
+            if parent:
+                db.delete(parent)
+                
+        db.delete(student)
+        db.commit()
+        return {"success": True, "message": "\ud68c\uc6d0 \ud0c8\ud1f4\uac00 \uc644\ub8cc\ub418\uc5c8\uc2b5\ub2c8\ub2e4."}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"\ud0c8\ud1f4 \ucc98\ub9ac \uc911 \uc624\ub958 \ubc1c\uc0dd: {str(e)}")
+
 @app.get("/api/league/{student_id}")
 def get_league(student_id: int, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == student_id).first()
