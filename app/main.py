@@ -542,8 +542,9 @@ def verify_mission(payload: schemas.MissionVerify, db: Session = Depends(get_db)
         earned = int(earned * (student.point_multiplier or 1.0))
         student.current_points = (student.current_points or 0) + earned
         
-        # 듀오링고 불꽃(Streak) 증가
+        # 듀오링고 불꽃(Streak) 및 성실도 점수 증가
         student.streak_days = (student.streak_days or 0) + 1
+        student.diligence_score = (student.diligence_score or 0) + 50
         if student.streak_days > (student.max_streak_days or 0):
             student.max_streak_days = student.streak_days
             
@@ -604,8 +605,10 @@ def manage_session(payload: schemas.StudySessionRequest, db: Session = Depends(g
             if student.parent:
                 send_mock_sms(student.parent.phone, f"\uc790\ub140({student.name})\uac00 \uacf5\ubd80 \uc911 \ub534\uc9d3\uc744 \ud588\uc2b5\ub2c8\ub2e4.")
         else:
-            earned = int((session.duration_sec / 60) * student.point_multiplier)
-            student.current_points += earned
+            earned = int((session.duration_sec / 60) * (student.point_multiplier or 1.0))
+            student.current_points = (student.current_points or 0) + earned
+            # 성실도 점수 적립 (1분당 1점)
+            student.diligence_score = (student.diligence_score or 0) + int(session.duration_sec / 60)
             db.add(models.PointHistory(student_id=student.id, amount=earned, description="\uacf5\ubd80 \uc9d1\uc911 \ubcf4\uc0c1"))
         db.commit()
         db.refresh(session)
@@ -1385,18 +1388,59 @@ def get_micro_league(student_id: int, db: Session = Depends(get_db)):
         
     region = student.region or "대치동"
     target_univ = (student.target_univ or "가천대학교").split()[0]
+    my_score = student.diligence_score or 0
+    my_name = student.name or "나"
+    my_masked = my_name[:1] + "*" + my_name[2:] if len(my_name) >= 3 else my_name[:1] + "*"
+    my_school = student.high_school or "고등학교"
     
-    # 1. 지역 마이크로 리그 (예: 대치동 재원생 랭킹)
-    region_students = db.query(models.Student).filter(models.Student.region == student.region).order_by(models.Student.diligence_score.desc()).limit(5).all()
+    # 1. 지역 마이크로 리그 랭킹 데이터 구성
+    db_region_students = db.query(models.Student).filter(models.Student.region == student.region).order_by(models.Student.diligence_score.desc()).limit(10).all()
     
-    # 2. 목표 대학 지망생 마이크로 리그 (예: 의대/지망대학 랭킹)
+    # 기본 경쟁자 프리셋 (초기 시제품 또는 지역 인원 부족 시 경쟁 유발용)
+    fallback_peers = [
+        {"name": "함*아", "school": "분당대진고" if "분당" in region else "대치고", "score": max(520, my_score + 180)},
+        {"name": "이*은", "school": "서현고" if "분당" in region else "단대부고", "score": max(460, my_score + 110)},
+        {"name": "전*인", "school": "분당영덕여고" if "분당" in region else "중동고", "score": max(390, my_score + 40)},
+        {"name": "나*채", "school": "늘푸른고" if "분당" in region else "경기고", "score": max(280, max(0, my_score - 30))},
+        {"name": "이*윤", "school": "늘푸른고" if "분당" in region else "휘문고", "score": max(210, max(0, my_score - 80))}
+    ]
+    
+    region_list = []
+    if len(db_region_students) >= 5:
+        region_list = [{"name": s.name[:1] + "*" + s.name[2:] if len(s.name) >= 3 else s.name[:1] + "*", "school": s.high_school or "-", "score": s.diligence_score or 0, "is_me": s.id == student.id} for s in db_region_students[:5]]
+    else:
+        # 내 점수를 포함하여 랭킹 소팅
+        peers = [p for p in fallback_peers]
+        all_candidates = [{"name": my_masked, "school": my_school, "score": my_score, "is_me": True}]
+        for p in peers:
+            all_candidates.append({"name": p["name"], "school": p["school"], "score": p["score"], "is_me": False})
+        all_candidates.sort(key=lambda x: x["score"], reverse=True)
+        region_list = all_candidates[:5]
+    
+    # 2. 목표 대학 지망생 마이크로 리그
     univ_students = db.query(models.Student).filter(models.Student.target_univ.like(f"%{target_univ}%")).order_by(models.Student.diligence_score.desc()).limit(5).all()
+    univ_list = []
+    if len(univ_students) >= 5:
+        univ_list = [{"name": s.name[:1] + "*" + s.name[2:] if len(s.name) >= 3 else s.name[:1] + "*", "target": s.target_univ or target_univ, "score": s.diligence_score or 0, "is_me": s.id == student.id} for s in univ_students[:5]]
+    else:
+        fallback_univ_peers = [
+            {"name": "김*현", "target": student.target_univ or target_univ, "score": max(580, my_score + 200)},
+            {"name": "박*우", "target": student.target_univ or target_univ, "score": max(490, my_score + 120)},
+            {"name": "최*준", "target": student.target_univ or target_univ, "score": max(410, my_score + 50)},
+            {"name": "정*원", "target": student.target_univ or target_univ, "score": max(320, max(0, my_score - 40))},
+            {"name": "한*진", "target": student.target_univ or target_univ, "score": max(240, max(0, my_score - 90))}
+        ]
+        all_univ_candidates = [{"name": my_masked, "target": student.target_univ or target_univ, "score": my_score, "is_me": True}]
+        for p in fallback_univ_peers:
+            all_univ_candidates.append({"name": p["name"], "target": p["target"], "score": p["score"], "is_me": False})
+        all_univ_candidates.sort(key=lambda x: x["score"], reverse=True)
+        univ_list = all_univ_candidates[:5]
     
     return {
         "region_title": f"📍 {region} 수험생 주간 성실도 랭킹",
-        "region_rankings": [{"name": s.name[:1] + "*" + s.name[2:] if len(s.name) >= 3 else s.name[:1] + "*", "school": s.high_school or "-", "score": s.diligence_score, "is_me": s.id == student.id} for s in region_students],
+        "region_rankings": region_list,
         "univ_title": f"🎯 [{target_univ}] 지망생 몰입도 Top 5",
-        "univ_rankings": [{"name": s.name[:1] + "*" + s.name[2:] if len(s.name) >= 3 else s.name[:1] + "*", "target": s.target_univ, "score": s.diligence_score, "is_me": s.id == student.id} for s in univ_students]
+        "univ_rankings": univ_list
     }
 
 # === 📊 관리자 전용 입시 리포트 및 VIP 컨설팅 신청 관제 API ===
