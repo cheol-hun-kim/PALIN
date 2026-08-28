@@ -1,17 +1,13 @@
-const CACHE_NAME = 'palin-os-v88';
+const CACHE_NAME = 'palin-os-v89';
 const STATIC_ASSETS = [
   '/',
-  '/css/style.css',
-  '/js/univ_data.js',
-  '/js/app.js',
+  '/css/style.css?v=89.0',
+  '/js/app.js?v=89.0',
   '/manifest.json'
 ];
 
-// Install - cache core static assets only
+// Install - skip waiting immediately
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
-  );
   self.skipWaiting();
 });
 
