@@ -2165,26 +2165,29 @@ async function fetchLeagueStatus(studentId) {
 }
 
 function updateTargetBanner() {
-    if (!currentStudent) return;
     const targetUnivEl = document.getElementById("banner-target-univ");
     const baselineUnivEl = document.getElementById("banner-baseline-univ");
-    if (targetUnivEl) targetUnivEl.innerText = currentStudent.target_univ || "미설정";
-    if (baselineUnivEl) baselineUnivEl.innerText = currentStudent.baseline_univ || "미설정";
+    if (currentStudent) {
+        if (targetUnivEl) targetUnivEl.innerText = currentStudent.target_univ || "미설정";
+        if (baselineUnivEl) baselineUnivEl.innerText = currentStudent.baseline_univ || "미설정";
+    }
 
-    // D-Day 계산 렌더링 (사용자 핀고정 우선)
+    // D-Day 실시간 자동 계산 렌더링 (매일 자정 및 로드 시 실시간 반영)
     const ddayEl = document.getElementById("banner-dday");
     const ddayTitleEl = document.getElementById("banner-dday-title");
-    const activeDate = localStorage.getItem('pinnedDDayDate') || currentStudent.dday_date || "2026-11-19";
-    const activeTitle = localStorage.getItem('pinnedDDayTitle') || currentStudent.dday_title || "2027 수능";
+    const activeDate = localStorage.getItem('pinnedDDayDate') || (currentStudent && currentStudent.dday_date) || "2026-11-19";
+    const activeTitle = localStorage.getItem('pinnedDDayTitle') || (currentStudent && currentStudent.dday_title) || "2027 수능";
     
     if (ddayEl) ddayEl.innerText = calculateDDay(activeDate);
     if (ddayTitleEl) ddayTitleEl.innerText = activeTitle.replace("2027학년도 ", "").replace("2026학년도 ", "");
 
     // 🌲 포레스트 목표 대학 로고 & 엠블럼 렌더링
-    const emblemEl = document.getElementById("target-symbol-emblem");
-    const logoNameEl = document.getElementById("target-logo-name");
-    if (emblemEl) emblemEl.innerText = getMedicalSymbolIcon(currentStudent.medical_symbol);
-    if (logoNameEl) logoNameEl.innerText = `${currentStudent.target_univ || "목표 대학"} 수호 중`;
+    if (currentStudent) {
+        const emblemEl = document.getElementById("target-symbol-emblem");
+        const logoNameEl = document.getElementById("target-logo-name");
+        if (emblemEl) emblemEl.innerText = getMedicalSymbolIcon(currentStudent.medical_symbol);
+        if (logoNameEl) logoNameEl.innerText = `${currentStudent.target_univ || "목표 대학"} 수호 중`;
+    }
 }
 
 // 💥 포레스트 균열(Crack) 애니메이션 및 딴짓 타격감 발동
@@ -2511,11 +2514,7 @@ async function claimGoldenTicket() {
     }
 }
 
-function updateTargetBanner() {
-    if (!currentStudent) return;
-    document.getElementById("banner-target-univ").innerText = currentStudent.target_univ || "미설정";
-    document.getElementById("banner-baseline-univ").innerText = currentStudent.baseline_univ || "미설정";
-}
+// [Removed duplicate updateTargetBanner to ensure real-time D-Day calculation]
 
 
 // --- 탭 컨트롤 및 네비게이션 ---
