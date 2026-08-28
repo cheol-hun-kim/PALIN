@@ -1777,16 +1777,25 @@
         </div>
     </div>
 
-    <script src="js/app.js?v=90.0"></script>
+    <script src="js/app_v90.js?t=20260828"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
+    // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js?v=90.0')
-            .then(reg => {
-                reg.update();
-                console.log('SW v90 updated & registered:', reg.scope);
-            })
-            .catch(err => console.log('SW failed:', err));
+        navigator.serviceWorker.getRegistrations().then(regs => {
+            for (let reg of regs) {
+                reg.unregister();
+                console.log('Successfully unregistered old service worker:', reg);
+            }
+        });
+    }
+    if ('caches' in window) {
+        caches.keys().then(keys => {
+            for (let k of keys) {
+                caches.delete(k);
+                console.log('Deleted cache:', k);
+            }
+        });
     }
     </script>
 </body>
