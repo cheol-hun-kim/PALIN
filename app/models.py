@@ -383,3 +383,13 @@ class BlackLoungePost(Base):
     student = relationship("Student")
 
 
+class PlatformScholarshipPool(Base):
+    """학생들의 딴짓/미션실패 벌금 차감액이 적립되어 상위 1%에게 지급되는 장학금 풀"""
+    __tablename__ = "platform_scholarship_pool"
+
+    id = Column(Integer, primary_key=True, index=True)
+    total_amount = Column(Integer, default=0)
+    distributed_amount = Column(Integer, default=0)
+    last_updated = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
