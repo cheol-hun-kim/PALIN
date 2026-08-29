@@ -41,6 +41,18 @@ const UNIVERSITY_THEME_MAP = {
     "가천대학교": { code: "GACHON", color: "#002B49", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 43, 73, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" }
 };
 
+function formatDDayTitle(title) {
+    if (!title) return "2027 수능";
+    let t = title.trim();
+    if (t.includes("수능") || t.includes("대학수학능력시험")) return "2027 수능";
+    if (t.includes("6월") || t.includes("6평")) return "6월 모평";
+    if (t.includes("9월") || t.includes("9평")) return "9월 모평";
+    if (t.includes("중간")) return "중간고사";
+    if (t.includes("기말")) return "기말고사";
+    if (t.length > 8) return t.substring(0, 8);
+    return t;
+}
+
 function applyUniversityTheme(targetUnivStr) {
     if (!targetUnivStr) return;
     const raw = targetUnivStr.trim();
@@ -58,13 +70,23 @@ function applyUniversityTheme(targetUnivStr) {
     // 1. 배너 앰비언트 그라데이션 및 세리프 워터마크 적용
     const banner = document.getElementById("univ-target-banner");
     const watermark = document.getElementById("banner-univ-watermark");
+    const isDayMode = document.body.classList.contains("day-mode");
+    
     if (banner) {
-        banner.style.background = theme.bg;
-        banner.style.borderColor = theme.border;
+        if (isDayMode) {
+            banner.style.background = `linear-gradient(135deg, ${theme.color}18, rgba(255, 255, 255, 0.96))`;
+            banner.style.borderColor = `${theme.color}45`;
+            banner.style.boxShadow = `0 4px 20px ${theme.color}18`;
+        } else {
+            banner.style.background = theme.bg;
+            banner.style.borderColor = theme.border;
+            banner.style.boxShadow = `0 4px 25px ${theme.color}35`;
+        }
     }
     if (watermark) {
         watermark.innerText = theme.code;
-        watermark.style.color = theme.accent;
+        watermark.style.color = theme.color;
+        watermark.style.opacity = isDayMode ? "0.06" : "0.10";
     }
 }
 
@@ -2252,7 +2274,7 @@ function updateTargetBanner() {
     const activeTitle = localStorage.getItem('pinnedDDayTitle') || (currentStudent && currentStudent.dday_title) || "2027 수능";
     
     if (ddayEl) ddayEl.innerText = calculateDDay(activeDate);
-    if (ddayTitleEl) ddayTitleEl.innerText = activeTitle.replace("2027학년도 ", "").replace("2026학년도 ", "");
+    if (ddayTitleEl) ddayTitleEl.innerText = formatDDayTitle(activeTitle);
 
     // 🌲 포레스트 목표 대학 로고 & 엠블럼 렌더링
     if (currentStudent) {
