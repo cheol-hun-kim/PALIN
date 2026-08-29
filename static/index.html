@@ -13,7 +13,7 @@
         if ('caches' in window) {
             caches.keys().then(names => {
                 for (let name of names) {
-                    if (name !== 'palin-os-v105') {
+                    if (name !== 'palin-os-v106') {
                         caches.delete(name);
                     }
                 }
@@ -1848,7 +1848,7 @@
         </div>
     </div>
 
-    <script src="js/app_v91.js?v=105.0"></script>
+    <script src="js/app_v91.js?v=106.0"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소
