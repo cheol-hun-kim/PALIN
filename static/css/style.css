@@ -281,36 +281,33 @@ header {
 /* 목표 대학교 배너 */
 .univ-banner {
     position: relative;
-    padding: 12px 20px;
+    padding: 14px 18px;
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(16, 185, 129, 0.04));
-    border-bottom: 1px solid var(--glass-border);
+    border-radius: 16px;
+    border: 1.5px solid var(--glass-border);
     display: flex;
-    flex-direction: column;
-    gap: 2px;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
     overflow: hidden;
 }
 
-.univ-banner::before {
-    content: '';
-    position: absolute;
-    right: -20px;
-    bottom: -20px;
-    width: 100px;
-    height: 100px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
-    pointer-events: none;
+body.day-mode .univ-banner {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(248, 250, 252, 0.95)) !important;
+    border-color: rgba(99, 102, 241, 0.2) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
 }
 
 .univ-banner .target-label {
     font-size: 0.72rem;
-    text-transform: uppercase;
     color: var(--text-secondary);
     letter-spacing: 0.5px;
+    font-weight: 600;
 }
 
 .univ-banner .univ-name {
-    font-size: 0.95rem;
-    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 800;
     color: var(--text-primary);
     display: flex;
     align-items: center;
@@ -318,17 +315,17 @@ header {
 }
 
 .univ-banner .dday {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: var(--color-accent);
-    color: white;
-    font-size: 0.78rem;
-    font-weight: 700;
-    padding: 4px 8px;
-    border-radius: 6px;
-    box-shadow: 0 0 10px var(--color-accent-glow);
+    position: static !important;
+    transform: none !important;
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: white !important;
+    font-size: 0.9rem;
+    font-weight: 900;
+    padding: 6px 12px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+    display: inline-block;
+    letter-spacing: 0.5px;
 }
 
 /* 메인 컨텐츠 영역 */
