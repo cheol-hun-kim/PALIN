@@ -64,29 +64,29 @@ function applyUniversityTheme(targetUnivStr) {
         }
     }
     if (!theme) {
-        theme = { code: "DREAM", color: "#4F46E5", accent: "#818CF8", bg: "linear-gradient(135deg, rgba(79, 70, 229, 0.35), rgba(15, 23, 42, 0.95))", border: "rgba(99, 102, 241, 0.35)" };
+        theme = { code: "DREAM", color: "#4F46E5", accent: "#818CF8", bg: "linear-gradient(135deg, rgba(79, 70, 229, 0.25), rgba(15, 23, 42, 0.95))", border: "rgba(99, 102, 241, 0.35)" };
     }
     
-    // 1. 배너 앰비언트 그라데이션 및 세리프 워터마크 적용
+    // 배너 앰비언트 그라데이션 및 세리프 워터마크 적용
     const banner = document.getElementById("univ-target-banner");
     const watermark = document.getElementById("banner-univ-watermark");
     const isDayMode = document.body.classList.contains("day-mode");
     
     if (banner) {
         if (isDayMode) {
-            banner.style.background = `linear-gradient(135deg, ${theme.color}18, rgba(255, 255, 255, 0.96))`;
-            banner.style.borderColor = `${theme.color}45`;
-            banner.style.boxShadow = `0 4px 20px ${theme.color}18`;
+            banner.style.background = `linear-gradient(135deg, ${theme.color}10, rgba(255, 255, 255, 0.98))`;
+            banner.style.borderColor = `${theme.color}35`;
+            banner.style.boxShadow = `0 4px 18px ${theme.color}12`;
         } else {
             banner.style.background = theme.bg;
             banner.style.borderColor = theme.border;
-            banner.style.boxShadow = `0 4px 25px ${theme.color}35`;
+            banner.style.boxShadow = `0 4px 25px ${theme.color}30`;
         }
     }
     if (watermark) {
         watermark.innerText = theme.code;
         watermark.style.color = theme.color;
-        watermark.style.opacity = isDayMode ? "0.06" : "0.10";
+        watermark.style.opacity = isDayMode ? "0.04" : "0.07";
     }
 }
 
