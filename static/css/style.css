@@ -1,3 +1,33 @@
+
+/* Input & Select Box Universal Formatting & Arrow Clipping Fix */
+.input-field, select.input-field, input.input-field, textarea.input-field {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    padding: 8px 20px 8px 8px !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: var(--text-primary, #ffffff) !important;
+    font-size: 0.82rem !important;
+    outline: none !important;
+}
+
+select.form-input, select.input-field {
+    appearance: auto !important;
+    -webkit-appearance: auto !important;
+    -moz-appearance: auto !important;
+    padding-right: 18px !important;
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+}
+
+div[style*="grid-template-columns"] > div {
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
 
 :root {
@@ -1077,7 +1107,7 @@ div[style*="grid-template-columns"] {
 div[style*="grid-template-columns"] > * {
     min-width: 0 !important;
     max-width: 100% !important;
-    overflow: hidden !important;
+    box-sizing: border-box !important;
 }
 
 @media (max-width: 420px) {
