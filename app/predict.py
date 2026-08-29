@@ -97,34 +97,73 @@ def avg_pct_to_nuback_humanities(avg_pct: float) -> float:
     return round(nb, 3)
 
 def match_target_univ(results, univ_str, dept_str):
-    if not univ_str or not results: return None
+    if not univ_str or not results:
+        return None
     u_raw = univ_str.strip()
-    u_clean = u_raw.replace("대학교", "").replace("대", "").strip()
-    d_clean = (dept_str or "").replace("학과", "").replace("학부", "").replace("전공", "").strip()
+    u_clean = u_raw.replace("대학교", "").replace("대학", "").replace("대", "").strip()
     
+    d_raw = (dept_str or "").strip()
+    d_clean = d_raw.replace("학과", "").replace("학부", "").replace("전공", "").replace("과", "").strip()
+    
+    # 1. 대학 필터링
     univ_matches = [r for r in results if r.get("대학교") == u_raw or r.get("대학약칭") == u_raw or r.get("대학교") == (u_clean + "대학교") or r.get("대학약칭") == (u_clean + "대")]
     if not univ_matches:
         univ_matches = [r for r in results if r.get("대학교") and (r.get("대학교").startswith(u_clean) or (r.get("대학약칭") and r.get("대학약칭").startswith(u_clean)))]
     if not univ_matches:
         univ_matches = [r for r in results if (r.get("대학교") and u_clean in r.get("대학교")) or (r.get("대학약칭") and u_clean in r.get("대학약칭"))]
         
-    if not univ_matches: return None
-    univ_matches.sort(key=lambda x: 1 if ("(" in x.get("대학교", "") or "미래" in x.get("대학교", "") or "글로컬" in x.get("대학교", "")) else 0)
+    if not univ_matches:
+        return None
+        
+    # 본교 우선 정렬 (분교/글로컬 뒤로)
+    univ_matches.sort(key=lambda x: 1 if ("(" in x.get("대학교", "") or "미래" in x.get("대학교", "") or "글로컬" in x.get("대학교", "") or "세종" in x.get("대학교", "")) else 0)
     
-    if d_clean:
-        for r in univ_matches:
-            r_clean = r.get("전공", "").replace("학과", "").replace("학부", "").replace("전공", "").strip()
-            if d_clean == "의예" and "수의" in r_clean:
-                continue
-            if r_clean == d_clean or r_clean.startswith(d_clean) or d_clean.startswith(r_clean):
-                return r
-        for r in univ_matches:
-            r_clean = r.get("전공", "").replace("학과", "").replace("학부", "").replace("전공", "").strip()
-            if d_clean == "의예" and "수의" in r_clean:
-                continue
-            if d_clean in r_clean or r_clean in d_clean or (d_clean in "화공" and "화공" in r_clean):
-                return r
+    if not d_raw and not d_clean:
+        return univ_matches[0]
+        
+    # 2. 전공 정밀 스코어링 매처 (Score-based Major Matcher)
+    best_match = None
+    best_score = -1
+    
+    for r in univ_matches:
+        r_dept = r.get("전공", "").strip()
+        r_clean = r_dept.replace("학과", "").replace("학부", "").replace("전공", "").replace("과", "").strip()
+        
+        # 특수 예외 필터링 (의예 vs 수의예 혼동 방지)
+        if d_clean == "의예" and "수의" in r_clean:
+            continue
+        if "수의" in d_clean and r_clean == "의예":
+            continue
+            
+        score = 0
+        
+        # 1) 원본 전공명 완전 일치 (1000점)
+        if r_dept == d_raw:
+            score = 1000
+        # 2) 정제 전공명 완전 일치 (900점) (화학생물공학 == 화학생물공학)
+        elif r_clean == d_clean:
+            score = 900
+        # 3) 접두/접미 포함 (길이 차이가 적을수록 고득점)
+        elif r_clean.startswith(d_clean) or d_clean.startswith(r_clean):
+            len_diff = abs(len(r_clean) - len(d_clean))
+            score = 850 - (len_diff * 15)
+        # 4) 부분 포함
+        elif d_clean in r_clean or r_clean in d_clean:
+            len_diff = abs(len(r_clean) - len(d_clean))
+            score = 700 - (len_diff * 15)
+        # 5) 공통 글자 매칭
+        else:
+            common_chars = sum(1 for c in d_clean if c in r_clean)
+            if common_chars >= 2:
+                score = 500 + common_chars * 20 - abs(len(r_clean) - len(d_clean)) * 10
                 
+        if score > best_score:
+            best_score = score
+            best_match = r
+            
+    if best_match and best_score > 0:
+        return best_match
+        
     return univ_matches[0]
 
 def predict_admission(
