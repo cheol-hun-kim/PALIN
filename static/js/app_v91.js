@@ -3321,21 +3321,22 @@ async function sendChatMessage() {
     if (!msg) return;
     
     input.value = "";
+    input.style.height = "auto";
     appendChatBubble("user", msg);
     
     // 대화 기록에 사용자 메시지 추가
     chatHistory.push({ role: "user", content: msg });
     
-    // 🤖 심도 있는 분석 로딩 버블 임시 노출
-    const loadingBubble = appendChatBubble("bot", "🤖 패스봇이 백서 지식을 기반으로 심도 있는 답변을 작성 중입니다... (약 10~20초 소요)");
+    // 🤖 실시간 회전 스피너 로딩 버블 노출
+    const loadingHtml = `<div style="display: flex; align-items: center; gap: 8px;"><span class="ai-spin-icon" style="font-size: 1.15rem;">🌀</span><span style="font-size: 0.85rem; font-weight: 600; color: #a78bfa;">AI 멘토가 답변을 생성 중입니다...</span></div>`;
+    const loadingBubble = appendChatBubble("bot", loadingHtml, true);
     if (loadingBubble) {
-        loadingBubble.style.opacity = "0.7";
-        loadingBubble.style.fontStyle = "italic";
+        loadingBubble.style.opacity = "0.9";
     }
 
     try {
-        // 최근 20개 대화 기록만 전송 (토큰 제한 고려)
-        const recentHistory = chatHistory.slice(-21, -1); // 현재 메시지 제외한 이전 대화
+        // 최근 20개 대화 기록만 전송
+        const recentHistory = chatHistory.slice(-21, -1);
         
         const res = await fetch("/api/ai/chat", {
             method: "POST",
@@ -3353,7 +3354,6 @@ async function sendChatMessage() {
             if (loadingBubble) {
                 loadingBubble.innerText = `⚠️ ${errMsg}`;
                 loadingBubble.style.opacity = "1";
-                loadingBubble.style.fontStyle = "normal";
             } else {
                 appendChatBubble("bot", `⚠️ ${errMsg}`);
             }
@@ -3364,7 +3364,6 @@ async function sendChatMessage() {
         if (loadingBubble) {
             loadingBubble.innerText = data.reply;
             loadingBubble.style.opacity = "1";
-            loadingBubble.style.fontStyle = "normal";
         } else {
             appendChatBubble("bot", data.reply);
         }
@@ -3378,18 +3377,21 @@ async function sendChatMessage() {
         if (loadingBubble) {
             loadingBubble.innerText = `서버 연결 오류: ${e.message || "네트워크 문제"}`;
             loadingBubble.style.opacity = "1";
-            loadingBubble.style.fontStyle = "normal";
         } else {
             appendChatBubble("bot", `서버 연결 오류: ${e.message || "네트워크 문제"}`);
         }
     }
 }
 
-function appendChatBubble(sender, text) {
+function appendChatBubble(sender, content, isHtml = false) {
     const container = document.getElementById("chat-box");
     const bubble = document.createElement("div");
     bubble.classList.add("chat-bubble", sender);
-    bubble.innerText = text;
+    if (isHtml) {
+        bubble.innerHTML = content;
+    } else {
+        bubble.innerText = content;
+    }
     
     container.appendChild(bubble);
     container.scrollTop = container.scrollHeight;
@@ -4737,9 +4739,9 @@ async function loadExamMaterials() {
             container.innerHTML += `
                 <div class="material-card" style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
                     <div style="flex: 1; min-width: 0;">
-                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-                            <span style="background: ${badgeInfo.bg}; color: ${badgeInfo.color}; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 800;">${badgeInfo.icon} ${m.subject}</span>
-                            ${m.year ? `<span style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">${m.year}학년도</span>` : ''}
+                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: nowrap;">
+                            <span style="background: ${badgeInfo.bg}; color: ${badgeInfo.color}; padding: 3px 8px; border-radius: 8px; font-size: 0.72rem; font-weight: 800; white-space: nowrap; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px;">${badgeInfo.icon} ${m.subject}</span>
+                            ${m.year ? `<span style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; white-space: nowrap; flex-shrink: 0; background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 8px;">${m.year}학년도</span>` : ''}
                         </div>
                         <div class="material-title" style="font-size: 0.88rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.title}</div>
                         ${m.description ? `<div class="material-desc" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.description}</div>` : ''}
