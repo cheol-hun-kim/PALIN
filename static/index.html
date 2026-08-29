@@ -39,13 +39,18 @@
     <meta name="apple-mobile-web-app-title" content="PALIN OS">
     <link rel="apple-touch-icon" href="/icon-192.png">
     <meta name="description" content="데이터 기반 행동 통제 범용 OS - 수험생 합격 시스템">
-</head>
+
+    <style>
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .ai-spin-icon { display: inline-block; animation: spin 1s linear infinite; }
+    </style>
+    </head>
 <body>
 
     <div class="mobile-frame">
         
         <!-- 1. 회원가입 오버레이 (신규 로그인 전) -->
-        <div id="register-overlay" class="loader-overlay" style="display: flex;">
+        <div id="register-overlay" class="loader-overlay" style="display: flex; padding-bottom: calc(60px + env(safe-area-inset-bottom, 30px)); overflow-y: auto;">
             <div style="text-align: center; margin-bottom: 20px;">
                 <div style="font-size: 2.2rem; font-weight: 800; color: white;">PASS-MATE</div>
                 <div style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 4px;">대입 수험생을 위한 밀착 생활 관리 플랫폼</div>
@@ -141,7 +146,7 @@
                 <button type="submit" class="btn" style="width: 100%; margin-top: 14px; padding: 12px 0; font-size:0.95rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); font-weight: 800;">학생 계정으로 시작하기</button>
             </form>
 
-            <div id="login-toggle-area" style="text-align: center; margin-top: 16px;">
+            <div id="login-toggle-area" style="text-align: center; margin-top: 16px; margin-bottom: 44px;">
                 <div style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 8px;">이미 가입하셨나요?</div>
                 <button type="button" onclick="toggleLoginForm()" class="btn" style="padding: 10px 24px; font-size: 0.88rem; background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: 600;">기존 계정으로 로그인</button>
             </div>
@@ -540,7 +545,7 @@
                             오늘 남은 무료 대화: 5회
                         </div>
                         <div class="chat-input-row">
-                            <input type="text" id="chat-input" class="form-input" placeholder="영어/수학 공부법 혹은 진로 상담을 해보세요.." onkeydown="if(event.key==='Enter') sendChatMessage()">
+                            <textarea id="chat-input" class="form-input" placeholder="수험 고민, 과목 공부법 등을 질문해 보세요..." rows="1" style="resize: none; overflow-y: auto; max-height: 120px; line-height: 1.45; padding: 10px 12px; font-size: 0.88rem; flex: 1;" oninput="this.style.height='auto'; this.style.height=Math.min(this.scrollHeight, 120)+'px';" onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); sendChatMessage(); }"></textarea>
                             <button class="btn" style="padding: 10px 16px;" onclick="sendChatMessage()">
                                 <span class="material-symbols-rounded" style="font-size: 1.1rem; display:block;">send</span>
                             </button>
@@ -907,7 +912,7 @@
                 </div>
 
                 <!-- 2-C: 기출문제 자료실 탭 -->
-                <div id="p2-archive" class="subtab-view-p2" style="display: none;">
+                <div id="p2-archive" class="subtab-view-p2" style="display: none; padding-bottom: 110px;">
                     <div class="card">
                         <div class="card-title" style="color: #818cf8; margin-bottom: 4px;">
                             <span class="material-symbols-rounded" style="color: #6366f1">download</span>
@@ -1780,7 +1785,7 @@
         </div>
     </div>
 
-    <script src="js/app_v91.js?v=93.0"></script>
+    <script src="js/app_v91.js?v=94.0"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소
