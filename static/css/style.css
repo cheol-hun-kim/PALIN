@@ -1,4 +1,31 @@
 
+/* 📅 날짜 선택창(Date Picker) 캘린더 아이콘 다크/라이트 모드 고대비 스타일링 */
+input[type="date"] {
+    color-scheme: dark;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(1.8) !important;
+    cursor: pointer;
+    opacity: 0.95;
+    padding: 2px;
+    transition: transform 0.2s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    transform: scale(1.15);
+}
+
+body.day-mode input[type="date"] {
+    color-scheme: light !important;
+}
+
+body.day-mode input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.3) brightness(0.6) !important;
+    opacity: 0.85;
+}
+
+
 /* Input & Select Box Universal Formatting & Arrow Clipping Fix */
 .input-field, select.input-field, input.input-field, textarea.input-field {
     width: 100% !important;
