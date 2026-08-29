@@ -44,7 +44,8 @@
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .ai-spin-icon { display: inline-block; animation: spin 1s linear infinite; }
     </style>
-    </head>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,900&family=Cinzel:wght@900&display=swap">
+</head>
 <body>
 
     <div class="mobile-frame">
@@ -200,16 +201,19 @@
                 </div>
 
                 <!-- 목표대학 & D-Day 배너 (D-Day 수동 변경 지원) -->
-                <div class="univ-banner" style="margin-bottom: 12px; border-radius: 16px; border: 1px solid var(--glass-border);">
-                    <div>
+                <div class="univ-banner" id="univ-target-banner" style="margin-bottom: 12px; border-radius: 16px; border: 1px solid var(--glass-border); position: relative; overflow: hidden; transition: all 0.35s ease;">
+                    <!-- 대학별 클래식 세리프 워터마크 (SNU, YONSEI, KOREA 등) -->
+                    <div id="banner-univ-watermark" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-family: 'Playfair Display', 'Cinzel', 'Times New Roman', serif; font-size: 2.7rem; font-weight: 900; opacity: 0.12; letter-spacing: 2px; pointer-events: none; user-select: none;"></div>
+                    
+                    <div style="position: relative; z-index: 2;">
                         <span class="target-label">목표 대학</span>
                         <span class="univ-name" id="banner-target-univ">로딩중..</span>
                     </div>
-                    <div style="margin-top: 4px;">
+                    <div style="margin-top: 4px; position: relative; z-index: 2;">
                         <span class="target-label">안정 마지노선</span>
                         <span class="univ-name" id="banner-baseline-univ">로딩중..</span>
                     </div>
-                    <div style="text-align: right;">
+                    <div style="text-align: right; position: relative; z-index: 2;">
                         <div class="dday" id="banner-dday" style="cursor: pointer;" onclick="openMyPageModal()" title="클릭하여 목표 D-Day 변경">D-DAY</div>
                         <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;" id="banner-dday-title">2027 수능</div>
                     </div>
@@ -1785,7 +1789,7 @@
         </div>
     </div>
 
-    <script src="js/app_v91.js?v=95.0"></script>
+    <script src="js/app_v91.js?v=96.0"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소
