@@ -281,9 +281,9 @@ header {
 /* 목표 대학교 배너 */
 .univ-banner {
     position: relative;
-    padding: 14px 18px;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(16, 185, 129, 0.04));
-    border-radius: 16px;
+    padding: 16px 18px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.10), rgba(16, 185, 129, 0.03));
+    border-radius: 18px;
     border: 1.5px solid var(--glass-border);
     display: flex;
     justify-content: space-between;
@@ -293,39 +293,9 @@ header {
 }
 
 body.day-mode .univ-banner {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(248, 250, 252, 0.95)) !important;
-    border-color: rgba(99, 102, 241, 0.2) !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
-}
-
-.univ-banner .target-label {
-    font-size: 0.72rem;
-    color: var(--text-secondary);
-    letter-spacing: 0.5px;
-    font-weight: 600;
-}
-
-.univ-banner .univ-name {
-    font-size: 1rem;
-    font-weight: 800;
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.univ-banner .dday {
-    position: static !important;
-    transform: none !important;
-    background: linear-gradient(135deg, #6366f1, #4f46e5);
-    color: white !important;
-    font-size: 0.9rem;
-    font-weight: 900;
-    padding: 6px 12px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
-    display: inline-block;
-    letter-spacing: 0.5px;
+    background: #ffffff !important;
+    border-color: rgba(99, 102, 241, 0.16) !important;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04) !important;
 }
 
 /* 메인 컨텐츠 영역 */
