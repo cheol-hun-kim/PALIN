@@ -30,7 +30,7 @@
     </script>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=95.0">
+    <link rel="stylesheet" href="css/style.css?v=97.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -201,21 +201,26 @@
                 </div>
 
                 <!-- 목표대학 & D-Day 배너 (D-Day 수동 변경 지원) -->
-                <div class="univ-banner" id="univ-target-banner" style="margin-bottom: 12px; border-radius: 16px; border: 1px solid var(--glass-border); position: relative; overflow: hidden; transition: all 0.35s ease;">
+                <div class="univ-banner" id="univ-target-banner" style="margin-bottom: 12px; position: relative; overflow: hidden; transition: all 0.35s ease;">
                     <!-- 대학별 클래식 세리프 워터마크 (SNU, YONSEI, KOREA 등) -->
-                    <div id="banner-univ-watermark" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-family: 'Playfair Display', 'Cinzel', 'Times New Roman', serif; font-size: 2.7rem; font-weight: 900; opacity: 0.12; letter-spacing: 2px; pointer-events: none; user-select: none;"></div>
+                    <div id="banner-univ-watermark" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-family: 'Playfair Display', 'Cinzel', 'Times New Roman', serif; font-size: 2.8rem; font-weight: 900; opacity: 0.08; letter-spacing: 2px; pointer-events: none; user-select: none;"></div>
                     
-                    <div style="position: relative; z-index: 2;">
-                        <span class="target-label">목표 대학</span>
-                        <span class="univ-name" id="banner-target-univ">로딩중..</span>
+                    <!-- 좌측: 목표 대학 & 마지노선 -->
+                    <div style="flex: 1; min-width: 0; position: relative; z-index: 2;">
+                        <div style="margin-bottom: 6px;">
+                            <div class="target-label" style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; margin-bottom: 1px;">목표 대학</div>
+                            <div class="univ-name" id="banner-target-univ" style="font-size: 1.05rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">로딩중..</div>
+                        </div>
+                        <div>
+                            <div class="target-label" style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; margin-bottom: 1px;">안정 마지노선</div>
+                            <div class="univ-name" id="banner-baseline-univ" style="font-size: 0.95rem; font-weight: 700; color: #818cf8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">로딩중..</div>
+                        </div>
                     </div>
-                    <div style="margin-top: 4px; position: relative; z-index: 2;">
-                        <span class="target-label">안정 마지노선</span>
-                        <span class="univ-name" id="banner-baseline-univ">로딩중..</span>
-                    </div>
-                    <div style="text-align: right; position: relative; z-index: 2;">
-                        <div class="dday" id="banner-dday" style="cursor: pointer;" onclick="openMyPageModal()" title="클릭하여 목표 D-Day 변경">D-DAY</div>
-                        <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;" id="banner-dday-title">2027 수능</div>
+                    
+                    <!-- 우측: D-Day 뱃지 & 목표 타이틀 (수직 스택) -->
+                    <div style="flex-shrink: 0; text-align: right; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 4px; position: relative; z-index: 2; cursor: pointer;" onclick="openMyPageModal()" title="클릭하여 목표 D-Day 변경">
+                        <div class="dday" id="banner-dday">D-DAY</div>
+                        <div id="banner-dday-title" style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right;">2027 수능</div>
                     </div>
                 </div>
 
@@ -1789,7 +1794,7 @@
         </div>
     </div>
 
-    <script src="js/app_v91.js?v=96.0"></script>
+    <script src="js/app_v91.js?v=97.0"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소
