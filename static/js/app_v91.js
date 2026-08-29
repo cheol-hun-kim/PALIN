@@ -3798,11 +3798,12 @@ async function runPrediction() {
                 });
             }
             
-            // 정밀 타겟 매칭 함수 (연세대 화공생명공학부 1:1 완벽 매칭)
+                        // 정밀 점수 기반 전공 매칭 함수 (Score-based Major Matcher)
             function localMatch(uName, dName) {
                 if (!uName || results.length === 0) return null;
-                const uClean = uName.replace(/대학교$/, '').replace(/대$/, '').trim();
-                const dClean = (dName || '').replace(/학과$/, '').replace(/학부$/, '').replace(/전공$/, '').trim();
+                const uClean = uName.replace(/대학교$/, '').replace(/대학$/, '').replace(/대$/, '').trim();
+                const dRaw = (dName || '').trim();
+                const dClean = dRaw.replace(/학과$/, '').replace(/학부$/, '').replace(/전공$/, '').replace(/과$/, '').trim();
                 
                 // 1. 해당 대학교의 모든 학과 추출
                 let matches = results.filter(r => r.대학교 === uName || r.대학약칭 === uName || r.대학교 === (uClean + '대학교') || r.대학약칭 === (uClean + '대'));
@@ -3810,25 +3811,55 @@ async function runPrediction() {
                 if (matches.length === 0) matches = results.filter(r => r.대학교 && r.대학교.includes(uClean));
                 if (matches.length === 0) return null;
                 
-                // 2. 학과 정밀 매칭
-                if (dClean) {
-                    // 2-A: 학과명 정확 일치 or 시작 일치
-                    let exact = matches.find(r => {
-                        const rClean = (r.전공 || '').replace(/학과$/, '').replace(/학부$/, '').replace(/전공$/, '').trim();
-                        if (dClean === '의예' && rClean.includes('수의')) return false;
-                        return rClean === dClean || rClean.startsWith(dClean) || dClean.startsWith(rClean);
-                    });
-                    if (exact) return exact;
+                // 본교 우선 정렬
+                matches.sort((a, b) => {
+                    const aSub = (a.대학교.includes('(') || a.대학교.includes('미래') || a.대학교.includes('글로컬') || a.대학교.includes('세종')) ? 1 : 0;
+                    const bSub = (b.대학교.includes('(') || b.대학교.includes('미래') || b.대학교.includes('글로컬') || b.대학교.includes('세종')) ? 1 : 0;
+                    return aSub - bSub;
+                });
+                
+                if (!dRaw && !dClean) return matches[0];
+                
+                // 2. 점수 기반 정밀 전공 매칭
+                let bestMatch = null;
+                let bestScore = -1;
+                
+                for (let i = 0; i < matches.length; i++) {
+                    const r = matches[i];
+                    const rDept = (r.전공 || '').trim();
+                    const rClean = rDept.replace(/학과$/, '').replace(/학부$/, '').replace(/전공$/, '').replace(/과$/, '').trim();
                     
-                    // 2-B: 키워드 포함 일치 (예: '화공' in '화공생명공학부')
-                    let partial = matches.find(r => {
-                        const rClean = (r.전공 || '').replace(/학과$/, '').replace(/학부$/, '').replace(/전공$/, '').trim();
-                        if (dClean === '의예' && rClean.includes('수의')) return false;
-                        return rClean.includes(dClean) || dClean.includes(rClean) || (dClean.includes('화공') && rClean.includes('화공'));
-                    });
-                    if (partial) return partial;
+                    if (dClean === '의예' && rClean.includes('수의')) continue;
+                    if (dClean.includes('수의') && rClean === '의예') continue;
+                    
+                    let score = 0;
+                    if (rDept === dRaw) {
+                        score = 1000;
+                    } else if (rClean === dClean) {
+                        score = 900;
+                    } else if (rClean.startsWith(dClean) || dClean.startsWith(rClean)) {
+                        const lenDiff = Math.abs(rClean.length - dClean.length);
+                        score = 850 - (lenDiff * 15);
+                    } else if (dClean.includes(rClean) || rClean.includes(dClean)) {
+                        const lenDiff = Math.abs(rClean.length - dClean.length);
+                        score = 700 - (lenDiff * 15);
+                    } else {
+                        let commonChars = 0;
+                        for (let c of dClean) {
+                            if (rClean.includes(c)) commonChars++;
+                        }
+                        if (commonChars >= 2) {
+                            score = 500 + commonChars * 20 - Math.abs(rClean.length - dClean.length) * 10;
+                        }
+                    }
+                    
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMatch = r;
+                    }
                 }
-                return matches[0];
+                
+                return (bestMatch && bestScore > 0) ? bestMatch : matches[0];
             }
             
             data = {
