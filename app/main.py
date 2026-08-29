@@ -1707,7 +1707,7 @@ def get_exam_materials(subject: Optional[str] = None, year: Optional[int] = None
         query = query.filter(models.ExamMaterial.subject == subject)
     if year and year != 0:
         query = query.filter(models.ExamMaterial.year == year)
-    materials = query.order_by(models.ExamMaterial.created_at.desc()).all()
+    materials = query.order_by(models.ExamMaterial.year.desc(), models.ExamMaterial.created_at.desc()).all()
     return materials
 
 @app.post("/api/admin/materials/upload")
