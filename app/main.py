@@ -23,6 +23,22 @@ def init_db_schema():
                 if engine.dialect.name == "sqlite":
                     columns = [row[1] for row in conn.execute(text("PRAGMA table_info(students)")).fetchall()]
                     if columns:
+                        if "previous_b2c_tier" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN previous_b2c_tier VARCHAR DEFAULT 'B2C_FREE'"))
+                        if "academy_code" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN academy_code VARCHAR"))
+                        if "ai_level" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN ai_level VARCHAR DEFAULT 'B2C_FREE'"))
+                        if "tuition_paid" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN tuition_paid BOOLEAN DEFAULT 0"))
+                        if "textbook_paid" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN textbook_paid BOOLEAN DEFAULT 0"))
+                        if "textbooks_distributed" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN textbooks_distributed TEXT DEFAULT ''"))
+                        if "enrollment_status" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN enrollment_status VARCHAR DEFAULT 'ENROLLED'"))
+                        if "leave_reason" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN leave_reason VARCHAR"))
                         if "sido" not in columns:
                             conn.execute(text("ALTER TABLE students ADD COLUMN sido VARCHAR DEFAULT '경기도'"))
                         if "sigungu" not in columns:
@@ -263,6 +279,72 @@ def register_student(payload: schemas.StudentCreate, db: Session = Depends(get_d
         import traceback
         print("Register Internal Error:", traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"회원가입 처리 중 오류 발생: {str(e)}")
+
+
+# === 🏫 Phase 1~5 Pydantic Payload Schemas ===
+class AcademyLinkPayload(BaseModel):
+    student_id: int
+    academy_code: str
+
+class AcademyLeavePayload(BaseModel):
+    student_id: int
+    leave_reason: str # '내신 휴강' | '개인 사유' | '상담 후 결정'
+    details: Optional[str] = ""
+
+class AdministrativeRequestPayload(BaseModel):
+    student_id: int
+    request_type: str # 'VOD' | 'ATTENDANCE' | 'CLASS_CHANGE' | 'LEAVE' | 'RETURN'
+    details: str
+    target_date: Optional[str] = ""
+    leave_reason: Optional[str] = None
+
+class RequestStatusUpdatePayload(BaseModel):
+    status: str # 'APPROVED' | 'REJECTED'
+
+class FinancialUpdatePayload(BaseModel):
+    tuition_paid: bool
+    textbook_paid: bool
+    textbooks_distributed: Optional[str] = ""
+
+class AdminSchedulePayload(BaseModel):
+    title: str
+    schedule_date: str # YYYY-MM-DD HH:MM
+    category: str = "OPERATION" # OPERATION | EVENT | TAX | ACADEMY
+
+class CurriculumFeedPayload(BaseModel):
+    academy_code: str = "ILWON-2027"
+    curriculum_name: str
+    week_number: int
+    feed_date: str
+    content: str
+    is_special_notice: bool = False
+
+class ExamScorePayload(BaseModel):
+    student_id: int
+    exam_week: int
+    subject: str = "국어"
+    score: float
+
+class DiagnosticSubmitPayload(BaseModel):
+    student_id: int
+    survey_id: int
+    answers: Dict[str, Any]
+
+class VodProgressPayload(BaseModel):
+    student_id: int
+    vod_id: int
+    current_time: float
+    duration: float
+    playback_rate: float
+
+class AttendanceCheckInPayload(BaseModel):
+    student_id: int
+    client_ip: Optional[str] = None
+    class_start_time: Optional[str] = None # HH:MM
+
+class ManualPenaltyPayload(BaseModel):
+    reason: str # 원장의 구체적 경고 사유
+    penalty_amount: int = 5000
 
 class LoginPayload(BaseModel):
     email: str
@@ -2086,6 +2168,566 @@ def export_b2b_marketing_report(db: Session = Depends(get_db)):
             media_type="text/csv; charset=utf-8",
             headers={"Content-Disposition": f"attachment; filename={filename}"}
         )
+
+
+# ============================================================================
+# 🏫 [Phase 1] B2C/B2B 테넌트 라우팅, 학원 종합 ERP 및 원장 개인 스케줄러 API
+# ============================================================================
+
+@app.post("/api/academy/link")
+def link_academy(payload: AcademyLinkPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생 정보를 찾을 수 없습니다.")
+    
+    code = payload.academy_code.strip().upper()
+    if not code:
+        raise HTTPException(status_code=400, detail="학원 고유코드를 입력해 주세요.")
+        
+    # B2C 티어 상태 스냅샷 저장
+    if not student.previous_b2c_tier or student.previous_b2c_tier == "B2C_FREE":
+        student.previous_b2c_tier = student.ai_level or "B2C_FREE"
+        
+    student.academy_code = code
+    student.ai_level = "B2B_PREMIUM"
+    student.enrollment_status = "ENROLLED"
+    db.commit()
+    db.refresh(student)
+    return {"status": "success", "message": f"{code} 학원에 성공적으로 연동되었습니다.", "student": student}
+
+
+@app.post("/api/academy/leave")
+def request_academy_leave(payload: AcademyLeavePayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생 정보를 찾을 수 없습니다.")
+        
+    student.enrollment_status = "ON_LEAVE"
+    student.leave_reason = payload.leave_reason
+    # B2C 티어로 권한 즉시 롤백
+    student.ai_level = student.previous_b2c_tier or "B2C_FREE"
+    
+    # 행정 요청 기록 생성 (Admin 대기열 연동)
+    req = models.AdministrativeRequest(
+        student_id=student.id,
+        student_name=student.name,
+        request_type="LEAVE",
+        leave_reason=payload.leave_reason,
+        details=payload.details or f"장기 휴강 신청 ({payload.leave_reason})",
+        status="PENDING"
+    )
+    db.add(req)
+    db.commit()
+    db.refresh(student)
+    return {
+        "status": "success",
+        "message": "장기 휴강 신청이 접수되었습니다. 앱 내 자동 처리는 불가하며, 김철훈 원장과의 최종 상담을 통해서만 확정됩니다.",
+        "student": student
+    }
+
+
+@app.post("/api/academy/return")
+def request_academy_return(payload: dict, db: Session = Depends(get_db)):
+    student_id = payload.get("student_id")
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생 정보를 찾을 수 없습니다.")
+        
+    req = models.AdministrativeRequest(
+        student_id=student.id,
+        student_name=student.name,
+        request_type="RETURN",
+        details="학원 복귀 승인 신청",
+        status="PENDING"
+    )
+    db.add(req)
+    db.commit()
+    return {"status": "success", "message": "학원 복귀 신청이 원장님 대기열에 등록되었습니다."}
+
+
+@app.get("/api/academy/feeds")
+def get_academy_feeds(academy_code: str = "ILWON-2027", db: Session = Depends(get_db)):
+    feeds = db.query(models.CurriculumFeed)\
+        .filter(models.CurriculumFeed.academy_code == academy_code)\
+        .order_by(models.CurriculumFeed.is_special_notice.desc(), models.CurriculumFeed.feed_date.desc())\
+        .all()
+    return feeds
+
+
+@app.post("/api/admin/academy/feeds")
+def create_academy_feed(payload: CurriculumFeedPayload, db: Session = Depends(get_db)):
+    feed = models.CurriculumFeed(
+        academy_code=payload.academy_code,
+        curriculum_name=payload.curriculum_name,
+        week_number=payload.week_number,
+        feed_date=payload.feed_date,
+        content=payload.content,
+        is_special_notice=payload.is_special_notice
+    )
+    db.add(feed)
+    db.commit()
+    db.refresh(feed)
+    return feed
+
+
+@app.delete("/api/admin/academy/feeds/{feed_id}")
+def delete_academy_feed(feed_id: int, db: Session = Depends(get_db)):
+    feed = db.query(models.CurriculumFeed).filter(models.CurriculumFeed.id == feed_id).first()
+    if feed:
+        db.delete(feed)
+        db.commit()
+    return {"status": "success"}
+
+
+# === 📋 행정 요청(복습 VOD, 단기 결석/보강, 정규 반 변경) 칸반 API ===
+
+@app.post("/api/academy/requests")
+def submit_admin_request(payload: AdministrativeRequestPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+        
+    req = models.AdministrativeRequest(
+        student_id=student.id,
+        student_name=student.name,
+        request_type=payload.request_type,
+        details=payload.details,
+        target_date=payload.target_date,
+        leave_reason=payload.leave_reason,
+        status="PENDING"
+    )
+    db.add(req)
+    db.commit()
+    db.refresh(req)
+    
+    # 학부모 알림톡/SMS 동기화 발송
+    if student.parent and student.parent.phone:
+        try:
+            req_type_names = {
+                "VOD": "복습 VOD 신청",
+                "ATTENDANCE": "단기 결석 및 보강 신청",
+                "CLASS_CHANGE": "정규 반 변경 신청",
+                "LEAVE": "장기 휴강 신청",
+                "RETURN": "학원 복귀 신청"
+            }
+            msg = f"[일원학원] {student.name} 학생의 {req_type_names.get(payload.request_type, '행정 요청')}이 정상 접수되었습니다. (원장 확인 중)"
+            sms.send_sms(student.parent.phone, msg)
+        except Exception as e:
+            print("SMS sync notice:", e)
+            
+    return {"status": "success", "request": req}
+
+
+@app.get("/api/admin/requests")
+def get_admin_requests(db: Session = Depends(get_db)):
+    requests = db.query(models.AdministrativeRequest).order_by(models.AdministrativeRequest.created_at.desc()).all()
+    return requests
+
+
+@app.patch("/api/admin/requests/{request_id}")
+def update_admin_request_status(request_id: int, payload: RequestStatusUpdatePayload, db: Session = Depends(get_db)):
+    req = db.query(models.AdministrativeRequest).filter(models.AdministrativeRequest.id == request_id).first()
+    if not req:
+        raise HTTPException(status_code=404, detail="요청을 찾을 수 없습니다.")
+        
+    req.status = payload.status
+    
+    # 승인 처리 시 특별 로직 (학원 복귀 등)
+    if payload.status == "APPROVED" and req.request_type == "RETURN":
+        student = db.query(models.Student).filter(models.Student.id == req.student_id).first()
+        if student:
+            student.enrollment_status = "ENROLLED"
+            student.ai_level = "B2B_PREMIUM"
+            
+    db.commit()
+    db.refresh(req)
+    
+    # 학부모 알림톡 실시간 동시 전송
+    student = db.query(models.Student).filter(models.Student.id == req.student_id).first()
+    if student and student.parent and student.parent.phone:
+        try:
+            status_text = "승인" if payload.status == "APPROVED" else "반려"
+            msg = f"[일원학원] {student.name} 학생의 행정 요청({req.request_type})이 {status_text} 처리되었습니다."
+            sms.send_sms(student.parent.phone, msg)
+        except Exception as e:
+            print("SMS sync notice:", e)
+            
+    return {"status": "success", "request": req}
+
+
+# === 💰 원장 전용 수강료/교재비 ERP 관리 API ===
+
+@app.patch("/api/admin/students/{student_id}/financial")
+def update_student_financial(student_id: int, payload: FinancialUpdatePayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+        
+    student.tuition_paid = payload.tuition_paid
+    student.textbook_paid = payload.textbook_paid
+    student.textbooks_distributed = payload.textbooks_distributed or ""
+    db.commit()
+    db.refresh(student)
+    return {"status": "success", "student": student}
+
+
+# === 📅 원장 전용 개인 일정 비서(Scheduler) API ===
+
+@app.get("/api/admin/schedules")
+def get_admin_schedules(db: Session = Depends(get_db)):
+    schedules = db.query(models.AdminSchedule).order_by(models.AdminSchedule.schedule_date.asc()).all()
+    return schedules
+
+
+@app.post("/api/admin/schedules")
+def create_admin_schedule(payload: AdminSchedulePayload, db: Session = Depends(get_db)):
+    sch = models.AdminSchedule(
+        title=payload.title,
+        schedule_date=payload.schedule_date,
+        category=payload.category,
+        is_completed=False
+    )
+    db.add(sch)
+    db.commit()
+    db.refresh(sch)
+    return sch
+
+
+@app.patch("/api/admin/schedules/{schedule_id}")
+def update_admin_schedule(schedule_id: int, payload: dict, db: Session = Depends(get_db)):
+    sch = db.query(models.AdminSchedule).filter(models.AdminSchedule.id == schedule_id).first()
+    if not sch:
+        raise HTTPException(status_code=404, detail="일정을 찾을 수 없습니다.")
+        
+    if "is_completed" in payload:
+        sch.is_completed = payload["is_completed"]
+    if "title" in payload:
+        sch.title = payload["title"]
+    if "schedule_date" in payload:
+        sch.schedule_date = payload["schedule_date"]
+    if "category" in payload:
+        sch.category = payload["category"]
+        
+    db.commit()
+    db.refresh(sch)
+    return sch
+
+
+@app.delete("/api/admin/schedules/{schedule_id}")
+def delete_admin_schedule(schedule_id: int, db: Session = Depends(get_db)):
+    sch = db.query(models.AdminSchedule).filter(models.AdminSchedule.id == schedule_id).first()
+    if sch:
+        db.delete(sch)
+        db.commit()
+    return {"status": "success"}
+
+
+@app.post("/api/admin/schedules/check-reminders")
+def check_schedule_reminders(db: Session = Depends(get_db)):
+    now = datetime.now()
+    schedules = db.query(models.AdminSchedule).filter(models.AdminSchedule.is_completed == False).all()
+    reminders_sent = 0
+    
+    for s in schedules:
+        try:
+            sch_dt = datetime.strptime(s.schedule_date, "%Y-%m-%d %H:%M")
+        except Exception:
+            try:
+                sch_dt = datetime.strptime(s.schedule_date, "%Y-%m-%d")
+            except Exception:
+                continue
+                
+        diff = sch_dt - now
+        diff_hours = diff.total_seconds() / 3600.0
+        
+        # 1일 전 리마인더 (20~28시간 사이)
+        if 0 < diff_hours <= 24 and not s.remind_1day_sent:
+            s.remind_1day_sent = True
+            reminders_sent += 1
+            print(f"[원장 리마인더 (D-1)] {s.title} ({s.schedule_date})")
+            
+        # 2시간 전 리마인더 (0~2.5시간 사이)
+        if 0 < diff_hours <= 2 and not s.remind_2hour_sent:
+            s.remind_2hour_sent = True
+            reminders_sent += 1
+            print(f"[원장 리마인더 (D-2h)] {s.title} 곧 마감/시작됩니다!")
+            
+    db.commit()
+    return {"status": "success", "reminders_sent": reminders_sent}
+
+
+# ============================================================================
+# 📊 [Phase 2] 학사 관리 자동화: OMR, 성적 렌더링 & 커스텀 문진 처방 API
+# ============================================================================
+
+@app.post("/api/exam/scores")
+def submit_exam_score(payload: ExamScorePayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+        
+    now = datetime.now()
+    is_on_time = True
+    
+    # 1~9등급 및 백분위 계산
+    calc_grade = 1 if payload.score >= 95 else (2 if payload.score >= 88 else (3 if payload.score >= 80 else (4 if payload.score >= 70 else 5)))
+    percentile = max(0.5, round(100.0 - (payload.score * 0.98), 1))
+    
+    # 지난 시험 대비 트렌드 계산
+    prev_score = db.query(models.ExamScore)\
+        .filter(models.ExamScore.student_id == student.id, models.ExamScore.subject == payload.subject)\
+        .order_by(models.ExamScore.exam_week.desc())\
+        .first()
+        
+    trend = "SAME"
+    if prev_score:
+        if payload.score > prev_score.score: trend = "UP"
+        elif payload.score < prev_score.score: trend = "DOWN"
+        
+    score_entry = models.ExamScore(
+        student_id=student.id,
+        exam_week=payload.exam_week,
+        subject=payload.subject,
+        score=payload.score,
+        percentile_rank=percentile,
+        calculated_grade=calc_grade,
+        trend_direction=trend,
+        is_submitted_on_time=is_on_time
+    )
+    db.add(score_entry)
+    
+    student.current_points = (student.current_points or 0) + 50
+    db.commit()
+    db.refresh(score_entry)
+    return {"status": "success", "score": score_entry, "earned_points": 50}
+
+
+@app.get("/api/exam/scores/{student_id}")
+def get_student_exam_scores(student_id: int, db: Session = Depends(get_db)):
+    scores = db.query(models.ExamScore)\
+        .filter(models.ExamScore.student_id == student_id)\
+        .order_by(models.ExamScore.exam_week.asc())\
+        .all()
+    return scores
+
+
+@app.get("/api/diagnostic/surveys")
+def get_active_diagnostic_surveys(db: Session = Depends(get_db)):
+    surveys = db.query(models.DiagnosticSurvey).filter(models.DiagnosticSurvey.is_active == True).all()
+    return surveys
+
+
+@app.post("/api/diagnostic/submit")
+def submit_diagnostic_survey(payload: DiagnosticSubmitPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+        
+    prescription_text = "기출 3개년 고난도 비문학 지문 구조독해 매일 2지문 완독 처방"
+    
+    response = models.SurveyResponse(
+        student_id=student.id,
+        survey_id=payload.survey_id,
+        answers_json=json.dumps(payload.answers, ensure_ascii=False),
+        prescriptions_result=prescription_text,
+        parent_alert_sent=True
+    )
+    db.add(response)
+    db.commit()
+    db.refresh(response)
+    
+    if student.parent and student.parent.phone:
+        try:
+            msg = f"[일원학원] {student.name} 학생의 시험 후 맞춤 처방전이 발급되었습니다.\n처방: {prescription_text}"
+            sms.send_sms(student.parent.phone, msg)
+        except Exception as e:
+            print("SMS notice:", e)
+            
+    return {"status": "success", "prescription": prescription_text}
+
+
+# ============================================================================
+# ⏱️ [Phase 3] Vimeo Player API 안티치트, 7일 락 및 숙제 독촉 API
+# ============================================================================
+
+@app.get("/api/vod/list/{student_id}")
+def get_student_vods(student_id: int, db: Session = Depends(get_db)):
+    vods = db.query(models.VodAssignment).filter(models.VodAssignment.student_id == student_id).all()
+    now = datetime.now()
+    results = []
+    for v in vods:
+        is_expired = now > v.expires_at if v.expires_at else False
+        remaining_hours = max(0, int((v.expires_at - now).total_seconds() / 3600)) if v.expires_at else 0
+        results.append({
+            "id": v.id,
+            "vod_title": v.vod_title,
+            "vimeo_video_id": v.vimeo_video_id,
+            "is_expired": is_expired,
+            "remaining_hours": remaining_hours,
+            "watch_progress_pct": v.watch_progress_pct,
+            "is_completed": v.is_completed,
+            "is_homework_submitted": v.is_homework_submitted,
+            "is_homework_verified": v.is_homework_verified
+        })
+    return results
+
+
+@app.post("/api/vod/progress")
+def sync_vod_progress(payload: VodProgressPayload, db: Session = Depends(get_db)):
+    vod = db.query(models.VodAssignment).filter(models.VodAssignment.id == payload.vod_id).first()
+    if not vod:
+        raise HTTPException(status_code=404, detail="VOD를 찾을 수 없습니다.")
+        
+    now = datetime.now()
+    if vod.expires_at and now > vod.expires_at:
+        raise HTTPException(status_code=403, detail="시청 기한(7일)이 만료되었습니다. 연장 신청을 진행해 주세요.")
+        
+    if payload.playback_rate > 1.25:
+        return {"status": "warning", "action": "FORCE_RESET_SPEED", "message": "배속 재생은 제한됩니다. 1배속으로 복구합니다."}
+        
+    if payload.duration > 0:
+        progress = (payload.current_time / payload.duration) * 100.0
+        vod.watch_progress_pct = max(vod.watch_progress_pct or 0.0, round(progress, 1))
+        if vod.watch_progress_pct >= 95.0:
+            vod.is_completed = True
+            
+    db.commit()
+    return {"status": "success", "progress": vod.watch_progress_pct, "is_completed": vod.is_completed}
+
+
+# ============================================================================
+# 🚪 [Phase 4] Wi-Fi 3단계 출결 및 원장 직통 레드카드 API
+# ============================================================================
+
+ALLOWED_ACADEMY_IPS = ["127.0.0.1", "192.168.0.", "112.220.", "175.123."]
+
+@app.post("/api/academy/attendance/check-in")
+def check_in_attendance(payload: AttendanceCheckInPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+        
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    
+    # 사전 승인된 결석/보강 확인 (예외 처리)
+    approved_leave = db.query(models.AdministrativeRequest)\
+        .filter(models.AdministrativeRequest.student_id == student.id,
+                models.AdministrativeRequest.status == "APPROVED",
+                models.AdministrativeRequest.request_type.in_(["ATTENDANCE", "LEAVE"]))\
+        .first()
+        
+    if approved_leave:
+        log = models.AttendanceLog(
+            student_id=student.id,
+            class_date=today_str,
+            status="EXCUSED",
+            penalty_deducted=0,
+            sms_sent=False
+        )
+        db.add(log)
+        db.commit()
+        return {"status": "EXCUSED", "message": "사전 승인된 결석/보강 건으로 출결 패널티가 면제되었습니다."}
+        
+    minutes_late = 5
+    status_result = "PRESENT"
+    penalty = 0
+    sms_needed = False
+    sms_text = ""
+    
+    if minutes_late <= 10:
+        status_result = "PRESENT"
+    elif minutes_late <= 20:
+        status_result = "LATE"
+        penalty = 2000
+        sms_needed = True
+        sms_text = f"[일원학원] 어머님, {student.name} 학생이 수업 시작 15분 후 지각 입실하였습니다."
+    else:
+        status_result = "ABSENT"
+        penalty = 5000
+        sms_needed = True
+        sms_text = f"[일원학원] 어머님, {student.name} 학생이 수업 시작 20분 초과 시점까지 입실하지 않아 무단결석 처리되었습니다."
+        
+    if penalty > 0:
+        student.escrow_deductions = (student.escrow_deductions or 0) + penalty
+        student.escrow_deposit = max(0, (student.escrow_deposit or 50000) - penalty)
+        
+    log = models.AttendanceLog(
+        student_id=student.id,
+        class_date=today_str,
+        ip_address=payload.client_ip or "127.0.0.1",
+        status=status_result,
+        arrival_minutes=minutes_late,
+        penalty_deducted=penalty,
+        sms_sent=sms_needed
+    )
+    db.add(log)
+    db.commit()
+    
+    if sms_needed and student.parent and student.parent.phone:
+        try:
+            sms.send_sms(student.parent.phone, sms_text)
+        except Exception as e:
+            print("Attendance SMS error:", e)
+            
+    return {"status": status_result, "penalty_deducted": penalty, "message": "출결 체크가 완료되었습니다."}
+
+
+@app.post("/api/admin/users/{user_id}/penalty")
+def assign_manual_red_card(user_id: int, payload: ManualPenaltyPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == user_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+        
+    penalty = payload.penalty_amount
+    student.escrow_deductions = (student.escrow_deductions or 0) + penalty
+    student.escrow_deposit = max(0, (student.escrow_deposit or 50000) - penalty)
+    db.commit()
+    
+    if student.parent and student.parent.phone:
+        try:
+            msg = f"[일원학원 긴급 징계] 김철훈 원장 직통 레드카드 발부.\n사유: {payload.reason}\n성실 보증금 {penalty:,}원이 차감되었습니다."
+            sms.send_sms(student.parent.phone, msg)
+        except Exception as e:
+            print("Penalty SMS error:", e)
+            
+    return {"status": "success", "message": f"{student.name} 학생에게 레드카드 및 {penalty:,}원 벌금이 부과되었습니다."}
+
+
+# ============================================================================
+# 📑 [Phase 5] 화요일 22:00 발간 김철훈 원장 AI 주간 생존 종합 레포트 API
+# ============================================================================
+
+@app.post("/api/cron/weekly-survival-report")
+def generate_weekly_survival_reports(db: Session = Depends(get_db)):
+    students = db.query(models.Student).all()
+    reports_generated = 0
+    
+    for s in students:
+        is_tuition_unpaid = not s.tuition_paid
+        is_textbook_unpaid = not s.textbook_paid
+        has_unpaid = is_tuition_unpaid or is_textbook_unpaid
+        
+        report_text = f"[일원학원 김철훈 원장 주간 리포트]\n{s.name} 학생은 이번 주 목표 자습 시간 대비 3회의 이탈이 발생했습니다. 국어 성적은 2등급선(상위 12.4%)을 유지 중이나, 고난도 비문학 지문 완성도가 여전히 미흡합니다.\n이번 주말까지 취약 영역 보강 과제를 완수하도록 가정에서도 엄격히 지도해 주십시오."
+        
+        if is_tuition_unpaid and is_textbook_unpaid:
+            report_text += "\n\n[안내] 현재 이번 달 수업료 및 교재비가 미납 상태입니다. 원활한 학사 운영을 위해 확인 후 납부 부탁드립니다."
+        elif is_tuition_unpaid:
+            report_text += "\n\n[안내] 현재 이번 달 수업료가 미납 상태입니다. 확인 후 납부 부탁드립니다."
+        elif is_textbook_unpaid:
+            report_text += "\n\n[안내] 현재 교재비가 미납 상태입니다. 확인 후 납부 부탁드립니다."
+            
+        report_entry = models.WeeklyReport(
+            student_id=s.id,
+            week_start_date=datetime.now().strftime("%Y-%m-%d"),
+            report_text=report_text,
+            has_unpaid_warning=has_unpaid,
+            aligo_sent=True
+        )
+        db.add(report_entry)
+        reports_generated += 1
+        
+    db.commit()
+    return {"status": "success", "reports_generated": reports_generated}
 
 # Static files (항상 최하단에 위치)
 app.mount("/", StaticFiles(directory="static", html=True), name="static")

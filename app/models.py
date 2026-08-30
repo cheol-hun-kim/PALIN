@@ -48,6 +48,16 @@ class Student(Base):
     referral_code = Column(String, unique=True, index=True, nullable=True) # 내 고유 친구 초대 코드
     referred_by = Column(String, nullable=True)           # 나를 초대한 친구 코드
     has_unlimited_chat = Column(Boolean, default=False)   # AI 멘토 무제한 패스 보유 여부
+    
+    # 🏫 Phase 1~5 B2B 학원 테넌트 & ERP & 출결 & 수납 관리 필드
+    previous_b2c_tier = Column(String, default="B2C_FREE") # B2C 티어 백업 스냅샷
+    academy_code = Column(String, nullable=True, index=True) # 소속 학원 코드 (예: ILWON-2027)
+    ai_level = Column(String, default="B2C_FREE")          # AI 권한 레벨
+    tuition_paid = Column(Boolean, default=False)          # 수업료 납부 완료 여부
+    textbook_paid = Column(Boolean, default=False)         # 교재비 납부 완료 여부
+    textbooks_distributed = Column(Text, default="")       # 현재 지급된 교재 목록
+    enrollment_status = Column(String, default="ENROLLED") # ENROLLED(재원) | ON_LEAVE(휴강) | WITHDRAWN(퇴원)
+    leave_reason = Column(String, nullable=True)           # 휴강 사유 (내신 휴강 / 개인 사유 / 상담 후 결정)
  
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -393,3 +403,150 @@ class PlatformScholarshipPool(Base):
     last_updated = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
+
+
+# ============================================================================
+# 🏫 [Phase 1~5 ERP, 스케줄러, 학사피드, OMR, 문진표, VOD, 출결 모델]
+# ============================================================================
+
+class AdminSchedule(Base):
+    """원장 전용 개인 일정 캘린더 & To-Do 모듈 (알림톡 리마인더 워커)"""
+    __tablename__ = "admin_schedules"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False) # '교재 주문 마감', '학부모 설명회', '세무 신고'
+    schedule_date = Column(String, nullable=False) # YYYY-MM-DD HH:MM
+    category = Column(String, default="OPERATION") # OPERATION | EVENT | TAX | ACADEMY
+    is_completed = Column(Boolean, default=False)
+    remind_1day_sent = Column(Boolean, default=False)
+    remind_2hour_sent = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class CurriculumFeed(Base):
+    """학사 피드 및 특별 공지사항"""
+    __tablename__ = "curriculum_feeds"
+
+    id = Column(Integer, primary_key=True, index=True)
+    academy_code = Column(String, default="ILWON-2027", index=True)
+    curriculum_name = Column(String, nullable=False) # 예: '2027 킬러 정복반'
+    week_number = Column(Integer, nullable=False)    # 1, 2, 3...
+    feed_date = Column(String, nullable=False)       # YYYY-MM-DD
+    content = Column(Text, nullable=False)           # 진행/예정 강의 내용
+    is_special_notice = Column(Boolean, default=False) # 특별 공지 최상단 고정 뱃지
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class AdministrativeRequest(Base):
+    """학생 행정 요청 (복습 VOD, 단기 결석/보강, 정규 반 변경, 휴강/복귀) 칸반 연동"""
+    __tablename__ = "administrative_requests"
+
+    id = Column(Integer, primary_key=True, index=True)
+    student_id = Column(Integer, ForeignKey("students.id"), nullable=False)
+    student_name = Column(String, nullable=True)
+    request_type = Column(String, nullable=False) # 'VOD' | 'ATTENDANCE' | 'CLASS_CHANGE' | 'LEAVE' | 'RETURN'
+    details = Column(Text, nullable=False)
+    target_date = Column(String, nullable=True)
+    leave_reason = Column(String, nullable=True)  # 내신 휴강 | 개인 사유 | 상담 후 결정
+    status = Column(String, default="PENDING")    # 'PENDING' | 'APPROVED' | 'REJECTED'
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    student = relationship("Student")
+
+
+class ExamScore(Base):
+    """주차별 OMR / 시험 성적 (일요일 자정 마감 통제 & 등수 비공개 트렌드)"""
+    __tablename__ = "exam_scores"
+
+    id = Column(Integer, primary_key=True, index=True)
+    student_id = Column(Integer, ForeignKey("students.id"), nullable=False)
+    exam_week = Column(Integer, nullable=False)      # N주차
+    subject = Column(String, default="국어")          # 과목
+    score = Column(Float, nullable=False)            # 원점수
+    percentile_rank = Column(Float, default=95.0)    # 상위 X% (예: 5.2%)
+    calculated_grade = Column(Integer, default=1)    # 사전 기준 1~9등급
+    trend_direction = Column(String, default="UP")   # UP(▲) | DOWN(▼) | SAME(-)
+    is_submitted_on_time = Column(Boolean, default=True) # 일요일 자정 내 제출 여부
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    student = relationship("Student")
+
+
+class DiagnosticSurvey(Base):
+    """원장 커스텀 문진표 템플릿 & 처방전 에디터"""
+    __tablename__ = "diagnostic_surveys"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)           # 예: '6월 모평 취약점 정밀 문진표'
+    questions_json = Column(Text, nullable=False)    # 질문(Q) 및 선택지(A) JSON
+    prescriptions_json = Column(Text, nullable=False)# 선택지별 원장 맞춤 처방전 매핑 JSON
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class SurveyResponse(Base):
+    """학생 문진표 응답 및 발급된 원장 처방전"""
+    __tablename__ = "survey_responses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    student_id = Column(Integer, ForeignKey("students.id"), nullable=False)
+    survey_id = Column(Integer, ForeignKey("diagnostic_surveys.id"), nullable=False)
+    answers_json = Column(Text, nullable=False)
+    prescriptions_result = Column(Text, nullable=False) # 발급된 최종 맞춤 처방전 전문
+    parent_alert_sent = Column(Boolean, default=False)  # 학부모 알림톡 발송 여부
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    student = relationship("Student")
+    survey = relationship("DiagnosticSurvey")
+
+
+class VodAssignment(Base):
+    """Vimeo VOD 시청 권한, 7일 락 & 안티치트 감시"""
+    __tablename__ = "vod_assignments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    student_id = Column(Integer, ForeignKey("students.id"), nullable=False)
+    vod_title = Column(String, nullable=False)
+    vimeo_video_id = Column(String, nullable=False)
+    granted_at = Column(DateTime(timezone=True), server_default=func.now())
+    expires_at = Column(DateTime(timezone=True), nullable=False) # granted_at + 168시간(7일)
+    watch_progress_pct = Column(Float, default=0.0)             # 시청 진도율 (95% 이상 시 완료)
+    is_completed = Column(Boolean, default=False)
+    is_homework_submitted = Column(Boolean, default=False)      # 과제 제출 여부
+    is_homework_verified = Column(Boolean, default=False)       # 과제 검수 완료 여부
+    overdue_alert_sent = Column(Boolean, default=False)         # 10일 초과 독촉 알림톡 발송 여부
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    student = relationship("Student")
+
+
+class AttendanceLog(Base):
+    """학원 Wi-Fi IP 기반 3단계 출결 및 실시간 SMS"""
+    __tablename__ = "attendance_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    student_id = Column(Integer, ForeignKey("students.id"), nullable=False)
+    class_date = Column(String, nullable=False) # YYYY-MM-DD
+    ip_address = Column(String, nullable=True)
+    status = Column(String, nullable=False)     # 'PRESENT'(정상) | 'LATE'(지각) | 'ABSENT'(결석) | 'EXCUSED'(사전신청승인)
+    arrival_minutes = Column(Integer, default=0)# 시작 후 입실 경과 분
+    penalty_deducted = Column(Integer, default=0)
+    sms_sent = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    student = relationship("Student")
+
+
+class WeeklyReport(Base):
+    """화요일 22:00 발간 김철훈 원장 AI 주간 생존 종합 레포트"""
+    __tablename__ = "weekly_reports"
+
+    id = Column(Integer, primary_key=True, index=True)
+    student_id = Column(Integer, ForeignKey("students.id"), nullable=False)
+    week_start_date = Column(String, nullable=False) # YYYY-MM-DD
+    report_text = Column(Text, nullable=False)       # Gemini 3.6 Flash 생성 300자 카카오톡 대본
+    has_unpaid_warning = Column(Boolean, default=False) # 수업료/교재비 미납 촉구 문구 포함 여부
+    aligo_sent = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    student = relationship("Student")
