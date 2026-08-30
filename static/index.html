@@ -13,7 +13,7 @@
         if ('caches' in window) {
             caches.keys().then(names => {
                 for (let name of names) {
-                    if (name !== 'palin-os-v170') {
+                    if (name !== 'palin-os-v180') {
                         caches.delete(name);
                     }
                 }
@@ -30,7 +30,7 @@
     </script>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=170.0">
+    <link rel="stylesheet" href="css/style.css?v=180.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -1161,7 +1161,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <div class="card">
                             <div class="card-title">
                                 <span class="material-symbols-rounded" style="color: var(--color-accent)">campaign</span>
-                                나만의 과외 모집서 등록 (학생)
+                                과외 선생님 구하기 (학생)
                             </div>
                             <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:12px;">원하는 과외 희망조건을 올리면 선배들이 프로필을 확인하고 제안서를 보냅니다.</div>
                             <div class="todo-list" style="gap:10px;">
@@ -1175,7 +1175,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 </select>
                                 <input type="text" id="tr-budget" class="form-input" placeholder="희망 과외비 (예: 월 40만원)">
                                 <textarea id="tr-details" class="form-input" style="height:70px; resize:none;" placeholder="희망하는 선배 자격 조건이나 수업 방식을 적어주세요."></textarea>
-                                <button class="btn" style="width: 100%;" onclick="createTutorRequest()">과외 구인글 등록</button>
+                                <button class="btn" style="width: 100%;" onclick="createTutorRequest()">과외 선생님 구하기 등록</button>
                             </div>
                         </div>
 
@@ -2276,7 +2276,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app_v91.js?v=170.0"></script>
+    <script src="js/app_v91.js?v=180.0"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소
