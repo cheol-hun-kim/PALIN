@@ -13,7 +13,7 @@
         if ('caches' in window) {
             caches.keys().then(names => {
                 for (let name of names) {
-                    if (name !== 'palin-os-v180') {
+                    if (name !== 'palin-os-v190') {
                         caches.delete(name);
                     }
                 }
@@ -30,7 +30,7 @@
     </script>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=180.0">
+    <link rel="stylesheet" href="css/style.css?v=190.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -1024,14 +1024,14 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         
                         <!-- 1. 과목별 상단 탭 -->
                         <div style="margin-bottom: 8px;">
-                            <div style="display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none;" id="exam-subject-tabs">
-                                <button type="button" class="btn exam-subj-btn active" onclick="switchExamSubject('전체', this)" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; border-radius: 8px;">전체</button>
-                                <button type="button" class="btn btn-secondary exam-subj-btn" onclick="switchExamSubject('국어', this)" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; border-radius: 8px;">국어</button>
-                                <button type="button" class="btn btn-secondary exam-subj-btn" onclick="switchExamSubject('수학', this)" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; border-radius: 8px;">수학</button>
-                                <button type="button" class="btn btn-secondary exam-subj-btn" onclick="switchExamSubject('영어', this)" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; border-radius: 8px;">영어</button>
-                                <button type="button" class="btn btn-secondary exam-subj-btn" onclick="switchExamSubject('과탐', this)" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; border-radius: 8px;">과탐</button>
-                                <button type="button" class="btn btn-secondary exam-subj-btn" onclick="switchExamSubject('사탐', this)" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; border-radius: 8px;">사탐</button>
-                                <button type="button" class="btn btn-secondary exam-subj-btn" onclick="switchExamSubject('논술', this)" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; border-radius: 8px;">논술</button>
+                            <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none;" id="exam-subject-tabs">
+                                <button type="button" class="btn exam-subj-btn active" onclick="switchExamSubject('국어', this)" style="padding: 8px 16px; font-size: 0.82rem; font-weight: 800; white-space: nowrap; border-radius: 8px;">국어</button>
+                                <button type="button" class="btn btn-secondary exam-subj-btn" onclick="switchExamSubject('수학', this)" style="padding: 8px 16px; font-size: 0.82rem; font-weight: 800; white-space: nowrap; border-radius: 8px;">수학</button>
+                                <button type="button" class="btn btn-secondary exam-subj-btn" onclick="switchExamSubject('영어', this)" style="padding: 8px 16px; font-size: 0.82rem; font-weight: 800; white-space: nowrap; border-radius: 8px;">영어</button>
+                                <button type="button" class="btn btn-secondary exam-subj-btn" onclick="switchExamSubject('과탐', this)" style="padding: 8px 16px; font-size: 0.82rem; font-weight: 800; white-space: nowrap; border-radius: 8px;">과탐</button>
+                                <button type="button" class="btn btn-secondary exam-subj-btn" onclick="switchExamSubject('사탐', this)" style="padding: 8px 16px; font-size: 0.82rem; font-weight: 800; white-space: nowrap; border-radius: 8px;">사탐</button>
+                                <button type="button" class="btn btn-secondary exam-subj-btn" onclick="switchExamSubject('논술', this)" style="padding: 8px 16px; font-size: 0.82rem; font-weight: 800; white-space: nowrap; border-radius: 8px;">논술</button>
+                                <button type="button" class="btn btn-secondary exam-subj-btn" onclick="switchExamSubject('사관', this)" style="padding: 8px 16px; font-size: 0.82rem; font-weight: 800; white-space: nowrap; border-radius: 8px;">사관</button>
                             </div>
                         </div>
 
@@ -1039,8 +1039,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <div style="margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
                             <label style="font-size: 0.78rem; color: #a5b4fc; font-weight: 700; white-space: nowrap;">📅 수험 학년도:</label>
                             <select id="exam-year-select" class="form-input" onchange="switchExamYearSelect(this.value)" style="height: 38px; padding: 6px 12px; font-size: 0.82rem; font-weight: 700; background: rgba(15, 23, 42, 0.9); border: 1.5px solid rgba(99, 102, 241, 0.4); border-radius: 8px; color: #f8fafc; flex: 1;">
-                                <option value="0" selected>전체 학년도 (2013~2027 전체 보기)</option>
-                                <option value="2027">2027 학년도 (최신)</option>
+                                <option value="2027" selected>2027 학년도 (최신)</option>
                                 <option value="2026">2026 학년도</option>
                                 <option value="2025">2025 학년도</option>
                                 <option value="2024">2024 학년도</option>
@@ -2276,7 +2275,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app_v91.js?v=180.0"></script>
+    <script src="js/app_v91.js?v=190.0"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소
