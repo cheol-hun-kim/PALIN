@@ -1836,7 +1836,12 @@ os.makedirs(DOWNLOADS_DIR, exist_ok=True)
 def get_exam_materials(subject: Optional[str] = None, year: Optional[int] = None, db: Session = Depends(get_db)):
     query = db.query(models.ExamMaterial)
     if subject and subject != "전체":
-        query = query.filter(models.ExamMaterial.subject == subject)
+        if subject in ["논술", "논술/면접", "면접"]:
+            query = query.filter(models.ExamMaterial.subject.in_(["논술", "논술/면접", "면접"]))
+        elif subject in ["사관", "경찰/사관", "사관학교", "경찰대"]:
+            query = query.filter(models.ExamMaterial.subject.in_(["사관", "경찰/사관", "사관학교", "경찰대", "사관학교 / 경찰대"]))
+        else:
+            query = query.filter(models.ExamMaterial.subject == subject)
     if year and year != 0:
         query = query.filter(models.ExamMaterial.year == year)
     materials = query.order_by(models.ExamMaterial.year.desc(), models.ExamMaterial.created_at.desc()).all()
@@ -2959,76 +2964,89 @@ def generate_weekly_survival_reports(db: Session = Depends(get_db)):
     db.commit()
     return {"status": "success", "reports_generated": reports_generated}
 
+# === 📡 [Phase 4] 실시간 Wi-Fi 출결 로그 조회 API ===
+@app.get("/api/admin/attendance/logs")
+def get_admin_attendance_logs(db: Session = Depends(get_db)):
+    logs = db.query(models.AttendanceLog).order_by(models.AttendanceLog.created_at.desc()).limit(100).all()
+    results = []
+    for l in logs:
+        student = db.query(models.Student).filter(models.Student.id == l.student_id).first()
+        results.append({
+            "id": l.id,
+            "student_id": l.student_id,
+            "student_name": student.name if student else f"학생 #{l.student_id}",
+            "high_school": student.high_school if student else "-",
+            "grade": student.grade if student else 0,
+            "class_date": l.class_date or (l.created_at.strftime("%Y-%m-%d") if l.created_at else "-"),
+            "check_in_time": l.created_at.strftime("%H:%M:%S") if l.created_at else "-",
+            "status": l.status,  # PRESENT | LATE | ABSENT | EXCUSED
+            "ip_address": l.ip_address or "-",
+            "arrival_minutes": l.arrival_minutes or 0,
+            "sms_sent": bool(l.sms_sent)
+        })
+    return results
+
+
+# === 📱 학부모 알림톡/SMS 직통 발송기 API ===
+class SendParentSmsPayload(BaseModel):
+    student_ids: Optional[List[int]] = None  # None or empty means all enrolled students
+    message: str
+    title: Optional[str] = "[일원학원 알림]"
+
+@app.post("/api/admin/sms/send-parents")
+def send_sms_to_parents(payload: SendParentSmsPayload, db: Session = Depends(get_db)):
+    if not payload.message.strip():
+        raise HTTPException(status_code=400, detail="발송할 메시지 내용을 입력해 주세요.")
+    
+    query = db.query(models.Student)
+    if payload.student_ids and len(payload.student_ids) > 0:
+        query = query.filter(models.Student.id.in_(payload.student_ids))
+    else:
+        query = query.filter(models.Student.enrollment_status == "ENROLLED")
+    
+    students = query.all()
+    if not students:
+        raise HTTPException(status_code=404, detail="수신 대상 학생/학부모가 존재하지 않습니다.")
+        
+    sent_count = 0
+    fail_count = 0
+    details = []
+    
+    for s in students:
+        parent_phone = s.parent.phone if s.parent and s.parent.phone else s.phone
+        if parent_phone:
+            personalized_msg = payload.message.replace("{학생명}", s.name).replace("{이름}", s.name)
+            res = sms.send_sms(to_phone=parent_phone, message=personalized_msg, title=payload.title)
+            sent_count += 1
+            details.append({"student_name": s.name, "phone": parent_phone, "status": "SENT", "res": res})
+        else:
+            fail_count += 1
+            details.append({"student_name": s.name, "phone": "-", "status": "NO_PHONE"})
+            
+    return {
+        "status": "success",
+        "total_targets": len(students),
+        "sent_count": sent_count,
+        "fail_count": fail_count,
+        "message": f"총 {sent_count}명의 학부모님께 문자가 성공적으로 전송되었습니다."
+    }
+
+
+# === 🎯 1:1 입시 상담 신청 상태 변경 API ===
+class ConsultingStatusUpdatePayload(BaseModel):
+    status: str
+
+@app.patch("/api/admin/consulting-requests/{request_id}")
+def update_consulting_request_status(request_id: int, payload: ConsultingStatusUpdatePayload, db: Session = Depends(get_db)):
+    req = db.query(models.ConsultingRequest).filter(models.ConsultingRequest.id == request_id).first()
+    if not req:
+        raise HTTPException(status_code=404, detail="상담 신청 건을 찾을 수 없습니다.")
+    req.status = payload.status
+    db.commit()
+    db.refresh(req)
+    return {"status": "success", "message": f"상담 신청 상태가 '{payload.status}'(으)로 변경되었습니다."}
+
+
 # Static files (항상 최하단에 위치)
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
-
-class FinancialUpdatePayload(BaseModel):
-    student_id: int
-    tuition_paid: Optional[bool] = None
-    textbook_paid: Optional[bool] = None
-
-class FinancialBatchUpdatePayload(BaseModel):
-    student_ids: List[int]
-    tuition_paid: Optional[bool] = None
-    textbook_paid: Optional[bool] = None
-
-@app.post("/api/admin/financial/update")
-def update_student_financial(payload: FinancialUpdatePayload, db: Session = Depends(get_db)):
-    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
-    if not student:
-        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
-    if payload.tuition_paid is not None:
-        student.tuition_paid = payload.tuition_paid
-    if payload.textbook_paid is not None:
-        student.textbook_paid = payload.textbook_paid
-    db.commit()
-    db.refresh(student)
-    return {
-        "status": "success",
-        "student_id": student.id,
-        "student_name": student.name,
-        "tuition_paid": bool(student.tuition_paid),
-        "textbook_paid": bool(student.textbook_paid),
-        "message": f"{student.name} 학생 수납 정보가 성공적으로 반영되었습니다."
-    }
-
-@app.post("/api/admin/financial/batch-update")
-def batch_update_financial(payload: FinancialBatchUpdatePayload, db: Session = Depends(get_db)):
-    students = db.query(models.Student).filter(models.Student.id.in_(payload.student_ids)).all()
-    if not students:
-        raise HTTPException(status_code=404, detail="선택된 학생이 없습니다.")
-    for s in students:
-        if payload.tuition_paid is not None:
-            s.tuition_paid = payload.tuition_paid
-        if payload.textbook_paid is not None:
-            s.textbook_paid = payload.textbook_paid
-    db.commit()
-    return {
-        "status": "success",
-        "updated_count": len(students),
-        "message": f"선택한 {len(students)}명의 수납 정보가 일괄 처리되었습니다."
-    }
-
-@app.post("/api/admin/requests/{request_id}/approve")
-def approve_admin_request_post(request_id: int, db: Session = Depends(get_db)):
-    req = db.query(models.AdministrativeRequest).filter(models.AdministrativeRequest.id == request_id).first()
-    if not req:
-        raise HTTPException(status_code=404, detail="요청을 찾을 수 없습니다.")
-    req.status = "APPROVED"
-    if req.request_type == "RETURN":
-        student = db.query(models.Student).filter(models.Student.id == req.student_id).first()
-        if student:
-            student.enrollment_status = "ENROLLED"
-            student.ai_level = "B2B_PREMIUM"
-    db.commit()
-    return {"status": "success", "message": f"요청 #{request_id} 승인 완료"}
-
-@app.post("/api/admin/requests/{request_id}/reject")
-def reject_admin_request_post(request_id: int, db: Session = Depends(get_db)):
-    req = db.query(models.AdministrativeRequest).filter(models.AdministrativeRequest.id == request_id).first()
-    if not req:
-        raise HTTPException(status_code=404, detail="요청을 찾을 수 없습니다.")
-    req.status = "REJECTED"
-    db.commit()
-    return {"status": "success", "message": f"요청 #{request_id} 반려(거절) 완료"}
