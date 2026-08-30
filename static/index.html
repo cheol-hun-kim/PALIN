@@ -84,6 +84,27 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 }
 </style>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,900&family=Cinzel:wght@900&display=swap">
+<style>
+/* 🏫 학원 허브 서브탭 버튼 스타일 */
+.subtab-btn-hub {
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.subtab-btn-hub.active {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: #ffffff;
+    border-color: #818cf8;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+</style>
 </head>
 <body>
 
@@ -1245,102 +1266,214 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
             </div>
         
-            <!-- ================================================================= -->
+                        <!-- ================================================================= -->
             <!-- 🏫 [Phase 1~5] 4페이지: 학원 허브 (Academy Hub) - B2B 전용 뷰 -->
             <!-- ================================================================= -->
             <section id="page4" class="tab-content" style="display: none;">
-                <!-- 학원 정보 헤더 -->
-                <div class="card" style="margin-bottom: 14px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.1)); border: 1.5px solid rgba(99, 102, 241, 0.4);">
+                <!-- 학원 정보 헤더 & 원터치 Wi-Fi 출석체크 -->
+                <div class="card" style="margin-bottom: 12px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.1)); border: 1.5px solid rgba(99, 102, 241, 0.4);">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                         <div>
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <span class="material-symbols-rounded" style="color: #818cf8; font-size: 1.4rem;">account_balance</span>
-                                <span style="font-size: 1.1rem; font-weight: 800; color: #ffffff;" id="hub-academy-name">일원학원</span>
+                                <span class="material-symbols-rounded" style="color: #818cf8; font-size: 1.3rem;">account_balance</span>
+                                <span style="font-size: 1.05rem; font-weight: 800; color: #ffffff;" id="hub-academy-name">일원학원</span>
                                 <span id="hub-enrollment-badge" style="background: #10b981; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 800;">재원생</span>
                             </div>
-                            <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 4px;">
+                            <div style="font-size: 0.74rem; color: var(--text-secondary); margin-top: 2px;">
                                 수능 국어/수학 대입 전략 사관학교 · 김철훈 원장 직통 관제
                             </div>
                         </div>
                         <button onclick="checkInAttendanceNow()" class="btn" style="padding: 8px 14px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); border-radius: 10px; display: flex; align-items: center; gap: 4px;">
                             <span class="material-symbols-rounded" style="font-size: 1rem;">wifi</span>
-                            <span>학원 출결 체크인</span>
+                            <span>📍 학원 출석체크</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- 휴강생 전용 복귀 신청 배너 (휴강 시 활성화) -->
-                <div id="hub-leave-notice-card" class="card" style="display: none; margin-bottom: 14px; border-color: #ef4444; background: rgba(239, 68, 68, 0.08);">
+                <!-- 휴강생 전용 복귀 신청 배너 -->
+                <div id="hub-leave-notice-card" class="card" style="display: none; margin-bottom: 12px; border-color: #ef4444; background: rgba(239, 68, 68, 0.08);">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                         <div>
-                            <div style="font-weight: 800; font-size: 0.92rem; color: #f87171;">⚠️ 현재 학원 장기 휴강 상태입니다.</div>
-                            <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">수강 권한이 B2C 일반 등급으로 임시 롤백되어 있습니다.</div>
+                            <div style="font-weight: 800; font-size: 0.88rem; color: #f87171;">⚠️ 현재 학원 장기 휴강 상태입니다.</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">수강 권한이 B2C 일반 등급으로 임시 롤백되어 있습니다.</div>
                         </div>
-                        <button onclick="requestAcademyReturnNow()" class="btn" style="padding: 8px 16px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #3b82f6, #2563eb);">학원 복귀 신청</button>
+                        <button onclick="requestAcademyReturnNow()" class="btn" style="padding: 6px 14px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #3b82f6, #2563eb);">학원 복귀 신청</button>
                     </div>
                 </div>
 
+                <!-- 🧭 학원 허브 전용 4대 서브탭 네비게이션 -->
+                <div class="subtabs-container" style="display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 2px;">
+                    <button class="subtab-btn-hub active" onclick="switchHubSubTab('feed')" id="hub-tab-feed">
+                        📢 학사피드 & 공지
+                    </button>
+                    <button class="subtab-btn-hub" onclick="switchHubSubTab('vod')" id="hub-tab-vod">
+                        🎬 복습VOD & 과제
+                    </button>
+                    <button class="subtab-btn-hub" onclick="switchHubSubTab('exam')" id="hub-tab-exam">
+                        📝 시험 & OMR
+                    </button>
+                    <button class="subtab-btn-hub" onclick="switchHubSubTab('request')" id="hub-tab-request">
+                        📋 행정/휴강신청
+                    </button>
+                </div>
+
                 <div id="hub-main-content-area">
-                    <!-- 1. 학사 커리큘럼 피드 및 특별 공지 -->
-                    <div class="card" style="margin-bottom: 14px;">
-                        <div class="section-header" style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                            <div style="font-weight: 800; font-size: 0.92rem; color: #a78bfa; display: flex; align-items: center; gap: 6px;">
-                                <span class="material-symbols-rounded">feed</span>
-                                <span>주차별 학사 피드 & 공지사항</span>
+                    <!-- ========================================================= -->
+                    <!-- 서브탭 1: 📢 주차별 학사 피드 & 특별 공지사항 -->
+                    <!-- ========================================================= -->
+                    <div id="hub-view-feed" class="hub-subtab-view">
+                        <div class="card" style="margin-bottom: 14px;">
+                            <div class="section-header" style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                                <div style="font-weight: 800; font-size: 0.92rem; color: #a78bfa; display: flex; align-items: center; gap: 6px;">
+                                    <span class="material-symbols-rounded">feed</span>
+                                    <span>주차별 강의 진도 & 공지사항</span>
+                                </div>
+                                <span style="font-size: 0.72rem; color: var(--text-secondary);" id="hub-feed-count">최신 공지</span>
                             </div>
-                            <span style="font-size: 0.72rem; color: var(--text-secondary);" id="hub-feed-count">최신 공지</span>
-                        </div>
-                        <div id="hub-curriculum-feed-list" style="display: flex; flex-direction: column; gap: 8px;">
-                            <div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 12px;">학사 일정을 불러오는 중...</div>
+                            <div id="hub-curriculum-feed-list" style="display: flex; flex-direction: column; gap: 8px;">
+                                <div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 12px;">학사 일정을 불러오는 중...</div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- 2. 행정 요청 센터 (3종 분리 + 휴강/퇴원) -->
-                    <div class="card" style="margin-bottom: 14px;">
-                        <div class="section-header" style="margin-bottom: 12px; font-weight: 800; font-size: 0.92rem; color: #fbbf24; display: flex; align-items: center; gap: 6px;">
-                            <span class="material-symbols-rounded">support_agent</span>
-                            <span>학생 행정 요청 센터 (학부모 알림톡 실시간 연동)</span>
+                    <!-- ========================================================= -->
+                    <!-- 서브탭 2: 🎬 Vimeo 복습 VOD 시청실 & 과제 제출실 (7일 락) -->
+                    <!-- ========================================================= -->
+                    <div id="hub-view-vod" class="hub-subtab-view" style="display: none;">
+                        <div class="card" style="margin-bottom: 14px;">
+                            <div class="section-header" style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                                <div style="font-weight: 800; font-size: 0.92rem; color: #818cf8; display: flex; align-items: center; gap: 6px;">
+                                    <span class="material-symbols-rounded">play_circle</span>
+                                    <span>VOD 시청실 (7일 시청 제한 & 안티치트)</span>
+                                </div>
+                            </div>
+                            <div style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4;">
+                                🔒 권한 부여 시점부터 <b>168시간(7일)</b> 후 시청이 자동 차단됩니다. 1배속으로 95% 이상 완강 후 아래에 과제 인증 사진을 제출하세요.
+                            </div>
+                            <div id="hub-vod-list-container" style="display: flex; flex-direction: column; gap: 10px;">
+                                <div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 12px;">배정된 복습 VOD를 불러오는 중...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================================= -->
+                    <!-- 서브탭 3: 📝 주차별 시험 & OMR 사진 제출 & 자동 채점 (문진표) -->
+                    <!-- ========================================================= -->
+                    <div id="hub-view-exam" class="hub-subtab-view" style="display: none;">
+                        <!-- 일요일 자정 마감 카운트다운 배너 -->
+                        <div class="card" style="margin-bottom: 12px; background: rgba(239, 68, 68, 0.06); border: 1.5px solid rgba(239, 68, 68, 0.3);">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-size: 0.85rem; font-weight: 800; color: #f87171;">⏳ 이번 주 OMR 및 성적 제출 마감</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">매주 일요일 자정(23:59)까지 미제출 시 보증금 패널티가 차감됩니다.</div>
+                                </div>
+                                <div style="background: #ef4444; color: white; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.82rem;">
+                                    일요일 23:59
+                                </div>
+                            </div>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
-                            <button onclick="openRequestModal('VOD')" class="btn btn-secondary" style="padding: 12px 8px; text-align: left; display: flex; flex-direction: column; gap: 4px;">
-                                <div style="font-weight: 800; font-size: 0.85rem; color: #818cf8; display: flex; align-items: center; gap: 4px;">
-                                    <span class="material-symbols-rounded" style="font-size: 1rem;">play_circle</span>
-                                    <span>복습 VOD 신청</span>
+                        <!-- OMR 사진 업로드 & 직접 점수 입력 폼 -->
+                        <div class="card" style="margin-bottom: 14px;">
+                            <div style="font-weight: 800; font-size: 0.92rem; color: #34d399; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                                <span class="material-symbols-rounded">document_scanner</span>
+                                <span>주차별 OMR 답안지 사진 업로드 & 채점</span>
+                            </div>
+                            <form onsubmit="handleUploadExamScore(event)" style="display: flex; flex-direction: column; gap: 10px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                    <div>
+                                        <label style="font-size: 0.74rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">시험 주차</label>
+                                        <select id="exam-week-select" class="form-input" style="width: 100%;">
+                                            <option value="1">1주차 실전 모의고사</option>
+                                            <option value="2">2주차 실전 모의고사</option>
+                                            <option value="3" selected>3주차 실전 모의고사</option>
+                                            <option value="4">4주차 실전 모의고사</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 0.74rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">응시 과목</label>
+                                        <select id="exam-subject-select" class="form-input" style="width: 100%;">
+                                            <option value="국어" selected>📖 국어</option>
+                                            <option value="수학">📐 수학 (미적/기하)</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div style="font-size: 0.7rem; color: var(--text-secondary);">결석/복습용 7일 VOD 열람</div>
-                            </button>
-
-                            <button onclick="openRequestModal('ATTENDANCE')" class="btn btn-secondary" style="padding: 12px 8px; text-align: left; display: flex; flex-direction: column; gap: 4px;">
-                                <div style="font-weight: 800; font-size: 0.85rem; color: #34d399; display: flex; align-items: center; gap: 4px;">
-                                    <span class="material-symbols-rounded" style="font-size: 1rem;">event_busy</span>
-                                    <span>단기 결석/보강</span>
+                                <div>
+                                    <label style="font-size: 0.74rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">OMR 답안지 사진 (자동 채점용)</label>
+                                    <input type="file" id="exam-omr-photo" accept="image/*" class="form-input" style="width: 100%; padding: 6px; font-size: 0.78rem;">
                                 </div>
-                                <div style="font-size: 0.7rem; color: var(--text-secondary);">사전 신고 시 출결 벌금 면제</div>
-                            </button>
-
-                            <button onclick="openRequestModal('CLASS_CHANGE')" class="btn btn-secondary" style="padding: 12px 8px; text-align: left; display: flex; flex-direction: column; gap: 4px;">
-                                <div style="font-weight: 800; font-size: 0.85rem; color: #fbbf24; display: flex; align-items: center; gap: 4px;">
-                                    <span class="material-symbols-rounded" style="font-size: 1rem;">swap_horiz</span>
-                                    <span>정규 반 변경</span>
+                                <div>
+                                    <label style="font-size: 0.74rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">가채점 원점수 (직접 입력)</label>
+                                    <input type="number" id="exam-score-raw" placeholder="원점수 입력 (0~100)" min="0" max="100" required class="form-input" style="width: 100%;">
                                 </div>
-                                <div style="font-size: 0.7rem; color: var(--text-secondary);">요일/수업 시간표 변경 신청</div>
-                            </button>
-
-                            <button onclick="openLeaveModal()" class="btn btn-secondary" style="padding: 12px 8px; text-align: left; display: flex; flex-direction: column; gap: 4px; border-color: rgba(239,68,68,0.3);">
-                                <div style="font-weight: 800; font-size: 0.85rem; color: #f87171; display: flex; align-items: center; gap: 4px;">
-                                    <span class="material-symbols-rounded" style="font-size: 1rem;">pause_circle</span>
-                                    <span>장기 휴강 신청</span>
-                                </div>
-                                <div style="font-size: 0.7rem; color: var(--text-secondary);">내신 휴강 / 사유별 안내</div>
-                            </button>
+                                <button type="submit" class="btn" style="padding: 10px 0; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669);">
+                                    📊 성적 제출 & 맞춤 처방전 발급받기
+                                </button>
+                            </form>
                         </div>
 
-                        <!-- 퇴원 상담 직통 버튼 -->
-                        <div style="text-align: right; margin-top: 6px;">
-                            <button onclick="openWithdrawModal()" style="background: none; border: none; font-size: 0.72rem; color: var(--text-secondary); text-decoration: underline; cursor: pointer;">
-                                학원 퇴원 상담 안내 &gt;
-                            </button>
+                        <!-- 내 성적 트렌드 (석차 비공개 & 등급/추이 렌더링) -->
+                        <div class="card" style="margin-bottom: 14px;">
+                            <div style="font-weight: 800; font-size: 0.92rem; color: #a78bfa; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                                <span class="material-symbols-rounded">trending_up</span>
+                                <span>내 성적 트렌드 (상위 백분위 & 등급 추이)</span>
+                            </div>
+                            <div id="hub-exam-history-list" style="display: flex; flex-direction: column; gap: 8px;">
+                                <div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 10px;">제출된 시험 성적을 불러오는 중...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================================= -->
+                    <!-- 서브탭 4: 📋 행정 요청 센터 (VOD, 결석보강, 반변경, 휴강/퇴원) -->
+                    <!-- ========================================================= -->
+                    <div id="hub-view-request" class="hub-subtab-view" style="display: none;">
+                        <div class="card" style="margin-bottom: 14px;">
+                            <div class="section-header" style="margin-bottom: 12px; font-weight: 800; font-size: 0.92rem; color: #fbbf24; display: flex; align-items: center; gap: 6px;">
+                                <span class="material-symbols-rounded">support_agent</span>
+                                <span>학생 행정 요청 센터 (학부모 알림톡 실시간 연동)</span>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                                <button onclick="openRequestModal('VOD')" class="btn btn-secondary" style="padding: 12px 8px; text-align: left; display: flex; flex-direction: column; gap: 4px;">
+                                    <div style="font-weight: 800; font-size: 0.85rem; color: #818cf8; display: flex; align-items: center; gap: 4px;">
+                                        <span class="material-symbols-rounded" style="font-size: 1rem;">play_circle</span>
+                                        <span>복습 VOD 신청</span>
+                                    </div>
+                                    <div style="font-size: 0.7rem; color: var(--text-secondary);">결석/복습용 7일 VOD 열람</div>
+                                </button>
+
+                                <button onclick="openRequestModal('ATTENDANCE')" class="btn btn-secondary" style="padding: 12px 8px; text-align: left; display: flex; flex-direction: column; gap: 4px;">
+                                    <div style="font-weight: 800; font-size: 0.85rem; color: #34d399; display: flex; align-items: center; gap: 4px;">
+                                        <span class="material-symbols-rounded" style="font-size: 1rem;">event_busy</span>
+                                        <span>단기 결석/보강</span>
+                                    </div>
+                                    <div style="font-size: 0.7rem; color: var(--text-secondary);">사전 신고 시 출결 벌금 면제</div>
+                                </button>
+
+                                <button onclick="openRequestModal('CLASS_CHANGE')" class="btn btn-secondary" style="padding: 12px 8px; text-align: left; display: flex; flex-direction: column; gap: 4px;">
+                                    <div style="font-weight: 800; font-size: 0.85rem; color: #fbbf24; display: flex; align-items: center; gap: 4px;">
+                                        <span class="material-symbols-rounded" style="font-size: 1rem;">swap_horiz</span>
+                                        <span>정규 반 변경</span>
+                                    </div>
+                                    <div style="font-size: 0.7rem; color: var(--text-secondary);">요일/수업 시간표 변경 신청</div>
+                                </button>
+
+                                <button onclick="openLeaveModal()" class="btn btn-secondary" style="padding: 12px 8px; text-align: left; display: flex; flex-direction: column; gap: 4px; border-color: rgba(239,68,68,0.3);">
+                                    <div style="font-weight: 800; font-size: 0.85rem; color: #f87171; display: flex; align-items: center; gap: 4px;">
+                                        <span class="material-symbols-rounded" style="font-size: 1rem;">pause_circle</span>
+                                        <span>장기 휴강 신청</span>
+                                    </div>
+                                    <div style="font-size: 0.7rem; color: var(--text-secondary);">내신 휴강 / 사유별 안내</div>
+                                </button>
+                            </div>
+
+                            <!-- 퇴원 상담 직통 버튼 -->
+                            <div style="text-align: right; margin-top: 6px;">
+                                <button onclick="openWithdrawModal()" style="background: none; border: none; font-size: 0.72rem; color: var(--text-secondary); text-decoration: underline; cursor: pointer;">
+                                    학원 퇴원 상담 안내 &gt;
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1980,6 +2113,42 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <div style="font-size: 1.25rem; font-weight: 900; color: #818cf8; letter-spacing: 1px;">010-9876-5432</div>
             </div>
             <button onclick="document.getElementById('academy-withdraw-modal').style.display='none'" class="btn" style="width: 100%; padding: 10px 0; background: #334155; font-weight: 700;">확인 및 닫기</button>
+        </div>
+    </div>
+
+    
+    <!-- 11. 시험 직후 맞춤 문진표 & 김철훈 원장 처방전 팝업 모달 -->
+    <div id="diagnostic-survey-modal" class="trigger-modal" style="display: none;">
+        <div class="trigger-content" style="border-color: #34d399; max-width: 500px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div style="font-size: 1.1rem; font-weight: 800; color: #34d399; display: flex; align-items: center; gap: 6px;">
+                    <span class="material-symbols-rounded">medical_services</span>
+                    <span>시험 후 정밀 취약점 문진표</span>
+                </div>
+                <button onclick="document.getElementById('diagnostic-survey-modal').style.display='none'" class="btn btn-secondary" style="padding: 4px 8px; border: none;">&times;</button>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.4;">
+                이번 주 시험에서 가장 막혔던 영역을 선택하시면 <b>김철훈 원장의 1:1 맞춤 학습 처방전</b>이 즉시 발급되며 학부모님께 자동 전달됩니다.
+            </div>
+            <form onsubmit="handleSendDiagnosticSurvey(event)">
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 0.78rem; font-weight: 700; color: #ffffff; display: block; margin-bottom: 6px;">Q. 이번 시험에서 가장 큰 감점 요인은 무엇인가요?</label>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer;">
+                            <input type="radio" name="diag-q1" value="비문학 구조독해 시간 부족" checked> 1. 비문학 철학/경제 고난도 지문 시간 부족
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer;">
+                            <input type="radio" name="diag-q1" value="문학 킬러 보기 문항 오답"> 2. 현대시/고전문학 보기 판별 오답
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer;">
+                            <input type="radio" name="diag-q1" value="언매/화작 실전 개념 실수"> 3. 선택과목(언매/화작) 개념 실수 및 시간 지연
+                        </label>
+                    </div>
+                </div>
+                <button type="submit" class="btn" style="width: 100%; padding: 11px 0; background: linear-gradient(135deg, #10b981, #059669); font-weight: 800;">
+                    🩺 원장 맞춤 처방전 발급받기
+                </button>
+            </form>
         </div>
     </div>
 
