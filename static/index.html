@@ -13,7 +13,7 @@
         if ('caches' in window) {
             caches.keys().then(names => {
                 for (let name of names) {
-                    if (name !== 'palin-os-v106') {
+                    if (name !== 'palin-os-v107') {
                         caches.delete(name);
                     }
                 }
@@ -30,7 +30,7 @@
     </script>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=105.0">
+    <link rel="stylesheet" href="css/style.css?v=107.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -45,54 +45,44 @@
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .ai-spin-icon { display: inline-block; animation: spin 1s linear infinite; }
 
-    /* 📅 & ⏰ 100% 무조건 하얗게 나오는 SVG 직접 주입 방식 (브라우저 버그 및 필터 무시) */
-    input[type="date"] {
-        position: relative !important;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 24 24'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7z'/%3E%3C/svg%3E") !important;
-        background-repeat: no-repeat !important;
-        background-position: right 12px center !important;
-        background-size: 18px 18px !important;
-        padding-right: 36px !important;
-        color-scheme: dark !important;
-    }
+    /* 📅 & ⏰ 날짜/시간 선택창(Date/Time Picker) 단일 화이트 고대비 스타일링 */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+.custom-time-input {
+    color-scheme: dark !important;
+}
 
-    input[type="time"],
-    .custom-time-input {
-        position: relative !important;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 24 24'%3E%3Cpath d='M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z'/%3E%3C/svg%3E") !important;
-        background-repeat: no-repeat !important;
-        background-position: right 12px center !important;
-        background-size: 18px 18px !important;
-        padding-right: 36px !important;
-        color-scheme: dark !important;
-    }
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+.custom-time-input::-webkit-calendar-picker-indicator {
+    cursor: pointer !important;
+    opacity: 0.95 !important;
+    filter: invert(1) brightness(1.8) !important;
+    padding: 2px !important;
+    transition: transform 0.15s ease !important;
+}
 
-    /* 브라우저 기본 까만 아이콘은 투명하게 숨기고 클릭 영역만 유지 */
-    input[type="date"]::-webkit-calendar-picker-indicator,
-    input[type="time"]::-webkit-calendar-picker-indicator,
-    .custom-time-input::-webkit-calendar-picker-indicator {
-        opacity: 0 !important;
-        cursor: pointer !important;
-        width: 32px !important;
-        height: 100% !important;
-        position: absolute !important;
-        right: 0 !important;
-        top: 0 !important;
-        z-index: 10 !important;
-    }
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover,
+.custom-time-input::-webkit-calendar-picker-indicator:hover {
+    transform: scale(1.15) !important;
+}
 
-    body.day-mode input[type="date"] {
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23334155' viewBox='0 0 24 24'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7z'/%3E%3C/svg%3E") !important;
-        color-scheme: light !important;
-    }
+body.day-mode input[type="date"],
+body.day-mode input[type="time"],
+body.day-mode input[type="datetime-local"],
+body.day-mode .custom-time-input {
+    color-scheme: light !important;
+}
 
-    body.day-mode input[type="time"],
-    body.day-mode .custom-time-input {
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23334155' viewBox='0 0 24 24'%3E%3Cpath d='M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z'/%3E%3C/svg%3E") !important;
-        color-scheme: light !important;
-    }
-
-    </style>
+body.day-mode input[type="date"]::-webkit-calendar-picker-indicator,
+body.day-mode input[type="time"]::-webkit-calendar-picker-indicator,
+body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
+    filter: none !important;
+    opacity: 0.75 !important;
+}
+</style>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,900&family=Cinzel:wght@900&display=swap">
 </head>
 <body>
@@ -607,10 +597,10 @@
                         <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 8px;" id="chat-limit-label">
                             오늘 남은 무료 대화: 5회
                         </div>
-                        <div class="chat-input-row">
-                            <textarea id="chat-input" class="form-input" placeholder="수험 고민, 과목 공부법 등을 질문해 보세요..." rows="1" style="resize: none; overflow-y: auto; max-height: 120px; line-height: 1.45; padding: 10px 12px; font-size: 0.88rem; flex: 1;" oninput="this.style.height='auto'; this.style.height=Math.min(this.scrollHeight, 120)+'px';" onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); sendChatMessage(); }"></textarea>
-                            <button class="btn" style="padding: 10px 16px;" onclick="sendChatMessage()">
-                                <span class="material-symbols-rounded" style="font-size: 1.1rem; display:block;">send</span>
+                        <div class="chat-input-row" style="display: flex; gap: 8px; align-items: flex-end;">
+                            <textarea id="chat-input" class="form-input" placeholder="수험 고민, 공부법 등을 질문해보세요" rows="1" style="resize: none; overflow-y: auto; min-height: 48px; max-height: 120px; line-height: 1.4; padding: 13px 14px; font-size: 0.88rem; flex: 1; box-sizing: border-box; border-radius: 12px;" oninput="this.style.height='auto'; this.style.height=Math.max(48, Math.min(this.scrollHeight, 120))+'px';" onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); sendChatMessage(); }"></textarea>
+                            <button class="btn" style="padding: 13px 18px; border-radius: 12px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" onclick="sendChatMessage()">
+                                <span class="material-symbols-rounded" style="font-size: 1.15rem; display:block;">send</span>
                             </button>
                         </div>
                     </div>
@@ -1848,7 +1838,7 @@
         </div>
     </div>
 
-    <script src="js/app_v91.js?v=106.0"></script>
+    <script src="js/app_v91.js?v=107.0"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소
