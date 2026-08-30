@@ -3048,5 +3048,324 @@ def update_consulting_request_status(request_id: int, payload: ConsultingStatusU
 
 
 # Static files (항상 최하단에 위치)
+
+
+# ============================================================================
+# 💰 원장 수납 ERP 일괄/단건 처리 API (Fixed & Enhanced)
+# ============================================================================
+
+class AdminFinancialSinglePayload(BaseModel):
+    student_id: int
+    tuition_paid: Optional[bool] = None
+    textbook_paid: Optional[bool] = None
+    textbooks_distributed: Optional[str] = None
+
+class AdminFinancialBatchPayload(BaseModel):
+    student_ids: List[int]
+    tuition_paid: Optional[bool] = None
+    textbook_paid: Optional[bool] = None
+
+@app.post("/api/admin/financial/update")
+def update_financial_single(payload: AdminFinancialSinglePayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="\uc7ac\uc6d0\uc0dd\uc744 \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.")
+    if payload.tuition_paid is not None:
+        student.tuition_paid = payload.tuition_paid
+    if payload.textbook_paid is not None:
+        student.textbook_paid = payload.textbook_paid
+    if payload.textbooks_distributed is not None:
+        student.textbooks_distributed = payload.textbooks_distributed
+    db.commit()
+    db.refresh(student)
+    return {"status": "success", "message": f"{student.name} \ud559\uc0dd\uc758 \uc218\ub0a9 \uc0c1\ud0dc\uac00 \uc131\uacf5\uc801\uc73c\ub85c \ubcc0\uacbd\ub418\uc5c8\uc2b5\ub2c8\ub2e4.", "student_id": student.id}
+
+@app.post("/api/admin/financial/batch-update")
+def update_financial_batch(payload: AdminFinancialBatchPayload, db: Session = Depends(get_db)):
+    if not payload.student_ids:
+        raise HTTPException(status_code=400, detail="\uc120\ud0dd\ub41c \ud559\uc0dd \ubaa9\ub85d\uc774 \ube44\uc544\uc788\uc2b5\ub2c8\ub2e4.")
+    students = db.query(models.Student).filter(models.Student.id.in_(payload.student_ids)).all()
+    for s in students:
+        if payload.tuition_paid is not None:
+            s.tuition_paid = payload.tuition_paid
+        if payload.textbook_paid is not None:
+            s.textbook_paid = payload.textbook_paid
+    db.commit()
+    return {"status": "success", "message": f"\uc120\ud0dd\ud55c {len(students)}\uba85\uc758 \uc218\ub0a9 \uc0c1\ud0dc\uac00 \uc77c\uad04 \ucc98\ub9ac\ub418\uc5c8\uc2b5\ub2c8\ub2e4."}
+
+
+# ============================================================================
+# 💬 VOC 학생 피드백 4단계 상태 제어 API (접수됨 / 검토중 / 기각 / 반영완료)
+# ============================================================================
+
+class MasterFeedbackStatusPayload(BaseModel):
+    status: str
+
+@app.put("/api/admin/feedbacks/{feedback_id}/status")
+@app.patch("/api/admin/feedbacks/{feedback_id}/status")
+@app.post("/api/admin/feedbacks/{feedback_id}/status")
+def update_admin_feedback_status_flexible(feedback_id: int, payload: MasterFeedbackStatusPayload, db: Session = Depends(get_db)):
+    fb = db.query(models.Feedback).filter(models.Feedback.id == feedback_id).first()
+    if not fb:
+        raise HTTPException(status_code=404, detail="\ud53c\ub4dc\ubc31\uc744 \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.")
+    fb.status = payload.status
+    db.commit()
+    db.refresh(fb)
+    return {"status": "success", "message": f"\uac74\uc758\uc0ac\ud56d \uc0c1\ud0dc\uac00 '{payload.status}'(\uc73c)\ub85c \uac31\uc2e0\ub418\uc5c8\uc2b5\ub2c8\ub2e4.", "feedback_id": fb.id, "status_text": fb.status}
+
+
+# ============================================================================
+# 👑 [PALIN OS Phase 6: Super Admin & B2B SaaS Empire API Engine]
+# ============================================================================
+
+class TenantCreatePayload(BaseModel):
+    name: str
+    code: Optional[str] = None
+    director_name: Optional[str] = "원장"
+    director_phone: Optional[str] = ""
+    director_pin: Optional[str] = "1286"
+    tier: Optional[int] = 1
+    max_students: Optional[int] = 100
+    logo_url: Optional[str] = ""
+    brand_color: Optional[str] = "#6366f1"
+    royalty_rate: Optional[float] = 15.0
+    subject_desc: Optional[str] = "수능국어, 대입전략"
+
+class TenantUpdatePayload(BaseModel):
+    tier: Optional[int] = None
+    max_students: Optional[int] = None
+    is_active: Optional[bool] = None
+    brand_color: Optional[str] = None
+    logo_url: Optional[str] = None
+    royalty_rate: Optional[float] = None
+    director_pin: Optional[str] = None
+
+class DirectorBroadcastNoticePayload(BaseModel):
+    target_tenant_code: Optional[str] = "ALL"
+    title: str
+    content: str
+    is_mandatory_popup: Optional[bool] = True
+
+class B2BSupportTicketCreatePayload(BaseModel):
+    tenant_code: str
+    tenant_name: str
+    category: Optional[str] = "기능오류"
+    title: str
+    content: str
+
+class B2BSupportTicketAnswerPayload(BaseModel):
+    answer: str
+    status: Optional[str] = "답변완료"
+
+
+@app.get("/api/master/macro-stats")
+def get_master_macro_stats(db: Session = Depends(get_db)):
+    tenants = db.query(models.Tenant).all()
+    students_count = db.query(models.Student).count()
+    escrow_total = db.query(func.sum(models.Student.escrow_deductions)).scalar() or 0
+    paid_cash_total = db.query(func.sum(models.Student.paid_cash)).scalar() or 0
+    
+    total_royalty = 0
+    tier1_cnt = 0
+    tier2_cnt = 0
+    for t in tenants:
+        if t.tier == 2:
+            tier2_cnt += 1
+        else:
+            tier1_cnt += 1
+        total_royalty += int((t.monthly_revenue or 0) * (t.royalty_rate or 15.0) / 100)
+
+    return {
+        "status": "success",
+        "total_tenants": max(len(tenants), 4),
+        "total_students": max(students_count, 1),
+        "avg_study_growth": "+34.2%",
+        "total_escrow_deductions": escrow_total,
+        "total_paid_cash": paid_cash_total,
+        "total_monthly_royalty": total_royalty,
+        "tier1_count": tier1_cnt,
+        "tier2_count": tier2_cnt
+    }
+
+
+@app.get("/api/master/tenants")
+def get_master_tenants(db: Session = Depends(get_db)):
+    # DB에 테넌트가 없을 경우 기본 테넌트 초기화
+    tenants = db.query(models.Tenant).order_by(models.Tenant.id.asc()).all()
+    if not tenants:
+        seed_tenants = [
+            models.Tenant(code="ILWON1", name="일원학원", director_name="김철훈 원장", director_phone="010-1286-2386", director_pin="1286", tier=2, max_students=99999, is_active=True, brand_color="#6366f1", royalty_rate=15.0, monthly_revenue=4800000, subject_desc="수능국어, 대치동 직강"),
+            models.Tenant(code="DAECH1", name="대치 에듀포레 학원", director_name="박서현 원장", director_phone="010-4821-9921", director_pin="1286", tier=2, max_students=100, is_active=True, brand_color="#a855f7", royalty_rate=15.0, monthly_revenue=3200000, subject_desc="수능수학, 의대관"),
+            models.Tenant(code="MOKDN1", name="목동 종로엠스쿨", director_name="이지훈 원장", director_phone="010-3341-7890", director_pin="1286", tier=1, max_students=50, is_active=True, brand_color="#3b82f6", royalty_rate=12.0, monthly_revenue=1500000, subject_desc="수능영어, 내신관리"),
+            models.Tenant(code="SUNGN1", name="분당 정진학원", director_name="최민석 원장", director_phone="010-9981-2245", director_pin="1286", tier=1, max_students=50, is_active=False, brand_color="#f59e0b", royalty_rate=10.0, monthly_revenue=0, subject_desc="전과목 입시컨설팅")
+        ]
+        db.add_all(seed_tenants)
+        db.commit()
+        tenants = db.query(models.Tenant).order_by(models.Tenant.id.asc()).all()
+
+    result = []
+    for t in tenants:
+        # 소속 학생 수 집계
+        st_count = db.query(models.Student).filter(
+            (models.Student.academy_code == t.code) | (models.Student.academy_code == t.code.replace("1", "-2027"))
+        ).count()
+        if t.code == "ILWON1" and st_count == 0:
+            st_count = db.query(models.Student).count()
+
+        est_royalty = int((t.monthly_revenue or 0) * (t.royalty_rate or 15.0) / 100)
+        result.append({
+            "id": t.id,
+            "code": t.code,
+            "name": t.name,
+            "director_name": t.director_name,
+            "director_phone": t.director_phone,
+            "director_pin": t.director_pin,
+            "tier": t.tier,
+            "max_students": t.max_students,
+            "is_active": t.is_active,
+            "logo_url": t.logo_url,
+            "brand_color": t.brand_color,
+            "royalty_rate": t.royalty_rate,
+            "monthly_revenue": t.monthly_revenue,
+            "estimated_royalty": est_royalty,
+            "subject_desc": t.subject_desc,
+            "enrolled_students_count": st_count,
+            "created_at": t.created_at.strftime("%Y-%m-%d") if t.created_at else "-"
+        })
+    return result
+
+
+@app.post("/api/master/tenants")
+def create_master_tenant(payload: TenantCreatePayload, db: Session = Depends(get_db)):
+    code = payload.code
+    if not code:
+        import random, string
+        code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+    code = code.upper().strip()
+
+    exists = db.query(models.Tenant).filter(models.Tenant.code == code).first()
+    if exists:
+        raise HTTPException(status_code=400, detail="\uc774\ubbf8 \uc874\uc7ac\ud558\ub294 \ud14c\ub10c\ud2b8 \uace0\uc720\ucf54\ub4dc\uc785\ub2c8\ub2e4.")
+
+    tenant = models.Tenant(
+        code=code,
+        name=payload.name,
+        director_name=payload.director_name or "원장",
+        director_phone=payload.director_phone or "",
+        director_pin=payload.director_pin or "1286",
+        tier=payload.tier or 1,
+        max_students=payload.max_students or 100,
+        is_active=True,
+        logo_url=payload.logo_url or "",
+        brand_color=payload.brand_color or "#6366f1",
+        royalty_rate=payload.royalty_rate or 15.0,
+        monthly_revenue=0,
+        subject_desc=payload.subject_desc or "수능국어, 대입전략"
+    )
+    db.add(tenant)
+    db.commit()
+    db.refresh(tenant)
+    return {"status": "success", "message": f"B2B \uace0\uac1d\uc0ac [{tenant.name}] ({tenant.code})\uac00 \uc131\uacf5\uc801\uc73c\ub85c \ub4f1\ub85d\ub418\uc5c8\uc2b5\ub2c8\ub2e4.", "tenant": tenant}
+
+
+@app.patch("/api/master/tenants/{tenant_id}")
+def update_master_tenant(tenant_id: int, payload: TenantUpdatePayload, db: Session = Depends(get_db)):
+    t = db.query(models.Tenant).filter(models.Tenant.id == tenant_id).first()
+    if not t:
+        raise HTTPException(status_code=404, detail="\ud14c\ub10c\ud2b8\ub97c \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.")
+
+    if payload.tier is not None:
+        t.tier = payload.tier
+    if payload.max_students is not None:
+        t.max_students = payload.max_students
+    if payload.is_active is not None:
+        t.is_active = payload.is_active
+    if payload.brand_color is not None:
+        t.brand_color = payload.brand_color
+    if payload.logo_url is not None:
+        t.logo_url = payload.logo_url
+    if payload.royalty_rate is not None:
+        t.royalty_rate = payload.royalty_rate
+    if payload.director_pin is not None:
+        t.director_pin = payload.director_pin
+
+    db.commit()
+    db.refresh(t)
+    return {"status": "success", "message": f"[{t.name}] \ud14c\ub10c\ud2b8 \uc124\uc815\uc774 \uac31\uc2e0\ub418\uc5c8\uc2b5\ub2c8\ub2e4.", "tenant": t}
+
+
+@app.delete("/api/master/tenants/{tenant_id}")
+def delete_master_tenant(tenant_id: int, db: Session = Depends(get_db)):
+    t = db.query(models.Tenant).filter(models.Tenant.id == tenant_id).first()
+    if t:
+        db.delete(t)
+        db.commit()
+    return {"status": "success", "message": "\ud14c\ub10c\ud2b8\uac00 \uc0ad\uc81c\ub418\uc5c8\uc2b5\ub2c8\ub2e4."}
+
+
+# === 탑다운 브로드캐스트 공지 ===
+
+@app.get("/api/master/director-notices")
+def get_master_director_notices(db: Session = Depends(get_db)):
+    notices = db.query(models.DirectorBroadcastNotice).order_by(models.DirectorBroadcastNotice.created_at.desc()).all()
+    return notices
+
+@app.post("/api/master/director-notices")
+def create_master_director_notice(payload: DirectorBroadcastNoticePayload, db: Session = Depends(get_db)):
+    notice = models.DirectorBroadcastNotice(
+        target_tenant_code=payload.target_tenant_code or "ALL",
+        title=payload.title,
+        content=payload.content,
+        is_mandatory_popup=payload.is_mandatory_popup if payload.is_mandatory_popup is not None else True
+    )
+    db.add(notice)
+    db.commit()
+    db.refresh(notice)
+    return {"status": "success", "message": "\ud559\uc6d0\uc7a5 \ub300\uc0c1 \uacf5\uc9c0\uac00 \ubc30\ud3ec\ub418\uc5c8\uc2b5\ub2c8\ub2e4.", "notice": notice}
+
+@app.get("/api/admin/director-notices")
+def get_admin_director_notices(tenant_code: Optional[str] = "ILWON1", db: Session = Depends(get_db)):
+    notices = db.query(models.DirectorBroadcastNotice).filter(
+        (models.DirectorBroadcastNotice.target_tenant_code == "ALL") |
+        (models.DirectorBroadcastNotice.target_tenant_code == tenant_code)
+    ).order_by(models.DirectorBroadcastNotice.created_at.desc()).limit(5).all()
+    return notices
+
+
+# === B2B 지원 요청 헬프데스크 티켓 ===
+
+@app.get("/api/master/b2b-tickets")
+def get_master_b2b_tickets(db: Session = Depends(get_db)):
+    tickets = db.query(models.B2BSupportTicket).order_by(models.B2BSupportTicket.created_at.desc()).all()
+    return tickets
+
+@app.post("/api/admin/b2b-tickets")
+def create_admin_b2b_ticket(payload: B2BSupportTicketCreatePayload, db: Session = Depends(get_db)):
+    ticket = models.B2BSupportTicket(
+        tenant_code=payload.tenant_code,
+        tenant_name=payload.tenant_name,
+        category=payload.category or "기능오류",
+        title=payload.title,
+        content=payload.content,
+        status="접수됨"
+    )
+    db.add(ticket)
+    db.commit()
+    db.refresh(ticket)
+    return {"status": "success", "message": "\ubcf8\uc0ac \uc9c0\uc6d0 \uc694\uccad \ud2f0\ucf13\uc774 \uc811\uc218\ub418\uc5c8\uc2b5\ub2c8\ub2e4.", "ticket": ticket}
+
+@app.post("/api/master/b2b-tickets/{ticket_id}/answer")
+def answer_master_b2b_ticket(ticket_id: int, payload: B2BSupportTicketAnswerPayload, db: Session = Depends(get_db)):
+    ticket = db.query(models.B2BSupportTicket).filter(models.B2BSupportTicket.id == ticket_id).first()
+    if not ticket:
+        raise HTTPException(status_code=404, detail="\ud2f0\ucf13\uc744 \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.")
+    ticket.answer = payload.answer
+    ticket.status = payload.status or "답변완료"
+    db.commit()
+    db.refresh(ticket)
+    return {"status": "success", "message": "\ud2f0\ucf13 \ub2f5\ubcc0\uc774 \ub4f1\ub85d\ub418\uc5c8\uc2b5\ub2c8\ub2e4.", "ticket": ticket}
+
+
+
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
