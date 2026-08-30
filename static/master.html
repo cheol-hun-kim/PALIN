@@ -6,7 +6,7 @@
     <title>PALIN OS - 총괄 제작자 슈퍼 마스터 콘솔 (Super Admin God Mode)</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=300.0">
+    <link rel="stylesheet" href="css/style.css?v=400.0">
     <style>
         :root {
             --master-bg: #06070a;
@@ -29,7 +29,7 @@
             min-height: 100vh;
         }
         .master-container {
-            max-width: 1400px;
+            max-width: 1440px;
             margin: 0 auto;
             padding: 24px 16px;
         }
@@ -210,7 +210,6 @@
             outline: none;
             box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
         }
-        /* VOC 상태 버튼 그룹 */
         .voc-status-group {
             display: inline-flex;
             gap: 4px;
@@ -239,7 +238,6 @@
         .voc-btn.active-rejected { background: #ef4444 !important; color: white !important; font-weight: 900; }
         .voc-btn.active-completed { background: #10b981 !important; color: white !important; font-weight: 900; }
 
-        /* Modal popup */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -295,7 +293,7 @@
                         <div style="font-size: 1.55rem; font-weight: 900; letter-spacing: -0.5px;">PALIN OS <span style="color: #f59e0b;">슈퍼 마스터 관제 제국</span></div>
                     </div>
                     <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 4px;">
-                        전국 B2B 고객사(Tenant) 라이프사이클 통제 · 글로벌 로열티 정산 · 섀도잉 뷰(God Mode) · 백서 RAG 스왑
+                        전국 B2B 고객사(Tenant) 라이프사이클 통제 · 커스텀 AI 뇌 이식 데스크 · 글로벌 정산 · 갓모드 섀도잉
                     </div>
                 </div>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
@@ -333,11 +331,11 @@
             <div class="master-tab-nav">
                 <button class="master-tab-btn active" onclick="switchMasterTab('tab-tenants')">
                     <span class="material-symbols-rounded">domain</span>
-                    <span>🏢 1. B2B 고객사(테넌트) & 갓모드</span>
+                    <span>🏢 1. B2B 고객사 & 갓모드</span>
                 </button>
-                <button class="master-tab-btn" onclick="switchMasterTab('tab-whitepaper')">
+                <button class="master-tab-btn" onclick="switchMasterTab('tab-brain-injection')">
                     <span class="material-symbols-rounded">psychology</span>
-                    <span>🧠 2. AI 수험생활 백서 & RAG</span>
+                    <span>🧠 2. 커스텀 뇌 이식 & 백서 RAG</span>
                 </button>
                 <button class="master-tab-btn" onclick="switchMasterTab('tab-admission-reports')">
                     <span class="material-symbols-rounded">analytics</span>
@@ -366,14 +364,15 @@
                     <div class="section-header" style="color: #fbbf24;">
                         <span>🏢 신규 B2B 가맹 학원사 등록 & 고유코드(Tenant Code) 발급기</span>
                     </div>
-                    <form onsubmit="handleCreateTenant(event)" style="display: grid; grid-template-columns: 180px 140px 140px 140px 120px 120px 1fr auto; gap: 8px; align-items: center;">
+                    <form onsubmit="handleCreateTenant(event)" style="display: grid; grid-template-columns: 180px 140px 140px 140px 140px 120px 1fr auto; gap: 8px; align-items: center;">
                         <input type="text" id="new-t-name" placeholder="학원명 (예: 대치 시대인재)" required class="form-input" style="font-weight: 700;">
                         <input type="text" id="new-t-code" placeholder="코드 (예: DAECH1)" class="form-input" style="font-weight: 800; text-transform: uppercase;">
                         <input type="text" id="new-t-director" placeholder="원장명" value="원장" class="form-input">
                         <input type="text" id="new-t-phone" placeholder="원장 연락처" class="form-input">
                         <select id="new-t-tier" class="form-input" style="font-weight: 700;">
-                            <option value="1">Tier 1 (기본)</option>
-                            <option value="2" selected>Tier 2 (백서 RAG)</option>
+                            <option value="1">Tier 1 (기본 AI)</option>
+                            <option value="2">Tier 2 (맞춤 뇌이식)</option>
+                            <option value="3" selected>Tier 3 (백서 RAG 풀탑재)</option>
                         </select>
                         <select id="new-t-cap" class="form-input" style="font-weight: 700;">
                             <option value="50">CAP: 50명</option>
@@ -402,7 +401,7 @@
                                     <th>학원명 (원장)</th>
                                     <th>연락처</th>
                                     <th>연동 재원생 / CAP</th>
-                                    <th>AI Tier (백서)</th>
+                                    <th>AI Tier (스위치)</th>
                                     <th>운영 상태 (Kill Switch)</th>
                                     <th>당월 수익 (로열티)</th>
                                     <th style="text-align: center;">갓 모드 (원격 섀도잉)</th>
@@ -416,50 +415,127 @@
             </div>
 
             <!-- ========================================================
-                 TAB 2: 🧠 2. AI 수험생활 백서 & RAG
+                 TAB 2: 🧠 2. 커스텀 뇌 이식 & 백서 RAG (Phase 6 Custom Brain!)
                  ======================================================== -->
-            <div id="tab-whitepaper" class="master-tab-view">
-                <!-- 글로벌 화이트라벨 토글 -->
-                <div class="section-box" style="border-color: rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.04);">
-                    <div class="section-header" style="color: #818cf8;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span class="material-symbols-rounded">branding_watermark</span>
-                            <span>🏢 글로벌 B2B 화이트라벨 모드 (원장 브랜딩 ON/OFF 스위치)</span>
+            <div id="tab-brain-injection" class="master-tab-view">
+                <!-- 3대 Tier 설명 카드 & 화이트라벨 토글 -->
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 20px;">
+                    <div class="section-box" style="margin-bottom: 0; border-color: rgba(99, 102, 241, 0.4);">
+                        <div class="section-header" style="color: #818cf8; margin-bottom: 8px;">
+                            <span>🧠 PALIN OS 3단계 AI Tier & 커스텀 뇌 이식 아키텍처</span>
                         </div>
-                        <span id="white-label-status-badge" style="font-size: 0.78rem; padding: 4px 10px; border-radius: 6px; font-weight: 800; background: #10b981; color: white;">김철훈 백서 탑재 활성 중</span>
+                        <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.55;">
+                            • <b>Tier 1 (기본 모드)</b>: 객관적 입시/학습 코칭 프롬프트 (개인 브랜딩 없는 범용 모드)<br>
+                            • <b>Tier 2 (맞춤형 커스텀 뇌)</b>: 원장이 문진표 제출 ➔ 슈퍼 어드민이 다듬어 주입한 맞춤 프롬프트 및 전용 봇 이름 적용<br>
+                            • <b>Tier 3 (플래그십 마스터)</b>: 김철훈 원장 수험생활 백서 RAG + 실패의 원리 칼럼 + 최상위권 독기 멘토링 풀 탑재
+                        </div>
                     </div>
-                    <div style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 12px;">
-                        • <b>[기본 모드]</b>: 김철훈 원장님의 수험생활 백서, 실패의 원리 칼럼, 독기 멘토링이 AI 챗봇에 탑재됩니다.<br>
-                        • <b>[화이트라벨 모드]</b>: 외부 타 학원에 솔루션을 판매할 때 원장님 개인 브랜딩을 제거하고 순수 입시엔진만 작동시킵니다.
-                    </div>
-                    <button onclick="toggleWhiteLabelMode()" class="btn btn-gold" style="padding: 9px 18px;">
-                        🔄 화이트라벨 모드 전환 토글
-                    </button>
-                </div>
 
-                <!-- 수험생활 백서 실시간 지식 추가 -->
-                <div class="section-box" style="border-color: rgba(168, 85, 247, 0.4);">
-                    <div class="section-header" style="color: #c084fc;">
-                        <span>🧠 PALIN AI 수험생활 백서 & 칼럼 실시간 지식 주입 (RAG 학습)</span>
-                    </div>
-                    <form onsubmit="handleAddMasterKnowledge(event)" style="display: flex; flex-direction: column; gap: 10px;">
-                        <div style="display: grid; grid-template-columns: 1fr 200px; gap: 8px;">
-                            <input type="text" id="kb-title" placeholder="칼럼/백서 주제 (예: 6월 모평 이후 국어 멘탈 관리법)" required class="form-input">
-                            <input type="text" id="kb-tag" placeholder="태그 (예: 국어, 멘탈, 칼럼)" value="수험생활백서" required class="form-input">
+                    <div class="section-box" style="margin-bottom: 0; border-color: rgba(245, 158, 11, 0.4); display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div class="section-header" style="color: #fbbf24; margin-bottom: 6px; font-size: 0.95rem;">
+                                <span>🏢 글로벌 화이트라벨 모드</span>
+                            </div>
+                            <div id="white-label-status-badge" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; font-weight: 800; background: #10b981; color: white; display: inline-block;">김철훈 백서 활성 중</div>
                         </div>
-                        <textarea id="kb-content" placeholder="원장님의 지도철학, 칼럼 본문, 실패의 원리 분석 내용을 상세히 작성하세요. AI가 실시간으로 기억하여 학생 상담에 반영합니다..." required class="form-input" style="height: 110px;"></textarea>
-                        <button type="submit" class="btn btn-indigo" style="padding: 10px; font-weight: 800;">
-                            + 수험생활 백서 지식 주입 완료
+                        <button onclick="toggleWhiteLabelMode()" class="btn btn-gold" style="padding: 8px; font-size: 0.8rem; margin-top: 10px;">
+                            🔄 화이트라벨 모드 전환
                         </button>
-                    </form>
+                    </div>
                 </div>
 
-                <!-- 등록된 지식베이스 목록 -->
-                <div class="section-box">
-                    <div class="section-header">
-                        <span>📚 현재 탑재된 수험생활 백서 & 칼럼 지식 목록</span>
+                <!-- 🧠 커스텀 뇌 이식 데스크: 3단 레이아웃 (대기열 / 프롬프트 에디터 / 실시간 샌드박스) -->
+                <div class="section-box" style="border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.02);">
+                    <div class="section-header" style="color: #fbbf24;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-rounded">psychology</span>
+                            <span>🧠 B2B 학원장 커스텀 뇌 승인 & 실시간 샌드박스 인젝션 데스크</span>
+                        </div>
+                        <span id="selected-brain-target-title" style="font-size: 0.82rem; color: #34d399; font-weight: 800;">(학원을 선택하세요)</span>
                     </div>
-                    <div id="master-knowledge-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto;"></div>
+
+                    <div style="display: grid; grid-template-columns: 280px 1fr 340px; gap: 14px;">
+                        <!-- 1단: 문진표 접수 대기열 -->
+                        <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; max-height: 480px; overflow-y: auto;">
+                            <div style="font-size: 0.82rem; font-weight: 800; color: #94a3b8; margin-bottom: 8px;">📋 원장 문진표 접수 대기열</div>
+                            <div id="brain-requests-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                        </div>
+
+                        <!-- 2단: 프롬프트 엔지니어링 마스터 에디터 -->
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <div style="display: grid; grid-template-columns: 1fr 140px; gap: 8px;">
+                                <div>
+                                    <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 2px;">AI 챗봇 공식 명칭</label>
+                                    <input type="text" id="editor-bot-name" placeholder="예: 대치수학봇" class="form-input" style="width: 100%; font-weight: 800;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 2px;">배포할 Tier</label>
+                                    <select id="editor-target-tier" class="form-input" style="width: 100%; font-weight: 800;">
+                                        <option value="2" selected>Tier 2 (맞춤 뇌)</option>
+                                        <option value="3">Tier 3 (백서 RAG)</option>
+                                        <option value="1">Tier 1 (기본)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 2px;">
+                                    System Prompt (원장의 교육철학을 반영하여 김철훈 원장이 직접 정제)
+                                </label>
+                                <textarea id="editor-system-prompt" placeholder="[원장의 원시 문진표 데이터가 로드되면 여기에 AI System Prompt를 최적화하여 작성하세요...]" class="form-input" style="height: 330px; width: 100%; font-family: monospace; font-size: 0.82rem; line-height: 1.5;"></textarea>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <button onclick="handleRejectBrainRequest()" class="btn btn-secondary" style="color: #ef4444; border-color: rgba(239,68,68,0.4); padding: 8px 14px; font-size: 0.8rem;">
+                                    ✕ 문진표 반려
+                                </button>
+                                <button onclick="handleInjectBrainPrompt()" class="btn btn-gold" style="padding: 10px 24px; font-weight: 900; font-size: 0.9rem; box-shadow: 0 4px 15px rgba(245,158,11,0.4);">
+                                    ⚡ 최종 뇌 주입 및 배포 (Inject)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 3단: 실시간 샌드박스 테스트 채팅창 (Live AI Sandbox) -->
+                        <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(245,158,11,0.25); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div>
+                                <div style="font-size: 0.82rem; font-weight: 800; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">
+                                    <span class="material-symbols-rounded" style="font-size: 1rem;">science</span>
+                                    <span>실시간 AI 샌드박스 테스트</span>
+                                </div>
+                                <div id="sandbox-chat-log" style="background: rgba(0,0,0,0.5); border-radius: 8px; padding: 10px; height: 350px; overflow-y: auto; font-size: 0.8rem; color: #cbd5e1; line-height: 1.5; white-space: pre-wrap; margin-bottom: 8px;">
+                                    <div style="color: #64748b; text-align: center; margin-top: 100px;">
+                                        프롬프트 작성 후 하단에 질문을 입력하여 즉시 AI의 페르소나와 답변 품질을 테스트해 보세요.
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 6px;">
+                                <input type="text" id="sandbox-test-input" placeholder="테스트 질문 (예: 국어 4등급인데 어떡하죠?)" class="form-input" style="flex: 1; padding: 7px 10px; font-size: 0.78rem;" onkeydown="if(event.key==='Enter') runSandboxTest();">
+                                <button onclick="runSandboxTest()" class="btn btn-indigo" style="padding: 7px 12px; font-size: 0.78rem; font-weight: 800;">
+                                    테스트
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 수험생활 백서 실시간 지식 RAG 추가 & 목록 -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="section-box" style="border-color: rgba(168, 85, 247, 0.4);">
+                        <div class="section-header" style="color: #c084fc;">
+                            <span>🧠 오리지널 수험생활 백서 RAG 지식 추가</span>
+                        </div>
+                        <form onsubmit="handleAddMasterKnowledge(event)" style="display: flex; flex-direction: column; gap: 10px;">
+                            <input type="text" id="kb-title" placeholder="주제 (예: 6월 모평 이후 국어 멘탈 관리법)" required class="form-input">
+                            <input type="text" id="kb-tag" placeholder="태그" value="수험생활백서" required class="form-input">
+                            <textarea id="kb-content" placeholder="칼럼 본문, 실패의 원리 분석 내용을 상세히 작성하세요..." required class="form-input" style="height: 100px;"></textarea>
+                            <button type="submit" class="btn btn-indigo" style="padding: 9px; font-weight: 800;">+ 백서 지식 주입</button>
+                        </form>
+                    </div>
+
+                    <div class="section-box">
+                        <div class="section-header">
+                            <span>📚 탑재된 백서 & 칼럼 지식 목록</span>
+                        </div>
+                        <div id="master-knowledge-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 230px; overflow-y: auto;"></div>
+                    </div>
                 </div>
             </div>
 
@@ -529,7 +605,7 @@
                             </div>
                             <div>
                                 <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">공지 제목</label>
-                                <input type="text" id="broadcast-title" placeholder="예: [긴급] 2027 수능 개정 백서 엔진 V2 업데이트 및 일요일 서버 점검 안내" required class="form-input" style="width: 100%; font-weight: 700;">
+                                <input type="text" id="broadcast-title" placeholder="예: [긴급] 백서 엔진 V2 업데이트 및 일요일 서버 점검 안내" required class="form-input" style="width: 100%; font-weight: 700;">
                             </div>
                         </div>
                         <div>
@@ -550,7 +626,7 @@
                         <span>📢 전 플랫폼 수험생 대상 시스템 공지사항 등록</span>
                     </div>
                     <form onsubmit="handleSendStudentSystemNotice(event)" style="display: flex; flex-direction: column; gap: 8px;">
-                        <input type="text" id="sys-notice-title" placeholder="공지 제목 (예: 6월 모평 대비 특강 오픈)" required class="form-input">
+                        <input type="text" id="sys-notice-title" placeholder="공지 제목" required class="form-input">
                         <textarea id="sys-notice-content" placeholder="공지 내용..." required class="form-input" style="height: 70px;"></textarea>
                         <button type="submit" class="btn btn-indigo" style="padding: 10px; font-weight: 800;">+ 학생 시스템 공지 배포</button>
                     </form>
@@ -569,7 +645,7 @@
                     <div id="b2b-tickets-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
                 </div>
 
-                <!-- 2. 전 플랫폼 학생 VOC 피드백 (4가지 상태 버튼 적용!) -->
+                <!-- 2. 전 플랫폼 학생 VOC 피드백 (4가지 상태 버튼!) -->
                 <div class="section-box" style="border-color: rgba(59, 130, 246, 0.4);">
                     <div class="section-header" style="color: #60a5fa;">
                         <span>💬 전 플랫폼 학생 불편사항 및 기능 제안 수신함 (VOC)</span>
@@ -594,6 +670,7 @@
 
     <script>
         let allTenantsCache = [];
+        let currentSelectedTenantId = null;
 
         function switchMasterTab(tabId) {
             document.querySelectorAll('.master-tab-view').forEach(el => el.style.display = 'none');
@@ -604,7 +681,7 @@
             if (btn) btn.classList.add('active');
 
             if (tabId === 'tab-tenants') loadMasterTenants();
-            if (tabId === 'tab-whitepaper') loadMasterKnowledge();
+            if (tabId === 'tab-brain-injection') { loadBrainRequests(); loadMasterKnowledge(); }
             if (tabId === 'tab-admission-reports') loadMasterReports();
             if (tabId === 'tab-consulting') loadMasterConsultingRequests();
             if (tabId === 'tab-b2b-helpdesk') { loadB2BTickets(); loadMasterFeedbacks(); }
@@ -637,7 +714,6 @@
 
         async function fetchMasterData() {
             try {
-                // 매크로 통계 로드
                 const statsRes = await fetch("/api/master/macro-stats");
                 if (statsRes.ok) {
                     const stats = await statsRes.json();
@@ -676,12 +752,14 @@
 
                 tbody.innerHTML = tenants.map(t => {
                     const isActive = Boolean(t.is_active);
-                    const tierBadge = t.tier === 2 
-                        ? '<span style="background:#a855f7; color:white; padding:3px 8px; border-radius:6px; font-weight:800; font-size:0.75rem;">Tier 2 (백서RAG)</span>'
-                        : '<span style="background:#3b82f6; color:white; padding:3px 8px; border-radius:6px; font-weight:800; font-size:0.75rem;">Tier 1 (기본)</span>';
-                    
+                    let tierBadge = '<span style="background:#3b82f6; color:white; padding:3px 8px; border-radius:6px; font-weight:800; font-size:0.75rem;">Tier 1 (기본)</span>';
+                    if (t.tier === 2) tierBadge = '<span style="background:#a855f7; color:white; padding:3px 8px; border-radius:6px; font-weight:800; font-size:0.75rem;">Tier 2 (맞춤뇌)</span>';
+                    if (t.tier === 3) tierBadge = '<span style="background:#f59e0b; color:black; padding:3px 8px; border-radius:6px; font-weight:900; font-size:0.75rem;">Tier 3 (백서RAG)</span>';
+
                     const capText = t.max_students >= 99999 ? '무제한' : `${t.enrolled_students_count} / ${t.max_students}명`;
                     const capColor = t.enrolled_students_count >= t.max_students && t.max_students < 99999 ? '#ef4444' : '#34d399';
+
+                    const nextTier = t.tier === 1 ? 2 : (t.tier === 2 ? 3 : 1);
 
                     return `
                     <tr style="${!isActive ? 'opacity: 0.55;' : ''}">
@@ -693,7 +771,7 @@
                         <td>${t.director_phone || '-'}</td>
                         <td><b style="color:${capColor};">${capText}</b></td>
                         <td>
-                            <button onclick="toggleTenantTier(${t.id}, ${t.tier === 2 ? 1 : 2})" class="btn" style="padding:4px 8px; font-size:0.75rem; background:transparent;">
+                            <button onclick="toggleTenantTier(${t.id}, ${nextTier})" class="btn" style="padding:4px 8px; font-size:0.75rem; background:transparent;">
                                 ${tierBadge} 🔄
                             </button>
                         </td>
@@ -757,9 +835,7 @@
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ tier: newTier })
                 });
-                if (res.ok) {
-                    loadMasterTenants();
-                }
+                if (res.ok) loadMasterTenants();
             } catch(e) {}
         }
 
@@ -784,7 +860,6 @@
             } catch(e) {}
         }
 
-        // 🚨 갓 모드 (원격 섀도잉 Impersonation)
         function impersonateTenant(code, name) {
             sessionStorage.setItem("palin_admin_authenticated", "true");
             sessionStorage.setItem("palin_shadow_mode", "true");
@@ -794,8 +869,141 @@
         }
 
         // ==========================================
-        // 🧠 2. 백서 RAG & 화이트라벨
+        // 🧠 2. 커스텀 뇌 이식 데스크 & 샌드박스
         // ==========================================
+        async function loadBrainRequests() {
+            const container = document.getElementById("brain-requests-list");
+            if (!container) return;
+            try {
+                const res = await fetch("/api/master/brain-requests");
+                if (!res.ok) return;
+                const requests = await res.json();
+                if (requests.length === 0) {
+                    container.innerHTML = '<div style="color:#94a3b8; font-size:0.78rem; text-align:center; padding:20px;">등록된 테넌트가 없습니다.</div>';
+                    return;
+                }
+                container.innerHTML = requests.map(r => {
+                    let statusBadge = '<span style="background:#64748b; color:white; padding:2px 6px; border-radius:4px; font-size:0.7rem;">미신청</span>';
+                    if (r.brain_status === 'PENDING') statusBadge = '<span style="background:#f59e0b; color:black; padding:2px 6px; border-radius:4px; font-size:0.7rem; font-weight:900;">⚡ 심사대기</span>';
+                    if (r.brain_status === 'INJECTED') statusBadge = '<span style="background:#10b981; color:white; padding:2px 6px; border-radius:4px; font-size:0.7rem; font-weight:800;">✅ 이식완료</span>';
+
+                    return `
+                    <div onclick="selectBrainRequest(${r.tenant_id})" style="background:rgba(255,255,255,0.03); border:1px solid ${currentSelectedTenantId === r.tenant_id ? '#f59e0b' : 'rgba(255,255,255,0.08)'}; padding:10px; border-radius:8px; cursor:pointer; transition:all 0.15s ease;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <strong style="color:white; font-size:0.88rem;">${r.tenant_name}</strong>
+                            ${statusBadge}
+                        </div>
+                        <div style="font-size:0.75rem; color:#94a3b8;">봇: <b>${r.bot_name}</b> · Tier ${r.tier}</div>
+                        <div style="font-size:0.72rem; color:#64748b; margin-top:2px;">접수: ${r.submitted_at || '-'}</div>
+                    </div>
+                `}).join('');
+
+                if (!currentSelectedTenantId && requests.length > 0) {
+                    selectBrainRequest(requests[0].tenant_id);
+                }
+            } catch(e) {}
+        }
+
+        async function selectBrainRequest(tId) {
+            currentSelectedTenantId = tId;
+            const res = await fetch("/api/master/brain-requests");
+            const requests = await res.json();
+            const t = requests.find(item => item.tenant_id === tId);
+            if (!t) return;
+
+            document.getElementById("selected-brain-target-title").innerText = `[${t.tenant_name} (${t.tenant_code})] 뇌 주입 준비`;
+            document.getElementById("editor-bot-name").value = t.bot_name || `${t.tenant_name} AI 멘토`;
+            document.getElementById("editor-target-tier").value = t.tier || 2;
+
+            if (t.custom_system_prompt && t.custom_system_prompt.trim()) {
+                document.getElementById("editor-system-prompt").value = t.custom_system_prompt;
+            } else {
+                // Synthesize draft prompt from survey
+                const toneGuide = t.bot_tone === 'VERY_STRICT' ? '매우 엄격하고 직설적인 팩트 폭격기 어투' : (t.bot_tone === 'WARM' ? '친절하고 따뜻하게 북돋워주는 멘토 어투' : '카리스마 넘치는 1타 강사 어투');
+                const template = `IDENTITY: You are ${t.bot_name || t.tenant_name + ' AI 멘토'} of ${t.tenant_name}. Speak as the official AI academic director.
+
+VOICE & TONE:
+- ${toneGuide} (~해라, ~하자 또는 정중한 격식체로 신뢰감 제공)
+
+CORE VALUES & PHILOSOPHY:
+${t.core_values ? t.core_values : '- 숙제와 일일 과제 완수 타협 없음\n- 취약 유형 오답노트 3회독 필수'}
+
+FORBIDDEN PATTERNS:
+${t.banned_words ? t.banned_words : '- 근거 없는 위로 금지\n- 타 학원 비방 금지'}
+
+COACHING STRATEGY:
+Deliver clear, decisive, and highly actionable college entrance counseling.`;
+                document.getElementById("editor-system-prompt").value = template;
+            }
+            loadBrainRequests();
+        }
+
+        async function runSandboxTest() {
+            const prompt = document.getElementById("editor-system-prompt").value.trim();
+            const msgInput = document.getElementById("sandbox-test-input");
+            const msg = msgInput.value.trim() || "원장님 저 국어 4등급인데 지금부터 해도 인서울 가능할까요?";
+            if (!currentSelectedTenantId) { alert("학원을 먼저 선택하세요."); return; }
+
+            const log = document.getElementById("sandbox-chat-log");
+            log.innerHTML += `<div style="color:#60a5fa; margin-bottom:6px;"><b>👤 학생:</b> ${msg}</div><div style="color:#fbbf24; margin-bottom:12px;"><b>🤖 ${document.getElementById("editor-bot-name").value}:</b> <i>생각 중...</i></div>`;
+            log.scrollTop = log.scrollHeight;
+
+            try {
+                const res = await fetch(`/api/master/brain-requests/${currentSelectedTenantId}/test-sandbox`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ system_prompt: prompt, test_message: msg })
+                });
+                const data = await res.json();
+                const lastDiv = log.querySelector("div:last-child");
+                if (lastDiv) {
+                    lastDiv.innerHTML = `<b>🤖 ${document.getElementById("editor-bot-name").value}:</b> ${data.reply}`;
+                }
+                log.scrollTop = log.scrollHeight;
+                msgInput.value = "";
+            } catch(e) {
+                alert("샌드박스 테스트 통신 오류");
+            }
+        }
+
+        async function handleInjectBrainPrompt() {
+            if (!currentSelectedTenantId) { alert("학원을 먼저 선택해 주세요."); return; }
+            const prompt = document.getElementById("editor-system-prompt").value.trim();
+            const botName = document.getElementById("editor-bot-name").value.trim();
+            const tier = parseInt(document.getElementById("editor-target-tier").value, 10);
+
+            if (!prompt) { alert("System Prompt 내용을 작성해 주세요."); return; }
+            if (!confirm(`해당 학원의 AI 챗봇에 커스텀 프롬프트를 [최종 주입 (Tier ${tier})] 배포하시겠습니까?`)) return;
+
+            try {
+                const res = await fetch(`/api/master/brain-requests/${currentSelectedTenantId}/inject`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ final_system_prompt: prompt, bot_name: botName, tier: tier })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`🎉 ${data.message}`);
+                    loadBrainRequests();
+                    loadMasterTenants();
+                } else {
+                    alert(data.detail || "주입 실패");
+                }
+            } catch(e) { alert("서버 통신 오류"); }
+        }
+
+        async function handleRejectBrainRequest() {
+            if (!currentSelectedTenantId) return;
+            if (!confirm("해당 학원의 문진표 신청을 반려 처리하시겠습니까?")) return;
+            try {
+                const res = await fetch(`/api/master/brain-requests/${currentSelectedTenantId}/reject`, { method: "POST" });
+                if (res.ok) {
+                    alert("문진표가 반려되었습니다.");
+                    loadBrainRequests();
+                }
+            } catch(e) {}
+        }
+
         async function loadWhiteLabelStatus() {
             try {
                 const res = await fetch("/api/admin/system/white-label");
@@ -835,19 +1043,15 @@
                 if (!res.ok) return;
                 const list = await res.json();
                 if (list.length === 0) {
-                    container.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:20px;">등록된 백서 칼럼 지식이 없습니다.</div>';
+                    container.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:16px;">등록된 백서 칼럼 지식이 없습니다.</div>';
                     return;
                 }
                 container.innerHTML = list.map(item => `
-                    <div style="background:rgba(0,0,0,0.3); padding:12px; border-radius:8px; border-left:4px solid #f59e0b; display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
+                    <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; border-left:3px solid #f59e0b; display:flex; justify-content:space-between; align-items:center; gap:6px;">
                         <div style="flex:1;">
-                            <div style="display:flex; align-items:center; gap:6px;">
-                                <span style="background:rgba(245,158,11,0.2); color:#fbbf24; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:800;">${item.tag || '백서'}</span>
-                                <strong style="color:white; font-size:0.95rem;">${item.title}</strong>
-                            </div>
-                            <div style="font-size:0.8rem; color:#cbd5e1; margin-top:6px; line-height:1.4; max-height:80px; overflow-y:auto;">${item.content}</div>
+                            <strong style="color:white; font-size:0.85rem;">${item.title}</strong>
                         </div>
-                        <button onclick="deleteKnowledgeItem(${item.id})" class="btn btn-secondary" style="color:#ef4444; border-color:#ef4444; padding:4px 8px; font-size:0.75rem; flex-shrink:0;">삭제</button>
+                        <button onclick="deleteKnowledgeItem(${item.id})" class="btn btn-secondary" style="color:#ef4444; border-color:#ef4444; padding:3px 6px; font-size:0.7rem;">삭제</button>
                     </div>
                 `).join('');
             } catch(e) {}
@@ -1119,7 +1323,6 @@
                             <div style="font-size:0.84rem; color:#cbd5e1; margin-top:6px; line-height:1.5;">${fb.content}</div>
                         </div>
                         
-                        <!-- 4가지 상태 제어 버튼 바 -->
                         <div class="voc-status-group" id="voc-group-${fb.id}">
                             <button onclick="setFeedbackStatus(${fb.id}, '접수됨')" class="voc-btn ${isReceived ? 'active-received' : ''}">접수됨</button>
                             <button onclick="setFeedbackStatus(${fb.id}, '검토중')" class="voc-btn ${isReviewing ? 'active-reviewing' : ''}">검토중</button>
@@ -1138,12 +1341,8 @@
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ status: status })
                 });
-                if (res.ok) {
-                    loadMasterFeedbacks();
-                }
-            } catch(e) {
-                alert("상태 변경 통신 오류");
-            }
+                if (res.ok) loadMasterFeedbacks();
+            } catch(e) { alert("상태 변경 통신 오류"); }
         }
     </script>
 </body>
