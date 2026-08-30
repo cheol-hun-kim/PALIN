@@ -2204,6 +2204,60 @@ def export_b2b_marketing_report(db: Session = Depends(get_db)):
 # 🏫 [Phase 1] B2C/B2B 테넌트 라우팅, 학원 종합 ERP 및 원장 개인 스케줄러 API
 # ============================================================================
 
+
+# 🔑 학원 고유코드 관리 스토리지
+ACADEMY_CODES_FILE = os.path.join(os.path.dirname(__file__), "registered_academy_codes.json")
+
+def load_registered_academy_codes():
+    if os.path.exists(ACADEMY_CODES_FILE):
+        try:
+            with open(ACADEMY_CODES_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {"ILWON-2027": {"name": "일원학원", "subject": "수능 국어 · 대입 전략", "director": "김철훈 원장"}}
+
+def save_registered_academy_codes(codes_dict):
+    try:
+        with open(ACADEMY_CODES_FILE, "w", encoding="utf-8") as f:
+            json.dump(codes_dict, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print("save_registered_academy_codes error:", e)
+
+class AcademyCodePayload(BaseModel):
+    academy_code: str
+    academy_name: str
+    subject_desc: str = "수능 국어 · 대입 전략"
+
+@app.get("/api/admin/academy/codes")
+def get_academy_codes(db: Session = Depends(get_db)):
+    codes_dict = load_registered_academy_codes()
+    students = db.query(models.Student).all()
+    
+    # 학원코드별 연동 재원생 수 집계
+    stats = {}
+    for code, info in codes_dict.items():
+        count = sum(1 for s in students if (s.academy_code or "").upper() == code.upper())
+        stats[code] = {
+            "name": info.get("name", "학원"),
+            "subject": info.get("subject", "수능 국어"),
+            "director": info.get("director", "김철훈 원장"),
+            "enrolled_count": count
+        }
+    return {"academy_codes": stats, "primary_code": "ILWON-2027"}
+
+@app.post("/api/admin/academy/codes")
+def register_or_update_academy_code(payload: AcademyCodePayload):
+    codes = load_registered_academy_codes()
+    clean_code = payload.academy_code.strip().upper()
+    codes[clean_code] = {
+        "name": payload.academy_name.strip(),
+        "subject": payload.subject_desc.strip(),
+        "director": "김철훈 원장"
+    }
+    save_registered_academy_codes(codes)
+    return {"status": "success", "message": f"학원 고유코드 [{clean_code}]가 안전하게 저장되었습니다."}
+
 @app.post("/api/academy/link")
 def link_academy(payload: AcademyLinkPayload, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
