@@ -6028,3 +6028,178 @@ async function checkInAttendanceNow() {
         }
     } catch(e) { alert("출결 체크인 요청 중 오류가 발생했습니다."); }
 }
+
+
+// ============================================================================
+// 🧭 [Phase 1~5] 학생용 학원 허브 서브탭 (피드 / VOD / 시험 / 행정) 전환 및 OMR 엔진
+// ============================================================================
+
+let currentHubSubTab = "feed";
+
+function switchHubSubTab(subTab) {
+    currentHubSubTab = subTab;
+    document.querySelectorAll(".hub-subtab-view").forEach(el => el.style.display = "none");
+    document.querySelectorAll(".subtab-btn-hub").forEach(el => el.classList.remove("active"));
+    
+    const targetView = document.getElementById(`hub-view-${subTab}`);
+    const targetBtn = document.getElementById(`hub-tab-${subTab}`);
+    if (targetView) targetView.style.display = "block";
+    if (targetBtn) targetBtn.classList.add("active");
+    
+    if (subTab === "feed") loadAcademyHubView();
+    else if (subTab === "vod") loadStudentVods();
+    else if (subTab === "exam") loadStudentExamHistory();
+}
+
+async function loadStudentVods() {
+    if (!currentStudent || !currentStudent.id) return;
+    const container = document.getElementById("hub-vod-list-container");
+    if (!container) return;
+    
+    try {
+        const res = await fetch(`/api/vod/list/${currentStudent.id}`);
+        if (!res.ok) {
+            container.innerHTML = '<div style="color: var(--text-secondary); font-size: 0.8rem; text-align: center; padding: 12px;">배정된 복습 VOD가 없습니다.</div>';
+            return;
+        }
+        const vods = await res.json();
+        if (vods.length === 0) {
+            container.innerHTML = `
+                <div style="background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15); border-radius: 12px; padding: 20px; text-align: center;">
+                    <span class="material-symbols-rounded" style="font-size: 2rem; color: #818cf8; margin-bottom: 6px;">video_library</span>
+                    <div style="font-size: 0.88rem; font-weight: 700; color: #ffffff;">현재 배정된 복습 VOD가 없습니다.</div>
+                    <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 4px;">[행정/휴강신청] 탭에서 복습 VOD를 신청하시면 원장님 승인 후 7일간 시청 권한이 부여됩니다.</div>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = vods.map(v => {
+            const isExpired = v.is_expired;
+            return `
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid ${isExpired ? '#ef4444' : 'rgba(99,102,241,0.3)'}; border-radius: 12px; padding: 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div style="font-weight: 800; font-size: 0.9rem; color: #ffffff;">🎬 ${v.vod_title}</div>
+                        <span style="background: ${isExpired ? '#ef4444' : '#6366f1'}; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 800;">
+                            ${isExpired ? '🔒 기한 만료' : `⏳ 남은 시간: ${v.remaining_hours}시간`}
+                        </span>
+                    </div>
+                    
+                    ${!isExpired ? `
+                        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin-bottom: 10px; background: #000;">
+                            <iframe src="https://player.vimeo.com/video/${v.vimeo_video_id}" style="position: absolute; top:0; left: 0; width: 100%; height: 100%;" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    ` : `
+                        <div style="background: rgba(239,68,68,0.1); padding: 12px; border-radius: 8px; text-align: center; font-size: 0.78rem; color: #f87171; margin-bottom: 10px;">
+                            7일 시청 기한이 종료되었습니다. 시청 연장이 필요하신 경우 [행정 요청] 탭에서 연장을 신청하세요.
+                        </div>
+                    `}
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.76rem; color: var(--text-secondary);">
+                        <div>진도율: <strong style="color: #34d399;">${v.watch_progress_pct}%</strong> ${v.is_completed ? '✅ 수강 완료' : ''}</div>
+                        <div>과제 상태: <strong style="color: ${v.is_homework_verified ? '#10b981' : '#f59e0b'};">${v.is_homework_verified ? '검수 완료' : (v.is_homework_submitted ? '제출 완료 (검수중)' : '미제출')}</strong></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch(e) { console.error("loadStudentVods error:", e); }
+}
+
+async function loadStudentExamHistory() {
+    if (!currentStudent || !currentStudent.id) return;
+    const container = document.getElementById("hub-exam-history-list");
+    if (!container) return;
+    
+    try {
+        const res = await fetch(`/api/exam/scores/${currentStudent.id}`);
+        if (!res.ok) return;
+        const scores = await res.json();
+        if (scores.length === 0) {
+            container.innerHTML = '<div style="color: var(--text-secondary); font-size: 0.8rem; text-align: center; padding: 10px;">아직 제출된 시험 성적이 없습니다.</div>';
+            return;
+        }
+        
+        container.innerHTML = scores.map(s => {
+            const trendIcon = s.trend_direction === 'UP' ? '🔺 상승' : (s.trend_direction === 'DOWN' ? '🔻 하락' : '➖ 유지');
+            const trendColor = s.trend_direction === 'UP' ? '#10b981' : (s.trend_direction === 'DOWN' ? '#ef4444' : '#94a3b8');
+            return `
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 14px;">
+                    <div>
+                        <div style="font-weight: 800; font-size: 0.88rem; color: #ffffff;">[${s.subject}] ${s.exam_week}주차 모의고사</div>
+                        <div style="font-size: 0.74rem; color: var(--text-secondary); margin-top: 2px;">
+                            원점수: <strong style="color: #ffffff;">${s.score}점</strong> · 사전 기준: <strong style="color: #818cf8;">${s.calculated_grade}등급</strong>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: 800; font-size: 0.95rem; color: #34d399;">상위 ${s.percentile_rank}%</div>
+                        <div style="font-size: 0.72rem; font-weight: 700; color: ${trendColor};">${trendIcon}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch(e) { console.error("loadStudentExamHistory error:", e); }
+}
+
+async function handleUploadExamScore(e) {
+    e.preventDefault();
+    if (!currentStudent || !currentStudent.id) return;
+    
+    const weekVal = parseInt(document.getElementById("exam-week-select").value, 10);
+    const subjectVal = document.getElementById("exam-subject-select").value;
+    const scoreVal = parseFloat(document.getElementById("exam-score-raw").value);
+    
+    if (isNaN(scoreVal)) {
+        alert("원점수를 올바르게 입력해 주세요.");
+        return;
+    }
+    
+    try {
+        const res = await fetch("/api/exam/scores", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: currentStudent.id,
+                exam_week: weekVal,
+                subject: subjectVal,
+                score: scoreVal
+            })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            alert(`🎉 [성적 제출 완료] 기한 내 제출 보상 +50P가 지급되었습니다! 이어서 1:1 맞춤 문진표가 팝업됩니다.`);
+            document.getElementById("exam-score-raw").value = "";
+            loadStudentExamHistory();
+            
+            // 시험 직후 맞춤 문진표 팝업 격발
+            document.getElementById("diagnostic-survey-modal").style.display = "flex";
+        }
+    } catch(err) { alert("성적 제출 실패"); }
+}
+
+async function handleSendDiagnosticSurvey(e) {
+    e.preventDefault();
+    if (!currentStudent || !currentStudent.id) return;
+    
+    const selectedQ1 = document.querySelector('input[name="diag-q1"]:checked')?.value || "비문학 시간 부족";
+    
+    try {
+        const res = await fetch("/api/diagnostic/submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: currentStudent.id,
+                survey_id: 1,
+                answers: { "weak_point": selectedQ1 }
+            })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            alert(`🩺 [김철훈 원장 맞춤 처방전 발급 완료]
+
+처방 내용: ${data.prescription}
+
+(학부모님께 처방전 알림톡이 동시 발송되었습니다.)`);
+            document.getElementById("diagnostic-survey-modal").style.display = "none";
+        }
+    } catch(err) { alert("문진표 제출 실패"); }
+}
