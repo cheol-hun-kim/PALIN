@@ -2212,3 +2212,70 @@ body:not(.day-mode) .time-picker-icon, body:not(.day-mode) .clock-icon {
     align-items: center;
     flex-shrink: 0;
 }
+
+
+/* ☀️ 데이모드 & 다크모드 서브탭/버튼 깨끗한 화이트 카드 & 선명한 테두리 */
+[data-theme="light"] .tab-btn,
+[data-theme="light"] .subtab-btn,
+[data-theme="light"] .subtab-btn-hub-2x2 {
+    background: #ffffff !important;
+    border: 1.8px solid #cbd5e1 !important;
+    color: #1e293b !important;
+    font-weight: 800 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+    border-radius: 12px !important;
+    transition: all 0.2s ease !important;
+}
+
+[data-theme="light"] .tab-btn:hover,
+[data-theme="light"] .subtab-btn:hover,
+[data-theme="light"] .subtab-btn-hub-2x2:hover {
+    background: #f8fafc !important;
+    border-color: #94a3b8 !important;
+}
+
+[data-theme="light"] .tab-btn.active,
+[data-theme="light"] .subtab-btn.active,
+[data-theme="light"] .subtab-btn-hub-2x2.active {
+    background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+    color: #ffffff !important;
+    border-color: #4338ca !important;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3) !important;
+}
+
+[data-theme="light"] .tab-btn.active span,
+[data-theme="light"] .subtab-btn-hub-2x2.active span {
+    color: #ffffff !important;
+}
+
+/* 🌙 다크모드 서브탭/버튼 테두리 */
+[data-theme="dark"] .tab-btn,
+[data-theme="dark"] .subtab-btn,
+[data-theme="dark"] .subtab-btn-hub-2x2 {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    color: #e2e8f0;
+    border-radius: 12px;
+}
+
+[data-theme="dark"] .tab-btn.active,
+[data-theme="dark"] .subtab-btn.active,
+[data-theme="dark"] .subtab-btn-hub-2x2.active {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(79, 70, 229, 0.45));
+    border-color: #818cf8;
+    color: #ffffff;
+}
+
+/* 📚 기출문제 카드 완벽한 모바일 대응 */
+.exam-material-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--card-bg, #ffffff);
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border-color, #cbd5e1);
+    gap: 12px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
