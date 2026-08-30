@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PALIN OS - 원장 전용 중앙 관제 대시보드</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=130.0">
+    <link rel="stylesheet" href="css/style.css?v=160.0">
     <style>
         body {
             background-color: #06070a;
@@ -741,6 +741,37 @@
         </div>
     </div>
 
+    
+    <!-- ========================================================================= -->
+    <!-- 🎓 [Phase 1 & 5] 재원생 입시 완료 일괄 졸업 처리기 (선배 튜터 특권 부여) -->
+    <!-- ========================================================================= -->
+    <div class="kpi-card" style="margin-bottom: 24px; border: 1.5px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.04);">
+        <div class="section-title" style="color: #34d399; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="material-symbols-rounded">school</span>
+                <span>🎓 수능/입시 종료 재원생 일괄 졸업 처리기 (훈장 뱃지 & 선배 튜터 특권 부여)</span>
+            </div>
+            <span style="font-size: 0.72rem; background: #10b981; color: white; padding: 2px 8px; border-radius: 10px; font-weight: 800;">연간 학사 마감</span>
+        </div>
+        <div style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 12px; line-height: 1.4;">
+            입시가 끝난 학생들을 일괄 선택하여 <b>정규 졸업생으로 전환</b>합니다. 졸업생은 B2C 등급으로 안전하게 복귀하며, <b>[🏛️ 일원학원 직속 선배 튜터] 훈장 뱃지</b>를 부여받아 재원생들에게 우선 노출됩니다.
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: #ffffff; cursor: pointer;">
+                <input type="checkbox" id="graduate-all-checkbox" onchange="toggleSelectAllGraduates(this.checked)" style="width: 16px; height: 16px;">
+                <span>전체 학생 선택</span>
+            </label>
+            <button onclick="handleBatchGraduateSubmit()" class="btn" style="background: linear-gradient(135deg, #10b981, #059669); font-weight: 800; padding: 8px 18px; font-size: 0.82rem;">
+                🎓 선택 학생 일괄 졸업 확정
+            </button>
+        </div>
+
+        <div style="max-height: 240px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); padding: 8px;" id="graduate-students-container">
+            <!-- 동적 학생 체크박스 목록 -->
+        </div>
+    </div>
+
     <!-- 🛑 [Phase 4] 원장 수동 개입: 신의 손 레드카드(Red Card) 즉시 징계 -->
     <!-- ========================================================================= -->
     <div class="kpi-card" style="margin-bottom: 24px; border: 1.5px solid rgba(239, 68, 68, 0.45); background: rgba(239, 68, 68, 0.04);">
@@ -976,7 +1007,8 @@
                 const data = await res.json();
                 allStudentsCache = data.students || [];
                 
-                if (tbody) {
+                renderGraduateStudentList();
+        if (tbody) {
                     if (allStudentsCache.length === 0) {
                         tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #94a3b8;">등록된 재원생이 없습니다.</td></tr>';
                     } else {
@@ -1367,6 +1399,60 @@ ${url}
             } catch(e) { alert("코드 저장 통신 오류"); }
         }
 
+        
+        function toggleSelectAllGraduates(checked) {
+            document.querySelectorAll(".graduate-item-checkbox").forEach(cb => cb.checked = checked);
+        }
+
+        function renderGraduateStudentList() {
+            const container = document.getElementById("graduate-students-container");
+            if (!container || !allStudentsCache) return;
+            
+            if (allStudentsCache.length === 0) {
+                container.innerHTML = '<div style="color:#94a3b8; font-size:0.78rem; text-align:center; padding:10px;">재원생이 없습니다.</div>';
+                return;
+            }
+            
+            container.innerHTML = allStudentsCache.map(s => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; cursor: pointer; color: ${s.enrollment_status === 'GRADUATED' ? '#94a3b8' : '#ffffff'};">
+                        <input type="checkbox" class="graduate-item-checkbox" value="${s.id}" ${s.enrollment_status === 'GRADUATED' ? 'disabled' : ''} style="width: 15px; height: 15px;">
+                        <span><strong>${s.name}</strong> (${s.high_school || '고교'} / 고${s.grade || '3'})</span>
+                    </label>
+                    <span style="font-size: 0.72rem; padding: 2px 8px; border-radius: 4px; font-weight: 700; background: ${s.enrollment_status === 'GRADUATED' ? '#334155' : '#10b981'}; color: white;">
+                        ${s.enrollment_status === 'GRADUATED' ? '졸업 완료' : '재원 중'}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        async function handleBatchGraduateSubmit() {
+            const selectedBoxes = document.querySelectorAll(".graduate-item-checkbox:checked");
+            const studentIds = Array.from(selectedBoxes).map(cb => parseInt(cb.value, 10));
+            
+            if (studentIds.length === 0) {
+                alert("졸업 처리할 학생을 1명 이상 선택해 주세요.");
+                return;
+            }
+            
+            if (!confirm(`선택한 ${studentIds.length}명의 학생을 일괄 정규 졸업 처리하시겠습니까?\n(졸업 훈장 뱃지 부여 및 튜터 선배 자격이 활성화됩니다)`)) return;
+            
+            try {
+                const res = await fetch("/api/admin/students/batch-graduate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ student_ids: studentIds, academy_code: "ILWON-2027" })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`🎓 ${data.message}`);
+                    fetchDashboardData();
+                } else {
+                    alert(data.detail || "졸업 처리 실패");
+                }
+            } catch(e) { alert("졸업 처리 통신 오류"); }
+        }
+
         async function handleIssueRedCard(e) {
             if (e) e.preventDefault();
             const studentId = document.getElementById("redcard-student-select").value;
@@ -1555,7 +1641,8 @@ ${url}
                 // 5. 학생 테이블
                 try {
                     const tbody = document.getElementById("student-table-body");
-                    if (tbody) {
+                    renderGraduateStudentList();
+        if (tbody) {
                         tbody.innerHTML = "";
                         if (!data.students || data.students.length === 0) {
                             tbody.innerHTML = "<tr><td colspan='13' style='text-align: center; color: #94a3b8;'>등록된 재원생이 없습니다.</td></tr>";
