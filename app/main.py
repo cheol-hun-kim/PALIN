@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Form
+from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
@@ -2580,6 +2580,37 @@ def submit_diagnostic_survey(payload: DiagnosticSubmitPayload, db: Session = Dep
 # ⏱️ [Phase 3] Vimeo Player API 안티치트, 7일 락 및 숙제 독촉 API
 # ============================================================================
 
+
+class AssignVodPayload(BaseModel):
+    student_id: int
+    vod_title: str
+    vimeo_video_id: str
+
+@app.post("/api/admin/vod/assign")
+def assign_vod(payload: AssignVodPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+        
+    now = datetime.now()
+    expires_dt = now + timedelta(days=7)
+    
+    vod = models.VodAssignment(
+        student_id=student.id,
+        vod_title=payload.vod_title,
+        vimeo_video_id=payload.vimeo_video_id,
+        granted_at=now,
+        expires_at=expires_dt,
+        watch_progress_pct=0.0,
+        is_completed=False,
+        is_homework_submitted=False,
+        is_homework_verified=False
+    )
+    db.add(vod)
+    db.commit()
+    db.refresh(vod)
+    return {"status": "success", "vod": vod}
+
 @app.get("/api/vod/list/{student_id}")
 def get_student_vods(student_id: int, db: Session = Depends(get_db)):
     vods = db.query(models.VodAssignment).filter(models.VodAssignment.student_id == student_id).all()
@@ -2629,10 +2660,66 @@ def sync_vod_progress(payload: VodProgressPayload, db: Session = Depends(get_db)
 # 🚪 [Phase 4] Wi-Fi 3단계 출결 및 원장 직통 레드카드 API
 # ============================================================================
 
-ALLOWED_ACADEMY_IPS = ["127.0.0.1", "192.168.0.", "112.220.", "175.123."]
+
+# 📡 학원 Wi-Fi 출결 IP 관리 스토리지
+WIFI_SETTINGS_FILE = os.path.join(os.path.dirname(__file__), "academy_wifi_settings.json")
+
+def load_wifi_settings():
+    if os.path.exists(WIFI_SETTINGS_FILE):
+        try:
+            with open(WIFI_SETTINGS_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {"allowed_ips": ["127.0.0.1", "192.168.0."], "enforce_wifi": False, "academy_lat": 37.4947, "academy_lng": 127.0628}
+
+def save_wifi_settings(settings):
+    try:
+        with open(WIFI_SETTINGS_FILE, "w", encoding="utf-8") as f:
+            json.dump(settings, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print("save_wifi_settings error:", e)
+
+class WifiSettingsPayload(BaseModel):
+    allowed_ips: list[str]
+    enforce_wifi: bool = True
+    academy_lat: float = 37.4947
+    academy_lng: float = 127.0628
+
+@app.get("/api/admin/academy/wifi-settings")
+def get_wifi_settings(request: Request):
+    client_ip = request.headers.get("x-forwarded-for", "").split(",")[0].strip() or request.client.host
+    settings = load_wifi_settings()
+    return {"settings": settings, "current_director_ip": client_ip}
+
+@app.post("/api/admin/academy/wifi-settings")
+def update_wifi_settings(payload: WifiSettingsPayload):
+    save_wifi_settings({
+        "allowed_ips": [ip.strip() for ip in payload.allowed_ips if ip.strip()],
+        "enforce_wifi": payload.enforce_wifi,
+        "academy_lat": payload.academy_lat,
+        "academy_lng": payload.academy_lng
+    })
+    return {"status": "success", "message": "학원 Wi-Fi 출결 설정이 저장되었습니다."}
+
 
 @app.post("/api/academy/attendance/check-in")
-def check_in_attendance(payload: AttendanceCheckInPayload, db: Session = Depends(get_db)):
+def check_in_attendance(payload: AttendanceCheckInPayload, request: Request, db: Session = Depends(get_db)):
+    # 실시간 접속 클라이언트 공인 IP 추출
+    client_ip = request.headers.get("x-forwarded-for", "").split(",")[0].strip() or request.client.host
+    wifi_config = load_wifi_settings()
+    
+    # Wi-Fi 강제 검증 모드가 켜져 있는 경우 IP 대조
+    if wifi_config.get("enforce_wifi", False):
+        allowed_ips = wifi_config.get("allowed_ips", [])
+        is_ip_matched = any(client_ip.startswith(allowed_ip) or allowed_ip in client_ip for allowed_ip in allowed_ips)
+        
+        # 127.0.0.1 (로컬 테스트) 외에 학원 IP 불일치 시 차단
+        if not is_ip_matched and client_ip not in ["127.0.0.1", "::1", "localhost"]:
+            raise HTTPException(
+                status_code=403,
+                detail=f"❌ 학원 전용 Wi-Fi에 연결되어 있지 않습니다. 학원 공유기 Wi-Fi에 접속하신 후 다시 출석체크해 주세요. (현재 접속 IP: {client_ip})"
+            )
     student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
     if not student:
         raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
