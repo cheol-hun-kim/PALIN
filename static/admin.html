@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PALIN OS - 원장 전용 중앙 관제 대시보드</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=120.0">
+    <link rel="stylesheet" href="css/style.css?v=130.0">
     <style>
         body {
             background-color: #06070a;
@@ -919,6 +919,7 @@
                     titleInput.value = "";
                     dateInput.value = "";
                     loadAdminSchedules();
+                    loadAdminAcademyCodes();
                     loadAdminWifiSettings();
                 } else {
                     const err = await res.json();
@@ -938,6 +939,7 @@
                     body: JSON.stringify({ is_completed: isCompleted })
                 });
                 loadAdminSchedules();
+                    loadAdminAcademyCodes();
                     loadAdminWifiSettings();
             } catch(e) { console.error(e); }
         }
@@ -947,6 +949,7 @@
             try {
                 await fetch(`/api/admin/schedules/${id}`, { method: "DELETE" });
                 loadAdminSchedules();
+                    loadAdminAcademyCodes();
                     loadAdminWifiSettings();
             } catch(e) { console.error(e); }
         }
@@ -957,6 +960,7 @@
                 const data = await res.json();
                 alert(`리마인더 점검 완료: ${data.reminders_sent}건의 알림이 감지되었습니다.`);
                 loadAdminSchedules();
+                    loadAdminAcademyCodes();
                     loadAdminWifiSettings();
             } catch(e) { alert("리마인더 점검 실패"); }
         }
@@ -1281,6 +1285,88 @@
             } catch(e) { alert("설정 저장 통신 오류"); }
         }
 
+        
+        async function loadAdminAcademyCodes() {
+            const container = document.getElementById("admin-academy-codes-list");
+            if (!container) return;
+            try {
+                const res = await fetch("/api/admin/academy/codes");
+                if (!res.ok) return;
+                const data = await res.json();
+                const codes = data.academy_codes || {};
+                
+                if (Object.keys(codes).length === 0) {
+                    container.innerHTML = '<div style="color:#94a3b8; font-size:0.8rem; text-align:center; padding:10px;">등록된 학원 코드가 없습니다.</div>';
+                    return;
+                }
+                
+                const currentOrigin = window.location.origin;
+                container.innerHTML = Object.entries(codes).map(([code, info]) => {
+                    const inviteUrl = `${currentOrigin}/?academy=${code}`;
+                    return `
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 12px 14px; border-radius: 10px; border-left: 4px solid #a855f7;">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-family: monospace; font-size: 1.05rem; font-weight: 900; color: #ffffff; background: rgba(168,85,247,0.2); padding: 2px 10px; border-radius: 6px; letter-spacing: 1px;">${code}</span>
+                                    <span style="font-weight: 800; font-size: 0.95rem; color: #e2e8f0;">${info.name}</span>
+                                    <span style="font-size: 0.72rem; color: #a78bfa;">(${info.subject})</span>
+                                </div>
+                                <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 4px;">
+                                    👥 연동된 재원생: <strong style="color: #34d399;">${info.enrolled_count}명</strong> | 책임 지도: ${info.director}
+                                </div>
+                            </div>
+                            <button onclick="copyAcademyInviteLink('${inviteUrl}')" class="btn" style="padding: 7px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); white-space: nowrap;">
+                                📋 카톡 초대 링크 복사
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            } catch(e) { console.error("loadAdminAcademyCodes error:", e); }
+        }
+
+        function copyAcademyInviteLink(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                alert(`📋 [학생용 초대 링크 복사 완료]
+
+${url}
+
+이 링크를 카카오톡이나 문자로 학생에게 전달하시면, 접속 시 학원 코드가 자동 입력되어 원클릭으로 연동됩니다!`);
+            }).catch(() => {
+                prompt("초대 링크를 복사하세요:", url);
+            });
+        }
+
+        async function handleSaveAcademyCode(e) {
+            if (e) e.preventDefault();
+            const codeInput = document.getElementById("new-academy-code");
+            const nameInput = document.getElementById("new-academy-name");
+            const subjInput = document.getElementById("new-academy-subject");
+            
+            if (!codeInput || !nameInput) return;
+            const code = codeInput.value.trim().toUpperCase();
+            const name = nameInput.value.trim();
+            const subj = subjInput ? subjInput.value.trim() : "수능 국어 · 대입 전략";
+            
+            if (!code || !name) {
+                alert("코드와 학원명을 모두 입력해 주세요.");
+                return;
+            }
+            
+            try {
+                const res = await fetch("/api/admin/academy/codes", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ academy_code: code, academy_name: name, subject_desc: subj })
+                });
+                if (res.ok) {
+                    alert(`✅ 학원 고유코드 [${code}]가 안전하게 저장되었습니다!`);
+                    loadAdminAcademyCodes();
+                } else {
+                    alert("코드 저장 실패");
+                }
+            } catch(e) { alert("코드 저장 통신 오류"); }
+        }
+
         async function handleIssueRedCard(e) {
             if (e) e.preventDefault();
             const studentId = document.getElementById("redcard-student-select").value;
@@ -1394,6 +1480,7 @@
                     
                     // 🚀 [Phase 1~5] 원장 스케줄러, ERP, 칸반, 학사피드 로드
                     loadAdminSchedules();
+                    loadAdminAcademyCodes();
                     loadAdminWifiSettings();
                     loadFinancialERP();
                     loadAdminRequests();
