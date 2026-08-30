@@ -6273,7 +6273,7 @@ function getEnrolledFacilities() {
         if (saved) return JSON.parse(saved);
     } catch(e) {}
     return [
-        { code: "ILWON-2027", name: "일원학원", desc: "수능 국어 사관학교", type: "단과학원" }
+        { code: "ILWON-2027", name: "일원학원", desc: "수능국어", type: "단과학원" }
     ];
 }
 
