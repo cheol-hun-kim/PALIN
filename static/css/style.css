@@ -2046,3 +2046,50 @@ body.day-mode .time-picker-icon, body.day-mode .clock-icon {
 body:not(.day-mode) .time-picker-icon, body:not(.day-mode) .clock-icon {
     color: #cbd5e1 !important;
 }
+
+
+/* 🏫 학원관리 2x2 서브탭 라이트/다크모드 완벽 대응 스타일 */
+.subtab-btn-hub-2x2 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 10px;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-weight: 800;
+    border: 1.5px solid var(--border-color, rgba(255, 255, 255, 0.12));
+    background: var(--card-bg, rgba(255, 255, 255, 0.04));
+    color: var(--text-primary, #ffffff);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="light"] .subtab-btn-hub-2x2 {
+    border: 1.5px solid #cbd5e1;
+    background: #f8fafc;
+    color: #0f172a;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .subtab-btn-hub-2x2:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+.subtab-btn-hub-2x2.active {
+    border-color: #6366f1 !important;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25) !important;
+}
+
+[data-theme="dark"] .subtab-btn-hub-2x2.active {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(79, 70, 229, 0.35)) !important;
+    color: #ffffff !important;
+}
+
+[data-theme="light"] .subtab-btn-hub-2x2.active {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(79, 70, 229, 0.2)) !important;
+    color: #4338ca !important;
+    border-color: #4f46e5 !important;
+}
