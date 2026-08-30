@@ -5776,12 +5776,15 @@ async function deleteMyAccount() {
 
 function updateAcademyGNBVisibility() {
     const navTab = document.getElementById("nav-tab-academy");
-    if (!navTab) return;
+    const unlinkedCard = document.getElementById("hub-unlinked-card");
+    const linkedContent = document.getElementById("hub-linked-content");
+    
+    if (navTab) navTab.style.display = "flex";
     
     if (currentStudent && currentStudent.academy_code) {
-        navTab.style.display = "flex";
+        if (unlinkedCard) unlinkedCard.style.display = "none";
+        if (linkedContent) linkedContent.style.display = "block";
         
-        // 학원명 및 재원 상태 뱃지 업데이트
         const hubName = document.getElementById("hub-academy-name");
         const badge = document.getElementById("hub-enrollment-badge");
         const leaveNotice = document.getElementById("hub-leave-notice-card");
@@ -5812,7 +5815,44 @@ function updateAcademyGNBVisibility() {
             }
         }
     } else {
-        navTab.style.display = "none";
+        if (unlinkedCard) unlinkedCard.style.display = "block";
+        if (linkedContent) linkedContent.style.display = "none";
+    }
+}
+
+async function handleLinkAcademyCodeDirect() {
+    const input = document.getElementById("hub-input-academy-code");
+    if (!input) return;
+    const code = input.value.trim().toUpperCase();
+    if (!code) {
+        alert("학원 코드를 입력해 주세요 (예: ILWON-2027)");
+        return;
+    }
+    if (!currentStudent || !currentStudent.id) {
+        alert("학생 로그인 정보가 없습니다.");
+        return;
+    }
+    try {
+        const res = await fetch("/api/academy/link", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: currentStudent.id, academy_code: code })
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            alert(err.detail || "학원 연동 실패");
+            return;
+        }
+        const data = await res.json();
+        alert(`🎉 [학원 연동 성공]
+
+${data.message}
+학원 허브의 모든 수강 기능이 활성화되었습니다!`);
+        syncStudentState(data.student);
+        updateAcademyGNBVisibility();
+        loadAcademyHubView();
+    } catch(e) {
+        alert("학원 연동 요청 중 오류가 발생했습니다.");
     }
 }
 
