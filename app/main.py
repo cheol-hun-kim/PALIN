@@ -118,7 +118,16 @@ def init_db_schema():
                             conn.execute(text("ALTER TABLE qa_comments ADD COLUMN is_anonymous BOOLEAN DEFAULT 0"))
                     conn.commit()
                 else:
-                    # PostgreSQL (Supabase / Render) 자동 마이그레이션 실행
+                                        # PostgreSQL (Supabase / Render) 자동 마이그레이션 실행
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS previous_b2c_tier VARCHAR DEFAULT 'B2C_FREE'"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS academy_code VARCHAR"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS ai_level VARCHAR DEFAULT 'B2C_FREE'"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS tuition_paid BOOLEAN DEFAULT FALSE"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS textbook_paid BOOLEAN DEFAULT FALSE"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS textbooks_distributed TEXT DEFAULT ''"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS enrollment_status VARCHAR DEFAULT 'ENROLLED'"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS leave_reason VARCHAR"))
+
                     conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS sido VARCHAR DEFAULT '경기도'"))
                     conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS sigungu VARCHAR DEFAULT '성남시 분당구'"))
                     conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS high_school_type VARCHAR DEFAULT '일반고'"))
@@ -394,7 +403,15 @@ def login_student(payload: LoginPayload, db: Session = Depends(get_db)):
             "dday_title": student.dday_title or "2027 수능",
             "streak_days": student.streak_days or 0,
             "max_streak_days": student.max_streak_days or 0,
-            "medical_symbol": student.medical_symbol or "GENERAL"
+            "medical_symbol": getattr(student, 'medical_symbol', 'GENERAL') or "GENERAL",
+            "previous_b2c_tier": getattr(student, 'previous_b2c_tier', 'B2C_FREE') or "B2C_FREE",
+            "academy_code": getattr(student, 'academy_code', None),
+            "ai_level": getattr(student, 'ai_level', 'B2C_FREE') or "B2C_FREE",
+            "tuition_paid": bool(getattr(student, 'tuition_paid', False)),
+            "textbook_paid": bool(getattr(student, 'textbook_paid', False)),
+            "textbooks_distributed": getattr(student, 'textbooks_distributed', '') or "",
+            "enrollment_status": getattr(student, 'enrollment_status', 'ENROLLED') or "ENROLLED",
+            "leave_reason": getattr(student, 'leave_reason', None)
         }
     except HTTPException:
         raise
@@ -438,8 +455,16 @@ def get_student(student_id: int, db: Session = Depends(get_db)):
         "dday_title": student.dday_title or "2027 수능",
         "streak_days": student.streak_days or 0,
         "max_streak_days": student.max_streak_days or 0,
-        "medical_symbol": student.medical_symbol or "GENERAL"
-    }
+        "medical_symbol": getattr(student, 'medical_symbol', 'GENERAL') or "GENERAL",
+            "previous_b2c_tier": getattr(student, 'previous_b2c_tier', 'B2C_FREE') or "B2C_FREE",
+            "academy_code": getattr(student, 'academy_code', None),
+            "ai_level": getattr(student, 'ai_level', 'B2C_FREE') or "B2C_FREE",
+            "tuition_paid": bool(getattr(student, 'tuition_paid', False)),
+            "textbook_paid": bool(getattr(student, 'textbook_paid', False)),
+            "textbooks_distributed": getattr(student, 'textbooks_distributed', '') or "",
+            "enrollment_status": getattr(student, 'enrollment_status', 'ENROLLED') or "ENROLLED",
+            "leave_reason": getattr(student, 'leave_reason', None)
+        }
 
 @app.get("/api/student/{student_id}/parent", response_model=schemas.ParentResponse)
 def get_student_parent(student_id: int, db: Session = Depends(get_db)):
