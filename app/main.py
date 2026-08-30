@@ -1300,7 +1300,12 @@ def get_admin_dashboard(db: Session = Depends(get_db)):
             "diligence_score": s.diligence_score or 0,
             "golden_tickets_count": getattr(s, "golden_tickets_count", len(s.golden_tickets) if hasattr(s, "golden_tickets") and s.golden_tickets else 0),
             "is_banned": getattr(s, "is_banned", False),
-            "ban_reason": getattr(s, "ban_reason", "") or ""
+            "ban_reason": getattr(s, "ban_reason", "") or "",
+            "tuition_paid": bool(getattr(s, "tuition_paid", False)),
+            "textbook_paid": bool(getattr(s, "textbook_paid", False)),
+            "textbooks_distributed": getattr(s, "textbooks_distributed", "") or "",
+            "enrollment_status": getattr(s, "enrollment_status", "ENROLLED") or "ENROLLED",
+            "leave_reason": getattr(s, "leave_reason", None)
         })
 
     feedback_list = []
