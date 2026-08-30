@@ -5771,7 +5771,7 @@ async function deleteMyAccount() {
 
 
 // ============================================================================
-// 🏫 [Phase 1~5] 학생용 학원 허브(Academy Hub) & 출결 & 행정 요청 JS 엔진
+// 🏫 [Phase 1~5] 학생용 학원 관리(Academy Hub) & 출결 & 행정 요청 JS 엔진
 // ============================================================================
 
 function updateAcademyGNBVisibility() {
@@ -5847,7 +5847,7 @@ async function handleLinkAcademyCodeDirect() {
         alert(`🎉 [학원 연동 성공]
 
 ${data.message}
-학원 허브의 모든 수강 기능이 활성화되었습니다!`);
+학원 관리의 모든 수강 기능이 활성화되었습니다!`);
         syncStudentState(data.student);
         updateAcademyGNBVisibility();
         loadAcademyHubView();
@@ -6071,7 +6071,7 @@ async function checkInAttendanceNow() {
 
 
 // ============================================================================
-// 🧭 [Phase 1~5] 학생용 학원 허브 서브탭 (피드 / VOD / 시험 / 행정) 전환 및 OMR 엔진
+// 🧭 [Phase 1~5] 학생용 학원 관리 서브탭 (피드 / VOD / 시험 / 행정) 전환 및 OMR 엔진
 // ============================================================================
 
 let currentHubSubTab = "feed";
