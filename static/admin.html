@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PALIN OS - 원장 전용 중앙 관제 대시보드</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=110.0">
+    <link rel="stylesheet" href="css/style.css?v=111.0">
     <style>
         body {
             background-color: #06070a;
@@ -833,6 +833,12 @@
                     loadAdminSMSSettings();
                     loadAdminKnowledge();
                     loadAdminFeedbacks("전체");
+                    
+                    // 🚀 [Phase 1~5] 원장 스케줄러, ERP, 칸반, 학사피드 로드
+                    loadAdminSchedules();
+                    loadFinancialERP();
+                    loadAdminRequests();
+                    loadCurriculumFeeds();
                 } catch (e) { console.warn("KPI error:", e); }
 
                 // 3. 🎓 과외선생님 승인 대기 수신함
