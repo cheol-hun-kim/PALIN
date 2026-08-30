@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PALIN OS - 원장 전용 중앙 관제 대시보드</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=90.0">
+    <link rel="stylesheet" href="css/style.css?v=110.0">
     <style>
         body {
             background-color: #06070a;
@@ -516,6 +516,154 @@
                 <tr><td colspan="7" style="text-align: center; color: #94a3b8;">리포트 발급 내역 로딩 중...</td></tr>
             </tbody>
         </table>
+    </div>
+
+    
+    <!-- ========================================================================= -->
+    <!-- 📅 [Phase 1] 원장 전용 개인 일정 관리 & To-Do 리마인더 (Admin Scheduler) -->
+    <!-- ========================================================================= -->
+    <div class="kpi-card" style="margin-bottom: 24px; border: 1.5px solid rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.04);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <div class="section-title" style="color: #818cf8; margin: 0;">
+                <span class="material-symbols-rounded">calendar_month</span>
+                📅 원장 전용 개인 비서 스케줄러 (D-1 / D-2h 자동 카톡/푸시 리마인더 연동)
+            </div>
+            <button onclick="checkAdminRemindersNow()" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.76rem;">🔔 리마인더 즉시 점검</button>
+        </div>
+        <div style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 12px;">
+            교재 주문 마감, 학부모 입시설명회, 세무 신고 등 원장님의 중요 일정을 등록해 두시면 지정된 기한(1일 전, 2시간 전)에 자동으로 리마인드 알림을 격발합니다.
+        </div>
+
+        <form onsubmit="handleCreateSchedule(event)" style="display: grid; grid-template-columns: 140px 1.5fr 1fr auto; gap: 8px; margin-bottom: 14px;">
+            <select id="sch-category" class="form-input" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px; border-radius: 8px; font-weight: 700;">
+                <option value="OPERATION" style="background:#1e293b;">📦 교재/운영</option>
+                <option value="EVENT" style="background:#1e293b;">🎤 설명회/상담</option>
+                <option value="TAX" style="background:#1e293b;">💰 세무/재무</option>
+                <option value="ACADEMY" style="background:#1e293b;">🏫 학사/개강</option>
+            </select>
+            <input type="text" id="sch-title" placeholder="일정 제목 (예: 2027 수능특강 교재 2차 주문 마감)" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px 12px; border-radius: 8px;">
+            <input type="datetime-local" id="sch-date" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px 10px; border-radius: 8px; color-scheme: dark;">
+            <button type="submit" class="btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 700; padding: 9px 18px; border-radius: 8px; white-space: nowrap;">일정 등록</button>
+        </form>
+
+        <div id="admin-schedules-list" style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="color: #94a3b8; font-size: 0.82rem; text-align: center; padding: 12px;">스케줄 로딩 중...</div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 💰 [Phase 1] 원장 전용 학생 재무/교재 수납 ERP (Financial & Textbook ERP) -->
+    <!-- ========================================================================= -->
+    <div class="kpi-card" style="margin-bottom: 24px; border: 1.5px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.04);">
+        <div class="section-title" style="color: #34d399;">
+            <span class="material-symbols-rounded">payments</span>
+            💰 재원생 재무/교재 수납 ERP (화요일 AI 종합 레포트 미납 독촉 연동)
+        </div>
+        <div style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 12px;">
+            원장님이 수업료/교재비 납부 상태를 체크하고 지급 교재를 기입합니다. <b>미납 체크 시 화요일 22시 학부모 카톡 레포트 말미에 단호한 납부 촉구 문구가 자동 생성</b>됩니다.
+        </div>
+        <div style="overflow-x: auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>학생 ID</th>
+                        <th>학생명</th>
+                        <th>학교 / 학년</th>
+                        <th>수업료 납부</th>
+                        <th>교재비 납부</th>
+                        <th>현재 지급된 교재 목록</th>
+                        <th>수납 설정 저장</th>
+                    </tr>
+                </thead>
+                <tbody id="erp-financial-table-body">
+                    <tr><td colspan="7" style="text-align: center; color: #94a3b8;">학생 수납 현황 로딩 중...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 📋 [Phase 1] 세밀한 행정 요청 라우팅 및 칸반 보드 (Administrative Requests Kanban) -->
+    <!-- ========================================================================= -->
+    <div class="kpi-card" style="margin-bottom: 24px; border: 1.5px solid rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.03);">
+        <div class="section-title" style="color: #fbbf24;">
+            <span class="material-symbols-rounded">view_kanban</span>
+            📋 학생 행정 요청 칸반 보드 (복습 VOD / 결석·보강 / 반 변경 / 휴강·복귀 ➔ 학부모 알림톡 실시간 전송)
+        </div>
+        <div style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 14px;">
+            학생이 앱에서 신청한 행정 요청을 원장님이 승인/반려합니다. 승인 즉시 학부모 알리고(Aligo) 알림톡으로 처리 결과가 실시간 전송됩니다.
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;" id="admin-kanban-board">
+            <!-- 1. 대기 중 -->
+            <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px; border: 1px solid rgba(245, 158, 11, 0.3);">
+                <div style="font-weight: 800; font-size: 0.88rem; color: #fbbf24; margin-bottom: 10px; display: flex; justify-content: space-between;">
+                    <span>⏳ 결재 대기 (<span id="kanban-pending-count">0</span>)</span>
+                </div>
+                <div id="kanban-pending-list" style="display: flex; flex-direction: column; gap: 8px; min-height: 120px;"></div>
+            </div>
+
+            <!-- 2. 승인 완료 -->
+            <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                <div style="font-weight: 800; font-size: 0.88rem; color: #34d399; margin-bottom: 10px; display: flex; justify-content: space-between;">
+                    <span>✅ 승인 완료 (<span id="kanban-approved-count">0</span>)</span>
+                </div>
+                <div id="kanban-approved-list" style="display: flex; flex-direction: column; gap: 8px; min-height: 120px;"></div>
+            </div>
+
+            <!-- 3. 반려 -->
+            <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                <div style="font-weight: 800; font-size: 0.88rem; color: #f87171; margin-bottom: 10px; display: flex; justify-content: space-between;">
+                    <span>❌ 반려 (<span id="kanban-rejected-count">0</span>)</span>
+                </div>
+                <div id="kanban-rejected-list" style="display: flex; flex-direction: column; gap: 8px; min-height: 120px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 🏫 [Phase 1] 디테일 학사 피드 & 특별 공지사항 관리자 (Curriculum Feeds) -->
+    <!-- ========================================================================= -->
+    <div class="kpi-card" style="margin-bottom: 24px; border: 1.5px solid rgba(167, 139, 250, 0.4); background: rgba(167, 139, 250, 0.04);">
+        <div class="section-title" style="color: #c084fc;">
+            <span class="material-symbols-rounded">feed</span>
+            🏫 커리큘럼 학사 피드 & 특별 공지사항 등록기 (학생 [학원 허브] 실시간 렌더링)
+        </div>
+        <form onsubmit="handleCreateFeed(event)" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
+            <div style="display: grid; grid-template-columns: 140px 100px 140px 1fr auto; gap: 8px;">
+                <input type="text" id="feed-curr-name" placeholder="커리큘럼명 (예: 2027 킬러 정복반)" value="2027 수능 국어 킬러 정복반" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px 12px; border-radius: 8px;">
+                <input type="number" id="feed-week" placeholder="주차 (예: 3)" value="3" min="1" max="52" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px; border-radius: 8px; text-align: center;">
+                <input type="date" id="feed-date" value="2026-08-30" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px 10px; border-radius: 8px; color-scheme: dark;">
+                <input type="text" id="feed-content" placeholder="강의 내용 및 공지 (예: 수능완성 실전모의고사 1회 비문학 고난도 구조독해)" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px 12px; border-radius: 8px;">
+                <div style="display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.2); padding: 0 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15);">
+                    <input type="checkbox" id="feed-special-notice" style="width: 16px; height: 16px;">
+                    <label for="feed-special-notice" style="font-size: 0.74rem; color: #f87171; font-weight: 800; cursor: pointer; white-space: nowrap;">🚨 특별공지 고정</label>
+                </div>
+            </div>
+            <button type="submit" class="btn" style="align-self: flex-end; background: linear-gradient(135deg, #a855f7, #7e22ce); font-weight: 700; padding: 9px 24px; border-radius: 8px;">피드 등록</button>
+        </form>
+        <div id="admin-feeds-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 🛑 [Phase 4] 원장 수동 개입: 신의 손 레드카드(Red Card) 즉시 징계 -->
+    <!-- ========================================================================= -->
+    <div class="kpi-card" style="margin-bottom: 24px; border: 1.5px solid rgba(239, 68, 68, 0.45); background: rgba(239, 68, 68, 0.04);">
+        <div class="section-title" style="color: #f87171;">
+            <span class="material-symbols-rounded">local_police</span>
+            🛑 신의 손: 원장 직통 긴급 징계 레드카드(Red Card) 발부기 (학부모 실시간 SMS 전송)
+        </div>
+        <form onsubmit="handleIssueRedCard(event)" style="display: grid; grid-template-columns: 180px 130px 1.5fr auto; gap: 8px;">
+            <select id="redcard-student-select" class="form-input" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px; border-radius: 8px; font-weight: 700;" required></select>
+            <select id="redcard-amount" class="form-input" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px; border-radius: 8px; font-weight: 700;">
+                <option value="3000">3,000원 벌금</option>
+                <option value="5000" selected>5,000원 벌금</option>
+                <option value="10000">10,000원 벌금</option>
+                <option value="20000">20,000원 벌금</option>
+            </select>
+            <input type="text" id="redcard-reason" placeholder="구체적 징계 사유 (예: 자습 시간 중 태블릿으로 게임/유튜브 시청 2회 적발)" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px 12px; border-radius: 8px;">
+            <button type="submit" class="btn" style="background: linear-gradient(135deg, #ef4444, #b91c1c); font-weight: 800; padding: 9px 20px; border-radius: 8px; white-space: nowrap;">🚨 레드카드 발부</button>
+        </form>
     </div>
 
     <!-- 재원생 리스트 및 성실도 리그전 현황 -->
