@@ -13,7 +13,7 @@
         if ('caches' in window) {
             caches.keys().then(names => {
                 for (let name of names) {
-                    if (name !== 'palin-os-v120') {
+                    if (name !== 'palin-os-v125') {
                         caches.delete(name);
                     }
                 }
@@ -104,6 +104,33 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
     color: #ffffff;
     border-color: #818cf8;
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+</style>
+<style>
+/* 🏫 학원 관리 2x2 서브탭 스타일 */
+.subtab-btn-hub-2x2 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 10px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.subtab-btn-hub-2x2:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+.subtab-btn-hub-2x2.active {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(79, 70, 229, 0.45));
+    color: #ffffff;
+    border-color: #818cf8;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
 }
 </style>
 </head>
@@ -1278,7 +1305,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     </div>
                     <div style="font-size: 1.15rem; font-weight: 800; color: #ffffff; margin-bottom: 6px;">소속 학원(B2B) 연동</div>
                     <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 18px; max-width: 340px; margin-left: auto; margin-right: auto;">
-                        일원학원 등 소속 학원에서 발급받은 <b>학원 고유코드(예: ILWON-2027)</b>를 입력하시면 주차별 학사 피드, 복습 VOD(7일 락), OMR 자동채점 및 출결 관리가 즉시 활성화됩니다.
+                        일원학원 등 소속 학원에서 발급받은 <b>학원 고유코드(예: ILWON-2027)</b>를 입력하시면 주차별 학사 일정, 복습 VOD(7일 락), OMR 자동채점 및 출결 관리가 즉시 활성화됩니다.
                     </div>
                     <div style="display: flex; gap: 8px; max-width: 340px; margin: 0 auto;">
                         <input type="text" id="hub-input-academy-code" class="form-input" placeholder="학원 코드 (예: ILWON-2027)" value="ILWON-2027" style="flex: 1; text-align: center; text-transform: uppercase; font-weight: 800; font-size: 0.92rem; letter-spacing: 1px;">
@@ -1298,7 +1325,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                     <span id="hub-enrollment-badge" style="background: #10b981; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 800;">재원생</span>
                                 </div>
                                 <div style="font-size: 0.74rem; color: var(--text-secondary); margin-top: 2px;">
-                                    수능 국어/수학 대입 전략 사관학교 · 김철훈 원장 직통 관제
+                                    수능 국어 · 대입 전략 사관학교 · 김철훈 원장 직통 관제
                                 </div>
                             </div>
                             <button onclick="checkInAttendanceNow()" class="btn" style="padding: 8px 14px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); border-radius: 10px; display: flex; align-items: center; gap: 4px;">
@@ -1319,24 +1346,28 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </div>
                     </div>
 
-                    <!-- 🧭 학원 허브 전용 4대 서브탭 네비게이션 -->
-                    <div class="subtabs-container" style="display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 2px;">
-                        <button class="subtab-btn-hub active" onclick="switchHubSubTab('feed')" id="hub-tab-feed">
-                            📢 학사피드 & 공지
+                    <!-- 🧭 학원 관리 4대 서브탭 (위 2개 / 아래 2개 균형 그리드) -->
+                    <div class="subtabs-container-2x2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;">
+                        <button class="subtab-btn-hub-2x2 active" onclick="switchHubSubTab('feed')" id="hub-tab-feed">
+                            <span class="material-symbols-rounded" style="font-size: 1.15rem; color: #a78bfa;">calendar_month</span>
+                            <span>📢 학사일정</span>
                         </button>
-                        <button class="subtab-btn-hub" onclick="switchHubSubTab('vod')" id="hub-tab-vod">
-                            🎬 복습VOD & 과제
+                        <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('vod')" id="hub-tab-vod">
+                            <span class="material-symbols-rounded" style="font-size: 1.15rem; color: #818cf8;">play_circle</span>
+                            <span>🎬 복습 VOD</span>
                         </button>
-                        <button class="subtab-btn-hub" onclick="switchHubSubTab('exam')" id="hub-tab-exam">
-                            📝 시험 & OMR
+                        <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('exam')" id="hub-tab-exam">
+                            <span class="material-symbols-rounded" style="font-size: 1.15rem; color: #34d399;">document_scanner</span>
+                            <span>📝 시험 · OMR</span>
                         </button>
-                        <button class="subtab-btn-hub" onclick="switchHubSubTab('request')" id="hub-tab-request">
-                            📋 행정/휴강신청
+                        <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('request')" id="hub-tab-request">
+                            <span class="material-symbols-rounded" style="font-size: 1.15rem; color: #fbbf24;">support_agent</span>
+                            <span>📋 행정 신청</span>
                         </button>
                     </div>
 
                     <div id="hub-main-content-area">
-                        <!-- 서브탭 1: 📢 주차별 학사 피드 & 특별 공지사항 -->
+                        <!-- 서브탭 1: 📢 주차별 학사 일정 & 특별 공지사항 -->
                         <div id="hub-view-feed" class="hub-subtab-view">
                             <div class="card" style="margin-bottom: 14px;">
                                 <div class="section-header" style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
@@ -2190,7 +2221,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app_v91.js?v=120.0"></script>
+    <script src="js/app_v91.js?v=125.0"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소
