@@ -23,6 +23,11 @@
             margin: 0;
             padding: 0;
         }
+        body.shadow-god-mode {
+            box-shadow: inset 0 0 35px rgba(239, 68, 68, 0.5);
+            border: 3px solid #ef4444;
+            min-height: 100vh;
+        }
         .admin-container {
             max-width: 1320px;
             margin: 0 auto;
@@ -158,9 +163,83 @@
             font-family: inherit;
             box-sizing: border-box;
         }
+
+        /* 갓 모드 배너 */
+        #god-mode-banner {
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 900;
+            font-size: 0.92rem;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.5);
+            z-index: 1000;
+        }
+
+        /* 플로팅 본사 지원 요청 버튼 */
+        .floating-b2b-support-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000;
+            font-weight: 900;
+            padding: 12px 20px;
+            border-radius: 30px;
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+            border: 1.5px solid #fbbf24;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.88rem;
+            z-index: 900;
+            transition: all 0.2s ease;
+        }
+        .floating-b2b-support-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.7);
+        }
+
+        /* Modal popup */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 16px;
+        }
+        .modal-content {
+            background: #0f111a;
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 580px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.9);
+        }
     </style>
 </head>
 <body>
+    <!-- 🚨 갓 모드 섀도잉 경고 배너 (원격 접속 시 노출) -->
+    <div id="god-mode-banner" style="display: none;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="material-symbols-rounded" style="font-size: 1.3rem;">shield_person</span>
+            <span>🚨 [GOD MODE: <span id="god-mode-target-name">원장</span> 관제실 원격 섀도잉 접속 중 - Super Admin 권한 통제 모드]</span>
+        </div>
+        <button onclick="exitGodMode()" class="btn" style="background: white; color: #dc2626; font-weight: 900; padding: 6px 14px; font-size: 0.8rem;">
+            👑 마스터 콘솔로 복귀
+        </button>
+    </div>
+
     <div class="admin-container">
         <!-- 1. 보안 인증 로그인 화면 -->
         <div id="admin-login-screen" style="display: flex; justify-content: center; align-items: center; min-height: 80vh;">
@@ -183,7 +262,7 @@
         <div id="admin-dashboard-screen" style="display: none;">
             <div class="admin-header">
                 <div>
-                    <div class="admin-title">PALIN<span style="color: #6366f1;">OS</span> 일원학원 원장 관제실</div>
+                    <div class="admin-title">PALIN<span style="color: #6366f1;">OS</span> <span id="cockpit-academy-title">일원학원</span> 원장 관제실</div>
                     <div style="font-size: 0.82rem; color: #94a3b8; margin-top: 3px;">재원생 행동 통제 · 수납 ERP · Wi-Fi 출결 로그 · 학부모 문자 발송</div>
                 </div>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
@@ -402,14 +481,14 @@
                             </div>
                             <div>
                                 <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">문자 제목</label>
-                                <input type="text" id="sms-title-input" value="[일원학원 안내]" class="form-input" style="width: 100%; font-weight: 700;">
+                                <input type="text" id="sms-title-input" value="[학원 안내]" class="form-input" style="width: 100%; font-weight: 700;">
                             </div>
                         </div>
                         <div>
                             <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">
                                 메시지 본문 (<b>{학생명}</b> 입력 시 학생 이름으로 자동 치환)
                             </label>
-                            <textarea id="sms-content-input" placeholder="어머님 안녕하세요. 일원학원 김철훈 원장입니다. {학생명} 학생의 이번 주 주간 학습 점검 보고서를 안내해 드립니다..." required class="form-input" style="height: 80px; width: 100%;"></textarea>
+                            <textarea id="sms-content-input" placeholder="어머님 안녕하세요. 학원 김철훈 원장입니다. {학생명} 학생의 이번 주 주간 학습 점검 보고서를 안내해 드립니다..." required class="form-input" style="height: 80px; width: 100%;"></textarea>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <span style="font-size: 0.75rem; color: var(--text-secondary);">※ 학부모 연락처가 등록되지 않은 학생은 학생 본인 번호로 발송됩니다.</span>
@@ -524,8 +603,69 @@
         </div>
     </div>
 
+    <!-- 🆘 B2B 본사 지원 요청 플로팅 버튼 -->
+    <button onclick="openB2BSupportModal()" class="floating-b2b-support-btn">
+        <span class="material-symbols-rounded" style="font-size: 1.2rem;">contact_support</span>
+        <span>PALIN 본사 지원 요청</span>
+    </button>
+
+    <!-- 팝업 모달: B2B 지원 요청 제출 -->
+    <div id="b2b-support-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <div style="font-size: 1.15rem; font-weight: 900; color: #fbbf24; display: flex; align-items: center; gap: 6px;">
+                    <span class="material-symbols-rounded">contact_support</span>
+                    <span>PALIN 본사 지원 요청 (Support Ticket)</span>
+                </div>
+                <button onclick="closeB2BSupportModal()" class="btn btn-secondary" style="padding: 4px 10px;">✕</button>
+            </div>
+            <form onsubmit="handleSubmitB2BTicket(event)" style="display: flex; flex-direction: column; gap: 12px;">
+                <div>
+                    <label style="font-size: 0.78rem; color: #94a3b8; display: block; margin-bottom: 4px;">문의 유형</label>
+                    <select id="ticket-category" class="form-input" style="width: 100%; font-weight: 700;">
+                        <option value="기능오류">🐛 기능 오류 및 버그 리포트</option>
+                        <option value="백서로직">🧠 AI 백서 처방 및 RAG 로직 건의</option>
+                        <option value="정산결제">💰 라이선스 및 에스크로 정산 문의</option>
+                        <option value="기타">📋 기타 파트너십 및 학원 운영 문의</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 0.78rem; color: #94a3b8; display: block; margin-bottom: 4px;">제목</label>
+                    <input type="text" id="ticket-title" placeholder="문의 요약 제목" required class="form-input" style="width: 100%; font-weight: 700;">
+                </div>
+                <div>
+                    <label style="font-size: 0.78rem; color: #94a3b8; display: block; margin-bottom: 4px;">상세 내용</label>
+                    <textarea id="ticket-content" placeholder="발생 증상이나 건의 사항을 상세히 작성해 주세요..." required class="form-input" style="height: 100px; width: 100%;"></textarea>
+                </div>
+                <div style="text-align: right;">
+                    <button type="submit" class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 900; padding: 10px 22px;">
+                        📩 지원 요청 티켓 제출
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 팝업 모달: 탑다운 긴급 공지 강제 노출 모달 -->
+    <div id="mandatory-notice-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="border-color: #ef4444;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; color: #f87171;">
+                <span class="material-symbols-rounded" style="font-size: 1.5rem;">campaign</span>
+                <div style="font-size: 1.2rem; font-weight: 900;" id="notice-modal-title">본사 긴급 공지사항</div>
+            </div>
+            <div id="notice-modal-content" style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.6; background: rgba(0,0,0,0.35); padding: 16px; border-radius: 10px; margin-bottom: 18px; white-space: pre-wrap;"></div>
+            <div style="text-align: right;">
+                <button onclick="dismissMandatoryNotice()" class="btn" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; font-weight: 900; padding: 10px 24px;">
+                    ✅ 확인했습니다
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let allStudentsCache = [];
+        let currentTenantCode = "ILWON-2027";
+        let currentTenantName = "일원학원";
 
         function switchAdminCockpitTab(tabId) {
             document.querySelectorAll('.cockpit-tab-view').forEach(el => el.style.display = 'none');
@@ -553,14 +693,42 @@
 
         function adminLogout() {
             sessionStorage.removeItem("palin_admin_authenticated");
+            sessionStorage.removeItem("palin_shadow_mode");
+            sessionStorage.removeItem("palin_shadow_tenant_code");
             location.reload();
         }
 
+        function checkGodMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isShadow = urlParams.get('shadow') === 'true' || sessionStorage.getItem('palin_shadow_mode') === 'true';
+            const tenantParam = urlParams.get('tenant') || sessionStorage.getItem('palin_shadow_tenant_code');
+            const tenantNameParam = sessionStorage.getItem('palin_shadow_tenant_name') || tenantParam;
+
+            if (isShadow && tenantParam) {
+                currentTenantCode = tenantParam;
+                if (tenantNameParam) currentTenantName = tenantNameParam;
+                document.body.classList.add('shadow-god-mode');
+                document.getElementById('god-mode-banner').style.display = 'flex';
+                document.getElementById('god-mode-target-name').innerText = `${currentTenantName} (${currentTenantCode})`;
+                document.getElementById('cockpit-academy-title').innerText = currentTenantName;
+                sessionStorage.setItem("palin_admin_authenticated", "true");
+            }
+        }
+
+        function exitGodMode() {
+            sessionStorage.removeItem("palin_shadow_mode");
+            sessionStorage.removeItem("palin_shadow_tenant_code");
+            sessionStorage.removeItem("palin_shadow_tenant_name");
+            window.close();
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
+            checkGodMode();
             if (sessionStorage.getItem("palin_admin_authenticated") === "true") {
                 document.getElementById("admin-login-screen").style.display = "none";
                 document.getElementById("admin-dashboard-screen").style.display = "block";
                 fetchDashboardData();
+                checkMandatoryNotices();
             }
         });
 
@@ -661,7 +829,9 @@
             }
         }
 
+        // ==========================================
         // 📅 1. 원장 스케줄러
+        // ==========================================
         async function loadAdminSchedules() {
             const container = document.getElementById("admin-schedules-list");
             if (!container) return;
@@ -708,7 +878,9 @@
             } catch(e) { alert("일정 등록 실패"); }
         }
 
+        // ==========================================
         // 📡 2. 출결관리 (Wi-Fi 출결 실시간 로그)
+        // ==========================================
         async function loadAdminAttendanceLogs() {
             const tbody = document.getElementById("attendance-logs-tbody");
             if (!tbody) return;
@@ -753,11 +925,13 @@
                 const res = await fetch("/api/admin/academy/wifi-settings", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ academy_code: "ILWON-2027", auto_detect_my_ip: true })
+                    body: JSON.stringify({ academy_code: currentTenantCode, auto_detect_my_ip: true })
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    alert(`✅ [원장님 공인 IP 등록 완료]\n등록된 IP: ${data.detected_ip}\n이제 학원 Wi-Fi 접속자만 출석체크가 승인됩니다.`);
+                    alert(`✅ [원장님 공인 IP 등록 완료]
+등록된 IP: ${data.detected_ip}
+이제 학원 Wi-Fi 접속자만 출석체크가 승인됩니다.`);
                 }
             } catch(e) {}
         }
@@ -770,23 +944,26 @@
                 if (!res.ok) return;
                 const data = await res.json();
                 const codes = data.academy_codes || {};
-                const info = codes["ILWON-2027"] || { name: "일원학원", enrolled_count: 0, subject: "수능국어" };
+                const info = codes[currentTenantCode] || { name: currentTenantName, enrolled_count: 0, subject: "수능국어" };
                 const origin = window.location.origin;
-                const inviteUrl = `${origin}/?academy=ILWON-2027`;
+                const inviteUrl = `${origin}/?academy=${currentTenantCode}`;
                 container.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.3); padding:12px 14px; border-radius:10px; border-left:4px solid #a855f7; flex-wrap:wrap; gap:10px;">
                         <div>
-                            <span style="font-family:monospace; font-weight:900; color:white; background:rgba(168,85,247,0.2); padding:3px 8px; border-radius:4px; font-size:0.95rem;">ILWON-2027</span>
+                            <span style="font-family:monospace; font-weight:900; color:white; background:rgba(168,85,247,0.2); padding:3px 8px; border-radius:4px; font-size:0.95rem;">${currentTenantCode}</span>
                             <strong style="margin-left:8px; color:#f8fafc; font-size:1rem;">${info.name}</strong>
                             <div style="font-size:0.78rem; color:#94a3b8; margin-top:4px;">👥 연동 재원생: <b style="color:#34d399;">${info.enrolled_count}명</b> | 과목: ${info.subject}</div>
                         </div>
-                        <button onclick="navigator.clipboard.writeText('${inviteUrl}').then(()=>alert('📋 일원학원 전용 초대 링크 복사 완료!\n${inviteUrl}'))" class="btn" style="padding:8px 14px; font-size:0.8rem; font-weight:800; background:linear-gradient(135deg,#6366f1,#4f46e5); color:white;">📋 초대 링크 복사</button>
+                        <button onclick="navigator.clipboard.writeText('${inviteUrl}').then(()=>alert('📋 학원 전용 초대 링크 복사 완료!
+${inviteUrl}'))" class="btn" style="padding:8px 14px; font-size:0.8rem; font-weight:800; background:linear-gradient(135deg,#6366f1,#4f46e5); color:white;">📋 초대 링크 복사</button>
                     </div>
                 `;
             } catch(e) {}
         }
 
-        // 💰 3. 수납 ERP
+        // ==========================================
+        // 💰 3. 수납 ERP & 완납/미납 제어 (Fixed!)
+        // ==========================================
         function toggleSelectAllFinance(checked) {
             document.querySelectorAll(".finance-item-checkbox").forEach(cb => cb.checked = checked);
         }
@@ -857,7 +1034,7 @@
                 return;
             }
 
-            const actionLabel = type === 'tuition' ? '수강료 완납' : (type === 'textbook' ? '교재비 완납' : '수강료+교재비 전액 완납');
+            const actionLabel = type === 'tuition' ? '수강료 완납' : (type === 'textbook' ? '교재비 완납' : (status ? '수강료+교재비 전액 완납' : '미납 전환'));
             if (!confirm(`선택한 ${studentIds.length}명 학생을 [${actionLabel}] 처리하시겠습니까?`)) return;
 
             try {
@@ -880,7 +1057,9 @@
             } catch(e) { alert("서버 통신 오류"); }
         }
 
-        // 📢 4. 수업관리
+        // ==========================================
+        // 📢 4. 수업관리 (학사일정 & VOD & 행정)
+        // ==========================================
         async function handleCreateFeed(e) {
             e.preventDefault();
             const weekStr = document.getElementById("feed-week").value.replace(/[^0-9]/g, '');
@@ -891,7 +1070,7 @@
                 const res = await fetch("/api/admin/curriculum/feed", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ academy_code: "ILWON-2027", week_number: week, title: title, content: content })
+                    body: JSON.stringify({ academy_code: currentTenantCode, week_number: week, title: title, content: content })
                 });
                 if (res.ok) {
                     alert("📢 학사일정 공지가 학생들에게 배포되었습니다!");
@@ -981,7 +1160,9 @@
             } catch(e) {}
         }
 
+        // ==========================================
         // 👥 5. 학생관리
+        // ==========================================
         function populateSMSTargets() {
             const select = document.getElementById("sms-target-select");
             if (!select || !allStudentsCache) return;
@@ -1031,7 +1212,8 @@
             e.preventDefault();
             const sid = parseInt(document.getElementById("red-student-id").value, 10);
             const reason = document.getElementById("red-reason").value.trim();
-            if (!confirm(`학생 #${sid}에게 레드카드를 발송하시겠습니까?\n(보증금 차감 및 학부모 알림톡이 즉시 전송됩니다)`)) return;
+            if (!confirm(`학생 #${sid}에게 레드카드를 발송하시겠습니까?
+(보증금 차감 및 학부모 알림톡이 즉시 전송됩니다)`)) return;
             try {
                 const res = await fetch("/api/admin/redcard", {
                     method: "POST",
@@ -1042,7 +1224,9 @@
             } catch(e) {}
         }
 
+        // ==========================================
         // 🎓 6. 졸업생(튜터) 관리
+        // ==========================================
         function toggleSelectAllGraduates(checked) {
             document.querySelectorAll(".graduate-item-checkbox").forEach(cb => cb.checked = checked);
         }
@@ -1072,7 +1256,7 @@
                 const res = await fetch("/api/admin/students/batch-graduate", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ student_ids: studentIds, academy_code: "ILWON-2027" })
+                    body: JSON.stringify({ student_ids: studentIds, academy_code: currentTenantCode })
                 });
                 const data = await res.json();
                 alert(`🎓 ${data.message}`);
@@ -1118,6 +1302,74 @@
                     alert(data.detail || "승인 실패");
                 }
             } catch(e) { alert("승인 처리 통신 오류"); }
+        }
+
+        // ==========================================
+        // 🆘 B2B 지원 요청 티켓 제출
+        // ==========================================
+        function openB2BSupportModal() {
+            document.getElementById("b2b-support-modal").style.display = "flex";
+        }
+        function closeB2BSupportModal() {
+            document.getElementById("b2b-support-modal").style.display = "none";
+        }
+
+        async function handleSubmitB2BTicket(e) {
+            e.preventDefault();
+            const cat = document.getElementById("ticket-category").value;
+            const title = document.getElementById("ticket-title").value.trim();
+            const content = document.getElementById("ticket-content").value.trim();
+
+            try {
+                const res = await fetch("/api/admin/b2b-tickets", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        tenant_code: currentTenantCode,
+                        tenant_name: currentTenantName,
+                        category: cat,
+                        title: title,
+                        content: content
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`✅ ${data.message}`);
+                    closeB2BSupportModal();
+                    document.getElementById("ticket-title").value = "";
+                    document.getElementById("ticket-content").value = "";
+                } else {
+                    alert(data.detail || "제출 실패");
+                }
+            } catch(e) { alert("서버 통신 오류"); }
+        }
+
+        // ==========================================
+        // 🚨 탑다운 긴급 공지 강제 모달 체크
+        // ==========================================
+        async function checkMandatoryNotices() {
+            try {
+                const res = await fetch(`/api/admin/director-notices?tenant_code=${currentTenantCode}`);
+                if (!res.ok) return;
+                const notices = await res.json();
+                if (notices && notices.length > 0) {
+                    const latest = notices[0];
+                    const seenKey = `palin_notice_seen_${latest.id}`;
+                    if (!localStorage.getItem(seenKey)) {
+                        document.getElementById("notice-modal-title").innerText = latest.title;
+                        document.getElementById("notice-modal-content").innerText = latest.content;
+                        document.getElementById("mandatory-notice-modal").style.display = "flex";
+                        window.currentMandatoryNoticeId = latest.id;
+                    }
+                }
+            } catch(e) {}
+        }
+
+        function dismissMandatoryNotice() {
+            if (window.currentMandatoryNoticeId) {
+                localStorage.setItem(`palin_notice_seen_${window.currentMandatoryNoticeId}`, "true");
+            }
+            document.getElementById("mandatory-notice-modal").style.display = "none";
         }
     </script>
 </body>
