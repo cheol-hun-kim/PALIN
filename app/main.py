@@ -148,6 +148,10 @@ def init_db_schema():
                     conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS referral_code VARCHAR"))
                     conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS referred_by VARCHAR"))
                     conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS has_unlimited_chat BOOLEAN DEFAULT FALSE"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS is_alumni BOOLEAN DEFAULT FALSE"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS alumni_academy VARCHAR"))
+                    conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS is_alumni BOOLEAN DEFAULT FALSE"))
+                    conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS alumni_academy VARCHAR"))
 
                     conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS is_suspended BOOLEAN DEFAULT FALSE"))
                     conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS suspend_reason VARCHAR"))
@@ -2245,6 +2249,33 @@ def get_academy_codes(db: Session = Depends(get_db)):
             "enrolled_count": count
         }
     return {"academy_codes": stats, "primary_code": "ILWON-2027"}
+
+
+class BatchGraduatePayload(BaseModel):
+    student_ids: list[int]
+    academy_code: str = "ILWON-2027"
+
+@app.post("/api/admin/students/batch-graduate")
+def batch_graduate_students(payload: BatchGraduatePayload, db: Session = Depends(get_db)):
+    if not payload.student_ids:
+        raise HTTPException(status_code=400, detail="졸업 처리할 학생을 1명 이상 선택해 주세요.")
+        
+    graduated_names = []
+    for sid in payload.student_ids:
+        s = db.query(models.Student).filter(models.Student.id == sid).first()
+        if s:
+            s.enrollment_status = "GRADUATED"
+            s.is_alumni = True
+            s.alumni_academy = payload.academy_code
+            s.ai_level = s.previous_b2c_tier or "B2C_FREE"
+            graduated_names.append(s.name)
+            
+    db.commit()
+    return {
+        "status": "success",
+        "message": f"총 {len(graduated_names)}명의 학생이 성공적으로 정규 졸업 처리되었습니다. (졸업생 훈장 부여 및 튜터 선배 자격 부여 완료)",
+        "graduated_students": graduated_names
+    }
 
 @app.post("/api/admin/academy/codes")
 def register_or_update_academy_code(payload: AcademyCodePayload):
