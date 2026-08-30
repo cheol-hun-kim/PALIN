@@ -550,3 +550,52 @@ class WeeklyReport(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     student = relationship("Student")
+
+
+class Tenant(Base):
+    """B2B 입점 고객사 (타 학원 테넌트) 모델"""
+    __tablename__ = "tenants"
+
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String, unique=True, index=True, nullable=False) # 6자리 고유코드 (예: ILWON1, DAECH1)
+    name = Column(String, nullable=False)                         # 학원 상호명 (예: 일원학원, 대치시대인재)
+    director_name = Column(String, default="원장")                 # 원장명
+    director_phone = Column(String, nullable=True)                # 원장 연락처
+    director_pin = Column(String, default="1286")                 # 관제실 접속 PIN
+    tier = Column(Integer, default=1)                             # Tier 1(기본), Tier 2(김철훈 백서 RAG 탑재)
+    max_students = Column(Integer, default=100)                   # 라이선스 CAP 정원 (50, 100, 99999=무제한)
+    is_active = Column(Boolean, default=True)                     # 킬 스위치 (False 시 고유코드 무효화 및 학생 차단)
+    logo_url = Column(String, nullable=True)                      # 화이트라벨 로고 이미지 URL
+    brand_color = Column(String, default="#6366f1")               # 화이트라벨 브랜드 컬러 Hex
+    royalty_rate = Column(Float, default=15.0)                    # 본사 로열티 요율 (%)
+    monthly_revenue = Column(Integer, default=0)                  # 당월 창출 수익 (에스크로+결제분)
+    subject_desc = Column(String, default="수능국어, 대입전략")     # 과목/성격 태그
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class B2BSupportTicket(Base):
+    """고객사(학원장) -> Super Admin 본사 지원 요청 티켓"""
+    __tablename__ = "b2b_support_tickets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    tenant_code = Column(String, nullable=False, index=True)
+    tenant_name = Column(String, nullable=False)
+    category = Column(String, default="기능오류") # '기능오류' | '백서로직' | '정산결제' | '기타'
+    title = Column(String, nullable=False)
+    content = Column(Text, nullable=False)
+    status = Column(String, default="접수됨")    # '접수됨' | '검토중' | '답변완료' | '종결'
+    answer = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+
+class DirectorBroadcastNotice(Base):
+    """Super Admin -> 고객사(학원장) 탑다운 브로드캐스트/1:1 공지"""
+    __tablename__ = "director_broadcast_notices"
+
+    id = Column(Integer, primary_key=True, index=True)
+    target_tenant_code = Column(String, default="ALL") # 'ALL' 또는 특정 학원 코드
+    title = Column(String, nullable=False)
+    content = Column(Text, nullable=False)
+    is_mandatory_popup = Column(Boolean, default=True) # 대시보드 로그인 시 강제 모달 팝업
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
