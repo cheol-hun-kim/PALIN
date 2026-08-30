@@ -562,7 +562,7 @@ class Tenant(Base):
     director_name = Column(String, default="원장")                 # 원장명
     director_phone = Column(String, nullable=True)                # 원장 연락처
     director_pin = Column(String, default="1286")                 # 관제실 접속 PIN
-    tier = Column(Integer, default=1)                             # Tier 1(기본), Tier 2(김철훈 백서 RAG 탑재)
+    tier = Column(Integer, default=1)                             # Tier 1(기본), Tier 2(맞춤 커스텀 뇌), Tier 3(김철훈 백서 RAG 풀탑재)
     max_students = Column(Integer, default=100)                   # 라이선스 CAP 정원 (50, 100, 99999=무제한)
     is_active = Column(Boolean, default=True)                     # 킬 스위치 (False 시 고유코드 무효화 및 학생 차단)
     logo_url = Column(String, nullable=True)                      # 화이트라벨 로고 이미지 URL
@@ -570,6 +570,17 @@ class Tenant(Base):
     royalty_rate = Column(Float, default=15.0)                    # 본사 로열티 요율 (%)
     monthly_revenue = Column(Integer, default=0)                  # 당월 창출 수익 (에스크로+결제분)
     subject_desc = Column(String, default="수능국어, 대입전략")     # 과목/성격 태그
+    
+    # 🧠 B2B 커스텀 뇌 이식 (Custom Brain Injection) 필드
+    bot_name = Column(String, default="PALIN AI 멘토")            # AI 챗봇 이름
+    bot_tone = Column(String, default="VERY_STRICT")              # 말투/톤앤매너
+    core_values = Column(Text, nullable=True)                     # 원장 강조 핵심 가치
+    banned_words = Column(String, nullable=True)                  # 금지어 및 기피 성향
+    custom_system_prompt = Column(Text, nullable=True)            # 슈퍼 어드민이 최종 주입한 System Prompt
+    brain_status = Column(String, default="NONE")                 # NONE | PENDING | INJECTED | REJECTED
+    brain_submitted_at = Column(DateTime(timezone=True), nullable=True)
+    brain_injected_at = Column(DateTime(timezone=True), nullable=True)
+    
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
