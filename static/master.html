@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PALIN OS - 총괄 제작자 슈퍼 마스터 콘솔 (Super-Admin Cockpit)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="css/style.css?v=300.0">
+    <style>
+        :root {
+            --bg-color: #05070e;
+            --card-bg: #0d111e;
+            --accent-gold: #f59e0b;
+            --accent-purple: #8b5cf6;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-color: rgba(245, 158, 11, 0.25);
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Pretendard', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .master-container {
+            max-width: 1360px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+        .master-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(245, 158, 11, 0.25);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .master-badge {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+        }
+        .kpi-card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            margin-bottom: 18px;
+        }
+        .section-title {
+            font-size: 1.08rem;
+            font-weight: 800;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .master-tab-nav {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            scrollbar-width: thin;
+        }
+        .master-tab-btn {
+            padding: 11px 16px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            border-radius: 10px;
+            border: 1.8px solid rgba(245, 158, 11, 0.25) !important;
+            background: rgba(245, 158, 11, 0.05) !important;
+            color: #cbd5e1 !important;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .master-tab-btn:hover {
+            background: rgba(245, 158, 11, 0.15) !important;
+            border-color: #f59e0b !important;
+            color: #ffffff !important;
+        }
+        .master-tab-btn.active {
+            background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+            border-color: #fbbf24 !important;
+            color: #0f172a !important;
+            font-weight: 900 !important;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+        .data-table th, .data-table td {
+            padding: 11px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: left;
+        }
+        .data-table th {
+            color: var(--text-secondary);
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .form-input {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+        .btn {
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .tier-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+        .tier-1 { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; }
+        .tier-2 { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid #a855f7; }
+        .tier-3 { background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1.5px solid #f59e0b; }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .modal-card {
+            background: #0f1322;
+            border: 1.5px solid rgba(245, 158, 11, 0.4);
+            border-radius: 16px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 24px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="master-container">
+        <!-- 1. 보안 인증 로그인 화면 -->
+        <div id="master-login-screen" style="display: flex; justify-content: center; align-items: center; min-height: 80vh;">
+            <div style="background: #0d111e; border: 1.5px solid rgba(245, 158, 11, 0.5); border-radius: 20px; padding: 40px 30px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.9);">
+                <div style="width: 60px; height: 60px; background: rgba(245, 158, 11, 0.15); border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; border: 1.5px solid rgba(245, 158, 11, 0.4);">
+                    <span class="material-symbols-rounded" style="font-size: 36px; color: #fbbf24;">shield_person</span>
+                </div>
+                <div style="font-size: 1.35rem; font-weight: 900; color: #f8fafc; margin-bottom: 6px;">PALIN OS 총괄 제작자 마스터 콘솔</div>
+                <div style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 20px;">제작자 전용 보안 마스터 PIN을 입력해 주세요.</div>
+                <div>
+                    <input type="password" id="master-login-pin" placeholder="마스터 PIN 8자리 (예: 12862386)" autocomplete="off" maxlength="20" style="width: 100%; padding: 14px; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(245,158,11,0.3); border-radius: 12px; color: white; font-size: 1.2rem; text-align: center; letter-spacing: 4px; box-sizing: border-box; margin-bottom: 14px;" onkeydown="if(event.key==='Enter') handleMasterLogin();">
+                    <button type="button" onclick="handleMasterLogin()" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 900; cursor: pointer;">👑 슈퍼 마스터 접속</button>
+                </div>
+                <div id="master-login-error" style="color: #ef4444; font-size: 0.82rem; font-weight: 700; margin-top: 12px; display: none;">⚠️ 마스터 비밀번호가 올바르지 않습니다.</div>
+                <div style="margin-top: 24px; display: flex; justify-content: center; gap: 16px;">
+                    <a href="/admin.html" style="font-size: 0.8rem; color: #818cf8; text-decoration: none;">🏛️ B2B 원장 관제실</a>
+                    <span style="color: #475569;">|</span>
+                    <a href="/index.html" style="font-size: 0.8rem; color: #64748b; text-decoration: none;">📱 학생 화면</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 중앙 마스터 대시보드 화면 -->
+        <div id="master-dashboard-screen" style="display: none;">
+            <div class="master-header">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="master-badge">SUPER-ADMIN</span>
+                        <div style="font-size: 1.45rem; font-weight: 900; letter-spacing: -0.5px; color: #ffffff;">
+                            PALIN<span style="color: #f59e0b;">OS</span> 제작자 총괄 마스터 사령탑
+                        </div>
+                    </div>
+                    <div style="font-size: 0.82rem; color: #94a3b8; margin-top: 4px;">
+                        B2B 학원 코드 발급 · AI 수험생활 백서 RAG · 심층 리포트 열람 · 1:1 컨설팅 신청 관제 · 전체 공지 배포
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <a href="/api/admin/export/marketing-report" target="_blank" download class="btn" style="padding: 8px 14px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; text-decoration: none; display: flex; align-items: center; gap: 4px;">
+                        <span>📥</span> 마케팅 CSV 다운로드
+                    </a>
+                    <button onclick="fetchMasterData()" class="btn" style="padding: 8px 14px; font-size: 0.82rem; font-weight: 800; background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #fbbf24;">🔄 새로고침</button>
+                    <a href="/admin.html" class="btn btn-secondary" style="padding: 8px 14px; font-size: 0.82rem; text-decoration: none;">🏛️ 원장 관제실</a>
+                    <button onclick="masterLogout()" class="btn" style="padding: 8px 14px; font-size: 0.82rem; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #ef4444; font-weight: 800;">🔒 로그아웃</button>
+                </div>
+            </div>
+
+            <!-- 🧭 6대 마스터 탭 네비게이션 -->
+            <div class="master-tab-nav">
+                <button class="master-tab-btn active" onclick="switchMasterTab('tab-knowledge')">
+                    <span class="material-symbols-rounded" style="font-size: 1.1rem;">psychology</span>
+                    <span>🧠 1. AI 수험생활 백서 & 화이트라벨</span>
+                </button>
+                <button class="master-tab-btn" onclick="switchMasterTab('tab-codes')">
+                    <span class="material-symbols-rounded" style="font-size: 1.1rem;">apartment</span>
+                    <span>🏢 2. B2B 학원 코드 생성기</span>
+                </button>
+                <button class="master-tab-btn" onclick="switchMasterTab('tab-reports')">
+                    <span class="material-symbols-rounded" style="font-size: 1.1rem;">assessment</span>
+                    <span>📊 3. AI 심층 입시 리포트 (Tier)</span>
+                </button>
+                <button class="master-tab-btn" onclick="switchMasterTab('tab-consulting')">
+                    <span class="material-symbols-rounded" style="font-size: 1.1rem;">support_agent</span>
+                    <span>🎯 4. 1:1 개별 입시 상담 대기열</span>
+                </button>
+                <button class="master-tab-btn" onclick="switchMasterTab('tab-system-notice')">
+                    <span class="material-symbols-rounded" style="font-size: 1.1rem;">notifications_active</span>
+                    <span>📢 5. 시스템 전체 긴급공지 배포</span>
+                </button>
+                <button class="master-tab-btn" onclick="switchMasterTab('tab-voc')">
+                    <span class="material-symbols-rounded" style="font-size: 1.1rem;">forum</span>
+                    <span>💬 6. 전체 학생 VOC 피드백</span>
+                </button>
+            </div>
+
+            <!-- TAB 1: 🧠 AI 수험생활 백서 & B2B 화이트라벨 -->
+            <div id="tab-knowledge" class="master-tab-view" style="display: block;">
+                <div class="kpi-card" style="border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.04);">
+                    <div class="section-title" style="color: #fbbf24; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-rounded">branding_watermark</span>
+                            <span>🏢 B2B 화이트라벨 모드 스위치 (김철훈 백서 & 지도철학 RAG 제어)</span>
+                        </div>
+                        <span id="white-label-status-badge" style="font-size: 0.78rem; padding: 4px 12px; border-radius: 6px; font-weight: 800; background: #10b981; color: white;">김철훈 백서 탑재 중</span>
+                    </div>
+                    <div style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 14px; line-height: 1.5;">
+                        • <b>[기본 탑재 모드]</b>: 김철훈 원장님의 수험생활 백서, 실패의 원리 칼럼, 독기 멘토링이 AI 챗봇 및 피드에 실시간 반영됩니다.<br>
+                        • <b>[화이트라벨 모드]</b>: 외부 타 학원(B2B)에 납품 시 원장님 개인 브랜딩을 제거하고 순수 입시 예측 및 행동 통제 기능만 동작합니다.
+                    </div>
+                    <button onclick="toggleWhiteLabelMode()" class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 900; padding: 10px 20px; font-size: 0.88rem;">
+                        🔄 화이트라벨 모드 전환 토글
+                    </button>
+                </div>
+
+                <div class="kpi-card" style="border-color: rgba(99, 102, 241, 0.4);">
+                    <div class="section-title" style="color: #818cf8;">
+                        <span class="material-symbols-rounded">psychology</span>
+                        <span>🧠 AI 수험생활 백서 & 실패의 원리 칼럼 지식 추가 (RAG 실시간 주입)</span>
+                    </div>
+                    <form onsubmit="handleAddAdminKnowledge(event)" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div style="display: grid; grid-template-columns: 1fr 200px; gap: 10px;">
+                            <input type="text" id="kb-title" placeholder="칼럼/백서 주제 (예: 6월 모평 이후 국어 백분위 급상승 비법)" required class="form-input">
+                            <input type="text" id="kb-tag" placeholder="카테고리 (예: 입시철학, 국어, 멘탈)" value="수험생활백서" required class="form-input">
+                        </div>
+                        <textarea id="kb-content" placeholder="원장님의 지도철학, 칼럼 본문, 실패의 원리 분석 내용을 상세히 작성하세요. AI가 실시간으로 기억하여 학생 입시 상담에 반영합니다..." required class="form-input" style="height: 130px;"></textarea>
+                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; padding: 12px; color: white;">
+                            + 수험생활 백서 지식 추가 학습 완료
+                        </button>
+                    </form>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="section-title" style="color: #cbd5e1;">
+                        <span class="material-symbols-rounded">library_books</span>
+                        <span>📚 현재 탑재된 수험생활 백서 & 칼럼 지식 목록</span>
+                    </div>
+                    <div id="master-knowledge-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto;"></div>
+                </div>
+            </div>
+
+            <!-- TAB 2: 🏢 B2B 학원 코드 생성기 -->
+            <div id="tab-codes" class="master-tab-view" style="display: none;">
+                <div class="kpi-card" style="border-color: rgba(168, 85, 247, 0.4);">
+                    <div class="section-title" style="color: #c084fc;">
+                        <span class="material-symbols-rounded">add_business</span>
+                        <span>🏢 신규 B2B 가맹 학원 고유코드 발급 및 라이선스 생성기</span>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 14px;">
+                        타 학원이나 독서실에 PALIN OS를 공급할 때 학원별 전용 영문 코드를 발급합니다.
+                    </p>
+                    <form onsubmit="handleCreateAcademyCode(event)" style="display: grid; grid-template-columns: 180px 200px 1fr auto; gap: 10px; background: rgba(0,0,0,0.3); padding: 14px; border-radius: 12px; margin-bottom: 16px;">
+                        <input type="text" id="new-code-key" placeholder="학원코드 (예: DAECHI-2027)" required class="form-input" style="font-weight: 900; text-transform: uppercase;">
+                        <input type="text" id="new-code-name" placeholder="학원명 (예: 대치 대치학원)" required class="form-input">
+                        <input type="text" id="new-code-subject" placeholder="학원 성격/과목 (예: 수능수학, 수리논술)" value="수능국어 · 대입전략" required class="form-input">
+                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #a855f7, #7e22ce); font-weight: 800; padding: 10px 20px; color: white;">
+                            + 고유코드 발급
+                        </button>
+                    </form>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="section-title" style="color: #f8fafc;">
+                        <span class="material-symbols-rounded">apartment</span>
+                        <span>📋 발급된 B2B 학원 코드 및 재원생 현황</span>
+                    </div>
+                    <div id="master-academy-codes-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                </div>
+            </div>
+
+            <!-- TAB 3: 📊 AI 심층 입시 리포트 (Tier) -->
+            <div id="tab-reports" class="master-tab-view" style="display: none;">
+                <div class="kpi-card" style="border-color: rgba(16, 185, 129, 0.4);">
+                    <div class="section-title" style="color: #34d399; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-rounded">analytics</span>
+                            <span>📊 AI 정시 심층 입시 리포트 발급 내역 (Tier 1 / 2 / 3)</span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: #94a3b8;">
+                            학생이 발급받은 리포트를 직접 열람하고 진단할 수 있습니다.
+                        </div>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>발급ID</th>
+                                    <th>학생명</th>
+                                    <th>발급 티어</th>
+                                    <th>희망 전형</th>
+                                    <th>목표대학</th>
+                                    <th>마지노선</th>
+                                    <th>발급일시</th>
+                                    <th style="text-align: center;">리포트 열람/다운로드</th>
+                                </tr>
+                            </thead>
+                            <tbody id="master-reports-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: 🎯 1:1 입시 상담 신청 접수함 -->
+            <div id="tab-consulting" class="master-tab-view" style="display: none;">
+                <div class="kpi-card" style="border-color: rgba(245, 158, 11, 0.4);">
+                    <div class="section-title" style="color: #fbbf24;">
+                        <span class="material-symbols-rounded">support_agent</span>
+                        <span>🎯 김철훈 원장 1:1 개별 입시 상담/컨설팅 신청 접수함</span>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>신청ID</th>
+                                    <th>학생명</th>
+                                    <th>학생 연락처</th>
+                                    <th>학부모 연락처</th>
+                                    <th>상담 유형</th>
+                                    <th>목표대학</th>
+                                    <th>상담료</th>
+                                    <th>상태</th>
+                                    <th>신청일시</th>
+                                    <th style="text-align: center;">상태 변경</th>
+                                </tr>
+                            </thead>
+                            <tbody id="master-consulting-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: 📢 시스템 전체 긴급 공지 배포 -->
+            <div id="tab-system-notice" class="master-tab-view" style="display: none;">
+                <div class="kpi-card" style="border-color: rgba(239, 68, 68, 0.4);">
+                    <div class="section-title" style="color: #f87171;">
+                        <span class="material-symbols-rounded">emergency</span>
+                        <span>🚨 PALIN OS 전체 시스템 긴급/서버 점검 공지 배포</span>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;">
+                        여기서 배포하는 공지는 모든 가맹 학원 및 전체 수험생의 홈 화면 상단에 긴급 배너로 노출됩니다.
+                    </p>
+                    <form onsubmit="handleCreateSystemNotice(event)" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div style="display: grid; grid-template-columns: 1fr 160px; gap: 10px;">
+                            <input type="text" id="sys-notice-title" placeholder="긴급 공지 제목 (예: [안내] 2027 정시 모의지원 누적백분위 알고리즘 업데이트)" required class="form-input">
+                            <select id="sys-notice-cat" class="form-input" style="font-weight: 700;">
+                                <option value="긴급공지">🚨 긴급공지</option>
+                                <option value="시스템점검">⚙️ 시스템점검</option>
+                                <option value="업데이트">✨ 기능업데이트</option>
+                                <option value="이벤트">🎁 장학이벤트</option>
+                            </select>
+                        </div>
+                        <textarea id="sys-notice-content" placeholder="공지 상세 내용을 입력해 주세요..." required class="form-input" style="height: 100px;"></textarea>
+                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #ef4444, #dc2626); font-weight: 900; padding: 12px; color: white;">
+                            📢 시스템 전체 긴급공지 즉시 배포
+                        </button>
+                    </form>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="section-title" style="color: #cbd5e1;">
+                        <span class="material-symbols-rounded">list</span>
+                        <span>📋 현재 배포 중인 시스템 전체 공지 목록</span>
+                    </div>
+                    <div id="master-system-notices-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                </div>
+            </div>
+
+            <!-- TAB 6: 💬 전체 학생 VOC 피드백 -->
+            <div id="tab-voc" class="master-tab-view" style="display: none;">
+                <div class="kpi-card" style="border-color: rgba(59, 130, 246, 0.4);">
+                    <div class="section-title" style="color: #60a5fa;">
+                        <span class="material-symbols-rounded">chat</span>
+                        <span>💬 전 플랫폼 학생 불편사항 및 기능 제안 수신함 (VOC)</span>
+                    </div>
+                    <div id="master-feedback-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 📄 심층 리포트 상세 열람 모달 -->
+    <div id="report-view-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 16px;">
+                <div style="font-size: 1.15rem; font-weight: 800; color: #a78bfa;" id="modal-report-student-title">📄 대입 전략 리포트 상세 열람</div>
+                <button onclick="closeReportViewModal()" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.9rem;">✕ 닫기</button>
+            </div>
+            <div id="modal-report-content" style="line-height: 1.6; font-size: 0.88rem;"></div>
+        </div>
+    </div>
+
+    <script>
+        function switchMasterTab(tabId) {
+            document.querySelectorAll('.master-tab-view').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.master-tab-btn').forEach(btn => btn.classList.remove('active'));
+            const target = document.getElementById(tabId);
+            if (target) target.style.display = 'block';
+            const btn = document.querySelector(`button[onclick*="${tabId}"]`);
+            if (btn) btn.classList.add('active');
+
+            if (tabId === 'tab-knowledge') loadMasterKnowledge();
+            if (tabId === 'tab-codes') loadMasterAcademyCodes();
+            if (tabId === 'tab-reports') loadMasterReports();
+            if (tabId === 'tab-consulting') loadMasterConsulting();
+            if (tabId === 'tab-system-notice') loadMasterSystemNotices();
+            if (tabId === 'tab-voc') loadMasterFeedbacks();
+        }
+
+        function handleMasterLogin() {
+            const pin = document.getElementById("master-login-pin").value.trim();
+            if (pin === "12862386" || pin === "admin1286" || pin === "1286") {
+                sessionStorage.setItem("palin_master_authenticated", "true");
+                document.getElementById("master-login-screen").style.display = "none";
+                document.getElementById("master-dashboard-screen").style.display = "block";
+                fetchMasterData();
+            } else {
+                document.getElementById("master-login-error").style.display = "block";
+            }
+        }
+
+        function masterLogout() {
+            sessionStorage.removeItem("palin_master_authenticated");
+            location.reload();
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (sessionStorage.getItem("palin_master_authenticated") === "true") {
+                document.getElementById("master-login-screen").style.display = "none";
+                document.getElementById("master-dashboard-screen").style.display = "block";
+                fetchMasterData();
+            }
+        });
+
+        async function fetchMasterData() {
+            loadWhiteLabelStatus();
+            loadMasterKnowledge();
+            loadMasterAcademyCodes();
+            loadMasterReports();
+            loadMasterConsulting();
+            loadMasterSystemNotices();
+            loadMasterFeedbacks();
+        }
+
+        // 1. 화이트라벨 & 지식베이스
+        async function loadWhiteLabelStatus() {
+            try {
+                const res = await fetch("/api/admin/system/white-label");
+                if (res.ok) {
+                    const data = await res.json();
+                    const badge = document.getElementById("white-label-status-badge");
+                    if (badge) {
+                        badge.innerText = data.cheolhoon_enabled ? "🌟 김철훈 백서 탑재 활성화 중" : "🏢 화이트라벨 모드 (외부 B2B 납품용)";
+                        badge.style.background = data.cheolhoon_enabled ? "#10b981" : "#eab308";
+                    }
+                }
+            } catch(e) {}
+        }
+
+        async function toggleWhiteLabelMode() {
+            try {
+                const curRes = await fetch("/api/admin/system/white-label");
+                const curData = await curRes.json();
+                const newMode = !curData.cheolhoon_enabled;
+                const res = await fetch("/api/admin/system/white-label", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ cheolhoon_enabled: newMode })
+                });
+                if (res.ok) {
+                    alert(`✅ 화이트라벨 상태가 [${newMode ? '김철훈 백서 탑재 모드' : '화이트라벨 모드'}]로 전환되었습니다.`);
+                    loadWhiteLabelStatus();
+                }
+            } catch(e) { alert("상태 변경 실패"); }
+        }
+
+        async function loadMasterKnowledge() {
+            const container = document.getElementById("master-knowledge-list");
+            if (!container) return;
+            try {
+                const res = await fetch("/api/admin/knowledge");
+                if (!res.ok) return;
+                const list = await res.json();
+                if (list.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:16px;">등록된 지식이 없습니다.</div>';
+                    return;
+                }
+                container.innerHTML = list.map(item => `
+                    <div style="background:rgba(0,0,0,0.3); padding:12px 14px; border-radius:8px; border-left:4px solid #6366f1; display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
+                        <div style="flex:1;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="background:rgba(99,102,241,0.2); color:#818cf8; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:800;">${item.category || '백서'}</span>
+                                <strong style="color:white; font-size:0.95rem;">${item.title}</strong>
+                                <span style="font-size:0.7rem; color:#64748b;">${item.created_at}</span>
+                            </div>
+                            <div style="font-size:0.82rem; color:#cbd5e1; margin-top:6px; line-height:1.45; max-height:80px; overflow-y:auto;">${item.content}</div>
+                        </div>
+                        <button onclick="deleteKnowledgeItem(${item.id})" class="btn btn-secondary" style="color:#ef4444; border-color:#ef4444; padding:4px 8px; font-size:0.75rem; flex-shrink:0;">삭제</button>
+                    </div>
+                `).join('');
+            } catch(e) {}
+        }
+
+        async function handleAddAdminKnowledge(e) {
+            e.preventDefault();
+            const title = document.getElementById("kb-title").value.trim();
+            const tag = document.getElementById("kb-tag").value.trim();
+            const content = document.getElementById("kb-content").value.trim();
+            try {
+                const res = await fetch("/api/admin/knowledge", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title: title, category: tag, content: content })
+                });
+                if (res.ok) {
+                    alert("🧠 수험생활 백서 지식이 AI 뇌에 성공적으로 학습되었습니다!");
+                    document.getElementById("kb-title").value = "";
+                    document.getElementById("kb-content").value = "";
+                    loadMasterKnowledge();
+                }
+            } catch(e) { alert("지식 추가 실패"); }
+        }
+
+        async function deleteKnowledgeItem(id) {
+            if (!confirm("해당 지식을 삭제하시겠습니까?")) return;
+            try {
+                const res = await fetch(`/api/admin/knowledge/${id}`, { method: "DELETE" });
+                if (res.ok) {
+                    alert("지식이 삭제되었습니다.");
+                    loadMasterKnowledge();
+                }
+            } catch(e) {}
+        }
+
+        // 2. B2B 학원 코드 관리
+        async function loadMasterAcademyCodes() {
+            const container = document.getElementById("master-academy-codes-list");
+            if (!container) return;
+            try {
+                const res = await fetch("/api/admin/academy/codes");
+                if (!res.ok) return;
+                const data = await res.json();
+                const codes = data.academy_codes || {};
+                const origin = window.location.origin;
+                container.innerHTML = Object.entries(codes).map(([code, info]) => {
+                    const inviteUrl = `${origin}/?academy=${code}`;
+                    return `
+                        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.3); padding:12px 14px; border-radius:10px; border-left:4px solid #a855f7; flex-wrap:wrap; gap:10px;">
+                            <div>
+                                <span style="font-family:monospace; font-weight:900; color:white; background:rgba(168,85,247,0.2); padding:3px 8px; border-radius:4px; font-size:0.9rem;">${code}</span>
+                                <strong style="margin-left:8px; color:#f8fafc; font-size:0.95rem;">${info.name}</strong>
+                                <span style="font-size:0.78rem; color:#a855f7; margin-left:6px;">(${info.director || '원장'})</span>
+                                <div style="font-size:0.78rem; color:#94a3b8; margin-top:4px;">👥 소속 재원생: <b style="color:#34d399;">${info.enrolled_count}명</b> | 태그: ${info.subject}</div>
+                            </div>
+                            <div style="display:flex; gap:6px;">
+                                <button onclick="navigator.clipboard.writeText('${inviteUrl}').then(()=>alert('📋 초대 링크 복사 완료!\\n${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; background:linear-gradient(135deg,#6366f1,#4f46e5); color:white;">📋 초대링크 복사</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch(e) {}
+        }
+
+        async function handleCreateAcademyCode(e) {
+            e.preventDefault();
+            const code = document.getElementById("new-code-key").value.trim().toUpperCase();
+            const name = document.getElementById("new-code-name").value.trim();
+            const subj = document.getElementById("new-code-subject").value.trim();
+            try {
+                const res = await fetch("/api/admin/academy/codes", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ academy_code: code, academy_name: name, subject_desc: subj })
+                });
+                if (res.ok) {
+                    alert(`✅ 학원 고유코드 [${code}]가 안전하게 발급되었습니다!`);
+                    document.getElementById("new-code-key").value = "";
+                    document.getElementById("new-code-name").value = "";
+                    loadMasterAcademyCodes();
+                }
+            } catch(e) {}
+        }
+
+        // 3. 심층 입시 리포트 발급 내역 & 열람
+        async function loadMasterReports() {
+            const tbody = document.getElementById("master-reports-tbody");
+            if (!tbody) return;
+            try {
+                const res = await fetch("/api/admin/reports");
+                if (!res.ok) return;
+                const reports = await res.json();
+                if (reports.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#94a3b8; padding:20px;">발급된 입시 리포트가 없습니다.</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = reports.map(r => {
+                    const tier = r.tier || 1;
+                    return `
+                    <tr>
+                        <td>#${r.id}</td>
+                        <td style="font-weight: 800; color: #ffffff;">${r.student_name}</td>
+                        <td><span class="tier-badge tier-${tier}">Tier ${tier}</span></td>
+                        <td>${r.track_choice || '정시'}</td>
+                        <td style="color: #fcd34d; font-weight: 700;">${r.target_univ || '-'}</td>
+                        <td style="color: #60a5fa;">${r.baseline_univ || '-'}</td>
+                        <td style="font-size: 0.75rem; color: #94a3b8;">${r.created_at}</td>
+                        <td style="text-align: center;">
+                            <button onclick="viewReportDetail(${r.id})" class="btn" style="padding: 5px 12px; font-size: 0.75rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">
+                                📄 리포트 열람
+                            </button>
+                        </td>
+                    </tr>
+                `}).join('');
+            } catch(e) {}
+        }
+
+        async function viewReportDetail(reportId) {
+            try {
+                const res = await fetch(`/api/admin/reports/${reportId}`);
+                if (!res.ok) { alert("리포트 데이터를 불러올 수 없습니다."); return; }
+                const data = await res.json();
+                
+                document.getElementById("modal-report-student-title").innerText = `📊 [Tier ${data.tier}] ${data.student_name} 학생 맞춤 입시 리포트 (#${data.id})`;
+                const rData = data.report_data || {};
+                
+                let html = `
+                    <div style="background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.3); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                        <div style="font-weight: 800; font-size: 1.05rem; color: #ffffff;">🎯 ${rData.summary_headline || '맞춤 입시 포트폴리오'}</div>
+                        <div style="font-size: 0.8rem; color: #34d399; margin-top: 4px;">추천 전형: ${rData.admission_track_recommendation || '정시 집중'} | 목표: ${data.target_univ || '-'}</div>
+                    </div>
+                `;
+
+                if (rData.chapters) {
+                    rData.chapters.forEach(ch => {
+                        html += `
+                            <div style="margin-bottom: 12px; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px;">
+                                <div style="font-weight: 800; color: #818cf8; margin-bottom: 4px;">${ch.title}</div>
+                                <div style="color: #cbd5e1; font-size: 0.82rem; white-space: pre-wrap;">${ch.content}</div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                document.getElementById("modal-report-content").innerHTML = html;
+                document.getElementById("report-view-modal").style.display = "flex";
+            } catch(e) { alert("리포트 열람 중 오류 발생"); }
+        }
+
+        function closeReportViewModal() {
+            document.getElementById("report-view-modal").style.display = "none";
+        }
+
+        // 4. 1:1 입시 상담 신청 대기열
+        async function loadMasterConsulting() {
+            const tbody = document.getElementById("master-consulting-tbody");
+            if (!tbody) return;
+            try {
+                const res = await fetch("/api/admin/consulting-requests");
+                if (!res.ok) return;
+                const reqs = await res.json();
+                if (reqs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:#94a3b8; padding:20px;">신청된 1:1 상담 내역이 없습니다.</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = reqs.map(q => `
+                    <tr>
+                        <td>#${q.id}</td>
+                        <td style="font-weight: 800; color: #ffffff;">${q.student_name}</td>
+                        <td>${q.student_phone}</td>
+                        <td>${q.parent_phone}</td>
+                        <td><span style="background:rgba(245,158,11,0.2); color:#fbbf24; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:800;">${q.consulting_type}</span></td>
+                        <td style="color:#fcd34d;">${q.target_univ}</td>
+                        <td style="font-weight:800; color:#10b981;">${q.price ? q.price.toLocaleString() + '원' : '-'}</td>
+                        <td>
+                            <span style="background:${q.status === '완료' ? '#10b981' : (q.status === '상담일정확정' ? '#3b82f6' : '#f59e0b')}; color:white; padding:2px 6px; border-radius:4px; font-size:0.72rem; font-weight:700;">
+                                ${q.status || '접수대기'}
+                            </span>
+                        </td>
+                        <td style="font-size:0.75rem; color:#94a3b8;">${q.created_at}</td>
+                        <td style="text-align:center;">
+                            <select onchange="updateConsultingStatus(${q.id}, this.value)" class="form-input" style="padding:4px 6px; font-size:0.75rem; height:auto;">
+                                <option value="접수대기" ${q.status === '접수대기' ? 'selected' : ''}>접수대기</option>
+                                <option value="상담일정확정" ${q.status === '상담일정확정' ? 'selected' : ''}>상담일정확정</option>
+                                <option value="완료" ${q.status === '완료' ? 'selected' : ''}>상담완료</option>
+                                <option value="취소" ${q.status === '취소' ? 'selected' : ''}>취소</option>
+                            </select>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch(e) {}
+        }
+
+        async function updateConsultingStatus(reqId, newStatus) {
+            try {
+                const res = await fetch(`/api/admin/consulting-requests/${reqId}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                if (res.ok) {
+                    alert(`✅ 상담 상태가 '${newStatus}'(으)로 변경되었습니다.`);
+                    loadMasterConsulting();
+                }
+            } catch(e) { alert("상태 변경 실패"); }
+        }
+
+        // 5. 시스템 전체 긴급 공지 배포
+        async function loadMasterSystemNotices() {
+            const container = document.getElementById("master-system-notices-list");
+            if (!container) return;
+            try {
+                const res = await fetch("/api/notices");
+                if (!res.ok) return;
+                const notices = await res.json();
+                if (notices.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:16px;">등록된 시스템 공지가 없습니다.</div>';
+                    return;
+                }
+                container.innerHTML = notices.map(n => `
+                    <div style="background:rgba(0,0,0,0.3); padding:12px 14px; border-radius:8px; border-left:4px solid #ef4444; display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
+                        <div style="flex:1;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="background:rgba(239,68,68,0.2); color:#f87171; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:800;">${n.category || '긴급공지'}</span>
+                                <strong style="color:white; font-size:0.95rem;">${n.title}</strong>
+                                <span style="font-size:0.7rem; color:#64748b;">${n.created_at || ''}</span>
+                            </div>
+                            <div style="font-size:0.82rem; color:#cbd5e1; margin-top:4px;">${n.content}</div>
+                        </div>
+                        <button onclick="deleteSystemNotice(${n.id})" class="btn btn-secondary" style="color:#ef4444; border-color:#ef4444; padding:4px 8px; font-size:0.75rem; flex-shrink:0;">삭제</button>
+                    </div>
+                `).join('');
+            } catch(e) {}
+        }
+
+        async function handleCreateSystemNotice(e) {
+            e.preventDefault();
+            const title = document.getElementById("sys-notice-title").value.trim();
+            const cat = document.getElementById("sys-notice-cat").value;
+            const content = document.getElementById("sys-notice-content").value.trim();
+            try {
+                const res = await fetch("/api/admin/notices", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title: title, category: cat, content: content, is_pinned: true })
+                });
+                if (res.ok) {
+                    alert("📢 시스템 전체 공지가 성공적으로 배포되었습니다!");
+                    document.getElementById("sys-notice-title").value = "";
+                    document.getElementById("sys-notice-content").value = "";
+                    loadMasterSystemNotices();
+                }
+            } catch(e) { alert("공지 배포 실패"); }
+        }
+
+        async function deleteSystemNotice(id) {
+            if (!confirm("해당 공지를 삭제하시겠습니까?")) return;
+            try {
+                const res = await fetch(`/api/admin/notices/${id}`, { method: "DELETE" });
+                if (res.ok) {
+                    alert("공지가 삭제되었습니다.");
+                    loadMasterSystemNotices();
+                }
+            } catch(e) {}
+        }
+
+        // 6. 전체 학생 VOC 피드백
+        async function loadMasterFeedbacks() {
+            const container = document.getElementById("master-feedback-list");
+            if (!container) return;
+            try {
+                const res = await fetch("/api/admin/feedbacks");
+                if (!res.ok) return;
+                const feedbacks = await res.json();
+                if (feedbacks.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:20px;">접수된 건의사항이 없습니다.</div>';
+                    return;
+                }
+                container.innerHTML = feedbacks.map(fb => `
+                    <div style="background:rgba(0,0,0,0.3); padding:12px 14px; border-radius:8px; border-left:4px solid #3b82f6; display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
+                        <div style="flex:1;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="background:rgba(59,130,246,0.2); color:#60a5fa; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:800;">${fb.category}</span>
+                                <strong style="color:white; font-size:0.92rem;">${fb.student_name} (${fb.user_email || '이메일미기재'})</strong>
+                                <span style="font-size:0.7rem; color:#64748b;">${fb.created_at}</span>
+                            </div>
+                            <div style="font-size:0.82rem; color:#cbd5e1; margin-top:6px; line-height:1.45;">${fb.content}</div>
+                        </div>
+                        <select onchange="updateFeedbackStatus(${fb.id}, this.value)" class="form-input" style="padding:4px 8px; font-size:0.75rem; height:auto;">
+                            <option value="접수" ${fb.status === '접수' ? 'selected' : ''}>접수됨</option>
+                            <option value="검토중" ${fb.status === '검토중' ? 'selected' : ''}>검토중</option>
+                            <option value="반영완료" ${fb.status === '반영완료' ? 'selected' : ''}>반영완료</option>
+                        </select>
+                    </div>
+                `).join('');
+            } catch(e) {}
+        }
+
+        async function updateFeedbackStatus(fbId, status) {
+            try {
+                await fetch(`/api/admin/feedbacks/${fbId}/status`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status: status })
+                });
+                alert("상태가 갱신되었습니다.");
+            } catch(e) {}
+        }
+    </script>
+</body>
+</html>
+
