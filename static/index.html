@@ -13,7 +13,7 @@
         if ('caches' in window) {
             caches.keys().then(names => {
                 for (let name of names) {
-                    if (name !== 'palin-os-v130') {
+                    if (name !== 'palin-os-v140') {
                         caches.delete(name);
                     }
                 }
@@ -30,7 +30,7 @@
     </script>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=110.0">
+    <link rel="stylesheet" href="css/style.css?v=140.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -1315,13 +1315,31 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
                 <!-- 2. 연동 완료 시 노출되는 메인 학원 관리 컨텐츠 -->
                 <div id="hub-linked-content" style="display: none;">
+                    <!-- 🏢 재학 중인 학원 / 관리형 독서실 다중 기관 선택 스위처 -->
+                    <div class="card" style="margin-bottom: 12px; padding: 10px 14px; background: var(--card-bg); border: 1.5px solid var(--border-color, rgba(99, 102, 241, 0.3));">
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;">
+                                <span class="material-symbols-rounded" style="color: #6366f1; font-size: 1.25rem;">domain</span>
+                                <div style="flex: 1; min-width: 0;">
+                                    <label style="font-size: 0.68rem; color: var(--text-secondary); font-weight: 700; display: block; line-height: 1;">수강 / 이용 기관 선택</label>
+                                    <select id="hub-facility-selector" onchange="onFacilitySelected(this.value)" class="form-input" style="width: 100%; margin-top: 3px; padding: 4px 8px; font-size: 0.85rem; font-weight: 800; border: none; background: transparent; color: var(--text-primary); cursor: pointer;">
+                                        <option value="ILWON-2027">🏛️ 일원학원 (수능 국어 사관학교)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button onclick="openAddFacilityModal()" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.72rem; font-weight: 800; white-space: nowrap; border-radius: 8px; color: #6366f1;">
+                                ➕ 기관 추가
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- 학원 정보 헤더 & 원터치 Wi-Fi 출석체크 -->
-                    <div class="card" style="margin-bottom: 12px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.1)); border: 1.5px solid rgba(99, 102, 241, 0.4);">
+                    <div class="card" style="margin-bottom: 12px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.06)); border: 1.5px solid var(--border-color, rgba(99, 102, 241, 0.3));">
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                             <div>
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <span class="material-symbols-rounded" style="color: #818cf8; font-size: 1.3rem;">account_balance</span>
-                                    <span style="font-size: 1.05rem; font-weight: 800; color: #ffffff;" id="hub-academy-name">일원학원</span>
+                                    <span style="font-size: 1.05rem; font-weight: 800; color: var(--text-primary);" id="hub-academy-name">일원학원</span>
                                     <span id="hub-enrollment-badge" style="background: #10b981; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 800;">재원생</span>
                                 </div>
                                 <div style="font-size: 0.74rem; color: var(--text-secondary); margin-top: 2px;">
@@ -2190,6 +2208,32 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
+    
+    <!-- 12. 신규 학원 / 독서실 / 재수학원 추가 연동 모달 -->
+    <div id="add-facility-modal" class="trigger-modal" style="display: none;">
+        <div class="trigger-content" style="border-color: #6366f1; max-width: 440px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div style="font-size: 1.1rem; font-weight: 800; color: #6366f1; display: flex; align-items: center; gap: 6px;">
+                    <span class="material-symbols-rounded">add_business</span>
+                    <span>학원 / 독서실 추가 연동</span>
+                </div>
+                <button onclick="document.getElementById('add-facility-modal').style.display='none'" class="btn btn-secondary" style="padding: 4px 8px; border: none;">&times;</button>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.4;">
+                다니고 계신 <b>단과학원, 관리형 독서실, 스터디카페, 재수학원</b>의 고유 코드를 등록하시면, 한 앱에서 모든 기관의 일정과 출결을 통합 관리할 수 있습니다.
+            </div>
+            <form onsubmit="handleAddNewFacility(event)">
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 0.74rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">기관 고유 코드</label>
+                    <input type="text" id="add-facility-code-input" placeholder="코드 입력 (예: DAECHI-2027, STUDY-GANGNAM)" required class="form-input" style="width: 100%; text-transform: uppercase; font-weight: 800;">
+                </div>
+                <button type="submit" class="btn" style="width: 100%; padding: 11px 0; background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800;">
+                    🚀 기관 추가 연동하기
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- 7. 불편사항 & 아이디어 건의 모달 -->
     <div id="feedback-modal" class="trigger-modal" style="display: none;">
         <div class="trigger-content" style="border-color: #f59e0b;">
@@ -2221,7 +2265,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app_v91.js?v=130.0"></script>
+    <script src="js/app_v91.js?v=140.0"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소
