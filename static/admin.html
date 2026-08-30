@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PALIN OS - 원장 전용 중앙 관제 대시보드</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=3.0">
+    <link rel="stylesheet" href="css/style.css?v=190.0">
     <style>
         body {
             background-color: #06070a;
@@ -91,6 +91,29 @@
         @media (max-width: 768px) {
             .feed-container { grid-template-columns: 1fr; }
         }
+            .admin-cockpit-tab-btn {
+            padding: 10px 16px;
+            font-size: 0.86rem;
+            font-weight: 800;
+            border-radius: 10px;
+            border: 1.8px solid rgba(255, 255, 255, 0.25) !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+            color: #cbd5e1 !important;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+        .admin-cockpit-tab-btn:hover {
+            background: rgba(255, 255, 255, 0.12) !important;
+            border-color: rgba(255, 255, 255, 0.5) !important;
+            color: #ffffff !important;
+        }
+        .admin-cockpit-tab-btn.active {
+            background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+            border: 1.8px solid #818cf8 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+        }
     </style>
 </head>
 <body>
@@ -126,13 +149,13 @@
             </div>
         </div>
 
-        <!-- 🧭 관제실 5대 메인 탭 네비게이션 -->
-        <div style="display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px;">
-            <button class="btn admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-schedule')" style="padding: 10px 16px; font-size: 0.85rem; font-weight: 800; border-radius: 10px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; white-space: nowrap;">📅 1. 원장 스케줄러</button>
-            <button class="btn btn-secondary admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-academy')" style="padding: 10px 16px; font-size: 0.85rem; font-weight: 800; border-radius: 10px; white-space: nowrap;">🔑 2. 학원코드 & Wi-Fi 출결</button>
-            <button class="btn btn-secondary admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-finance')" style="padding: 10px 16px; font-size: 0.85rem; font-weight: 800; border-radius: 10px; white-space: nowrap;">💰 3. 수납 ERP & 일괄 졸업</button>
-            <button class="btn btn-secondary admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-curriculum')" style="padding: 10px 16px; font-size: 0.85rem; font-weight: 800; border-radius: 10px; white-space: nowrap;">📢 4. 학사일정 · VOD · 행정</button>
-            <button class="btn btn-secondary admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-students')" style="padding: 10px 16px; font-size: 0.85rem; font-weight: 800; border-radius: 10px; white-space: nowrap;">👥 5. 재원생 랭킹 & 레드카드</button>
+        <!-- 🧭 관제실 5대 메인 탭 네비게이션 (전체 버튼 선명한 테두리 통일) -->
+        <div class="admin-tab-nav" style="display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px;">
+            <button class="admin-cockpit-tab-btn active" onclick="switchAdminCockpitTab('tab-schedule')" id="btn-tab-schedule">📅 1. 원장 스케줄러</button>
+            <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-academy')" id="btn-tab-academy">🔑 2. 학원코드 & Wi-Fi 출결</button>
+            <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-finance')" id="btn-tab-finance">💰 3. 수납 ERP & 일괄 졸업</button>
+            <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-curriculum')" id="btn-tab-curriculum">📢 4. 학사일정 · VOD · 행정</button>
+            <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-students')" id="btn-tab-students">👥 5. 재원생 랭킹 & 레드카드</button>
         </div>
 
         <!-- TAB 1: 📅 원장 스케줄러 -->
@@ -204,19 +227,46 @@
             </div>
 
             <div class="kpi-card" style="border: 1.5px solid rgba(234, 179, 8, 0.4);">
-                <div class="section-title" style="color: #fbbf24;">
-                    <span class="material-symbols-rounded">payments</span>
-                    <span>💰 재원생 재무/교재 수납 관리 ERP</span>
+                <div class="section-title" style="color: #fbbf24; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="material-symbols-rounded">payments</span>
+                        <span>💰 재원생 재무/수납 관리 ERP (일괄 완납 & 개별 납부 관리)</span>
+                    </div>
                 </div>
+                <div style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 14px;">
+                    대다수 납부 완료된 학생들은 <b>[전체 선택]</b> 후 일괄 완납 처리하고, 미납인 소수 학생만 체크 해제하여 효율적으로 수납을 관리하세요.
+                </div>
+
+                <!-- 🚀 일괄 수납 액션 툴바 -->
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; background: rgba(0,0,0,0.35); padding: 12px; border-radius: 10px; margin-bottom: 14px; align-items: center;">
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 800; color: #ffffff; cursor: pointer; margin-right: 8px;">
+                        <input type="checkbox" id="finance-select-all" onchange="toggleSelectAllFinance(this.checked)" style="width: 16px; height: 16px;">
+                        <span>전체 학생 선택</span>
+                    </label>
+                    <button onclick="handleBatchFinanceSubmit('tuition', true)" class="btn" style="padding: 7px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white;">
+                        💳 선택 학생 [수강료 일괄 완납]
+                    </button>
+                    <button onclick="handleBatchFinanceSubmit('textbook', true)" class="btn" style="padding: 7px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #a855f7, #7e22ce); color: white;">
+                        📦 선택 학생 [교재비 일괄 완납]
+                    </button>
+                    <button onclick="handleBatchFinanceSubmit('both', true)" class="btn" style="padding: 7px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706); color: white;">
+                        ✨ 선택 학생 [수강료+교재비 전액 완납]
+                    </button>
+                    <button onclick="handleBatchFinanceSubmit('both', false)" class="btn btn-secondary" style="padding: 7px 12px; font-size: 0.75rem; color: #f87171; border-color: #ef4444;">
+                        선택 미납 전환
+                    </button>
+                </div>
+
                 <div style="overflow-x: auto;">
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>학생명</th>
-                                <th>고교/학년</th>
+                                <th style="width: 40px; text-align: center;">선택</th>
+                                <th>학생명 (ID)</th>
+                                <th>고교 / 학년</th>
                                 <th>수강료 상태</th>
                                 <th>교재비 상태</th>
-                                <th>수납 액션</th>
+                                <th style="text-align: center;">개별 납부 상태 변경</th>
                             </tr>
                         </thead>
                         <tbody id="financial-erp-tbody"></tbody>
@@ -234,7 +284,7 @@
                 </div>
                 <form onsubmit="handleCreateFeed(event)" style="display: flex; flex-direction: column; gap: 8px;">
                     <div style="display: grid; grid-template-columns: 120px 1fr; gap: 8px;">
-                        <input type="number" id="feed-week" placeholder="주차" value="3" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px; border-radius: 8px; text-align: center;">
+                        <input type="text" id="feed-week" placeholder="예: 3주차" value="3주차" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px; border-radius: 8px; text-align: center; font-weight: 800;">
                         <input type="text" id="feed-title" placeholder="공지 제목" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px; border-radius: 8px;">
                     </div>
                     <textarea id="feed-content" placeholder="공지 내용을 입력하세요..." required style="height: 70px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px; border-radius: 8px;"></textarea>
@@ -349,24 +399,18 @@
         </div>
     </div>
 
-    <script>
+        <script>
         let allStudentsCache = [];
 
         function switchAdminCockpitTab(tabId) {
             document.querySelectorAll('.cockpit-tab-view').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.admin-cockpit-tab-btn').forEach(btn => {
                 btn.classList.remove('active');
-                btn.style.background = 'rgba(255,255,255,0.04)';
-                btn.style.color = '#94a3b8';
             });
             const target = document.getElementById(tabId);
             if (target) target.style.display = 'block';
             const btn = document.querySelector(`button[onclick*="${tabId}"]`);
-            if (btn) {
-                btn.classList.add('active');
-                btn.style.background = 'linear-gradient(135deg, #6366f1, #4f46e5)';
-                btn.style.color = '#ffffff';
-            }
+            if (btn) btn.classList.add('active');
         }
 
         function handleAdminLogin() {
@@ -486,37 +530,102 @@
             }
         }
 
+        // ==========================================
+        // 💰 수납 ERP & 일괄 완납 처리 엔진
+        // ==========================================
+        function toggleSelectAllFinance(checked) {
+            document.querySelectorAll(".finance-item-checkbox").forEach(cb => cb.checked = checked);
+        }
+
         function renderFinancialERP() {
             const tbody = document.getElementById("financial-erp-tbody");
             if (!tbody || !allStudentsCache) return;
-            tbody.innerHTML = allStudentsCache.map(s => `
+            tbody.innerHTML = allStudentsCache.map(s => {
+                const tuitionPaid = Boolean(s.tuition_paid);
+                const textbookPaid = Boolean(s.textbook_paid);
+                return `
                 <tr>
-                    <td style="font-weight:800; color:#ffffff;">${s.name} (#${s.id})</td>
+                    <td style="text-align: center;">
+                        <input type="checkbox" class="finance-item-checkbox" value="${s.id}" style="width: 16px; height: 16px; cursor: pointer;">
+                    </td>
+                    <td style="font-weight: 800; color: #ffffff;">${s.name} <span style="color: #94a3b8; font-weight: normal; font-size: 0.78rem;">(#${s.id})</span></td>
                     <td>${s.high_school || '고교'} (${s.grade || '3'}학년)</td>
-                    <td><span style="background:${s.is_tuition_paid ? '#10b981' : '#ef4444'}; color:white; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:800;">${s.is_tuition_paid ? '수납완료' : '미납'}</span></td>
-                    <td><span style="background:${s.is_textbook_paid ? '#10b981' : '#ef4444'}; color:white; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:800;">${s.is_textbook_paid ? '수납완료' : '미납'}</span></td>
                     <td>
-                        <button onclick="togglePaymentStatus(${s.id}, 'tuition', ${!s.is_tuition_paid})" class="btn" style="padding:4px 8px; font-size:0.72rem; margin-right:4px;">수강료전환</button>
-                        <button onclick="togglePaymentStatus(${s.id}, 'textbook', ${!s.is_textbook_paid})" class="btn btn-secondary" style="padding:4px 8px; font-size:0.72rem;">교재비전환</button>
+                        <span style="background: ${tuitionPaid ? '#10b981' : '#ef4444'}; color: white; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 800;">
+                            ${tuitionPaid ? '수강료 완납' : '수강료 미납'}
+                        </span>
+                    </td>
+                    <td>
+                        <span style="background: ${textbookPaid ? '#10b981' : '#ef4444'}; color: white; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 800;">
+                            ${textbookPaid ? '교재비 완납' : '교재비 미납'}
+                        </span>
+                    </td>
+                    <td style="text-align: center;">
+                        <button onclick="togglePaymentStatus(${s.id}, 'tuition', ${!tuitionPaid})" class="btn" style="padding: 5px 10px; font-size: 0.75rem; margin-right: 4px; font-weight: 800; background: ${tuitionPaid ? 'rgba(239,68,68,0.2)' : 'linear-gradient(135deg,#10b981,#059669)'}; color: ${tuitionPaid ? '#f87171' : '#ffffff'}; border: 1px solid ${tuitionPaid ? '#ef4444' : '#10b981'};">
+                            ${tuitionPaid ? '미납 전환' : '수강료 완납'}
+                        </button>
+                        <button onclick="togglePaymentStatus(${s.id}, 'textbook', ${!textbookPaid})" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.75rem; font-weight: 800; color: ${textbookPaid ? '#f87171' : '#c084fc'}; border: 1px solid ${textbookPaid ? '#ef4444' : '#a855f7'};">
+                            ${textbookPaid ? '미납 전환' : '교재비 완납'}
+                        </button>
                     </td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
 
         async function togglePaymentStatus(studentId, type, status) {
             try {
                 const payload = { student_id: studentId };
-                if (type === 'tuition') payload.is_tuition_paid = status;
-                if (type === 'textbook') payload.is_textbook_paid = status;
+                if (type === 'tuition') payload.tuition_paid = status;
+                if (type === 'textbook') payload.textbook_paid = status;
                 const res = await fetch("/api/admin/financial/update", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
                 });
-                if (res.ok) fetchDashboardData();
-            } catch(e) {}
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`✅ ${data.message}`);
+                    fetchDashboardData();
+                } else {
+                    alert(data.detail || "수납 변경 실패");
+                }
+            } catch(e) { alert("서버 통신 오류"); }
         }
 
+        async function handleBatchFinanceSubmit(type, status) {
+            const selectedBoxes = document.querySelectorAll(".finance-item-checkbox:checked");
+            const studentIds = Array.from(selectedBoxes).map(cb => parseInt(cb.value, 10));
+            if (studentIds.length === 0) {
+                alert("수납 처리할 학생을 1명 이상 선택해 주세요.");
+                return;
+            }
+
+            const actionLabel = type === 'tuition' ? '수강료 완납' : (type === 'textbook' ? '교재비 완납' : '수강료+교재비 전액 완납');
+            if (!confirm(`선택한 ${studentIds.length}명 학생을 [${actionLabel}] 처리하시겠습니까?`)) return;
+
+            try {
+                const payload = { student_ids: studentIds };
+                if (type === 'tuition' || type === 'both') payload.tuition_paid = status;
+                if (type === 'textbook' || type === 'both') payload.textbook_paid = status;
+
+                const res = await fetch("/api/admin/financial/batch-update", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`🎉 ${data.message}`);
+                    fetchDashboardData();
+                } else {
+                    alert(data.detail || "일괄 수납 처리 실패");
+                }
+            } catch(e) { alert("서버 통신 오류"); }
+        }
+
+        // ==========================================
+        // 🎓 일괄 졸업 처리기
+        // ==========================================
         function toggleSelectAllGraduates(checked) {
             document.querySelectorAll(".graduate-item-checkbox").forEach(cb => cb.checked = checked);
         }
@@ -615,7 +724,8 @@
                                 <strong style="margin-left:6px; color:#f8fafc;">${info.name}</strong>
                                 <div style="font-size:0.75rem; color:#94a3b8; margin-top:3px;">👥 재원생: <b style="color:#34d399;">${info.enrolled_count}명</b> | 태그: ${info.subject}</div>
                             </div>
-                            <button onclick="navigator.clipboard.writeText('${inviteUrl}').then(()=>alert('📋 초대 링크 복사 완료!\\n${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; background:linear-gradient(135deg,#6366f1,#4f46e5);">📋 초대 링크 복사</button>
+                            <button onclick="navigator.clipboard.writeText('${inviteUrl}').then(()=>alert('📋 초대 링크 복사 완료!
+${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; background:linear-gradient(135deg,#6366f1,#4f46e5);">📋 초대 링크 복사</button>
                         </div>
                     `;
                 }).join('');
@@ -649,14 +759,17 @@
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    alert(`✅ [원장님 공인 IP 등록 완료]\\n등록된 IP: ${data.detected_ip}\\n이제 학원 Wi-Fi 접속자만 출석체크가 승인됩니다.`);
+                    alert(`✅ [원장님 공인 IP 등록 완료]
+등록된 IP: ${data.detected_ip}
+이제 학원 Wi-Fi 접속자만 출석체크가 승인됩니다.`);
                 }
             } catch(e) {}
         }
 
         async function handleCreateFeed(e) {
             e.preventDefault();
-            const week = parseInt(document.getElementById("feed-week").value, 10);
+            const weekStr = document.getElementById("feed-week").value.replace(/[^0-9]/g, '');
+            const week = parseInt(weekStr || "3", 10);
             const title = document.getElementById("feed-title").value.trim();
             const content = document.getElementById("feed-content").value.trim();
             try {
@@ -688,6 +801,9 @@
             } catch(e) {}
         }
 
+        // ==========================================
+        // 📋 학생 행정 요청 결재함 (이름/학교 표시 & 승인/거절)
+        // ==========================================
         async function loadAdminRequests() {
             const container = document.getElementById("admin-requests-list");
             if (!container) return;
@@ -699,16 +815,36 @@
                     container.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.8rem; padding:12px;">대기 중인 행정 신청이 없습니다.</div>';
                     return;
                 }
-                container.innerHTML = list.map(r => `
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.3); padding:10px 14px; border-radius:8px;">
+                container.innerHTML = list.map(r => {
+                    const statusColor = r.status === 'APPROVED' ? '#10b981' : (r.status === 'REJECTED' ? '#ef4444' : '#f59e0b');
+                    const statusText = r.status === 'APPROVED' ? '승인완료' : (r.status === 'REJECTED' ? '반려됨' : '결재대기');
+                    const isPending = r.status !== 'APPROVED' && r.status !== 'REJECTED';
+                    return `
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.35); padding:12px 14px; border-radius:10px; border-left:4px solid ${statusColor}; gap: 10px; flex-wrap: wrap;">
                         <div>
-                            <span style="background:#f59e0b; color:white; padding:2px 6px; border-radius:4px; font-size:0.72rem; font-weight:800;">${r.request_type}</span>
-                            <span style="font-weight:800; color:white; margin-left:6px;">학생 #${r.student_id}</span>
-                            <div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">사유: ${r.reason || '없음'}</div>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="background:rgba(245,158,11,0.2); color:#fbbf24; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:800;">${r.request_type}</span>
+                                <span style="font-weight:800; color:#ffffff; font-size:0.92rem;">${r.student_name || '학생'}</span>
+                                <span style="font-size:0.75rem; color:#94a3b8;">(${r.high_school || '고교'} / 고${r.grade || '3'} / #${r.student_id})</span>
+                                <span style="font-size:0.7rem; background:${statusColor}; color:white; padding:2px 6px; border-radius:4px; font-weight:700;">${statusText}</span>
+                            </div>
+                            <div style="font-size:0.78rem; color:#cbd5e1; margin-top:4px;">사유: <b>${r.reason || '사유 미기재'}</b></div>
+                            <div style="font-size:0.7rem; color:#64748b; margin-top:2px;">📅 접수: ${r.created_at || '-'}</div>
                         </div>
-                        <button onclick="approveAdminRequest(${r.id})" class="btn" style="padding:4px 10px; font-size:0.75rem; background:#10b981;">승인</button>
+                        ${isPending ? `
+                        <div style="display:flex; gap:6px;">
+                            <button onclick="approveAdminRequest(${r.id})" class="btn" style="padding:6px 14px; font-size:0.78rem; font-weight:800; background:linear-gradient(135deg,#10b981,#059669); color:white;">
+                                ✅ 승인
+                            </button>
+                            <button onclick="rejectAdminRequest(${r.id})" class="btn btn-secondary" style="padding:6px 12px; font-size:0.78rem; font-weight:800; color:#f87171; border:1px solid #ef4444;">
+                                ❌ 반려
+                            </button>
+                        </div>
+                        ` : `
+                        <span style="font-size:0.75rem; color:${statusColor}; font-weight:800;">처리완료</span>
+                        `}
                     </div>
-                `).join('');
+                `}).join('');
             } catch(e) {}
         }
 
@@ -722,11 +858,23 @@
             } catch(e) {}
         }
 
+        async function rejectAdminRequest(reqId) {
+            if (!confirm("해당 행정 신청을 반려(거절) 처리하시겠습니까?")) return;
+            try {
+                const res = await fetch(`/api/admin/requests/${reqId}/reject`, { method: "POST" });
+                if (res.ok) {
+                    alert("❌ 행정 신청이 반려 처리되었습니다.");
+                    loadAdminRequests();
+                }
+            } catch(e) {}
+        }
+
         async function handleIssueRedCard(e) {
             e.preventDefault();
             const sid = parseInt(document.getElementById("red-student-id").value, 10);
             const reason = document.getElementById("red-reason").value.trim();
-            if (!confirm(`학생 #${sid}에게 레드카드를 발송하시겠습니까?\n(보증금 차감 및 학부모 알림톡이 즉시 전송됩니다)`)) return;
+            if (!confirm(`학생 #${sid}에게 레드카드를 발송하시겠습니까?
+(보증금 차감 및 학부모 알림톡이 즉시 전송됩니다)`)) return;
             try {
                 const res = await fetch("/api/admin/redcard", {
                     method: "POST",
