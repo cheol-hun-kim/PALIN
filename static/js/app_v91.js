@@ -5783,6 +5783,7 @@ function updateAcademyGNBVisibility() {
     
     if (currentStudent && currentStudent.academy_code) {
         if (unlinkedCard) unlinkedCard.style.display = "none";
+        updateFacilitySelectorUI();
         if (linkedContent) linkedContent.style.display = "block";
         
         const hubName = document.getElementById("hub-academy-name");
@@ -6258,3 +6259,101 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     } catch(e) {}
 });
+
+
+// ============================================================================
+// 🏢 [Multi-Facility B2B] 재학 중인 다중 학원 / 관리형 독서실 통합 스위처 엔진
+// ============================================================================
+
+let currentActiveFacility = "ILWON-2027";
+
+function getEnrolledFacilities() {
+    try {
+        const saved = localStorage.getItem("palin_enrolled_facilities");
+        if (saved) return JSON.parse(saved);
+    } catch(e) {}
+    return [
+        { code: "ILWON-2027", name: "일원학원", desc: "수능 국어 사관학교", type: "단과학원" }
+    ];
+}
+
+function saveEnrolledFacilities(list) {
+    try {
+        localStorage.setItem("palin_enrolled_facilities", JSON.stringify(list));
+    } catch(e) {}
+}
+
+function updateFacilitySelectorUI() {
+    const selector = document.getElementById("hub-facility-selector");
+    if (!selector) return;
+    const facilities = getEnrolledFacilities();
+    
+    selector.innerHTML = facilities.map(f => `
+        <option value="${f.code}" ${f.code === currentActiveFacility ? 'selected' : ''}>
+            🏛️ ${f.name} (${f.desc || f.type || '기관'})
+        </option>
+    `).join('');
+}
+
+function onFacilitySelected(code) {
+    currentActiveFacility = code;
+    const facilities = getEnrolledFacilities();
+    const activeFac = facilities.find(f => f.code === code) || { name: code, desc: "수강 기관" };
+    
+    const hubName = document.getElementById("hub-academy-name");
+    if (hubName) hubName.innerText = activeFac.name;
+    
+    loadAcademyHubView();
+}
+
+function openAddFacilityModal() {
+    const modal = document.getElementById("add-facility-modal");
+    if (modal) {
+        document.getElementById("add-facility-code-input").value = "";
+        modal.style.display = "flex";
+    }
+}
+
+async function handleAddNewFacility(e) {
+    e.preventDefault();
+    const codeInput = document.getElementById("add-facility-code-input");
+    if (!codeInput) return;
+    const code = codeInput.value.trim().toUpperCase();
+    if (!code) return;
+    
+    try {
+        const res = await fetch("/api/academy/link", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: currentStudent?.id || 1, academy_code: code })
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            alert(err.detail || "기관 연동 실패");
+            return;
+        }
+        
+        const data = await res.json();
+        const facilities = getEnrolledFacilities();
+        if (!facilities.some(f => f.code === code)) {
+            facilities.push({
+                code: code,
+                name: code === "ILWON-2027" ? "일원학원" : code,
+                desc: "등록 기관",
+                type: "학원/독서실"
+            });
+            saveEnrolledFacilities(facilities);
+        }
+        
+        currentActiveFacility = code;
+        alert(`🎉 [기관 추가 성공]
+
+${data.message}
+${code} 기관의 대시보드로 즉시 전환됩니다!`);
+        document.getElementById("add-facility-modal").style.display = "none";
+        updateFacilitySelectorUI();
+        onFacilitySelected(code);
+    } catch(err) {
+        alert("기관 연동 중 통신 오류가 발생했습니다.");
+    }
+}
