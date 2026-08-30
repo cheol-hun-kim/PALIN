@@ -732,37 +732,48 @@ def manage_session(payload: schemas.StudySessionRequest, db: Session = Depends(g
 
 @app.post("/api/ai/chat", response_model=schemas.AIChatResponse)
 def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)):
-    student = None
-    tenant = None
+    tier = 3
+    custom_prompt = None
+    bot_name = "PALIN BOT"
+    is_active = True
+    remaining = 5
+
     try:
         if payload.student_id:
-            student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
-            if student and student.academy_code:
-                code = student.academy_code.upper().strip()
-                tenant = db.query(models.Tenant).filter(
-                    (models.Tenant.code == code) | (models.Tenant.code == code.replace("-2027", "1"))
-                ).first()
-    except Exception:
-        pass
+            try:
+                student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+                if student:
+                    if student.parent and getattr(student.parent, 'is_premium_subscribed', False):
+                        remaining = 999
+                    elif getattr(student, 'has_unlimited_chat', False):
+                        remaining = 999
+                    if student.academy_code:
+                        code = student.academy_code.upper().strip()
+                        tenant = db.query(models.Tenant).filter(
+                            (models.Tenant.code == code) | (models.Tenant.code == code.replace("-2027", "1"))
+                        ).first()
+                        if tenant:
+                            tier = tenant.tier or 2
+                            custom_prompt = tenant.custom_system_prompt
+                            bot_name = tenant.bot_name or "PALIN AI 멘토"
+                            is_active = tenant.is_active if tenant.is_active is not None else True
+            except Exception as e:
+                print("Student/Tenant lookup error in chat (ignorable):", e)
 
-    is_premium = (student.parent and student.parent.is_premium_subscribed) if (student and student.parent) else False
-    remaining = 999 if is_premium else 5
+        history_dicts = None
+        if payload.history:
+            history_dicts = []
+            for h in payload.history:
+                if isinstance(h, dict):
+                    role_str = h.get("role", "user")
+                    content_str = h.get("content", "")
+                else:
+                    role_str = getattr(h, "role", "user")
+                    content_str = getattr(h, "content", "")
+                clean_role = "user" if str(role_str).lower() in ("user", "human") else "model"
+                if content_str and str(content_str).strip():
+                    history_dicts.append({"role": clean_role, "content": str(content_str)})
 
-    history_dicts = None
-    if payload.history:
-        history_dicts = []
-        for h in payload.history:
-            if isinstance(h, dict):
-                history_dicts.append(h)
-            else:
-                history_dicts.append({"role": getattr(h, "role", "user"), "content": getattr(h, "content", "")})
-
-    tier = tenant.tier if tenant else 3
-    custom_prompt = tenant.custom_system_prompt if tenant else None
-    bot_name = tenant.bot_name if tenant else "PALIN BOT"
-    is_active = tenant.is_active if tenant else True
-
-    try:
         reply = ai.ask_ai_chatbot(
             payload.message,
             history=history_dicts,
@@ -773,8 +784,11 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
         )
         return schemas.AIChatResponse(reply=reply, remaining_chats=remaining)
     except Exception as e:
-        print(f"CHAT ENDPOINT ERROR: {e}")
-        return schemas.AIChatResponse(reply="지금 구글 AI 서버에 순간적인 접속 트래픽이 몰려서 답변이 지연되었어. 1~2초 뒤에 질문을 다시 보내주면 바로 답변해줄게!", remaining_chats=remaining)
+        print(f"CHAT ENDPOINT FATAL ERROR: {e}")
+        return schemas.AIChatResponse(
+            reply="지금 구글 AI 서버에 순간적인 접속 트래픽이 몰려서 답변이 지연되었어. 1~2초 뒤에 질문을 다시 보내주면 바로 답변해줄게!",
+            remaining_chats=remaining
+        )
 
 
 @app.get("/api/predict/universities")
