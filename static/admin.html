@@ -6,7 +6,7 @@
     <title>PALIN OS - B2B 학원장 통합 관제실 (Director Cockpit)</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=300.0">
+    <link rel="stylesheet" href="css/style.css?v=400.0">
     <style>
         :root {
             --bg-color: #08090d;
@@ -29,7 +29,7 @@
             min-height: 100vh;
         }
         .admin-container {
-            max-width: 1320px;
+            max-width: 1340px;
             margin: 0 auto;
             padding: 24px 16px;
         }
@@ -164,7 +164,6 @@
             box-sizing: border-box;
         }
 
-        /* 갓 모드 배너 */
         #god-mode-banner {
             background: linear-gradient(135deg, #dc2626, #991b1b);
             color: white;
@@ -178,7 +177,6 @@
             z-index: 1000;
         }
 
-        /* 플로팅 본사 지원 요청 버튼 */
         .floating-b2b-support-btn {
             position: fixed;
             bottom: 24px;
@@ -203,7 +201,6 @@
             box-shadow: 0 8px 25px rgba(245, 158, 11, 0.7);
         }
 
-        /* Modal popup */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -220,7 +217,7 @@
             border: 1.5px solid rgba(255, 255, 255, 0.2);
             border-radius: 20px;
             padding: 24px;
-            max-width: 580px;
+            max-width: 600px;
             width: 100%;
             max-height: 85vh;
             overflow-y: auto;
@@ -229,7 +226,7 @@
     </style>
 </head>
 <body>
-    <!-- 🚨 갓 모드 섀도잉 경고 배너 (원격 접속 시 노출) -->
+    <!-- 🚨 갓 모드 섀도잉 경고 배너 -->
     <div id="god-mode-banner" style="display: none;">
         <div style="display: flex; align-items: center; gap: 8px;">
             <span class="material-symbols-rounded" style="font-size: 1.3rem;">shield_person</span>
@@ -263,9 +260,12 @@
             <div class="admin-header">
                 <div>
                     <div class="admin-title">PALIN<span style="color: #6366f1;">OS</span> <span id="cockpit-academy-title">일원학원</span> 원장 관제실</div>
-                    <div style="font-size: 0.82rem; color: #94a3b8; margin-top: 3px;">재원생 행동 통제 · 수납 ERP · Wi-Fi 출결 로그 · 학부모 문자 발송</div>
+                    <div style="font-size: 0.82rem; color: #94a3b8; margin-top: 3px;">재원생 행동 통제 · 수납 ERP · Wi-Fi 출결 로그 · AI 맞춤 뇌 이식</div>
                 </div>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                    <button onclick="openBrainSurveyModal()" class="btn" style="padding: 8px 14px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #a855f7, #7e22ce); color: white; display: flex; align-items: center; gap: 4px;">
+                        <span>🧠</span> AI 챗봇 뇌 페르소나 설정
+                    </button>
                     <a href="/master.html" target="_blank" class="btn" style="padding: 8px 12px; font-size: 0.78rem; font-weight: 800; background: rgba(245,158,11,0.15); border: 1.5px solid rgba(245,158,11,0.4); color: #fbbf24; text-decoration: none; display: flex; align-items: center; gap: 4px;">
                         <span>👑</span> 총괄 제작자 마스터 콘솔
                     </a>
@@ -380,13 +380,24 @@
                 </div>
             </div>
 
-            <!-- TAB 3: 💰 3. 수업료 & 학적관리 -->
+            <!-- TAB 3: 💰 3. 수업료 & 학적관리 (수납 필터 완비!) -->
             <div id="tab-finance" class="cockpit-tab-view" style="display: none;">
                 <div class="kpi-card" style="border: 1.5px solid rgba(234, 179, 8, 0.4);">
                     <div class="section-title" style="color: #fbbf24;">
                         <span class="material-symbols-rounded">payments</span>
                         <span>💰 재원생 재무/수납 관리 ERP (단건 / 일괄 완납 & 미납 관리)</span>
                     </div>
+
+                    <!-- 🔍 수납 상태 필터 버튼 바 -->
+                    <div style="display: flex; gap: 6px; margin-bottom: 12px; align-items: center; flex-wrap: wrap;">
+                        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 800;">🔍 수납 필터:</span>
+                        <button type="button" onclick="filterFinanceTable('ALL')" id="btn-fin-filter-all" class="btn" style="padding: 5px 12px; font-size: 0.78rem; font-weight: 800; background: #6366f1; color: white;">전체 보기</button>
+                        <button type="button" onclick="filterFinanceTable('TUITION_UNPAID')" id="btn-fin-filter-tuition-unpaid" class="btn btn-secondary" style="padding: 5px 12px; font-size: 0.78rem; font-weight: 800; color: #f87171; border-color: rgba(239,68,68,0.4);">🚨 수강료 미납생만</button>
+                        <button type="button" onclick="filterFinanceTable('TEXTBOOK_UNPAID')" id="btn-fin-filter-textbook-unpaid" class="btn btn-secondary" style="padding: 5px 12px; font-size: 0.78rem; font-weight: 800; color: #c084fc; border-color: rgba(168,85,247,0.4);">📦 교재비 미납생만</button>
+                        <button type="button" onclick="filterFinanceTable('ALL_PAID')" id="btn-fin-filter-all-paid" class="btn btn-secondary" style="padding: 5px 12px; font-size: 0.78rem; font-weight: 800; color: #34d399; border-color: rgba(16,185,129,0.4);">✨ 전액 완납생만</button>
+                    </div>
+
+                    <!-- 일괄 수납 처리 액션 바 -->
                     <div style="display: flex; gap: 8px; flex-wrap: wrap; background: rgba(0,0,0,0.35); padding: 12px; border-radius: 10px; margin-bottom: 14px; align-items: center;">
                         <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 800; color: #ffffff; cursor: pointer; margin-right: 8px;">
                             <input type="checkbox" onchange="toggleSelectAllFinance(this.checked)" style="width: 16px; height: 16px;">
@@ -603,6 +614,60 @@
         </div>
     </div>
 
+    <!-- 🧠 팝업 모달: AI 페르소나 & 문진표 셋팅 -->
+    <div id="brain-survey-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="border-color: #a855f7;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <div style="font-size: 1.2rem; font-weight: 900; color: #c084fc; display: flex; align-items: center; gap: 6px;">
+                    <span class="material-symbols-rounded">psychology</span>
+                    <span>🧠 AI 챗봇 뇌 페르소나 문진표 설정 (맞춤 뇌 이식)</span>
+                </div>
+                <button onclick="closeBrainSurveyModal()" class="btn btn-secondary" style="padding: 4px 10px;">✕</button>
+            </div>
+
+            <!-- 현재 상태 뱃지 -->
+            <div id="brain-status-banner" style="background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.4); padding: 10px 14px; border-radius: 10px; margin-bottom: 16px; font-size: 0.82rem; color: #cbd5e1;">
+                현재 상태: <b id="brain-status-text" style="color: #fbbf24;">확인 중...</b>
+            </div>
+
+            <form onsubmit="handleSubmitBrainSurvey(event)" style="display: flex; flex-direction: column; gap: 12px;">
+                <div>
+                    <label style="font-size: 0.78rem; color: #94a3b8; display: block; margin-bottom: 4px;">원장님의 AI 챗봇 이름</label>
+                    <input type="text" id="survey-bot-name" placeholder="예: 대치수학봇, 일원국어 AI 실장" required class="form-input" style="width: 100%; font-weight: 700;">
+                </div>
+                <div>
+                    <label style="font-size: 0.78rem; color: #94a3b8; display: block; margin-bottom: 4px;">말투 / Tone & Manner</label>
+                    <select id="survey-bot-tone" class="form-input" style="width: 100%; font-weight: 700;">
+                        <option value="VERY_STRICT">⚡ 매우 엄격함 (팩트 폭격기 / 나태함 타협 없음)</option>
+                        <option value="WARM">🌱 친절하고 따뜻한 조력자 (멘탈 케어 & 격려)</option>
+                        <option value="CHARISMA">🔥 카리스마 넘치는 1타 강사 (열정과 동기부여)</option>
+                        <option value="ANALYTICAL">📊 냉철한 입시 전략가 (데이터와 수치 기반)</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 0.78rem; color: #94a3b8; display: block; margin-bottom: 4px;">
+                        절대 강조해야 할 교육 철학 & 핵심 가치 (300자 이내)
+                    </label>
+                    <textarea id="survey-core-values" placeholder="예: 개념 노트 필기를 무조건 최우선시할 것. 숙제 미제출 시 어떠한 타협도 없이 경고할 것. 취약 유형은 3회독 복습을 강제할 것." required class="form-input" style="height: 80px; width: 100%;"></textarea>
+                </div>
+                <div>
+                    <label style="font-size: 0.78rem; color: #94a3b8; display: block; margin-bottom: 4px;">
+                        금지어 및 기피 성향 (100자 이내)
+                    </label>
+                    <input type="text" id="survey-banned-words" placeholder="예: 근거 없는 맹목적 위로 금지, 타 학원 비방 금지" class="form-input" style="width: 100%;">
+                </div>
+                <div style="font-size: 0.75rem; color: #94a3b8; line-height: 1.4;">
+                    ※ 제출 시 슈퍼 어드민(김철훈 제작자)이 프롬프트 엔지니어링을 거쳐 최적화된 형태로 AI에 뇌를 주입(Tier 2 승격)해 드립니다.
+                </div>
+                <div style="text-align: right; margin-top: 6px;">
+                    <button type="submit" class="btn" style="background: linear-gradient(135deg, #a855f7, #7e22ce); color: white; font-weight: 900; padding: 10px 22px;">
+                        📩 본사에 뇌 이식 신청서 제출
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- 🆘 B2B 본사 지원 요청 플로팅 버튼 -->
     <button onclick="openB2BSupportModal()" class="floating-b2b-support-btn">
         <span class="material-symbols-rounded" style="font-size: 1.2rem;">contact_support</span>
@@ -666,6 +731,7 @@
         let allStudentsCache = [];
         let currentTenantCode = "ILWON-2027";
         let currentTenantName = "일원학원";
+        let currentFinanceFilter = "ALL";
 
         function switchAdminCockpitTab(tabId) {
             document.querySelectorAll('.cockpit-tab-view').forEach(el => el.style.display = 'none');
@@ -739,7 +805,6 @@
                 const data = await res.json();
                 allStudentsCache = data.students || [];
 
-                // KPI 요약
                 document.getElementById("stat-students").innerText = `${data.summary.total_students ?? 0}명`;
                 document.getElementById("stat-parents").innerText = `${data.summary.total_parents ?? 0}명`;
                 const tutorCount = data.summary.active_tutors_count ?? data.summary.total_tutors ?? (data.all_tutors ? data.all_tutors.length : 0);
@@ -747,7 +812,6 @@
                 const topCount = (data.summary.league_counts?.PLATINUM || 0) + (data.summary.league_counts?.GOLD || 0);
                 document.getElementById("stat-top-league").innerText = `${topCount}명`;
 
-                // 학생 테이블
                 const tbody = document.getElementById("student-table-body");
                 tbody.innerHTML = "";
                 data.students.forEach(s => {
@@ -768,7 +832,6 @@
                     tbody.appendChild(tr);
                 });
 
-                // 미션 피드
                 const mFeed = document.getElementById("mission-feed");
                 mFeed.innerHTML = "";
                 if (!data.recent_missions || data.recent_missions.length === 0) {
@@ -792,7 +855,6 @@
                     });
                 }
 
-                // 공부 피드
                 const sFeed = document.getElementById("study-feed");
                 sFeed.innerHTML = "";
                 if (!data.recent_studies || data.recent_studies.length === 0) {
@@ -827,6 +889,65 @@
             } catch (e) {
                 console.error("Dashboard load failed:", e);
             }
+        }
+
+        // ==========================================
+        // 🧠 AI 페르소나 문진표 모달 제어
+        // ==========================================
+        async function openBrainSurveyModal() {
+            document.getElementById("brain-survey-modal").style.display = "flex";
+            try {
+                const res = await fetch(`/api/admin/tenant/brain-status?tenant_code=${currentTenantCode}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById("survey-bot-name").value = data.bot_name || "";
+                    document.getElementById("survey-bot-tone").value = data.bot_tone || "VERY_STRICT";
+                    document.getElementById("survey-core-values").value = data.core_values || "";
+                    document.getElementById("survey-banned-words").value = data.banned_words || "";
+
+                    const statusElem = document.getElementById("brain-status-text");
+                    if (data.status === "PENDING") {
+                        statusElem.innerHTML = `<span style="color:#f59e0b;">⏳ 본사 심사 및 프롬프트 최적화 진행 중 (접수일시: ${data.submitted_at})</span>`;
+                    } else if (data.status === "INJECTED") {
+                        statusElem.innerHTML = `<span style="color:#10b981;">✅ AI 맞춤 뇌 이식 완료 (Tier ${data.tier} 활성 중 - 이식일시: ${data.injected_at})</span>`;
+                    } else {
+                        statusElem.innerHTML = `<span style="color:#94a3b8;">미신청 (현재 기본 Tier ${data.tier} 챗봇 가동 중)</span>`;
+                    }
+                }
+            } catch(e) {}
+        }
+
+        function closeBrainSurveyModal() {
+            document.getElementById("brain-survey-modal").style.display = "none";
+        }
+
+        async function handleSubmitBrainSurvey(e) {
+            e.preventDefault();
+            const botName = document.getElementById("survey-bot-name").value.trim();
+            const botTone = document.getElementById("survey-bot-tone").value;
+            const coreVals = document.getElementById("survey-core-values").value.trim();
+            const banned = document.getElementById("survey-banned-words").value.trim();
+
+            try {
+                const res = await fetch("/api/admin/tenant/brain-survey", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        tenant_code: currentTenantCode,
+                        bot_name: botName,
+                        bot_tone: botTone,
+                        core_values: coreVals,
+                        banned_words: banned
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`🎉 ${data.message}`);
+                    closeBrainSurveyModal();
+                } else {
+                    alert(data.detail || "문진표 제출 실패");
+                }
+            } catch(e) { alert("서버 통신 오류"); }
         }
 
         // ==========================================
@@ -879,7 +1000,7 @@
         }
 
         // ==========================================
-        // 📡 2. 출결관리 (Wi-Fi 출결 실시간 로그)
+        // 📡 2. 출결관리
         // ==========================================
         async function loadAdminAttendanceLogs() {
             const tbody = document.getElementById("attendance-logs-tbody");
@@ -962,8 +1083,30 @@ ${inviteUrl}'))" class="btn" style="padding:8px 14px; font-size:0.8rem; font-wei
         }
 
         // ==========================================
-        // 💰 3. 수납 ERP & 완납/미납 제어 (Fixed!)
+        // 💰 3. 수납 ERP & 완납/미납 필터 제어
         // ==========================================
+        function filterFinanceTable(filter) {
+            currentFinanceFilter = filter;
+            const filterMap = {
+                'ALL': 'btn-fin-filter-all',
+                'TUITION_UNPAID': 'btn-fin-filter-tuition-unpaid',
+                'TEXTBOOK_UNPAID': 'btn-fin-filter-textbook-unpaid',
+                'ALL_PAID': 'btn-fin-filter-all-paid'
+            };
+            Object.keys(filterMap).forEach(k => {
+                const btn = document.getElementById(filterMap[k]);
+                if (btn) {
+                    if (k === filter) {
+                        btn.style.background = '#6366f1';
+                        btn.style.color = '#ffffff';
+                    } else {
+                        btn.style.background = 'rgba(255,255,255,0.06)';
+                    }
+                }
+            });
+            renderFinancialERP();
+        }
+
         function toggleSelectAllFinance(checked) {
             document.querySelectorAll(".finance-item-checkbox").forEach(cb => cb.checked = checked);
         }
@@ -971,7 +1114,22 @@ ${inviteUrl}'))" class="btn" style="padding:8px 14px; font-size:0.8rem; font-wei
         function renderFinancialERP() {
             const tbody = document.getElementById("financial-erp-tbody");
             if (!tbody || !allStudentsCache) return;
-            tbody.innerHTML = allStudentsCache.map(s => {
+
+            let filteredStudents = allStudentsCache;
+            if (currentFinanceFilter === 'TUITION_UNPAID') {
+                filteredStudents = filteredStudents.filter(s => !s.tuition_paid);
+            } else if (currentFinanceFilter === 'TEXTBOOK_UNPAID') {
+                filteredStudents = filteredStudents.filter(s => !s.textbook_paid);
+            } else if (currentFinanceFilter === 'ALL_PAID') {
+                filteredStudents = filteredStudents.filter(s => s.tuition_paid && s.textbook_paid);
+            }
+
+            if (filteredStudents.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:20px;">해당 조건의 학생이 없습니다.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredStudents.map(s => {
                 const tuitionPaid = Boolean(s.tuition_paid);
                 const textbookPaid = Boolean(s.textbook_paid);
                 const enrollStatus = s.enrollment_status === 'GRADUATED' ? '졸업생' : (s.enrollment_status === 'ON_LEAVE' ? '휴강생' : '재원생');
@@ -1058,7 +1216,7 @@ ${inviteUrl}'))" class="btn" style="padding:8px 14px; font-size:0.8rem; font-wei
         }
 
         // ==========================================
-        // 📢 4. 수업관리 (학사일정 & VOD & 행정)
+        // 📢 4. 수업관리
         // ==========================================
         async function handleCreateFeed(e) {
             e.preventDefault();
