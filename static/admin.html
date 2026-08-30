@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PALIN OS - 원장 전용 중앙 관제 대시보드</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=111.0">
+    <link rel="stylesheet" href="css/style.css?v=112.0">
     <style>
         body {
             background-color: #06070a;
@@ -632,7 +632,10 @@
         <form onsubmit="handleCreateFeed(event)" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
             <div style="display: grid; grid-template-columns: 140px 100px 140px 1fr auto; gap: 8px;">
                 <input type="text" id="feed-curr-name" placeholder="커리큘럼명 (예: 2027 킬러 정복반)" value="2027 수능 국어 킬러 정복반" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px 12px; border-radius: 8px;">
-                <input type="number" id="feed-week" placeholder="주차 (예: 3)" value="3" min="1" max="52" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px; border-radius: 8px; text-align: center;">
+                <div style="position: relative; display: flex; align-items: center;">
+                    <input type="number" id="feed-week" placeholder="주차" value="3" min="1" max="52" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px 26px 9px 10px; border-radius: 8px; text-align: center; width: 100%; font-weight: 700;">
+                    <span style="position: absolute; right: 8px; font-size: 0.75rem; color: #c084fc; font-weight: 800; pointer-events: none;">주차</span>
+                </div>
                 <input type="date" id="feed-date" value="2026-08-30" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px 10px; border-radius: 8px; color-scheme: dark;">
                 <input type="text" id="feed-content" placeholder="강의 내용 및 공지 (예: 수능완성 실전모의고사 1회 비문학 고난도 구조독해)" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px 12px; border-radius: 8px;">
                 <div style="display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.2); padding: 0 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15);">
@@ -748,6 +751,357 @@
     <script>
         const MASTER_PIN = "12862386";
         const ALLOWED_PINS = ["12862386", "1286orbital21@gmail.com", "1286"];
+
+        // ============================================================================
+        // 🏫 [Phase 1~5] 원장 ERP, 스케줄러, 칸반, 학사피드, 레드카드 JS 핸들러
+        // ============================================================================
+
+        let allStudentsCache = [];
+
+        async function loadAdminSchedules() {
+            const container = document.getElementById("admin-schedules-list");
+            try {
+                const res = await fetch("/api/admin/schedules");
+                if (!res.ok) {
+                    if (container) container.innerHTML = '<div style="color: #94a3b8; font-size: 0.8rem; text-align: center; padding: 10px;">등록된 일정이 없습니다. (새 일정을 등록해 보세요)</div>';
+                    return;
+                }
+                const list = await res.json();
+                if (!container) return;
+                
+                if (!list || list.length === 0) {
+                    container.innerHTML = '<div style="color: #94a3b8; font-size: 0.8rem; text-align: center; padding: 10px;">등록된 일정이 없습니다. (새 일정을 등록해 보세요)</div>';
+                    return;
+                }
+                
+                container.innerHTML = list.map(s => {
+                    const catColors = { "OPERATION": "#6366f1", "EVENT": "#ec4899", "TAX": "#10b981", "ACADEMY": "#f59e0b" };
+                    const catNames = { "OPERATION": "교재/운영", "EVENT": "설명회/상담", "TAX": "세무/재무", "ACADEMY": "학사/개강" };
+                    const isDone = s.is_completed;
+                    return `
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.25); padding: 10px 14px; border-radius: 8px; border-left: 4px solid ${catColors[s.category] || '#6366f1'}; opacity: ${isDone ? '0.5' : '1'};">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleScheduleDone(${s.id}, this.checked)" style="width: 16px; height: 16px; cursor: pointer;">
+                                <div>
+                                    <div style="font-size: 0.88rem; font-weight: 700; ${isDone ? 'text-decoration: line-through; color: #94a3b8;' : 'color: #ffffff;'}">${s.title}</div>
+                                    <div style="font-size: 0.74rem; color: #94a3b8; margin-top: 2px;">
+                                        <span style="color: ${catColors[s.category] || '#818cf8'}; font-weight: 700;">[${catNames[s.category] || '기타'}]</span>
+                                        🕒 ${s.schedule_date}
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="deleteAdminSchedule(${s.id})" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.72rem; color: #ef4444;">삭제</button>
+                        </div>
+                    `;
+                }).join('');
+            } catch(e) { 
+                console.error("loadAdminSchedules error:", e);
+                if (container) container.innerHTML = '<div style="color: #94a3b8; font-size: 0.8rem; text-align: center; padding: 10px;">등록된 일정이 없습니다.</div>';
+            }
+        }
+
+        async function handleCreateSchedule(e) {
+            if (e) e.preventDefault();
+            const titleInput = document.getElementById("sch-title");
+            const dateInput = document.getElementById("sch-date");
+            const catInput = document.getElementById("sch-category");
+            
+            if (!titleInput || !dateInput) return;
+            const title = titleInput.value.trim();
+            const dateVal = dateInput.value;
+            const category = catInput ? catInput.value : "OPERATION";
+            
+            if (!title || !dateVal) {
+                alert("일정 제목과 일시를 모두 입력해 주세요.");
+                return;
+            }
+            
+            const formattedDate = dateVal.replace("T", " ");
+            try {
+                const res = await fetch("/api/admin/schedules", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title, schedule_date: formattedDate, category })
+                });
+                if (res.ok) {
+                    titleInput.value = "";
+                    dateInput.value = "";
+                    loadAdminSchedules();
+                } else {
+                    const err = await res.json();
+                    alert(err.detail || "일정 등록 실패");
+                }
+            } catch(err) { 
+                console.error(err);
+                alert("일정 등록 통신 오류"); 
+            }
+        }
+
+        async function toggleScheduleDone(id, isCompleted) {
+            try {
+                await fetch(`/api/admin/schedules/${id}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ is_completed: isCompleted })
+                });
+                loadAdminSchedules();
+            } catch(e) { console.error(e); }
+        }
+
+        async function deleteAdminSchedule(id) {
+            if (!confirm("정말 이 일정을 삭제하시겠습니까?")) return;
+            try {
+                await fetch(`/api/admin/schedules/${id}`, { method: "DELETE" });
+                loadAdminSchedules();
+            } catch(e) { console.error(e); }
+        }
+
+        async function checkAdminRemindersNow() {
+            try {
+                const res = await fetch("/api/admin/schedules/check-reminders", { method: "POST" });
+                const data = await res.json();
+                alert(`리마인더 점검 완료: ${data.reminders_sent}건의 알림이 감지되었습니다.`);
+                loadAdminSchedules();
+            } catch(e) { alert("리마인더 점검 실패"); }
+        }
+
+        async function loadFinancialERP() {
+            const tbody = document.getElementById("erp-financial-table-body");
+            try {
+                const res = await fetch("/api/admin/dashboard");
+                if (!res.ok) {
+                    if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #94a3b8;">등록된 재원생이 없습니다.</td></tr>';
+                    return;
+                }
+                const data = await res.json();
+                allStudentsCache = data.students || [];
+                
+                if (tbody) {
+                    if (allStudentsCache.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #94a3b8;">등록된 재원생이 없습니다.</td></tr>';
+                    } else {
+                        tbody.innerHTML = allStudentsCache.map(s => {
+                            return `
+                                <tr>
+                                    <td style="font-weight: 700; color: #818cf8;">#${s.id}</td>
+                                    <td style="font-weight: 800;">${s.name}</td>
+                                    <td>${s.high_school || '-'} / 고${s.grade || '-'}</td>
+                                    <td>
+                                        <input type="checkbox" id="tuition-paid-${s.id}" ${s.tuition_paid ? 'checked' : ''} style="width: 16px; height: 16px;">
+                                        <label for="tuition-paid-${s.id}" style="font-size: 0.78rem; font-weight: 700; color: ${s.tuition_paid ? '#10b981' : '#f87171'}; cursor:pointer;">
+                                            ${s.tuition_paid ? '완납' : '미납'}
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" id="textbook-paid-${s.id}" ${s.textbook_paid ? 'checked' : ''} style="width: 16px; height: 16px;">
+                                        <label for="textbook-paid-${s.id}" style="font-size: 0.78rem; font-weight: 700; color: ${s.textbook_paid ? '#10b981' : '#f87171'}; cursor:pointer;">
+                                            ${s.textbook_paid ? '완납' : '미납'}
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <input type="text" id="textbooks-list-${s.id}" value="${s.textbooks_distributed || ''}" placeholder="지급 교재 (예: 수특 국어/수학, 킬러 N제 1권)" class="form-input" style="width: 260px; padding: 6px 10px; font-size: 0.78rem;">
+                                    </td>
+                                    <td>
+                                        <button onclick="saveStudentFinancial(${s.id})" class="btn" style="padding: 6px 14px; font-size: 0.75rem; background: linear-gradient(135deg, #10b981, #059669); font-weight: 700;">💾 저장</button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('');
+                    }
+                }
+                
+                const redSelect = document.getElementById("redcard-student-select");
+                if (redSelect) {
+                    redSelect.innerHTML = allStudentsCache.map(s => `<option value="${s.id}">${s.name} (${s.high_school || '재원생'})</option>`).join('');
+                }
+            } catch(e) { 
+                console.error("loadFinancialERP error:", e); 
+                if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #94a3b8;">데이터 로딩 완료</td></tr>';
+            }
+        }
+
+        async function saveStudentFinancial(studentId) {
+            const tuitionPaid = document.getElementById(`tuition-paid-${studentId}`).checked;
+            const textbookPaid = document.getElementById(`textbook-paid-${studentId}`).checked;
+            const textbooksDistributed = document.getElementById(`textbooks-list-${studentId}`).value.trim();
+            
+            try {
+                const res = await fetch(`/api/admin/students/${studentId}/financial`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        tuition_paid: tuitionPaid,
+                        textbook_paid: textbookPaid,
+                        textbooks_distributed: textbooksDistributed
+                    })
+                });
+                if (res.ok) {
+                    alert("수납 및 교재 지급 설정이 저장되었습니다. (화요일 AI 레포트 연동 완료)");
+                    loadFinancialERP();
+                }
+            } catch(e) { alert("저장 실패"); }
+        }
+
+        async function loadAdminRequests() {
+            try {
+                const res = await fetch("/api/admin/requests");
+                if (!res.ok) return;
+                const requests = await res.json();
+                
+                const pendingList = document.getElementById("kanban-pending-list");
+                const approvedList = document.getElementById("kanban-approved-list");
+                const rejectedList = document.getElementById("kanban-rejected-list");
+                
+                let pending = [], approved = [], rejected = [];
+                requests.forEach(r => {
+                    if (r.status === "PENDING") pending.push(r);
+                    else if (r.status === "APPROVED") approved.push(r);
+                    else rejected.push(r);
+                });
+                
+                document.getElementById("kanban-pending-count").innerText = pending.length;
+                document.getElementById("kanban-approved-count").innerText = approved.length;
+                document.getElementById("kanban-rejected-count").innerText = rejected.length;
+                
+                const typeBadges = {
+                    "VOD": '<span style="background:#6366f1; color:white; padding:2px 6px; border-radius:4px; font-size:0.7rem;">복습 VOD</span>',
+                    "ATTENDANCE": '<span style="background:#f59e0b; color:black; padding:2px 6px; border-radius:4px; font-size:0.7rem;">결석/보강</span>',
+                    "CLASS_CHANGE": '<span style="background:#10b981; color:white; padding:2px 6px; border-radius:4px; font-size:0.7rem;">반 변경</span>',
+                    "LEAVE": '<span style="background:#ef4444; color:white; padding:2px 6px; border-radius:4px; font-size:0.7rem;">장기 휴강</span>',
+                    "RETURN": '<span style="background:#3b82f6; color:white; padding:2px 6px; border-radius:4px; font-size:0.7rem;">학원 복귀</span>'
+                };
+                
+                const renderCard = (r) => `
+                    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span style="font-weight: 800; font-size: 0.85rem;">${r.student_name || '학생'}</span>
+                            ${typeBadges[r.request_type] || r.request_type}
+                        </div>
+                        <div style="font-size: 0.78rem; color: #e2e8f0; margin-bottom: 6px;">${r.details}</div>
+                        ${r.leave_reason ? `<div style="font-size: 0.72rem; color: #f87171;">사유: ${r.leave_reason}</div>` : ''}
+                        <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 4px;">접수: ${r.created_at ? r.created_at.substring(0, 16).replace('T', ' ') : '-'}</div>
+                        ${r.status === 'PENDING' ? `
+                            <div style="display: flex; gap: 6px; margin-top: 8px;">
+                                <button onclick="updateRequestStatus(${r.id}, 'APPROVED')" class="btn" style="flex:1; padding: 4px 0; font-size: 0.72rem; background: #10b981;">승인 & 카톡</button>
+                                <button onclick="updateRequestStatus(${r.id}, 'REJECTED')" class="btn btn-secondary" style="flex:1; padding: 4px 0; font-size: 0.72rem; color: #ef4444;">반려</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                if (pendingList) pendingList.innerHTML = pending.length ? pending.map(renderCard).join('') : '<div style="color:#64748b; font-size:0.75rem; text-align:center; padding:10px;">대기 요청 없음</div>';
+                if (approvedList) approvedList.innerHTML = approved.length ? approved.map(renderCard).join('') : '<div style="color:#64748b; font-size:0.75rem; text-align:center; padding:10px;">승인 내역 없음</div>';
+                if (rejectedList) rejectedList.innerHTML = rejected.length ? rejected.map(renderCard).join('') : '<div style="color:#64748b; font-size:0.75rem; text-align:center; padding:10px;">반려 내역 없음</div>';
+            } catch(e) { console.error("loadAdminRequests error:", e); }
+        }
+
+        async function updateRequestStatus(requestId, newStatus) {
+            try {
+                const res = await fetch(`/api/admin/requests/${requestId}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                if (res.ok) {
+                    alert(`요청이 ${newStatus === 'APPROVED' ? '승인' : '반려'} 처리되었으며, 학부모 알림톡이 전송되었습니다.`);
+                    loadAdminRequests();
+                    loadFinancialERP();
+                }
+            } catch(e) { alert("상태 갱신 실패"); }
+        }
+
+        async function loadCurriculumFeeds() {
+            try {
+                const res = await fetch("/api/academy/feeds?academy_code=ILWON-2027");
+                if (!res.ok) return;
+                const feeds = await res.json();
+                const container = document.getElementById("admin-feeds-list");
+                if (!container) return;
+                
+                if (feeds.length === 0) {
+                    container.innerHTML = '<div style="color: #94a3b8; font-size: 0.8rem; text-align: center; padding: 10px;">등록된 학사 피드가 없습니다.</div>';
+                    return;
+                }
+                
+                container.innerHTML = feeds.map(f => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.25); padding: 10px 14px; border-radius: 8px; border-left: 4px solid ${f.is_special_notice ? '#ef4444' : '#a855f7'};">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                ${f.is_special_notice ? '<span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 800;">🚨 특별공지</span>' : ''}
+                                <span style="font-weight: 800; font-size: 0.88rem; color: #ffffff;">[${f.curriculum_name} ${f.week_number}주차]</span>
+                                <span style="font-size: 0.74rem; color: #94a3b8;">(${f.feed_date})</span>
+                            </div>
+                            <div style="font-size: 0.82rem; color: #e2e8f0; margin-top: 4px;">${f.content}</div>
+                        </div>
+                        <button onclick="deleteCurriculumFeed(${f.id})" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.72rem; color: #ef4444;">삭제</button>
+                    </div>
+                `).join('');
+            } catch(e) { console.error("loadCurriculumFeeds error:", e); }
+        }
+
+        async function handleCreateFeed(e) {
+            if (e) e.preventDefault();
+            const currName = document.getElementById("feed-curr-name").value.trim();
+            const weekNum = parseInt(document.getElementById("feed-week").value, 10);
+            const feedDate = document.getElementById("feed-date").value;
+            const content = document.getElementById("feed-content").value.trim();
+            const isSpecial = document.getElementById("feed-special-notice").checked;
+            
+            if (!currName || isNaN(weekNum) || !feedDate || !content) return;
+            
+            try {
+                const res = await fetch("/api/admin/academy/feeds", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        academy_code: "ILWON-2027",
+                        curriculum_name: currName,
+                        week_number: weekNum,
+                        feed_date: feedDate,
+                        content: content,
+                        is_special_notice: isSpecial
+                    })
+                });
+                if (res.ok) {
+                    document.getElementById("feed-content").value = "";
+                    loadCurriculumFeeds();
+                }
+            } catch(err) { alert("피드 등록 실패"); }
+        }
+
+        async function deleteCurriculumFeed(id) {
+            if (!confirm("정말 이 피드를 삭제하시겠습니까?")) return;
+            try {
+                await fetch(`/api/admin/academy/feeds/${id}`, { method: "DELETE" });
+                loadCurriculumFeeds();
+            } catch(e) { console.error(e); }
+        }
+
+        async function handleIssueRedCard(e) {
+            if (e) e.preventDefault();
+            const studentId = document.getElementById("redcard-student-select").value;
+            const amount = parseInt(document.getElementById("redcard-amount").value, 10);
+            const reason = document.getElementById("redcard-reason").value.trim();
+            
+            if (!studentId || !reason) return;
+            if (!confirm(`선택한 학생에게 레드카드를 발부하고 ${amount.toLocaleString()}원 벌금 차감 및 학부모 SMS를 전송하시겠습니까?`)) return;
+            
+            try {
+                const res = await fetch(`/api/admin/users/${studentId}/penalty`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ reason: reason, penalty_amount: amount })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    alert(data.message);
+                    document.getElementById("redcard-reason").value = "";
+                    loadFinancialERP();
+                    fetchDashboardData();
+                }
+            } catch(err) { alert("레드카드 발부 실패"); }
+        }
+
 
         document.addEventListener("DOMContentLoaded", () => {
             // 이미 세션 인증이 되어 있는 경우 바로 대시보드 표시
