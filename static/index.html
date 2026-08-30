@@ -13,7 +13,7 @@
         if ('caches' in window) {
             caches.keys().then(names => {
                 for (let name of names) {
-                    if (name !== 'palin-os-v116') {
+                    if (name !== 'palin-os-v120') {
                         caches.delete(name);
                     }
                 }
@@ -87,14 +87,15 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 <style>
 /* 🏫 학원 허브 서브탭 버튼 스타일 */
 .subtab-btn-hub {
-    padding: 8px 14px;
-    border-radius: 10px;
-    font-size: 0.8rem;
-    font-weight: 700;
+    padding: 10px 2px;
+    border-radius: 8px;
+    font-size: 0.76rem;
+    font-weight: 800;
+    text-align: center;
+    white-space: nowrap;
     border: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(255, 255, 255, 0.05);
     color: var(--text-secondary);
-    white-space: nowrap;
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -1285,7 +1286,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     </div>
                 </div>
 
-                <!-- 2. 연동 완료 시 노출되는 메인 학원 허브 컨텐츠 -->
+                <!-- 2. 연동 완료 시 노출되는 메인 학원 관리 컨텐츠 -->
                 <div id="hub-linked-content" style="display: none;">
                     <!-- 학원 정보 헤더 & 원터치 Wi-Fi 출석체크 -->
                     <div class="card" style="margin-bottom: 12px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.1)); border: 1.5px solid rgba(99, 102, 241, 0.4);">
@@ -1503,7 +1504,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             </div>
             <div class="nav-item" data-tab="page4" id="nav-tab-academy">
                 <span class="material-symbols-rounded nav-icon">account_balance</span>
-                <span>학원허브</span>
+                <span>학원관리</span>
             </div>
         </div>
 
@@ -2189,7 +2190,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app_v91.js?v=116.0"></script>
+    <script src="js/app_v91.js?v=120.0"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소
