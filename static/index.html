@@ -13,7 +13,7 @@
         if ('caches' in window) {
             caches.keys().then(names => {
                 for (let name of names) {
-                    if (name !== 'palin-os-v125') {
+                    if (name !== 'palin-os-v130') {
                         caches.delete(name);
                     }
                 }
@@ -1330,7 +1330,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             </div>
                             <button onclick="checkInAttendanceNow()" class="btn" style="padding: 8px 14px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); border-radius: 10px; display: flex; align-items: center; gap: 4px;">
                                 <span class="material-symbols-rounded" style="font-size: 1rem;">wifi</span>
-                                <span>📍 학원 출석체크</span>
+                                <span>학원 출석체크</span>
                             </button>
                         </div>
                     </div>
@@ -1349,20 +1349,20 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <!-- 🧭 학원 관리 4대 서브탭 (위 2개 / 아래 2개 균형 그리드) -->
                     <div class="subtabs-container-2x2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;">
                         <button class="subtab-btn-hub-2x2 active" onclick="switchHubSubTab('feed')" id="hub-tab-feed">
-                            <span class="material-symbols-rounded" style="font-size: 1.15rem; color: #a78bfa;">calendar_month</span>
-                            <span>📢 학사일정</span>
+                            <span class="material-symbols-rounded" style="font-size: 1.25rem; color: #c084fc;">calendar_month</span>
+                            <span>학사일정</span>
                         </button>
                         <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('vod')" id="hub-tab-vod">
-                            <span class="material-symbols-rounded" style="font-size: 1.15rem; color: #818cf8;">play_circle</span>
-                            <span>🎬 복습 VOD</span>
+                            <span class="material-symbols-rounded" style="font-size: 1.25rem; color: #818cf8;">play_circle</span>
+                            <span>복습 VOD</span>
                         </button>
                         <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('exam')" id="hub-tab-exam">
-                            <span class="material-symbols-rounded" style="font-size: 1.15rem; color: #34d399;">document_scanner</span>
-                            <span>📝 시험 · OMR</span>
+                            <span class="material-symbols-rounded" style="font-size: 1.25rem; color: #34d399;">document_scanner</span>
+                            <span>시험 · OMR</span>
                         </button>
                         <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('request')" id="hub-tab-request">
-                            <span class="material-symbols-rounded" style="font-size: 1.15rem; color: #fbbf24;">support_agent</span>
-                            <span>📋 행정 신청</span>
+                            <span class="material-symbols-rounded" style="font-size: 1.25rem; color: #fbbf24;">support_agent</span>
+                            <span>행정 신청</span>
                         </button>
                     </div>
 
@@ -2221,7 +2221,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app_v91.js?v=125.0"></script>
+    <script src="js/app_v91.js?v=130.0"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소
