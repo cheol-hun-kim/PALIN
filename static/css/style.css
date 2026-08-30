@@ -1,4 +1,41 @@
 
+/* 🛡️ Phase 0: Global Typography, Contrast & Text-Wrapping Defense (Zero-Defect Standard) */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-app);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body, p, span, div, h1, h2, h3, h4, h5, h6, label, button, .card, .banner, .modal {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+}
+
+.u-truncate {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.u-nowrap {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+}
+
+.u-keep-all {
+    word-break: keep-all !important;
+    overflow-wrap: break-word !important;
+}
+
+
 /* 📅 & ⏰ 날짜/시간 선택창(Date/Time Picker) 단일 화이트 고대비 스타일링 */
 input[type="date"],
 input[type="time"],
