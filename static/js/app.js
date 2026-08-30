@@ -4845,8 +4845,8 @@ async function submitStudentFeedback() {
 }
 
 // === 📚 기출문제 및 수험자료실 프론트엔드 연동 ===
-let currentExamSubject = "전체";
-let currentExamYear = 0;
+let currentExamSubject = "국어";
+let currentExamYear = 2027;
 
 function switchExamSubject(subject, btnEl) {
     currentExamSubject = subject;
@@ -4924,32 +4924,45 @@ async function loadExamMaterials() {
                 "국어": { bg: "rgba(239, 68, 68, 0.15)", color: "#f87171", icon: "📖" },
                 "수학": { bg: "rgba(99, 102, 241, 0.15)", color: "#818cf8", icon: "📐" },
                 "영어": { bg: "rgba(16, 185, 129, 0.15)", color: "#34d399", icon: "🔤" },
-                "과탐": { bg: "rgba(245, 158, 11, 0.15)", color: "#fbbf24", icon: "🔬" },
                 "사탐": { bg: "rgba(59, 130, 246, 0.15)", color: "#60a5fa", icon: "🌏" },
-                "논술": { bg: "rgba(168, 85, 247, 0.15)", color: "#c084fc", icon: "✍️" }
+                "과탐": { bg: "rgba(245, 158, 11, 0.15)", color: "#fbbf24", icon: "🔬" },
+                "한국사": { bg: "rgba(217, 119, 6, 0.15)", color: "#f59e0b", icon: "🇰🇷" },
+                "논술": { bg: "rgba(168, 85, 247, 0.15)", color: "#c084fc", icon: "✍️" },
+                "논술/면접": { bg: "rgba(168, 85, 247, 0.15)", color: "#c084fc", icon: "✍️" },
+                "사관": { bg: "rgba(244, 63, 94, 0.15)", color: "#fb7185", icon: "🎖️" },
+                "경찰/사관": { bg: "rgba(244, 63, 94, 0.15)", color: "#fb7185", icon: "🎖️" }
             };
             const badgeInfo = subjectBadges[m.subject] || { bg: "rgba(255,255,255,0.1)", color: "#e2e8f0", icon: "📄" };
             
             const hasAnswer = !!m.answer_file_url;
             const answerBtn = hasAnswer ? `
-                <a href="/api/materials/${m.id}/download-answer" target="_blank" download class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.75rem; font-weight: 700; color: #10b981 !important; border-color: #10b981; border-radius: 8px; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
-                    <span>📝</span> 정답/해설
+                <a href="/api/materials/${m.id}/download-answer" target="_blank" download class="btn btn-secondary" style="padding: 10px 12px; font-size: 0.82rem; font-weight: 800; color: #10b981 !important; border: 1.5px solid #10b981; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none;">
+                    <span>📝</span> 정답/해설지
                 </a>
             ` : '';
 
             container.innerHTML += `
-                <div class="material-card" style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
-                    <div style="flex: 1; min-width: 0;">
-                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: nowrap;">
-                            <span style="background: ${badgeInfo.bg}; color: ${badgeInfo.color}; padding: 3px 8px; border-radius: 8px; font-size: 0.72rem; font-weight: 800; white-space: nowrap; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px;">${badgeInfo.icon} ${m.subject}</span>
-                            ${m.year ? `<span style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; white-space: nowrap; flex-shrink: 0; background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 8px;">${m.year}학년도</span>` : ''}
+                <div class="material-card" style="margin-bottom: 12px; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 14px; border: 1.5px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                    <!-- 1단: 과목 뱃지 & 수험 학년도 태그 -->
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="background: ${badgeInfo.bg}; color: ${badgeInfo.color}; padding: 4px 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;">
+                                ${badgeInfo.icon} ${m.subject}
+                            </span>
+                            ${m.year ? `<span style="font-size: 0.76rem; color: #cbd5e1; font-weight: 800; background: rgba(255,255,255,0.08); padding: 4px 10px; border-radius: 8px;">${m.year}학년도</span>` : ''}
                         </div>
-                        <div class="material-title" style="font-size: 0.88rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.title}</div>
-                        ${m.description ? `<div class="material-desc" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.description}</div>` : ''}
                     </div>
-                    <div style="display: flex; gap: 6px; flex-shrink: 0; align-items: center;">
-                        <a href="/api/materials/${m.id}/download" target="_blank" download class="btn" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 700; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white !important; text-decoration: none; border-radius: 8px; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
-                            <span>📖</span> 문제지
+                    
+                    <!-- 2단: 시험지 명칭 & 설명 (겹침 원천 차단) -->
+                    <div>
+                        <div class="material-title" style="font-size: 1.05rem; font-weight: 900; color: #ffffff; letter-spacing: -0.3px; line-height: 1.35;">${m.title}</div>
+                        ${m.description ? `<div class="material-desc" style="font-size: 0.78rem; color: #94a3b8; margin-top: 4px; line-height: 1.4;">${m.description}</div>` : ''}
+                    </div>
+
+                    <!-- 3단: 다운로드 버튼 전용 그리드 바 (모바일 완벽 호환) -->
+                    <div style="display: grid; grid-template-columns: ${hasAnswer ? '1fr 1fr' : '1fr'}; gap: 8px; margin-top: 4px;">
+                        <a href="/api/materials/${m.id}/download" target="_blank" download class="btn" style="padding: 10px 12px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff !important; text-decoration: none; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(99,102,241,0.3);">
+                            <span>📖</span> 문제지 다운로드
                         </a>
                         ${answerBtn}
                     </div>
@@ -5771,17 +5784,21 @@ async function deleteMyAccount() {
 
 
 // ============================================================================
-// 🏫 [Phase 1~5] 학생용 학원 허브(Academy Hub) & 출결 & 행정 요청 JS 엔진
+// 🏫 [Phase 1~5] 학생용 학원 관리(Academy Hub) & 출결 & 행정 요청 JS 엔진
 // ============================================================================
 
 function updateAcademyGNBVisibility() {
     const navTab = document.getElementById("nav-tab-academy");
-    if (!navTab) return;
+    const unlinkedCard = document.getElementById("hub-unlinked-card");
+    const linkedContent = document.getElementById("hub-linked-content");
+    
+    if (navTab) navTab.style.display = "flex";
     
     if (currentStudent && currentStudent.academy_code) {
-        navTab.style.display = "flex";
+        if (unlinkedCard) unlinkedCard.style.display = "none";
+        updateFacilitySelectorUI();
+        if (linkedContent) linkedContent.style.display = "block";
         
-        // 학원명 및 재원 상태 뱃지 업데이트
         const hubName = document.getElementById("hub-academy-name");
         const badge = document.getElementById("hub-enrollment-badge");
         const leaveNotice = document.getElementById("hub-leave-notice-card");
@@ -5812,7 +5829,44 @@ function updateAcademyGNBVisibility() {
             }
         }
     } else {
-        navTab.style.display = "none";
+        if (unlinkedCard) unlinkedCard.style.display = "block";
+        if (linkedContent) linkedContent.style.display = "none";
+    }
+}
+
+async function handleLinkAcademyCodeDirect() {
+    const input = document.getElementById("hub-input-academy-code");
+    if (!input) return;
+    const code = input.value.trim().toUpperCase();
+    if (!code) {
+        alert("학원 코드를 입력해 주세요 (예: ILWON-2027)");
+        return;
+    }
+    if (!currentStudent || !currentStudent.id) {
+        alert("학생 로그인 정보가 없습니다.");
+        return;
+    }
+    try {
+        const res = await fetch("/api/academy/link", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: currentStudent.id, academy_code: code })
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            alert(err.detail || "학원 연동 실패");
+            return;
+        }
+        const data = await res.json();
+        alert(`🎉 [학원 연동 성공]
+
+${data.message}
+학원 관리의 모든 수강 기능이 활성화되었습니다!`);
+        syncStudentState(data.student);
+        updateAcademyGNBVisibility();
+        loadAcademyHubView();
+    } catch(e) {
+        alert("학원 연동 요청 중 오류가 발생했습니다.");
     }
 }
 
@@ -6027,4 +6081,292 @@ async function checkInAttendanceNow() {
             }
         }
     } catch(e) { alert("출결 체크인 요청 중 오류가 발생했습니다."); }
+}
+
+
+// ============================================================================
+// 🧭 [Phase 1~5] 학생용 학원 관리 서브탭 (피드 / VOD / 시험 / 행정) 전환 및 OMR 엔진
+// ============================================================================
+
+let currentHubSubTab = "feed";
+
+function switchHubSubTab(subTab) {
+    currentHubSubTab = subTab;
+    document.querySelectorAll(".hub-subtab-view").forEach(el => el.style.display = "none");
+    document.querySelectorAll(".subtab-btn-hub-2x2, .subtab-btn-hub").forEach(el => el.classList.remove("active"));
+    
+    const targetView = document.getElementById(`hub-view-${subTab}`);
+    const targetBtn = document.getElementById(`hub-tab-${subTab}`);
+    if (targetView) targetView.style.display = "block";
+    if (targetBtn) targetBtn.classList.add("active");
+    
+    if (subTab === "feed") loadAcademyHubView();
+    else if (subTab === "vod") loadStudentVods();
+    else if (subTab === "exam") loadStudentExamHistory();
+}
+
+async function loadStudentVods() {
+    if (!currentStudent || !currentStudent.id) return;
+    const container = document.getElementById("hub-vod-list-container");
+    if (!container) return;
+    
+    try {
+        const res = await fetch(`/api/vod/list/${currentStudent.id}`);
+        if (!res.ok) {
+            container.innerHTML = '<div style="color: var(--text-secondary); font-size: 0.8rem; text-align: center; padding: 12px;">배정된 복습 VOD가 없습니다.</div>';
+            return;
+        }
+        const vods = await res.json();
+        if (vods.length === 0) {
+            container.innerHTML = `
+                <div style="background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15); border-radius: 12px; padding: 20px; text-align: center;">
+                    <span class="material-symbols-rounded" style="font-size: 2rem; color: #818cf8; margin-bottom: 6px;">video_library</span>
+                    <div style="font-size: 0.88rem; font-weight: 700; color: #ffffff;">현재 배정된 복습 VOD가 없습니다.</div>
+                    <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 4px;">[행정/휴강신청] 탭에서 복습 VOD를 신청하시면 원장님 승인 후 7일간 시청 권한이 부여됩니다.</div>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = vods.map(v => {
+            const isExpired = v.is_expired;
+            return `
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid ${isExpired ? '#ef4444' : 'rgba(99,102,241,0.3)'}; border-radius: 12px; padding: 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div style="font-weight: 800; font-size: 0.9rem; color: #ffffff;">🎬 ${v.vod_title}</div>
+                        <span style="background: ${isExpired ? '#ef4444' : '#6366f1'}; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 800;">
+                            ${isExpired ? '🔒 기한 만료' : `⏳ 남은 시간: ${v.remaining_hours}시간`}
+                        </span>
+                    </div>
+                    
+                    ${!isExpired ? `
+                        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin-bottom: 10px; background: #000;">
+                            <iframe src="https://player.vimeo.com/video/${v.vimeo_video_id}" style="position: absolute; top:0; left: 0; width: 100%; height: 100%;" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    ` : `
+                        <div style="background: rgba(239,68,68,0.1); padding: 12px; border-radius: 8px; text-align: center; font-size: 0.78rem; color: #f87171; margin-bottom: 10px;">
+                            7일 시청 기한이 종료되었습니다. 시청 연장이 필요하신 경우 [행정 요청] 탭에서 연장을 신청하세요.
+                        </div>
+                    `}
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.76rem; color: var(--text-secondary);">
+                        <div>진도율: <strong style="color: #34d399;">${v.watch_progress_pct}%</strong> ${v.is_completed ? '✅ 수강 완료' : ''}</div>
+                        <div>과제 상태: <strong style="color: ${v.is_homework_verified ? '#10b981' : '#f59e0b'};">${v.is_homework_verified ? '검수 완료' : (v.is_homework_submitted ? '제출 완료 (검수중)' : '미제출')}</strong></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch(e) { console.error("loadStudentVods error:", e); }
+}
+
+async function loadStudentExamHistory() {
+    if (!currentStudent || !currentStudent.id) return;
+    const container = document.getElementById("hub-exam-history-list");
+    if (!container) return;
+    
+    try {
+        const res = await fetch(`/api/exam/scores/${currentStudent.id}`);
+        if (!res.ok) return;
+        const scores = await res.json();
+        if (scores.length === 0) {
+            container.innerHTML = '<div style="color: var(--text-secondary); font-size: 0.8rem; text-align: center; padding: 10px;">아직 제출된 시험 성적이 없습니다.</div>';
+            return;
+        }
+        
+        container.innerHTML = scores.map(s => {
+            const trendIcon = s.trend_direction === 'UP' ? '🔺 상승' : (s.trend_direction === 'DOWN' ? '🔻 하락' : '➖ 유지');
+            const trendColor = s.trend_direction === 'UP' ? '#10b981' : (s.trend_direction === 'DOWN' ? '#ef4444' : '#94a3b8');
+            return `
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 14px;">
+                    <div>
+                        <div style="font-weight: 800; font-size: 0.88rem; color: #ffffff;">[${s.subject}] ${s.exam_week}주차 모의고사</div>
+                        <div style="font-size: 0.74rem; color: var(--text-secondary); margin-top: 2px;">
+                            원점수: <strong style="color: #ffffff;">${s.score}점</strong> · 사전 기준: <strong style="color: #818cf8;">${s.calculated_grade}등급</strong>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: 800; font-size: 0.95rem; color: #34d399;">상위 ${s.percentile_rank}%</div>
+                        <div style="font-size: 0.72rem; font-weight: 700; color: ${trendColor};">${trendIcon}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch(e) { console.error("loadStudentExamHistory error:", e); }
+}
+
+async function handleUploadExamScore(e) {
+    e.preventDefault();
+    if (!currentStudent || !currentStudent.id) return;
+    
+    const weekVal = parseInt(document.getElementById("exam-week-select").value, 10);
+    const subjectVal = document.getElementById("exam-subject-select").value;
+    const scoreVal = parseFloat(document.getElementById("exam-score-raw").value);
+    
+    if (isNaN(scoreVal)) {
+        alert("원점수를 올바르게 입력해 주세요.");
+        return;
+    }
+    
+    try {
+        const res = await fetch("/api/exam/scores", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: currentStudent.id,
+                exam_week: weekVal,
+                subject: subjectVal,
+                score: scoreVal
+            })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            alert(`🎉 [성적 제출 완료] 기한 내 제출 보상 +50P가 지급되었습니다! 이어서 1:1 맞춤 문진표가 팝업됩니다.`);
+            document.getElementById("exam-score-raw").value = "";
+            loadStudentExamHistory();
+            
+            // 시험 직후 맞춤 문진표 팝업 격발
+            document.getElementById("diagnostic-survey-modal").style.display = "flex";
+        }
+    } catch(err) { alert("성적 제출 실패"); }
+}
+
+async function handleSendDiagnosticSurvey(e) {
+    e.preventDefault();
+    if (!currentStudent || !currentStudent.id) return;
+    
+    const selectedQ1 = document.querySelector('input[name="diag-q1"]:checked')?.value || "비문학 시간 부족";
+    
+    try {
+        const res = await fetch("/api/diagnostic/submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: currentStudent.id,
+                survey_id: 1,
+                answers: { "weak_point": selectedQ1 }
+            })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            alert(`🩺 [김철훈 원장 맞춤 처방전 발급 완료]
+
+처방 내용: ${data.prescription}
+
+(학부모님께 처방전 알림톡이 동시 발송되었습니다.)`);
+            document.getElementById("diagnostic-survey-modal").style.display = "none";
+        }
+    } catch(err) { alert("문진표 제출 실패"); }
+}
+
+
+// 🔗 URL 쿼리 파라미터 (?academy=ILWON-2027) 자동 감지 및 1초 연동 처리
+document.addEventListener("DOMContentLoaded", () => {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const academyParam = urlParams.get("academy");
+        if (academyParam) {
+            const inputDirect = document.getElementById("hub-input-academy-code");
+            const inputSetting = document.getElementById("setting-academy-code");
+            if (inputDirect) inputDirect.value = academyParam.toUpperCase();
+            if (inputSetting) inputSetting.value = academyParam.toUpperCase();
+        }
+    } catch(e) {}
+});
+
+
+// ============================================================================
+// 🏢 [Multi-Facility B2B] 재학 중인 다중 학원 / 관리형 독서실 통합 스위처 엔진
+// ============================================================================
+
+let currentActiveFacility = "ILWON-2027";
+
+function getEnrolledFacilities() {
+    try {
+        const saved = localStorage.getItem("palin_enrolled_facilities");
+        if (saved) return JSON.parse(saved);
+    } catch(e) {}
+    return [
+        { code: "ILWON-2027", name: "일원학원", desc: "수능국어", type: "단과학원" }
+    ];
+}
+
+function saveEnrolledFacilities(list) {
+    try {
+        localStorage.setItem("palin_enrolled_facilities", JSON.stringify(list));
+    } catch(e) {}
+}
+
+function updateFacilitySelectorUI() {
+    const selector = document.getElementById("hub-facility-selector");
+    if (!selector) return;
+    const facilities = getEnrolledFacilities();
+    
+    selector.innerHTML = facilities.map(f => `
+        <option value="${f.code}" ${f.code === currentActiveFacility ? 'selected' : ''}>
+            ${f.name} (${f.desc || f.type || '기관'})
+        </option>
+    `).join('');
+}
+
+function onFacilitySelected(code) {
+    currentActiveFacility = code;
+    const facilities = getEnrolledFacilities();
+    const activeFac = facilities.find(f => f.code === code) || { name: code, desc: "수강 기관" };
+    
+    const hubName = document.getElementById("hub-academy-name");
+    if (hubName) hubName.innerText = activeFac.name;
+    
+    loadAcademyHubView();
+}
+
+function openAddFacilityModal() {
+    const modal = document.getElementById("add-facility-modal");
+    if (modal) {
+        document.getElementById("add-facility-code-input").value = "";
+        modal.style.display = "flex";
+    }
+}
+
+async function handleAddNewFacility(e) {
+    e.preventDefault();
+    const codeInput = document.getElementById("add-facility-code-input");
+    if (!codeInput) return;
+    const code = codeInput.value.trim().toUpperCase();
+    if (!code) return;
+    
+    try {
+        const res = await fetch("/api/academy/link", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: currentStudent?.id || 1, academy_code: code })
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            alert(err.detail || "기관 연동 실패");
+            return;
+        }
+        
+        const data = await res.json();
+        const facilities = getEnrolledFacilities();
+        if (!facilities.some(f => f.code === code)) {
+            facilities.push({
+                code: code,
+                name: code === "ILWON-2027" ? "일원학원" : code,
+                desc: "등록 기관",
+                type: "학원/독서실"
+            });
+            saveEnrolledFacilities(facilities);
+        }
+        
+        currentActiveFacility = code;
+        alert(`🎉 [기관 추가 성공]
+
+${data.message}
+${code} 기관의 대시보드로 즉시 전환됩니다!`);
+        document.getElementById("add-facility-modal").style.display = "none";
+        updateFacilitySelectorUI();
+        onFacilitySelected(code);
+    } catch(err) {
+        alert("기관 연동 중 통신 오류가 발생했습니다.");
+    }
 }
