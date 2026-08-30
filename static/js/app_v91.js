@@ -6079,7 +6079,7 @@ let currentHubSubTab = "feed";
 function switchHubSubTab(subTab) {
     currentHubSubTab = subTab;
     document.querySelectorAll(".hub-subtab-view").forEach(el => el.style.display = "none");
-    document.querySelectorAll(".subtab-btn-hub").forEach(el => el.classList.remove("active"));
+    document.querySelectorAll(".subtab-btn-hub-2x2, .subtab-btn-hub").forEach(el => el.classList.remove("active"));
     
     const targetView = document.getElementById(`hub-view-${subTab}`);
     const targetBtn = document.getElementById(`hub-tab-${subTab}`);
