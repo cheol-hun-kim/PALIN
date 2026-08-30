@@ -2093,3 +2093,22 @@ body:not(.day-mode) .time-picker-icon, body:not(.day-mode) .clock-icon {
     color: #4338ca !important;
     border-color: #4f46e5 !important;
 }
+
+
+/* 탭 버튼 라이트모드 선명한 테두리 보정 */
+[data-theme="light"] .tab-btn {
+    border: 1.5px solid #cbd5e1 !important;
+    background: #f8fafc !important;
+    color: #334155 !important;
+    font-weight: 700;
+}
+[data-theme="light"] .tab-btn:hover {
+    background: #f1f5f9 !important;
+    border-color: #94a3b8 !important;
+}
+[data-theme="light"] .tab-btn.active {
+    background: #4f46e5 !important;
+    color: #ffffff !important;
+    border-color: #4338ca !important;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25) !important;
+}
