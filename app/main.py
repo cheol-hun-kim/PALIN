@@ -2436,7 +2436,22 @@ def submit_admin_request(payload: AdministrativeRequestPayload, db: Session = De
 @app.get("/api/admin/requests")
 def get_admin_requests(db: Session = Depends(get_db)):
     requests = db.query(models.AdministrativeRequest).order_by(models.AdministrativeRequest.created_at.desc()).all()
-    return requests
+    res = []
+    for r in requests:
+        student = db.query(models.Student).filter(models.Student.id == r.student_id).first()
+        res.append({
+            "id": r.id,
+            "student_id": r.student_id,
+            "student_name": student.name if student else f"학생 #{r.student_id}",
+            "high_school": student.high_school if student else "-",
+            "grade": student.grade if student else 0,
+            "phone": student.phone if student else "-",
+            "request_type": r.request_type,
+            "reason": r.reason or "",
+            "status": r.status,
+            "created_at": r.created_at.strftime("%Y-%m-%d %H:%M") if r.created_at else ""
+        })
+    return res
 
 
 @app.patch("/api/admin/requests/{request_id}")
@@ -2933,3 +2948,74 @@ def generate_weekly_survival_reports(db: Session = Depends(get_db)):
 
 # Static files (항상 최하단에 위치)
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
+
+
+class FinancialUpdatePayload(BaseModel):
+    student_id: int
+    tuition_paid: Optional[bool] = None
+    textbook_paid: Optional[bool] = None
+
+class FinancialBatchUpdatePayload(BaseModel):
+    student_ids: List[int]
+    tuition_paid: Optional[bool] = None
+    textbook_paid: Optional[bool] = None
+
+@app.post("/api/admin/financial/update")
+def update_student_financial(payload: FinancialUpdatePayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+    if payload.tuition_paid is not None:
+        student.tuition_paid = payload.tuition_paid
+    if payload.textbook_paid is not None:
+        student.textbook_paid = payload.textbook_paid
+    db.commit()
+    db.refresh(student)
+    return {
+        "status": "success",
+        "student_id": student.id,
+        "student_name": student.name,
+        "tuition_paid": bool(student.tuition_paid),
+        "textbook_paid": bool(student.textbook_paid),
+        "message": f"{student.name} 학생 수납 정보가 성공적으로 반영되었습니다."
+    }
+
+@app.post("/api/admin/financial/batch-update")
+def batch_update_financial(payload: FinancialBatchUpdatePayload, db: Session = Depends(get_db)):
+    students = db.query(models.Student).filter(models.Student.id.in_(payload.student_ids)).all()
+    if not students:
+        raise HTTPException(status_code=404, detail="선택된 학생이 없습니다.")
+    for s in students:
+        if payload.tuition_paid is not None:
+            s.tuition_paid = payload.tuition_paid
+        if payload.textbook_paid is not None:
+            s.textbook_paid = payload.textbook_paid
+    db.commit()
+    return {
+        "status": "success",
+        "updated_count": len(students),
+        "message": f"선택한 {len(students)}명의 수납 정보가 일괄 처리되었습니다."
+    }
+
+@app.post("/api/admin/requests/{request_id}/approve")
+def approve_admin_request_post(request_id: int, db: Session = Depends(get_db)):
+    req = db.query(models.AdministrativeRequest).filter(models.AdministrativeRequest.id == request_id).first()
+    if not req:
+        raise HTTPException(status_code=404, detail="요청을 찾을 수 없습니다.")
+    req.status = "APPROVED"
+    if req.request_type == "RETURN":
+        student = db.query(models.Student).filter(models.Student.id == req.student_id).first()
+        if student:
+            student.enrollment_status = "ENROLLED"
+            student.ai_level = "B2B_PREMIUM"
+    db.commit()
+    return {"status": "success", "message": f"요청 #{request_id} 승인 완료"}
+
+@app.post("/api/admin/requests/{request_id}/reject")
+def reject_admin_request_post(request_id: int, db: Session = Depends(get_db)):
+    req = db.query(models.AdministrativeRequest).filter(models.AdministrativeRequest.id == request_id).first()
+    if not req:
+        raise HTTPException(status_code=404, detail="요청을 찾을 수 없습니다.")
+    req.status = "REJECTED"
+    db.commit()
+    return {"status": "success", "message": f"요청 #{request_id} 반려(거절) 완료"}
