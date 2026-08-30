@@ -733,15 +733,21 @@ def manage_session(payload: schemas.StudySessionRequest, db: Session = Depends(g
 @app.post("/api/ai/chat", response_model=schemas.AIChatResponse)
 def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)):
     student = None
+    tenant = None
     try:
         if payload.student_id:
             student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+            if student and student.academy_code:
+                code = student.academy_code.upper().strip()
+                tenant = db.query(models.Tenant).filter(
+                    (models.Tenant.code == code) | (models.Tenant.code == code.replace("-2027", "1"))
+                ).first()
     except Exception:
         pass
-        
+
     is_premium = (student.parent and student.parent.is_premium_subscribed) if (student and student.parent) else False
     remaining = 999 if is_premium else 5
-    
+
     history_dicts = None
     if payload.history:
         history_dicts = []
@@ -750,13 +756,26 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
                 history_dicts.append(h)
             else:
                 history_dicts.append({"role": getattr(h, "role", "user"), "content": getattr(h, "content", "")})
-    
+
+    tier = tenant.tier if tenant else 3
+    custom_prompt = tenant.custom_system_prompt if tenant else None
+    bot_name = tenant.bot_name if tenant else "PALIN BOT"
+    is_active = tenant.is_active if tenant else True
+
     try:
-        reply = ai.ask_ai_chatbot(payload.message, history=history_dicts)
+        reply = ai.ask_ai_chatbot(
+            payload.message,
+            history=history_dicts,
+            tenant_tier=tier,
+            tenant_custom_prompt=custom_prompt,
+            tenant_bot_name=bot_name,
+            tenant_is_active=is_active
+        )
         return schemas.AIChatResponse(reply=reply, remaining_chats=remaining)
     except Exception as e:
         print(f"CHAT ENDPOINT ERROR: {e}")
         return schemas.AIChatResponse(reply="지금 구글 AI 서버에 순간적인 접속 트래픽이 몰려서 답변이 지연되었어. 1~2초 뒤에 질문을 다시 보내주면 바로 답변해줄게!", remaining_chats=remaining)
+
 
 @app.get("/api/predict/universities")
 def get_predict_univs():
@@ -3364,6 +3383,163 @@ def answer_master_b2b_ticket(ticket_id: int, payload: B2BSupportTicketAnswerPayl
     db.commit()
     db.refresh(ticket)
     return {"status": "success", "message": "\ud2f0\ucf13 \ub2f5\ubcc0\uc774 \ub4f1\ub85d\ub418\uc5c8\uc2b5\ub2c8\ub2e4.", "ticket": ticket}
+
+
+
+
+
+# ============================================================================
+# 🧠 [PALIN OS Phase 6: B2B Custom Brain Injection & Persona Pipeline]
+# ============================================================================
+
+class TenantBrainSurveyPayload(BaseModel):
+    tenant_code: str
+    bot_name: str
+    bot_tone: str
+    core_values: str
+    banned_words: Optional[str] = ""
+
+class BrainSandboxTestPayload(BaseModel):
+    system_prompt: str
+    test_message: str
+
+class BrainInjectPayload(BaseModel):
+    final_system_prompt: str
+    tier: Optional[int] = 2
+    bot_name: Optional[str] = None
+
+
+@app.post("/api/admin/tenant/brain-survey")
+def submit_tenant_brain_survey(payload: TenantBrainSurveyPayload, db: Session = Depends(get_db)):
+    code = payload.tenant_code.upper().strip()
+    tenant = db.query(models.Tenant).filter(
+        (models.Tenant.code == code) | (models.Tenant.code == code.replace("-2027", "1"))
+    ).first()
+    if not tenant:
+        # If not exists yet, create default
+        tenant = models.Tenant(
+            code=code,
+            name="가맹학원",
+            director_name="원장",
+            tier=2
+        )
+        db.add(tenant)
+        db.commit()
+        db.refresh(tenant)
+
+    tenant.bot_name = payload.bot_name.strip() or "PALIN AI 멘토"
+    tenant.bot_tone = payload.bot_tone.strip() or "VERY_STRICT"
+    tenant.core_values = payload.core_values.strip()
+    tenant.banned_words = payload.banned_words.strip() if payload.banned_words else ""
+    tenant.brain_status = "PENDING"
+    tenant.brain_submitted_at = datetime.now()
+    db.commit()
+    db.refresh(tenant)
+    return {
+        "status": "success",
+        "message": f"[{tenant.name}] AI 페르소나 문진표가 본사(슈퍼 어드민)에 성공적으로 접수되었습니다. 제작자 검수 및 프롬프트 최적화 후 AI 뇌 이식이 완료됩니다.",
+        "tenant_id": tenant.id,
+        "brain_status": tenant.brain_status
+    }
+
+
+@app.get("/api/admin/tenant/brain-status")
+def get_tenant_brain_status(tenant_code: str = "ILWON1", db: Session = Depends(get_db)):
+    code = tenant_code.upper().strip()
+    tenant = db.query(models.Tenant).filter(
+        (models.Tenant.code == code) | (models.Tenant.code == code.replace("-2027", "1"))
+    ).first()
+    if not tenant:
+        return {
+            "status": "NONE",
+            "tier": 1,
+            "bot_name": "PALIN AI 멘토",
+            "bot_tone": "VERY_STRICT",
+            "core_values": "",
+            "banned_words": "",
+            "custom_system_prompt": ""
+        }
+    return {
+        "status": tenant.brain_status or "NONE",
+        "tier": tenant.tier or 1,
+        "bot_name": tenant.bot_name or "PALIN AI 멘토",
+        "bot_tone": tenant.bot_tone or "VERY_STRICT",
+        "core_values": tenant.core_values or "",
+        "banned_words": tenant.banned_words or "",
+        "custom_system_prompt": tenant.custom_system_prompt or "",
+        "submitted_at": tenant.brain_submitted_at.strftime("%Y-%m-%d %H:%M") if tenant.brain_submitted_at else "-",
+        "injected_at": tenant.brain_injected_at.strftime("%Y-%m-%d %H:%M") if tenant.brain_injected_at else "-"
+    }
+
+
+@app.get("/api/master/brain-requests")
+def get_master_brain_requests(db: Session = Depends(get_db)):
+    tenants = db.query(models.Tenant).order_by(models.Tenant.id.asc()).all()
+    requests = []
+    for t in tenants:
+        requests.append({
+            "tenant_id": t.id,
+            "tenant_code": t.code,
+            "tenant_name": t.name,
+            "director_name": t.director_name,
+            "director_phone": t.director_phone,
+            "tier": t.tier,
+            "bot_name": t.bot_name or "PALIN AI 멘토",
+            "bot_tone": t.bot_tone or "VERY_STRICT",
+            "core_values": t.core_values or "",
+            "banned_words": t.banned_words or "",
+            "custom_system_prompt": t.custom_system_prompt or "",
+            "brain_status": t.brain_status or "NONE",
+            "submitted_at": t.brain_submitted_at.strftime("%Y-%m-%d %H:%M") if t.brain_submitted_at else "-",
+            "injected_at": t.brain_injected_at.strftime("%Y-%m-%d %H:%M") if t.brain_injected_at else "-"
+        })
+    return requests
+
+
+@app.post("/api/master/brain-requests/{tenant_id}/test-sandbox")
+def test_master_brain_sandbox(tenant_id: int, payload: BrainSandboxTestPayload, db: Session = Depends(get_db)):
+    t = db.query(models.Tenant).filter(models.Tenant.id == tenant_id).first()
+    bot_name = t.bot_name if t else "AI 멘토"
+    full_prompt = (
+        f"You are {bot_name}. Respond ONLY in Korean.\n\n"
+        f"{payload.system_prompt.strip()}\n\n"
+        "=== ABSOLUTE RULES ===\n"
+        "1. NO MARKDOWN: Write in clean, plain conversational text.\n"
+        "2. CONTEXT: Direct, actionable guidance tailored to high school and repeat test-takers.\n"
+    )
+    reply = ai.test_sandbox_prompt(full_prompt, payload.test_message)
+    return {"status": "success", "reply": reply}
+
+
+@app.post("/api/master/brain-requests/{tenant_id}/inject")
+def inject_master_brain_prompt(tenant_id: int, payload: BrainInjectPayload, db: Session = Depends(get_db)):
+    t = db.query(models.Tenant).filter(models.Tenant.id == tenant_id).first()
+    if not t:
+        raise HTTPException(status_code=404, detail="테넌트를 찾을 수 없습니다.")
+
+    t.custom_system_prompt = payload.final_system_prompt.strip()
+    t.tier = payload.tier if payload.tier in (1, 2, 3) else 2
+    if payload.bot_name:
+        t.bot_name = payload.bot_name.strip()
+    t.brain_status = "INJECTED"
+    t.brain_injected_at = datetime.now()
+    db.commit()
+    db.refresh(t)
+    return {
+        "status": "success",
+        "message": f"[{t.name}] AI 커스텀 뇌 이식이 완료되었습니다! (Tier {t.tier} 승격 및 즉시 배포됨)",
+        "tenant": t
+    }
+
+
+@app.post("/api/master/brain-requests/{tenant_id}/reject")
+def reject_master_brain_prompt(tenant_id: int, db: Session = Depends(get_db)):
+    t = db.query(models.Tenant).filter(models.Tenant.id == tenant_id).first()
+    if not t:
+        raise HTTPException(status_code=404, detail="테넌트를 찾을 수 없습니다.")
+    t.brain_status = "REJECTED"
+    db.commit()
+    return {"status": "success", "message": f"[{t.name}] 문진표 요청이 반려 처리되었습니다."}
 
 
 
