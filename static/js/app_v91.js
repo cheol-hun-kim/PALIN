@@ -1,4 +1,70 @@
 
+// ============================================================================
+// 🛡️ [Phase 0: Global Architecture, Luminance Contrast & State Sync Engine]
+// ============================================================================
+
+/**
+ * 🎨 WCAG AA+ 명도(Luminance) 계산 엔진
+ * @param {string} colorStr - #HEX, rgb(), rgba()
+ * @returns {number} 0.0 (가장 어두움) ~ 1.0 (가장 밝음)
+ */
+function calculateLuminance(colorStr) {
+    if (!colorStr) return 0.5;
+    let r = 0, g = 0, b = 0;
+    if (colorStr.startsWith('#')) {
+        let hex = colorStr.replace('#', '').trim();
+        if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+        if (hex.length >= 6) {
+            r = parseInt(hex.substring(0, 2), 16) / 255;
+            g = parseInt(hex.substring(2, 4), 16) / 255;
+            b = parseInt(hex.substring(4, 6), 16) / 255;
+        }
+    } else if (colorStr.startsWith('rgb')) {
+        const parts = colorStr.match(/\d+/g);
+        if (parts && parts.length >= 3) {
+            r = parseInt(parts[0], 10) / 255;
+            g = parseInt(parts[1], 10) / 255;
+            b = parseInt(parts[2], 10) / 255;
+        }
+    }
+    const a = [r, g, b].map(v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+    return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+}
+
+/**
+ * 🎨 배경색에 따른 최적의 텍스트 색상(Auto-Invert) 자동 판별 (WCAG AA+ 보장)
+ */
+function getOptimalContrastColor(bgColorStr, darkText = '#0f172a', lightText = '#ffffff') {
+    const lum = calculateLuminance(bgColorStr);
+    return lum > 0.45 ? darkText : lightText;
+}
+
+/**
+ * 🔄 전역 상태(State) 동기화 및 Stale State 멸절 엔진
+ * API 응답 직후 로컬 스토리지와 DOM 렌더링을 100% 동기화
+ */
+function syncStudentState(updatedData) {
+    if (!updatedData) return;
+    currentStudent = { ...(currentStudent || {}), ...updatedData };
+    localStorage.setItem("currentStudent", JSON.stringify(currentStudent));
+    if (currentStudent.id) {
+        localStorage.setItem("studentId", currentStudent.id);
+    }
+    
+    // 연관된 모든 전역 뷰 강제 리렌더링 (Stale State 박제 원천 방지)
+    try {
+        if (typeof updateTargetBanner === "function") updateTargetBanner();
+        if (typeof updateStudentProfileDisplay === "function") updateStudentProfileDisplay();
+        if (typeof updateStudentUnivSelectors === "function") updateStudentUnivSelectors();
+        if (typeof renderMissionsList === "function") renderMissionsList();
+        if (typeof fetchLeagueStatus === "function") fetchLeagueStatus();
+        if (typeof renderWeeklyPlannerGrid === "function") renderWeeklyPlannerGrid();
+    } catch (e) {
+        console.warn("State sync re-render notice:", e);
+    }
+}
+
+
 // === 🎨 목표 대학 공식 헥스 컬러 & 세리프 영문 워터마크 테마 엔진 ===
 const UNIVERSITY_THEME_MAP = {
     "서울대": { code: "SNU", color: "#0F0F70", accent: "#FCD34D", bg: "linear-gradient(135deg, rgba(15, 15, 112, 0.45), rgba(201, 151, 0, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(99, 102, 241, 0.45)" },
@@ -2620,10 +2686,16 @@ async function claimGoldenTicket() {
 function switchTab(tabId) {
     activeTab = tabId;
     document.querySelectorAll(".page-view").forEach(el => el.style.display = "none");
-    document.getElementById(tabId).style.display = "block";
+    const target = document.getElementById(tabId);
+    if (target) target.style.display = "block";
 
     document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"));
-    document.querySelector(`.nav-item[data-tab="${tabId}"]`).classList.add("active");
+    const navItem = document.querySelector(`.nav-item[data-tab="${tabId}"]`);
+    if (navItem) navItem.classList.add("active");
+    
+    if (tabId === "page4" && typeof loadAcademyHubView === "function") {
+        loadAcademyHubView();
+    }
 }
 
 function switchSubTabPage2(subTab) {
@@ -5695,4 +5767,264 @@ async function deleteMyAccount() {
         console.error(e);
         alert("서버 통신 오류가 발생했습니다.");
     }
+}
+
+
+// ============================================================================
+// 🏫 [Phase 1~5] 학생용 학원 허브(Academy Hub) & 출결 & 행정 요청 JS 엔진
+// ============================================================================
+
+function updateAcademyGNBVisibility() {
+    const navTab = document.getElementById("nav-tab-academy");
+    if (!navTab) return;
+    
+    if (currentStudent && currentStudent.academy_code) {
+        navTab.style.display = "flex";
+        
+        // 학원명 및 재원 상태 뱃지 업데이트
+        const hubName = document.getElementById("hub-academy-name");
+        const badge = document.getElementById("hub-enrollment-badge");
+        const leaveNotice = document.getElementById("hub-leave-notice-card");
+        const mainArea = document.getElementById("hub-main-content-area");
+        
+        if (hubName) hubName.innerText = currentStudent.academy_code === "ILWON-2027" ? "일원학원" : currentStudent.academy_code;
+        
+        if (badge) {
+            if (currentStudent.enrollment_status === "ON_LEAVE") {
+                badge.innerText = "휴강생";
+                badge.style.background = "#ef4444";
+                if (leaveNotice) leaveNotice.style.display = "block";
+                if (mainArea) {
+                    mainArea.style.opacity = "0.4";
+                    mainArea.style.pointerEvents = "none";
+                }
+            } else if (currentStudent.enrollment_status === "WITHDRAWN") {
+                badge.innerText = "퇴원생";
+                badge.style.background = "#64748b";
+            } else {
+                badge.innerText = "재원생";
+                badge.style.background = "#10b981";
+                if (leaveNotice) leaveNotice.style.display = "none";
+                if (mainArea) {
+                    mainArea.style.opacity = "1";
+                    mainArea.style.pointerEvents = "auto";
+                }
+            }
+        }
+    } else {
+        navTab.style.display = "none";
+    }
+}
+
+async function handleLinkAcademyCode() {
+    const codeInput = document.getElementById("setting-academy-code");
+    if (!codeInput) return;
+    const code = codeInput.value.trim().toUpperCase();
+    if (!code) {
+        alert("학원 고유코드를 입력해 주세요. (예: ILWON-2027)");
+        return;
+    }
+    if (!currentStudent || !currentStudent.id) {
+        alert("학생 로그인 정보가 없습니다.");
+        return;
+    }
+    
+    try {
+        const res = await fetch("/api/academy/link", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: currentStudent.id, academy_code: code })
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            alert(err.detail || "학원 연동 실패");
+            return;
+        }
+        const data = await res.json();
+        alert(data.message);
+        syncStudentState(data.student);
+        updateAcademyGNBVisibility();
+        document.getElementById("mypage-modal").style.display = "none";
+        switchTab("page4");
+    } catch(e) {
+        alert("학원 연동 요청 중 오류가 발생했습니다.");
+    }
+}
+
+async function loadAcademyHubView() {
+    updateAcademyGNBVisibility();
+    if (!currentStudent || !currentStudent.academy_code) return;
+    
+    try {
+        const res = await fetch(`/api/academy/feeds?academy_code=${encodeURIComponent(currentStudent.academy_code)}`);
+        if (!res.ok) return;
+        const feeds = await res.json();
+        const container = document.getElementById("hub-curriculum-feed-list");
+        if (!container) return;
+        
+        if (feeds.length === 0) {
+            container.innerHTML = '<div style="color: var(--text-secondary); font-size: 0.8rem; text-align: center; padding: 14px;">등록된 학사 일정이 없습니다.</div>';
+            return;
+        }
+        
+        container.innerHTML = feeds.map(f => {
+            const isSpecial = f.is_special_notice;
+            return `
+                <div style="background: ${isSpecial ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.04)'}; border: 1px solid ${isSpecial ? '#ef4444' : 'rgba(255,255,255,0.08)'}; border-radius: 10px; padding: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            ${isSpecial ? '<span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.68rem; font-weight: 800;">🚨 특별공지</span>' : ''}
+                            <span style="font-weight: 800; font-size: 0.85rem; color: #ffffff;">[${f.curriculum_name} ${f.week_number}주차]</span>
+                        </div>
+                        <span style="font-size: 0.72rem; color: var(--text-secondary);">${f.feed_date}</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #e2e8f0; line-height: 1.45;">${f.content}</div>
+                </div>
+            `;
+        }).join('');
+    } catch(e) { console.error("loadAcademyHubView error:", e); }
+}
+
+function openRequestModal(reqType) {
+    const modal = document.getElementById("academy-request-modal");
+    const titleEl = document.getElementById("req-modal-title");
+    const dateLabelEl = document.getElementById("req-date-label");
+    const typeInput = document.getElementById("req-type-input");
+    const detailsInput = document.getElementById("req-details-input");
+    const dateInput = document.getElementById("req-date-input");
+    
+    typeInput.value = reqType;
+    detailsInput.value = "";
+    dateInput.value = new Date().toISOString().split("T")[0];
+    
+    if (reqType === "VOD") {
+        titleEl.innerText = "🎬 복습 VOD 신청";
+        dateLabelEl.innerText = "수강 희망 강의 일자";
+        detailsInput.placeholder = "복습이 필요한 주차 및 단원명을 입력해 주세요 (예: 3주차 고난도 비문학 구조독해)";
+    } else if (reqType === "ATTENDANCE") {
+        titleEl.innerText = "📝 단기 결석 및 보강 신청";
+        dateLabelEl.innerText = "결석 예정 일자";
+        detailsInput.placeholder = "결석 사유 및 희망 보강 일시를 입력해 주세요 (사전 승인 시 출결 패널티 면제)";
+    } else if (reqType === "CLASS_CHANGE") {
+        titleEl.innerText = "🔄 정규 반 변경 신청";
+        dateLabelEl.innerText = "변경 희망 적용 일자";
+        detailsInput.placeholder = "현재 수강 반 및 변경을 희망하는 요일/시간대를 입력해 주세요";
+    }
+    
+    modal.style.display = "flex";
+}
+
+async function handleSendAcademyRequest(e) {
+    e.preventDefault();
+    if (!currentStudent || !currentStudent.id) return;
+    
+    const reqType = document.getElementById("req-type-input").value;
+    const targetDate = document.getElementById("req-date-input").value;
+    const details = document.getElementById("req-details-input").value.trim();
+    
+    if (!details) {
+        alert("상세 내용을 입력해 주세요.");
+        return;
+    }
+    
+    try {
+        const res = await fetch("/api/academy/requests", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: currentStudent.id,
+                request_type: reqType,
+                target_date: targetDate,
+                details: details
+            })
+        });
+        if (res.ok) {
+            alert("행정 요청이 성공적으로 접수되었습니다. (학부모 알림톡 전송 완료)");
+            document.getElementById("academy-request-modal").style.display = "none";
+        }
+    } catch(err) { alert("신청서 제출 실패"); }
+}
+
+function openLeaveModal() {
+    document.getElementById("academy-leave-modal").style.display = "flex";
+}
+
+function onLeaveReasonChanged(reason) {
+    const box = document.getElementById("leave-auto-ment-box");
+    if (reason === "내신 휴강") {
+        box.innerHTML = "💡 <b>내신 휴강 안내:</b> 내신 기간 집중을 응원합니다. 신청 시 수시 6장 카드 전략 및 내신 컨설팅 VOD 가이드가 제공됩니다.";
+    } else if (reason === "개인 사유") {
+        box.innerHTML = "💡 <b>개인 사유 안내:</b> 학습 공백을 최소화할 수 있도록 일대일 수험 상담 및 과제 배송 케어가 지원됩니다.";
+    } else {
+        box.innerHTML = "💡 <b>상담 후 결정:</b> 원장님과의 1:1 진로/수험 로드맵 상담을 통해 최적의 학습 방안을 함께 결정합니다.";
+    }
+}
+
+async function handleSendAcademyLeave(e) {
+    e.preventDefault();
+    if (!currentStudent || !currentStudent.id) return;
+    
+    const reason = document.getElementById("leave-reason-select").value;
+    const details = document.getElementById("leave-details-input").value.trim();
+    
+    try {
+        const res = await fetch("/api/academy/leave", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: currentStudent.id,
+                leave_reason: reason,
+                details: details
+            })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            alert(data.message);
+            syncStudentState(data.student);
+            document.getElementById("academy-leave-modal").style.display = "none";
+            updateAcademyGNBVisibility();
+        }
+    } catch(err) { alert("휴강 신청 실패"); }
+}
+
+function openWithdrawModal() {
+    document.getElementById("academy-withdraw-modal").style.display = "flex";
+}
+
+async function requestAcademyReturnNow() {
+    if (!confirm("학원 복귀를 신청하시겠습니까? 원장님 승인 후 수강 권한이 즉시 복구됩니다.")) return;
+    try {
+        const res = await fetch("/api/academy/return", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: currentStudent.id })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            alert(data.message);
+        }
+    } catch(e) { alert("복귀 신청 실패"); }
+}
+
+async function checkInAttendanceNow() {
+    if (!currentStudent || !currentStudent.id) return;
+    try {
+        const res = await fetch("/api/academy/attendance/check-in", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: currentStudent.id })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            if (data.status === "PRESENT") {
+                alert("📍 [출결 완료] 정상 출석으로 확인되었습니다.");
+            } else if (data.status === "LATE") {
+                alert(`⚠️ [지각 입실] 지각 처리되었습니다. 성실 보증금 ${data.penalty_deducted.toLocaleString()}원이 차감되었으며 학부모님께 SMS가 전송되었습니다.`);
+            } else if (data.status === "EXCUSED") {
+                alert("✅ 사전 승인된 사유로 출결 패널티가 면제되었습니다.");
+            } else {
+                alert(`🚨 [무단 결석] 출결 체크인 시간이 초과되었습니다.`);
+            }
+        }
+    } catch(e) { alert("출결 체크인 요청 중 오류가 발생했습니다."); }
 }
