@@ -3,105 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PALIN OS - 원장 전용 중앙 관제 대시보드</title>
+    <title>PALIN OS - 원장 관제실 & 총괄 제작자 마스터 콘솔</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=190.0">
+    <link rel="stylesheet" href="css/style.css?v=200.0">
     <style>
+        :root {
+            --bg-color: #08090d;
+            --card-bg: #11131c;
+            --accent-color: #6366f1;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.12);
+        }
         body {
-            background-color: #06070a;
-            color: #f8fafc;
-            font-family: 'Outfit', 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Pretendard', sans-serif;
             margin: 0;
-            padding: 20px;
-            display: block;
-            min-height: 100vh;
+            padding: 0;
+        }
+        .admin-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 24px 16px;
         }
         .admin-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 24px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 12px;
         }
         .admin-title {
-            font-size: 1.6rem;
+            font-size: 1.45rem;
             font-weight: 900;
             letter-spacing: -0.5px;
         }
-        .admin-grid {
+        .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
             margin-bottom: 24px;
         }
         .kpi-card {
-            background: rgba(18, 20, 29, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            background: var(--card-bg);
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
         }
         .kpi-title {
-            font-size: 0.8rem;
-            color: #94a3b8;
-            margin-bottom: 8px;
-            text-transform: uppercase;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            font-weight: 700;
+            margin-bottom: 6px;
         }
         .kpi-value {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #6366f1;
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #ffffff;
         }
-        .section-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 14px;
+        .admin-tab-nav {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            gap: 6px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            scrollbar-width: thin;
         }
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: rgba(18, 20, 29, 0.8);
-            border-radius: 16px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            margin-bottom: 30px;
-        }
-        .data-table th, .data-table td {
-            padding: 12px 16px;
-            text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 0.85rem;
-        }
-        .data-table th {
-            background: rgba(255, 255, 255, 0.04);
-            color: #94a3b8;
-            font-weight: 600;
-        }
-        .status-success { color: #10b981; font-weight: 700; }
-        .status-fail { color: #ef4444; font-weight: 700; }
-        .feed-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        @media (max-width: 768px) {
-            .feed-container { grid-template-columns: 1fr; }
-        }
-            .admin-cockpit-tab-btn {
-            padding: 10px 16px;
-            font-size: 0.86rem;
+        .admin-cockpit-tab-btn {
+            padding: 10px 14px;
+            font-size: 0.82rem;
             font-weight: 800;
             border-radius: 10px;
-            border: 1.8px solid rgba(255, 255, 255, 0.25) !important;
+            border: 1.8px solid rgba(255, 255, 255, 0.22) !important;
             background: rgba(255, 255, 255, 0.05) !important;
             color: #cbd5e1 !important;
             cursor: pointer;
             white-space: nowrap;
             transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
         .admin-cockpit-tab-btn:hover {
             background: rgba(255, 255, 255, 0.12) !important;
@@ -114,303 +101,473 @@
             color: #ffffff !important;
             box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
         }
+        .admin-cockpit-tab-btn.master-btn {
+            border-color: rgba(245, 158, 11, 0.4) !important;
+        }
+        .admin-cockpit-tab-btn.master-btn.active {
+            background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+            border-color: #fbbf24 !important;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+        }
+        .section-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+        .data-table th, .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: left;
+        }
+        .data-table th {
+            color: var(--text-secondary);
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .league-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+        }
+        .league-platinum { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid #a855f7; }
+        .league-gold { background: rgba(234, 179, 8, 0.2); color: #fde047; border: 1px solid #eab308; }
+        .league-silver { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid #94a3b8; }
+        .league-bronze { background: rgba(180, 83, 9, 0.2); color: #fdba74; border: 1px solid #d97706; }
+        .btn {
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .form-input {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
-
-    <!-- 1. 원장님 전용 보안 로그인 화면 -->
-    <div id="admin-login-screen" style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
-        <div style="background: #0f111a; border: 1.5px solid rgba(99, 102, 241, 0.4); border-radius: 20px; padding: 36px 28px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.8);">
-            <div style="width: 56px; height: 56px; background: rgba(99, 102, 241, 0.15); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-                <span class="material-symbols-rounded" style="font-size: 32px; color: #6366f1;">admin_panel_settings</span>
-            </div>
-            <div style="font-size: 1.3rem; font-weight: 800; color: #f8fafc; margin-bottom: 6px;">원장님 전용 중앙 관제실</div>
-            <div style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 16px;">보안 마스터 PIN 8자리를 입력해 주세요.</div>
-            <div>
-                <input type="password" id="admin-login-pin" placeholder="마스터 PIN 8자리 (예: 12862386)" autocomplete="off" maxlength="20" style="width: 100%; padding: 14px; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 12px; color: white; font-size: 1.2rem; text-align: center; letter-spacing: 4px; box-sizing: border-box; margin-bottom: 14px;" onkeydown="if(event.key==='Enter') handleAdminLogin();">
-                <button type="button" onclick="handleAdminLogin()" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 800; cursor: pointer;">🔐 관제실 접속</button>
-            </div>
-            <div id="login-error-msg" style="color: #ef4444; font-size: 0.82rem; font-weight: 700; margin-top: 12px; display: none;">⚠️ 마스터 비밀번호가 올바르지 않습니다.</div>
-            <div style="margin-top: 20px;"><a href="/index.html" style="font-size: 0.8rem; color: #64748b; text-decoration: none;">← 학생 모바일 화면으로 돌아가기</a></div>
-        </div>
-    </div>
-
-    <!-- 2. 중앙 관제 대시보드 화면 -->
-    <div id="admin-dashboard-screen" style="display: none;">
-        <div class="admin-header">
-            <div>
-                <div class="admin-title">PALIN<span style="color: #6366f1;">OS</span> 중앙 관제 대시보드</div>
-                <div style="font-size: 0.82rem; color: #94a3b8; margin-top: 3px;">일원학원 김철훈 원장 직통 관제 사령탑</div>
-            </div>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <button onclick="fetchDashboardData()" class="btn" style="padding: 8px 14px; font-size: 0.82rem; font-weight: 800;">🔄 실시간 갱신</button>
-                <button onclick="adminLogout()" class="btn" style="padding: 8px 14px; font-size: 0.82rem; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #ef4444; font-weight: 800;">🔒 로그아웃</button>
-                <a href="/" class="btn btn-secondary" style="padding: 8px 14px; font-size: 0.82rem; text-decoration: none;">📱 학생용 화면</a>
+    <div class="admin-container">
+        <!-- 1. 보안 인증 로그인 화면 -->
+        <div id="admin-login-screen" style="display: flex; justify-content: center; align-items: center; min-height: 80vh;">
+            <div style="background: #0f111a; border: 1.5px solid rgba(99, 102, 241, 0.4); border-radius: 20px; padding: 36px 28px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.8);">
+                <div style="width: 56px; height: 56px; background: rgba(99, 102, 241, 0.15); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                    <span class="material-symbols-rounded" style="font-size: 32px; color: #6366f1;">admin_panel_settings</span>
+                </div>
+                <div style="font-size: 1.3rem; font-weight: 800; color: #f8fafc; margin-bottom: 6px;">원장님 전용 중앙 관제실</div>
+                <div style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 16px;">보안 마스터 PIN 8자리를 입력해 주세요.</div>
+                <div>
+                    <input type="password" id="admin-login-pin" placeholder="마스터 PIN 8자리 (예: 12862386)" autocomplete="off" maxlength="20" style="width: 100%; padding: 14px; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 12px; color: white; font-size: 1.2rem; text-align: center; letter-spacing: 4px; box-sizing: border-box; margin-bottom: 14px;" onkeydown="if(event.key==='Enter') handleAdminLogin();">
+                    <button type="button" onclick="handleAdminLogin()" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 800; cursor: pointer;">🔐 관제실 접속</button>
+                </div>
+                <div id="login-error-msg" style="color: #ef4444; font-size: 0.82rem; font-weight: 700; margin-top: 12px; display: none;">⚠️ 마스터 비밀번호가 올바르지 않습니다.</div>
+                <div style="margin-top: 20px;"><a href="/index.html" style="font-size: 0.8rem; color: #64748b; text-decoration: none;">← 학생 모바일 화면으로 돌아가기</a></div>
             </div>
         </div>
 
-        <!-- 🧭 관제실 5대 메인 탭 네비게이션 (전체 버튼 선명한 테두리 통일) -->
-        <div class="admin-tab-nav" style="display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px;">
-            <button class="admin-cockpit-tab-btn active" onclick="switchAdminCockpitTab('tab-schedule')" id="btn-tab-schedule">📅 1. 원장 스케줄러</button>
-            <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-academy')" id="btn-tab-academy">🔑 2. 학원코드 & Wi-Fi 출결</button>
-            <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-finance')" id="btn-tab-finance">💰 3. 수납 ERP & 일괄 졸업</button>
-            <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-curriculum')" id="btn-tab-curriculum">📢 4. 학사일정 · VOD · 행정</button>
-            <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-students')" id="btn-tab-students">👥 5. 재원생 랭킹 & 레드카드</button>
-        </div>
-
-        <!-- TAB 1: 📅 원장 스케줄러 -->
-        <div id="tab-schedule" class="cockpit-tab-view" style="display: block;">
-            <div class="kpi-card" style="border: 1.5px solid rgba(99, 102, 241, 0.4);">
-                <div class="section-title" style="color: #818cf8;">
-                    <span class="material-symbols-rounded">calendar_month</span>
-                    <span>📅 원장 전용 개인 스케줄러 (교재 주문 / 설명회 / 마감 일정)</span>
+        <!-- 2. 중앙 관제 대시보드 화면 -->
+        <div id="admin-dashboard-screen" style="display: none;">
+            <div class="admin-header">
+                <div>
+                    <div class="admin-title">PALIN<span style="color: #6366f1;">OS</span> 통합 관제 사령탑</div>
+                    <div style="font-size: 0.82rem; color: #94a3b8; margin-top: 3px;">일원학원 원장 관제실 & 총괄 제작자 마스터 콘솔</div>
                 </div>
-                <form onsubmit="handleCreateSchedule(event)" style="display: grid; grid-template-columns: 140px 140px 1fr 120px auto; gap: 8px; margin-bottom: 16px;">
-                    <select id="sched-category" class="form-input" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 8px; font-weight: 700;">
-                        <option value="교재주문">📦 교재 주문</option>
-                        <option value="입시설명회">🎤 입시설명회</option>
-                        <option value="모의고사마감">📝 모의고사 마감</option>
-                        <option value="행정일반">📋 행정 일반</option>
-                    </select>
-                    <input type="date" id="sched-date" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 8px;">
-                    <input type="text" id="sched-title" placeholder="일정 제목 (예: 6월 모평 교재 발주)" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 8px;">
-                    <input type="text" id="sched-week-label" placeholder="3주차" value="3주차" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 8px; text-align: center;">
-                    <button type="submit" class="btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; padding: 10px 18px;">+ 일정 등록</button>
-                </form>
-                <div id="admin-schedules-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto;"></div>
-            </div>
-        </div>
-
-        <!-- TAB 2: 🔑 학원코드 & Wi-Fi 출결 -->
-        <div id="tab-academy" class="cockpit-tab-view" style="display: none;">
-            <div class="kpi-card" style="border: 1.5px solid rgba(168, 85, 247, 0.4); background: rgba(168, 85, 247, 0.04);">
-                <div class="section-title" style="color: #c084fc;">
-                    <span class="material-symbols-rounded">key</span>
-                    <span>🔑 학원 고유코드 관리 & 학생 카톡 초대 링크 생성기</span>
-                </div>
-                <div id="admin-academy-codes-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;"></div>
-                <form onsubmit="handleSaveAcademyCode(event)" style="display: grid; grid-template-columns: 160px 180px 1fr auto; gap: 8px; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px;">
-                    <input type="text" id="new-academy-code" placeholder="코드 (예: ILWON-2027)" value="ILWON-2027" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px; border-radius: 8px; font-weight: 800; text-transform: uppercase;">
-                    <input type="text" id="new-academy-name" placeholder="학원명 (예: 일원학원)" value="일원학원" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px; border-radius: 8px;">
-                    <input type="text" id="new-academy-subject" placeholder="태그 (예: 수능국어, 대입전략, 원장직강)" value="수능국어, 대입전략, 원장직강" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px; border-radius: 8px;">
-                    <button type="submit" class="btn" style="background: linear-gradient(135deg, #a855f7, #7e22ce); font-weight: 800; padding: 9px 18px;">코드 저장</button>
-                </form>
-            </div>
-
-            <div class="kpi-card" style="border: 1.5px solid rgba(59, 130, 246, 0.4);">
-                <div class="section-title" style="color: #60a5fa;">
-                    <span class="material-symbols-rounded">wifi_tethering</span>
-                    <span>📡 학원 Wi-Fi 출결 공인 IP & 부정 출석 차단 관리자</span>
-                </div>
-                <div style="display: flex; gap: 8px; align-items: center; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px;">
-                    <input type="text" id="admin-wifi-ip-input" placeholder="학원 공인 IP (예: 211.234.12.34)" style="flex: 1; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px; border-radius: 8px; font-weight: 800;">
-                    <button onclick="handleRegisterCurrentDirectorIP()" class="btn" style="background: #3b82f6; font-weight: 800; padding: 9px 16px;">📍 현재 원장님 IP 즉시 등록</button>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button onclick="fetchDashboardData()" class="btn" style="padding: 8px 14px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">🔄 실시간 갱신</button>
+                    <button onclick="adminLogout()" class="btn" style="padding: 8px 14px; font-size: 0.82rem; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #ef4444; font-weight: 800;">🔒 로그아웃</button>
+                    <a href="/" class="btn btn-secondary" style="padding: 8px 14px; font-size: 0.82rem; text-decoration: none;">📱 학생용 화면</a>
                 </div>
             </div>
-        </div>
 
-        <!-- TAB 3: 💰 수납 ERP & 일괄 졸업 -->
-        <div id="tab-finance" class="cockpit-tab-view" style="display: none;">
-            <div class="kpi-card" style="border: 1.5px solid rgba(16, 185, 129, 0.4); margin-bottom: 18px;">
-                <div class="section-title" style="color: #34d399;">
-                    <span class="material-symbols-rounded">school</span>
-                    <span>🎓 수능/입시 종료 재원생 일괄 졸업 처리기 (선배 튜터 특권 부여)</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: #ffffff; cursor: pointer;">
-                        <input type="checkbox" onchange="toggleSelectAllGraduates(this.checked)" style="width: 16px; height: 16px;">
-                        <span>전체 학생 선택</span>
-                    </label>
-                    <button onclick="handleBatchGraduateSubmit()" class="btn" style="background: linear-gradient(135deg, #10b981, #059669); font-weight: 800; padding: 8px 18px;">🎓 선택 학생 일괄 졸업 확정</button>
-                </div>
-                <div id="graduate-students-container" style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 8px;"></div>
+            <!-- 🧭 9대 탭 네비게이션 (학원 운영 5종 + 제작자 마스터 4종) -->
+            <div class="admin-tab-nav">
+                <button class="admin-cockpit-tab-btn active" onclick="switchAdminCockpitTab('tab-schedule')">📅 1. 원장 스케줄러</button>
+                <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-academy')">🔑 2. 학원코드 & Wi-Fi</button>
+                <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-finance')">💰 3. 수납 ERP & 일괄 졸업</button>
+                <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-curriculum')">📢 4. 학사일정 · VOD · 행정</button>
+                <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-students')">👥 5. 재원생 랭킹 & 레드카드</button>
+                
+                <span style="border-left: 1px solid rgba(255,255,255,0.15); margin: 0 4px;"></span>
+                
+                <button class="admin-cockpit-tab-btn master-btn" onclick="switchAdminCockpitTab('tab-knowledge')">🧠 6. AI 수험생활 백서 & 화이트라벨</button>
+                <button class="admin-cockpit-tab-btn master-btn" onclick="switchAdminCockpitTab('tab-tutors')">🎓 7. 선배 튜터 승인 대기열</button>
+                <button class="admin-cockpit-tab-btn master-btn" onclick="switchAdminCockpitTab('tab-reports')">📊 8. 입시 리포트 발급 & CSV</button>
+                <button class="admin-cockpit-tab-btn master-btn" onclick="switchAdminCockpitTab('tab-feedback')">💬 9. 학생 VOC & 피드백</button>
             </div>
 
-            <div class="kpi-card" style="border: 1.5px solid rgba(234, 179, 8, 0.4);">
-                <div class="section-title" style="color: #fbbf24; justify-content: space-between;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
+            <!-- TAB 1: 📅 원장 스케줄러 -->
+            <div id="tab-schedule" class="cockpit-tab-view" style="display: block;">
+                <div class="kpi-card" style="border: 1.5px solid rgba(99, 102, 241, 0.4);">
+                    <div class="section-title" style="color: #818cf8;">
+                        <span class="material-symbols-rounded">calendar_month</span>
+                        <span>📅 원장 전용 개인 스케줄러 (교재 주문 / 설명회 / 마감 일정)</span>
+                    </div>
+                    <form onsubmit="handleCreateSchedule(event)" style="display: grid; grid-template-columns: 140px 140px 1fr 120px auto; gap: 8px; margin-bottom: 16px;">
+                        <select id="sched-category" class="form-input" style="font-weight: 700;">
+                            <option value="교재주문">📦 교재 주문</option>
+                            <option value="입시설명회">🎤 입시설명회</option>
+                            <option value="모의고사마감">📝 모의고사 마감</option>
+                            <option value="행정일반">📋 행정 일반</option>
+                        </select>
+                        <input type="date" id="sched-date" required class="form-input">
+                        <input type="text" id="sched-title" placeholder="일정 제목 (예: 6월 모평 교재 발주)" required class="form-input">
+                        <input type="text" id="sched-week-label" placeholder="예: 3주차" value="3주차" class="form-input" style="text-align: center; font-weight: 800;">
+                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; padding: 10px 18px; color: white;">+ 일정 등록</button>
+                    </form>
+                    <div id="admin-schedules-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto;"></div>
+                </div>
+            </div>
+
+            <!-- TAB 2: 🔑 학원코드 & Wi-Fi 출결 -->
+            <div id="tab-academy" class="cockpit-tab-view" style="display: none;">
+                <div class="kpi-card" style="border: 1.5px solid rgba(168, 85, 247, 0.4); background: rgba(168, 85, 247, 0.04); margin-bottom: 16px;">
+                    <div class="section-title" style="color: #c084fc;">
+                        <span class="material-symbols-rounded">key</span>
+                        <span>🔑 학원 고유코드 관리 & 학생 카톡 초대 링크 생성기</span>
+                    </div>
+                    <div id="admin-academy-codes-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;"></div>
+                    <form onsubmit="handleSaveAcademyCode(event)" style="display: grid; grid-template-columns: 160px 180px 1fr auto; gap: 8px; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px;">
+                        <input type="text" id="new-academy-code" placeholder="코드 (예: ILWON-2027)" value="ILWON-2027" required class="form-input" style="font-weight: 800; text-transform: uppercase;">
+                        <input type="text" id="new-academy-name" placeholder="학원명 (예: 일원학원)" value="일원학원" required class="form-input">
+                        <input type="text" id="new-academy-subject" placeholder="태그 (예: 수능국어, 대입전략, 원장직강)" value="수능국어, 대입전략, 원장직강" required class="form-input">
+                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #a855f7, #7e22ce); font-weight: 800; padding: 9px 18px; color: white;">코드 저장</button>
+                    </form>
+                </div>
+
+                <div class="kpi-card" style="border: 1.5px solid rgba(59, 130, 246, 0.4);">
+                    <div class="section-title" style="color: #60a5fa;">
+                        <span class="material-symbols-rounded">wifi_tethering</span>
+                        <span>📡 학원 Wi-Fi 출결 공인 IP & 부정 출석 차단 관리자</span>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px;">
+                        <input type="text" id="admin-wifi-ip-input" placeholder="학원 공인 IP (예: 211.234.12.34)" class="form-input" style="flex: 1; font-weight: 800;">
+                        <button onclick="handleRegisterCurrentDirectorIP()" class="btn" style="background: #3b82f6; font-weight: 800; padding: 10px 18px; color: white;">📍 현재 원장님 IP 즉시 등록</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: 💰 수납 ERP & 일괄 졸업 -->
+            <div id="tab-finance" class="cockpit-tab-view" style="display: none;">
+                <div class="kpi-card" style="border: 1.5px solid rgba(16, 185, 129, 0.4); margin-bottom: 18px;">
+                    <div class="section-title" style="color: #34d399;">
+                        <span class="material-symbols-rounded">school</span>
+                        <span>🎓 수능/입시 종료 재원생 일괄 졸업 처리기 (선배 튜터 특권 부여)</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: #ffffff; cursor: pointer;">
+                            <input type="checkbox" onchange="toggleSelectAllGraduates(this.checked)" style="width: 16px; height: 16px;">
+                            <span>전체 학생 선택</span>
+                        </label>
+                        <button onclick="handleBatchGraduateSubmit()" class="btn" style="background: linear-gradient(135deg, #10b981, #059669); font-weight: 800; padding: 8px 18px; color: white;">🎓 선택 학생 일괄 졸업 확정</button>
+                    </div>
+                    <div id="graduate-students-container" style="max-height: 180px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 8px;"></div>
+                </div>
+
+                <div class="kpi-card" style="border: 1.5px solid rgba(234, 179, 8, 0.4);">
+                    <div class="section-title" style="color: #fbbf24;">
                         <span class="material-symbols-rounded">payments</span>
-                        <span>💰 재원생 재무/수납 관리 ERP (일괄 완납 & 개별 납부 관리)</span>
+                        <span>💰 재원생 재무/수납 관리 ERP (일괄 완납 & 개별 수납 관리)</span>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; background: rgba(0,0,0,0.35); padding: 12px; border-radius: 10px; margin-bottom: 14px; align-items: center;">
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 800; color: #ffffff; cursor: pointer; margin-right: 8px;">
+                            <input type="checkbox" onchange="toggleSelectAllFinance(this.checked)" style="width: 16px; height: 16px;">
+                            <span>전체 학생 선택</span>
+                        </label>
+                        <button onclick="handleBatchFinanceSubmit('tuition', true)" class="btn" style="padding: 7px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white;">
+                            💳 선택 학생 [수강료 일괄 완납]
+                        </button>
+                        <button onclick="handleBatchFinanceSubmit('textbook', true)" class="btn" style="padding: 7px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #a855f7, #7e22ce); color: white;">
+                            📦 선택 학생 [교재비 일괄 완납]
+                        </button>
+                        <button onclick="handleBatchFinanceSubmit('both', true)" class="btn" style="padding: 7px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706); color: white;">
+                            ✨ 선택 학생 [수강료+교재비 전액 완납]
+                        </button>
+                        <button onclick="handleBatchFinanceSubmit('both', false)" class="btn btn-secondary" style="padding: 7px 12px; font-size: 0.75rem; color: #f87171; border-color: #ef4444;">
+                            선택 미납 전환
+                        </button>
+                    </div>
+
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px; text-align: center;">선택</th>
+                                    <th>학생명 (ID)</th>
+                                    <th>고교 / 학년</th>
+                                    <th>수강료 상태</th>
+                                    <th>교재비 상태</th>
+                                    <th style="text-align: center;">개별 납부 상태 변경</th>
+                                </tr>
+                            </thead>
+                            <tbody id="financial-erp-tbody"></tbody>
+                        </table>
                     </div>
                 </div>
-                <div style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 14px;">
-                    대다수 납부 완료된 학생들은 <b>[전체 선택]</b> 후 일괄 완납 처리하고, 미납인 소수 학생만 체크 해제하여 효율적으로 수납을 관리하세요.
-                </div>
-
-                <!-- 🚀 일괄 수납 액션 툴바 -->
-                <div style="display: flex; gap: 8px; flex-wrap: wrap; background: rgba(0,0,0,0.35); padding: 12px; border-radius: 10px; margin-bottom: 14px; align-items: center;">
-                    <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 800; color: #ffffff; cursor: pointer; margin-right: 8px;">
-                        <input type="checkbox" id="finance-select-all" onchange="toggleSelectAllFinance(this.checked)" style="width: 16px; height: 16px;">
-                        <span>전체 학생 선택</span>
-                    </label>
-                    <button onclick="handleBatchFinanceSubmit('tuition', true)" class="btn" style="padding: 7px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white;">
-                        💳 선택 학생 [수강료 일괄 완납]
-                    </button>
-                    <button onclick="handleBatchFinanceSubmit('textbook', true)" class="btn" style="padding: 7px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #a855f7, #7e22ce); color: white;">
-                        📦 선택 학생 [교재비 일괄 완납]
-                    </button>
-                    <button onclick="handleBatchFinanceSubmit('both', true)" class="btn" style="padding: 7px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706); color: white;">
-                        ✨ 선택 학생 [수강료+교재비 전액 완납]
-                    </button>
-                    <button onclick="handleBatchFinanceSubmit('both', false)" class="btn btn-secondary" style="padding: 7px 12px; font-size: 0.75rem; color: #f87171; border-color: #ef4444;">
-                        선택 미납 전환
-                    </button>
-                </div>
-
-                <div style="overflow-x: auto;">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 40px; text-align: center;">선택</th>
-                                <th>학생명 (ID)</th>
-                                <th>고교 / 학년</th>
-                                <th>수강료 상태</th>
-                                <th>교재비 상태</th>
-                                <th style="text-align: center;">개별 납부 상태 변경</th>
-                            </tr>
-                        </thead>
-                        <tbody id="financial-erp-tbody"></tbody>
-                    </table>
-                </div>
             </div>
-        </div>
 
-        <!-- TAB 4: 📢 학사일정 · VOD · 행정 -->
-        <div id="tab-curriculum" class="cockpit-tab-view" style="display: none;">
-            <div class="kpi-card" style="border: 1.5px solid rgba(99, 102, 241, 0.4); margin-bottom: 18px;">
-                <div class="section-title" style="color: #818cf8;">
-                    <span class="material-symbols-rounded">campaign</span>
-                    <span>📢 주차별 학사일정 & 공지사항 등록</span>
-                </div>
-                <form onsubmit="handleCreateFeed(event)" style="display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: grid; grid-template-columns: 120px 1fr; gap: 8px;">
-                        <input type="text" id="feed-week" placeholder="예: 3주차" value="3주차" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px; border-radius: 8px; text-align: center; font-weight: 800;">
-                        <input type="text" id="feed-title" placeholder="공지 제목" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px; border-radius: 8px;">
+            <!-- TAB 4: 📢 학사일정 · VOD · 행정 -->
+            <div id="tab-curriculum" class="cockpit-tab-view" style="display: none;">
+                <div class="kpi-card" style="border: 1.5px solid rgba(99, 102, 241, 0.4); margin-bottom: 18px;">
+                    <div class="section-title" style="color: #818cf8;">
+                        <span class="material-symbols-rounded">campaign</span>
+                        <span>📢 주차별 학사일정 & 공지사항 등록</span>
                     </div>
-                    <textarea id="feed-content" placeholder="공지 내용을 입력하세요..." required style="height: 70px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px; border-radius: 8px;"></textarea>
-                    <button type="submit" class="btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; padding: 9px;">+ 학사일정 공지 배포</button>
-                </form>
-            </div>
+                    <form onsubmit="handleCreateFeed(event)" style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: grid; grid-template-columns: 120px 1fr; gap: 8px;">
+                            <input type="text" id="feed-week" placeholder="예: 3주차" value="3주차" required class="form-input" style="text-align: center; font-weight: 800;">
+                            <input type="text" id="feed-title" placeholder="공지 제목" required class="form-input">
+                        </div>
+                        <textarea id="feed-content" placeholder="공지 내용을 입력하세요..." required class="form-input" style="height: 70px;"></textarea>
+                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; padding: 9px; color: white;">+ 학사일정 공지 배포</button>
+                    </form>
+                </div>
 
-            <div class="kpi-card" style="border: 1.5px solid rgba(168, 85, 247, 0.4); margin-bottom: 18px;">
-                <div class="section-title" style="color: #c084fc;">
-                    <span class="material-symbols-rounded">play_circle</span>
-                    <span>🎬 학생별 1:1 맞춤 VOD 배정기 (7일 락)</span>
+                <div class="kpi-card" style="border: 1.5px solid rgba(168, 85, 247, 0.4); margin-bottom: 18px;">
+                    <div class="section-title" style="color: #c084fc;">
+                        <span class="material-symbols-rounded">play_circle</span>
+                        <span>🎬 학생별 1:1 맞춤 VOD 배정기 (7일 락)</span>
+                    </div>
+                    <form onsubmit="handleAssignVod(event)" style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 8px;">
+                        <input type="number" id="vod-student-id" placeholder="학생 고유 ID (#)" required class="form-input">
+                        <input type="text" id="vod-video-id" placeholder="Vimeo/영상 ID" required class="form-input">
+                        <input type="text" id="vod-title" placeholder="강의 제목 (예: 6월 모평 고난도 해설)" required class="form-input">
+                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #a855f7, #7e22ce); font-weight: 800; padding: 9px 18px; color: white;">VOD 배정</button>
+                    </form>
                 </div>
-                <form onsubmit="handleAssignVod(event)" style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 8px;">
-                    <input type="number" id="vod-student-id" placeholder="학생 ID" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px; border-radius: 8px;">
-                    <input type="text" id="vod-video-id" placeholder="Vimeo 영상 ID" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px; border-radius: 8px;">
-                    <input type="text" id="vod-title" placeholder="강의명" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px; border-radius: 8px;">
-                    <button type="submit" class="btn" style="background: linear-gradient(135deg, #a855f7, #7e22ce); font-weight: 800; padding: 9px 18px;">VOD 배정</button>
-                </form>
-            </div>
 
-            <div class="kpi-card" style="border: 1.5px solid rgba(245, 158, 11, 0.4);">
-                <div class="section-title" style="color: #fbbf24;">
-                    <span class="material-symbols-rounded">support_agent</span>
-                    <span>📋 학생 행정 요청 결재함</span>
-                </div>
-                <div id="admin-requests-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto;"></div>
-            </div>
-        </div>
-
-        <!-- TAB 5: 👥 재원생 랭킹 & 레드카드 -->
-        <div id="tab-students" class="cockpit-tab-view" style="display: none;">
-            <div class="kpi-card" style="border: 1.5px solid rgba(239, 68, 68, 0.5); background: rgba(239, 68, 68, 0.04); margin-bottom: 18px;">
-                <div class="section-title" style="color: #f87171;">
-                    <span class="material-symbols-rounded">local_police</span>
-                    <span>🛑 원장 긴급 레드카드 발송 (보증금 차감 & 학부모 SMS)</span>
-                </div>
-                <form onsubmit="handleIssueRedCard(event)" style="display: grid; grid-template-columns: 140px 1fr auto; gap: 8px;">
-                    <input type="number" id="red-student-id" placeholder="학생 ID" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px; border-radius: 8px;">
-                    <input type="text" id="red-reason" placeholder="사유 입력" required style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 9px; border-radius: 8px;">
-                    <button type="submit" class="btn" style="background: linear-gradient(135deg, #ef4444, #dc2626); font-weight: 800; padding: 9px 18px;">🚨 레드카드 발송</button>
-                </form>
-            </div>
-
-            <!-- KPI 요약 카드 -->
-            <div class="admin-grid">
-                <div class="kpi-card">
-                    <div class="kpi-title">총 등록 재원생</div>
-                    <div class="kpi-value" id="stat-students">0명</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-title">연동 학부모</div>
-                    <div class="kpi-value" id="stat-parents" style="color: #10b981;">0명</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-title">승격 튜터(선배)</div>
-                    <div class="kpi-value" id="stat-tutors" style="color: #f59e0b;">0명</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-title">플래티넘/골드 등급 유저</div>
-                    <div class="kpi-value" id="stat-top-league" style="color: #818cf8;">0명</div>
+                <div class="kpi-card" style="border: 1.5px solid rgba(245, 158, 11, 0.4);">
+                    <div class="section-title" style="color: #fbbf24;">
+                        <span class="material-symbols-rounded">pending_actions</span>
+                        <span>📋 학생 행정 신청 결재함 (휴강 · 복귀 · 보강 신청 승인/반려)</span>
+                    </div>
+                    <div id="admin-requests-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
                 </div>
             </div>
 
-            <!-- 재원생 리스트 및 성실도 리그전 현황 -->
-            <div class="section-title">
-                <span class="material-symbols-rounded" style="color: #6366f1;">groups</span>
-                재원생 종합 궤적 & 주간 성실도 리그전 현황
-            </div>
-            <div style="overflow-x: auto;">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>학생 ID</th>
-                            <th>이름</th>
-                            <th>연락처</th>
-                            <th>학교 / 학년</th>
-                            <th>목표 대학교</th>
-                            <th>성실도 리그 티어</th>
-                            <th>보상 배수</th>
-                            <th>보유 포인트</th>
-                            <th>누적 성실도 자산</th>
-                            <th>골든 티켓</th>
-                        </tr>
-                    </thead>
-                    <tbody id="student-table-body">
-                        <tr><td colspan="10" style="text-align: center; color: #94a3b8;">데이터 로딩 중...</td></tr>
-                    </tbody>
-                </table>
-            </div>
+            <!-- TAB 5: 👥 재원생 랭킹 & 레드카드 -->
+            <div id="tab-students" class="cockpit-tab-view" style="display: none;">
+                <!-- 긴급 레드카드 발송 바 -->
+                <div class="kpi-card" style="border: 1.5px solid rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.04); margin-bottom: 18px;">
+                    <div class="section-title" style="color: #f87171;">
+                        <span class="material-symbols-rounded">security</span>
+                        <span>🚨 원장 긴급 레드카드 발송 (보증금 차감 & 학부모 SMS 즉시 통보)</span>
+                    </div>
+                    <form onsubmit="handleIssueRedCard(event)" style="display: flex; gap: 8px; align-items: center;">
+                        <input type="number" id="red-student-id" placeholder="학생 ID (#)" required class="form-input" style="width: 140px;">
+                        <input type="text" id="red-reason" placeholder="사유 입력 (예: 무단 지각 2회, 자율학습 태도 불량)" required class="form-input" style="flex: 1;">
+                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #ef4444, #dc2626); font-weight: 800; padding: 10px 18px; color: white;">🚨 레드카드 발송</button>
+                    </form>
+                </div>
 
-            <!-- 피드 그리드: 실시간 미션 로그 & 공부 타이머 세션 -->
-            <div class="feed-container">
-                <div class="kpi-card">
+                <!-- KPI 통계 카드 -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-title">총 등록 재원생</div>
+                        <div class="kpi-value" id="stat-students" style="color: #818cf8;">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">연동 학부모</div>
+                        <div class="kpi-value" id="stat-parents" style="color: #34d399;">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">승격 튜터(선배)</div>
+                        <div class="kpi-value" id="stat-tutors" style="color: #fbbf24;">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">플래티넘/골드 등급 유저</div>
+                        <div class="kpi-value" id="stat-top-league" style="color: #c084fc;">-</div>
+                    </div>
+                </div>
+
+                <!-- 재원생 마스터 리그 테이블 -->
+                <div class="kpi-card" style="margin-bottom: 24px;">
                     <div class="section-title">
-                        <span class="material-symbols-rounded" style="color: #10b981;">task_alt</span>
-                        최근 미션 성공/실패 통제 피드
+                        <span class="material-symbols-rounded" style="color: #a78bfa;">military_tech</span>
+                        <span>🏆 재원생 실시간 리그 순위 및 포인트 현황</span>
                     </div>
-                    <div id="mission-feed" style="display: flex; flex-direction: column; gap: 10px;">
-                        <div style="color: #94a3b8; font-size: 0.85rem;">로딩중...</div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>이름</th>
+                                    <th>연락처</th>
+                                    <th>학교/학년</th>
+                                    <th>목표대학</th>
+                                    <th>리그티어</th>
+                                    <th>배율</th>
+                                    <th>보유P</th>
+                                    <th>성실도</th>
+                                    <th>황금티켓</th>
+                                </tr>
+                            </thead>
+                            <tbody id="student-table-body"></tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="kpi-card">
-                    <div class="section-title">
-                        <span class="material-symbols-rounded" style="color: #f59e0b;">timer</span>
-                        최근 공부 타이머 & 딴짓 통제 피드
+
+                <!-- 실시간 미션 / 공부 세션 피드 -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="kpi-card">
+                        <div class="section-title" style="color: #34d399;">
+                            <span class="material-symbols-rounded">alarm_on</span>
+                            <span>🌅 실시간 기상/취침 미션 피드</span>
+                        </div>
+                        <div id="mission-feed" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto;"></div>
                     </div>
-                    <div id="study-feed" style="display: flex; flex-direction: column; gap: 10px;">
-                        <div style="color: #94a3b8; font-size: 0.85rem;">로딩중...</div>
+                    <div class="kpi-card">
+                        <div class="section-title" style="color: #60a5fa;">
+                            <span class="material-symbols-rounded">timer</span>
+                            <span>⏱️ 실시간 몰입 순공 세션 피드</span>
+                        </div>
+                        <div id="study-feed" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto;"></div>
                     </div>
                 </div>
             </div>
+
+            <!-- ========================================================
+                 👑 [PALIN 총괄 제작자 마스터 콘솔 4대 탭]
+                 ======================================================== -->
+
+            <!-- TAB 6: 🧠 AI 수험생활 백서 & 화이트라벨 -->
+            <div id="tab-knowledge" class="cockpit-tab-view" style="display: none;">
+                <!-- 화이트라벨 On/Off 스위치 -->
+                <div class="kpi-card" style="border: 1.5px solid rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.04); margin-bottom: 18px;">
+                    <div class="section-title" style="color: #fbbf24; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-rounded">branding_watermark</span>
+                            <span>🏢 B2B 화이트라벨 모드 스위치 (김철훈 백서 & 지도철학 탑재 제어)</span>
+                        </div>
+                        <span id="white-label-status-badge" style="font-size: 0.78rem; padding: 4px 10px; border-radius: 6px; font-weight: 800; background: #10b981; color: white;">김철훈 백서 탑재 중</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 12px;">
+                        • <b>[기본 탑재 모드]</b>: 김철훈 원장님의 수험생활 백서, 실패의 원리 칼럼, 독기 멘토링이 AI 챗봇에 탑재됩니다.<br>
+                        • <b>[화이트라벨 모드]</b>: 외부 타 학원에 솔루션을 판매할 때 원장님 개인 브랜딩을 제거하고 순수 입시엔진만 작동시킵니다.
+                    </div>
+                    <button onclick="toggleWhiteLabelMode()" class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; font-weight: 800; padding: 8px 16px;">
+                        🔄 화이트라벨 모드 전환 토글
+                    </button>
+                </div>
+
+                <!-- 수험생활 백서 실시간 지식 추가 -->
+                <div class="kpi-card" style="border: 1.5px solid rgba(99, 102, 241, 0.4); margin-bottom: 18px;">
+                    <div class="section-title" style="color: #818cf8;">
+                        <span class="material-symbols-rounded">psychology</span>
+                        <span>🧠 PALIN AI 수험생활 백서 & 칼럼 실시간 지식 추가 (RAG 학습)</span>
+                    </div>
+                    <form onsubmit="handleAddAdminKnowledge(event)" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div style="display: grid; grid-template-columns: 1fr 180px; gap: 8px;">
+                            <input type="text" id="kb-title" placeholder="칼럼/백서 주제 (예: 6월 모평 이후 국어 멘탈 관리법)" required class="form-input">
+                            <input type="text" id="kb-tag" placeholder="태그 (예: 국어, 멘탈, 칼럼)" value="수험생활백서" required class="form-input">
+                        </div>
+                        <textarea id="kb-content" placeholder="원장님의 지도철학, 칼럼 본문, 실패의 원리 분석 내용을 상세히 작성하세요. AI가 실시간으로 기억하여 학생 상담에 반영합니다..." required class="form-input" style="height: 120px;"></textarea>
+                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; padding: 10px; color: white;">
+                            + 수험생활 백서 지식 추가 학습 완료
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 등록된 지식베이스 목록 -->
+                <div class="kpi-card">
+                    <div class="section-title" style="color: #cbd5e1;">
+                        <span class="material-symbols-rounded">library_books</span>
+                        <span>📚 현재 탑재된 수험생활 백서 & 칼럼 지식 목록</span>
+                    </div>
+                    <div id="admin-knowledge-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto;"></div>
+                </div>
+            </div>
+
+            <!-- TAB 7: 🎓 선배 튜터 승인 대기열 -->
+            <div id="tab-tutors" class="cockpit-tab-view" style="display: none;">
+                <div class="kpi-card" style="border: 1.5px solid rgba(168, 85, 247, 0.4);">
+                    <div class="section-title" style="color: #c084fc;">
+                        <span class="material-symbols-rounded">verified_user</span>
+                        <span>🎓 선배 과외선생님 승인 대기열 (대학 합격증/학생증 심사)</span>
+                    </div>
+                    <div id="admin-tutor-approval-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                </div>
+            </div>
+
+            <!-- TAB 8: 📊 입시 리포트 발급 & CSV -->
+            <div id="tab-reports" class="cockpit-tab-view" style="display: none;">
+                <div class="kpi-card" style="border: 1.5px solid rgba(16, 185, 129, 0.4); margin-bottom: 18px;">
+                    <div class="section-title" style="color: #34d399; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-rounded">analytics</span>
+                            <span>📊 AI 정시 심층 입시 리포트 발급 내역 & 마케팅 리텐션 데이터</span>
+                        </div>
+                        <a href="/api/admin/export/marketing-report" target="_blank" download class="btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 8px 16px; font-weight: 800; text-decoration: none; font-size: 0.82rem;">
+                            📥 재원생 마케팅 리포트 CSV 다운로드
+                        </a>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>발급ID</th>
+                                    <th>학생명</th>
+                                    <th>학교/학년</th>
+                                    <th>발급일시</th>
+                                    <th>목표대학</th>
+                                    <th>적정 누백</th>
+                                    <th>합격판정</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-reports-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 9: 💬 학생 VOC & 피드백 -->
+            <div id="tab-feedback" class="cockpit-tab-view" style="display: none;">
+                <div class="kpi-card" style="border: 1.5px solid rgba(59, 130, 246, 0.4);">
+                    <div class="section-title" style="color: #60a5fa;">
+                        <span class="material-symbols-rounded">chat</span>
+                        <span>💬 학생 불편사항 및 개선 아이디어 수신함 (VOC)</span>
+                    </div>
+                    <div id="admin-feedback-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                </div>
+            </div>
+
         </div>
     </div>
 
-        <script>
+    <script>
         let allStudentsCache = [];
 
         function switchAdminCockpitTab(tabId) {
             document.querySelectorAll('.cockpit-tab-view').forEach(el => el.style.display = 'none');
-            document.querySelectorAll('.admin-cockpit-tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
+            document.querySelectorAll('.admin-cockpit-tab-btn').forEach(btn => btn.classList.remove('active'));
             const target = document.getElementById(tabId);
             if (target) target.style.display = 'block';
             const btn = document.querySelector(`button[onclick*="${tabId}"]`);
             if (btn) btn.classList.add('active');
+
+            if (tabId === 'tab-knowledge') loadAdminKnowledge();
+            if (tabId === 'tab-reports') loadAdminReports();
+            if (tabId === 'tab-feedback') loadAdminFeedbacks();
         }
 
         function handleAdminLogin() {
@@ -446,10 +603,11 @@
                 allStudentsCache = data.students || [];
 
                 // KPI 요약
-                document.getElementById("stat-students").innerText = `${data.summary.total_students}명`;
-                document.getElementById("stat-parents").innerText = `${data.summary.total_parents}명`;
-                document.getElementById("stat-tutors").innerText = `${data.summary.total_tutors}명`;
-                const topCount = (data.summary.league_counts.PLATINUM || 0) + (data.summary.league_counts.GOLD || 0);
+                document.getElementById("stat-students").innerText = `${data.summary.total_students ?? 0}명`;
+                document.getElementById("stat-parents").innerText = `${data.summary.total_parents ?? 0}명`;
+                const tutorCount = data.summary.active_tutors_count ?? data.summary.total_tutors ?? (data.all_tutors ? data.all_tutors.length : 0);
+                document.getElementById("stat-tutors").innerText = `${tutorCount}명`;
+                const topCount = (data.summary.league_counts?.PLATINUM || 0) + (data.summary.league_counts?.GOLD || 0);
                 document.getElementById("stat-top-league").innerText = `${topCount}명`;
 
                 // 학생 테이블
@@ -457,7 +615,7 @@
                 tbody.innerHTML = "";
                 data.students.forEach(s => {
                     const tr = document.createElement("tr");
-                    const tierClass = `league-${s.league_tier.toLowerCase()}`;
+                    const tierClass = `league-${(s.league_tier || 'BRONZE').toLowerCase()}`;
                     tr.innerHTML = `
                         <td>#${s.id}</td>
                         <td style="font-weight: 700; color: #f8fafc;">${s.name}</td>
@@ -473,18 +631,18 @@
                     tbody.appendChild(tr);
                 });
 
-                // 피드
+                // 미션 피드
                 const mFeed = document.getElementById("mission-feed");
                 mFeed.innerHTML = "";
-                if (data.recent_missions.length === 0) {
+                if (!data.recent_missions || data.recent_missions.length === 0) {
                     mFeed.innerHTML = "<div style='color:#94a3b8; font-size:0.85rem;'>기록된 미션 로그가 없습니다.</div>";
                 } else {
                     data.recent_missions.forEach(m => {
                         const div = document.createElement("div");
                         div.style.cssText = "padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;";
                         const statusBadge = m.status === "SUCCESS" 
-                            ? "<span class='status-success'>[성공인증]</span>" 
-                            : "<span class='status-fail'>[실패-문자발송]</span>";
+                            ? "<span style='color:#34d399; font-weight:800;'>[성공인증]</span>" 
+                            : "<span style='color:#f87171; font-weight:800;'>[실패-문자발송]</span>";
                         div.innerHTML = `
                             <div>
                                 <span style="font-weight: 700; color: #f8fafc;">${m.student_name}</span> - 
@@ -497,17 +655,18 @@
                     });
                 }
 
+                // 공부 피드
                 const sFeed = document.getElementById("study-feed");
                 sFeed.innerHTML = "";
-                if (data.recent_studies.length === 0) {
+                if (!data.recent_studies || data.recent_studies.length === 0) {
                     sFeed.innerHTML = "<div style='color:#94a3b8; font-size:0.85rem;'>기록된 공부 세션이 없습니다.</div>";
                 } else {
                     data.recent_studies.forEach(s => {
                         const div = document.createElement("div");
                         div.style.cssText = "padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;";
                         const statusBadge = s.is_distracted 
-                            ? "<span class='status-fail'>[딴짓 감지/정지]</span>" 
-                            : "<span class='status-success'>[정상 몰입완료]</span>";
+                            ? "<span style='color:#f87171; font-weight:800;'>[딴짓 감지/정지]</span>" 
+                            : "<span style='color:#34d399; font-weight:800;'>[정상 몰입완료]</span>";
                         div.innerHTML = `
                             <div>
                                 <span style="font-weight: 700; color: #f8fafc;">${s.student_name}</span> - 
@@ -525,13 +684,64 @@
                 loadAdminSchedules();
                 loadAdminAcademyCodes();
                 loadAdminRequests();
+                renderTutorApprovals(data.pending_tutors || []);
+                loadWhiteLabelStatus();
             } catch (e) {
                 console.error("Dashboard load failed:", e);
             }
         }
 
         // ==========================================
-        // 💰 수납 ERP & 일괄 완납 처리 엔진
+        // 📅 원장 스케줄러
+        // ==========================================
+        async function loadAdminSchedules() {
+            const container = document.getElementById("admin-schedules-list");
+            if (!container) return;
+            try {
+                const res = await fetch("/api/admin/schedules");
+                if (!res.ok) return;
+                const list = await res.json();
+                if (list.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.8rem; padding:12px;">등록된 일정이 없습니다.</div>';
+                    return;
+                }
+                container.innerHTML = list.map(s => `
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.3); padding:10px 14px; border-radius:8px; border-left:4px solid #6366f1;">
+                        <div>
+                            <span style="font-size:0.75rem; background:rgba(99,102,241,0.2); color:#818cf8; padding:2px 8px; border-radius:4px; font-weight:800;">${s.category} [${s.schedule_date || '-'}]</span>
+                            <span style="font-weight:800; font-size:0.9rem; color:white; margin-left:6px;">${s.title}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch(e) {}
+        }
+
+        async function handleCreateSchedule(e) {
+            e.preventDefault();
+            const cat = document.getElementById("sched-category").value;
+            const date = document.getElementById("sched-date").value;
+            const title = document.getElementById("sched-title").value.trim();
+            const weekStr = document.getElementById("sched-week-label").value.replace(/[^0-9]/g, '');
+            const week = parseInt(weekStr || "3", 10);
+            try {
+                const res = await fetch("/api/admin/schedules", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ category: cat, schedule_date: date, target_date: date, title: title, week_number: week, notify_director: true })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`✅ ${data.message || '스케줄이 성공적으로 등록되었습니다!'}`);
+                    document.getElementById("sched-title").value = "";
+                    loadAdminSchedules();
+                } else {
+                    alert(data.detail || "일정 등록 실패");
+                }
+            } catch(e) { alert("일정 등록 실패"); }
+        }
+
+        // ==========================================
+        // 💰 수납 ERP & 일괄 완납
         // ==========================================
         function toggleSelectAllFinance(checked) {
             document.querySelectorAll(".finance-item-checkbox").forEach(cb => cb.checked = checked);
@@ -663,49 +873,9 @@
             } catch(e) { alert("졸업 처리 오류"); }
         }
 
-        async function loadAdminSchedules() {
-            const container = document.getElementById("admin-schedules-list");
-            if (!container) return;
-            try {
-                const res = await fetch("/api/admin/schedules");
-                if (!res.ok) return;
-                const list = await res.json();
-                if (list.length === 0) {
-                    container.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.8rem; padding:12px;">등록된 일정이 없습니다.</div>';
-                    return;
-                }
-                container.innerHTML = list.map(s => `
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.3); padding:10px 14px; border-radius:8px; border-left:4px solid #6366f1;">
-                        <div>
-                            <span style="font-size:0.75rem; background:rgba(99,102,241,0.2); color:#818cf8; padding:2px 8px; border-radius:4px; font-weight:800;">${s.category} [${s.week_number ? s.week_number + '주차' : '상시'}]</span>
-                            <span style="font-weight:800; font-size:0.9rem; color:white; margin-left:6px;">${s.title}</span>
-                            <div style="font-size:0.75rem; color:#94a3b8; margin-top:4px;">📅 ${s.target_date}</div>
-                        </div>
-                    </div>
-                `).join('');
-            } catch(e) {}
-        }
-
-        async function handleCreateSchedule(e) {
-            e.preventDefault();
-            const cat = document.getElementById("sched-category").value;
-            const date = document.getElementById("sched-date").value;
-            const title = document.getElementById("sched-title").value.trim();
-            const weekStr = document.getElementById("sched-week-label").value.replace(/[^0-9]/g, '');
-            const week = parseInt(weekStr || "3", 10);
-            try {
-                const res = await fetch("/api/admin/schedules", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ category: cat, target_date: date, title: title, week_number: week, notify_director: true })
-                });
-                if (res.ok) {
-                    alert("✅ 스케줄이 성공적으로 등록되었습니다!");
-                    loadAdminSchedules();
-                }
-            } catch(e) { alert("일정 등록 실패"); }
-        }
-
+        // ==========================================
+        // 🔑 학원코드 & Wi-Fi
+        // ==========================================
         async function loadAdminAcademyCodes() {
             const container = document.getElementById("admin-academy-codes-list");
             if (!container) return;
@@ -724,8 +894,7 @@
                                 <strong style="margin-left:6px; color:#f8fafc;">${info.name}</strong>
                                 <div style="font-size:0.75rem; color:#94a3b8; margin-top:3px;">👥 재원생: <b style="color:#34d399;">${info.enrolled_count}명</b> | 태그: ${info.subject}</div>
                             </div>
-                            <button onclick="navigator.clipboard.writeText('${inviteUrl}').then(()=>alert('📋 초대 링크 복사 완료!
-${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; background:linear-gradient(135deg,#6366f1,#4f46e5);">📋 초대 링크 복사</button>
+                            <button onclick="navigator.clipboard.writeText('${inviteUrl}').then(()=>alert('📋 초대 링크 복사 완료!\\n${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; background:linear-gradient(135deg,#6366f1,#4f46e5); color:white;">📋 초대 링크 복사</button>
                         </div>
                     `;
                 }).join('');
@@ -759,13 +928,14 @@ ${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; backgro
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    alert(`✅ [원장님 공인 IP 등록 완료]
-등록된 IP: ${data.detected_ip}
-이제 학원 Wi-Fi 접속자만 출석체크가 승인됩니다.`);
+                    alert(`✅ [원장님 공인 IP 등록 완료]\\n등록된 IP: ${data.detected_ip}\\n이제 학원 Wi-Fi 접속자만 출석체크가 승인됩니다.`);
                 }
             } catch(e) {}
         }
 
+        // ==========================================
+        // 📢 학사일정 공지 & VOD & 행정
+        // ==========================================
         async function handleCreateFeed(e) {
             e.preventDefault();
             const weekStr = document.getElementById("feed-week").value.replace(/[^0-9]/g, '');
@@ -801,9 +971,6 @@ ${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; backgro
             } catch(e) {}
         }
 
-        // ==========================================
-        // 📋 학생 행정 요청 결재함 (이름/학교 표시 & 승인/거절)
-        // ==========================================
         async function loadAdminRequests() {
             const container = document.getElementById("admin-requests-list");
             if (!container) return;
@@ -873,8 +1040,7 @@ ${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; backgro
             e.preventDefault();
             const sid = parseInt(document.getElementById("red-student-id").value, 10);
             const reason = document.getElementById("red-reason").value.trim();
-            if (!confirm(`학생 #${sid}에게 레드카드를 발송하시겠습니까?
-(보증금 차감 및 학부모 알림톡이 즉시 전송됩니다)`)) return;
+            if (!confirm(`학생 #${sid}에게 레드카드를 발송하시겠습니까?\\n(보증금 차감 및 학부모 알림톡이 즉시 전송됩니다)`)) return;
             try {
                 const res = await fetch("/api/admin/redcard", {
                     method: "POST",
@@ -882,6 +1048,227 @@ ${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; backgro
                     body: JSON.stringify({ student_id: sid, reason: reason })
                 });
                 if (res.ok) alert("🚨 레드카드가 성공적으로 발송되었습니다.");
+            } catch(e) {}
+        }
+
+        // ========================================================
+        // 👑 [PALIN 제작자 마스터 콘솔 JS 엔진]
+        // ========================================================
+
+        // 6. 수험생활 백서 지식베이스 & 화이트라벨
+        async function loadWhiteLabelStatus() {
+            try {
+                const res = await fetch("/api/admin/system/white-label");
+                if (res.ok) {
+                    const data = await res.json();
+                    const badge = document.getElementById("white-label-status-badge");
+                    if (badge) {
+                        badge.innerText = data.is_white_label ? "🏢 화이트라벨 모드 (개인 백서 비활성)" : "🌟 김철훈 백서 탑재 활성화 중";
+                        badge.style.background = data.is_white_label ? "#eab308" : "#10b981";
+                    }
+                }
+            } catch(e) {}
+        }
+
+        async function toggleWhiteLabelMode() {
+            try {
+                const curRes = await fetch("/api/admin/system/white-label");
+                const curData = await curRes.json();
+                const newMode = !curData.is_white_label;
+                const res = await fetch("/api/admin/system/white-label", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ is_white_label: newMode })
+                });
+                if (res.ok) {
+                    alert(`✅ 화이트라벨 상태가 [${newMode ? '활성화 (외부 B2B용)' : '기본 탑재 (김철훈 백서)'}]로 변경되었습니다.`);
+                    loadWhiteLabelStatus();
+                }
+            } catch(e) { alert("상태 변경 실패"); }
+        }
+
+        async function loadAdminKnowledge() {
+            const container = document.getElementById("admin-knowledge-list");
+            if (!container) return;
+            try {
+                const res = await fetch("/api/admin/knowledge");
+                if (!res.ok) return;
+                const list = await res.json();
+                if (list.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:20px;">등록된 백서 칼럼 지식이 없습니다.</div>';
+                    return;
+                }
+                container.innerHTML = list.map(item => `
+                    <div style="background:rgba(0,0,0,0.3); padding:12px; border-radius:8px; border-left:4px solid #6366f1; display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
+                        <div style="flex:1;">
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span style="background:rgba(99,102,241,0.2); color:#818cf8; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:800;">${item.tag || '백서'}</span>
+                                <strong style="color:white; font-size:0.95rem;">${item.title}</strong>
+                            </div>
+                            <div style="font-size:0.8rem; color:#cbd5e1; margin-top:6px; line-height:1.4; max-height:80px; overflow-y:auto;">${item.content}</div>
+                        </div>
+                        <button onclick="deleteKnowledgeItem(${item.id})" class="btn btn-secondary" style="color:#ef4444; border-color:#ef4444; padding:4px 8px; font-size:0.75rem; flex-shrink:0;">삭제</button>
+                    </div>
+                `).join('');
+            } catch(e) {}
+        }
+
+        async function handleAddAdminKnowledge(e) {
+            e.preventDefault();
+            const title = document.getElementById("kb-title").value.trim();
+            const tag = document.getElementById("kb-tag").value.trim();
+            const content = document.getElementById("kb-content").value.trim();
+            try {
+                const res = await fetch("/api/admin/knowledge", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title: title, tag: tag, content: content })
+                });
+                if (res.ok) {
+                    alert("🧠 수험생활 백서 지식이 성공적으로 AI에 학습되었습니다!");
+                    document.getElementById("kb-title").value = "";
+                    document.getElementById("kb-content").value = "";
+                    loadAdminKnowledge();
+                }
+            } catch(e) { alert("지식 추가 실패"); }
+        }
+
+        async function deleteKnowledgeItem(id) {
+            if (!confirm("해당 수험생활 백서 지식을 삭제하시겠습니까?")) return;
+            try {
+                const res = await fetch(`/api/admin/knowledge/${id}`, { method: "DELETE" });
+                if (res.ok) {
+                    alert("지식이 삭제되었습니다.");
+                    loadAdminKnowledge();
+                }
+            } catch(e) {}
+        }
+
+        // 7. 선배 튜터 승인 대기열
+        function renderTutorApprovals(pendingList) {
+            const container = document.getElementById("admin-tutor-approval-list");
+            if (!container) return;
+            if (!pendingList || pendingList.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:20px; font-size:0.85rem;">현재 인증 승인 대기 중인 선배 튜터가 없습니다.</div>';
+                return;
+            }
+            container.innerHTML = pendingList.map(t => `
+                <div style="background:rgba(0,0,0,0.3); padding:14px; border-radius:10px; border-left:4px solid #a855f7; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <strong style="color:white; font-size:1rem;">${t.name}</strong>
+                            <span style="background:rgba(168,85,247,0.2); color:#c084fc; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:800;">${t.univ || '대학'} ${t.major || '학과'}</span>
+                            <span style="font-size:0.75rem; color:#94a3b8;">(학생 #${t.student_id})</span>
+                        </div>
+                        <div style="font-size:0.8rem; color:#cbd5e1; margin-top:4px;">소개: ${t.bio || '한줄 소개 없음'} | 연락처: ${t.phone || '-'}</div>
+                        ${t.admission_proof_url ? `<a href="${t.admission_proof_url}" target="_blank" style="font-size:0.75rem; color:#38bdf8; margin-top:4px; display:inline-block;">📄 학생증/합격증 서류 확인하기</a>` : ''}
+                    </div>
+                    <div style="display:flex; gap:6px;">
+                        <button onclick="approveTutor(${t.id})" class="btn" style="background:linear-gradient(135deg,#10b981,#059669); color:white; padding:8px 16px; font-weight:800; font-size:0.8rem;">
+                            ✅ 튜터 승인 (500P 지급)
+                        </button>
+                        <button onclick="suspendTutor(${t.id})" class="btn btn-secondary" style="color:#f87171; border-color:#ef4444; padding:8px 12px; font-weight:800; font-size:0.8rem;">
+                            ❌ 반려 / 정지
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function approveTutor(tutorId) {
+            try {
+                const res = await fetch(`/api/admin/approve-tutor/${tutorId}`, { method: "POST" });
+                if (res.ok) {
+                    alert("🎓 선배 튜터 자격이 성공적으로 승인되었습니다! (학생에게 500P 지급 완료)");
+                    fetchDashboardData();
+                }
+            } catch(e) { alert("승인 처리 실패"); }
+        }
+
+        async function suspendTutor(tutorId) {
+            if (!confirm("해당 튜터의 자격을 반려/정지하시겠습니까?")) return;
+            try {
+                const res = await fetch(`/api/admin/tutors/${tutorId}/suspend`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ reason: "서류 미비 또는 부적격" })
+                });
+                if (res.ok) {
+                    alert("튜터가 반려/정지 처리되었습니다.");
+                    fetchDashboardData();
+                }
+            } catch(e) { alert("처리 실패"); }
+        }
+
+        // 8. 입시 리포트 발급 내역
+        async function loadAdminReports() {
+            const tbody = document.getElementById("admin-reports-tbody");
+            if (!tbody) return;
+            try {
+                const res = await fetch("/api/admin/reports");
+                if (!res.ok) return;
+                const reports = await res.json();
+                if (reports.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:20px;">발급된 정시 심층 리포트가 없습니다.</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = reports.map(r => `
+                    <tr>
+                        <td>#${r.id}</td>
+                        <td style="font-weight:800; color:white;">${r.student_name || '학생'}</td>
+                        <td>${r.high_school || '-'} (${r.grade || '3'}학년)</td>
+                        <td style="color:#94a3b8;">${r.created_at || '-'}</td>
+                        <td style="font-weight:700; color:#818cf8;">${r.target_univ || '-'}</td>
+                        <td style="font-weight:800; color:#34d399;">${r.estimated_nuback ? r.estimated_nuback + '%' : '-'}</td>
+                        <td><span style="background:rgba(16,185,129,0.2); color:#34d399; padding:2px 8px; border-radius:4px; font-weight:800;">${r.prediction_verdict || '발급완료'}</span></td>
+                    </tr>
+                `).join('');
+            } catch(e) {}
+        }
+
+        // 9. 학생 VOC & 피드백
+        async function loadAdminFeedbacks() {
+            const container = document.getElementById("admin-feedback-list");
+            if (!container) return;
+            try {
+                const res = await fetch("/api/admin/feedbacks");
+                if (!res.ok) return;
+                const list = await res.json();
+                if (list.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:20px;">접수된 학생 피드백이 없습니다.</div>';
+                    return;
+                }
+                container.innerHTML = list.map(f => `
+                    <div style="background:rgba(0,0,0,0.3); padding:12px; border-radius:8px; border-left:4px solid #3b82f6; display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <strong style="color:white;">${f.student_name || '익명 학생'}</strong>
+                                <span style="font-size:0.75rem; background:${f.status === '완료' ? '#10b981' : '#f59e0b'}; color:white; padding:2px 6px; border-radius:4px; font-weight:700;">${f.status}</span>
+                                <span style="font-size:0.75rem; color:#94a3b8;">${f.created_at || ''}</span>
+                            </div>
+                            <div style="font-size:0.82rem; color:#cbd5e1; margin-top:4px;">${f.content}</div>
+                        </div>
+                        ${f.status !== '완료' ? `
+                            <button onclick="updateFeedbackStatus(${f.id}, '완료')" class="btn" style="background:#10b981; color:white; padding:5px 12px; font-size:0.75rem; font-weight:800; white-space:nowrap;">
+                                처리 완료
+                            </button>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } catch(e) {}
+        }
+
+        async function updateFeedbackStatus(id, status) {
+            try {
+                const res = await fetch(`/api/admin/feedbacks/${id}/status`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status: status })
+                });
+                if (res.ok) {
+                    alert("✅ 피드백 상태가 완료 처리되었습니다.");
+                    loadAdminFeedbacks();
+                }
             } catch(e) {}
         }
     </script>
