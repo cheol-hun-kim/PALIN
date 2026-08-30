@@ -4845,8 +4845,8 @@ async function submitStudentFeedback() {
 }
 
 // === 📚 기출문제 및 수험자료실 프론트엔드 연동 ===
-let currentExamSubject = "전체";
-let currentExamYear = 0;
+let currentExamSubject = "국어";
+let currentExamYear = 2027;
 
 function switchExamSubject(subject, btnEl) {
     currentExamSubject = subject;
@@ -4926,30 +4926,40 @@ async function loadExamMaterials() {
                 "영어": { bg: "rgba(16, 185, 129, 0.15)", color: "#34d399", icon: "🔤" },
                 "과탐": { bg: "rgba(245, 158, 11, 0.15)", color: "#fbbf24", icon: "🔬" },
                 "사탐": { bg: "rgba(59, 130, 246, 0.15)", color: "#60a5fa", icon: "🌏" },
-                "논술": { bg: "rgba(168, 85, 247, 0.15)", color: "#c084fc", icon: "✍️" }
+                "논술": { bg: "rgba(168, 85, 247, 0.15)", color: "#c084fc", icon: "✍️" },
+                "사관": { bg: "rgba(244, 63, 94, 0.15)", color: "#fb7185", icon: "🎖️" }
             };
             const badgeInfo = subjectBadges[m.subject] || { bg: "rgba(255,255,255,0.1)", color: "#e2e8f0", icon: "📄" };
             
             const hasAnswer = !!m.answer_file_url;
             const answerBtn = hasAnswer ? `
-                <a href="/api/materials/${m.id}/download-answer" target="_blank" download class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.75rem; font-weight: 700; color: #10b981 !important; border-color: #10b981; border-radius: 8px; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
-                    <span>📝</span> 정답/해설
+                <a href="/api/materials/${m.id}/download-answer" target="_blank" download class="btn btn-secondary" style="padding: 10px 12px; font-size: 0.82rem; font-weight: 800; color: #10b981 !important; border: 1.5px solid #10b981; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none;">
+                    <span>📝</span> 정답/해설지
                 </a>
             ` : '';
 
             container.innerHTML += `
-                <div class="material-card" style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
-                    <div style="flex: 1; min-width: 0;">
-                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: nowrap;">
-                            <span style="background: ${badgeInfo.bg}; color: ${badgeInfo.color}; padding: 3px 8px; border-radius: 8px; font-size: 0.72rem; font-weight: 800; white-space: nowrap; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px;">${badgeInfo.icon} ${m.subject}</span>
-                            ${m.year ? `<span style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; white-space: nowrap; flex-shrink: 0; background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 8px;">${m.year}학년도</span>` : ''}
+                <div class="material-card" style="margin-bottom: 12px; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 14px; border: 1.5px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                    <!-- 1단: 과목 뱃지 & 수험 학년도 태그 -->
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="background: ${badgeInfo.bg}; color: ${badgeInfo.color}; padding: 4px 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;">
+                                ${badgeInfo.icon} ${m.subject}
+                            </span>
+                            ${m.year ? `<span style="font-size: 0.76rem; color: #cbd5e1; font-weight: 800; background: rgba(255,255,255,0.08); padding: 4px 10px; border-radius: 8px;">${m.year}학년도</span>` : ''}
                         </div>
-                        <div class="material-title" style="font-size: 0.88rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.title}</div>
-                        ${m.description ? `<div class="material-desc" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.description}</div>` : ''}
                     </div>
-                    <div style="display: flex; gap: 6px; flex-shrink: 0; align-items: center;">
-                        <a href="/api/materials/${m.id}/download" target="_blank" download class="btn" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 700; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white !important; text-decoration: none; border-radius: 8px; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
-                            <span>📖</span> 문제지
+                    
+                    <!-- 2단: 시험지 명칭 & 설명 (겹침 원천 차단) -->
+                    <div>
+                        <div class="material-title" style="font-size: 1.05rem; font-weight: 900; color: #ffffff; letter-spacing: -0.3px; line-height: 1.35;">${m.title}</div>
+                        ${m.description ? `<div class="material-desc" style="font-size: 0.78rem; color: #94a3b8; margin-top: 4px; line-height: 1.4;">${m.description}</div>` : ''}
+                    </div>
+
+                    <!-- 3단: 다운로드 버튼 전용 그리드 바 (모바일 완벽 호환) -->
+                    <div style="display: grid; grid-template-columns: ${hasAnswer ? '1fr 1fr' : '1fr'}; gap: 8px; margin-top: 4px;">
+                        <a href="/api/materials/${m.id}/download" target="_blank" download class="btn" style="padding: 10px 12px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff !important; text-decoration: none; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(99,102,241,0.3);">
+                            <span>📖</span> 문제지 다운로드
                         </a>
                         ${answerBtn}
                     </div>
@@ -6290,7 +6300,7 @@ function updateFacilitySelectorUI() {
     
     selector.innerHTML = facilities.map(f => `
         <option value="${f.code}" ${f.code === currentActiveFacility ? 'selected' : ''}>
-            🏛️ ${f.name} (${f.desc || f.type || '기관'})
+            ${f.name} (${f.desc || f.type || '기관'})
         </option>
     `).join('');
 }
