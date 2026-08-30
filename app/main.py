@@ -321,8 +321,11 @@ class FinancialUpdatePayload(BaseModel):
 
 class AdminSchedulePayload(BaseModel):
     title: str
-    schedule_date: str # YYYY-MM-DD HH:MM
-    category: str = "OPERATION" # OPERATION | EVENT | TAX | ACADEMY
+    schedule_date: Optional[str] = None
+    target_date: Optional[str] = None
+    category: str = "일정"
+    week_number: Optional[Any] = None
+    notify_director: Optional[bool] = True
 
 class CurriculumFeedPayload(BaseModel):
     academy_code: str = "ILWON-2027"
@@ -1385,6 +1388,7 @@ def get_admin_dashboard(db: Session = Depends(get_db)):
             "total_students": len(students),
             "total_parents": len(parents),
             "open_feedbacks": open_count,
+            "total_tutors": len(all_tutors),
             "pending_tutors_count": len(pending_tutors),
             "active_tutors_count": len(all_tutors),
             "league_counts": tier_counts
@@ -2511,16 +2515,25 @@ def get_admin_schedules(db: Session = Depends(get_db)):
 
 @app.post("/api/admin/schedules")
 def create_admin_schedule(payload: AdminSchedulePayload, db: Session = Depends(get_db)):
+    date_val = payload.schedule_date or payload.target_date or datetime.now().strftime("%Y-%m-%d")
+    week_val = str(payload.week_number) if payload.week_number is not None else ""
     sch = models.AdminSchedule(
         title=payload.title,
-        schedule_date=payload.schedule_date,
+        schedule_date=date_val,
         category=payload.category,
         is_completed=False
     )
     db.add(sch)
     db.commit()
     db.refresh(sch)
-    return sch
+    return {
+        "status": "success",
+        "id": sch.id,
+        "title": sch.title,
+        "schedule_date": sch.schedule_date,
+        "category": sch.category,
+        "message": f"'{sch.title}' 일정이 등록되었습니다."
+    }
 
 
 @app.patch("/api/admin/schedules/{schedule_id}")
