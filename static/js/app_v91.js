@@ -6243,3 +6243,18 @@ async function handleSendDiagnosticSurvey(e) {
         }
     } catch(err) { alert("문진표 제출 실패"); }
 }
+
+
+// 🔗 URL 쿼리 파라미터 (?academy=ILWON-2027) 자동 감지 및 1초 연동 처리
+document.addEventListener("DOMContentLoaded", () => {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const academyParam = urlParams.get("academy");
+        if (academyParam) {
+            const inputDirect = document.getElementById("hub-input-academy-code");
+            const inputSetting = document.getElementById("setting-academy-code");
+            if (inputDirect) inputDirect.value = academyParam.toUpperCase();
+            if (inputSetting) inputSetting.value = academyParam.toUpperCase();
+        }
+    } catch(e) {}
+});
