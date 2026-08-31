@@ -237,6 +237,8 @@ class ChatHistoryItem(BaseModel):
 
 class AIChatRequest(BaseModel):
     student_id: Optional[int] = None
+    parent_id: Optional[int] = None
+    user_role: Optional[str] = "STUDENT"
     message: str
     history: Optional[List[Any]] = None
 
@@ -351,3 +353,66 @@ class ProposalResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# ============================================================================
+# 🛡️ Phase 7: 4-Tier RBAC & Security Routing Schemas
+# ============================================================================
+
+class RoleLoginRequest(BaseModel):
+    login_type: str = "STUDENT"  # "STUDENT" | "PARENT" | "DIRECTOR"
+    email: str
+    password: Optional[str] = None
+    academy_code: Optional[str] = None
+
+class RoleLoginResponse(BaseModel):
+    status: str = "success"
+    user_id: int
+    email: str
+    name: str
+    role: str  # "STUDENT" | "PARENT" | "TENANT_ADMIN" | "SUPER_ADMIN"
+    token: str
+    must_set_password: bool = False
+    student_id: Optional[int] = None
+    parent_id: Optional[int] = None
+    tenant_code: Optional[str] = None
+    wallet_balance: Optional[int] = 0
+    parent_invite_code: Optional[str] = None
+
+class SetPasswordRequest(BaseModel):
+    user_id: int
+    role: str
+    new_password: str
+
+class StudentRegisterRequest(BaseModel):
+    email: EmailStr
+    password: Optional[str] = None
+    name: str
+    phone: str
+    grade: int
+    region: str
+    high_school: str
+    target_univ: str
+    baseline_univ: str
+    parent_name: Optional[str] = None
+    parent_phone: Optional[str] = None
+    referred_by: Optional[str] = None
+    academy_code: Optional[str] = None
+
+class ParentRegisterRequest(BaseModel):
+    email: EmailStr
+    password: str
+    name: str
+    phone: str
+    student_invite_code: str
+
+class ParentSponsorChargeRequest(BaseModel):
+    parent_id: int
+    amount: int
+
+class ParentSponsorPayRequest(BaseModel):
+    parent_id: int
+    student_id: int
+    item_type: str  # "TUTOR" | "VOD" | "REPORT"
+    amount: int
+    item_title: str
