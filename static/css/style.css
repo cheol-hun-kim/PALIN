@@ -2570,3 +2570,20 @@ body.role-parent .timetable-day-column {
     cursor: default !important;
     pointer-events: none !important;
 }
+
+
+/* ⏰ 단일 화이트 시계 아이콘 및 원터치 시간 팝업 보장 */
+.time-input-box {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.time-input-box:hover, .time-input-box:focus-within {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25) !important;
+}
+.time-input-box input[type="time"]::-webkit-calendar-picker-indicator {
+    display: none !important;
+    -webkit-appearance: none !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+}
