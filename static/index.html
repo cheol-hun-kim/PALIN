@@ -30,7 +30,7 @@
     </script>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=1500.0">
+    <link rel="stylesheet" href="css/style.css?v=1600.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -439,21 +439,18 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </form>
                     </div>
 
-                    <!-- ================= [3] 학원장 및 마스터 영역 ================= -->
+                    <!-- ================= [3] 학원장 전용 영역 ================= -->
                     <div id="auth-pane-director" style="display: none;">
                         <form id="director-login-form" onsubmit="handleDirectorLoginSubmit(event)">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                                <div style="font-size: 1.05rem; font-weight: 900; color: #fbbf24;">🏫 학원장 & 마스터 로그인</div>
-                                <span style="font-size: 0.72rem; color: #fde68a; background: rgba(245,158,11,0.25); border: 1px solid #f59e0b; padding: 2px 8px; border-radius: 12px; font-weight: 800;">DIRECTOR / MASTER</span>
+                                <div style="font-size: 1.05rem; font-weight: 800; color: #fbbf24;">🏫 학원장 관제실 로그인</div>
+                                <span style="font-size: 0.72rem; color: #fde68a; background: rgba(245,158,11,0.25); border: 1px solid #f59e0b; padding: 2px 8px; border-radius: 12px; font-weight: 800;">DIRECTOR</span>
                             </div>
-                            <input type="text" id="dir-login-email" class="auth-input" placeholder="원장 이메일 (예: 1286orbital21@gmail.com) 또는 학원 코드" required>
-                            <input type="password" id="dir-login-password" class="auth-input" placeholder="비밀번호 또는 마스터 PIN (예: 1286 / 12Yonsei21*)" required>
+                            <input type="text" id="dir-login-email" class="auth-input" placeholder="원장 이메일 또는 가맹 학원 코드" required>
+                            <input type="password" id="dir-login-password" class="auth-input" placeholder="관제실 보안 비밀번호 / PIN" required>
                             <button type="submit" class="auth-submit-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #000000; font-weight: 900; box-shadow: 0 4px 16px rgba(245,158,11,0.4);">
-                                🔐 관제실 / 마스터 콘솔 접속
+                                🔐 학원장 관제실 접속
                             </button>
-                            <div style="font-size: 0.75rem; color: #cbd5e1; text-align: center; margin-top: 12px; line-height: 1.4;">
-                                * 총괄제작자 마스터 계정은 갓모드로 즉시 인식되어 최상단 관제 툴바가 활성화됩니다.
-                            </div>
                         </form>
                     </div>
 
@@ -2572,7 +2569,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app.js?v=1500.0"></script>
+    <script src="js/app.js?v=1600.0"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소

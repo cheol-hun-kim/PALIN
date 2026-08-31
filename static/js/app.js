@@ -3516,10 +3516,11 @@ async function loadTimetable() {
             blockEl.className = `timetable-block ${colorClass}`;
             blockEl.style.top = `${topPx}px`;
             blockEl.style.height = `${heightPx}px`;
+            const isParent = localStorage.getItem('userRole') === 'PARENT';
             blockEl.innerHTML = `
                 <div class="block-title">${block.title}</div>
                 <div class="block-time">${block.start_time}~${block.end_time}</div>
-                <button class="btn-delete-block" title="계획 삭제" onclick="deletePlannerBlock(event, ${block.id})">&times;</button>
+                ${!isParent ? `<button class="btn-delete-block" title="계획 삭제" onclick="deletePlannerBlock(event, ${block.id})">&times;</button>` : ''}
             `;
             col.appendChild(blockEl);
         });
@@ -3579,6 +3580,10 @@ async function addPlannerBlock(e) {
 
 async function deletePlannerBlock(e, blockId) {
     e.stopPropagation();
+    if (localStorage.getItem('userRole') === 'PARENT') {
+        alert("🔒 학부모 모드는 조회 전용입니다. 자녀의 계획표를 삭제할 수 없습니다.");
+        return;
+    }
     if (!confirm("해당 계획 시간표를 삭제하시겠습니까?")) return;
     try {
         const res = await fetch(`/api/planner/block/${blockId}`, { method: "DELETE" });

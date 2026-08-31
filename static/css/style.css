@@ -2542,3 +2542,31 @@ body.role-parent .schedule-item {
     cursor: default !important;
     pointer-events: none !important;
 }
+
+
+/* ⏰ 화이트 선명 시계 아이콘 보장 */
+input[type="time"]::-webkit-calendar-picker-indicator,
+.custom-time-input::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(2.2) !important;
+    opacity: 0.95 !important;
+    cursor: pointer !important;
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+}
+
+/* 🔒 학부모 모드 시간표 완전 잠금 & 삭제버튼 소멸 */
+body.role-parent .btn-delete-block,
+body.role-parent .timetable-block .btn-delete-block,
+body.role-parent .quick-dur-btn,
+body.role-parent .quick-sub-btn,
+body.role-parent .timetable-block-delete,
+body.role-parent #schedule-add-controls-wrapper {
+    display: none !important;
+}
+
+body.role-parent .timetable-block,
+body.role-parent .timetable-day-column {
+    cursor: default !important;
+    pointer-events: none !important;
+}
