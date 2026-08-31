@@ -865,37 +865,7 @@ body.day-mode .day-column:hover {
     cursor: pointer;
 }
 
-.custom-time-input::-webkit-calendar-picker-indicator {
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-}
-
-/* 다크 모드: 100% 새하얗고 선명한 시계 아이콘 */
-.time-custom-clock-icon {
-    position: absolute;
-    right: 8px;
-    font-size: 1.15rem !important;
-    color: #ffffff !important;
-    pointer-events: none;
-    opacity: 0.95;
-    transition: transform 0.15s ease;
-}
-
-.time-input-wrapper:hover .time-custom-clock-icon {
-    transform: scale(1.15);
-    opacity: 1.0;
-}
-
-/* 라이트 모드 (Day mode): 100% 또렷한 검은색 시계 아이콘 */
-body.day-mode .time-custom-clock-icon {
-    color: #0f172a !important;
-    opacity: 0.85;
-}
+/* clean time clock block */
 
 /* 합격 예측 */
 .predict-result-box {
@@ -2021,31 +1991,7 @@ body.day-mode .modal-close-btn:hover, body.day-mode .btn-close:hover {
     display: flex;
     align-items: center;
 }
-.time-input-box input[type="time"] {
-    width: 100%;
-    height: 38px;
-    padding: 6px 28px 6px 8px !important;
-    font-size: 0.8rem !important;
-    font-weight: 700;
-    box-sizing: border-box;
-}
-.time-input-box .time-picker-icon {
-    position: absolute;
-    right: 7px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.15rem;
-    pointer-events: none;
-    line-height: 1;
-}
-
-/* 시계 아이콘 명도 대비 보장 */
-body.day-mode .time-picker-icon, body.day-mode .clock-icon {
-    color: #1e293b !important;
-}
-body:not(.day-mode) .time-picker-icon, body:not(.day-mode) .clock-icon {
-    color: #cbd5e1 !important;
-}
+/* clean time picker box */
 
 
 /* 🏫 학원관리 2x2 서브탭 라이트/다크모드 완벽 대응 스타일 */
@@ -2514,4 +2460,85 @@ body.day-mode .subtab-btn-hub.active span {
     margin: 0 !important;
     -webkit-appearance: none !important;
     appearance: none !important;
+}
+
+
+/* 학부모 모드 Read-Only 완전 잠금 스타일 */
+.parent-mode-locked,
+.parent-readonly-lock,
+body.role-parent .student-only-control,
+body.role-parent #add-schedule-form,
+body.role-parent #btn-start-timer,
+body.role-parent #btn-stop-timer,
+body.role-parent .btn-delete-plan,
+body.role-parent #schedule-list input[type="checkbox"],
+body.role-parent .schedule-item input[type="checkbox"],
+body.role-parent .mission-submit-box {
+    display: none !important;
+}
+
+body.role-parent .schedule-item {
+    cursor: default !important;
+    pointer-events: none !important;
+}
+
+/* 시간 선택 인풋 깔끔 단일화 (겹치는 불필요한 시계 아이콘 원천 차단) */
+.time-input-box .time-picker-icon,
+.time-custom-clock-icon {
+    display: none !important;
+}
+input[type="time"].custom-time-input,
+.time-input-box input[type="time"] {
+    padding: 8px 12px !important;
+    text-align: center !important;
+    font-weight: 700 !important;
+}
+
+
+/* =========================================================
+   ⏰ 깔끔한 단일 시간 선택창 & 🔒 학부모 모드 Read-Only 완전 잠금
+   ========================================================= */
+input[type="time"],
+.custom-time-input,
+.time-input-box input[type="time"] {
+    color-scheme: dark !important;
+    background: #161a29 !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    padding: 8px 10px !important;
+    border-radius: 8px !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    text-align: center !important;
+}
+
+.time-input-box .time-picker-icon,
+.time-custom-clock-icon,
+.time-picker-icon {
+    display: none !important;
+}
+
+/* 학부모 모드 Read-Only 강력 제어 */
+body.role-parent #add-schedule-form,
+body.role-parent .schedule-add-form,
+body.role-parent #plan-day,
+body.role-parent #plan-start-time,
+body.role-parent #plan-end-time,
+body.role-parent #plan-title,
+body.role-parent button[type="submit"][form="add-schedule-form"],
+body.role-parent #weekly-schedule-card form,
+body.role-parent #btn-start-timer,
+body.role-parent #btn-stop-timer,
+body.role-parent .btn-delete-plan,
+body.role-parent #schedule-list input[type="checkbox"],
+body.role-parent .schedule-item input[type="checkbox"],
+body.role-parent .mission-submit-box {
+    display: none !important;
+}
+
+body.role-parent .schedule-item {
+    cursor: default !important;
+    pointer-events: none !important;
 }

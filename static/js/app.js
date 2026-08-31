@@ -2448,17 +2448,14 @@ function applyRolePermissions(role) {
         }
     }
 
-    // 5. Parent Read-Only Restrictions
+    // 5. Parent Read-Only Restrictions & Body Role Management
+    const scheduleBanner = document.getElementById('parent-schedule-readonly-banner');
     if (userRole === 'PARENT') {
-        document.querySelectorAll('.planner-add-btn, .timer-start-btn, .btn-submit-mission').forEach(el => {
-            el.classList.add('parent-readonly-lock');
-            el.title = '학부모 계정은 조회 전용(Read-Only) 모드입니다.';
-        });
+        document.body.classList.add('role-parent');
+        if (scheduleBanner) scheduleBanner.style.display = 'block';
     } else {
-        document.querySelectorAll('.parent-readonly-lock').forEach(el => {
-            el.classList.remove('parent-readonly-lock');
-            el.removeAttribute('title');
-        });
+        document.body.classList.remove('role-parent');
+        if (scheduleBanner) scheduleBanner.style.display = 'none';
     }
 }
 
@@ -3843,7 +3840,8 @@ async function sendChatMessage() {
             body: JSON.stringify({
                 student_id: (currentStudent && currentStudent.id) ? currentStudent.id : 1,
                 message: msg,
-                history: recentHistory.length > 0 ? recentHistory : null
+                history: recentHistory.length > 0 ? recentHistory : null,
+                user_role: localStorage.getItem('userRole') || 'STUDENT'
             })
         });
         
