@@ -2515,3 +2515,35 @@ body.day-mode .subtab-btn-hub.active span {
     -webkit-appearance: none !important;
     appearance: none !important;
 }
+
+
+/* 학부모 모드 Read-Only 완전 잠금 스타일 */
+.parent-mode-locked,
+.parent-readonly-lock,
+body.role-parent .student-only-control,
+body.role-parent #add-schedule-form,
+body.role-parent #btn-start-timer,
+body.role-parent #btn-stop-timer,
+body.role-parent .btn-delete-plan,
+body.role-parent #schedule-list input[type="checkbox"],
+body.role-parent .schedule-item input[type="checkbox"],
+body.role-parent .mission-submit-box {
+    display: none !important;
+}
+
+body.role-parent .schedule-item {
+    cursor: default !important;
+    pointer-events: none !important;
+}
+
+/* 시간 선택 인풋 깔끔 단일화 (겹치는 불필요한 시계 아이콘 원천 차단) */
+.time-input-box .time-picker-icon,
+.time-custom-clock-icon {
+    display: none !important;
+}
+input[type="time"].custom-time-input,
+.time-input-box input[type="time"] {
+    padding: 8px 12px !important;
+    text-align: center !important;
+    font-weight: 700 !important;
+}
