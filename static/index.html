@@ -30,7 +30,7 @@
     </script>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=1700.0">
+    <link rel="stylesheet" href="css/style.css?v=1800.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -751,11 +751,11 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </div>
 
                         <form onsubmit="addPlannerBlock(event)" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px;">
-                            <!-- 1행: 요일 및 시간 설정 (3컬럼 완벽 높이/정렬 일치) -->
-                            <div style="display: grid; grid-template-columns: 1fr 1.25fr 1.25fr; gap: 8px; align-items: end;">
+                            <!-- 1행: 요일 및 시간 설정 (30분 단위 직관 드롭다운) -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px;">
                                 <div>
                                     <label style="font-size: 0.68rem; color: var(--text-secondary); display: block; margin-bottom: 3px; font-weight: 600;">요일 선택</label>
-                                    <select id="plan-day" class="form-input" style="height: 38px; padding: 6px 8px; font-size: 0.8rem; width: 100%; box-sizing: border-box;">
+                                    <select id="plan-day" class="form-input" style="height: 38px; padding: 6px 8px; font-size: 0.82rem; width: 100%; box-sizing: border-box; font-weight: 700;">
                                         <option value="0">월요일</option>
                                         <option value="1">화요일</option>
                                         <option value="2">수요일</option>
@@ -767,17 +767,87 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 </div>
                                 <div>
                                     <label style="font-size: 0.68rem; color: var(--text-secondary); display: block; margin-bottom: 3px; font-weight: 600;">시작 시간</label>
-                                    <div class="time-input-box">
-                                        <input type="time" id="plan-start-time" class="form-input custom-time-input" value="09:00" style="color-scheme: dark;">
-                                        
-                                    </div>
+                                    <select id="plan-start-time" class="form-input" style="height: 38px; padding: 6px 8px; font-size: 0.82rem; width: 100%; box-sizing: border-box; font-weight: 700;">
+                                        <option value="06:00">06:00</option>
+                                        <option value="06:30">06:30</option>
+                                        <option value="07:00">07:00</option>
+                                        <option value="07:30">07:30</option>
+                                        <option value="08:00">08:00</option>
+                                        <option value="08:30">08:30</option>
+                                        <option value="09:00" selected>09:00</option>
+                                        <option value="09:30">09:30</option>
+                                        <option value="10:00">10:00</option>
+                                        <option value="10:30">10:30</option>
+                                        <option value="11:00">11:00</option>
+                                        <option value="11:30">11:30</option>
+                                        <option value="12:00">12:00</option>
+                                        <option value="12:30">12:30</option>
+                                        <option value="13:00">13:00</option>
+                                        <option value="13:30">13:30</option>
+                                        <option value="14:00">14:00</option>
+                                        <option value="14:30">14:30</option>
+                                        <option value="15:00">15:00</option>
+                                        <option value="15:30">15:30</option>
+                                        <option value="16:00">16:00</option>
+                                        <option value="16:30">16:30</option>
+                                        <option value="17:00">17:00</option>
+                                        <option value="17:30">17:30</option>
+                                        <option value="18:00">18:00</option>
+                                        <option value="18:30">18:30</option>
+                                        <option value="19:00">19:00</option>
+                                        <option value="19:30">19:30</option>
+                                        <option value="20:00">20:00</option>
+                                        <option value="20:30">20:30</option>
+                                        <option value="21:00">21:00</option>
+                                        <option value="21:30">21:30</option>
+                                        <option value="22:00">22:00</option>
+                                        <option value="22:30">22:30</option>
+                                        <option value="23:00">23:00</option>
+                                        <option value="23:30">23:30</option>
+                                        <option value="24:00">24:00</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label style="font-size: 0.68rem; color: var(--text-secondary); display: block; margin-bottom: 3px; font-weight: 600;">종료 시간</label>
-                                    <div class="time-input-box">
-                                        <input type="time" id="plan-end-time" class="form-input custom-time-input" value="11:00">
-                                        
-                                    </div>
+                                    <select id="plan-end-time" class="form-input" style="height: 38px; padding: 6px 8px; font-size: 0.82rem; width: 100%; box-sizing: border-box; font-weight: 700;">
+                                        <option value="06:00">06:00</option>
+                                        <option value="06:30">06:30</option>
+                                        <option value="07:00">07:00</option>
+                                        <option value="07:30">07:30</option>
+                                        <option value="08:00">08:00</option>
+                                        <option value="08:30">08:30</option>
+                                        <option value="09:00">09:00</option>
+                                        <option value="09:30">09:30</option>
+                                        <option value="10:00">10:00</option>
+                                        <option value="10:30">10:30</option>
+                                        <option value="11:00" selected>11:00</option>
+                                        <option value="11:30">11:30</option>
+                                        <option value="12:00">12:00</option>
+                                        <option value="12:30">12:30</option>
+                                        <option value="13:00">13:00</option>
+                                        <option value="13:30">13:30</option>
+                                        <option value="14:00">14:00</option>
+                                        <option value="14:30">14:30</option>
+                                        <option value="15:00">15:00</option>
+                                        <option value="15:30">15:30</option>
+                                        <option value="16:00">16:00</option>
+                                        <option value="16:30">16:30</option>
+                                        <option value="17:00">17:00</option>
+                                        <option value="17:30">17:30</option>
+                                        <option value="18:00">18:00</option>
+                                        <option value="18:30">18:30</option>
+                                        <option value="19:00">19:00</option>
+                                        <option value="19:30">19:30</option>
+                                        <option value="20:00">20:00</option>
+                                        <option value="20:30">20:30</option>
+                                        <option value="21:00">21:00</option>
+                                        <option value="21:30">21:30</option>
+                                        <option value="22:00">22:00</option>
+                                        <option value="22:30">22:30</option>
+                                        <option value="23:00">23:00</option>
+                                        <option value="23:30">23:30</option>
+                                        <option value="24:00">24:00</option>
+                                    </select>
                                 </div>
                             </div>
                             <!-- 2행: 계획명 및 추가 버튼 -->
@@ -2569,7 +2639,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app.js?v=1700.0"></script>
+    <script src="js/app.js?v=1800.0"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소
