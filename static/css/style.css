@@ -2319,3 +2319,183 @@ body.day-mode .subtab-btn-hub-2x2.active span,
 body.day-mode .subtab-btn-hub.active span {
     color: #ffffff !important;
 }
+
+
+/* ============================================================================
+   🛡️ Phase 7: 2x2 Sub-Tabs & 3-Way Auth & Sponsor Wallet Styles
+   ============================================================================ */
+.subtab-grid-2x2 {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    margin-bottom: 14px !important;
+    overflow: visible !important;
+    padding: 0 !important;
+}
+.subtab-grid-2x2 .tab-btn {
+    width: 100% !important;
+    padding: 11px 8px !important;
+    font-size: 0.82rem !important;
+    font-weight: 800 !important;
+    text-align: center !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+    overflow: hidden !important;
+}
+
+.auth-role-segmented {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 5px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 16px;
+}
+.auth-role-btn {
+    padding: 9px 4px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.auth-role-btn.active {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: #ffffff;
+    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4);
+}
+
+.parent-wallet-card {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(5, 150, 105, 0.05));
+    border: 1.5px solid rgba(16, 185, 129, 0.4);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+}
+
+.parent-readonly-lock {
+    opacity: 0.65;
+    pointer-events: none;
+    filter: grayscale(0.5);
+}
+
+
+/* ============================================================================
+   📓 Phase 7: Notebook Index 3-Way Tabs & Dynamic Theme Styling
+   ============================================================================ */
+.notebook-index-container {
+    display: flex;
+    gap: 4px;
+    width: 100%;
+    margin-bottom: -1px;
+    position: relative;
+    z-index: 2;
+}
+
+.notebook-tab {
+    flex: 1;
+    padding: 12px 6px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-align: center;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    border-bottom: none;
+    background: rgba(15, 23, 42, 0.7);
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.notebook-tab:hover {
+    color: #ffffff;
+    background: rgba(30, 41, 59, 0.9);
+}
+
+/* Student Tab (Indigo) */
+.notebook-tab[data-role="STUDENT"].active {
+    background: #1e1b4b !important;
+    color: #c7d2fe !important;
+    border-color: #6366f1 !important;
+    box-shadow: 0 -4px 15px rgba(99, 102, 241, 0.35);
+    font-size: 0.9rem;
+}
+
+/* Parent Tab (Emerald) */
+.notebook-tab[data-role="PARENT"].active {
+    background: #064e3b !important;
+    color: #a7f3d0 !important;
+    border-color: #10b981 !important;
+    box-shadow: 0 -4px 15px rgba(16, 185, 129, 0.35);
+    font-size: 0.9rem;
+}
+
+/* Director Tab (Amber) */
+.notebook-tab[data-role="DIRECTOR"].active {
+    background: #451a03 !important;
+    color: #fde68a !important;
+    border-color: #f59e0b !important;
+    box-shadow: 0 -4px 15px rgba(245, 158, 11, 0.35);
+    font-size: 0.9rem;
+}
+
+/* Card Body with Dynamic Role Theme */
+.notebook-card-body {
+    background: #0f172a;
+    border-radius: 0 0 16px 16px;
+    border: 1.5px solid #6366f1;
+    padding: 22px 18px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    transition: all 0.25s ease;
+}
+
+.notebook-card-body.theme-student {
+    border-color: #6366f1 !important;
+    background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%) !important;
+}
+
+.notebook-card-body.theme-parent {
+    border-color: #10b981 !important;
+    background: linear-gradient(180deg, #064e3b 0%, #0f172a 100%) !important;
+}
+
+.notebook-card-body.theme-director {
+    border-color: #f59e0b !important;
+    background: linear-gradient(180deg, #451a03 0%, #0f172a 100%) !important;
+}
+
+/* Master Top God-mode Banner */
+#master-godmode-banner {
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    background: linear-gradient(90deg, #92400e, #b45309, #d97706);
+    border-bottom: 2px solid #fde68a;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.5);
+    padding: 8px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

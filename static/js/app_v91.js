@@ -1,4 +1,39 @@
 
+// 🏛️ 대학교 영문 이니셜 및 엠블럼 매퍼 (가상학생증용)
+function getUniversityInitial(univName) {
+    if (!univName) return "PALIN";
+    const u = univName.trim();
+    if (u.includes("서울대")) return "SNU";
+    if (u.includes("연세대")) return "YONSEI";
+    if (u.includes("고려대")) return "KU";
+    if (u.includes("카이스트") || u.includes("KAIST")) return "KAIST";
+    if (u.includes("포항공대") || u.includes("포스텍")) return "POSTECH";
+    if (u.includes("성균관대")) return "SKKU";
+    if (u.includes("한양대")) return "HYU";
+    if (u.includes("서강대")) return "SOGANG";
+    if (u.includes("중앙대")) return "CAU";
+    if (u.includes("경희대")) return "KHU";
+    if (u.includes("한국외대")) return "HUFS";
+    if (u.includes("서울시립대")) return "UOS";
+    if (u.includes("이화여대")) return "EWHA";
+    if (u.includes("건국대")) return "KU";
+    if (u.includes("동국대")) return "DGU";
+    if (u.includes("홍익대")) return "HIU";
+    if (u.includes("가톨릭대")) return "CUK";
+    if (u.includes("울산대")) return "UU";
+    if (u.includes("아주대")) return "AJOU";
+    if (u.includes("인하대")) return "INHA";
+    if (u.includes("경북대")) return "KNU";
+    if (u.includes("부산대")) return "PNU";
+    if (u.includes("전남대")) return "JNU";
+    if (u.includes("전북대")) return "JBNU";
+    if (u.includes("충남대")) return "CNU";
+    if (u.includes("충북대")) return "CBNU";
+    return u.slice(0, 4).toUpperCase();
+}
+
+
+
 // ============================================================================
 // 🛡️ [Phase 0: Global Architecture, Luminance Contrast & State Sync Engine]
 // ============================================================================
@@ -2011,6 +2046,7 @@ async function fetchStudentInfo(studentId) {
         
         // 인증 성공 → 즉시 오버레이 완전 차단 및 UI 즉시 렌더링
         hideOverlay("register-overlay");
+        applyRolePermissions(localStorage.getItem("userRole") || "STUDENT");
         updateHeaderUI();
         updateTargetBanner();
         updateStudentUnivSelectors();
@@ -2034,153 +2070,416 @@ async function fetchStudentInfo(studentId) {
 }
 
 // 1. 회원가입 제출
-async function handleRegister(e) {
+
+
+// ============================================================================
+// 📓 Phase 7: Notebook Index 3-Way Multi-Role Authentication & Master God-mode
+// ============================================================================
+
+let currentNotebookRole = 'STUDENT';
+let pendingPasswordSetupUserId = null;
+let pendingPasswordSetupRole = null;
+
+function switchNotebookRole(role) {
+    currentNotebookRole = role;
+    document.querySelectorAll('.notebook-tab').forEach(tab => {
+        if (tab.getAttribute('data-role') === role) {
+            tab.classList.add('active');
+        } else {
+            tab.classList.remove('active');
+        }
+    });
+
+    const cardBody = document.getElementById('notebook-card-body');
+    if (cardBody) {
+        cardBody.className = 'notebook-card-body';
+        if (role === 'STUDENT') cardBody.classList.add('theme-student');
+        else if (role === 'PARENT') cardBody.classList.add('theme-parent');
+        else if (role === 'DIRECTOR') cardBody.classList.add('theme-director');
+    }
+
+    const stPane = document.getElementById('auth-pane-student');
+    const paPane = document.getElementById('auth-pane-parent');
+    const dirPane = document.getElementById('auth-pane-director');
+
+    if (stPane) stPane.style.display = role === 'STUDENT' ? 'block' : 'none';
+    if (paPane) paPane.style.display = role === 'PARENT' ? 'block' : 'none';
+    if (dirPane) dirPane.style.display = role === 'DIRECTOR' ? 'block' : 'none';
+}
+
+function toggleStudentRegisterForm() {
+    const loginForm = document.getElementById('student-login-form');
+    const regForm = document.getElementById('student-reg-form');
+    if (loginForm && regForm) {
+        if (loginForm.style.display === 'none') {
+            loginForm.style.display = 'block';
+            regForm.style.display = 'none';
+        } else {
+            loginForm.style.display = 'none';
+            regForm.style.display = 'block';
+        }
+    }
+}
+
+function toggleParentAuthMode() {
+    const loginForm = document.getElementById('parent-login-form');
+    const regForm = document.getElementById('parent-register-form');
+    if (loginForm && regForm) {
+        if (loginForm.style.display === 'none') {
+            loginForm.style.display = 'block';
+            regForm.style.display = 'none';
+        } else {
+            loginForm.style.display = 'none';
+            regForm.style.display = 'block';
+        }
+    }
+}
+
+async function handleStudentLoginSubmit(e) {
     e.preventDefault();
-    const targetUniv = document.getElementById("reg-target-univ").value;
-    let targetDept = document.getElementById("reg-target-dept").value;
-    if (targetDept === "__CUSTOM__") {
-        targetDept = (document.getElementById("reg-target-dept-custom")?.value || "").trim();
-    }
+    const email = document.getElementById('st-login-email').value.trim();
+    const password = document.getElementById('st-login-password')?.value.trim() || "";
 
-    const baselineUniv = document.getElementById("reg-baseline-univ").value;
-    let baselineDept = document.getElementById("reg-baseline-dept").value;
-    if (baselineDept === "__CUSTOM__") {
-        baselineDept = (document.getElementById("reg-baseline-dept-custom")?.value || "").trim();
-    }
-    
-    if (!targetUniv || !targetDept || !baselineUniv || !baselineDept) {
-        alert("목표 대학/학과 및 마지노선 대학/학과를 모두 선택 또는 직접 입력해 주세요.");
+    if (!email) {
+        alert("이메일 주소를 입력해 주세요.");
         return;
     }
-
-    const termsCheck = document.getElementById("reg-terms-check");
-    const privacyCheck = document.getElementById("reg-privacy-check");
-    if ((termsCheck && !termsCheck.checked) || (privacyCheck && !privacyCheck.checked)) {
-        alert("서비스 이용약관 및 개인정보 수집 동의서에 모두 체크해 주셔야 가입이 완료됩니다.");
-        return;
-    }
-
-    const sidoVal = document.getElementById("reg-sido")?.value || "경기도";
-    const sigunguVal = document.getElementById("reg-sigungu")?.value || "성남시 분당구";
-    const fullRegion = `${sidoVal} ${sigunguVal}`.trim();
-    const schoolName = document.getElementById("reg-school")?.value || "낙생고등학교";
-
-    const payload = {
-        email: document.getElementById("reg-email").value,
-        name: document.getElementById("reg-name").value,
-        phone: document.getElementById("reg-phone").value,
-        grade: parseInt(document.getElementById("reg-grade").value),
-        region: fullRegion,
-        high_school: schoolName,
-        target_univ: `${targetUniv} ${targetDept}`,
-        baseline_univ: `${baselineUniv} ${baselineDept}`,
-        parent_name: document.getElementById("reg-pname").value,
-        parent_phone: document.getElementById("reg-pphone").value,
-        referred_by: (document.getElementById("reg-referred-by")?.value || "").trim().toUpperCase() || null
-    };
 
     try {
-        const res = await fetch("/api/register", {
+        const res = await fetch("/api/auth/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({ login_type: "STUDENT", email: email, password: password })
         });
+        const data = await res.json();
         if (!res.ok) {
-            const err = await res.json();
-            alert(err.detail || "등록 실패");
+            alert(data.detail || "로그인 실패");
             return;
         }
-        const student = await res.json();
-        localStorage.setItem("studentId", student.id);
-        fetchStudentInfo(student.id);
-        
-        // 가입 완료 축하 팝업 후 학생증 발급 모달 오픈 안내
-        setTimeout(() => {
-            if (confirm("🎉 가입을 진심으로 축하합니다! 2027학번 목표 대학 가상 학생증을 지금 바로 발급하시겠습니까?")) {
-                openStudentCardModal();
-            }
-        }, 500);
-    } catch (e) {
+
+        // Check if Master Account logged in via student form
+        if (email.toLowerCase() === '1286orbital21@gmail.com' || data.role === 'SUPER_ADMIN') {
+            localStorage.setItem('userRole', 'SUPER_ADMIN');
+            sessionStorage.setItem('palin_super_admin', 'true');
+        } else {
+            localStorage.setItem('userRole', 'STUDENT');
+        }
+
+        localStorage.setItem("studentId", data.student_id || 1);
+        localStorage.setItem("jwtToken", data.token);
+        hideOverlay("register-overlay");
+        applyRolePermissions(localStorage.getItem('userRole'));
+
+        if (data.must_set_password) {
+            promptInitialPasswordSetup(data.student_id, "STUDENT");
+        }
+
+        fetchStudentInfo(data.student_id || 1);
+    } catch(err) {
         alert("서버 연결 실패");
     }
 }
 
-function toggleLoginForm() {
-    const regForm = document.getElementById("register-form");
-    const loginForm = document.getElementById("login-form");
-    const toggleArea = document.getElementById("login-toggle-area");
-    
-    if (!regForm || !loginForm) return;
+async function handleStudentRegisterSubmit(e) {
+    e.preventDefault();
+    const email = document.getElementById("reg-email").value.trim();
+    const password = document.getElementById("reg-password")?.value.trim() || "";
+    const name = document.getElementById("reg-name").value.trim();
+    const phone = document.getElementById("reg-phone").value.trim();
+    const grade = parseInt(document.getElementById("reg-grade").value, 10);
+    const targetUniv = document.getElementById("reg-target-univ").value;
+    const targetDept = document.getElementById("reg-target-dept").value;
+    const baselineUniv = document.getElementById("reg-baseline-univ").value;
+    const baselineDept = document.getElementById("reg-baseline-dept").value;
+    const sidoVal = document.getElementById("reg-sido")?.value || "경기도";
+    const sigunguVal = document.getElementById("reg-sigungu")?.value || "성남시 분당구";
+    const fullRegion = `${sidoVal} ${sigunguVal}`.trim();
+    const schoolName = document.getElementById("reg-school")?.value || "낙생고등학교";
+    const pname = document.getElementById("reg-pname").value.trim();
+    const pphone = document.getElementById("reg-pphone").value.trim();
+    const referredBy = (document.getElementById("reg-referred-by")?.value || "").trim().toUpperCase() || null;
 
-    if (loginForm.style.display === "none" || !loginForm.style.display) {
-        regForm.style.display = "none";
-        if (toggleArea) toggleArea.style.display = "none";
-        loginForm.style.display = "block";
-        document.getElementById("login-email")?.focus();
-    } else {
-        loginForm.style.display = "none";
-        regForm.style.display = "block";
-        if (toggleArea) toggleArea.style.display = "block";
+    try {
+        const res = await fetch("/api/auth/register/student", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                email: email, password: password, name: name, phone: phone, grade: grade,
+                region: fullRegion, high_school: schoolName,
+                target_univ: `${targetUniv} ${targetDept}`,
+                baseline_univ: `${baselineUniv} ${baselineDept}`,
+                parent_name: pname, parent_phone: pphone, referred_by: referredBy
+            })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            alert(data.detail || "회원가입 실패");
+            return;
+        }
+
+        alert("🎉 회원가입이 완료되었습니다! 100P가 지급되었습니다.");
+        localStorage.setItem("userRole", "STUDENT");
+        localStorage.setItem("studentId", data.student_id);
+        localStorage.setItem("jwtToken", data.token);
+        hideOverlay("register-overlay");
+        applyRolePermissions("STUDENT");
+        fetchStudentInfo(data.student_id);
+    } catch(err) {
+        alert("서버 연결 실패");
     }
 }
 
-async function handleLogin(e) {
+async function handleParentLogin(e) {
     e.preventDefault();
-    const emailInput = document.getElementById("login-email");
-    const email = (emailInput?.value || "").trim();
-    if (!email) {
-        alert("가입하신 이메일 주소를 입력해 주세요.");
-        return;
+    const email = document.getElementById('parent-login-email').value.trim();
+    const pw = document.getElementById('parent-login-password').value.trim();
+
+    try {
+        const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ login_type: 'PARENT', email: email, password: pw })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            alert(data.detail || '로그인 실패');
+            return;
+        }
+
+        localStorage.setItem('userRole', 'PARENT');
+        localStorage.setItem('parentId', data.parent_id);
+        localStorage.setItem('jwtToken', data.token);
+        hideOverlay('register-overlay');
+        applyRolePermissions('PARENT');
+
+        if (data.student_id) {
+            localStorage.setItem('studentId', data.student_id);
+            fetchStudentInfo(data.student_id);
+        }
+    } catch(err) {
+        alert('서버 연결 오류');
     }
-    
-    const submitBtn = e.target.querySelector("button[type='submit']");
-    const originalBtnText = submitBtn ? submitBtn.innerText : "로그인";
-    if (submitBtn) {
-        submitBtn.innerText = "로그인 확인 중...";
-        submitBtn.disabled = true;
+}
+
+async function handleParentRegister(e) {
+    e.preventDefault();
+    const email = document.getElementById('parent-reg-email').value.trim();
+    const pw = document.getElementById('parent-reg-password').value.trim();
+    const name = document.getElementById('parent-reg-name').value.trim();
+    const phone = document.getElementById('parent-reg-phone').value.trim();
+    const code = document.getElementById('parent-reg-invite-code').value.trim();
+
+    try {
+        const res = await fetch('/api/auth/register/parent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: email, password: pw, name: name, phone: phone, student_invite_code: code
+            })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            alert(data.detail || '학부모 회원가입 실패');
+            return;
+        }
+
+        alert('🎉 학부모 계정이 생성되고 자녀와 1:1 매핑되었습니다!');
+        localStorage.setItem('userRole', 'PARENT');
+        localStorage.setItem('parentId', data.parent_id);
+        localStorage.setItem('jwtToken', data.token);
+        hideOverlay('register-overlay');
+        applyRolePermissions('PARENT');
+
+        if (data.student_id) {
+            localStorage.setItem('studentId', data.student_id);
+            fetchStudentInfo(data.student_id);
+        }
+    } catch(err) {
+        alert('서버 연결 오류');
+    }
+}
+
+async function handleDirectorLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('dir-login-email').value.trim();
+    const pw = document.getElementById('dir-login-password').value.trim();
+
+    try {
+        const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ login_type: 'DIRECTOR', email: email, password: pw })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            alert(data.detail || '학원장 로그인 실패');
+            return;
+        }
+
+        localStorage.setItem('userRole', data.role);
+        localStorage.setItem('jwtToken', data.token);
+
+        if (data.role === 'SUPER_ADMIN') {
+            sessionStorage.setItem('palin_super_admin', 'true');
+            hideOverlay('register-overlay');
+            applyRolePermissions('SUPER_ADMIN');
+            alert('👑 [총괄 제작자 마스터 계정] 인증 성공! 갓모드 툴바가 상단에 활성화되었습니다.');
+            const sId = localStorage.getItem('studentId') || 1;
+            fetchStudentInfo(sId);
+        } else {
+            sessionStorage.setItem('palin_admin_authenticated', 'true');
+            alert(`🏫 [${data.name}] 원장님 환영합니다!`);
+            hideOverlay('register-overlay');
+            applyRolePermissions('TENANT_ADMIN');
+            const sId = localStorage.getItem('studentId') || 1;
+            fetchStudentInfo(sId);
+        }
+    } catch(err) {
+        alert('서버 연결 오류');
+    }
+}
+
+function promptInitialPasswordSetup(userId, role) {
+    pendingPasswordSetupUserId = userId;
+    pendingPasswordSetupRole = role;
+    const modal = document.getElementById('initial-password-modal');
+    if (modal) modal.style.display = 'flex';
+}
+
+async function handleSaveInitialPassword(e) {
+    e.preventDefault();
+    const newPw = document.getElementById('init-pw-input').value.trim();
+    if (!newPw || newPw.length < 4) {
+        alert('비밀번호는 4자리 이상이어야 합니다.');
+        return;
     }
 
     try {
-        const res = await fetch("/api/login", {
+        const res = await fetch('/api/auth/set-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_id: pendingPasswordSetupUserId,
+                role: pendingPasswordSetupRole || 'STUDENT',
+                new_password: newPw
+            })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(data.message || '비밀번호가 성공적으로 저장되었습니다!');
+            document.getElementById('initial-password-modal').style.display = 'none';
+        } else {
+            alert(data.detail || '비밀번호 설정 실패');
+        }
+    } catch(err) {
+        alert('서버 통신 오류');
+    }
+}
+
+function applyRolePermissions(role) {
+    const userRole = role || localStorage.getItem('userRole') || 'STUDENT';
+    const isMasterEmail = (currentStudent && currentStudent.email && currentStudent.email.toLowerCase() === '1286orbital21@gmail.com') || (localStorage.getItem('userRole') === 'SUPER_ADMIN');
+
+    // 1. Master God-mode Top Banner
+    const masterBanner = document.getElementById('master-godmode-banner');
+    if (masterBanner) {
+        masterBanner.style.display = isMasterEmail ? 'flex' : 'none';
+    }
+
+    // 2. MyPage Admin Link
+    const mypageAdminRow = document.getElementById('mypage-admin-row');
+    if (mypageAdminRow) {
+        mypageAdminRow.style.display = (isMasterEmail || userRole === 'TENANT_ADMIN') ? 'flex' : 'none';
+    }
+
+    // 3. Bottom Nav Director Cockpit Red Tab
+    const nav = document.querySelector('.bottom-nav');
+    const existingDirectorBtn = document.getElementById('nav-director-cockpit');
+    if (isMasterEmail || userRole === 'TENANT_ADMIN') {
+        if (nav && !existingDirectorBtn) {
+            const btn = document.createElement('button');
+            btn.className = 'nav-item';
+            btn.id = 'nav-director-cockpit';
+            btn.onclick = () => window.open('/admin.html', '_blank');
+            btn.style.cssText = 'color: #ef4444 !important; font-weight: 900;';
+            btn.innerHTML = '<span class="material-symbols-rounded">admin_panel_settings</span><span>원장 관제실</span>';
+            nav.appendChild(btn);
+        }
+    } else {
+        if (existingDirectorBtn) existingDirectorBtn.remove();
+    }
+
+    // 4. Parent SMS Dashboard Isolation (Hide completely for students)
+    const parentSmsDashboard = document.getElementById('parent-sms-dashboard-card');
+    if (parentSmsDashboard) {
+        if (userRole === 'PARENT' || isMasterEmail) {
+            parentSmsDashboard.style.display = 'block';
+        } else {
+            parentSmsDashboard.style.display = 'none';
+        }
+    }
+
+    // 5. Parent Read-Only Restrictions
+    if (userRole === 'PARENT') {
+        document.querySelectorAll('.planner-add-btn, .timer-start-btn, .btn-submit-mission').forEach(el => {
+            el.classList.add('parent-readonly-lock');
+            el.title = '학부모 계정은 조회 전용(Read-Only) 모드입니다.';
+        });
+    } else {
+        document.querySelectorAll('.parent-readonly-lock').forEach(el => {
+            el.classList.remove('parent-readonly-lock');
+            el.removeAttribute('title');
+        });
+    }
+}
+
+
+async function handleRegister(e) {
+    e.preventDefault();
+    const email = document.getElementById("reg-email").value.trim();
+    const password = document.getElementById("reg-password")?.value.trim() || "";
+    const name = document.getElementById("reg-name").value.trim();
+    const phone = document.getElementById("reg-phone").value.trim();
+    const grade = parseInt(document.getElementById("reg-grade").value, 10);
+    const targetUniv = document.getElementById("reg-target-univ").value;
+    const targetDept = document.getElementById("reg-target-dept").value;
+    const baselineUniv = document.getElementById("reg-baseline-univ").value;
+    const baselineDept = document.getElementById("reg-baseline-dept").value;
+    const sidoVal = document.getElementById("reg-sido")?.value || "경기도";
+    const sigunguVal = document.getElementById("reg-sigungu")?.value || "성남시 분당구";
+    const fullRegion = `${sidoVal} ${sigunguVal}`.trim();
+    const schoolName = document.getElementById("reg-school")?.value || "낙생고등학교";
+    const pname = document.getElementById("reg-pname").value.trim();
+    const pphone = document.getElementById("reg-pphone").value.trim();
+    const referredBy = (document.getElementById("reg-referred-by")?.value || "").trim().toUpperCase() || null;
+
+    try {
+        const res = await fetch("/api/auth/register/student", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: email })
+            body: JSON.stringify({
+                email: email, password: password, name: name, phone: phone, grade: grade,
+                region: fullRegion, high_school: schoolName,
+                target_univ: `${targetUniv} ${targetDept}`,
+                baseline_univ: `${baselineUniv} ${baselineDept}`,
+                parent_name: pname, parent_phone: pphone, referred_by: referredBy
+            })
         });
-        
+        const data = await res.json();
         if (!res.ok) {
-            let errorMsg = "로그인 실패";
-            try {
-                const err = await res.json();
-                errorMsg = err.detail || errorMsg;
-            } catch (jsonErr) {
-                errorMsg = `서버 응답 오류 (HTTP ${res.status})`;
-            }
-            alert(errorMsg);
-            if (res.status === 404) {
-                // 가입되지 않은 이메일인 경우 친절하게 회원가입 폼으로 전환
-                toggleLoginForm();
-                const regEmail = document.getElementById("reg-email");
-                if (regEmail) regEmail.value = email;
-            }
+            alert(data.detail || "회원가입 실패");
             return;
         }
-        
-        const student = await res.json();
-        localStorage.setItem("studentId", student.id);
-        
-        // 즉시 오버레이 완전 차단
+
+        alert("🎉 회원가입이 완료되었습니다! 100P가 지급되었습니다.");
+        localStorage.setItem("userRole", "STUDENT");
+        localStorage.setItem("studentId", data.student_id);
+        localStorage.setItem("jwtToken", data.token);
         hideOverlay("register-overlay");
-        
-        // 학생 정보 및 화면 데이터 즉시 로드 (팝업 없이 자연스럽게 대시보드 진입)
-        await fetchStudentInfo(student.id);
-    } catch (e) {
-        console.error("Login error:", e);
-        alert(`⚠️ 서버 연결 실패: 인터넷 연결 또는 서버 상태를 확인해 주세요. (${e.message || e})`);
-    } finally {
-        if (submitBtn) {
-            submitBtn.innerText = originalBtnText;
-            submitBtn.disabled = false;
-        }
+        applyRolePermissions("STUDENT");
+        fetchStudentInfo(data.student_id);
+    } catch(err) {
+        alert("서버 연결 실패");
     }
 }
 
@@ -2773,7 +3072,7 @@ function switchRole(role) {
 
 // --- 이벤트 리스너 바인딩 ---
 function setupEventListeners() {
-    document.getElementById("register-form").addEventListener("submit", handleRegister);
+    document.getElementById("register-form")?.addEventListener("submit", handleRegister);
     document.getElementById("login-form")?.addEventListener("submit", handleLogin);
     document.getElementById("tutor-upgrade-form")?.addEventListener("submit", upgradeStudentToTutor);
 
@@ -4924,10 +5223,13 @@ async function loadExamMaterials() {
                 "국어": { bg: "rgba(239, 68, 68, 0.15)", color: "#f87171", icon: "📖" },
                 "수학": { bg: "rgba(99, 102, 241, 0.15)", color: "#818cf8", icon: "📐" },
                 "영어": { bg: "rgba(16, 185, 129, 0.15)", color: "#34d399", icon: "🔤" },
-                "과탐": { bg: "rgba(245, 158, 11, 0.15)", color: "#fbbf24", icon: "🔬" },
                 "사탐": { bg: "rgba(59, 130, 246, 0.15)", color: "#60a5fa", icon: "🌏" },
+                "과탐": { bg: "rgba(245, 158, 11, 0.15)", color: "#fbbf24", icon: "🔬" },
+                "한국사": { bg: "rgba(217, 119, 6, 0.15)", color: "#f59e0b", icon: "🇰🇷" },
                 "논술": { bg: "rgba(168, 85, 247, 0.15)", color: "#c084fc", icon: "✍️" },
-                "사관": { bg: "rgba(244, 63, 94, 0.15)", color: "#fb7185", icon: "🎖️" }
+                "논술/면접": { bg: "rgba(168, 85, 247, 0.15)", color: "#c084fc", icon: "✍️" },
+                "사관": { bg: "rgba(244, 63, 94, 0.15)", color: "#fb7185", icon: "🎖️" },
+                "경찰/사관": { bg: "rgba(244, 63, 94, 0.15)", color: "#fb7185", icon: "🎖️" }
             };
             const badgeInfo = subjectBadges[m.subject] || { bg: "rgba(255,255,255,0.1)", color: "#e2e8f0", icon: "📄" };
             
@@ -4987,6 +5289,8 @@ function openStudentCardModal() {
     const deptName = parts.slice(1).join(" ") || "전공선택";
 
     document.getElementById("card-univ-title").innerText = univName;
+    const watermark = document.getElementById("card-univ-watermark");
+    if (watermark) watermark.innerText = getUniversityInitial(univName);
     document.getElementById("card-name").innerText = `${currentStudent.name} 학생`;
     document.getElementById("card-school").innerText = `${currentStudent.high_school || "일반고"} (${currentStudent.grade === 4 ? 'N수생' : currentStudent.grade + '학년'})`;
     document.getElementById("card-dept").innerText = deptName;
