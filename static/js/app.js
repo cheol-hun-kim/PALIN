@@ -2376,43 +2376,72 @@ async function handleSaveInitialPassword(e) {
     }
 }
 
+function previewRoleAs(targetRole) {
+    console.log("Godmode Role Preview Switching to:", targetRole);
+    localStorage.setItem('userRole', targetRole);
+    applyRolePermissions(targetRole);
+    
+    const sel = document.getElementById('godmode-role-preview-select');
+    if (sel) sel.value = targetRole;
+
+    let roleNotice = "";
+    if (targetRole === 'STUDENT') {
+        roleNotice = "🧑‍🎓 [학생 모드]로 전환되었습니다.\n\n• 학부모 대시보드(SMS) 및 원장 관제 링크가 완전 차단됩니다.\n• 플래너/타이머를 자유롭게 사용할 수 있습니다.\n• AI 챗봇이 학생용 독기 멘토링 모드로 응답합니다.";
+    } else if (targetRole === 'PARENT') {
+        roleNotice = "👨‍👩‍👧 [학부모 모드]로 전환되었습니다.\n\n• 플래너/타이머가 Read-Only로 잠깁니다.\n• 학부모 SMS 대시보드 및 스폰서 지갑이 활성화됩니다.\n• AI 챗봇이 사교육 과소비를 만류하는 Anti-Marketing 모드로 응답합니다.";
+    } else if (targetRole === 'TENANT_ADMIN') {
+        roleNotice = "🏫 [가맹 원장 모드]로 전환되었습니다.\n\n• 학생 B2C 학습 뷰와 하단 GNB [원장관제] 탭이 활성화됩니다.";
+    } else {
+        roleNotice = "👑 [슈퍼 어드민 갓모드]로 복귀하였습니다.\n\n• 전지전능 마스터 권한 및 전체 관제 기능이 활성화됩니다.";
+    }
+    alert(roleNotice);
+}
+
 function applyRolePermissions(role) {
     const userRole = role || localStorage.getItem('userRole') || 'STUDENT';
-    const isMasterEmail = (currentStudent && currentStudent.email && currentStudent.email.toLowerCase() === '1286orbital21@gmail.com') || (localStorage.getItem('userRole') === 'SUPER_ADMIN');
+    const isMasterUser = (sessionStorage.getItem('palin_super_admin') === 'true') || 
+                         (currentStudent && currentStudent.email && currentStudent.email.toLowerCase() === '1286orbital21@gmail.com') || 
+                         (localStorage.getItem('userRole') === 'SUPER_ADMIN');
 
-    // 1. Master God-mode Top Banner
+    // 1. Master God-mode Top Banner (Always visible for Master Account)
     const masterBanner = document.getElementById('master-godmode-banner');
     if (masterBanner) {
-        masterBanner.style.display = isMasterEmail ? 'flex' : 'none';
+        masterBanner.style.display = isMasterUser ? 'flex' : 'none';
     }
 
     // 2. MyPage Admin Link
     const mypageAdminRow = document.getElementById('mypage-admin-row');
     if (mypageAdminRow) {
-        mypageAdminRow.style.display = (isMasterEmail || userRole === 'TENANT_ADMIN') ? 'flex' : 'none';
+        if (userRole === 'SUPER_ADMIN' || userRole === 'TENANT_ADMIN' || (isMasterUser && userRole !== 'STUDENT' && userRole !== 'PARENT')) {
+            mypageAdminRow.style.display = 'flex';
+        } else {
+            mypageAdminRow.style.display = 'none';
+        }
     }
 
     // 3. Bottom Nav Director Cockpit Red Tab
     const nav = document.querySelector('.bottom-nav');
     const existingDirectorBtn = document.getElementById('nav-director-cockpit');
-    if (isMasterEmail || userRole === 'TENANT_ADMIN') {
+    if (userRole === 'SUPER_ADMIN' || userRole === 'TENANT_ADMIN' || (isMasterUser && userRole !== 'STUDENT' && userRole !== 'PARENT')) {
         if (nav && !existingDirectorBtn) {
-            const btn = document.createElement('button');
+            const btn = document.createElement('div');
             btn.className = 'nav-item';
             btn.id = 'nav-director-cockpit';
+            btn.style.cursor = 'pointer';
+            btn.style.background = 'transparent';
+            btn.style.border = 'none';
             btn.onclick = () => window.open('/admin.html', '_blank');
-            btn.style.cssText = 'color: #ef4444 !important; font-weight: 900;';
-            btn.innerHTML = '<span class="material-symbols-rounded">admin_panel_settings</span><span>원장 관제실</span>';
+            btn.innerHTML = '<span class="material-symbols-rounded nav-icon" style="color: #f59e0b !important;">admin_panel_settings</span><span style="color: #f59e0b !important; font-weight: 700; font-size: 0.72rem;">원장관제</span>';
             nav.appendChild(btn);
         }
     } else {
         if (existingDirectorBtn) existingDirectorBtn.remove();
     }
 
-    // 4. Parent SMS Dashboard Isolation (Hide completely for students)
+    // 4. Parent SMS Dashboard Isolation
     const parentSmsDashboard = document.getElementById('parent-sms-dashboard-card');
     if (parentSmsDashboard) {
-        if (userRole === 'PARENT' || isMasterEmail) {
+        if (userRole === 'PARENT' || (userRole === 'SUPER_ADMIN' && isMasterUser)) {
             parentSmsDashboard.style.display = 'block';
         } else {
             parentSmsDashboard.style.display = 'none';
@@ -2432,6 +2461,7 @@ function applyRolePermissions(role) {
         });
     }
 }
+
 
 
 async function handleRegister(e) {
@@ -6684,3 +6714,5 @@ window.handleDirectorLoginSubmit = typeof handleDirectorLogin !== 'undefined' ? 
 window.handleDirectorLogin = typeof handleDirectorLogin !== 'undefined' ? handleDirectorLogin : null;
 window.handleSaveInitialPassword = typeof handleSaveInitialPassword !== 'undefined' ? handleSaveInitialPassword : null;
 window.applyRolePermissions = typeof applyRolePermissions !== 'undefined' ? applyRolePermissions : null;
+
+window.previewRoleAs = previewRoleAs;
