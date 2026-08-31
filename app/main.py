@@ -14,15 +14,22 @@ from app import models, schemas, ai, predict, sms
 
 app = FastAPI(title="PASS-MATE API")
 
-from sqlalchemy import text, inspect
+from sqlalchemy import text, inspect, func
 def init_db_schema():
     try:
         models.Base.metadata.create_all(bind=engine)
         with engine.connect() as conn:
             try:
                 if engine.dialect.name == "sqlite":
+                    # Students table check
                     columns = [row[1] for row in conn.execute(text("PRAGMA table_info(students)")).fetchall()]
                     if columns:
+                        if "password_hash" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN password_hash VARCHAR"))
+                        if "role" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN role VARCHAR DEFAULT 'STUDENT'"))
+                        if "parent_invite_code" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN parent_invite_code VARCHAR"))
                         if "previous_b2c_tier" not in columns:
                             conn.execute(text("ALTER TABLE students ADD COLUMN previous_b2c_tier VARCHAR DEFAULT 'B2C_FREE'"))
                         if "academy_code" not in columns:
@@ -81,6 +88,46 @@ def init_db_schema():
                             conn.execute(text("ALTER TABLE students ADD COLUMN has_unlimited_chat BOOLEAN DEFAULT 0"))
                         conn.commit()
 
+                    # Parents table check
+                    p_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(parents)")).fetchall()]
+                    if p_cols:
+                        if "email" not in p_cols:
+                            conn.execute(text("ALTER TABLE parents ADD COLUMN email VARCHAR"))
+                        if "password_hash" not in p_cols:
+                            conn.execute(text("ALTER TABLE parents ADD COLUMN password_hash VARCHAR"))
+                        if "role" not in p_cols:
+                            conn.execute(text("ALTER TABLE parents ADD COLUMN role VARCHAR DEFAULT 'PARENT'"))
+                        if "wallet_balance" not in p_cols:
+                            conn.execute(text("ALTER TABLE parents ADD COLUMN wallet_balance INTEGER DEFAULT 50000"))
+                        conn.commit()
+
+                    # Tenants table check
+                    t_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(tenants)")).fetchall()]
+                    if t_cols:
+                        if "director_email" not in t_cols:
+                            conn.execute(text("ALTER TABLE tenants ADD COLUMN director_email VARCHAR"))
+                        if "director_password_hash" not in t_cols:
+                            conn.execute(text("ALTER TABLE tenants ADD COLUMN director_password_hash VARCHAR"))
+                        if "role" not in t_cols:
+                            conn.execute(text("ALTER TABLE tenants ADD COLUMN role VARCHAR DEFAULT 'TENANT_ADMIN'"))
+                        if "bot_name" not in t_cols:
+                            conn.execute(text("ALTER TABLE tenants ADD COLUMN bot_name VARCHAR DEFAULT 'PALIN AI 멘토'"))
+                        if "bot_tone" not in t_cols:
+                            conn.execute(text("ALTER TABLE tenants ADD COLUMN bot_tone VARCHAR DEFAULT 'VERY_STRICT'"))
+                        if "core_values" not in t_cols:
+                            conn.execute(text("ALTER TABLE tenants ADD COLUMN core_values TEXT"))
+                        if "banned_words" not in t_cols:
+                            conn.execute(text("ALTER TABLE tenants ADD COLUMN banned_words VARCHAR"))
+                        if "custom_system_prompt" not in t_cols:
+                            conn.execute(text("ALTER TABLE tenants ADD COLUMN custom_system_prompt TEXT"))
+                        if "brain_status" not in t_cols:
+                            conn.execute(text("ALTER TABLE tenants ADD COLUMN brain_status VARCHAR DEFAULT 'NONE'"))
+                        if "brain_submitted_at" not in t_cols:
+                            conn.execute(text("ALTER TABLE tenants ADD COLUMN brain_submitted_at TIMESTAMP"))
+                        if "brain_injected_at" not in t_cols:
+                            conn.execute(text("ALTER TABLE tenants ADD COLUMN brain_injected_at TIMESTAMP"))
+                        conn.commit()
+
                     # TutorProfile 컬럼 검사
                     tutor_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(tutor_profiles)")).fetchall()]
                     if tutor_cols:
@@ -105,20 +152,20 @@ def init_db_schema():
                             conn.execute(text("ALTER TABLE exam_materials ADD COLUMN year INTEGER DEFAULT 2027"))
                         conn.commit()
 
-                    # QAPost 컬럼 검사
+                    # QAPost / QAComment 컬럼 검사
                     qa_post_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(qa_posts)")).fetchall()]
-                    if qa_post_cols:
-                        if "is_anonymous" not in qa_post_cols:
-                            conn.execute(text("ALTER TABLE qa_posts ADD COLUMN is_anonymous BOOLEAN DEFAULT 0"))
+                    if qa_post_cols and "is_anonymous" not in qa_post_cols:
+                        conn.execute(text("ALTER TABLE qa_posts ADD COLUMN is_anonymous BOOLEAN DEFAULT 0"))
 
-                    # QAComment 컬럼 검사
                     qa_comment_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(qa_comments)")).fetchall()]
-                    if qa_comment_cols:
-                        if "is_anonymous" not in qa_comment_cols:
-                            conn.execute(text("ALTER TABLE qa_comments ADD COLUMN is_anonymous BOOLEAN DEFAULT 0"))
+                    if qa_comment_cols and "is_anonymous" not in qa_comment_cols:
+                        conn.execute(text("ALTER TABLE qa_comments ADD COLUMN is_anonymous BOOLEAN DEFAULT 0"))
                     conn.commit()
                 else:
-                                        # PostgreSQL (Supabase / Render) 자동 마이그레이션 실행
+                    # PostgreSQL (Supabase / Render) 자동 마이그레이션 실행
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS password_hash VARCHAR"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS role VARCHAR DEFAULT 'STUDENT'"))
+                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS parent_invite_code VARCHAR"))
                     conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS previous_b2c_tier VARCHAR DEFAULT 'B2C_FREE'"))
                     conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS academy_code VARCHAR"))
                     conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS ai_level VARCHAR DEFAULT 'B2C_FREE'"))
@@ -150,9 +197,26 @@ def init_db_schema():
                     conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS has_unlimited_chat BOOLEAN DEFAULT FALSE"))
                     conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS is_alumni BOOLEAN DEFAULT FALSE"))
                     conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS alumni_academy VARCHAR"))
+
+                    conn.execute(text("ALTER TABLE parents ADD COLUMN IF NOT EXISTS email VARCHAR"))
+                    conn.execute(text("ALTER TABLE parents ADD COLUMN IF NOT EXISTS password_hash VARCHAR"))
+                    conn.execute(text("ALTER TABLE parents ADD COLUMN IF NOT EXISTS role VARCHAR DEFAULT 'PARENT'"))
+                    conn.execute(text("ALTER TABLE parents ADD COLUMN IF NOT EXISTS wallet_balance INTEGER DEFAULT 50000"))
+
+                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS director_email VARCHAR"))
+                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS director_password_hash VARCHAR"))
+                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS role VARCHAR DEFAULT 'TENANT_ADMIN'"))
+                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS bot_name VARCHAR DEFAULT 'PALIN AI 멘토'"))
+                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS bot_tone VARCHAR DEFAULT 'VERY_STRICT'"))
+                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS core_values TEXT"))
+                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS banned_words VARCHAR"))
+                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS custom_system_prompt TEXT"))
+                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS brain_status VARCHAR DEFAULT 'NONE'"))
+                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS brain_submitted_at TIMESTAMP"))
+                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS brain_injected_at TIMESTAMP"))
+
                     conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS is_alumni BOOLEAN DEFAULT FALSE"))
                     conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS alumni_academy VARCHAR"))
-
                     conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS is_suspended BOOLEAN DEFAULT FALSE"))
                     conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS suspend_reason VARCHAR"))
                     conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS tier VARCHAR DEFAULT 'SR'"))
@@ -165,7 +229,7 @@ def init_db_schema():
                     conn.execute(text("ALTER TABLE qa_posts ADD COLUMN IF NOT EXISTS is_anonymous BOOLEAN DEFAULT FALSE"))
                     conn.execute(text("ALTER TABLE qa_comments ADD COLUMN IF NOT EXISTS is_anonymous BOOLEAN DEFAULT FALSE"))
                     conn.commit()
-                    print("PostgreSQL Schema Migration Complete!")
+                    print("PostgreSQL Full Schema Migration Complete!")
             except Exception as e:
                 print("DB Schema Migration Warning:", e)
     except Exception as e:
@@ -364,6 +428,355 @@ class ManualPenaltyPayload(BaseModel):
 
 class LoginPayload(BaseModel):
     email: str
+
+
+# ============================================================================
+# 🛡️ Phase 7: 4-Tier Multi-Role Authentication & Security Routing Endpoints
+# ============================================================================
+
+@app.post("/api/auth/login", response_model=schemas.RoleLoginResponse)
+def handle_role_login(payload: schemas.RoleLoginRequest, db: Session = Depends(get_db)):
+    clean_email = payload.email.strip().lower() if payload.email else ""
+    login_type = (payload.login_type or "STUDENT").upper().strip()
+    provided_password = payload.password.strip() if payload.password else ""
+
+    # 1. 👑 STEALTH SUPER_ADMIN CHECK (Master Account: 1286orbital21@gmail.com)
+    if clean_email == "1286orbital21@gmail.com":
+        if provided_password in ("12Yonsei21*", "1286", "12862386", "admin1286"):
+            token = f"jwt_super_admin_{int(datetime.now().timestamp())}"
+            return schemas.RoleLoginResponse(
+                status="success",
+                user_id=1,
+                email=clean_email,
+                name="김철훈 총괄제작자",
+                role="SUPER_ADMIN",
+                token=token,
+                must_set_password=False,
+                tenant_code="ILWON-2027"
+            )
+        else:
+            raise HTTPException(status_code=401, detail="슈퍼 어드민 보안 패스워드가 올바르지 않습니다.")
+
+    # 2. 🏫 DIRECTOR (TENANT_ADMIN) LOGIN
+    if login_type in ("DIRECTOR", "TENANT_ADMIN"):
+        tenant = None
+        if clean_email:
+            tenant = db.query(models.Tenant).filter(
+                (models.Tenant.director_email == clean_email) |
+                (func.lower(models.Tenant.code) == clean_email.upper())
+            ).first()
+        if not tenant and payload.academy_code:
+            code = payload.academy_code.upper().strip()
+            tenant = db.query(models.Tenant).filter(models.Tenant.code == code).first()
+        if not tenant and clean_email:
+            code = clean_email.upper().strip()
+            tenant = db.query(models.Tenant).filter(
+                (models.Tenant.code == code) | (models.Tenant.code == code.replace("-2027", "1"))
+            ).first()
+
+        if not tenant:
+            raise HTTPException(status_code=404, detail="등록되지 않은 학원장 계정 또는 학원 코드입니다.")
+
+        if not tenant.is_active:
+            raise HTTPException(status_code=403, detail="해당 학원 계정은 본사에 의해 일시 차단되었습니다.")
+
+        must_set_pw = False
+        if tenant.director_password_hash:
+            if not models.verify_password(provided_password, tenant.director_password_hash) and provided_password != tenant.director_pin:
+                raise HTTPException(status_code=401, detail="비밀번호 또는 보안 PIN이 올바르지 않습니다.")
+        else:
+            if provided_password and provided_password != tenant.director_pin:
+                must_set_pw = True
+            elif not provided_password:
+                must_set_pw = True
+
+        token = f"jwt_director_{tenant.id}_{int(datetime.now().timestamp())}"
+        return schemas.RoleLoginResponse(
+            status="success",
+            user_id=tenant.id,
+            email=tenant.director_email or clean_email,
+            name=f"{tenant.name} {tenant.director_name}",
+            role="TENANT_ADMIN",
+            token=token,
+            must_set_password=must_set_pw,
+            tenant_code=tenant.code
+        )
+
+    # 3. 👨‍👩‍👧 PARENT LOGIN
+    elif login_type == "PARENT":
+        parent = db.query(models.Parent).filter(
+            (models.Parent.email == clean_email) |
+            (models.Parent.phone == clean_email)
+        ).first()
+
+        if not parent:
+            raise HTTPException(status_code=404, detail="등록되지 않은 학부모 계정입니다. 먼저 [학부모로 시작] 회원가입을 진행해 주세요.")
+
+        must_set_pw = False
+        if parent.password_hash:
+            if not models.verify_password(provided_password, parent.password_hash):
+                raise HTTPException(status_code=401, detail="비밀번호가 올바르지 않습니다.")
+        else:
+            must_set_pw = True
+
+        linked_student = None
+        if parent.students:
+            linked_student = parent.students[0]
+        elif parent.id:
+            linked_student = db.query(models.Student).filter(models.Student.parent_id == parent.id).first()
+
+        token = f"jwt_parent_{parent.id}_{int(datetime.now().timestamp())}"
+        return schemas.RoleLoginResponse(
+            status="success",
+            user_id=parent.id,
+            email=parent.email or clean_email,
+            name=parent.name or "학부모님",
+            role="PARENT",
+            token=token,
+            must_set_password=must_set_pw,
+            parent_id=parent.id,
+            student_id=linked_student.id if linked_student else None,
+            wallet_balance=parent.wallet_balance or 50000
+        )
+
+    # 4. 🧑‍🎓 STUDENT LOGIN
+    else:
+        student = db.query(models.Student).filter(
+            (func.lower(models.Student.email) == clean_email) |
+            (models.Student.email == payload.email.strip())
+        ).first()
+
+        if not student:
+            raise HTTPException(status_code=404, detail="등록되지 않은 학생 이메일입니다. 회원가입을 진행해 주세요.")
+
+        if student.is_banned:
+            raise HTTPException(status_code=403, detail=f"원장님에 의해 이용이 정지/퇴거된 계정입니다. ({student.ban_reason or '학원 규칙 위반'})")
+
+        must_set_pw = False
+        if student.password_hash:
+            if not models.verify_password(provided_password, student.password_hash):
+                raise HTTPException(status_code=401, detail="비밀번호가 올바르지 않습니다.")
+        else:
+            must_set_pw = True
+
+        if not student.parent_invite_code:
+            student.parent_invite_code = f"P-{student.id:04d}-{os.urandom(2).hex().upper()}"
+            db.commit()
+
+        token = f"jwt_student_{student.id}_{int(datetime.now().timestamp())}"
+        return schemas.RoleLoginResponse(
+            status="success",
+            user_id=student.id,
+            email=student.email,
+            name=student.name or "학생",
+            role="STUDENT",
+            token=token,
+            must_set_password=must_set_pw,
+            student_id=student.id,
+            parent_id=student.parent_id,
+            tenant_code=student.academy_code,
+            parent_invite_code=student.parent_invite_code
+        )
+
+
+@app.post("/api/auth/set-password")
+def handle_set_password(payload: schemas.SetPasswordRequest, db: Session = Depends(get_db)):
+    if not payload.new_password or len(payload.new_password.strip()) < 4:
+        raise HTTPException(status_code=400, detail="비밀번호는 최소 4자리 이상이어야 합니다.")
+    
+    hashed = models.hash_password(payload.new_password.strip())
+    role = (payload.role or "STUDENT").upper().strip()
+
+    if role == "STUDENT":
+        student = db.query(models.Student).filter(models.Student.id == payload.user_id).first()
+        if not student:
+            raise HTTPException(status_code=404, detail="학생 계정을 찾을 수 없습니다.")
+        student.password_hash = hashed
+        db.commit()
+    elif role == "PARENT":
+        parent = db.query(models.Parent).filter(models.Parent.id == payload.user_id).first()
+        if not parent:
+            raise HTTPException(status_code=404, detail="학부모 계정을 찾을 수 없습니다.")
+        parent.password_hash = hashed
+        db.commit()
+    elif role in ("DIRECTOR", "TENANT_ADMIN"):
+        tenant = db.query(models.Tenant).filter(models.Tenant.id == payload.user_id).first()
+        if not tenant:
+            raise HTTPException(status_code=404, detail="학원장 계정을 찾을 수 없습니다.")
+        tenant.director_password_hash = hashed
+        db.commit()
+
+    return {"status": "success", "message": "비밀번호가 성공적으로 설정되었습니다. 이제 안전하게 로그인하실 수 있습니다."}
+
+
+@app.post("/api/auth/register/student")
+def handle_student_register_auth(payload: schemas.StudentRegisterRequest, db: Session = Depends(get_db)):
+    clean_email = payload.email.strip().lower()
+    existing = db.query(models.Student).filter(func.lower(models.Student.email) == clean_email).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="이미 가입된 학생 이메일입니다. 기존 계정으로 로그인해 주세요.")
+
+    parent = None
+    if payload.parent_phone:
+        clean_p_phone = payload.parent_phone.strip()
+        parent = db.query(models.Parent).filter(models.Parent.phone == clean_p_phone).first()
+        if not parent:
+            parent = models.Parent(name=payload.parent_name or "학부모", phone=clean_p_phone, wallet_balance=50000)
+            db.add(parent)
+            db.commit()
+            db.refresh(parent)
+
+    initial_points = 100
+    referred_by_code = payload.referred_by.strip() if payload.referred_by else None
+    if referred_by_code:
+        referrer = db.query(models.Student).filter(models.Student.referral_code == referred_by_code).first()
+        if referrer:
+            initial_points += 50
+            referrer.current_points = (referrer.current_points or 0) + 50
+            referrer.free_report_tickets = (referrer.free_report_tickets or 0) + 1
+
+    pw_hash = models.hash_password(payload.password.strip()) if payload.password else None
+
+    student = models.Student(
+        email=clean_email,
+        password_hash=pw_hash,
+        role="STUDENT",
+        name=payload.name.strip(),
+        phone=payload.phone.strip(),
+        grade=payload.grade,
+        region=payload.region.strip(),
+        high_school=payload.high_school.strip(),
+        target_univ=payload.target_univ.strip(),
+        baseline_univ=payload.baseline_univ.strip(),
+        current_points=initial_points,
+        paid_cash=0,
+        free_report_tickets=0,
+        referred_by=referred_by_code,
+        parent_id=parent.id if parent else None,
+        academy_code=payload.academy_code.strip().upper() if payload.academy_code else "ILWON-2027"
+    )
+    db.add(student)
+    db.commit()
+    db.refresh(student)
+
+    student.referral_code = f"PALIN-{student.id:04d}-{os.urandom(2).hex().upper()}"
+    student.parent_invite_code = f"P-{student.id:04d}-{os.urandom(2).hex().upper()}"
+    db.commit()
+
+    token = f"jwt_student_{student.id}_{int(datetime.now().timestamp())}"
+    return schemas.RoleLoginResponse(
+        status="success",
+        user_id=student.id,
+        email=student.email,
+        name=student.name,
+        role="STUDENT",
+        token=token,
+        must_set_password=bool(pw_hash is None),
+        student_id=student.id,
+        parent_id=student.parent_id,
+        parent_invite_code=student.parent_invite_code,
+        tenant_code=student.academy_code
+    )
+
+
+@app.post("/api/auth/register/parent")
+def handle_parent_register_auth(payload: schemas.ParentRegisterRequest, db: Session = Depends(get_db)):
+    clean_email = payload.email.strip().lower()
+    clean_phone = payload.phone.strip()
+
+    invite_code = payload.student_invite_code.strip().upper()
+    student = db.query(models.Student).filter(
+        (models.Student.parent_invite_code == invite_code) |
+        (models.Student.referral_code == invite_code) |
+        (models.Student.phone == invite_code)
+    ).first()
+
+    if not student:
+        if invite_code.replace("P-", "").isdigit():
+            s_id = int(invite_code.replace("P-", ""))
+            student = db.query(models.Student).filter(models.Student.id == s_id).first()
+
+    if not student:
+        raise HTTPException(status_code=404, detail="입력하신 자녀 고유 초대 코드가 일치하는 학생을 찾을 수 없습니다. 자녀의 학생증 또는 마이페이지에 표시된 초대코드를 확인해 주세요.")
+
+    pw_hash = models.hash_password(payload.password.strip()) if payload.password else None
+
+    # Check if parent already created via student registration
+    parent = db.query(models.Parent).filter(
+        (func.lower(models.Parent.email) == clean_email) |
+        (models.Parent.phone == clean_phone)
+    ).first()
+
+    if parent:
+        parent.email = clean_email
+        parent.password_hash = pw_hash
+        parent.name = payload.name.strip() or parent.name
+        parent.role = "PARENT"
+        if not parent.wallet_balance:
+            parent.wallet_balance = 50000
+    else:
+        parent = models.Parent(
+            email=clean_email,
+            password_hash=pw_hash,
+            role="PARENT",
+            name=payload.name.strip(),
+            phone=clean_phone,
+            wallet_balance=50000
+        )
+        db.add(parent)
+
+    db.commit()
+    db.refresh(parent)
+
+    student.parent_id = parent.id
+    db.commit()
+
+    token = f"jwt_parent_{parent.id}_{int(datetime.now().timestamp())}"
+    return schemas.RoleLoginResponse(
+        status="success",
+        user_id=parent.id,
+        email=parent.email,
+        name=parent.name,
+        role="PARENT",
+        token=token,
+        must_set_password=False,
+        parent_id=parent.id,
+        student_id=student.id,
+        wallet_balance=parent.wallet_balance
+    )
+
+
+@app.post("/api/parent/sponsor/charge")
+def charge_sponsor_wallet(payload: schemas.ParentSponsorChargeRequest, db: Session = Depends(get_db)):
+    parent = db.query(models.Parent).filter(models.Parent.id == payload.parent_id).first()
+    if not parent:
+        raise HTTPException(status_code=404, detail="학부모 계정을 찾을 수 없습니다.")
+    if payload.amount <= 0:
+        raise HTTPException(status_code=400, detail="충전 금액은 0원보다 커야 합니다.")
+    parent.wallet_balance = (parent.wallet_balance or 0) + payload.amount
+    db.commit()
+    return {"status": "success", "message": f"{payload.amount:,}원이 스폰서 지갑에 성공적으로 충전되었습니다.", "wallet_balance": parent.wallet_balance}
+
+
+@app.post("/api/parent/sponsor/pay")
+def pay_from_sponsor_wallet(payload: schemas.ParentSponsorPayRequest, db: Session = Depends(get_db)):
+    parent = db.query(models.Parent).filter(models.Parent.id == payload.parent_id).first()
+    if not parent:
+        raise HTTPException(status_code=404, detail="학부모 계정을 찾을 수 없습니다.")
+    if (parent.wallet_balance or 0) < payload.amount:
+        raise HTTPException(status_code=400, detail=f"스폰서 지갑 잔액이 부족합니다. (현재 잔액: {(parent.wallet_balance or 0):,}원)")
+    
+    parent.wallet_balance -= payload.amount
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if student:
+        student.current_points = (student.current_points or 0) + int(payload.amount / 10)
+    db.commit()
+    return {
+        "status": "success",
+        "message": f"자녀를 위한 [{payload.item_title}] {payload.amount:,}원 결제가 완료되었습니다!",
+        "wallet_balance": parent.wallet_balance
+    }
+
 
 @app.post("/api/login")
 def login_student(payload: LoginPayload, db: Session = Depends(get_db)):
@@ -737,6 +1150,7 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
     bot_name = "PALIN BOT"
     is_active = True
     remaining = 5
+    user_role = (payload.user_role or "STUDENT").upper().strip()
 
     try:
         if payload.student_id:
@@ -780,7 +1194,8 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
             tenant_tier=tier,
             tenant_custom_prompt=custom_prompt,
             tenant_bot_name=bot_name,
-            tenant_is_active=is_active
+            tenant_is_active=is_active,
+            user_role=user_role
         )
         return schemas.AIChatResponse(reply=reply, remaining_chats=remaining)
     except Exception as e:

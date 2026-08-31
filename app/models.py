@@ -1,3 +1,24 @@
+import hashlib
+import os
+
+def hash_password(password: str, salt: str = None) -> str:
+    if not password:
+        return ""
+    if not salt:
+        salt = os.urandom(8).hex()
+    hashed = hashlib.sha256((salt + password).encode('utf-8')).hexdigest()
+    return f"{salt}${hashed}"
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    if not plain_password or not hashed_password or "$" not in hashed_password:
+        return False
+    try:
+        salt, hashed = hashed_password.split("$", 1)
+        return hash_password(plain_password, salt) == hashed_password
+    except Exception:
+        return False
+
+
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -21,6 +42,9 @@ class Student(Base):
     wake_target_time = Column(String, default="06:30")  # 기상 목표 시간 (HH:MM)
     sleep_target_time = Column(String, default="23:30")  # 취침 목표 시간 (HH:MM)
     current_points = Column(Integer, default=100)
+    password_hash = Column(String, nullable=True)
+    role = Column(String, default="STUDENT")
+    parent_invite_code = Column(String, unique=True, index=True, nullable=True)
     
     # PALIN OS 전용 성장/리그전/바이럴/VIP 시스템 필드
     league_tier = Column(String, default="BRONZE")  # BRONZE | SILVER | GOLD | PLATINUM
@@ -106,6 +130,10 @@ class Parent(Base):
     name = Column(String)
     phone = Column(String, unique=True, index=True)
     is_premium_subscribed = Column(Boolean, default=False)
+    email = Column(String, unique=True, index=True, nullable=True)
+    password_hash = Column(String, nullable=True)
+    role = Column(String, default="PARENT")
+    wallet_balance = Column(Integer, default=50000)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     students = relationship("Student", back_populates="parent")
@@ -560,7 +588,10 @@ class Tenant(Base):
     code = Column(String, unique=True, index=True, nullable=False) # 6자리 고유코드 (예: ILWON1, DAECH1)
     name = Column(String, nullable=False)                         # 학원 상호명 (예: 일원학원, 대치시대인재)
     director_name = Column(String, default="원장")                 # 원장명
-    director_phone = Column(String, nullable=True)                # 원장 연락처
+    director_phone = Column(String, nullable=True)
+    director_email = Column(String, unique=True, index=True, nullable=True)
+    director_password_hash = Column(String, nullable=True)
+    role = Column(String, default="TENANT_ADMIN")                # 원장 연락처
     director_pin = Column(String, default="1286")                 # 관제실 접속 PIN
     tier = Column(Integer, default=1)                             # Tier 1(기본), Tier 2(맞춤 커스텀 뇌), Tier 3(김철훈 백서 RAG 풀탑재)
     max_students = Column(Integer, default=100)                   # 라이선스 CAP 정원 (50, 100, 99999=무제한)
