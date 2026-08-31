@@ -2499,3 +2499,19 @@ body.day-mode .subtab-btn-hub.active span {
     justify-content: space-between;
     align-items: center;
 }
+
+
+/* 하단 관제실 탭 버튼 투명화 & 완벽 통일 */
+#nav-director-cockpit,
+.bottom-nav .nav-item,
+.bottom-nav button.nav-item,
+.bottom-nav div.nav-item {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+}
