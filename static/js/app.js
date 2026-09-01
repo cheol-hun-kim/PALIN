@@ -1938,6 +1938,26 @@ function updateStudentUnivSelectors() {
 
 // --- 사용자 세션/인증 확인 ---
 function checkAuth() {
+    const previewRole = localStorage.getItem("palin_role_preview");
+    if (previewRole) {
+        // 🎭 마스터 콘솔 1-Click 실시간 역할 체험 모드 가동
+        localStorage.setItem("userRole", previewRole);
+        if (previewRole === "PARENT") {
+            document.body.classList.add("role-parent");
+        } else {
+            document.body.classList.remove("role-parent");
+        }
+        hideOverlay("register-overlay");
+        
+        // 1번 학생 또는 기본 프리뷰 학생 데이터 로드
+        const sId = localStorage.getItem("studentId") || "1";
+        fetchStudentInfo(parseInt(sId, 10));
+        
+        // 상단 체험 모드 안내 바 표시
+        renderPreviewModeBanner(previewRole);
+        return;
+    }
+
     const studentId = localStorage.getItem("studentId");
     if (studentId && !isNaN(parseInt(studentId))) {
         fetchStudentInfo(parseInt(studentId));
@@ -1947,6 +1967,29 @@ function checkAuth() {
         clearAllSensitiveUI();
         showOverlay("register-overlay");
     }
+}
+
+function renderPreviewModeBanner(role) {
+    let bar = document.getElementById("palin-preview-floating-bar");
+    if (!bar) {
+        bar = document.createElement("div");
+        bar = document.createElement("div");
+        bar.id = "palin-preview-floating-bar";
+        bar.style.cssText = "position: fixed; top: 10px; right: 10px; z-index: 10001; background: rgba(15,23,42,0.95); border: 1.5px solid #8b5cf6; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.6); color: #fde68a;";
+        document.body.appendChild(bar);
+    }
+    const roleName = role === "PARENT" ? "👨‍👩‍👧 학부모 모드 (조회 전용)" : "🎓 학생 모드";
+    bar.innerHTML = `<span>🎭 ${roleName} 체험 중</span> <button onclick="exitRolePreview()" style="background: rgba(239,68,68,0.3); border: 1px solid #ef4444; color: #fca5a5; border-radius: 10px; font-size: 0.7rem; padding: 2px 6px; cursor: pointer;">✕ 체험 종료</button>`;
+}
+
+function exitRolePreview() {
+    localStorage.removeItem("palin_role_preview");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("studentId");
+    document.body.classList.remove("role-parent");
+    const bar = document.getElementById("palin-preview-floating-bar");
+    if (bar) bar.remove();
+    location.reload();
 }
 
 function clearAllSensitiveUI() {
