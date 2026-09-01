@@ -6719,3 +6719,55 @@ window.handleSaveInitialPassword = typeof handleSaveInitialPassword !== 'undefin
 window.applyRolePermissions = typeof applyRolePermissions !== 'undefined' ? applyRolePermissions : null;
 
 window.previewRoleAs = previewRoleAs;
+
+
+
+
+
+// 마이페이지 비밀번호 변경 함수 (최대 12자리)
+async function changeStudentPassword() {
+    const curPw = document.getElementById("mypage-current-password")?.value || "";
+    const newPw = document.getElementById("mypage-new-password")?.value || "";
+    const newPwConfirm = document.getElementById("mypage-new-password-confirm")?.value || "";
+
+    if (!curPw) {
+        alert("현재 비밀번호를 입력해 주세요. (기존 회원 초기 비번: 1010)");
+        return;
+    }
+    if (!newPw || newPw.length < 4 || newPw.length > 12) {
+        alert("새 비밀번호는 4자리 이상 12자리 이하로 입력해 주세요.");
+        return;
+    }
+    if (newPw !== newPwConfirm) {
+        alert("새 비밀번호 확인이 일치하지 않습니다.");
+        return;
+    }
+    if (!currentStudent || !currentStudent.id) {
+        alert("로그인 정보가 없습니다.");
+        return;
+    }
+
+    try {
+        const res = await fetch("/api/student/change-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: currentStudent.id,
+                current_password: curPw,
+                new_password: newPw
+            })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert("✓ 비밀번호가 성공적으로 변경되었습니다! 다음 로그인부터 새 비밀번호를 사용해 주세요.");
+            if (document.getElementById("mypage-current-password")) document.getElementById("mypage-current-password").value = "";
+            if (document.getElementById("mypage-new-password")) document.getElementById("mypage-new-password").value = "";
+            if (document.getElementById("mypage-new-password-confirm")) document.getElementById("mypage-new-password-confirm").value = "";
+        } else {
+            alert(data.detail || "비밀번호 변경 실패");
+        }
+    } catch (e) {
+        console.error(e);
+        alert("비밀번호 변경 중 통신 오류가 발생했습니다.");
+    }
+}

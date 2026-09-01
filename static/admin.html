@@ -6,7 +6,7 @@
     <title>PALIN OS - B2B 학원장 통합 관제실 (Director Cockpit)</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=1600.0">
+    <link rel="stylesheet" href="css/style.css?v=2100.0">
     <style>
         :root {
             --bg-color: #08090d;
@@ -850,7 +850,7 @@
                 sessionStorage.setItem("palin_admin_authenticated", "true");
                 document.getElementById("admin-login-screen").style.display = "none";
                 document.getElementById("admin-dashboard-screen").style.display = "block";
-                fetchDashboardData();
+                fetchDashboardData(); updateMasterBtnVisibility();
             } else {
                 document.getElementById("login-error-msg").style.display = "block";
             }
@@ -892,7 +892,7 @@
             if (sessionStorage.getItem("palin_admin_authenticated") === "true") {
                 document.getElementById("admin-login-screen").style.display = "none";
                 document.getElementById("admin-dashboard-screen").style.display = "block";
-                fetchDashboardData();
+                fetchDashboardData(); updateMasterBtnVisibility();
                 checkMandatoryNotices();
             }
         });
@@ -1264,7 +1264,7 @@ ${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; font-we
                 const data = await res.json();
                 if (res.ok) {
                     alert(`✅ ${data.message}`);
-                    fetchDashboardData();
+                    fetchDashboardData(); updateMasterBtnVisibility();
                 } else {
                     alert(data.detail || "수납 변경 실패");
                 }
@@ -1295,7 +1295,7 @@ ${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; font-we
                 const data = await res.json();
                 if (res.ok) {
                     alert(`🎉 ${data.message}`);
-                    fetchDashboardData();
+                    fetchDashboardData(); updateMasterBtnVisibility();
                 } else {
                     alert(data.detail || "일괄 수납 처리 실패");
                 }
@@ -1491,7 +1491,7 @@ ${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; font-we
                 });
                 const data = await res.json();
                 alert(`🎓 ${data.message}`);
-                fetchDashboardData();
+                fetchDashboardData(); updateMasterBtnVisibility();
             } catch(e) { alert("졸업 처리 오류"); }
         }
 
@@ -1524,7 +1524,7 @@ ${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; font-we
                 const data = await res.json();
                 if (res.ok) {
                     alert(`🎉 ${data.message}`);
-                    fetchDashboardData();
+                    fetchDashboardData(); updateMasterBtnVisibility();
                 } else {
                     alert(data.detail || "승인 실패");
                 }
@@ -1592,6 +1592,19 @@ ${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; font-we
             }
             document.getElementById("mandatory-notice-modal").style.display = "none";
         }
-    </script>
+    
+        function updateMasterBtnVisibility() {
+            const masterBtn = document.getElementById("admin-master-console-btn");
+            if (!masterBtn) return;
+            const isSuperAdmin = (sessionStorage.getItem("palin_super_admin") === "true") ||
+                                (currentTenantCode && (currentTenantCode === "ADMIN" || currentTenantCode === "MASTER"));
+            if (isSuperAdmin) {
+                masterBtn.style.display = "inline-flex";
+            } else {
+                masterBtn.style.display = "none";
+            }
+        }
+
+</script>
 </body>
 </html>
