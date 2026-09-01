@@ -4009,41 +4009,55 @@ def change_student_password(payload: ChangePasswordPayload, db: Session = Depend
     return {"status": "SUCCESS", "message": "비밀번호가 성공적으로 변경되었습니다."}
 
 
-# --- Login Notice Dynamic Management ---
+
+
+# --- Role-Specific Login Notices Dynamic Management ---
 import json, os
 
-LOGIN_NOTICE_FILE = os.path.join(os.path.dirname(__file__), "data", "login_notice.json")
+LOGIN_NOTICES_FILE = os.path.join(os.path.dirname(__file__), "data", "role_login_notices.json")
 
-def get_login_notice_data():
-    if os.path.exists(LOGIN_NOTICE_FILE):
+def get_role_login_notices():
+    if os.path.exists(LOGIN_NOTICES_FILE):
         try:
-            with open(LOGIN_NOTICE_FILE, "r", encoding="utf-8") as f:
+            with open(LOGIN_NOTICES_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception:
             pass
     return {
-        "is_active": True,
-        "message": "📢 [보안 업데이트] 기존 가입 회원의 초기 비밀번호는 1010 입니다. 로그인 후 마이페이지에서 변경하실 수 있습니다."
+        "student": {
+            "is_active": True,
+            "message": "📢 <b>[보안 업데이트]</b> 기존 가입 회원의 초기 비밀번호는 <b>1010</b> 입니다. 로그인 후 마이페이지에서 변경하실 수 있습니다."
+        },
+        "parent": {
+            "is_active": True,
+            "message": "📢 <b>[학부모 안내]</b> 자녀 초대코드 또는 등록된 학부모 휴대폰 번호로 자녀의 학습 현황을 실시간 조회하실 수 있습니다."
+        },
+        "director": {
+            "is_active": True,
+            "message": "📢 <b>[원장 관제실 안내]</b> 가맹 학원 원장님 전용 보안 로그인입니다. 원장 PIN 번호를 입력해 주세요."
+        }
     }
 
-def save_login_notice_data(data):
-    os.makedirs(os.path.dirname(LOGIN_NOTICE_FILE), exist_ok=True)
-    with open(LOGIN_NOTICE_FILE, "w", encoding="utf-8") as f:
+def save_role_login_notices(data):
+    os.makedirs(os.path.dirname(LOGIN_NOTICES_FILE), exist_ok=True)
+    with open(LOGIN_NOTICES_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
-class LoginNoticePayload(BaseModel):
+class RoleNoticeItem(BaseModel):
     is_active: bool
     message: str
 
-@app.get("/api/public/login-notice")
-def get_public_login_notice():
-    return get_login_notice_data()
+class RoleNoticesPayload(BaseModel):
+    student: RoleNoticeItem
+    parent: RoleNoticeItem
+    director: RoleNoticeItem
 
-@app.post("/api/master/login-notice")
-def update_master_login_notice(payload: LoginNoticePayload):
-    data = {
-        "is_active": payload.is_active,
-        "message": payload.message.strip()
-    }
-    save_login_notice_data(data)
+@app.get("/api/public/role-login-notices")
+def get_public_role_login_notices():
+    return get_role_login_notices()
+
+@app.post("/api/master/role-login-notices")
+def update_master_role_login_notices(payload: RoleNoticesPayload):
+    data = payload.model_dump()
+    save_role_login_notices(data)
     return {"status": "SUCCESS", "data": data}
