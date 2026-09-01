@@ -30,7 +30,7 @@
     </script>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=3000.0">
+    <link rel="stylesheet" href="css/style.css?v=3200.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -385,7 +385,9 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             </div>
                             <input type="text" id="parent-login-email" class="auth-input" placeholder="학부모 이메일 또는 휴대폰 번호" required>
                             <input type="password" id="parent-login-password" class="auth-input" placeholder="비밀번호" required>
-                            <div id="dynamic-login-notice-parent" style="display: none; font-size: 0.72rem; color: #34d399; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.35; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); border-radius: 8px; padding: 6px 10px;"></div>
+                            <div id="dynamic-login-notice-parent" style="font-size: 0.75rem; color: #34d399; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.4; background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 8px 12px;">
+                                📢 <b>[학부모 안내]</b> 자녀 초대코드 또는 등록된 학부모 휴대폰 번호로 자녀의 학습 현황을 실시간 조회하실 수 있습니다.
+                            </div>
                             <button type="submit" class="auth-submit-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 4px 16px rgba(16,185,129,0.4);">
                                 학부모 로그인
                             </button>
@@ -410,7 +412,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 <label style="font-size: 0.75rem; color: #a7f3d0; font-weight: 800; display: block; margin-bottom: 4px;">자녀 고유 초대코드 (학생증 또는 마이페이지에 표시)</label>
                                 <input type="text" id="parent-reg-invite-code" class="auth-input" placeholder="예: P-0001-A9F2 또는 자녀 휴대폰번호" required style="font-weight: 800; text-transform: uppercase; margin-bottom: 0 !important;">
                             </div>
-                            <div id="dynamic-login-notice-parent" style="display: none; font-size: 0.72rem; color: #34d399; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.35; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); border-radius: 8px; padding: 6px 10px;"></div>
+                            
                             <button type="submit" class="auth-submit-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 4px 16px rgba(16,185,129,0.4);">
                                 가입 및 자녀 연결
                             </button>
@@ -459,9 +461,9 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
             async function syncRoleNoticesUI() {
                 try {
-                    if (!cachedRoleNotices) {
-                        const res = await fetch('/api/master/role-notices');
-                        if (res.ok) cachedRoleNotices = await res.json();
+                    const res = await fetch('/api/public/role-login-notices');
+                    if (res.ok) {
+                        cachedRoleNotices = await res.json();
                     }
                     if (cachedRoleNotices) {
                         const stBox = document.getElementById('dynamic-login-notice-student');
@@ -469,31 +471,39 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         const dirBox = document.getElementById('dynamic-login-notice-director');
 
                         if (stBox && cachedRoleNotices.student) {
-                            if (cachedRoleNotices.student.enabled && cachedRoleNotices.student.text) {
-                                stBox.innerHTML = cachedRoleNotices.student.text;
+                            const active = cachedRoleNotices.student.is_active ?? cachedRoleNotices.student.enabled ?? true;
+                            const msg = cachedRoleNotices.student.message || cachedRoleNotices.student.text;
+                            if (active && msg) {
+                                stBox.innerHTML = msg;
                                 stBox.style.display = 'block';
                             } else {
                                 stBox.style.display = 'none';
                             }
                         }
                         if (paBox && cachedRoleNotices.parent) {
-                            if (cachedRoleNotices.parent.enabled && cachedRoleNotices.parent.text) {
-                                paBox.innerHTML = cachedRoleNotices.parent.text;
+                            const active = cachedRoleNotices.parent.is_active ?? cachedRoleNotices.parent.enabled ?? true;
+                            const msg = cachedRoleNotices.parent.message || cachedRoleNotices.parent.text;
+                            if (active && msg) {
+                                paBox.innerHTML = msg;
                                 paBox.style.display = 'block';
                             } else {
                                 paBox.style.display = 'none';
                             }
                         }
                         if (dirBox && cachedRoleNotices.director) {
-                            if (cachedRoleNotices.director.enabled && cachedRoleNotices.director.text) {
-                                dirBox.innerHTML = cachedRoleNotices.director.text;
+                            const active = cachedRoleNotices.director.is_active ?? cachedRoleNotices.director.enabled ?? true;
+                            const msg = cachedRoleNotices.director.message || cachedRoleNotices.director.text;
+                            if (active && msg) {
+                                dirBox.innerHTML = msg;
                                 dirBox.style.display = 'block';
                             } else {
                                 dirBox.style.display = 'none';
                             }
                         }
                     }
-                } catch(e) {}
+                } catch(e) {
+                    console.warn("syncRoleNoticesUI error:", e);
+                }
             }
 
             function setAuthRoleUI(role) {
@@ -2682,7 +2692,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app.js?v=3000.0"></script>
+    <script src="js/app.js?v=3200.0"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소

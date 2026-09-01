@@ -6,7 +6,7 @@
     <title>PALIN OS - B2B 학원장 통합 관제실 (Director Cockpit)</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=3000.0">
+    <link rel="stylesheet" href="css/style.css?v=3200.0">
     <style>
         :root {
             --bg-color: #08090d;
@@ -511,45 +511,50 @@
                         <span>💰 재원생 재무/수납 관리 ERP</span>
                     </div>
 
-                    <!-- 🔍 수납 필터 버튼 바 -->
-                    <div style="display: flex; gap: 6px; margin-bottom: 12px; align-items: center; flex-wrap: wrap;">
-                        <button type="button" onclick="filterFinanceTable('ALL')" id="btn-fin-filter-all" class="btn" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 800; background: #6366f1; color: white;">전체 보기</button>
-                        <button type="button" onclick="filterFinanceTable('TUITION_UNPAID')" id="btn-fin-filter-tuition-unpaid" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 800; color: #f87171; border-color: rgba(239,68,68,0.4);">🚨 수강료 미납</button>
-                        <button type="button" onclick="filterFinanceTable('TEXTBOOK_UNPAID')" id="btn-fin-filter-textbook-unpaid" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 800; color: #c084fc; border-color: rgba(168,85,247,0.4);">📦 교재비 미납</button>
-                        <button type="button" onclick="filterFinanceTable('ALL_PAID')" id="btn-fin-filter-all-paid" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 800; color: #34d399; border-color: rgba(16,185,129,0.4);">✨ 전액 완납</button>
+                    <!-- 🔍 수납 필터 버튼 바 (모바일 2x2 정갈한 그리드) -->
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px;">
+                        <button type="button" onclick="filterFinanceTable('ALL')" id="btn-fin-filter-all" class="btn" style="padding: 11px 6px; font-size: 0.82rem; font-weight: 800; background: #6366f1; color: white; text-align: center; width: 100%; border-radius: 8px; box-sizing: border-box;">전체 보기</button>
+                        <button type="button" onclick="filterFinanceTable('TUITION_UNPAID')" id="btn-fin-filter-tuition-unpaid" class="btn btn-secondary" style="padding: 11px 6px; font-size: 0.82rem; font-weight: 800; color: #f87171; border-color: rgba(239,68,68,0.4); text-align: center; width: 100%; border-radius: 8px; box-sizing: border-box;">🚨 수강료 미납</button>
+                        <button type="button" onclick="filterFinanceTable('TEXTBOOK_UNPAID')" id="btn-fin-filter-textbook-unpaid" class="btn btn-secondary" style="padding: 11px 6px; font-size: 0.82rem; font-weight: 800; color: #c084fc; border-color: rgba(168,85,247,0.4); text-align: center; width: 100%; border-radius: 8px; box-sizing: border-box;">📦 교재비 미납</button>
+                        <button type="button" onclick="filterFinanceTable('ALL_PAID')" id="btn-fin-filter-all-paid" class="btn btn-secondary" style="padding: 11px 6px; font-size: 0.82rem; font-weight: 800; color: #34d399; border-color: rgba(16,185,129,0.4); text-align: center; width: 100%; border-radius: 8px; box-sizing: border-box;">✨ 전액 완납</button>
                     </div>
 
-                    <!-- 일괄 수납 처리 바 -->
-                    <div style="display: flex; gap: 6px; flex-wrap: wrap; background: rgba(0,0,0,0.35); padding: 10px; border-radius: 10px; margin-bottom: 12px; align-items: center;">
-                        <label style="display: flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 800; color: #ffffff; cursor: pointer; margin-right: 6px;">
-                            <input type="checkbox" onchange="toggleSelectAllFinance(this.checked)" style="width: 16px; height: 16px;">
-                            <span>전체선택</span>
-                        </label>
-                        <button onclick="handleBatchFinanceSubmit('tuition', true)" class="btn" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white;">
-                            수강료 일괄완납
-                        </button>
-                        <button onclick="handleBatchFinanceSubmit('textbook', true)" class="btn" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; background: linear-gradient(135deg, #a855f7, #7e22ce); color: white;">
-                            교재비 일괄완납
-                        </button>
-                        <button onclick="handleBatchFinanceSubmit('both', true)" class="btn" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706); color: white;">
-                            전액 완납
-                        </button>
-                        <button onclick="handleBatchFinanceSubmit('both', false)" class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.72rem; color: #f87171; border-color: #ef4444;">
-                            미납 전환
-                        </button>
+                    <!-- 일괄 수납 처리 액션 바 (구조화된 2x2 액션 카드) -->
+                    <div style="background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 12px; margin-bottom: 14px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 800; color: #f8fafc; cursor: pointer;">
+                                <input type="checkbox" onchange="toggleSelectAllFinance(this.checked)" style="width: 18px; height: 18px; accent-color: #6366f1; cursor: pointer;">
+                                <span>선택 대상 전체선택</span>
+                            </label>
+                            <span style="font-size: 0.72rem; color: #94a3b8;">체크된 학생 1-클릭 일괄 처리</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                            <button onclick="handleBatchFinanceSubmit('tuition', true)" class="btn" style="padding: 10px 8px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 8px; width: 100%; box-sizing: border-box;">
+                                ✅ 수강료 일괄완납
+                            </button>
+                            <button onclick="handleBatchFinanceSubmit('textbook', true)" class="btn" style="padding: 10px 8px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #a855f7, #7e22ce); color: white; border-radius: 8px; width: 100%; box-sizing: border-box;">
+                                📦 교재비 일괄완납
+                            </button>
+                            <button onclick="handleBatchFinanceSubmit('both', true)" class="btn" style="padding: 10px 8px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border-radius: 8px; width: 100%; box-sizing: border-box;">
+                                ✨ 전액 완납
+                            </button>
+                            <button onclick="handleBatchFinanceSubmit('both', false)" class="btn btn-secondary" style="padding: 10px 8px; font-size: 0.75rem; font-weight: 800; color: #f87171; border-color: rgba(239,68,68,0.4); border-radius: 8px; width: 100%; box-sizing: border-box;">
+                                🔄 미납 전환
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="table-responsive">
-                        <table class="data-table">
+                    <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px;">
+                        <table class="data-table" style="min-width: 580px; width: 100%;">
                             <thead>
                                 <tr>
-                                    <th style="width: 40px; text-align: center;">선택</th>
-                                    <th>학생명 (ID)</th>
-                                    <th>고교 / 학년</th>
-                                    <th>학적</th>
-                                    <th>수강료 상태</th>
-                                    <th>교재비 상태</th>
-                                    <th style="text-align: center;">납부 상태 변경</th>
+                                    <th style="width: 40px; text-align: center; white-space: nowrap;">선택</th>
+                                    <th style="white-space: nowrap; min-width: 90px;">학생명 (ID)</th>
+                                    <th style="white-space: nowrap; min-width: 90px;">고교 / 학년</th>
+                                    <th style="white-space: nowrap; min-width: 50px; text-align: center;">학적</th>
+                                    <th style="white-space: nowrap; min-width: 85px; text-align: center;">수강료 상태</th>
+                                    <th style="white-space: nowrap; min-width: 85px; text-align: center;">교재비 상태</th>
+                                    <th style="text-align: center; white-space: nowrap; min-width: 140px;">납부 상태 변경</th>
                                 </tr>
                             </thead>
                             <tbody id="financial-erp-tbody"></tbody>
@@ -1308,27 +1313,27 @@ ${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; font-we
                 const enrollColor = s.enrollment_status === 'GRADUATED' ? '#334155' : (s.enrollment_status === 'ON_LEAVE' ? '#ef4444' : '#10b981');
                 return `
                 <tr>
-                    <td style="text-align: center;">
-                        <input type="checkbox" class="finance-item-checkbox" value="${s.id}" style="width: 16px; height: 16px; cursor: pointer;">
+                    <td style="text-align: center; white-space: nowrap;">
+                        <input type="checkbox" class="finance-item-checkbox" value="${s.id}" style="width: 17px; height: 17px; cursor: pointer; accent-color: #6366f1;">
                     </td>
-                    <td style="font-weight: 800; color: #ffffff;">${s.name} <span style="color: #94a3b8; font-weight: normal; font-size: 0.75rem;">(#${s.id})</span></td>
-                    <td>${s.high_school || '고교'} (${s.grade || '3'}학년)</td>
-                    <td><span style="background:${enrollColor}; color:white; padding:2px 6px; border-radius:4px; font-size:0.7rem; font-weight:700;">${enrollStatus}</span></td>
-                    <td>
-                        <span style="background: ${tuitionPaid ? '#10b981' : '#ef4444'}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.72rem; font-weight: 800;">
+                    <td style="font-weight: 800; color: #ffffff; white-space: nowrap;">${s.name} <span style="color: #94a3b8; font-weight: normal; font-size: 0.75rem;">(#${s.id})</span></td>
+                    <td style="white-space: nowrap; color: #cbd5e1;">${s.high_school || '고교'} (${s.grade || '3'}학년)</td>
+                    <td style="text-align: center; white-space: nowrap;"><span style="background:${enrollColor}; color:white; padding:3px 7px; border-radius:6px; font-size:0.72rem; font-weight:800; white-space: nowrap; display: inline-block;">${enrollStatus}</span></td>
+                    <td style="text-align: center; white-space: nowrap;">
+                        <span style="background: ${tuitionPaid ? '#10b981' : '#ef4444'}; color: white; padding: 4px 9px; border-radius: 6px; font-size: 0.74rem; font-weight: 800; white-space: nowrap; display: inline-block; box-shadow: 0 2px 6px ${tuitionPaid ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'};">
                             ${tuitionPaid ? '수강료 완납' : '수강료 미납'}
                         </span>
                     </td>
-                    <td>
-                        <span style="background: ${textbookPaid ? '#10b981' : '#ef4444'}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.72rem; font-weight: 800;">
+                    <td style="text-align: center; white-space: nowrap;">
+                        <span style="background: ${textbookPaid ? '#10b981' : '#ef4444'}; color: white; padding: 4px 9px; border-radius: 6px; font-size: 0.74rem; font-weight: 800; white-space: nowrap; display: inline-block; box-shadow: 0 2px 6px ${textbookPaid ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'};">
                             ${textbookPaid ? '교재비 완납' : '교재비 미납'}
                         </span>
                     </td>
                     <td style="text-align: center; white-space: nowrap;">
-                        <button onclick="togglePaymentStatus(${s.id}, 'tuition', ${!tuitionPaid})" class="btn" style="padding: 4px 8px; font-size: 0.72rem; margin-right: 4px; font-weight: 800; background: ${tuitionPaid ? 'rgba(239,68,68,0.2)' : 'linear-gradient(135deg,#10b981,#059669)'}; color: ${tuitionPaid ? '#f87171' : '#ffffff'}; border: 1px solid ${tuitionPaid ? '#ef4444' : '#10b981'};">
+                        <button onclick="togglePaymentStatus(${s.id}, 'tuition', ${!tuitionPaid})" class="btn" style="padding: 5px 9px; font-size: 0.72rem; margin-right: 4px; font-weight: 800; background: ${tuitionPaid ? 'rgba(239,68,68,0.2)' : 'linear-gradient(135deg,#10b981,#059669)'}; color: ${tuitionPaid ? '#f87171' : '#ffffff'}; border: 1px solid ${tuitionPaid ? '#ef4444' : '#10b981'}; border-radius: 6px; white-space: nowrap;">
                             ${tuitionPaid ? '미납 전환' : '수강료 완납'}
                         </button>
-                        <button onclick="togglePaymentStatus(${s.id}, 'textbook', ${!textbookPaid})" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.72rem; font-weight: 800; color: ${textbookPaid ? '#f87171' : '#c084fc'}; border: 1px solid ${textbookPaid ? '#ef4444' : '#a855f7'};">
+                        <button onclick="togglePaymentStatus(${s.id}, 'textbook', ${!textbookPaid})" class="btn btn-secondary" style="padding: 5px 9px; font-size: 0.72rem; font-weight: 800; color: ${textbookPaid ? '#f87171' : '#c084fc'}; border: 1px solid ${textbookPaid ? '#ef4444' : '#a855f7'}; border-radius: 6px; white-space: nowrap;">
                             ${textbookPaid ? '미납 전환' : '교재비 완납'}
                         </button>
                     </td>
