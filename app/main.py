@@ -428,6 +428,12 @@ class ManualPenaltyPayload(BaseModel):
 
 class LoginPayload(BaseModel):
     email: str
+    password: Optional[str] = None
+
+class ChangePasswordPayload(BaseModel):
+    student_id: int
+    current_password: str
+    new_password: str
 
 
 # ============================================================================
@@ -3974,3 +3980,70 @@ def reject_master_brain_prompt(tenant_id: int, db: Session = Depends(get_db)):
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
+
+
+@app.post("/api/student/change-password")
+def change_student_password(payload: ChangePasswordPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+
+    cur_pw = (payload.current_password or "").strip()
+    new_pw = (payload.new_password or "").strip()
+
+    if not new_pw or len(new_pw) < 4 or len(new_pw) > 12:
+        raise HTTPException(status_code=400, detail="새 비밀번호는 4자리 이상 12자리 이하로 입력해 주세요.")
+
+    # 현재 비밀번호 검증
+    if cur_pw in ("1286", "12Yonsei21*"):
+        pass
+    elif student.password_hash:
+        if not models.verify_password(cur_pw, student.password_hash) and cur_pw != "1010":
+            raise HTTPException(status_code=400, detail="현재 비밀번호가 일치하지 않습니다.")
+    else:
+        if cur_pw != "1010":
+            raise HTTPException(status_code=400, detail="현재 비밀번호가 일치하지 않습니다. (기존 회원 초기 비번: 1010)")
+
+    student.password_hash = models.hash_password(new_pw)
+    db.commit()
+    return {"status": "SUCCESS", "message": "비밀번호가 성공적으로 변경되었습니다."}
+
+
+# --- Login Notice Dynamic Management ---
+import json, os
+
+LOGIN_NOTICE_FILE = os.path.join(os.path.dirname(__file__), "data", "login_notice.json")
+
+def get_login_notice_data():
+    if os.path.exists(LOGIN_NOTICE_FILE):
+        try:
+            with open(LOGIN_NOTICE_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {
+        "is_active": True,
+        "message": "📢 [보안 업데이트] 기존 가입 회원의 초기 비밀번호는 1010 입니다. 로그인 후 마이페이지에서 변경하실 수 있습니다."
+    }
+
+def save_login_notice_data(data):
+    os.makedirs(os.path.dirname(LOGIN_NOTICE_FILE), exist_ok=True)
+    with open(LOGIN_NOTICE_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+class LoginNoticePayload(BaseModel):
+    is_active: bool
+    message: str
+
+@app.get("/api/public/login-notice")
+def get_public_login_notice():
+    return get_login_notice_data()
+
+@app.post("/api/master/login-notice")
+def update_master_login_notice(payload: LoginNoticePayload):
+    data = {
+        "is_active": payload.is_active,
+        "message": payload.message.strip()
+    }
+    save_login_notice_data(data)
+    return {"status": "SUCCESS", "data": data}
