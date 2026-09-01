@@ -6,7 +6,7 @@
     <title>PALIN OS - B2B 학원장 통합 관제실 (Director Cockpit)</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=2500.0">
+    <link rel="stylesheet" href="css/style.css?v=2800.0">
     <style>
         :root {
             --bg-color: #08090d;
@@ -417,17 +417,34 @@
                             <span>📅 원장 전용 개인 스케줄러</span>
                         </div>
                     </div>
-                    <form onsubmit="handleCreateSchedule(event)" class="grid-sched-form" style="margin-bottom: 14px;">
-                        <select id="sched-category" class="form-input" style="font-weight: 700;">
-                            <option value="교재주문">📦 교재 주문</option>
-                            <option value="입시설명회">🎤 입시설명회</option>
-                            <option value="모의고사마감">📝 모의고사 마감</option>
-                            <option value="행정일반">📋 행정 일반</option>
-                        </select>
-                        <input type="date" id="sched-date" required class="form-input">
-                        <input type="text" id="sched-title" placeholder="일정 제목 (예: 6모 교재 발주)" required class="form-input">
-                        <input type="text" id="sched-week-label" placeholder="예: 3주차" value="3주차" class="form-input" style="text-align: center; font-weight: 800;">
-                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; padding: 10px 16px; color: white; width: 100%;">+ 등록</button>
+                    <form onsubmit="handleCreateSchedule(event)" style="margin-bottom: 18px; background: rgba(0,0,0,0.25); padding: 14px; border-radius: 12px; border: 1px solid rgba(99, 102, 241, 0.2);">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 10px;">
+                            <div>
+                                <label style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">📂 일정 구분</label>
+                                <select id="sched-category" class="form-input" style="font-weight: 700; height: 42px;">
+                                    <option value="교재주문">📦 교재 주문</option>
+                                    <option value="입시설명회">🎤 입시설명회</option>
+                                    <option value="모의고사마감">📝 모의고사 마감</option>
+                                    <option value="행정일반">📋 행정 일반</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">📅 일정 날짜 선택</label>
+                                <input type="date" id="sched-date" required class="form-input" style="color-scheme: dark; font-weight: 700; height: 42px; width: 100%; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">📌 주차 라벨</label>
+                                <input type="text" id="sched-week-label" placeholder="예: 3주차" value="3주차" class="form-input" style="text-align: center; font-weight: 800; height: 42px; width: 100%; box-sizing: border-box;">
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 200px;">
+                                <input type="text" id="sched-title" placeholder="일정 제목 (예: 6모 교재 발주 및 수강생 명단 마감)" required class="form-input" style="height: 42px; width: 100%; box-sizing: border-box;">
+                            </div>
+                            <button type="submit" class="btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; padding: 10px 24px; color: white; border-radius: 8px; height: 42px; white-space: nowrap; flex-shrink: 0; cursor: pointer; box-shadow: 0 4px 12px rgba(99,102,241,0.3);">
+                                + 일정 등록
+                            </button>
+                        </div>
                     </form>
                     <div id="admin-schedules-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto;"></div>
                 </div>
@@ -1050,7 +1067,20 @@
             } catch(e) { alert("서버 통신 오류"); }
         }
 
+        
+        function initSchedulerDate() {
+            const dInput = document.getElementById("sched-date");
+            if (dInput && !dInput.value) {
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                dInput.value = `${yyyy}-${mm}-${dd}`;
+            }
+        }
+
         async function loadAdminSchedules() {
+            initSchedulerDate();
             const container = document.getElementById("admin-schedules-list");
             if (!container) return;
             try {
