@@ -3158,6 +3158,71 @@ class AssignVodPayload(BaseModel):
     vod_title: str
     vimeo_video_id: str
 
+
+class VodLibraryPayload(BaseModel):
+    title: str
+    video_url: str
+    password: Optional[str] = None
+    category: str = "\uc218\ud559"
+    description: Optional[str] = None
+    target_audience: str = "ALL"
+
+@app.get("/api/vod/library")
+def get_vod_library(db: Session = Depends(get_db)):
+    try:
+        items = db.query(models.VodLibrary).order_by(models.VodLibrary.id.desc()).all()
+        if not items:
+            default_items = [
+                models.VodLibrary(
+                    title="\u3010\uace03 9\ubaa8 \ub300\ube44\u3011 \ubbf8\uc801\ubd84 \ud0ac\ub7ec 30\ubc88 \ubb38\ud56d 3\ucd08 \ud480\uc774 \ud2b9\uac15",
+                    video_url="https://player.vimeo.com/video/76979871",
+                    password="passmate2026",
+                    category="\uc218\ud559",
+                    description="9\uc6d4 \ubaa8\uc758\ud3c9\uac00 \ub300\ube44 \ubbf8\uc801\ubd84 \ucd5c\uace0\ub09c\ub3c4 \uc900\ud0ac\ub7ec/\ud0ac\ub7ec \ubb38\ud56d \ubd84\uc11d \ubc0f \uc2e4\uc804 \ud480\uc774\ubc95 \ud2b9\uac15\uc785\ub2c8\ub2e4.",
+                    target_audience="ALL"
+                ),
+                models.VodLibrary(
+                    title="\u3010\uc218\ub2a5 \uad6d\uc5b4\u3011 \ub3c5\uc11c \uc778\ubb38/\ucca0\ud559 \uc9c0\ubb38 3\ud68c\ub3c5 \uad6c\uc870 \ub3c5\ud574\ubc95",
+                    video_url="https://player.vimeo.com/video/76979871",
+                    password="",
+                    category="\uad6d\uc5b4",
+                    description="\uc218\ub2a5 \uad6d\uc5b4 \ube44\ubb38\ud559 \ucca0\ud559 \uc9c0\ubb38\uc758 \uc804\uac1c \ud328\ud134\uacfc \uc2dc\uac04 \ub2e8\ucd95 \ub3c5\ud574 \ube44\ubc95 \uac15\uc758\uc785\ub2c8\ub2e4.",
+                    target_audience="ALL"
+                )
+            ]
+            for it in default_items:
+                db.add(it)
+            db.commit()
+            items = db.query(models.VodLibrary).order_by(models.VodLibrary.id.desc()).all()
+        return items
+    except Exception as e:
+        return []
+
+@app.post("/api/vod/library")
+def add_vod_library(payload: VodLibraryPayload, db: Session = Depends(get_db)):
+    item = models.VodLibrary(
+        title=payload.title,
+        video_url=payload.video_url,
+        password=payload.password or "",
+        category=payload.category,
+        description=payload.description or "",
+        target_audience=payload.target_audience
+    )
+    db.add(item)
+    db.commit()
+    db.refresh(item)
+    return {"status": "success", "item": item}
+
+@app.delete("/api/vod/library/{item_id}")
+def delete_vod_library(item_id: int, db: Session = Depends(get_db)):
+    item = db.query(models.VodLibrary).filter(models.VodLibrary.id == item_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="\ud574\ub2f9 VOD\ub97c \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.")
+    db.delete(item)
+    db.commit()
+    return {"status": "success", "message": "VOD\uac00 \uc0ad\uc81c\ub418\uc5c8\uc2b5\ub2c8\ub2e4."}
+
+
 @app.post("/api/admin/vod/assign")
 def assign_vod(payload: AssignVodPayload, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()

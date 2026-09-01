@@ -528,6 +528,21 @@ class SurveyResponse(Base):
     survey = relationship("DiagnosticSurvey")
 
 
+
+class VodLibrary(Base):
+    """학원 VOD 동영상 강좌 라이브러리 (원장 등록 & 전 원생 공유)"""
+    __tablename__ = "vod_library"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    video_url = Column(String, nullable=False)
+    password = Column(String, nullable=True) # 비공개 비밀번호 (선택)
+    category = Column(String, default="수학") # 수학 | 국어 | 영어 | 탐구 | 입시설명회 | 특강
+    description = Column(Text, nullable=True)
+    target_audience = Column(String, default="ALL")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
 class VodAssignment(Base):
     """Vimeo VOD 시청 권한, 7일 락 & 안티치트 감시"""
     __tablename__ = "vod_assignments"
