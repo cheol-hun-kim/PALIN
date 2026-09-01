@@ -6483,57 +6483,110 @@ function switchHubSubTab(subTab) {
 }
 
 async function loadStudentVods() {
-    if (!currentStudent || !currentStudent.id) return;
     const container = document.getElementById("hub-vod-list-container");
     if (!container) return;
-    
+
+    let libraryHtml = '';
+    let assignedHtml = '';
+
+    // 1. 학원 VOD 라이브러리 로드
     try {
-        const res = await fetch(`/api/vod/list/${currentStudent.id}`);
-        if (!res.ok) {
-            container.innerHTML = '<div style="color: var(--text-secondary); font-size: 0.8rem; text-align: center; padding: 12px;">배정된 복습 VOD가 없습니다.</div>';
-            return;
-        }
-        const vods = await res.json();
-        if (vods.length === 0) {
-            container.innerHTML = `
-                <div style="background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15); border-radius: 12px; padding: 20px; text-align: center;">
-                    <span class="material-symbols-rounded" style="font-size: 2rem; color: #818cf8; margin-bottom: 6px;">video_library</span>
-                    <div style="font-size: 0.88rem; font-weight: 700; color: #ffffff;">현재 배정된 복습 VOD가 없습니다.</div>
-                    <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 4px;">[행정/휴강신청] 탭에서 복습 VOD를 신청하시면 원장님 승인 후 7일간 시청 권한이 부여됩니다.</div>
-                </div>
-            `;
-            return;
-        }
-        
-        container.innerHTML = vods.map(v => {
-            const isExpired = v.is_expired;
-            return `
-                <div style="background: rgba(255,255,255,0.04); border: 1px solid ${isExpired ? '#ef4444' : 'rgba(99,102,241,0.3)'}; border-radius: 12px; padding: 14px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <div style="font-weight: 800; font-size: 0.9rem; color: #ffffff;">🎬 ${v.vod_title}</div>
-                        <span style="background: ${isExpired ? '#ef4444' : '#6366f1'}; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 800;">
-                            ${isExpired ? '🔒 기한 만료' : `⏳ 남은 시간: ${v.remaining_hours}시간`}
-                        </span>
-                    </div>
-                    
-                    ${!isExpired ? `
-                        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin-bottom: 10px; background: #000;">
-                            <iframe src="https://player.vimeo.com/video/${v.vimeo_video_id}" style="position: absolute; top:0; left: 0; width: 100%; height: 100%;" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+        const libRes = await fetch("/api/vod/library");
+        if (libRes.ok) {
+            const libList = await libRes.json();
+            if (libList && libList.length > 0) {
+                libraryHtml = `
+                    <div style="margin-bottom: 18px;">
+                        <div style="font-size: 0.88rem; font-weight: 800; color: #c084fc; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                            <span class="material-symbols-rounded" style="font-size: 1.1rem;">video_library</span>
+                            <span>📺 학원 공식 VOD 강좌 / 복습 영상관</span>
                         </div>
-                    ` : `
-                        <div style="background: rgba(239,68,68,0.1); padding: 12px; border-radius: 8px; text-align: center; font-size: 0.78rem; color: #f87171; margin-bottom: 10px;">
-                            7일 시청 기한이 종료되었습니다. 시청 연장이 필요하신 경우 [행정 요청] 탭에서 연장을 신청하세요.
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            ${libList.map(item => `
+                                <div style="background: rgba(168,85,247,0.06); border: 1.5px solid rgba(168,85,247,0.3); border-radius: 12px; padding: 14px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px;">
+                                        <div>
+                                            <span style="font-size: 0.7rem; background: rgba(168,85,247,0.25); color: #c084fc; padding: 2px 8px; border-radius: 4px; font-weight: 800; margin-right: 4px;">${item.category || '특강'}</span>
+                                            <span style="font-weight: 800; font-size: 0.92rem; color: #ffffff;">${item.title}</span>
+                                        </div>
+                                    </div>
+                                    ${item.description ? `<div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 10px;">${item.description}</div>` : ''}
+                                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 8px;">
+                                        <div>
+                                            ${item.password ? `<span style="font-size: 0.75rem; color: #fbbf24; background: rgba(245,158,11,0.15); padding: 3px 8px; border-radius: 6px; font-weight: 800;">🔑 시청 비번: <b>${item.password}</b></span>` : '<span style="font-size: 0.75rem; color: #34d399; font-weight: 700;">🔓 전체 공개 영상</span>'}
+                                        </div>
+                                        <a href="${item.video_url}" target="_blank" class="btn" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #a855f7, #7e22ce); color: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                            ▶️ 영상 시청하기
+                                        </a>
+                                    </div>
+                                </div>
+                            `).join('')}
                         </div>
-                    `}
-                    
-                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.76rem; color: var(--text-secondary);">
-                        <div>진도율: <strong style="color: #34d399;">${v.watch_progress_pct}%</strong> ${v.is_completed ? '✅ 수강 완료' : ''}</div>
-                        <div>과제 상태: <strong style="color: ${v.is_homework_verified ? '#10b981' : '#f59e0b'};">${v.is_homework_verified ? '검수 완료' : (v.is_homework_submitted ? '제출 완료 (검수중)' : '미제출')}</strong></div>
                     </div>
-                </div>
-            `;
-        }).join('');
-    } catch(e) { console.error("loadStudentVods error:", e); }
+                `;
+            }
+        }
+    } catch(e) { console.error("loadVodLibrary error:", e); }
+
+    // 2. 1:1 맞춤 배정 VOD 로드
+    if (currentStudent && currentStudent.id) {
+        try {
+            const res = await fetch(`/api/vod/list/${currentStudent.id}`);
+            if (res.ok) {
+                const vods = await res.json();
+                if (vods && vods.length > 0) {
+                    assignedHtml = `
+                        <div style="margin-bottom: 14px;">
+                            <div style="font-size: 0.88rem; font-weight: 800; color: #818cf8; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                                <span class="material-symbols-rounded" style="font-size: 1.1rem;">assignment</span>
+                                <span>🎬 나에게 배정된 1:1 맞춤 VOD (7일 락)</span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                ${vods.map(v => {
+                                    const isExpired = v.is_expired;
+                                    return `
+                                        <div style="background: rgba(255,255,255,0.04); border: 1px solid ${isExpired ? '#ef4444' : 'rgba(99,102,241,0.3)'}; border-radius: 12px; padding: 14px;">
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                                <div style="font-weight: 800; font-size: 0.9rem; color: #ffffff;">🎬 ${v.vod_title}</div>
+                                                <span style="background: ${isExpired ? '#ef4444' : '#6366f1'}; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 800;">
+                                                    ${isExpired ? '🔒 기한 만료' : `⏳ 남은 시간: ${v.remaining_hours}시간`}
+                                                </span>
+                                            </div>
+                                            ${!isExpired ? `
+                                                <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin-bottom: 10px; background: #000;">
+                                                    <iframe src="https://player.vimeo.com/video/${v.vimeo_video_id}" style="position: absolute; top:0; left: 0; width: 100%; height: 100%;" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                                                </div>
+                                            ` : `
+                                                <div style="background: rgba(239,68,68,0.1); padding: 12px; border-radius: 8px; text-align: center; font-size: 0.78rem; color: #f87171; margin-bottom: 10px;">
+                                                    7일 시청 기한이 종료되었습니다. 시청 연장이 필요하신 경우 [행정 요청] 탭에서 연장을 신청하세요.
+                                                </div>
+                                            `}
+                                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.76rem; color: var(--text-secondary);">
+                                                <div>진도율: <strong style="color: #34d399;">${v.watch_progress_pct}%</strong> ${v.is_completed ? '✅ 수강 완료' : ''}</div>
+                                                <div>과제 상태: <strong style="color: ${v.is_homework_verified ? '#10b981' : '#f59e0b'};">${v.is_homework_verified ? '검수 완료' : (v.is_homework_submitted ? '제출 완료 (검수중)' : '미제출')}</strong></div>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        } catch(e) {}
+    }
+
+    if (!libraryHtml && !assignedHtml) {
+        container.innerHTML = `
+            <div style="background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15); border-radius: 12px; padding: 24px; text-align: center;">
+                <span class="material-symbols-rounded" style="font-size: 2rem; color: #818cf8; margin-bottom: 6px;">video_library</span>
+                <div style="font-size: 0.88rem; font-weight: 700; color: #ffffff;">현재 등록된 VOD 강좌가 없습니다.</div>
+                <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 4px;">원장님이 강의 영상을 업로드하거나 배정하면 이곳에서 시청하실 수 있습니다.</div>
+            </div>
+        `;
+    } else {
+        container.innerHTML = libraryHtml + assignedHtml;
+    }
 }
 
 async function loadStudentExamHistory() {

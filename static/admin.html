@@ -6,7 +6,7 @@
     <title>PALIN OS - B2B 학원장 통합 관제실 (Director Cockpit)</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=2800.0">
+    <link rel="stylesheet" href="css/style.css?v=3000.0">
     <style>
         :root {
             --bg-color: #08090d;
@@ -417,11 +417,11 @@
                             <span>📅 원장 전용 개인 스케줄러</span>
                         </div>
                     </div>
-                    <form onsubmit="handleCreateSchedule(event)" style="margin-bottom: 18px; background: rgba(0,0,0,0.25); padding: 14px; border-radius: 12px; border: 1px solid rgba(99, 102, 241, 0.2);">
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 10px;">
+                    <form onsubmit="handleCreateSchedule(event)" style="margin-bottom: 18px; background: rgba(0,0,0,0.3); padding: 14px; border-radius: 12px; border: 1px solid rgba(99, 102, 241, 0.3); box-sizing: border-box; width: 100%;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
                             <div>
                                 <label style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">📂 일정 구분</label>
-                                <select id="sched-category" class="form-input" style="font-weight: 700; height: 42px;">
+                                <select id="sched-category" class="form-input" style="font-weight: 700; height: 42px; width: 100%; box-sizing: border-box;">
                                     <option value="교재주문">📦 교재 주문</option>
                                     <option value="입시설명회">🎤 입시설명회</option>
                                     <option value="모의고사마감">📝 모의고사 마감</option>
@@ -429,22 +429,21 @@
                                 </select>
                             </div>
                             <div>
-                                <label style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">📅 일정 날짜 선택</label>
-                                <input type="date" id="sched-date" required class="form-input" style="color-scheme: dark; font-weight: 700; height: 42px; width: 100%; box-sizing: border-box;">
-                            </div>
-                            <div>
                                 <label style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">📌 주차 라벨</label>
                                 <input type="text" id="sched-week-label" placeholder="예: 3주차" value="3주차" class="form-input" style="text-align: center; font-weight: 800; height: 42px; width: 100%; box-sizing: border-box;">
                             </div>
                         </div>
-                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                            <div style="flex: 1; min-width: 200px;">
-                                <input type="text" id="sched-title" placeholder="일정 제목 (예: 6모 교재 발주 및 수강생 명단 마감)" required class="form-input" style="height: 42px; width: 100%; box-sizing: border-box;">
-                            </div>
-                            <button type="submit" class="btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; padding: 10px 24px; color: white; border-radius: 8px; height: 42px; white-space: nowrap; flex-shrink: 0; cursor: pointer; box-shadow: 0 4px 12px rgba(99,102,241,0.3);">
-                                + 일정 등록
-                            </button>
+                        <div style="margin-bottom: 10px;">
+                            <label style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">📅 일정 날짜 선택</label>
+                            <input type="date" id="sched-date" required class="form-input" style="color-scheme: dark !important; font-weight: 700; height: 42px; width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.08); color: #ffffff !important; padding: 8px 12px; border-radius: 8px;">
                         </div>
+                        <div style="margin-bottom: 10px;">
+                            <label style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">📝 일정 제목</label>
+                            <input type="text" id="sched-title" placeholder="일정 제목 (예: 6모 교재 발주 및 수강생 명단 마감)" required class="form-input" style="height: 42px; width: 100%; box-sizing: border-box;">
+                        </div>
+                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; padding: 12px; font-size: 0.92rem; color: white; border-radius: 8px; width: 100%; box-sizing: border-box; cursor: pointer; box-shadow: 0 4px 12px rgba(99,102,241,0.35);">
+                            + 일정 등록
+                        </button>
                     </form>
                     <div id="admin-schedules-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto;"></div>
                 </div>
@@ -576,8 +575,60 @@
                     </form>
                 </div>
 
+                <!-- 1. 학원 VOD 동영상 강의 / 복습 링크 등록 & 게시판 -->
                 <div class="kpi-card" style="border: 1.5px solid rgba(168, 85, 247, 0.4); margin-bottom: 16px;">
-                    <div class="section-title" style="color: #c084fc;">
+                    <div class="section-title" style="color: #c084fc; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span class="material-symbols-rounded">video_library</span>
+                            <span>🎬 학원 VOD 동영상 강좌 / 복습 링크 등록 & 게시판</span>
+                        </div>
+                        <button type="button" onclick="loadAdminVodLibrary()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.72rem;">🔄 갱신</button>
+                    </div>
+                    <form onsubmit="handleCreateVodLibrary(event)" style="display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.25); padding: 14px; border-radius: 12px; border: 1px solid rgba(168,85,247,0.2); margin-bottom: 14px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <div>
+                                <label style="font-size: 0.75rem; color: #c084fc; font-weight: 800; display: block; margin-bottom: 4px;">📂 강의 과목 / 구분</label>
+                                <select id="vod-lib-category" class="form-input" style="font-weight: 700; height: 42px; width: 100%; box-sizing: border-box;">
+                                    <option value="수학">📐 수학 특강/복습</option>
+                                    <option value="국어">📖 국어 특강/해설</option>
+                                    <option value="영어">🔤 영어 독해/어법</option>
+                                    <option value="탐구">🔬 탐구영역 특강</option>
+                                    <option value="입시">🎤 입시설명회 / 전략</option>
+                                    <option value="기타">💡 일반 학사 공지 영상</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; color: #c084fc; font-weight: 800; display: block; margin-bottom: 4px;">🔑 시청 비밀번호 (선택)</label>
+                                <input type="text" id="vod-lib-password" placeholder="예: 2026math (공란 시 공개)" class="form-input" style="height: 42px; width: 100%; box-sizing: border-box;">
+                            </div>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.75rem; color: #c084fc; font-weight: 800; display: block; margin-bottom: 4px;">🎬 강의 제목</label>
+                            <input type="text" id="vod-lib-title" placeholder="예: [고3 9모 대비] 미적분 킬러 30번 문항 3초 풀이 특강" required class="form-input" style="height: 42px; width: 100%; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.75rem; color: #c084fc; font-weight: 800; display: block; margin-bottom: 4px;">🔗 동영상 링크 URL (YouTube, Vimeo, 구글 드라이브 등)</label>
+                            <input type="url" id="vod-lib-url" placeholder="예: https://youtu.be/... 또는 https://player.vimeo.com/video/..." required class="form-input" style="height: 42px; width: 100%; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.75rem; color: #c084fc; font-weight: 800; display: block; margin-bottom: 4px;">📝 강의 설명 & 학습 가이드</label>
+                            <textarea id="vod-lib-desc" placeholder="강의 핵심 내용 및 첨부 교재/오답 가이드를 입력하세요..." class="form-input" style="height: 60px; width: 100%; box-sizing: border-box;"></textarea>
+                        </div>
+                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #a855f7, #7e22ce); font-weight: 800; padding: 12px; font-size: 0.92rem; color: white; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(168,85,247,0.35);">
+                            + VOD 강좌 라이브러리 등록 및 전 원생 배포
+                        </button>
+                    </form>
+
+                    <!-- 현재 등록된 VOD 목록 -->
+                    <div style="font-size: 0.82rem; font-weight: 800; color: #f8fafc; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">
+                        <span>📋 현재 배포 중인 VOD 라이브러리 목록</span>
+                    </div>
+                    <div id="admin-vod-library-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto;"></div>
+                </div>
+
+                <!-- 2. 학생별 1:1 맞춤 복습 VOD 배정기 (7일 락) -->
+                <div class="kpi-card" style="border: 1.5px solid rgba(99, 102, 241, 0.4); margin-bottom: 16px;">
+                    <div class="section-title" style="color: #818cf8;">
                         <span class="material-symbols-rounded">play_circle</span>
                         <span>🎬 학생별 1:1 맞춤 복습 VOD 배정기 (7일 락)</span>
                     </div>
@@ -585,7 +636,7 @@
                         <input type="number" id="vod-student-id" placeholder="학생 ID (#)" required class="form-input">
                         <input type="text" id="vod-video-id" placeholder="Vimeo/영상 ID" required class="form-input">
                         <input type="text" id="vod-title" placeholder="강의 제목" required class="form-input">
-                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #a855f7, #7e22ce); font-weight: 800; padding: 9px 16px; color: white; width: 100%;">VOD 배정</button>
+                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; padding: 9px 16px; color: white; width: 100%;">1:1 배정</button>
                     </form>
                 </div>
 
@@ -1354,6 +1405,81 @@ ${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; font-we
                     document.getElementById("feed-content").value = "";
                 }
             } catch(e) {}
+        }
+
+        
+        async function loadAdminVodLibrary() {
+            const container = document.getElementById("admin-vod-library-list");
+            if (!container) return;
+            try {
+                const res = await fetch("/api/vod/library");
+                if (!res.ok) return;
+                const list = await res.json();
+                if (list.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.8rem; padding:12px;">등록된 VOD 강의가 없습니다.</div>';
+                    return;
+                }
+                container.innerHTML = list.map(v => `
+                    <div style="background: rgba(0,0,0,0.35); padding: 10px 12px; border-radius: 10px; border-left: 4px solid #a855f7; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                        <div style="flex: 1; min-width: 200px;">
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                                <span style="font-size: 0.7rem; background: rgba(168,85,247,0.25); color: #c084fc; padding: 2px 6px; border-radius: 4px; font-weight: 800;">${v.category || '강의'}</span>
+                                <span style="font-weight: 800; font-size: 0.88rem; color: #ffffff;">${v.title}</span>
+                            </div>
+                            <div style="font-size: 0.74rem; color: #94a3b8; line-height: 1.3;">
+                                ${v.description || '강의 설명 없음'}
+                            </div>
+                            <div style="margin-top: 4px; display: flex; align-items: center; gap: 8px; font-size: 0.72rem;">
+                                ${v.password ? `<span style="color: #fbbf24; background: rgba(245,158,11,0.15); padding: 1px 6px; border-radius: 4px;">🔑 비번: <b>${v.password}</b></span>` : '<span style="color: #34d399;">🔓 공개 영상</span>'}
+                                <a href="${v.video_url}" target="_blank" style="color: #818cf8; text-decoration: underline;">▶️ 링크 열기</a>
+                            </div>
+                        </div>
+                        <button onclick="handleDeleteVodLibrary(${v.id})" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.72rem; color: #f87171; border-color: rgba(239,68,68,0.4);">
+                            🗑️ 삭제
+                        </button>
+                    </div>
+                `).join('');
+            } catch(e) {}
+        }
+
+        async function handleCreateVodLibrary(e) {
+            e.preventDefault();
+            const cat = document.getElementById("vod-lib-category").value;
+            const pw = document.getElementById("vod-lib-password").value.trim();
+            const title = document.getElementById("vod-lib-title").value.trim();
+            const url = document.getElementById("vod-lib-url").value.trim();
+            const desc = document.getElementById("vod-lib-desc").value.trim();
+            try {
+                const res = await fetch("/api/vod/library", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ category: cat, password: pw, title: title, video_url: url, description: desc, target_audience: "ALL" })
+                });
+                if (res.ok) {
+                    alert("✅ VOD 강좌가 등록 및 배포되었습니다!");
+                    document.getElementById("vod-lib-title").value = "";
+                    document.getElementById("vod-lib-url").value = "";
+                    document.getElementById("vod-lib-password").value = "";
+                    document.getElementById("vod-lib-desc").value = "";
+                    loadAdminVodLibrary();
+                } else {
+                    const err = await res.json();
+                    alert(err.detail || "VOD 등록 실패");
+                }
+            } catch(e) { alert("VOD 등록 중 오류 발생"); }
+        }
+
+        async function handleDeleteVodLibrary(id) {
+            if (!confirm("정말 이 VOD 강좌를 삭제하시겠습니까?")) return;
+            try {
+                const res = await fetch(`/api/vod/library/${id}`, { method: "DELETE" });
+                if (res.ok) {
+                    alert("✅ VOD가 삭제되었습니다.");
+                    loadAdminVodLibrary();
+                } else {
+                    alert("삭제 실패");
+                }
+            } catch(e) { alert("삭제 오류"); }
         }
 
         async function handleAssignVod(e) {
