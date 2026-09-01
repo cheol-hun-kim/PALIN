@@ -30,7 +30,7 @@
     </script>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=2100.0">
+    <link rel="stylesheet" href="css/style.css?v=2300.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -135,17 +135,6 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 </style>
 </head>
 <body>
-    
-        <div style="display: flex; gap: 6px;">
-            <button type="button" onclick="window.open('/admin.html', '_blank')" style="background: linear-gradient(135deg, rgba(245,158,11,0.25), rgba(217,119,6,0.35)); color: #fde68a; border: 1.5px solid #f59e0b; padding: 6px 12px; border-radius: 16px; font-weight: 800; font-size: 0.76rem; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 10px rgba(245,158,11,0.25);">
-                <span>🏛️</span> <span>원장 관제실</span>
-            </button>
-            <button type="button" onclick="window.open('/master.html', '_blank')" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #000000; border: none; padding: 6px 12px; border-radius: 16px; font-weight: 900; font-size: 0.76rem; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 10px rgba(245,158,11,0.4);">
-                <span>👑</span> <span>마스터 콘솔</span>
-            </button>
-        </div>
-    </div>
-
 
     <div class="mobile-frame">
         
@@ -396,6 +385,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             </div>
                             <input type="text" id="parent-login-email" class="auth-input" placeholder="학부모 이메일 또는 휴대폰 번호" required>
                             <input type="password" id="parent-login-password" class="auth-input" placeholder="비밀번호" required>
+                            <div id="dynamic-login-notice-parent" style="display: none; font-size: 0.72rem; color: #34d399; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.35; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); border-radius: 8px; padding: 6px 10px;"></div>
                             <button type="submit" class="auth-submit-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 4px 16px rgba(16,185,129,0.4);">
                                 학부모 로그인
                             </button>
@@ -420,6 +410,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 <label style="font-size: 0.75rem; color: #a7f3d0; font-weight: 800; display: block; margin-bottom: 4px;">자녀 고유 초대코드 (학생증 또는 마이페이지에 표시)</label>
                                 <input type="text" id="parent-reg-invite-code" class="auth-input" placeholder="예: P-0001-A9F2 또는 자녀 휴대폰번호" required style="font-weight: 800; text-transform: uppercase; margin-bottom: 0 !important;">
                             </div>
+                            <div id="dynamic-login-notice-parent" style="display: none; font-size: 0.72rem; color: #34d399; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.35; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); border-radius: 8px; padding: 6px 10px;"></div>
                             <button type="submit" class="auth-submit-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 4px 16px rgba(16,185,129,0.4);">
                                 가입 및 자녀 연결
                             </button>
@@ -435,6 +426,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             </div>
                             <input type="text" id="dir-login-email" class="auth-input" placeholder="원장 이메일 또는 가맹 학원 코드" required>
                             <input type="password" id="dir-login-password" class="auth-input" placeholder="관제실 보안 비밀번호 / PIN" required>
+                            <div id="dynamic-login-notice-director" style="display: none; font-size: 0.72rem; color: #fbbf24; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.35; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); border-radius: 8px; padding: 6px 10px;"></div>
                             <button type="submit" class="auth-submit-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #000000; font-weight: 900; box-shadow: 0 4px 16px rgba(245,158,11,0.4);">
                                 🔐 학원장 관제실 접속
                             </button>
@@ -2641,7 +2633,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app.js?v=2100.0"></script>
+    <script src="js/app.js?v=2300.0"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소
@@ -2666,25 +2658,52 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
 
 
+
+
+
 <script>
-async function loadDynamicLoginNotice() {
+async function loadDynamicLoginNotices() {
     try {
-        const res = await fetch("/api/public/login-notice");
+        const res = await fetch("/api/public/role-login-notices");
         if (res.ok) {
             const data = await res.json();
-            const box = document.getElementById("dynamic-login-notice-box");
-            if (box) {
-                if (data.is_active && data.message) {
-                    box.innerHTML = data.message;
-                    box.style.display = "block";
+            
+            // 1. Student Notice
+            const stBox = document.getElementById("dynamic-login-notice-student");
+            if (stBox) {
+                if (data.student && data.student.is_active && data.student.message) {
+                    stBox.innerHTML = data.student.message;
+                    stBox.style.display = "block";
                 } else {
-                    box.style.display = "none";
+                    stBox.style.display = "none";
+                }
+            }
+
+            // 2. Parent Notice
+            const paBox = document.getElementById("dynamic-login-notice-parent");
+            if (paBox) {
+                if (data.parent && data.parent.is_active && data.parent.message) {
+                    paBox.innerHTML = data.parent.message;
+                    paBox.style.display = "block";
+                } else {
+                    paBox.style.display = "none";
+                }
+            }
+
+            // 3. Director Notice
+            const dirBox = document.getElementById("dynamic-login-notice-director");
+            if (dirBox) {
+                if (data.director && data.director.is_active && data.director.message) {
+                    dirBox.innerHTML = data.director.message;
+                    dirBox.style.display = "block";
+                } else {
+                    dirBox.style.display = "none";
                 }
             }
         }
     } catch(e) {}
 }
-document.addEventListener("DOMContentLoaded", loadDynamicLoginNotice);
+document.addEventListener("DOMContentLoaded", loadDynamicLoginNotices);
 </script>
 
 </body>
