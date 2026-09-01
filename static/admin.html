@@ -6,7 +6,7 @@
     <title>PALIN OS - B2B 학원장 통합 관제실 (Director Cockpit)</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=3300.0">
+    <link rel="stylesheet" href="css/style.css?v=3400.0">
     <style>
         :root {
             --bg-color: #08090d;
@@ -511,15 +511,25 @@
                         <span>💰 재원생 재무/수납 관리 ERP</span>
                     </div>
 
-                    <!-- 🔍 수납 필터 버튼 바 (모바일 2x2 정갈한 그리드) -->
+                    <!-- 🔍 수납 필터 버튼 바 (통일된 2x2 테마 그리드) -->
                     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px;">
-                        <button type="button" onclick="filterFinanceTable('ALL')" id="btn-fin-filter-all" class="btn" style="padding: 11px 6px; font-size: 0.82rem; font-weight: 800; background: #6366f1; color: white; text-align: center; width: 100%; border-radius: 8px; box-sizing: border-box;">전체 보기</button>
-                        <button type="button" onclick="filterFinanceTable('TUITION_UNPAID')" id="btn-fin-filter-tuition-unpaid" class="btn btn-secondary" style="padding: 11px 6px; font-size: 0.82rem; font-weight: 800; color: #f87171; border-color: rgba(239,68,68,0.4); text-align: center; width: 100%; border-radius: 8px; box-sizing: border-box;">🚨 수강료 미납</button>
-                        <button type="button" onclick="filterFinanceTable('TEXTBOOK_UNPAID')" id="btn-fin-filter-textbook-unpaid" class="btn btn-secondary" style="padding: 11px 6px; font-size: 0.82rem; font-weight: 800; color: #c084fc; border-color: rgba(168,85,247,0.4); text-align: center; width: 100%; border-radius: 8px; box-sizing: border-box;">📦 교재비 미납</button>
-                        <button type="button" onclick="filterFinanceTable('ALL_PAID')" id="btn-fin-filter-all-paid" class="btn btn-secondary" style="padding: 11px 6px; font-size: 0.82rem; font-weight: 800; color: #34d399; border-color: rgba(16,185,129,0.4); text-align: center; width: 100%; border-radius: 8px; box-sizing: border-box;">✨ 전액 완납</button>
+                        <!-- Row 1: 전체 보기 (인디고) & 전액 완납 (골드) -->
+                        <button type="button" onclick="filterFinanceTable('ALL')" id="btn-fin-filter-all" class="btn" style="padding: 11px 6px; font-size: 0.82rem; font-weight: 800; background: #6366f1; color: #ffffff; border: 1.5px solid #6366f1; text-align: center; width: 100%; border-radius: 8px; box-sizing: border-box; cursor: pointer;">
+                            📋 전체 보기
+                        </button>
+                        <button type="button" onclick="filterFinanceTable('ALL_PAID')" id="btn-fin-filter-all-paid" class="btn btn-secondary" style="padding: 11px 6px; font-size: 0.82rem; font-weight: 800; color: #fbbf24; border: 1.5px solid rgba(245,158,11,0.5); background: rgba(245,158,11,0.08); text-align: center; width: 100%; border-radius: 8px; box-sizing: border-box; cursor: pointer;">
+                            ✨ 전액 완납
+                        </button>
+                        <!-- Row 2: 수강료 미납 (에메랄드 그린) & 교재비 미납 (로열 퍼플) -->
+                        <button type="button" onclick="filterFinanceTable('TUITION_UNPAID')" id="btn-fin-filter-tuition-unpaid" class="btn btn-secondary" style="padding: 11px 6px; font-size: 0.82rem; font-weight: 800; color: #34d399; border: 1.5px solid rgba(16,185,129,0.5); background: rgba(16,185,129,0.08); text-align: center; width: 100%; border-radius: 8px; box-sizing: border-box; cursor: pointer;">
+                            🚨 수강료 미납
+                        </button>
+                        <button type="button" onclick="filterFinanceTable('TEXTBOOK_UNPAID')" id="btn-fin-filter-textbook-unpaid" class="btn btn-secondary" style="padding: 11px 6px; font-size: 0.82rem; font-weight: 800; color: #c084fc; border: 1.5px solid rgba(168,85,247,0.5); background: rgba(168,85,247,0.08); text-align: center; width: 100%; border-radius: 8px; box-sizing: border-box; cursor: pointer;">
+                            📦 교재비 미납
+                        </button>
                     </div>
 
-                    <!-- 일괄 수납 처리 액션 바 (구조화된 2x2 액션 카드) -->
+                    <!-- 일괄 수납 처리 액션 바 (상단 필터와 1:1 위치 & 색상 일치 2x2 그리드) -->
                     <div style="background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 12px; margin-bottom: 14px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                             <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 800; color: #f8fafc; cursor: pointer;">
@@ -529,17 +539,19 @@
                             <span style="font-size: 0.72rem; color: #94a3b8;">체크된 학생 1-클릭 일괄 처리</span>
                         </div>
                         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
-                            <button onclick="handleBatchFinanceSubmit('tuition', true)" class="btn" style="padding: 10px 8px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 8px; width: 100%; box-sizing: border-box;">
-                                ✅ 수강료 일괄완납
-                            </button>
-                            <button onclick="handleBatchFinanceSubmit('textbook', true)" class="btn" style="padding: 10px 8px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #a855f7, #7e22ce); color: white; border-radius: 8px; width: 100%; box-sizing: border-box;">
-                                📦 교재비 일괄완납
-                            </button>
-                            <button onclick="handleBatchFinanceSubmit('both', true)" class="btn" style="padding: 10px 8px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border-radius: 8px; width: 100%; box-sizing: border-box;">
+                            <!-- Row 1: 전액 완납 (골드) & 미납 전환 (다크 레드) -->
+                            <button onclick="handleBatchFinanceSubmit('both', true)" class="btn" style="padding: 11px 8px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; border-radius: 8px; width: 100%; box-sizing: border-box; cursor: pointer; box-shadow: 0 2px 8px rgba(245,158,11,0.3);">
                                 ✨ 전액 완납
                             </button>
-                            <button onclick="handleBatchFinanceSubmit('both', false)" class="btn btn-secondary" style="padding: 10px 8px; font-size: 0.75rem; font-weight: 800; color: #f87171; border-color: rgba(239,68,68,0.4); border-radius: 8px; width: 100%; box-sizing: border-box;">
+                            <button onclick="handleBatchFinanceSubmit('both', false)" class="btn btn-secondary" style="padding: 11px 8px; font-size: 0.82rem; font-weight: 800; color: #f87171; border: 1.5px solid rgba(239,68,68,0.5); background: rgba(239,68,68,0.08); border-radius: 8px; width: 100%; box-sizing: border-box; cursor: pointer;">
                                 🔄 미납 전환
+                            </button>
+                            <!-- Row 2: 수강료 일괄완납 (그린) & 교재비 일괄완납 (퍼플) -->
+                            <button onclick="handleBatchFinanceSubmit('tuition', true)" class="btn" style="padding: 11px 8px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border-radius: 8px; width: 100%; box-sizing: border-box; cursor: pointer; box-shadow: 0 2px 8px rgba(16,185,129,0.3);">
+                                ✅ 수강료 일괄완납
+                            </button>
+                            <button onclick="handleBatchFinanceSubmit('textbook', true)" class="btn" style="padding: 11px 8px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #a855f7, #7e22ce); color: #ffffff; border-radius: 8px; width: 100%; box-sizing: border-box; cursor: pointer; box-shadow: 0 2px 8px rgba(168,85,247,0.3);">
+                                📦 교재비 일괄완납
                             </button>
                         </div>
                     </div>
@@ -1264,20 +1276,43 @@ ${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; font-we
 
         function filterFinanceTable(filter) {
             currentFinanceFilter = filter;
-            const filterMap = {
-                'ALL': 'btn-fin-filter-all',
-                'TUITION_UNPAID': 'btn-fin-filter-tuition-unpaid',
-                'TEXTBOOK_UNPAID': 'btn-fin-filter-textbook-unpaid',
-                'ALL_PAID': 'btn-fin-filter-all-paid'
+            const styles = {
+                'ALL': {
+                    id: 'btn-fin-filter-all',
+                    activeBg: '#6366f1', activeColor: '#ffffff',
+                    inactiveBg: 'rgba(99,102,241,0.08)', inactiveColor: '#a5b4fc', border: '1.5px solid rgba(99,102,241,0.5)'
+                },
+                'ALL_PAID': {
+                    id: 'btn-fin-filter-all-paid',
+                    activeBg: 'linear-gradient(135deg, #f59e0b, #d97706)', activeColor: '#ffffff',
+                    inactiveBg: 'rgba(245,158,11,0.08)', inactiveColor: '#fbbf24', border: '1.5px solid rgba(245,158,11,0.5)'
+                },
+                'TUITION_UNPAID': {
+                    id: 'btn-fin-filter-tuition-unpaid',
+                    activeBg: 'linear-gradient(135deg, #10b981, #059669)', activeColor: '#ffffff',
+                    inactiveBg: 'rgba(16,185,129,0.08)', inactiveColor: '#34d399', border: '1.5px solid rgba(16,185,129,0.5)'
+                },
+                'TEXTBOOK_UNPAID': {
+                    id: 'btn-fin-filter-textbook-unpaid',
+                    activeBg: 'linear-gradient(135deg, #a855f7, #7e22ce)', activeColor: '#ffffff',
+                    inactiveBg: 'rgba(168,85,247,0.08)', inactiveColor: '#c084fc', border: '1.5px solid rgba(168,85,247,0.5)'
+                }
             };
-            Object.keys(filterMap).forEach(k => {
-                const btn = document.getElementById(filterMap[k]);
+
+            Object.keys(styles).forEach(k => {
+                const conf = styles[k];
+                const btn = document.getElementById(conf.id);
                 if (btn) {
                     if (k === filter) {
-                        btn.style.background = '#6366f1';
-                        btn.style.color = '#ffffff';
+                        btn.style.background = conf.activeBg;
+                        btn.style.color = conf.activeColor;
+                        btn.style.border = '1.5px solid transparent';
+                        btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
                     } else {
-                        btn.style.background = 'rgba(255,255,255,0.06)';
+                        btn.style.background = conf.inactiveBg;
+                        btn.style.color = conf.inactiveColor;
+                        btn.style.border = conf.border;
+                        btn.style.boxShadow = 'none';
                     }
                 }
             });
