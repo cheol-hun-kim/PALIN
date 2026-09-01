@@ -1719,6 +1719,432 @@ const DEFAULT_HIGHSCHOOLS_DATA = [
     "sido": "제주특별자치도",
     "sigungu": "제주시",
     "type": "일반고"
+  },
+  {
+    "name": "청주여자고등학교",
+    "sido": "충청북도",
+    "sigungu": "청주시 서원구",
+    "type": "일반고"
+  },
+  {
+    "name": "충북고등학교",
+    "sido": "충청북도",
+    "sigungu": "청주시 서원구",
+    "type": "일반고"
+  },
+  {
+    "name": "신흥고등학교",
+    "sido": "충청북도",
+    "sigungu": "청주시 청원구",
+    "type": "일반고"
+  },
+  {
+    "name": "운호고등학교",
+    "sido": "충청북도",
+    "sigungu": "청주시 서원구",
+    "type": "일반고"
+  },
+  {
+    "name": "충주여자고등학교",
+    "sido": "충청북도",
+    "sigungu": "충주시",
+    "type": "일반고"
+  },
+  {
+    "name": "제천고등학교",
+    "sido": "충청북도",
+    "sigungu": "제천시",
+    "type": "일반고"
+  },
+  {
+    "name": "제천여자고등학교",
+    "sido": "충청북도",
+    "sigungu": "제천시",
+    "type": "일반고"
+  },
+  {
+    "name": "제천제일고등학교",
+    "sido": "충청북도",
+    "sigungu": "제천시",
+    "type": "일반고"
+  },
+  {
+    "name": "교원대부설고등학교",
+    "sido": "충청북도",
+    "sigungu": "청주시 흥덕구",
+    "type": "자율고"
+  },
+  {
+    "name": "오송고등학교",
+    "sido": "충청북도",
+    "sigungu": "청주시 흥덕구",
+    "type": "일반고"
+  },
+  {
+    "name": "오창고등학교",
+    "sido": "충청북도",
+    "sigungu": "청주시 청원구",
+    "type": "일반고"
+  },
+  {
+    "name": "진천고등학교",
+    "sido": "충청북도",
+    "sigungu": "진천군",
+    "type": "일반고"
+  },
+  {
+    "name": "음성고등학교",
+    "sido": "충청북도",
+    "sigungu": "음성군",
+    "type": "일반고"
+  },
+  {
+    "name": "옥천고등학교",
+    "sido": "충청북도",
+    "sigungu": "옥천군",
+    "type": "일반고"
+  },
+  {
+    "name": "보은고등학교",
+    "sido": "충청북도",
+    "sigungu": "보은군",
+    "type": "일반고"
+  },
+  {
+    "name": "영동고등학교",
+    "sido": "충청북도",
+    "sigungu": "영동군",
+    "type": "일반고"
+  },
+  {
+    "name": "단양고등학교",
+    "sido": "충청북도",
+    "sigungu": "단양군",
+    "type": "일반고"
+  },
+  {
+    "name": "괴산고등학교",
+    "sido": "충청북도",
+    "sigungu": "괴산군",
+    "type": "일반고"
+  },
+  {
+    "name": "서원고등학교(청주)",
+    "sido": "충청북도",
+    "sigungu": "청주시 흥덕구",
+    "type": "일반고"
+  },
+  {
+    "name": "흥덕고등학교",
+    "sido": "충청북도",
+    "sigungu": "청주시 흥덕구",
+    "type": "일반고"
+  },
+  {
+    "name": "봉명고등학교",
+    "sido": "충청북도",
+    "sigungu": "청주시 흥덕구",
+    "type": "일반고"
+  },
+  {
+    "name": "주성고등학교",
+    "sido": "충청북도",
+    "sigungu": "청주시 상당구",
+    "type": "일반고"
+  },
+  {
+    "name": "금천고등학교",
+    "sido": "충청북도",
+    "sigungu": "청주시 상당구",
+    "type": "일반고"
+  },
+  {
+    "name": "산남고등학교",
+    "sido": "충청북도",
+    "sigungu": "청주시 서원구",
+    "type": "일반고"
+  },
+  {
+    "name": "공주고등학교",
+    "sido": "충청남도",
+    "sigungu": "공주시",
+    "type": "자율고"
+  },
+  {
+    "name": "공주사대부설고등학교",
+    "sido": "충청남도",
+    "sigungu": "공주시",
+    "type": "전국자율고"
+  },
+  {
+    "name": "공주여자고등학교",
+    "sido": "충청남도",
+    "sigungu": "공주시",
+    "type": "일반고"
+  },
+  {
+    "name": "천안중앙고등학교",
+    "sido": "충청남도",
+    "sigungu": "천안시 동남구",
+    "type": "일반고"
+  },
+  {
+    "name": "천안여자고등학교",
+    "sido": "충청남도",
+    "sigungu": "천안시 동남구",
+    "type": "일반고"
+  },
+  {
+    "name": "천안월봉고등학교",
+    "sido": "충청남도",
+    "sigungu": "천안시 서북구",
+    "type": "일반고"
+  },
+  {
+    "name": "천안두정고등학교",
+    "sido": "충청남도",
+    "sigungu": "천안시 서북구",
+    "type": "일반고"
+  },
+  {
+    "name": "천안불당고등학교",
+    "sido": "충청남도",
+    "sigungu": "천안시 서북구",
+    "type": "일반고"
+  },
+  {
+    "name": "아산고등학교",
+    "sido": "충청남도",
+    "sigungu": "아산시",
+    "type": "일반고"
+  },
+  {
+    "name": "온양고등학교",
+    "sido": "충청남도",
+    "sigungu": "아산시",
+    "type": "일반고"
+  },
+  {
+    "name": "온양여자고등학교",
+    "sido": "충청남도",
+    "sigungu": "아산시",
+    "type": "일반고"
+  },
+  {
+    "name": "서산중앙고등학교",
+    "sido": "충청남도",
+    "sigungu": "서산시",
+    "type": "일반고"
+  },
+  {
+    "name": "서령고등학교",
+    "sido": "충청남도",
+    "sigungu": "서산시",
+    "type": "일반고"
+  },
+  {
+    "name": "당진고등학교",
+    "sido": "충청남도",
+    "sigungu": "당진시",
+    "type": "일반고"
+  },
+  {
+    "name": "호서고등학교",
+    "sido": "충청남도",
+    "sigungu": "당진시",
+    "type": "일반고"
+  },
+  {
+    "name": "논산대건고등학교",
+    "sido": "충청남도",
+    "sigungu": "논산시",
+    "type": "일반고"
+  },
+  {
+    "name": "보령대천고등학교",
+    "sido": "충청남도",
+    "sigungu": "보령시",
+    "type": "일반고"
+  },
+  {
+    "name": "홍성고등학교",
+    "sido": "충청남도",
+    "sigungu": "홍성군",
+    "type": "일반고"
+  },
+  {
+    "name": "예산고등학교",
+    "sido": "충청남도",
+    "sigungu": "예산군",
+    "type": "일반고"
+  },
+  {
+    "name": "전주여자고등학교",
+    "sido": "전북특별자치도",
+    "sigungu": "전주시 완산구",
+    "type": "일반고"
+  },
+  {
+    "name": "전주한일고등학교",
+    "sido": "전북특별자치도",
+    "sigungu": "전주시 덕진구",
+    "type": "일반고"
+  },
+  {
+    "name": "남성고등학교",
+    "sido": "전북특별자치도",
+    "sigungu": "익산시",
+    "type": "자율고"
+  },
+  {
+    "name": "익산이리고등학교",
+    "sido": "전북특별자치도",
+    "sigungu": "익산시",
+    "type": "일반고"
+  },
+  {
+    "name": "순천매산고등학교",
+    "sido": "전라남도",
+    "sigungu": "순천시",
+    "type": "일반고"
+  },
+  {
+    "name": "여수고등학교",
+    "sido": "전라남도",
+    "sigungu": "여수시",
+    "type": "일반고"
+  },
+  {
+    "name": "목포덕인고등학교",
+    "sido": "전라남도",
+    "sigungu": "목포시",
+    "type": "일반고"
+  },
+  {
+    "name": "창평고등학교",
+    "sido": "전라남도",
+    "sigungu": "담양군",
+    "type": "일반고"
+  },
+  {
+    "name": "능주고등학교",
+    "sido": "전라남도",
+    "sigungu": "화순군",
+    "type": "일반고"
+  },
+  {
+    "name": "해남고등학교",
+    "sido": "전라남도",
+    "sigungu": "해남군",
+    "type": "일반고"
+  },
+  {
+    "name": "경산과학고등학교",
+    "sido": "경상북도",
+    "sigungu": "경산시",
+    "type": "과학고"
+  },
+  {
+    "name": "포항고등학교",
+    "sido": "경상북도",
+    "sigungu": "포항시 북구",
+    "type": "일반고"
+  },
+  {
+    "name": "경주고등학교",
+    "sido": "경상북도",
+    "sigungu": "경주시",
+    "type": "일반고"
+  },
+  {
+    "name": "풍산고등학교",
+    "sido": "경상북도",
+    "sigungu": "안동시",
+    "type": "자율고"
+  },
+  {
+    "name": "거창고등학교",
+    "sido": "경상남도",
+    "sigungu": "거창군",
+    "type": "전국자율고"
+  },
+  {
+    "name": "거창대성고등학교",
+    "sido": "경상남도",
+    "sigungu": "거창군",
+    "type": "자율고"
+  },
+  {
+    "name": "창원중앙고등학교",
+    "sido": "경상남도",
+    "sigungu": "창원시 성산구",
+    "type": "일반고"
+  },
+  {
+    "name": "김해고등학교",
+    "sido": "경상남도",
+    "sigungu": "김해시",
+    "type": "일반고"
+  },
+  {
+    "name": "양산물금고등학교",
+    "sido": "경상남도",
+    "sigungu": "양산시",
+    "type": "일반고"
+  },
+  {
+    "name": "민족사관고등학교",
+    "sido": "강원특별자치도",
+    "sigungu": "횡성군",
+    "type": "전국자사고"
+  },
+  {
+    "name": "춘천여자고등학교",
+    "sido": "강원특별자치도",
+    "sigungu": "춘천시",
+    "type": "일반고"
+  },
+  {
+    "name": "원주고등학교",
+    "sido": "강원특별자치도",
+    "sigungu": "원주시",
+    "type": "일반고"
+  },
+  {
+    "name": "원주여자고등학교",
+    "sido": "강원특별자치도",
+    "sigungu": "원주시",
+    "type": "일반고"
+  },
+  {
+    "name": "강릉제일고등학교",
+    "sido": "강원특별자치도",
+    "sigungu": "강릉시",
+    "type": "일반고"
+  },
+  {
+    "name": "세종고등학교",
+    "sido": "세종특별자치시",
+    "sigungu": "세종특별자치시",
+    "type": "일반고"
+  },
+  {
+    "name": "한솔고등학교(세종)",
+    "sido": "세종특별자치시",
+    "sigungu": "세종특별자치시",
+    "type": "일반고"
+  },
+  {
+    "name": "제주제일고등학교",
+    "sido": "제주특별자치도",
+    "sigungu": "제주시",
+    "type": "일반고"
+  },
+  {
+    "name": "남주고등학교",
+    "sido": "제주특별자치도",
+    "sigungu": "서귀포시",
+    "type": "일반고"
   }
 ];
 let HIGHSCHOOLS_DATA = DEFAULT_HIGHSCHOOLS_DATA;
@@ -1766,8 +2192,8 @@ function populateSidoOptions(selectId) {
     const el = document.getElementById(selectId);
     if (!el) return;
     const currentVal = el.value;
-    const sidos = Object.keys(REGIONS_DATA).length > 0 ? Object.keys(REGIONS_DATA) : Object.keys(DEFAULT_REGIONS_DATA);
-    
+    const sidos = (typeof REGIONS_DATA !== 'undefined' && Object.keys(REGIONS_DATA).length > 0) ? Object.keys(REGIONS_DATA) : Object.keys(DEFAULT_REGIONS_DATA);
+
     let html = '<option value="" disabled' + (!currentVal ? ' selected' : '') + '>시/도 선택</option>';
     sidos.forEach(sido => {
         const isSelected = sido === currentVal ? ' selected' : '';
@@ -1780,8 +2206,9 @@ function onSidoChange(sidoSelectId, sigunguSelectId, defaultSigungu = "") {
     const sido = document.getElementById(sidoSelectId)?.value;
     const sigunguEl = document.getElementById(sigunguSelectId);
     if (!sigunguEl || !sido) return;
-    
-    const sigungus = REGIONS_DATA[sido] || DEFAULT_REGIONS_DATA[sido] || [];
+
+    const rData = (typeof REGIONS_DATA !== 'undefined' && Object.keys(REGIONS_DATA).length > 0) ? REGIONS_DATA : DEFAULT_REGIONS_DATA;
+    const sigungus = rData[sido] || [];
     let html = '<option value="" disabled' + (!defaultSigungu ? ' selected' : '') + '>시/군/구 선택</option>';
     sigungus.forEach(sg => {
         const isSelected = sg === defaultSigungu ? " selected" : "";
@@ -1790,35 +2217,29 @@ function onSidoChange(sidoSelectId, sigunguSelectId, defaultSigungu = "") {
     sigunguEl.innerHTML = html;
 }
 
-async function loadHighSchoolsData() {
-    try {
-        const res = await fetch("/api/data/high-schools");
-        if (res.ok) {
-            HIGHSCHOOLS_DATA = await res.json();
-            filterHighSchoolsBySido("reg-sido", "highschool-datalist");
-            filterHighSchoolsBySido("edit-sido", "edit-highschool-datalist");
-        }
-    } catch (e) { console.warn("High schools load error:", e); }
-}
-
-// 🏫 선택된 시/도에 따라 고등학교 선택지(Datalist) 실시간 자동 필터링
-function filterHighSchoolsBySido(sidoSelectId, datalistId) {
+function filterHighSchoolsByRegion(sidoSelectId, sigunguSelectId, datalistId) {
     const sido = document.getElementById(sidoSelectId)?.value;
+    const sigungu = document.getElementById(sigunguSelectId)?.value;
     const dl = document.getElementById(datalistId);
-    if (!dl || !HIGHSCHOOLS_DATA || HIGHSCHOOLS_DATA.length === 0) return;
+    const schools = (typeof HIGHSCHOOLS_DATA !== 'undefined' && HIGHSCHOOLS_DATA.length > 0) ? HIGHSCHOOLS_DATA : (typeof DEFAULT_HIGHSCHOOLS_DATA !== 'undefined' ? DEFAULT_HIGHSCHOOLS_DATA : []);
+    if (!dl || schools.length === 0) return;
 
     dl.innerHTML = "";
-    
+
     let matchedSchools = [];
     let otherSpecialSchools = [];
 
     if (sido) {
-        // 해당 시/도 소속 고등학교
-        matchedSchools = HIGHSCHOOLS_DATA.filter(hs => (hs.sido === sido || hs.region === sido));
-        // 전국 단위 자사/특목/영재고 중 타지역
-        otherSpecialSchools = HIGHSCHOOLS_DATA.filter(hs => (hs.sido !== sido && hs.region !== sido) && (hs.type === "자사고" || hs.type === "영재고" || hs.type === "과학고" || hs.type === "과고" || hs.type === "외고" || hs.type === "국제고" || (hs.type && hs.type.includes("전국"))));
+        if (sigungu) {
+            matchedSchools = schools.filter(hs => (hs.sido === sido || hs.region === sido) && hs.sigungu === sigungu);
+            const sameSidoOthers = schools.filter(hs => (hs.sido === sido || hs.region === sido) && hs.sigungu !== sigungu);
+            matchedSchools = matchedSchools.concat(sameSidoOthers);
+        } else {
+            matchedSchools = schools.filter(hs => (hs.sido === sido || hs.region === sido));
+        }
+        otherSpecialSchools = schools.filter(hs => (hs.sido !== sido && hs.region !== sido) && (hs.type === "자사고" || hs.type === "영재학교" || hs.type === "과학고" || hs.type === "외고" || hs.type === "국제고" || (hs.type && hs.type.includes("전국"))));
     } else {
-        matchedSchools = HIGHSCHOOLS_DATA;
+        matchedSchools = schools;
     }
 
     matchedSchools.forEach(hs => {
@@ -1835,7 +2256,15 @@ function filterHighSchoolsBySido(sidoSelectId, datalistId) {
     });
 }
 
-// 📱 아코디언 드롭다운 토글 제어 엔진
+function filterHighSchoolsBySido(sidoSelectId, datalistId) {
+    filterHighSchoolsByRegion(sidoSelectId, null, datalistId);
+}
+
+window.filterHighSchoolsByRegion = filterHighSchoolsByRegion;
+window.filterHighSchoolsBySido = filterHighSchoolsBySido;
+window.onSidoChange = onSidoChange;
+window.populateSidoOptions = populateSidoOptions;
+
 function toggleAccordion(bodyId, iconId) {
     const body = document.getElementById(bodyId);
     const icon = document.getElementById(iconId);

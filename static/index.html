@@ -30,7 +30,7 @@
     </script>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=3200.0">
+    <link rel="stylesheet" href="css/style.css?v=3300.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -324,21 +324,21 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 <option value="4">N수생 (재수/반수 이상)</option>
                             </select>
 
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                <select id="reg-sido" class="auth-input" required>
-                                    <option value="경기도" selected>경기도</option>
-                                    <option value="서울특별시">서울특별시</option>
-                                    <option value="인천광역시">인천광역시</option>
-                                    <option value="대전광역시">대전광역시</option>
-                                    <option value="대구광역시">대구광역시</option>
-                                    <option value="부산광역시">부산광역시</option>
-                                    <option value="광주광역시">광주광역시</option>
-                                    <option value="기타">기타 지역</option>
+                            <!-- 시/도 & 세부 시/군/구 연동 드롭다운 -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                                <select id="reg-sido" class="auth-input" onchange="onSidoChange('reg-sido', 'reg-sigungu'); filterHighSchoolsByRegion('reg-sido', 'reg-sigungu', 'highschool-datalist');" required style="margin-bottom: 0;">
+                                    <option value="" disabled selected>시/도 선택</option>
                                 </select>
-                                <input type="text" id="reg-sigungu" class="auth-input" placeholder="시/군/구" value="성남시 분당구" required>
+                                <select id="reg-sigungu" class="auth-input" onchange="filterHighSchoolsByRegion('reg-sido', 'reg-sigungu', 'highschool-datalist');" required style="margin-bottom: 0;">
+                                    <option value="" disabled selected>시/군/구 선택</option>
+                                </select>
                             </div>
 
-                            <input type="text" id="reg-school" class="auth-input" placeholder="고등학교 이름" value="낙생고등학교" required>
+                            <!-- 세부지역 연동 고등학교 자동완성 & 직접입력 Datalist -->
+                            <div style="margin-bottom: 8px;">
+                                <input type="text" id="reg-school" class="auth-input" placeholder="고등학교 검색 (클릭 시 선택지 또는 직접 입력)" list="highschool-datalist" required style="margin-bottom: 0;">
+                                <datalist id="highschool-datalist"></datalist>
+                            </div>
 
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                                 <select id="reg-target-univ" class="auth-input" required>
@@ -554,6 +554,11 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     } else {
                         loginForm.style.display = 'none';
                         regForm.style.display = 'block';
+                        if (typeof populateSidoOptions === 'function') {
+                            populateSidoOptions('reg-sido');
+                            onSidoChange('reg-sido', 'reg-sigungu');
+                            filterHighSchoolsByRegion('reg-sido', 'reg-sigungu', 'highschool-datalist');
+                        }
                     }
                 }
             }
@@ -2692,7 +2697,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app.js?v=3200.0"></script>
+    <script src="js/app.js?v=3300.0"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소
