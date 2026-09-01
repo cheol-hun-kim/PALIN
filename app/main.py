@@ -3777,6 +3777,16 @@ def create_master_director_notice(payload: DirectorBroadcastNoticePayload, db: S
     db.refresh(notice)
     return {"status": "success", "message": "\ud559\uc6d0\uc7a5 \ub300\uc0c1 \uacf5\uc9c0\uac00 \ubc30\ud3ec\ub418\uc5c8\uc2b5\ub2c8\ub2e4.", "notice": notice}
 
+
+@app.delete("/api/master/director-notices/{notice_id}")
+def delete_master_director_notice(notice_id: int, db: Session = Depends(get_db)):
+    notice = db.query(models.DirectorBroadcastNotice).filter(models.DirectorBroadcastNotice.id == notice_id).first()
+    if not notice:
+        raise HTTPException(status_code=404, detail="공지사항을 찾을 수 없습니다.")
+    db.delete(notice)
+    db.commit()
+    return {"status": "success", "message": "학원장 대상 공지가 성공적으로 삭제(철회)되었습니다."}
+
 @app.get("/api/admin/director-notices")
 def get_admin_director_notices(tenant_code: Optional[str] = "ILWON1", db: Session = Depends(get_db)):
     notices = db.query(models.DirectorBroadcastNotice).filter(
