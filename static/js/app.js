@@ -4828,13 +4828,13 @@ function checkAuth() {
 
     if (!studentId || isNaN(parseInt(studentId, 10))) {
 
-        studentId = "1";
+        const overlay = document.getElementById("register-overlay");
 
-        localStorage.setItem("studentId", "1");
+        if (overlay) overlay.style.display = "flex";
+
+        return;
 
     }
-
-    
 
     fetchStudentInfo(parseInt(studentId, 10));
 
@@ -12583,22 +12583,9 @@ async function loadAcademyHubView() {
             const feeds = await res.json();
 
             if (!feeds || feeds.length === 0) {
-
-                container.innerHTML = `
-
-                    <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 10px; padding: 14px; text-align: center;">
-
-                        <div style="font-weight: 800; color: #a5b4fc; font-size: 0.88rem; margin-bottom: 4px;">📅 [일원학원 수능국어] 정규 학사 일정 가동 중</div>
-
-                        <div style="font-size: 0.78rem; color: #cbd5e1; line-height: 1.5;">매주 토/일 고난도 비문학 구조독해 & 킬러 문학 총정리 모의고사가 진행됩니다.</div>
-
-                    </div>
-
-                `;
-
-                return;
-
-            }
+            container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 18px;">등록된 학사 일정 및 공지사항이 없습니다.</div>';
+            return;
+        }
 
             
 
@@ -12639,19 +12626,7 @@ async function loadAcademyHubView() {
         console.error("loadAcademyHubView error:", e);
 
         if (container) {
-
-            container.innerHTML = `
-
-                <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 10px; padding: 14px; text-align: center;">
-
-                    <div style="font-weight: 800; color: #a5b4fc; font-size: 0.88rem; margin-bottom: 4px;">📅 [일원학원 수능국어] 정규 학사 일정 가동 중</div>
-
-                    <div style="font-size: 0.78rem; color: #cbd5e1; line-height: 1.5;">매주 토/일 고난도 비문학 구조독해 & 킬러 문학 총정리 모의고사가 진행됩니다.</div>
-
-                </div>
-
-            `;
-
+            container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 18px;">등록된 학사 일정 및 공지사항이 없습니다.</div>';
         }
 
     }
