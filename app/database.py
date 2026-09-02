@@ -23,7 +23,7 @@ if not DATABASE_URL.startswith("sqlite"):
         sep = "&" if "?" in DATABASE_URL else "?"
         DATABASE_URL = f"{DATABASE_URL}{sep}sslmode=require"
 
-# 4. 환경별 엔진 생성
+# 4. SQLite 엔진 생성 (100% 보장 베이스)
 sqlite_engine = create_engine(
     f"sqlite:///{DEFAULT_DB_PATH}",
     connect_args={"check_same_thread": False}
@@ -39,16 +39,15 @@ if not DATABASE_URL.startswith("sqlite"):
             DATABASE_URL,
             poolclass=NullPool,
             pool_pre_ping=True,
-            connect_args={"connect_timeout": 4}
+            connect_args={"connect_timeout": 5}
         )
-        # Verify network connectivity immediately with 4s timeout
         with pg_engine.connect() as conn:
             conn.execute(text("SELECT 1"))
         engine = pg_engine
         SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=pg_engine)
         print("[DB] PostgreSQL Live Connection Succeeded!")
     except Exception as e:
-        print(f"[DB] PostgreSQL Live Connection Failed ({e}), switching permanently to SQLite.")
+        print(f"[DB] PostgreSQL Connection Failed ({e}), staying with SQLite.")
         engine = sqlite_engine
         SessionLocal = SqliteSessionLocal
 
@@ -58,7 +57,7 @@ def get_db():
     db = None
     try:
         db = SessionLocal()
-        # Verify active connection with ping
+        # Ping
         db.execute(text("SELECT 1"))
     except Exception as e:
         if db:

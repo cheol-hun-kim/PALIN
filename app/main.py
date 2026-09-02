@@ -16,234 +16,31 @@ app = FastAPI(title="PASS-MATE API")
 
 from sqlalchemy import text, inspect, func
 def init_db_schema():
+    from app import database, seed_data
+    from sqlalchemy import text
+    
+    # 1. ALWAYS initialize SQLite database (100% reliable local base)
     try:
-        models.Base.metadata.create_all(bind=engine)
-        with engine.connect() as conn:
-            try:
-                if engine.dialect.name == "sqlite":
-                    # Students table check
-                    columns = [row[1] for row in conn.execute(text("PRAGMA table_info(students)")).fetchall()]
-                    if columns:
-                        if "password_hash" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN password_hash VARCHAR"))
-                        if "role" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN role VARCHAR DEFAULT 'STUDENT'"))
-                        if "parent_invite_code" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN parent_invite_code VARCHAR"))
-                        if "previous_b2c_tier" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN previous_b2c_tier VARCHAR DEFAULT 'B2C_FREE'"))
-                        if "academy_code" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN academy_code VARCHAR"))
-                        if "ai_level" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN ai_level VARCHAR DEFAULT 'B2C_FREE'"))
-                        if "tuition_paid" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN tuition_paid BOOLEAN DEFAULT 0"))
-                        if "textbook_paid" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN textbook_paid BOOLEAN DEFAULT 0"))
-                        if "textbooks_distributed" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN textbooks_distributed TEXT DEFAULT ''"))
-                        if "enrollment_status" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN enrollment_status VARCHAR DEFAULT 'ENROLLED'"))
-                        if "leave_reason" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN leave_reason VARCHAR"))
-                        if "sido" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN sido VARCHAR DEFAULT '경기도'"))
-                        if "sigungu" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN sigungu VARCHAR DEFAULT '성남시 분당구'"))
-                        if "high_school_type" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN high_school_type VARCHAR DEFAULT '일반고'"))
-                        if "is_vip" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN is_vip BOOLEAN DEFAULT 0"))
-                        if "escrow_deposit" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN escrow_deposit INTEGER DEFAULT 50000"))
-                        if "escrow_deductions" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN escrow_deductions INTEGER DEFAULT 0"))
-                        if "wake_target_time" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN wake_target_time VARCHAR DEFAULT '06:30'"))
-                        if "sleep_target_time" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN sleep_target_time VARCHAR DEFAULT '23:30'"))
-                        if "is_banned" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN is_banned BOOLEAN DEFAULT 0"))
-                        if "ban_reason" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN ban_reason VARCHAR"))
-                        if "dday_date" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN dday_date VARCHAR DEFAULT '2026-11-19'"))
-                        if "dday_title" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN dday_title VARCHAR DEFAULT '2027 수능'"))
-                        if "streak_days" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN streak_days INTEGER DEFAULT 0"))
-                        if "max_streak_days" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN max_streak_days INTEGER DEFAULT 0"))
-                        if "last_streak_date" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN last_streak_date DATE"))
-                        if "medical_symbol" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN medical_symbol VARCHAR DEFAULT 'GENERAL'"))
-                        if "paid_cash" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN paid_cash INTEGER DEFAULT 0"))
-                        if "free_report_tickets" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN free_report_tickets INTEGER DEFAULT 0"))
-                        if "referral_code" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN referral_code VARCHAR"))
-                        if "referred_by" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN referred_by VARCHAR"))
-                        if "has_unlimited_chat" not in columns:
-                            conn.execute(text("ALTER TABLE students ADD COLUMN has_unlimited_chat BOOLEAN DEFAULT 0"))
-                        conn.commit()
+        models.Base.metadata.create_all(bind=database.sqlite_engine)
+        sq_db = database.SqliteSessionLocal()
+        seed_data.auto_seed_database(sq_db, database.sqlite_engine)
+        sq_db.close()
+        print("[INIT] SQLite baseline database verified & seeded successfully.")
+    except Exception as sq_err:
+        print("[INIT] SQLite init note:", sq_err)
 
-                    # Parents table check
-                    p_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(parents)")).fetchall()]
-                    if p_cols:
-                        if "email" not in p_cols:
-                            conn.execute(text("ALTER TABLE parents ADD COLUMN email VARCHAR"))
-                        if "password_hash" not in p_cols:
-                            conn.execute(text("ALTER TABLE parents ADD COLUMN password_hash VARCHAR"))
-                        if "role" not in p_cols:
-                            conn.execute(text("ALTER TABLE parents ADD COLUMN role VARCHAR DEFAULT 'PARENT'"))
-                        if "wallet_balance" not in p_cols:
-                            conn.execute(text("ALTER TABLE parents ADD COLUMN wallet_balance INTEGER DEFAULT 50000"))
-                        conn.commit()
-
-                    # Tenants table check
-                    t_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(tenants)")).fetchall()]
-                    if t_cols:
-                        if "director_email" not in t_cols:
-                            conn.execute(text("ALTER TABLE tenants ADD COLUMN director_email VARCHAR"))
-                        if "director_password_hash" not in t_cols:
-                            conn.execute(text("ALTER TABLE tenants ADD COLUMN director_password_hash VARCHAR"))
-                        if "role" not in t_cols:
-                            conn.execute(text("ALTER TABLE tenants ADD COLUMN role VARCHAR DEFAULT 'TENANT_ADMIN'"))
-                        if "bot_name" not in t_cols:
-                            conn.execute(text("ALTER TABLE tenants ADD COLUMN bot_name VARCHAR DEFAULT 'PALIN AI 멘토'"))
-                        if "bot_tone" not in t_cols:
-                            conn.execute(text("ALTER TABLE tenants ADD COLUMN bot_tone VARCHAR DEFAULT 'VERY_STRICT'"))
-                        if "core_values" not in t_cols:
-                            conn.execute(text("ALTER TABLE tenants ADD COLUMN core_values TEXT"))
-                        if "banned_words" not in t_cols:
-                            conn.execute(text("ALTER TABLE tenants ADD COLUMN banned_words VARCHAR"))
-                        if "custom_system_prompt" not in t_cols:
-                            conn.execute(text("ALTER TABLE tenants ADD COLUMN custom_system_prompt TEXT"))
-                        if "brain_status" not in t_cols:
-                            conn.execute(text("ALTER TABLE tenants ADD COLUMN brain_status VARCHAR DEFAULT 'NONE'"))
-                        if "brain_submitted_at" not in t_cols:
-                            conn.execute(text("ALTER TABLE tenants ADD COLUMN brain_submitted_at TIMESTAMP"))
-                        if "brain_injected_at" not in t_cols:
-                            conn.execute(text("ALTER TABLE tenants ADD COLUMN brain_injected_at TIMESTAMP"))
-                        conn.commit()
-
-                    # TutorProfile 컬럼 검사
-                    tutor_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(tutor_profiles)")).fetchall()]
-                    if tutor_cols:
-                        if "is_suspended" not in tutor_cols:
-                            conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN is_suspended BOOLEAN DEFAULT 0"))
-                        if "suspend_reason" not in tutor_cols:
-                            conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN suspend_reason VARCHAR"))
-                        if "tier" not in tutor_cols:
-                            conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN tier VARCHAR DEFAULT 'SR'"))
-                        if "diligence_verified_badge" not in tutor_cols:
-                            conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN diligence_verified_badge BOOLEAN DEFAULT 1"))
-                        conn.commit()
-
-                    # ExamMaterial 컬럼 검사
-                    exam_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(exam_materials)")).fetchall()]
-                    if exam_cols:
-                        if "answer_file_url" not in exam_cols:
-                            conn.execute(text("ALTER TABLE exam_materials ADD COLUMN answer_file_url VARCHAR"))
-                        if "answer_file_name" not in exam_cols:
-                            conn.execute(text("ALTER TABLE exam_materials ADD COLUMN answer_file_name VARCHAR"))
-                        if "year" not in exam_cols:
-                            conn.execute(text("ALTER TABLE exam_materials ADD COLUMN year INTEGER DEFAULT 2027"))
-                        conn.commit()
-
-                    # QAPost / QAComment 컬럼 검사
-                    qa_post_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(qa_posts)")).fetchall()]
-                    if qa_post_cols and "is_anonymous" not in qa_post_cols:
-                        conn.execute(text("ALTER TABLE qa_posts ADD COLUMN is_anonymous BOOLEAN DEFAULT 0"))
-
-                    qa_comment_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(qa_comments)")).fetchall()]
-                    if qa_comment_cols and "is_anonymous" not in qa_comment_cols:
-                        conn.execute(text("ALTER TABLE qa_comments ADD COLUMN is_anonymous BOOLEAN DEFAULT 0"))
-                    conn.commit()
-                else:
-                    # PostgreSQL (Supabase / Render) 자동 마이그레이션 실행
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS password_hash VARCHAR"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS role VARCHAR DEFAULT 'STUDENT'"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS parent_invite_code VARCHAR"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS previous_b2c_tier VARCHAR DEFAULT 'B2C_FREE'"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS academy_code VARCHAR"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS ai_level VARCHAR DEFAULT 'B2C_FREE'"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS tuition_paid BOOLEAN DEFAULT FALSE"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS textbook_paid BOOLEAN DEFAULT FALSE"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS textbooks_distributed TEXT DEFAULT ''"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS enrollment_status VARCHAR DEFAULT 'ENROLLED'"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS leave_reason VARCHAR"))
-
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS sido VARCHAR DEFAULT '경기도'"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS sigungu VARCHAR DEFAULT '성남시 분당구'"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS high_school_type VARCHAR DEFAULT '일반고'"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS is_vip BOOLEAN DEFAULT FALSE"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS escrow_deposit INTEGER DEFAULT 50000"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS escrow_deductions INTEGER DEFAULT 0"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS wake_target_time VARCHAR DEFAULT '06:30'"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS sleep_target_time VARCHAR DEFAULT '23:30'"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS is_banned BOOLEAN DEFAULT FALSE"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS ban_reason VARCHAR"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS dday_date VARCHAR DEFAULT '2026-11-19'"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS dday_title VARCHAR DEFAULT '2027 수능'"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS streak_days INTEGER DEFAULT 0"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS max_streak_days INTEGER DEFAULT 0"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS medical_symbol VARCHAR DEFAULT 'GENERAL'"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS paid_cash INTEGER DEFAULT 0"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS free_report_tickets INTEGER DEFAULT 0"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS referral_code VARCHAR"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS referred_by VARCHAR"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS has_unlimited_chat BOOLEAN DEFAULT FALSE"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS is_alumni BOOLEAN DEFAULT FALSE"))
-                    conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS alumni_academy VARCHAR"))
-
-                    conn.execute(text("ALTER TABLE parents ADD COLUMN IF NOT EXISTS email VARCHAR"))
-                    conn.execute(text("ALTER TABLE parents ADD COLUMN IF NOT EXISTS password_hash VARCHAR"))
-                    conn.execute(text("ALTER TABLE parents ADD COLUMN IF NOT EXISTS role VARCHAR DEFAULT 'PARENT'"))
-                    conn.execute(text("ALTER TABLE parents ADD COLUMN IF NOT EXISTS wallet_balance INTEGER DEFAULT 50000"))
-
-                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS director_email VARCHAR"))
-                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS director_password_hash VARCHAR"))
-                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS role VARCHAR DEFAULT 'TENANT_ADMIN'"))
-                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS bot_name VARCHAR DEFAULT 'PALIN AI 멘토'"))
-                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS bot_tone VARCHAR DEFAULT 'VERY_STRICT'"))
-                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS core_values TEXT"))
-                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS banned_words VARCHAR"))
-                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS custom_system_prompt TEXT"))
-                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS brain_status VARCHAR DEFAULT 'NONE'"))
-                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS brain_submitted_at TIMESTAMP"))
-                    conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS brain_injected_at TIMESTAMP"))
-
-                    conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS is_alumni BOOLEAN DEFAULT FALSE"))
-                    conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS alumni_academy VARCHAR"))
-                    conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS is_suspended BOOLEAN DEFAULT FALSE"))
-                    conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS suspend_reason VARCHAR"))
-                    conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS tier VARCHAR DEFAULT 'SR'"))
-                    conn.execute(text("ALTER TABLE tutor_profiles ADD COLUMN IF NOT EXISTS diligence_verified_badge BOOLEAN DEFAULT TRUE"))
-
-                    conn.execute(text("ALTER TABLE exam_materials ADD COLUMN IF NOT EXISTS answer_file_url VARCHAR"))
-                    conn.execute(text("ALTER TABLE exam_materials ADD COLUMN IF NOT EXISTS answer_file_name VARCHAR"))
-                    conn.execute(text("ALTER TABLE exam_materials ADD COLUMN IF NOT EXISTS year INTEGER DEFAULT 2027"))
-
-                    conn.execute(text("ALTER TABLE qa_posts ADD COLUMN IF NOT EXISTS is_anonymous BOOLEAN DEFAULT FALSE"))
-                    conn.execute(text("ALTER TABLE qa_comments ADD COLUMN IF NOT EXISTS is_anonymous BOOLEAN DEFAULT FALSE"))
-                    conn.commit()
-                    print("PostgreSQL Full Schema Migration Complete!")
-            except Exception as e:
-                print("DB Schema Migration Warning:", e)
-
+    # 2. If PostgreSQL is configured, initialize PostgreSQL
+    if database.engine.dialect.name != "sqlite":
         try:
-            from app.seed_data import auto_seed_database
-            db_session = Session(bind=engine)
-            auto_seed_database(db_session, engine)
-            db_session.close()
-        except Exception as seed_err:
-            print(f"[AUTO_SEED] Startup seed warning: {seed_err}")
-    except Exception as e:
-        print("DB Connection/Init Warning (Non-blocking):", e)
+            models.Base.metadata.create_all(bind=database.engine)
+            pg_db = database.SessionLocal()
+            seed_data.auto_seed_database(pg_db, database.engine)
+            pg_db.close()
+            print("[INIT] PostgreSQL cloud database verified & seeded successfully.")
+        except Exception as pg_err:
+            print(f"[INIT] PostgreSQL init failed ({pg_err}), falling back to SQLite.")
+            database.engine = database.sqlite_engine
+            database.SessionLocal = database.SqliteSessionLocal
 
 try:
     init_db_schema()
@@ -2412,16 +2209,67 @@ async def upload_exam_material(
     return {"status": "ok", "message": "기출문제 및 정답지가 성공적으로 등록되었습니다.", "material": mat}
 
 @app.get("/api/debug/db-status")
-def debug_db_status(db: Session = Depends(get_db)):
-    student_count = db.query(models.Student).count()
-    dialect = db.bind.dialect.name
-    sample = [(s.id, s.name, s.high_school) for s in db.query(models.Student).limit(5).all()]
-    return {
-        "status": "healthy",
-        "dialect": dialect,
-        "student_count": student_count,
-        "sample_students": sample
-    }
+@app.get("/api/debug/inspect-db")
+def debug_db_status():
+    import traceback
+    info = {}
+    try:
+        from app.database import engine, DATABASE_URL
+        from sqlalchemy import text
+        info["database_url_type"] = "postgres" if "postgres" in DATABASE_URL else "sqlite"
+        info["engine_dialect"] = engine.dialect.name
+        
+        # Test direct engine connection
+        with engine.connect() as conn:
+            val = conn.execute(text("SELECT 1")).scalar()
+            info["engine_ping"] = val
+            
+            if engine.dialect.name == "sqlite":
+                tables = [r[0] for r in conn.execute(text("SELECT name FROM sqlite_master WHERE type='table'")).fetchall()]
+            else:
+                tables = [r[0] for r in conn.execute(text("SELECT table_name FROM information_schema.tables WHERE table_schema='public'")).fetchall()]
+            info["tables"] = tables
+            
+        # Test Session query
+        from app.database import SessionLocal
+        db = SessionLocal()
+        try:
+            # Ensure tables exist
+            models.Base.metadata.create_all(bind=engine)
+            
+            # Check student count
+            st_count = db.query(models.Student).count()
+            info["student_count"] = st_count
+            if st_count < 10:
+                from app.seed_data import auto_seed_database
+                auto_seed_database(db, engine)
+                info["auto_seed_triggered"] = True
+                info["student_count_after_seed"] = db.query(models.Student).count()
+                st_count = info["student_count_after_seed"]
+                
+            sample = [(s.id, s.name, s.high_school) for s in db.query(models.Student).limit(5).all()]
+            info["sample_students"] = sample
+            info["status"] = "healthy"
+        except Exception as qe:
+            info["status"] = "error"
+            info["query_error"] = str(qe)
+            info["query_trace"] = traceback.format_exc()
+            # Attempt emergency recovery
+            try:
+                models.Base.metadata.create_all(bind=engine)
+                from app.seed_data import auto_seed_database
+                auto_seed_database(db, engine)
+                info["emergency_recovery_run"] = True
+                info["students_after_recovery"] = db.query(models.Student).count()
+            except Exception as ee:
+                info["emergency_recovery_error"] = str(ee)
+        finally:
+            db.close()
+    except Exception as e:
+        info["status"] = "fatal_error"
+        info["fatal_error"] = str(e)
+        info["fatal_trace"] = traceback.format_exc()
+    return info
 
 class BatchDeletePayload(BaseModel):
     ids: list[int]
