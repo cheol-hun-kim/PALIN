@@ -5249,20 +5249,13 @@ function toggleStudentRegisterForm() {
             setupUnivDeptSelectors("reg-target-univ", "reg-target-dept", "서울대학교", "의예과");
             setupUnivDeptSelectors("reg-baseline-univ", "reg-baseline-dept", "연세대학교", "화학생물공학부");
         }
+        if (typeof populateSidoOptions === 'function') {
+            populateSidoOptions("reg-sido");
+        }
     } else {
         regForm.style.display = "none";
         loginForm.style.display = "block";
     }
-} else {
-
-            loginForm.style.display = 'none';
-
-            regForm.style.display = 'block';
-
-        }
-
-    }
-
 }
 
 function toggleParentAuthMode() {
@@ -5347,6 +5340,8 @@ async function handleStudentLoginSubmit(e) {
 
         localStorage.setItem("jwtToken", data.token);
 
+        const regOverlay = document.getElementById("register-overlay");
+        if (regOverlay) regOverlay.style.display = "none";
         hideOverlay("register-overlay");
 
         applyRolePermissions(localStorage.getItem('userRole'));
@@ -5445,6 +5440,8 @@ async function handleStudentRegisterSubmit(e) {
 
         localStorage.setItem("jwtToken", data.token);
 
+        const regOverlay = document.getElementById("register-overlay");
+        if (regOverlay) regOverlay.style.display = "none";
         hideOverlay("register-overlay");
 
         applyRolePermissions("STUDENT");
@@ -5921,6 +5918,8 @@ async function handleRegister(e) {
 
         localStorage.setItem("jwtToken", data.token);
 
+        const regOverlay = document.getElementById("register-overlay");
+        if (regOverlay) regOverlay.style.display = "none";
         hideOverlay("register-overlay");
 
         applyRolePermissions("STUDENT");
