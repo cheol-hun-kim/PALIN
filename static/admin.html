@@ -6,7 +6,7 @@
     <title>PALIN OS - B2B 학원장 통합 관제실 (Director Cockpit)</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=3700.0">
+    <link rel="stylesheet" href="css/style.css?v=3800.0">
     <style>
         :root {
             --bg-color: #08090d;
@@ -1454,7 +1454,42 @@ ${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; font-we
         }
 
         
-        let adminVodListCache = [];
+                let adminVodListCache = [];
+        let currentAdminVodFilter = '전체';
+
+        function handleCategorySelectChange(selectId, inputId) {
+            const selectEl = document.getElementById(selectId);
+            const inputEl = document.getElementById(inputId);
+            if (!selectEl || !inputEl) return;
+            if (selectEl.value === '__CUSTOM__') {
+                inputEl.style.display = 'block';
+                inputEl.required = true;
+                inputEl.focus();
+            } else {
+                inputEl.style.display = 'none';
+                inputEl.required = false;
+            }
+        }
+
+        function syncCategoryOptionsIntoSelects() {
+            if (!adminVodListCache) return;
+            const usedCats = [...new Set(adminVodListCache.map(v => v.category).filter(Boolean))];
+            const defaultCats = ['국어', '수학', '영어', '탐구', '입시', '칼럼', '기타'];
+            const allCats = [...new Set([...defaultCats, ...usedCats])];
+
+            ['vod-lib-category', 'edit-vod-category'].forEach(selId => {
+                const sel = document.getElementById(selId);
+                if (!sel) return;
+                const currentVal = sel.value;
+                let html = '';
+                allCats.forEach(c => {
+                    const isSelected = (c === currentVal) ? ' selected' : '';
+                    html += `<option value="${c}"${isSelected}>📁 ${c}</option>`;
+                });
+                html += `<option value="__CUSTOM__">➕ 새 카테고리 직접 추가...</option>`;
+                sel.innerHTML = html;
+            });
+        }
 
         async function loadAdminVodLibrary() {
             const container = document.getElementById("admin-vod-library-list");
@@ -1463,46 +1498,105 @@ ${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; font-we
                 const res = await fetch("/api/vod/library");
                 if (!res.ok) return;
                 const list = await res.json();
-                adminVodListCache = list;
-                if (!list || list.length === 0) {
-                    container.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.8rem; padding:16px;">등록된 VOD 강의가 없습니다. 위 입력창에서 새 VOD 강좌를 등록하세요.</div>';
-                    return;
-                }
-                container.innerHTML = list.map(v => `
-                    <div style="background: rgba(0,0,0,0.4); padding: 12px 14px; border-radius: 10px; border-left: 4px solid #a855f7; border: 1px solid rgba(168,85,247,0.25); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                        <div style="flex: 1; min-width: 220px;">
-                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-                                <span style="font-size: 0.72rem; background: rgba(168,85,247,0.25); color: #c084fc; padding: 2px 8px; border-radius: 4px; font-weight: 800;">${v.category || '특강'}</span>
-                                <span style="font-weight: 800; font-size: 0.92rem; color: #ffffff;">${v.title}</span>
-                            </div>
-                            <div style="font-size: 0.76rem; color: #cbd5e1; line-height: 1.4; margin-bottom: 6px;">
-                                ${v.description || '강의 설명 없음'}
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 10px; font-size: 0.74rem;">
-                                ${v.password ? `<span style="color: #fbbf24; background: rgba(245,158,11,0.15); padding: 2px 8px; border-radius: 4px; font-weight: 800;">🔑 비번: <b>${v.password}</b></span>` : '<span style="color: #34d399; font-weight: 700;">🔓 전체 공개</span>'}
-                                <a href="${v.video_url}" target="_blank" style="color: #818cf8; text-decoration: underline; font-weight: 700;">▶️ 링크 열기</a>
-                            </div>
-                        </div>
-                        <div style="display: flex; gap: 6px; align-items: center;">
-                            <button onclick="openEditVodModal(${v.id})" class="btn" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; background: rgba(99,102,241,0.2); color: #a5b4fc; border: 1px solid #6366f1; border-radius: 6px; cursor: pointer;">
-                                ✏️ 수정
-                            </button>
-                            <button onclick="handleDeleteVodLibrary(${v.id})" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; color: #f87171; border-color: rgba(239,68,68,0.5); border-radius: 6px; cursor: pointer;">
-                                🗑️ 삭제
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
+                adminVodListCache = list || [];
+                syncCategoryOptionsIntoSelects();
+                renderAdminVodLibrary();
             } catch(e) {
                 console.error("loadAdminVodLibrary error:", e);
             }
+        }
+
+        function filterAdminVod(cat) {
+            currentAdminVodFilter = cat;
+            renderAdminVodLibrary();
+        }
+
+        function renderAdminVodLibrary() {
+            const container = document.getElementById("admin-vod-library-list");
+            if (!container) return;
+
+            if (!adminVodListCache || adminVodListCache.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.8rem; padding:16px; background: rgba(0,0,0,0.2); border-radius: 10px;">등록된 VOD 강의가 없습니다. 위 입력창에서 새 VOD 강좌를 등록하세요.</div>';
+                return;
+            }
+
+            const categories = ['전체', ...new Set(adminVodListCache.map(v => v.category || '기타'))];
+            let filteredList = adminVodListCache;
+            if (currentAdminVodFilter !== '전체') {
+                filteredList = filteredList.filter(v => (v.category || '기타') === currentAdminVodFilter);
+            }
+
+            const filterBarHtml = `
+                <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 10px; -webkit-overflow-scrolling: touch; scrollbar-width: none;">
+                    ${categories.map(cat => {
+                        const count = cat === '전체' ? adminVodListCache.length : adminVodListCache.filter(v => (v.category || '기타') === cat).length;
+                        const isActive = currentAdminVodFilter === cat ? 'active' : '';
+                        return `
+                            <button type="button" onclick="filterAdminVod('${cat}')" class="btn-vod-filter ${isActive}">
+                                <span>${cat}</span>
+                                <span style="font-size: 0.7rem; opacity: 0.85;">(${count})</span>
+                            </button>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+
+            const cardsHtml = filteredList.map(v => `
+                <div style="background: rgba(0,0,0,0.4); padding: 12px 14px; border-radius: 10px; border-left: 4px solid #a855f7; border: 1px solid rgba(168,85,247,0.25); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
+                    <div style="flex: 1; min-width: 220px;">
+                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                            <span style="font-size: 0.72rem; background: rgba(168,85,247,0.25); color: #c084fc; padding: 2px 8px; border-radius: 4px; font-weight: 800;">${v.category || '특강'}</span>
+                            <span style="font-weight: 800; font-size: 0.92rem; color: #ffffff;">${v.title}</span>
+                        </div>
+                        <div style="font-size: 0.76rem; color: #cbd5e1; line-height: 1.4; margin-bottom: 6px;">
+                            ${v.description || '강의 설명 없음'}
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; font-size: 0.74rem;">
+                            ${v.password ? `<span style="color: #fbbf24; background: rgba(245,158,11,0.15); padding: 2px 8px; border-radius: 4px; font-weight: 800;">🔑 비번: <b>${v.password}</b></span>` : '<span style="color: #34d399; font-weight: 700;">🔓 전체 공개</span>'}
+                            <a href="${v.video_url}" target="_blank" style="color: #818cf8; text-decoration: underline; font-weight: 700;">▶️ 링크 열기</a>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                        <button onclick="openEditVodModal(${v.id})" class="btn" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; background: rgba(99,102,241,0.2); color: #a5b4fc; border: 1px solid #6366f1; border-radius: 6px; cursor: pointer;">
+                            ✏️ 수정
+                        </button>
+                        <button onclick="handleDeleteVodLibrary(${v.id})" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; color: #f87171; border-color: rgba(239,68,68,0.5); border-radius: 6px; cursor: pointer;">
+                            🗑️ 삭제
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = filterBarHtml + (cardsHtml || '<div style="text-align:center; color:#94a3b8; font-size:0.8rem; padding:12px;">해당 카테고리의 강의가 없습니다.</div>');
         }
 
         function openEditVodModal(id) {
             const item = adminVodListCache.find(v => v.id === id);
             if (!item) return;
             document.getElementById("edit-vod-id").value = item.id;
-            document.getElementById("edit-vod-category").value = item.category || "수학";
+            
+            const sel = document.getElementById("edit-vod-category");
+            if (sel) {
+                let found = false;
+                for (let i = 0; i < sel.options.length; i++) {
+                    if (sel.options[i].value === item.category) {
+                        sel.selectedIndex = i;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    sel.value = "__CUSTOM__";
+                    const customInp = document.getElementById("edit-vod-custom-cat");
+                    if (customInp) {
+                        customInp.style.display = "block";
+                        customInp.value = item.category || "";
+                    }
+                } else {
+                    document.getElementById("edit-vod-custom-cat").style.display = "none";
+                }
+            }
+
             document.getElementById("edit-vod-password").value = item.password || "";
             document.getElementById("edit-vod-title").value = item.title || "";
             document.getElementById("edit-vod-url").value = item.video_url || "";
@@ -1514,10 +1608,55 @@ ${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; font-we
             document.getElementById("admin-vod-edit-modal").style.display = "none";
         }
 
+        async function handleCreateVodLibrary(e) {
+            e.preventDefault();
+            let cat = document.getElementById("vod-lib-category").value;
+            if (cat === '__CUSTOM__') {
+                cat = (document.getElementById("vod-lib-custom-cat")?.value || "").trim();
+                if (!cat) {
+                    alert("새 카테고리명을 입력해주세요.");
+                    return;
+                }
+            }
+            const pw = document.getElementById("vod-lib-password").value.trim();
+            const title = document.getElementById("vod-lib-title").value.trim();
+            const url = document.getElementById("vod-lib-url").value.trim();
+            const desc = document.getElementById("vod-lib-desc").value.trim();
+
+            try {
+                const res = await fetch("/api/vod/library", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ category: cat, password: pw, title: title, video_url: url, description: desc, target_audience: "ALL" })
+                });
+                if (res.ok) {
+                    alert("✅ VOD 강좌가 등록 및 배포되었습니다!");
+                    document.getElementById("vod-lib-title").value = "";
+                    document.getElementById("vod-lib-url").value = "";
+                    document.getElementById("vod-lib-password").value = "";
+                    document.getElementById("vod-lib-desc").value = "";
+                    const customInp = document.getElementById("vod-lib-custom-cat");
+                    if (customInp) { customInp.value = ""; customInp.style.display = "none"; }
+                    document.getElementById("vod-lib-category").value = "국어";
+                    loadAdminVodLibrary();
+                } else {
+                    const err = await res.json();
+                    alert(err.detail || "VOD 등록 실패");
+                }
+            } catch(e) { alert("VOD 등록 중 오류 발생"); }
+        }
+
         async function handleUpdateVodLibrary(e) {
             e.preventDefault();
             const id = document.getElementById("edit-vod-id").value;
-            const cat = document.getElementById("edit-vod-category").value;
+            let cat = document.getElementById("edit-vod-category").value;
+            if (cat === '__CUSTOM__') {
+                cat = (document.getElementById("edit-vod-custom-cat")?.value || "").trim();
+                if (!cat) {
+                    alert("새 카테고리명을 입력해주세요.");
+                    return;
+                }
+            }
             const pw = document.getElementById("edit-vod-password").value.trim();
             const title = document.getElementById("edit-vod-title").value.trim();
             const url = document.getElementById("edit-vod-url").value.trim();
@@ -1882,14 +2021,19 @@ ${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; font-we
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                     <div>
                         <label style="font-size: 0.75rem; color: #c084fc; font-weight: 800; display: block; margin-bottom: 4px;">📁 강의 과목 / 구분</label>
-                        <select id="edit-vod-category" class="form-input" style="font-weight: 700; height: 42px; width: 100%; box-sizing: border-box;">
-                            <option value="수학">📐 수학 특강/복습</option>
-                            <option value="국어">📖 국어 특강/해설</option>
-                            <option value="영어">🔤 영어 독해/어법</option>
-                            <option value="탐구">🔬 탐구영역 특강</option>
-                            <option value="입시">🎤 입시설명회 / 전략</option>
-                            <option value="기타">💡 일반 학사 공지 영상</option>
-                        </select>
+                        <div style="display: flex; gap: 6px;">
+                            <select id="edit-vod-category" class="form-input" onchange="handleCategorySelectChange('edit-vod-category', 'edit-vod-custom-cat')" style="font-weight: 700; height: 42px; flex: 1; box-sizing: border-box;">
+                                <option value="국어">📖 국어 특강/해설</option>
+                                <option value="수학">📐 수학 특강/복습</option>
+                                <option value="영어">🔤 영어 독해/어법</option>
+                                <option value="탐구">🔬 탐구영역 특강</option>
+                                <option value="입시">🎤 입시설명회 / 전략</option>
+                                <option value="칼럼">💡 칼럼 / 학습태도</option>
+                                <option value="기타">💡 일반 학사 공지</option>
+                                <option value="__CUSTOM__">➕ 새 카테고리 직접 추가...</option>
+                            </select>
+                            <input type="text" id="edit-vod-custom-cat" placeholder="새 카테고리명" class="form-input" style="display: none; width: 130px; height: 42px; font-weight: 800; border-color: #c084fc; box-sizing: border-box;">
+                        </div>
                     </div>
                     <div>
                         <label style="font-size: 0.75rem; color: #c084fc; font-weight: 800; display: block; margin-bottom: 4px;">🔑 시청 비밀번호</label>

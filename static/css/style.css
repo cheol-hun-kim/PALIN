@@ -2599,3 +2599,34 @@ body.role-parent .timetable-day-column {
     width: 0 !important;
     height: 0 !important;
 }
+
+
+/* 🎬 VOD 카테고리 필터 버튼 스타일 */
+.btn-vod-filter {
+    padding: 6px 14px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #cbd5e1;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-vod-filter:hover {
+    background: rgba(168, 85, 247, 0.2);
+    color: #f8fafc;
+    border-color: rgba(168, 85, 247, 0.4);
+}
+
+.btn-vod-filter.active {
+    background: linear-gradient(135deg, #a855f7, #7e22ce) !important;
+    color: #ffffff !important;
+    border-color: #c084fc !important;
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.45) !important;
+}
