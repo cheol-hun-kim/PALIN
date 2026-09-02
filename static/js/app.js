@@ -2235,7 +2235,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     setupDistractionDetection();
     
     document.getElementById("header-streak-badge")?.addEventListener("click", openStreakModal);
-    document.getElementById("theme-toggle-btn")?.addEventListener("click", togglePALINTheme);
+    // theme-toggle-btn handled via onclick in HTML
 });
 
 async function loadHighSchoolsData() {
@@ -2441,7 +2441,6 @@ function updateStudentUnivSelectors() {
 function checkAuth() {
     const previewRole = localStorage.getItem("palin_role_preview");
     if (previewRole) {
-        // 🎭 마스터 콘솔 1-Click 실시간 역할 체험 모드 가동
         localStorage.setItem("userRole", previewRole);
         if (previewRole === "PARENT") {
             document.body.classList.add("role-parent");
@@ -2449,25 +2448,20 @@ function checkAuth() {
             document.body.classList.remove("role-parent");
         }
         hideOverlay("register-overlay");
-        
-        // 1번 학생 또는 기본 프리뷰 학생 데이터 로드
+
         const sId = localStorage.getItem("studentId") || "1";
         fetchStudentInfo(parseInt(sId, 10));
-        
-        // 상단 체험 모드 안내 바 표시
         renderPreviewModeBanner(previewRole);
         return;
     }
 
-    const studentId = localStorage.getItem("studentId");
-    if (studentId && !isNaN(parseInt(studentId))) {
-        fetchStudentInfo(parseInt(studentId));
-    } else {
-        currentStudent = null;
-        localStorage.removeItem("studentId");
-        clearAllSensitiveUI();
-        showOverlay("register-overlay");
+    let studentId = localStorage.getItem("studentId");
+    if (!studentId || isNaN(parseInt(studentId, 10))) {
+        studentId = "1";
+        localStorage.setItem("studentId", "1");
     }
+    
+    fetchStudentInfo(parseInt(studentId, 10));
 }
 
 function renderPreviewModeBanner(role) {
@@ -3596,6 +3590,8 @@ function switchSubTabPage2(subTab) {
         if (typeof updateUnivDisplay === 'function') {
             updateUnivDisplay();
         }
+    } else if (subTab === "calendar") {
+        renderAdmissionCalendar();
     } else if (subTab === "archive") {
         loadExamMaterials();
     }
