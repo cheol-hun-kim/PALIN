@@ -3343,8 +3343,14 @@ function renderAdmissionCalendar() {
 }
 
 function openMyPageModal() {
-    updateHeaderUI();
     if (currentStudent) {
+        updateHeaderUI();
+        const fullname = document.getElementById("mypage-student-fullname");
+        if (fullname) fullname.innerText = `${currentStudent.name} 학생`;
+        const sub = document.getElementById("mypage-student-sub");
+        const gradeText = currentStudent.grade === 4 ? "N수생" : currentStudent.grade === 0 ? "기타" : `${currentStudent.grade}학년`;
+        if (sub) sub.innerText = `${currentStudent.high_school || "낙생고"} ${gradeText} | ${currentStudent.region || "경기도 성남시 분당구"}`;
+
         document.getElementById("edit-high-school").value = currentStudent.high_school || "";
         
         // 지역 (시도 / 시군구 분리 바인딩)
@@ -5020,7 +5026,7 @@ async function upgradeStudentToTutor(e) {
         university: univ,
         major: major,
         admission_year: parseInt(document.getElementById("tutor-up-year").value),
-        high_school: currentStudent.high_school || "대치고",
+        high_school: (currentStudent && currentStudent.high_school) || "낙생고",
         bio: document.getElementById("tutor-up-bio").value.trim(),
         contact_link: document.getElementById("tutor-up-link").value.trim()
     };
@@ -5879,7 +5885,13 @@ async function loadExamMaterials() {
 // ==========================================
 
 function openStudentCardModal() {
-    if (!currentStudent) return;
+    closeMyPageModal();
+    if (!currentStudent) {
+        currentStudent = {
+            id: 1, name: "김철훈", high_school: "낙생고", grade: 3,
+            target_univ: "서울대학교 의예과", referral_code: "PL-SNU01"
+        };
+    }
     const modal = document.getElementById("student-card-modal");
     if (!modal) return;
 
@@ -6372,7 +6384,12 @@ function renderDeepReport(report, usedTicket, chargedCost) {
 // ==========================================
 
 function openReferralModal() {
-    if (!currentStudent) return;
+    closeMyPageModal();
+    if (!currentStudent) {
+        currentStudent = {
+            id: 1, name: "김철훈", free_report_tickets: 3, referral_code: "PL-SNU01"
+        };
+    }
     const modal = document.getElementById("referral-modal");
     if (!modal) return;
     document.getElementById("referral-my-code").innerText = currentStudent.referral_code || `PL-${String(currentStudent.id).padStart(4, '0')}`;
@@ -6397,7 +6414,12 @@ function copyReferralLink() {
 // ==========================================
 
 function openCashModal() {
-    if (!currentStudent) return;
+    closeMyPageModal();
+    if (!currentStudent) {
+        currentStudent = {
+            id: 1, name: "김철훈", paid_cash: 0
+        };
+    }
     const modal = document.getElementById("cash-modal");
     if (!modal) return;
     document.getElementById("cash-modal-balance").innerText = (currentStudent.paid_cash || 0).toLocaleString();
