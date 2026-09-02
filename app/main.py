@@ -963,9 +963,9 @@ def delete_student_account(student_id: int, db: Session = Depends(get_db)):
         if student.parent_id:
             parent = db.query(models.Parent).filter(models.Parent.id == student.parent_id).first()
             if parent:
-                db.delete(parent)
+                parent.deleted_at = func.now()
                 
-        db.delete(student)
+        student.deleted_at = func.now()
         db.commit()
         return {"success": True, "message": "\ud68c\uc6d0 \ud0c8\ud1f4\uac00 \uc644\ub8cc\ub418\uc5c8\uc2b5\ub2c8\ub2e4."}
     except Exception as e:
@@ -1113,7 +1113,7 @@ def create_block(payload: schemas.PlannerBlockCreate, db: Session = Depends(get_
 def delete_block(block_id: int, db: Session = Depends(get_db)):
     block = db.query(models.PlannerBlock).filter(models.PlannerBlock.id == block_id).first()
     if block:
-        db.delete(block)
+        block.deleted_at = func.now()
         db.commit()
     return {"status": "ok"}
 
@@ -1759,8 +1759,8 @@ def authenticate_admin(payload: AdminAuthPayload):
 
 @app.get("/api/admin/dashboard")
 def get_admin_dashboard(db: Session = Depends(get_db)):
-    students = db.query(models.Student).all()
-    parents = db.query(models.Parent).all()
+    students = db.query(models.Student).filter(models.Student.deleted_at == None).all()
+    parents = db.query(models.Parent).filter(models.Parent.deleted_at == None).all()
     feedbacks = db.query(models.Feedback).order_by(models.Feedback.created_at.desc()).all()
     missions = db.query(models.MissionLog).order_by(models.MissionLog.created_at.desc()).limit(15).all()
     studies = db.query(models.StudySession).order_by(models.StudySession.created_at.desc()).limit(15).all()
@@ -1976,7 +1976,7 @@ def create_notice(payload: schemas.NoticeCreate, db: Session = Depends(get_db)):
 def delete_notice(notice_id: int, db: Session = Depends(get_db)):
     n = db.query(models.Notice).filter(models.Notice.id == notice_id).first()
     if n:
-        db.delete(n)
+        n.deleted_at = func.now()
         db.commit()
     return {"status": "ok"}
 
@@ -2178,7 +2178,7 @@ def delete_admin_knowledge(item_id: int, db: Session = Depends(get_db)):
     item = db.query(models.AdminKnowledge).filter(models.AdminKnowledge.id == item_id).first()
     if not item:
         raise HTTPException(status_code=404, detail="지식 항목을 찾을 수 없습니다.")
-    db.delete(item)
+    item.deleted_at = func.now()
     db.commit()
     return {"status": "ok", "message": "지식 항목이 삭제되었습니다."}
 
@@ -2730,7 +2730,7 @@ class AcademyCodePayload(BaseModel):
 @app.get("/api/admin/academy/codes")
 def get_academy_codes(db: Session = Depends(get_db)):
     codes_dict = load_registered_academy_codes()
-    students = db.query(models.Student).all()
+    students = db.query(models.Student).filter(models.Student.deleted_at == None).all()
     
     # 학원코드별 연동 재원생 수 집계
     stats = {}
@@ -3243,7 +3243,7 @@ def delete_vod_library(item_id: int, db: Session = Depends(get_db)):
     item = db.query(models.VodLibrary).filter(models.VodLibrary.id == item_id).first()
     if not item:
         raise HTTPException(status_code=404, detail="\ud574\ub2f9 VOD\ub97c \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.")
-    db.delete(item)
+    item.deleted_at = func.now()
     db.commit()
     return {"status": "success", "message": "VOD\uac00 \uc0ad\uc81c\ub418\uc5c8\uc2b5\ub2c8\ub2e4."}
 
@@ -3478,7 +3478,7 @@ def assign_manual_red_card(user_id: int, payload: ManualPenaltyPayload, db: Sess
 
 @app.post("/api/cron/weekly-survival-report")
 def generate_weekly_survival_reports(db: Session = Depends(get_db)):
-    students = db.query(models.Student).all()
+    students = db.query(models.Student).filter(models.Student.deleted_at == None).all()
     reports_generated = 0
     
     for s in students:

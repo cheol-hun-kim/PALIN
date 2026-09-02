@@ -85,6 +85,7 @@ class Student(Base):
     leave_reason = Column(String, nullable=True)           # 휴강 사유 (내신 휴강 / 개인 사유 / 상담 후 결정)
  
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     parent_id = Column(Integer, ForeignKey("parents.id"))
     parent = relationship("Parent", back_populates="students")
@@ -120,6 +121,7 @@ class GoldenTicket(Base):
     claimed_by_id = Column(Integer, ForeignKey("students.id"), nullable=True)
     is_claimed = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     referrer = relationship("Student", foreign_keys=[referrer_id], back_populates="golden_tickets")
 
@@ -136,6 +138,7 @@ class Parent(Base):
     role = Column(String, default="PARENT")
     wallet_balance = Column(Integer, default=50000)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     students = relationship("Student", back_populates="parent")
 
@@ -151,6 +154,7 @@ class PlannerBlock(Base):
     title = Column(String)         # 과목 및 계획 이름
     is_completed = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     student = relationship("Student", back_populates="planner_blocks")
 
@@ -166,6 +170,7 @@ class MissionLog(Base):
     proof_img_url = Column(String, nullable=True)
     status = Column(String)  # "SUCCESS" | "FAIL" | "PENDING"
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     student = relationship("Student", back_populates="mission_logs")
 
@@ -180,6 +185,7 @@ class StudySession(Base):
     duration_sec = Column(Integer, default=0)
     is_distracted = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     student = relationship("Student", back_populates="study_sessions")
 
@@ -197,6 +203,7 @@ class PredictRequest(Base):
     baseline_result_tier = Column(String)
     cost_points = Column(Integer, default=50)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     student = relationship("Student", back_populates="predict_requests")
 
@@ -213,6 +220,7 @@ class QAPost(Base):
     is_resolved = Column(Boolean, default=False)
     is_anonymous = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     student = relationship("Student", back_populates="qa_posts")
     comments = relationship("QAComment", back_populates="post")
@@ -228,6 +236,7 @@ class QAComment(Base):
     is_accepted = Column(Boolean, default=False)
     is_anonymous = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     post = relationship("QAPost", back_populates="comments")
     student = relationship("Student", back_populates="qa_comments")
@@ -261,6 +270,7 @@ class TutorProfile(Base):
     high_school_emblem = Column(String, nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     student = relationship("Student", back_populates="tutor_profile")
     proposals = relationship("Proposal", back_populates="tutor")
@@ -275,6 +285,7 @@ class TutorRequest(Base):
     budget = Column(String)
     details = Column(Text)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     student = relationship("Student", back_populates="tutor_requests")
     proposals = relationship("Proposal", back_populates="request")
@@ -291,6 +302,7 @@ class Proposal(Base):
     cost_points = Column(Integer, default=100)
     status = Column(String, default="PENDING")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     tutor = relationship("TutorProfile", back_populates="proposals")
     request = relationship("TutorRequest", back_populates="proposals")
@@ -305,6 +317,7 @@ class PointHistory(Base):
     amount = Column(Integer)
     description = Column(String)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     student = relationship("Student", back_populates="point_histories")
 
@@ -319,6 +332,7 @@ class Feedback(Base):
     content = Column(Text)
     status = Column(String, default="접수됨")  # 접수됨 | 처리중 | 완료
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     student = relationship("Student", back_populates="feedbacks")
 
@@ -331,6 +345,7 @@ class Blacklist(Base):
     phone = Column(String, index=True, nullable=True)
     reason = Column(String)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
 
 class Notice(Base):
@@ -342,6 +357,7 @@ class Notice(Base):
     category = Column(String, default="일반공지")  # 긴급공지 | 일반공지 | 이벤트
     is_pinned = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
 
 class ExamMaterial(Base):
@@ -358,6 +374,7 @@ class ExamMaterial(Base):
     answer_file_name = Column(String, nullable=True)
     year = Column(Integer, default=2027)  # 2027학년도 | 2026학년도 | 2025학년도 등
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
 
 class AdmissionReport(Base):
@@ -372,6 +389,7 @@ class AdmissionReport(Base):
     baseline_univ = Column(String, nullable=True)
     report_json = Column(Text)  # JSON 전문 저장
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     student = relationship("Student")
 
@@ -390,6 +408,7 @@ class ConsultingRequest(Base):
     price = Column(Integer, default=300000)
     note = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     student = relationship("Student")
 
@@ -404,6 +423,7 @@ class AdminKnowledge(Base):
     content = Column(Text) # 칼럼/지침 본문
     is_active = Column(Boolean, default=True) # 활성화 여부
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
 
 class BlackLoungePost(Base):
@@ -418,6 +438,7 @@ class BlackLoungePost(Base):
     content = Column(Text)
     reply_count = Column(Integer, default=0)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     student = relationship("Student")
 
@@ -450,6 +471,7 @@ class AdminSchedule(Base):
     remind_1day_sent = Column(Boolean, default=False)
     remind_2hour_sent = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
 
 class CurriculumFeed(Base):
@@ -464,6 +486,7 @@ class CurriculumFeed(Base):
     content = Column(Text, nullable=False)           # 진행/예정 강의 내용
     is_special_notice = Column(Boolean, default=False) # 특별 공지 최상단 고정 뱃지
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
 
 class AdministrativeRequest(Base):
@@ -479,6 +502,7 @@ class AdministrativeRequest(Base):
     leave_reason = Column(String, nullable=True)  # 내신 휴강 | 개인 사유 | 상담 후 결정
     status = Column(String, default="PENDING")    # 'PENDING' | 'APPROVED' | 'REJECTED'
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     student = relationship("Student")
 
@@ -497,6 +521,7 @@ class ExamScore(Base):
     trend_direction = Column(String, default="UP")   # UP(▲) | DOWN(▼) | SAME(-)
     is_submitted_on_time = Column(Boolean, default=True) # 일요일 자정 내 제출 여부
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     student = relationship("Student")
 
@@ -511,6 +536,7 @@ class DiagnosticSurvey(Base):
     prescriptions_json = Column(Text, nullable=False)# 선택지별 원장 맞춤 처방전 매핑 JSON
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
 
 class SurveyResponse(Base):
@@ -524,6 +550,7 @@ class SurveyResponse(Base):
     prescriptions_result = Column(Text, nullable=False) # 발급된 최종 맞춤 처방전 전문
     parent_alert_sent = Column(Boolean, default=False)  # 학부모 알림톡 발송 여부
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     student = relationship("Student")
     survey = relationship("DiagnosticSurvey")
@@ -542,6 +569,7 @@ class VodLibrary(Base):
     description = Column(Text, nullable=True)
     target_audience = Column(String, default="ALL")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
 
 class VodAssignment(Base):
@@ -560,6 +588,7 @@ class VodAssignment(Base):
     is_homework_verified = Column(Boolean, default=False)       # 과제 검수 완료 여부
     overdue_alert_sent = Column(Boolean, default=False)         # 10일 초과 독촉 알림톡 발송 여부
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     student = relationship("Student")
 
@@ -577,6 +606,7 @@ class AttendanceLog(Base):
     penalty_deducted = Column(Integer, default=0)
     sms_sent = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     student = relationship("Student")
 
@@ -592,6 +622,7 @@ class WeeklyReport(Base):
     has_unpaid_warning = Column(Boolean, default=False) # 수업료/교재비 미납 촉구 문구 포함 여부
     aligo_sent = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     student = relationship("Student")
 
@@ -629,6 +660,7 @@ class Tenant(Base):
     brain_injected_at = Column(DateTime(timezone=True), nullable=True)
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
 
 class B2BSupportTicket(Base):
@@ -644,6 +676,7 @@ class B2BSupportTicket(Base):
     status = Column(String, default="접수됨")    # '접수됨' | '검토중' | '답변완료' | '종결'
     answer = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 
@@ -657,3 +690,4 @@ class DirectorBroadcastNotice(Base):
     content = Column(Text, nullable=False)
     is_mandatory_popup = Column(Boolean, default=True) # 대시보드 로그인 시 강제 모달 팝업
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
