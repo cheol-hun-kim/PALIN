@@ -6,7 +6,7 @@
     <title>PALIN OS - B2B 학원장 통합 관제실 (Director Cockpit)</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=6300.0">
+    <link rel="stylesheet" href="css/style.css?v=6400.0">
     <style>
         :root {
             --bg-color: #08090d;
@@ -1693,19 +1693,34 @@
                 }).join('');
             }
 
-            listContainer.innerHTML = filteredList.length > 0 ? filteredList.map(v => `
+            const batchBar = filteredList.length > 0 ? `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(168,85,247,0.15); padding:10px 14px; border-radius:10px; margin-bottom:12px; border:1px solid rgba(168,85,247,0.3);">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.82rem; font-weight:700; color:#e2e8f0;">
+                        <input type="checkbox" id="vod-select-all" onchange="toggleSelectAllVods(this.checked)" style="transform:scale(1.15);">
+                        <span>VOD 강좌 전체 선택</span>
+                    </label>
+                    <button onclick="handleBatchDeleteVod()" class="btn" style="padding:6px 14px; font-size:0.75rem; font-weight:800; background:linear-gradient(135deg,#ef4444,#dc2626); color:white; border-radius:6px;">
+                        🗑️ 선택 VOD 일괄 삭제
+                    </button>
+                </div>
+            ` : '';
+
+            listContainer.innerHTML = batchBar + (filteredList.length > 0 ? filteredList.map(v => `
                 <div style="background: rgba(0,0,0,0.4); padding: 12px 14px; border-radius: 10px; border-left: 4px solid #a855f7; border: 1px solid rgba(168,85,247,0.25); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                    <div style="flex: 1; min-width: 220px;">
-                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-                            <span style="font-size: 0.72rem; background: rgba(168,85,247,0.25); color: #c084fc; padding: 2px 8px; border-radius: 4px; font-weight: 800;">${v.category || '특강'}</span>
-                            <span style="font-weight: 800; font-size: 0.92rem; color: #ffffff;">${v.title}</span>
-                        </div>
-                        <div style="font-size: 0.76rem; color: #cbd5e1; line-height: 1.4; margin-bottom: 6px;">
-                            ${v.description || '강의 설명 없음'}
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 10px; font-size: 0.74rem;">
-                            ${v.password ? `<span style="color: #fbbf24; background: rgba(245,158,11,0.15); padding: 2px 8px; border-radius: 4px; font-weight: 800;">🔑 비번: <b>${v.password}</b></span>` : '<span style="color: #34d399; font-weight: 700;">🔓 전체 공개</span>'}
-                            <a href="${v.video_url}" target="_blank" style="color: #818cf8; text-decoration: underline; font-weight: 700;">▶️ 링크 열기</a>
+                    <div style="display:flex; align-items:flex-start; gap:10px; flex: 1; min-width: 220px;">
+                        <input type="checkbox" class="vod-item-checkbox" value="${v.id}" style="margin-top:4px; transform:scale(1.15); cursor:pointer;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                                <span style="font-size: 0.72rem; background: rgba(168,85,247,0.25); color: #c084fc; padding: 2px 8px; border-radius: 4px; font-weight: 800;">${v.category || '특강'}</span>
+                                <span style="font-weight: 800; font-size: 0.92rem; color: #ffffff;">${v.title}</span>
+                            </div>
+                            <div style="font-size: 0.76rem; color: #cbd5e1; line-height: 1.4; margin-bottom: 6px;">
+                                ${v.description || '강의 설명 없음'}
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px; font-size: 0.74rem;">
+                                ${v.password ? `<span style="color: #fbbf24; background: rgba(245,158,11,0.15); padding: 2px 8px; border-radius: 4px; font-weight: 800;">🔑 비번: <b>${v.password}</b></span>` : '<span style="color: #34d399; font-weight: 700;">🔓 전체 공개</span>'}
+                                <a href="${v.video_url}" target="_blank" style="color: #818cf8; text-decoration: underline; font-weight: 700;">▶️ 링크 열기</a>
+                            </div>
                         </div>
                     </div>
                     <div style="display: flex; gap: 6px; align-items: center;">
@@ -1717,7 +1732,7 @@
                         </button>
                     </div>
                 </div>
-            `).join('') : '<div style="text-align:center; color:#94a3b8; font-size:0.82rem; padding:16px;">해당 카테고리의 강의가 없습니다.</div>';
+            `).join('') : '<div style="text-align:center; color:#94a3b8; font-size:0.82rem; padding:16px;">해당 카테고리의 강의가 없습니다.</div>');
         }
 
         function openEditVodModal(id) {
@@ -1884,6 +1899,65 @@
                 });
                 if (res.ok) alert(`🎬 VOD가 학생 #${sid}에게 배정되었습니다!`);
             } catch(e) {}
+        }
+
+        
+        function toggleSelectAllVods(checked) {
+            document.querySelectorAll('.vod-item-checkbox').forEach(cb => { cb.checked = checked; });
+        }
+
+        async function handleBatchDeleteVod() {
+            const selected = Array.from(document.querySelectorAll('.vod-item-checkbox:checked')).map(cb => parseInt(cb.value, 10));
+            if (selected.length === 0) {
+                alert("삭제할 VOD 강좌를 1개 이상 선택해 주세요.");
+                return;
+            }
+            if (!confirm(`선택한 ${selected.length}개의 VOD 강좌를 일괄 삭제하시겠습니까?`)) return;
+            try {
+                const res = await fetch("/api/admin/vod/batch-delete", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ids: selected })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`✅ ${data.message || '선택한 VOD가 일괄 삭제되었습니다.'}`);
+                    loadAdminVodLibrary();
+                } else {
+                    alert(data.detail || "일괄 삭제 실패");
+                }
+            } catch(e) {
+                alert("일괄 삭제 통신 오류");
+            }
+        }
+
+        function toggleSelectAllMats(checked) {
+            document.querySelectorAll('.mat-item-checkbox').forEach(cb => { cb.checked = checked; });
+        }
+
+        async function handleBatchDeleteExamMaterials() {
+            const selected = Array.from(document.querySelectorAll('.mat-item-checkbox:checked')).map(cb => parseInt(cb.value, 10));
+            if (selected.length === 0) {
+                alert("삭제할 기출문제를 1개 이상 선택해 주세요.");
+                return;
+            }
+            if (!confirm(`선택한 ${selected.length}개의 기출문제를 일괄 삭제하시겠습니까?`)) return;
+            try {
+                const res = await fetch("/api/admin/materials/batch-delete", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ids: selected })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`✅ ${data.message || '선택한 기출문제가 일괄 삭제되었습니다.'}`);
+                    loadAdminExamMaterials();
+                } else {
+                    alert(data.detail || "일괄 삭제 실패");
+                }
+            } catch(e) {
+                alert("일괄 삭제 통신 오류");
+            }
         }
 
         async function loadAdminRequests() {

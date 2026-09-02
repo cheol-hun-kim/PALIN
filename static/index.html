@@ -30,7 +30,7 @@
     </script>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=6300.0">
+    <link rel="stylesheet" href="css/style.css?v=6400.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -615,6 +615,9 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <span id="header-streak-count" style="font-weight: 800; font-size: 0.8rem;">연속 1일</span>
                 </div>
                 <!-- 👤 마이페이지 & 자산 관리 버튼 -->
+                <a id="header-godmode-btn" href="/master.html" target="_blank" class="btn" style="display: flex; padding: 4px 10px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border-radius: 20px; align-items: center; gap: 4px; text-decoration: none; box-shadow: 0 2px 8px rgba(245,158,11,0.4);">
+                    <span>👑 갓모드</span>
+                </a>
                 <button id="header-mypage-btn" onclick="openMyPageModal()" class="header-user-btn" style="padding: 6px 12px; font-size: 0.82rem; display: flex; align-items: center; gap: 5px; border-radius: 20px; cursor: pointer;">
                     <span class="material-symbols-rounded header-user-icon" style="font-size: 1.15rem;">account_circle</span>
                     <span id="header-student-name" style="font-weight: 800; letter-spacing: -0.2px;">김철훈 학생</span>
@@ -1028,10 +1031,10 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                  ========================================== -->
             <div id="page2" class="page-view" style="display: none;">
                 <div class="tab-header subtab-grid-2x2" id="p2-tabs">
-                    <button class="tab-btn active" data-sub="chat">🤖 AI 챗봇</button>
-                    <button class="tab-btn" data-sub="predict">🎯 합격 예측</button>
-                    <button class="tab-btn" data-sub="calendar">📅 입시 캘린더</button>
-                    <button class="tab-btn" data-sub="archive">📚 기출문제</button>
+                    <button class="tab-btn active" data-sub="chat" onclick="switchSubTabPage2('chat')">🤖 AI 챗봇</button>
+                    <button class="tab-btn" data-sub="predict" onclick="switchSubTabPage2('predict')">🎯 합격 예측</button>
+                    <button class="tab-btn" data-sub="calendar" onclick="switchSubTabPage2('calendar')">📅 입시 캘린더</button>
+                    <button class="tab-btn" data-sub="archive" onclick="switchSubTabPage2('archive')">📚 기출문제</button>
                 </div>
 
                 <!-- 2-Cal: 연간 대입 입시 캘린더 탭 -->
@@ -1498,10 +1501,10 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             <div id="page3" class="page-view" style="display: none;">
                 <!-- 서브탭 메뉴 (Q&A / 과외매칭 / 마이크로랭킹 / VIP 블랙 라운지) -->
                 <div class="tab-header subtab-grid-2x2" id="p3-tabs">
-                    <button class="tab-btn active" data-sub="qa" style="flex: 1; padding: 10px 6px; font-size: 0.78rem; white-space: nowrap;">❓ 공부 Q&A</button>
-                    <button class="tab-btn" data-sub="matching" style="flex: 1; padding: 10px 6px; font-size: 0.78rem; white-space: nowrap;">🎓 선배 과외</button>
-                    <button class="tab-btn" data-sub="ranking" style="flex: 1; padding: 10px 6px; font-size: 0.78rem; white-space: nowrap;">🏆 동네/학교 랭킹</button>
-                    <button class="tab-btn" data-sub="blacklounge" style="flex: 1; padding: 10px 6px; font-size: 0.78rem; white-space: nowrap; color: #f59e0b; font-weight: 800;">👑 1% 라운지</button>
+                    <button class="tab-btn active" data-sub="qa" onclick="switchSubTabPage3('qa')" style="flex: 1; padding: 10px 6px; font-size: 0.78rem; white-space: nowrap;">❓ 공부 Q&A</button>
+                    <button class="tab-btn" data-sub="matching" onclick="switchSubTabPage3('matching')" style="flex: 1; padding: 10px 6px; font-size: 0.78rem; white-space: nowrap;">🎓 선배 과외</button>
+                    <button class="tab-btn" data-sub="ranking" onclick="switchSubTabPage3('ranking')" style="flex: 1; padding: 10px 6px; font-size: 0.78rem; white-space: nowrap;">🏆 동네/학교 랭킹</button>
+                    <button class="tab-btn" data-sub="blacklounge" onclick="switchSubTabPage3('blacklounge')" style="flex: 1; padding: 10px 6px; font-size: 0.78rem; white-space: nowrap; color: #f59e0b; font-weight: 800;">👑 1% 라운지</button>
                 </div>
 
                 <!-- 3-A: 공부 Q&A 게시판 -->
@@ -1976,21 +1979,24 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
                 <!-- 5. 하단 플로팅 탭바 네비게이션 -->
         <div class="bottom-nav">
-            <div class="nav-item active" data-tab="page1">
+            <div class="nav-item active" data-tab="page1" onclick="switchTab('page1')">
                 <span class="material-symbols-rounded nav-icon">local_activity</span>
                 <span>생활관리</span>
             </div>
-            <div class="nav-item" data-tab="page2">
+            <div class="nav-item" data-tab="page2" onclick="switchTab('page2')">
                 <span class="material-symbols-rounded nav-icon">book</span>
                 <span>학습공간</span>
             </div>
-            <div class="nav-item" data-tab="page3">
+            <div class="nav-item" data-tab="page3" onclick="switchTab('page3')">
                 <span class="material-symbols-rounded nav-icon">groups</span>
                 <span>커뮤니티</span>
             </div>
-            <div class="nav-item" data-tab="page4" id="nav-tab-academy">
+            <div class="nav-item" data-tab="page4" id="nav-tab-academy" onclick="switchTab('page4')">
                 <span class="material-symbols-rounded nav-icon">account_balance</span>
                 <span>학원관리</span>
+                        <div class="nav-item" id="nav-tab-admin" onclick="window.open('/admin.html', '_blank')" style="cursor: pointer;">
+                <span class="material-symbols-rounded nav-icon" style="color: #f59e0b;">shield_person</span>
+                <span style="color: #f59e0b; font-weight: 800;">원장관제</span>
             </div>
         </div>
 
@@ -2717,7 +2723,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app.js?v=6300.0"></script>
+    <script src="js/app.js?v=6400.0"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소

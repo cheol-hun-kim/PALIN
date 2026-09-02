@@ -6069,6 +6069,15 @@ function getMedicalSymbolIcon(symbolKey) {
 }
 
 function updateHeaderUI() {
+    // 👑 갓모드(마스터 모드) 버튼 노출 제어
+    const godBtn = document.getElementById("header-godmode-btn");
+    if (godBtn) {
+        const isMaster = (currentStudent && (currentStudent.id === 1 || currentStudent.name === '김철훈' || (currentStudent.email && currentStudent.email.includes('cheolhun')))) ||
+                         localStorage.getItem('userRole') === 'SUPER_ADMIN' ||
+                         sessionStorage.getItem('palin_super_admin') === 'true';
+        godBtn.style.display = isMaster ? "inline-flex" : "none";
+    }
+
 
     if (!currentStudent) return;
 
@@ -6631,6 +6640,62 @@ function switchTab(tabId) {
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 window.switchTab = switchTab;
+
+function switchSubTabPage2(subTab) {
+    if (!subTab) return;
+    document.querySelectorAll(".subtab-view-p2").forEach(view => {
+        view.style.display = "none";
+    });
+    document.querySelectorAll("#p2-tabs .tab-btn").forEach(btn => {
+        if (btn.getAttribute("data-sub") === subTab) {
+            btn.classList.add("active");
+        } else {
+            btn.classList.remove("active");
+        }
+    });
+    
+    const target = document.getElementById(`p2-${subTab}`);
+    if (target) target.style.display = "block";
+    
+    if (subTab === "calendar") {
+        if (typeof renderAdmissionCalendar === 'function') renderAdmissionCalendar();
+    } else if (subTab === "archive") {
+        if (typeof loadExamMaterials === 'function') loadExamMaterials();
+    } else if (subTab === "predict") {
+        if (typeof loadUniversityList === 'function') loadUniversityList();
+    }
+}
+window.switchSubTabPage2 = switchSubTabPage2;
+
+function switchSubTabPage3(subTab) {
+    if (!subTab) return;
+    document.querySelectorAll(".subtab-view-p3").forEach(view => {
+        view.style.display = "none";
+    });
+    document.querySelectorAll("#p3-tabs .tab-btn").forEach(btn => {
+        if (btn.getAttribute("data-sub") === subTab) {
+            btn.classList.add("active");
+        } else {
+            btn.classList.remove("active");
+        }
+    });
+    
+    const target = document.getElementById(`p3-${subTab}`);
+    if (target) target.style.display = "block";
+    
+    if (subTab === "qa") {
+        if (typeof loadQAPosts === 'function') loadQAPosts();
+    } else if (subTab === "matching") {
+        if (typeof loadTutors === 'function') loadTutors();
+        if (typeof loadTutorRequests === 'function') loadTutorRequests();
+    } else if (subTab === "ranking") {
+        if (typeof loadMicroRankings === 'function') loadMicroRankings();
+    } else if (subTab === "blacklounge") {
+        if (typeof loadBlackLoungePosts === 'function') loadBlackLoungePosts();
+    }
+}
+window.switchSubTabPage3 = switchSubTabPage3;
+
 
 
 // --- 이벤트 리스너 바인딩 ---
@@ -7568,36 +7633,24 @@ async function addPlannerBlock(e) {
 }
 
 async function deletePlannerBlock(e, blockId) {
-
-    e.stopPropagation();
-
+    if (e && e.stopPropagation) e.stopPropagation();
     if (localStorage.getItem('userRole') === 'PARENT') {
-
         alert("🔒 학부모 모드는 조회 전용입니다. 자녀의 계획표를 삭제할 수 없습니다.");
-
         return;
-
     }
-
     if (!confirm("해당 계획 시간표를 삭제하시겠습니까?")) return;
-
     try {
-
         const res = await fetch(`/api/planner/block/${blockId}`, { method: "DELETE" });
-
         if (res.ok) {
-
-            loadTimetable();
-
+            await loadTimetable();
+        } else {
+            alert("계획 삭제 실패");
         }
-
-    } catch (e) {
-
-        console.error(e);
-
+    } catch (err) {
+        console.error("deletePlannerBlock error:", err);
     }
-
 }
+window.deletePlannerBlock = deletePlannerBlock;
 
 async function verifyMission(type, triggerFail = false) {
 
