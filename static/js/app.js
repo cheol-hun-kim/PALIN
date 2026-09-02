@@ -1,3 +1,48 @@
+function openStreakModal() {
+    const modal = document.getElementById("streak-modal");
+    if (!modal) return;
+    
+    const count = currentStudent?.streak_days || 0;
+    const titleEl = document.getElementById("streak-modal-title");
+    if (titleEl) titleEl.innerText = `🔥 ${count}일 연속 학습 달성!`;
+    
+    // 7일 출석 도장 렌더링 (월~일)
+    const weekContainer = document.getElementById("streak-week-days");
+    if (weekContainer) {
+        const dayNames = ['월', '화', '수', '목', '금', '토', '일'];
+        const today = new Date();
+        const currentDayIndex = (today.getDay() + 6) % 7; // 월=0, 일=6
+        
+        let html = '';
+        dayNames.forEach((name, idx) => {
+            let isAchieved = false;
+            let isToday = (idx === currentDayIndex);
+            if (idx <= currentDayIndex && count > 0) {
+                if (currentDayIndex - idx < count) {
+                    isAchieved = true;
+                }
+            }
+            
+            const badgeBg = isAchieved ? '#f97316' : (isToday ? 'rgba(249, 115, 22, 0.3)' : '#334155');
+            const textColor = isAchieved ? '#ffffff' : (isToday ? '#fed7aa' : '#64748b');
+            const icon = isAchieved ? '🔥' : (idx === 6 ? '👑' : '-');
+            const border = isToday ? '2px solid #f97316' : 'none';
+            
+            html += `
+                <div style="text-align: center;">
+                    <div style="font-size: 0.72rem; color: ${isToday ? '#fb923c' : '#94a3b8'}; margin-bottom: 4px; font-weight: ${isToday ? '800' : '600'};">${name}${isToday ? '<br><span style="font-size:0.62rem;">(오늘)</span>' : ''}</div>
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: ${badgeBg}; color: ${textColor}; border: ${border}; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; margin: 0 auto; box-shadow: ${isAchieved ? '0 2px 8px rgba(249, 115, 22, 0.4)' : 'none'};">
+                        ${icon}
+                    </div>
+                </div>
+            `;
+        });
+        weekContainer.innerHTML = html;
+    }
+    
+    modal.style.display = "flex";
+}
+
 function formatCleanSubjectTitle(rawTitle) {
     if (!rawTitle) return "자습";
     let t = rawTitle.trim();
@@ -6442,7 +6487,7 @@ async function loadMicroRankings() {
     document.getElementById("my-ranking-region-name").innerText = myRegion;
     document.getElementById("my-ranking-school-name").innerText = mySchool;
     
-    const myStreak = currentStudent?.consecutive_days || currentStudent?.streak_days || 2;
+    const myStreak = currentStudent?.streak_days || currentStudent?.consecutive_days || 1;
     const dummyRankers = [
         { rank: 1, name: currentStudent?.name || "나", school: mySchool, region: myRegion, studyHours: "14시간 20분", streak: myStreak, isMe: true },
         { rank: 2, name: "이*준", school: mySchool, region: myRegion, studyHours: "13시간 50분", streak: Math.max(1, myStreak - 1), isMe: false },
