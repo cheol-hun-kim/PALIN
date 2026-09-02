@@ -6,7 +6,7 @@
     <title>PALIN OS - B2B 학원장 통합 관제실 (Director Cockpit)</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=5800.0">
+    <link rel="stylesheet" href="css/style.css?v=6000.0">
     <style>
         :root {
             --bg-color: #08090d;
@@ -1194,16 +1194,16 @@
                     });
                 }
 
-                renderFinancialERP();
-                loadAdminVodLibrary();
-                loadAdminExamMaterials();
-                renderGraduateStudentList();
-                loadAdminSchedules();
-                loadAdminAttendanceLogs();
-                loadAdminAcademyCodes();
-                loadAdminRequests();
-                renderTutorApprovals(data.pending_tutors || []);
-                populateSMSTargets();
+                try { renderFinancialERP(); } catch(e) { console.warn("renderFinancialERP error", e); }
+                try { loadAdminVodLibrary(); } catch(e) { console.warn("loadAdminVodLibrary error", e); }
+                try { loadAdminExamMaterials(); } catch(e) { console.warn("loadAdminExamMaterials error", e); }
+                try { renderGraduateStudentList(); } catch(e) { console.warn("renderGraduateStudentList error", e); }
+                try { loadAdminSchedules(); } catch(e) { console.warn("loadAdminSchedules error", e); }
+                try { loadAdminAttendanceLogs(); } catch(e) { console.warn("loadAdminAttendanceLogs error", e); }
+                try { loadAdminAcademyCodes(); } catch(e) { console.warn("loadAdminAcademyCodes error", e); }
+                try { loadAdminRequests(); } catch(e) { console.warn("loadAdminRequests error", e); }
+                try { renderTutorApprovals(data.pending_tutors || []); } catch(e) { console.warn("renderTutorApprovals error", e); }
+                try { populateSMSTargets(); } catch(e) { console.warn("populateSMSTargets error", e); }
             } catch (e) {
                 console.error("Dashboard load failed:", e);
             }
