@@ -2406,6 +2406,18 @@ async def upload_exam_material(
     db.refresh(mat)
     return {"status": "ok", "message": "기출문제 및 정답지가 성공적으로 등록되었습니다.", "material": mat}
 
+@app.get("/api/debug/db-status")
+def debug_db_status(db: Session = Depends(get_db)):
+    student_count = db.query(models.Student).count()
+    dialect = db.bind.dialect.name
+    sample = [(s.id, s.name, s.high_school) for s in db.query(models.Student).limit(5).all()]
+    return {
+        "status": "healthy",
+        "dialect": dialect,
+        "student_count": student_count,
+        "sample_students": sample
+    }
+
 @app.delete("/api/admin/materials/{material_id}")
 @app.delete("/api/exam/materials/{material_id}")
 def delete_exam_material(material_id: int, db: Session = Depends(get_db)):

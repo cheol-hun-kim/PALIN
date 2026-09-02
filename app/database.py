@@ -30,19 +30,25 @@ sqlite_engine = create_engine(
 )
 SqliteSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=sqlite_engine)
 
-if DATABASE_URL.startswith("sqlite"):
-    engine = sqlite_engine
-    SessionLocal = SqliteSessionLocal
-else:
+engine = sqlite_engine
+SessionLocal = SqliteSessionLocal
+
+if not DATABASE_URL.startswith("sqlite"):
     try:
-        engine = create_engine(
+        pg_engine = create_engine(
             DATABASE_URL,
             poolclass=NullPool,
-            pool_pre_ping=True
+            pool_pre_ping=True,
+            connect_args={"connect_timeout": 4}
         )
-        SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        # Verify network connectivity immediately with 4s timeout
+        with pg_engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        engine = pg_engine
+        SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=pg_engine)
+        print("[DB] PostgreSQL Live Connection Succeeded!")
     except Exception as e:
-        print(f"[DB] Primary PostgreSQL Engine Init Failed ({e}), falling back to SQLite.")
+        print(f"[DB] PostgreSQL Live Connection Failed ({e}), switching permanently to SQLite.")
         engine = sqlite_engine
         SessionLocal = SqliteSessionLocal
 
@@ -52,11 +58,20 @@ def get_db():
     db = None
     try:
         db = SessionLocal()
+        # Verify active connection with ping
+        db.execute(text("SELECT 1"))
     except Exception as e:
-        print(f"[DB] Session connection error ({e}), switching to fallback SQLite.")
+        if db:
+            try:
+                db.close()
+            except:
+                pass
         db = SqliteSessionLocal()
     try:
         yield db
     finally:
         if db:
-            db.close()
+            try:
+                db.close()
+            except:
+                pass
