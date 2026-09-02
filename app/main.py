@@ -3199,6 +3199,7 @@ class VodLibraryPayload(BaseModel):
     target_audience: str = "ALL"
 
 @app.get("/api/vod/library")
+@app.get("/api/admin/vod/library")
 def get_vod_library(db: Session = Depends(get_db)):
     try:
         items = db.query(models.VodLibrary).order_by(models.VodLibrary.id.desc()).all()
