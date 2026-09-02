@@ -30,34 +30,20 @@ def auto_seed_database(db: Session, engine):
     except Exception as e:
         print(f"[AUTO_SEED] Column migration warning: {e}")
 
-    # 2. Check if DB already has students. If YES, NEVER overwrite or re-seed anything!
+    # 2. Check if DB already has students (at least 10). If YES, NEVER overwrite or re-seed anything!
     student_count = 0
     try:
         student_count = db.query(models.Student).count()
     except Exception:
         pass
 
-    if student_count > 0:
+    if student_count >= 10:
         print(f"[AUTO_SEED] Database already has {student_count} students. Preserving all user data and deletions.")
         return
 
-    print("[AUTO_SEED] Empty database detected. Initializing first-time baseline data...")
-    # Load students from JSON dump
-    dump_path = os.path.join(os.path.dirname(__file__), "supabase_students_dump.json")
-    if not os.path.exists(dump_path):
-        dump_path = r'C:\Users\1286o\.gemini\antigravity\brain\d3a9304a-a387-45ed-ba1c-8d4ce5ea0a56\scratch\supabase_students_dump.json'
-    
-    students_list = []
-    if os.path.exists(dump_path):
-        try:
-            with open(dump_path, "r", encoding="utf-8") as f:
-                raw = f.read()
-            start = raw.find('[')
-            end = raw.rfind(']') + 1
-            parsed = json.loads(raw[start:end])
-            students_list = parsed[0]["json_agg"]
-        except Exception as e:
-            print(f"[AUTO_SEED] Error parsing dump: {e}")
+    print("[AUTO_SEED] Empty database detected (< 10 students). Initializing first-time baseline data...")
+    from app.students_data_builtin import BUILTIN_STUDENTS_LIST
+    students_list = BUILTIN_STUDENTS_LIST
 
     for s in students_list:
         sid = s["id"]
