@@ -381,7 +381,8 @@ class AcademyLeavePayload(BaseModel):
 class AdministrativeRequestPayload(BaseModel):
     student_id: int
     request_type: str # 'VOD' | 'ATTENDANCE' | 'CLASS_CHANGE' | 'LEAVE' | 'RETURN'
-    details: str
+    details: Optional[str] = ""
+    reason: Optional[str] = ""
     target_date: Optional[str] = ""
     leave_reason: Optional[str] = None
 
@@ -1127,6 +1128,7 @@ def create_block(payload: schemas.PlannerBlockCreate, db: Session = Depends(get_
     block = models.PlannerBlock(**payload.model_dump())
     db.add(block)
     db.commit()
+    db.refresh(block)
     return block
 
 @app.delete("/api/planner/block/{block_id}")
@@ -2943,13 +2945,14 @@ def submit_admin_request(payload: AdministrativeRequestPayload, db: Session = De
     if not student:
         raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
         
+    details_content = payload.details or payload.reason or payload.leave_reason or "행정 요청"
     req = models.AdministrativeRequest(
         student_id=student.id,
         student_name=student.name,
         request_type=payload.request_type,
-        details=payload.details,
+        details=details_content,
         target_date=payload.target_date,
-        leave_reason=payload.leave_reason,
+        leave_reason=payload.leave_reason or details_content,
         status="PENDING"
     )
     db.add(req)
@@ -2971,7 +2974,7 @@ def submit_admin_request(payload: AdministrativeRequestPayload, db: Session = De
         except Exception as e:
             print("SMS sync notice:", e)
             
-    return {"status": "success", "request": req}
+    return {"status": "success", "message": "행정 요청이 성공적으로 접수되었습니다.", "request": req}
 
 
 @app.get("/api/admin/requests")
