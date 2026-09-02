@@ -74,6 +74,8 @@ def init_db_schema():
                             conn.execute(text("ALTER TABLE students ADD COLUMN streak_days INTEGER DEFAULT 0"))
                         if "max_streak_days" not in columns:
                             conn.execute(text("ALTER TABLE students ADD COLUMN max_streak_days INTEGER DEFAULT 0"))
+                        if "last_streak_date" not in columns:
+                            conn.execute(text("ALTER TABLE students ADD COLUMN last_streak_date DATE"))
                         if "medical_symbol" not in columns:
                             conn.execute(text("ALTER TABLE students ADD COLUMN medical_symbol VARCHAR DEFAULT 'GENERAL'"))
                         if "paid_cash" not in columns:
@@ -1076,7 +1078,7 @@ def verify_mission(payload: schemas.MissionVerify, db: Session = Depends(get_db)
         student.current_points = (student.current_points or 0) + earned
         
         # 듀오링고 불꽃(Streak) 및 성실도 점수 증가
-        student.streak_days = (student.streak_days or 0) + 1
+        update_student_streak(student, db)
         student.diligence_score = (student.diligence_score or 0) + 50
         if student.streak_days > (student.max_streak_days or 0):
             student.max_streak_days = student.streak_days
@@ -1114,6 +1116,30 @@ def delete_block(block_id: int, db: Session = Depends(get_db)):
         db.delete(block)
         db.commit()
     return {"status": "ok"}
+
+def update_student_streak(student: models.Student, db: Session):
+    today = datetime.now().date()
+    if not student.last_streak_date:
+        student.streak_days = max(1, (student.streak_days or 0) + 1 if (student.streak_days or 0) == 0 else student.streak_days)
+        student.last_streak_date = today
+    else:
+        last_date = student.last_streak_date
+        if isinstance(last_date, datetime):
+            last_date = last_date.date()
+        diff = (today - last_date).days
+        if diff == 0:
+            if not student.streak_days or student.streak_days <= 0:
+                student.streak_days = 1
+        elif diff == 1:
+            update_student_streak(student, db)
+            student.last_streak_date = today
+        elif diff > 1:
+            student.streak_days = 1
+            student.last_streak_date = today
+
+    if (student.streak_days or 0) > (student.max_streak_days or 0):
+        student.max_streak_days = student.streak_days
+
 
 @app.post("/api/study/session")
 def manage_session(payload: schemas.StudySessionRequest, db: Session = Depends(get_db)):

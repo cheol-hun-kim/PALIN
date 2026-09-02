@@ -19,7 +19,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
         return False
 
 
-from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Date, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
@@ -64,6 +64,7 @@ class Student(Base):
     dday_title = Column(String, default="2027 수능")  # 사용자 지정 목표 D-Day 시험명
     streak_days = Column(Integer, default=0)         # 연속 기상/자습 성공 불꽃 일수
     max_streak_days = Column(Integer, default=0)     # 최고 연속 기록
+    last_streak_date = Column(Date, nullable=True)           # 마지막 연속 달성 일자
     medical_symbol = Column(String, default="GENERAL") # 메디컬/전공 엠블럼 심볼
  
     # 💎 B2C 유료 캐시 & 친구 초대 바이럴 루프 필드
