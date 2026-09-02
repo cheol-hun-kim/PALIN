@@ -5,7 +5,9 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 import os
 
-DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./palin_data.db")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_DB_PATH = os.path.join(BASE_DIR, "palin_data.db").replace(os.sep, "/")
+DATABASE_URL = os.environ.get("DATABASE_URL", f"sqlite:///{DEFAULT_DB_PATH}")
 
 # 1. postgres:// -> postgresql:// 변환 (Heroku / Render 호환)
 if DATABASE_URL.startswith("postgres://"):
