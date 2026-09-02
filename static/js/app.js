@@ -3198,13 +3198,14 @@ async function fetchLeagueStatus(studentId) {
 function updateTargetBanner() {
     const targetUnivEl = document.getElementById("banner-target-univ");
     const baselineUnivEl = document.getElementById("banner-baseline-univ");
-    if (currentStudent) {
-        if (targetUnivEl) targetUnivEl.innerText = currentStudent.target_univ || "미설정";
-        if (baselineUnivEl) baselineUnivEl.innerText = currentStudent.baseline_univ || "미설정";
-        
-        // 🎨 목표 대학 상징 앰비언트 테마 & 세리프 영문 워터마크 실시간 적용
-        applyUniversityTheme(currentStudent.target_univ);
-    }
+    const target = (currentStudent && currentStudent.target_univ && currentStudent.target_univ !== "-") ? currentStudent.target_univ : (localStorage.getItem("cached_target_univ") || "서울대학교 의예과");
+    const baseline = (currentStudent && currentStudent.baseline_univ && currentStudent.baseline_univ !== "-") ? currentStudent.baseline_univ : (localStorage.getItem("cached_baseline_univ") || "연세대학교 의예과");
+
+    if (targetUnivEl) targetUnivEl.innerText = target;
+    if (baselineUnivEl) baselineUnivEl.innerText = baseline;
+    
+    // 🎨 목표 대학 상징 앰비언트 테마 & 세리프 영문 워터마크 실시간 적용
+    applyUniversityTheme(target);
 
     // D-Day 실시간 자동 계산 렌더링 (매일 자정 및 로드 시 실시간 반영)
     const ddayEl = document.getElementById("banner-dday");

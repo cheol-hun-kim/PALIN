@@ -6,7 +6,7 @@
     <title>PALIN OS - B2B 학원장 통합 관제실 (Director Cockpit)</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=4200.0">
+    <link rel="stylesheet" href="css/style.css?v=4300.0">
     <style>
         :root {
             --bg-color: #08090d;
@@ -592,6 +592,99 @@
                     </form>
                 </div>
 
+                                <!-- 📚 2. 수능/평가원/사관 기출문제 & 정답해설 PDF 업로드 & 문제은행 관리 -->
+                <div class="kpi-card" style="border: 1.5px solid rgba(16, 185, 129, 0.4); margin-bottom: 16px;">
+                    <div class="section-title" style="color: #34d399; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span class="material-symbols-rounded">menu_book</span>
+                            <span>📚 수능/평가원/사관 기출문제 & 정답해설 PDF 업로드 및 문제은행 관리</span>
+                        </div>
+                        <button type="button" onclick="loadAdminExamMaterials()" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; color: #34d399; border-color: rgba(16,185,129,0.4); cursor: pointer; font-weight: 700;">🔄 갱신</button>
+                    </div>
+                    <div style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 12px; line-height: 1.4;">
+                        💡 문제지와 정답/해설지(PDF 파일 또는 URL 링크)를 등록하시면 학생 화면 <b>[2페이지 > 기출자료실]</b>에 연도별/과목별로 즉시 노출 및 다운로드가 제공됩니다.
+                    </div>
+                    
+                    <!-- 기출문제 등록 폼 -->
+                    <form onsubmit="handleUploadExamMaterial(event)" style="display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.25); padding: 14px; border-radius: 12px; border: 1px solid rgba(16,185,129,0.2); margin-bottom: 14px;">
+                        <div style="display: grid; grid-template-columns: 130px 150px 1fr; gap: 8px;">
+                            <div>
+                                <label style="font-size: 0.75rem; color: #34d399; font-weight: 800; display: block; margin-bottom: 4px;">📅 수험 학년도</label>
+                                <select id="mat-year" class="form-input" style="font-weight: 700; height: 42px; width: 100%; box-sizing: border-box;">
+                                    <option value="2027" selected>2027학년도</option>
+                                    <option value="2026">2026학년도</option>
+                                    <option value="2025">2025학년도</option>
+                                    <option value="2024">2024학년도</option>
+                                    <option value="2023">2023학년도</option>
+                                    <option value="2022">2022학년도</option>
+                                    <option value="2021">2021학년도</option>
+                                    <option value="2020">2020학년도</option>
+                                    <option value="2019">2019학년도</option>
+                                    <option value="2018">2018학년도</option>
+                                    <option value="2017">2017학년도</option>
+                                    <option value="2016">2016학년도</option>
+                                    <option value="2015">2015학년도</option>
+                                    <option value="2014">2014학년도</option>
+                                    <option value="2013">2013학년도</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; color: #34d399; font-weight: 800; display: block; margin-bottom: 4px;">📖 수험 영역 / 과목</label>
+                                <select id="mat-subject" class="form-input" style="font-weight: 700; height: 42px; width: 100%; box-sizing: border-box;">
+                                    <option value="국어">📖 국어</option>
+                                    <option value="수학">📐 수학</option>
+                                    <option value="영어">🔤 영어</option>
+                                    <option value="과탐">🔬 과탐</option>
+                                    <option value="사탐">🌏 사탐</option>
+                                    <option value="한국사">🇰🇷 한국사</option>
+                                    <option value="사관/경찰">🎖️ 사관학교/경찰대</option>
+                                    <option value="논술">✍️ 논술</option>
+                                    <option value="기타">💡 기타</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; color: #34d399; font-weight: 800; display: block; margin-bottom: 4px;">📝 자료명 / 시험 회차</label>
+                                <input type="text" id="mat-title" placeholder="예: 2027학년도 6월 모의평가 수학 (공통+미적분)" required class="form-input" style="height: 42px; width: 100%; box-sizing: border-box;">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label style="font-size: 0.75rem; color: #34d399; font-weight: 800; display: block; margin-bottom: 4px;">💬 상세 설명 & 출제 포인트</label>
+                            <input type="text" id="mat-desc" placeholder="예: 최고난도 22번, 30번 손글씨 킬러 분석 및 문항별 정답률 포함" class="form-input" style="height: 40px; width: 100%; box-sizing: border-box;">
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <div style="background: rgba(0,0,0,0.3); padding: 10px 12px; border-radius: 8px; border: 1px dashed rgba(52,211,153,0.3);">
+                                <label style="font-size: 0.74rem; color: #34d399; font-weight: 800; display: block; margin-bottom: 4px;">📄 문제지 파일 (PDF 첨부 또는 다운로드 링크)</label>
+                                <input type="file" id="mat-file" accept=".pdf,application/pdf" style="font-size: 0.75rem; color: #cbd5e1; width: 100%; margin-bottom: 4px;">
+                                <input type="url" id="mat-file-url" placeholder="또는 문제지 PDF 웹링크 URL" class="form-input" style="height: 32px; font-size: 0.75rem; width: 100%; box-sizing: border-box;">
+                            </div>
+                            <div style="background: rgba(0,0,0,0.3); padding: 10px 12px; border-radius: 8px; border: 1px dashed rgba(52,211,153,0.3);">
+                                <label style="font-size: 0.74rem; color: #34d399; font-weight: 800; display: block; margin-bottom: 4px;">🔑 정답 및 해설지 파일 (PDF 첨부 또는 링크)</label>
+                                <input type="file" id="mat-answer-file" accept=".pdf,application/pdf" style="font-size: 0.75rem; color: #cbd5e1; width: 100%; margin-bottom: 4px;">
+                                <input type="url" id="mat-answer-url" placeholder="또는 정답/해설 PDF 웹링크 URL" class="form-input" style="height: 32px; font-size: 0.75rem; width: 100%; box-sizing: border-box;">
+                            </div>
+                        </div>
+
+                        <button type="submit" id="mat-upload-btn" class="btn" style="background: linear-gradient(135deg, #10b981, #059669); font-weight: 800; padding: 12px; font-size: 0.92rem; color: white; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(16,185,129,0.35);">
+                            + 기출문제 및 정답해설 등록 배포
+                        </button>
+                    </form>
+
+                    <!-- 현재 등록된 기출문제 목록 -->
+                    <div style="font-size: 0.85rem; font-weight: 800; color: #f8fafc; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="display: flex; align-items: center; gap: 6px;">
+                            <span class="material-symbols-rounded" style="color: #34d399; font-size: 1.1rem;">folder_open</span>
+                            <span>📋 현재 등록된 기출문제 자료 목록</span>
+                        </span>
+                        <span id="admin-exam-count-badge" style="font-size: 0.75rem; color: #34d399; font-weight: 700;"></span>
+                    </div>
+                    <!-- 과목별 필터 바 -->
+                    <div id="admin-exam-filter-bar" style="display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 10px 2px; -webkit-overflow-scrolling: touch; scrollbar-width: none;"></div>
+                    <!-- 기출문제 카드 목록 스크롤 -->
+                    <div id="admin-exam-materials-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 380px; overflow-y: auto; padding-right: 4px;"></div>
+                </div>
+
                 <!-- 1. 학원 VOD 동영상 강의 / 복습 링크 등록 & 게시판 -->
                 <div class="kpi-card" style="border: 1.5px solid rgba(168, 85, 247, 0.4); margin-bottom: 16px;">
                     <div class="section-title" style="color: #c084fc; display: flex; justify-content: space-between; align-items: center;">
@@ -936,11 +1029,19 @@
             const btn = document.querySelector(`button[onclick*="${tabId}"]`);
             if (btn) btn.classList.add('active');
 
-            if (tabId === 'tab-attendance') loadAdminAttendanceLogs();
             if (tabId === 'tab-schedule') loadAdminSchedules();
+            if (tabId === 'tab-attendance') loadAdminAttendanceLogs();
+            if (tabId === 'tab-finance') loadAdminFinancialERP();
             if (tabId === 'tab-curriculum') {
                 loadAdminVodLibrary();
+                loadAdminExamMaterials();
                 loadAdminRequests();
+            }
+            if (tabId === 'tab-students') {
+                fetchDashboardData();
+            }
+            if (tabId === 'tab-tutors') {
+                loadAdminTutors();
             }
         }
 
@@ -989,11 +1090,18 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             checkGodMode();
-            if (sessionStorage.getItem("palin_admin_authenticated") === "true") {
+            const isAuth = sessionStorage.getItem("palin_admin_authenticated") === "true" ||
+                           localStorage.getItem("userRole") === "DIRECTOR" ||
+                           localStorage.getItem("userRole") === "SUPER_ADMIN" ||
+                           (sessionStorage.getItem("palin_super_admin") === "true");
+            if (isAuth) {
+                sessionStorage.setItem("palin_admin_authenticated", "true");
                 document.getElementById("admin-login-screen").style.display = "none";
                 document.getElementById("admin-dashboard-screen").style.display = "block";
-                fetchDashboardData(); updateMasterBtnVisibility();
+                fetchDashboardData();
+                updateMasterBtnVisibility();
                 checkMandatoryNotices();
+                loadAdminSchedules();
             }
         });
 
