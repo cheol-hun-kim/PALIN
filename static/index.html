@@ -30,7 +30,7 @@
     </script>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=7300.0">
+    <link rel="stylesheet" href="css/style.css?v=7400.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -339,32 +339,31 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 <datalist id="highschool-datalist"></datalist>
                             </div>
 
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                <select id="reg-target-univ" class="auth-input" required>
-                                    <option value="서울대학교" selected>서울대학교</option>
-                                    <option value="연세대학교">연세대학교</option>
-                                    <option value="고려대학교">고려대학교</option>
-                                    <option value="성균관대학교">성균관대학교</option>
-                                    <option value="한양대학교">한양대학교</option>
-                                    <option value="의치한약수">의치한약수</option>
-                                </select>
-                                <input type="text" id="reg-target-dept" class="auth-input" placeholder="목표 학과" value="의예과" required>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                                <div>
+                                    <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">목표 희망 대학</label>
+                                    <select id="reg-target-univ" class="auth-input" required style="margin-bottom: 0;"></select>
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">목표 학과 (자동 연동)</label>
+                                    <select id="reg-target-dept" class="auth-input" required style="margin-bottom: 0;"></select>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                                <div>
+                                    <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">안정 마지노선 대학</label>
+                                    <select id="reg-baseline-univ" class="auth-input" required style="margin-bottom: 0;"></select>
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">안정 학과 (자동 연동)</label>
+                                    <select id="reg-baseline-dept" class="auth-input" required style="margin-bottom: 0;"></select>
+                                </div>
                             </div>
 
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                <select id="reg-baseline-univ" class="auth-input" required>
-                                    <option value="연세대학교" selected>연세대학교</option>
-                                    <option value="고려대학교">고려대학교</option>
-                                    <option value="성균관대학교">성균관대학교</option>
-                                    <option value="한양대학교">한양대학교</option>
-                                    <option value="중앙대학교">중앙대학교</option>
-                                </select>
-                                <input type="text" id="reg-baseline-dept" class="auth-input" placeholder="마지노선 학과" value="경영학과" required>
-                            </div>
-
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                <input type="text" id="reg-pname" class="auth-input" placeholder="학부모 성함" value="김학부모" required>
-                                <input type="tel" id="reg-pphone" class="auth-input" placeholder="학부모 연락처" value="010-1234-5678" required>
+                                <input type="text" id="reg-pname" class="auth-input" placeholder="학부모 성함" required>
+                                <input type="tel" id="reg-pphone" class="auth-input" placeholder="학부모 연락처 (010-XXXX-XXXX)" required>
                             </div>
                             <input type="text" id="reg-referred-by" class="auth-input" placeholder="친구 추천인 코드 (선택)">
 
@@ -2706,7 +2705,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app.js?v=7300.0"></script>
+    <script src="js/app.js?v=7400.0"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소

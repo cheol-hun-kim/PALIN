@@ -5239,20 +5239,21 @@ function switchNotebookRole(role) {
 }
 
 function toggleStudentRegisterForm() {
-
-    const loginForm = document.getElementById('student-login-form');
-
-    const regForm = document.getElementById('student-reg-form');
-
-    if (loginForm && regForm) {
-
-        if (loginForm.style.display === 'none') {
-
-            loginForm.style.display = 'block';
-
-            regForm.style.display = 'none';
-
-        } else {
+    const loginForm = document.getElementById("student-login-form");
+    const regForm = document.getElementById("student-reg-form");
+    if (!loginForm || !regForm) return;
+    if (regForm.style.display === "none") {
+        loginForm.style.display = "none";
+        regForm.style.display = "block";
+        if (typeof setupUnivDeptSelectors === 'function') {
+            setupUnivDeptSelectors("reg-target-univ", "reg-target-dept", "서울대학교", "의예과");
+            setupUnivDeptSelectors("reg-baseline-univ", "reg-baseline-dept", "연세대학교", "화학생물공학부");
+        }
+    } else {
+        regForm.style.display = "none";
+        loginForm.style.display = "block";
+    }
+} else {
 
             loginForm.style.display = 'none';
 
