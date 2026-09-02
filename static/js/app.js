@@ -13674,3 +13674,22 @@ async function changeStudentPassword() {
 
 }
 
+
+
+// === 🚪 학생 로그아웃 / 계정 전환 함수 ===
+function logoutStudent() {
+    if (!confirm("정말 로그아웃하시겠습니까?")) return;
+    localStorage.removeItem("studentId");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("token");
+    localStorage.removeItem("palin_auth_token");
+    localStorage.removeItem("role");
+    sessionStorage.clear();
+    location.reload();
+}
+function handleLogout() {
+    logoutStudent();
+}
+function logoutUser() {
+    logoutStudent();
+}

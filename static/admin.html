@@ -6,7 +6,7 @@
     <title>PALIN OS - B2B 학원장 통합 관제실 (Director Cockpit)</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=7100.0">
+    <link rel="stylesheet" href="css/style.css?v=7200.0">
     <style>
         :root {
             --bg-color: #08090d;
@@ -581,7 +581,7 @@
                         <span class="material-symbols-rounded">campaign</span>
                         <span>📢 주차별 학사일정 & 특별 공지사항 등록</span>
                     </div>
-                    <form onsubmit="handleCreateFeed(event)" style="display: flex; flex-direction: column; gap: 8px;">
+                    <form onsubmit="handleCreateFeed(event)" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
                         <div style="display: grid; grid-template-columns: 100px 1fr; gap: 8px;">
                             <input type="text" id="feed-week" placeholder="예: 3주차" value="3주차" required class="form-input" style="text-align: center; font-weight: 800;">
                             <input type="text" id="feed-title" placeholder="공지 제목" required class="form-input">
@@ -589,6 +589,18 @@
                         <textarea id="feed-content" placeholder="공지 내용을 입력하세요..." required class="form-input" style="height: 70px;"></textarea>
                         <button type="submit" class="btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; padding: 9px; color: white;">+ 공지 배포</button>
                     </form>
+
+                    <!-- 현재 등록된 학사일정 및 공지 목록 -->
+                    <div style="font-size: 0.85rem; font-weight: 800; color: #f8fafc; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="display: flex; align-items: center; gap: 6px;">
+                            <span class="material-symbols-rounded" style="color: #818cf8; font-size: 1.1rem;">list_alt</span>
+                            <span>📋 현재 게시 중인 학사일정 & 특별 공지사항 목록</span>
+                        </span>
+                        <span id="admin-feeds-count-badge" style="font-size: 0.75rem; color: #818cf8; font-weight: 700;"></span>
+                    </div>
+                    <div id="admin-feeds-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto;">
+                        <div style="text-align: center; color: #94a3b8; font-size: 0.8rem; padding: 12px;">공지사항을 불러오는 중...</div>
+                    </div>
                 </div>
 
                                 <!-- 📚 2. 수능/평가원/사관 기출문제 & 정답해설 PDF 업로드 & 문제은행 관리 -->
@@ -1588,17 +1600,73 @@
             const title = document.getElementById("feed-title").value.trim();
             const content = document.getElementById("feed-content").value.trim();
             try {
-                const res = await fetch("/api/admin/curriculum/feed", {
+                const res = await fetch("/api/admin/academy/feeds", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ academy_code: currentTenantCode, week_number: week, title: title, content: content })
+                    body: JSON.stringify({ academy_code: currentTenantCode || "ILWON-2027", week_number: week, title: title, content: content })
                 });
                 if (res.ok) {
-                    alert("📢 공지가 배포되었습니다!");
+                    alert("📢 공지가 성공적으로 배포되었습니다!");
                     document.getElementById("feed-title").value = "";
                     document.getElementById("feed-content").value = "";
+                    loadAdminFeedsList();
+                } else {
+                    alert("공지 배포 실패");
                 }
-            } catch(e) {}
+            } catch(e) {
+                alert("서버 연결 실패");
+            }
+        }
+
+        async function loadAdminFeedsList() {
+            const listEl = document.getElementById("admin-feeds-list");
+            const countBadge = document.getElementById("admin-feeds-count-badge");
+            if (!listEl) return;
+            try {
+                const res = await fetch(`/api/academy/feeds?academy_code=${encodeURIComponent(currentTenantCode || 'ILWON-2027')}`);
+                if (!res.ok) {
+                    listEl.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.8rem; padding:12px;">공지사항을 불러오지 못했습니다.</div>';
+                    return;
+                }
+                const feeds = await res.json();
+                if (countBadge) countBadge.innerText = `${feeds.length}개 게시 중`;
+                if (!feeds || feeds.length === 0) {
+                    listEl.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.8rem; padding:16px;">현재 등록된 공지사항이 없습니다. 위에서 새 공지를 배포해 보세요.</div>';
+                    return;
+                }
+                listEl.innerHTML = feeds.map(f => `
+                    <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px; flex-wrap: wrap;">
+                                <span style="background: rgba(99,102,241,0.2); color: #818cf8; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 800;">${f.week_number}주차</span>
+                                <span style="font-weight: 800; font-size: 0.88rem; color: #ffffff;">${f.curriculum_name}</span>
+                                <span style="font-size: 0.72rem; color: var(--text-secondary); margin-left: auto;">${f.feed_date || ''}</span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.45; white-space: pre-line;">${f.content}</div>
+                        </div>
+                        <button type="button" onclick="deleteAdminFeed(${f.id})" class="btn" style="background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #f87171; padding: 6px 12px; font-size: 0.78rem; font-weight: 800; border-radius: 8px; cursor: pointer; white-space: nowrap; flex-shrink: 0;">
+                            🗑️ 내리기
+                        </button>
+                    </div>
+                `).join('');
+            } catch(e) {
+                listEl.innerHTML = '<div style="text-align:center; color:#ef4444; font-size:0.8rem; padding:12px;">오류가 발생했습니다.</div>';
+            }
+        }
+
+        async function deleteAdminFeed(feedId) {
+            if (!confirm("이 공지사항을 내리시겠습니까?")) return;
+            try {
+                const res = await fetch(`/api/admin/academy/feeds/${feedId}`, { method: 'DELETE' });
+                if (res.ok) {
+                    alert("공지가 성공적으로 삭제되었습니다.");
+                    loadAdminFeedsList();
+                } else {
+                    alert("공지 삭제 실패");
+                }
+            } catch(e) {
+                alert("서버 연결 실패");
+            }
         }
 
         
