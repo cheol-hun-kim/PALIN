@@ -1,3 +1,19 @@
+function formatCleanSubjectTitle(rawTitle) {
+    if (!rawTitle) return "자습";
+    let t = rawTitle.trim();
+    if (t.includes("국어")) return "국어";
+    if (t.includes("수학") || t.includes("미적") || t.includes("기하") || t.includes("확통")) return "수학";
+    if (t.includes("영어")) return "영어";
+    if (t.includes("한국사")) return "한국사";
+    if (t.includes("과탐") || t.includes("사탐") || t.includes("탐구") || t.includes("물리") || t.includes("화학") || t.includes("생명") || t.includes("지구")) return "탐구";
+    if (t.includes("자습") || t.includes("독서실") || t.includes("몰입")) return "자습";
+    if (t.includes("모의고사") || t.includes("시험")) return "모의고사";
+    if (t.includes("과외") || t.includes("튜터")) return "과외";
+    if (t.includes("학원") || t.includes("강의")) return "학원";
+    if (t.length <= 4) return t;
+    return t.replace(/집중|학습|수업|특강|공부|시간|대비/g, '').trim() || t.slice(0, 4);
+}
+
 
 // 🏛️ 대학교 영문 이니셜 및 엠블럼 매퍼 (가상학생증용)
 function getUniversityInitial(univName) {
@@ -3983,15 +3999,20 @@ async function loadTimetable() {
             const heightPx = Math.max(22, Math.min(540 - topPx, (endHour - startHour) * 30));
             
             const colorClass = `color-${index % 7}`;
+            const cleanTitle = formatCleanSubjectTitle(block.title);
 
             const blockEl = document.createElement("div");
             blockEl.className = `timetable-block ${colorClass}`;
             blockEl.style.top = `${topPx}px`;
             blockEl.style.height = `${heightPx}px`;
+            blockEl.title = `${block.title} (${block.start_time}~${block.end_time})`;
             const isParent = localStorage.getItem('userRole') === 'PARENT';
+            
+            // 높이가 35px 미만인 얇은 블록은 과목명만 중앙에 깔끔하게 표시
+            const showTime = heightPx >= 35;
             blockEl.innerHTML = `
-                <div class="block-title">${block.title}</div>
-                <div class="block-time">${block.start_time}~${block.end_time}</div>
+                <div class="block-title">${cleanTitle}</div>
+                ${showTime ? `<div class="block-time">${block.start_time}~${block.end_time}</div>` : ''}
                 ${!isParent ? `<button class="btn-delete-block" title="계획 삭제" onclick="deletePlannerBlock(event, ${block.id})">&times;</button>` : ''}
             `;
             col.appendChild(blockEl);
