@@ -6,7 +6,7 @@
     <title>PALIN OS - B2B 학원장 통합 관제실 (Director Cockpit)</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=6600.0">
+    <link rel="stylesheet" href="css/style.css?v=6700.0">
     <style>
         :root {
             --bg-color: #08090d;
@@ -2287,24 +2287,41 @@
                 return;
             }
 
-            listContainer.innerHTML = list.map(m => `
+            const batchBar = `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(16,185,129,0.15); padding:10px 14px; border-radius:10px; margin-bottom:12px; border:1px solid rgba(16,185,129,0.3);">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.82rem; font-weight:700; color:#e2e8f0;">
+                        <input type="checkbox" id="mat-select-all" onchange="toggleSelectAllMats(this.checked)" style="transform:scale(1.2); cursor:pointer;">
+                        <span>기출문제 전체 선택</span>
+                    </label>
+                    <button onclick="handleBatchDeleteExamMaterials()" class="btn" style="padding:6px 14px; font-size:0.75rem; font-weight:800; background:linear-gradient(135deg,#ef4444,#dc2626); color:white; border-radius:6px; cursor:pointer;">
+                        🗑️ 선택 기출문제 일괄 삭제
+                    </button>
+                </div>
+            `;
+
+            listContainer.innerHTML = batchBar + list.map(m => `
                 <div style="background: rgba(0,0,0,0.35); padding: 12px 14px; border-radius: 10px; border-left: 4px solid #10b981; border: 1px solid rgba(16,185,129,0.25); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                    <div style="flex: 1; min-width: 220px;">
-                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-                            <span style="font-size: 0.72rem; background: rgba(16,185,129,0.25); color: #34d399; padding: 2px 8px; border-radius: 4px; font-weight: 800;">${m.year}학년도 ${m.subject}</span>
-                            <span style="font-weight: 800; font-size: 0.92rem; color: #ffffff;">${m.title}</span>
-                        </div>
-                        <div style="font-size: 0.76rem; color: #cbd5e1; margin-bottom: 6px;">
-                            ${m.description || '상세 설명 없음'}
-                        </div>
-                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                            <a href="/api/exam/materials/${m.id}/download" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid #10b981; border-radius: 6px; text-decoration: none; font-weight: 700;">📄 문제지 PDF</a>
-                            <a href="/api/exam/materials/${m.id}/download-answer" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid #f59e0b; border-radius: 6px; text-decoration: none; font-weight: 700;">🔑 정답/해설 PDF</a>
+                    <div style="display:flex; align-items:flex-start; gap:10px; flex: 1; min-width: 220px;">
+                        <input type="checkbox" class="mat-item-checkbox" value="${m.id}" style="margin-top:4px; transform:scale(1.2); cursor:pointer;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                                <span style="font-size: 0.72rem; background: rgba(16,185,129,0.25); color: #34d399; padding: 2px 8px; border-radius: 4px; font-weight: 800;">${m.year}학년도 ${m.subject}</span>
+                                <span style="font-weight: 800; font-size: 0.92rem; color: #ffffff;">${m.title}</span>
+                            </div>
+                            <div style="font-size: 0.76rem; color: #cbd5e1; margin-bottom: 6px;">
+                                ${m.description || '상세 설명 없음'}
+                            </div>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <a href="/api/exam/materials/${m.id}/download" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid #10b981; border-radius: 6px; text-decoration: none; font-weight: 700;">📄 문제지 PDF</a>
+                                <a href="/api/exam/materials/${m.id}/download-answer" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid #f59e0b; border-radius: 6px; text-decoration: none; font-weight: 700;">🔑 정답/해설 PDF</a>
+                            </div>
                         </div>
                     </div>
-                    <button onclick="handleDeleteExamMaterial(${m.id})" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; color: #f87171; border-color: rgba(239,68,68,0.5); border-radius: 6px; cursor: pointer;">
-                        🗑️ 삭제
-                    </button>
+                    <div>
+                        <button onclick="handleDeleteExamMaterial(${m.id})" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; color: #f87171; border-color: rgba(239,68,68,0.5); border-radius: 6px; cursor: pointer;">
+                            🗑️ 삭제
+                        </button>
+                    </div>
                 </div>
             `).join('');
         }

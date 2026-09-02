@@ -5798,40 +5798,10 @@ function applyRolePermissions(role) {
 
     }
 
-    // 3. Bottom Nav Director Cockpit Red Tab
-
-    const nav = document.querySelector('.bottom-nav');
-
-    const existingDirectorBtn = document.getElementById('nav-director-cockpit');
-
-    if (userRole === 'SUPER_ADMIN' || userRole === 'TENANT_ADMIN' || (isMasterUser && userRole !== 'STUDENT' && userRole !== 'PARENT')) {
-
-        if (nav && !existingDirectorBtn) {
-
-            const btn = document.createElement('div');
-
-            btn.className = 'nav-item';
-
-            btn.id = 'nav-director-cockpit';
-
-            btn.style.cursor = 'pointer';
-
-            btn.style.background = 'transparent';
-
-            btn.style.border = 'none';
-
-            btn.onclick = () => window.open('/admin.html', '_blank');
-
-            btn.innerHTML = '<span class="material-symbols-rounded nav-icon" style="color: #f59e0b !important;">admin_panel_settings</span><span style="color: #f59e0b !important; font-weight: 700; font-size: 0.72rem;">원장관제</span>';
-
-            nav.appendChild(btn);
-
-        }
-
-    } else {
-
-        if (existingDirectorBtn) { if (typeof existingDirectorBtn.remove === "function") existingDirectorBtn.remove(); else existingDirectorBtn.parentNode?.removeChild(existingDirectorBtn); }
-
+    // 3. Bottom Nav Admin Tab Visibility
+    const adminNavBtn = document.getElementById('nav-tab-admin');
+    if (adminNavBtn) {
+        adminNavBtn.style.display = 'flex';
     }
 
     // 4. Parent SMS Dashboard Isolation
@@ -6235,10 +6205,17 @@ function updateTargetBanner() {
     const baseline = (currentStudent && currentStudent.baseline_univ && currentStudent.baseline_univ !== "-") ? currentStudent.baseline_univ : (localStorage.getItem("cached_baseline_univ") || "서울대학교 화학생물공학부");
 
     if (targetUnivEl) targetUnivEl.innerText = target;
-
     if (baselineUnivEl) baselineUnivEl.innerText = baseline;
 
-    
+    // 🏫 정시/수시 합격예측 화면의 목표 대학 & 마지노선 대학 실시간 동기화
+    const dispTarget = document.getElementById("disp-target-univ");
+    const dispBase = document.getElementById("disp-baseline-univ");
+    const predTargetInput = document.getElementById("pred-target-univ");
+    if (dispTarget) dispTarget.innerText = target;
+    if (dispBase) dispBase.innerText = baseline;
+    if (predTargetInput && !predTargetInput.value && target && target !== "-") {
+        predTargetInput.value = target.split(' ')[0] || target;
+    }
 
     // 🎨 목표 대학 상징 앰비언트 테마 & 세리프 영문 워터마크 실시간 적용
 
@@ -6657,6 +6634,7 @@ function switchSubTabPage2(subTab) {
     } else if (subTab === "archive") {
         if (typeof loadExamMaterials === 'function') loadExamMaterials();
     } else if (subTab === "predict") {
+        if (typeof loadPage2Data === 'function') loadPage2Data();
         if (typeof loadUniversityList === 'function') loadUniversityList();
     }
 }
@@ -8046,15 +8024,26 @@ async function stopTimerForcefully(triggeredByDistraction = false) {
 // ==========================================
 
 function loadPage2Data() {
-
-    if (currentStudent) {
-
-        document.getElementById("pred-target-univ").value = currentStudent.target_univ || "";
-
-        document.getElementById("pred-baseline-univ").value = currentStudent.baseline_univ || "";
-
+    if (!currentStudent) return;
+    
+    const target = (currentStudent.target_univ && currentStudent.target_univ !== "-") ? currentStudent.target_univ : "연세대학교 의예과";
+    const baseline = (currentStudent.baseline_univ && currentStudent.baseline_univ !== "-") ? currentStudent.baseline_univ : "서울대학교 화학생물공학부";
+    
+    const dispTarget = document.getElementById("disp-target-univ");
+    const dispBase = document.getElementById("disp-baseline-univ");
+    const predTarget = document.getElementById("pred-target-univ");
+    
+    if (dispTarget) {
+        const parts = target.split(' ');
+        dispTarget.innerHTML = `<span style="color:#ffffff; font-weight:800;">${parts[0] || '-'}</span> <span style="font-size:0.75rem; color:#a5b4fc;">${parts.slice(1).join(' ') || ''}</span>`;
     }
-
+    if (dispBase) {
+        const parts = baseline.split(' ');
+        dispBase.innerHTML = `<span style="color:#ffffff; font-weight:800;">${parts[0] || '-'}</span> <span style="font-size:0.75rem; color:#94a3b8;">${parts.slice(1).join(' ') || ''}</span>`;
+    }
+    if (predTarget && (!predTarget.value || predTarget.value === "")) {
+        predTarget.value = target.split(' ')[0] || target;
+    }
 }
 
 async function sendChatMessage() {
