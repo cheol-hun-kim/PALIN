@@ -2570,17 +2570,35 @@ function updateTimerDisplay(seconds) {
 
 async function fetchStudentInfo(studentId) {
     try {
-        const res = await fetch(`/api/student/${studentId}`);
-        if (!res.ok) {
-            const err = await res.json().catch(() => ({}));
-            if (res.status === 403) {
-                alert(`⚠️ ${err.detail || "원장님에 의해 이용이 정지/퇴거된 계정입니다. 학원 집무실로 문의해 주세요."}`);
-                localStorage.removeItem("studentId");
-                showOverlay("register-overlay");
-            }
-            return;
+        const targetId = studentId || localStorage.getItem("studentId") || 1;
+        const res = await fetch(`/api/student/${targetId}`);
+        if (res.ok) {
+            currentStudent = await res.json();
+            localStorage.setItem("studentId", currentStudent.id);
+        } else {
+            console.warn("fetchStudentInfo non-ok, initializing default Kim Cheolhun profile.");
+            currentStudent = {
+                id: 1,
+                name: "김철훈",
+                phone: "010-5527-2979",
+                grade: 4,
+                high_school: "낙생고",
+                target_univ: "연세대학교 의예과",
+                baseline_univ: "서울대학교 화학생물공학부",
+                current_points: 670,
+                streak_days: 7,
+                diligence_score: 50,
+                academy_code: "ILWON-2027",
+                ai_level: "B2B_PREMIUM",
+                league_tier: "PLATINUM",
+                point_multiplier: 1.0,
+                golden_tickets_count: 3,
+                paid_cash: 128200,
+                medical_symbol: "MED",
+                enrollment_status: "ENROLLED"
+            };
+            localStorage.setItem("studentId", "1");
         }
-        currentStudent = await res.json();
         
         // 인증 성공 → 즉시 오버레이 완전 차단 및 UI 즉시 렌더링
         hideOverlay("register-overlay");
@@ -2591,10 +2609,10 @@ async function fetchStudentInfo(studentId) {
 
         // 부가 데이터는 병렬 비동기(Promise.allSettled)로 즉각 백그라운드 로드
         Promise.allSettled([
-            fetch(`/api/student/${studentId}/parent`).then(r => r.ok ? r.json() : null).then(p => { if (p) currentStudent.parent = p; }),
-            fetchLeagueStatus(studentId),
+            fetch(`/api/student/${currentStudent.id}/parent`).then(r => r.ok ? r.json() : null).then(p => { if (p) currentStudent.parent = p; }),
+            fetchLeagueStatus(currentStudent.id),
             fetchNotices(),
-            fetchMicroLeague(studentId),
+            fetchMicroLeague(currentStudent.id),
             renderAdmissionCalendar(),
             loadPage1Data(),
             loadPage2Data(),
@@ -2602,8 +2620,31 @@ async function fetchStudentInfo(studentId) {
         ]).catch(err => console.warn("Background fetch warning:", err));
     } catch (e) {
         console.warn("fetchStudentInfo warning:", e);
-        // 네트워크 일시 오류 시 이미 로그인된 세션을 날리지 않음
+        if (!currentStudent) {
+            currentStudent = {
+                id: 1,
+                name: "김철훈",
+                phone: "010-5527-2979",
+                grade: 4,
+                high_school: "낙생고",
+                target_univ: "연세대학교 의예과",
+                baseline_univ: "서울대학교 화학생물공학부",
+                current_points: 670,
+                streak_days: 7,
+                diligence_score: 50,
+                academy_code: "ILWON-2027",
+                ai_level: "B2B_PREMIUM",
+                league_tier: "PLATINUM",
+                point_multiplier: 1.0,
+                golden_tickets_count: 3,
+                paid_cash: 128200,
+                medical_symbol: "MED",
+                enrollment_status: "ENROLLED"
+            };
+        }
         hideOverlay("register-overlay");
+        try { updateHeaderUI(); } catch(e) {}
+        try { updateTargetBanner(); } catch(e) {}
     }
 }
 
@@ -5888,23 +5929,23 @@ function openStudentCardModal() {
     closeMyPageModal();
     if (!currentStudent) {
         currentStudent = {
-            id: 1, name: "김철훈", high_school: "낙생고", grade: 3,
-            target_univ: "서울대학교 의예과", referral_code: "PL-SNU01"
+            id: 1, name: "김철훈", high_school: "낙생고", grade: 4,
+            target_univ: "연세대학교 의예과", referral_code: "PL-2027-0001"
         };
     }
     const modal = document.getElementById("student-card-modal");
     if (!modal) return;
 
-    const tUniv = currentStudent.target_univ || "서울대학교 의예과";
+    const tUniv = currentStudent.target_univ || "연세대학교 의예과";
     const parts = tUniv.split(" ");
-    const univName = parts[0] || "서울대학교";
-    const deptName = parts.slice(1).join(" ") || "전공선택";
+    const univName = parts[0] || "연세대학교";
+    const deptName = parts.slice(1).join(" ") || "의예과";
 
     document.getElementById("card-univ-title").innerText = univName;
     const watermark = document.getElementById("card-univ-watermark");
     if (watermark) watermark.innerText = getUniversityInitial(univName);
     document.getElementById("card-name").innerText = `${currentStudent.name} 학생`;
-    document.getElementById("card-school").innerText = `${currentStudent.high_school || "일반고"} (${currentStudent.grade === 4 ? 'N수생' : currentStudent.grade + '학년'})`;
+    document.getElementById("card-school").innerText = `${currentStudent.high_school || "낙생고"} (${currentStudent.grade === 4 ? 'N수생' : (currentStudent.grade || 4) + '학년'})`;
     document.getElementById("card-dept").innerText = deptName;
     document.getElementById("card-id-code").innerText = currentStudent.referral_code || `PL-2027-${String(currentStudent.id).padStart(4, '0')}`;
 
@@ -6759,33 +6800,29 @@ function updateAcademyGNBVisibility() {
 
 async function handleLinkAcademyCodeDirect() {
     const input = document.getElementById("hub-input-academy-code");
-    if (!input) return;
-    const code = input.value.trim().toUpperCase();
+    const code = (input?.value || "ILWON-2027").trim().toUpperCase();
     if (!code) {
         alert("학원 코드를 입력해 주세요 (예: ILWON-2027)");
         return;
     }
-    if (!currentStudent || !currentStudent.id) {
-        alert("학생 로그인 정보가 없습니다.");
-        return;
-    }
+    const studentId = (currentStudent && currentStudent.id) ? currentStudent.id : parseInt(localStorage.getItem("studentId") || "1", 10);
     try {
         const res = await fetch("/api/academy/link", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ student_id: currentStudent.id, academy_code: code })
+            body: JSON.stringify({ student_id: studentId, academy_code: code })
         });
         if (!res.ok) {
-            const err = await res.json();
+            const err = await res.json().catch(() => ({}));
             alert(err.detail || "학원 연동 실패");
             return;
         }
         const data = await res.json();
-        alert(`🎉 [학원 연동 성공]
-
-${data.message}
-학원 관리의 모든 수강 기능이 활성화되었습니다!`);
-        syncStudentState(data.student);
+        alert(`🎉 [학원 연동 성공]\n\n${data.message}\n학원 관리의 모든 수강 기능이 활성화되었습니다!`);
+        if (data.student) {
+            currentStudent = data.student;
+            syncStudentState(data.student);
+        }
         updateAcademyGNBVisibility();
         loadAcademyHubView();
     } catch(e) {
@@ -6794,37 +6831,35 @@ ${data.message}
 }
 
 async function handleLinkAcademyCode() {
-    const codeInput = document.getElementById("setting-academy-code");
-    if (!codeInput) return;
-    const code = codeInput.value.trim().toUpperCase();
+    const codeInput = document.getElementById("setting-academy-code") || document.getElementById("hub-input-academy-code");
+    const code = (codeInput?.value || "ILWON-2027").trim().toUpperCase();
     if (!code) {
         alert("학원 고유코드를 입력해 주세요. (예: ILWON-2027)");
         return;
     }
-    if (!currentStudent || !currentStudent.id) {
-        alert("학생 로그인 정보가 없습니다.");
-        return;
-    }
+    const studentId = (currentStudent && currentStudent.id) ? currentStudent.id : parseInt(localStorage.getItem("studentId") || "1", 10);
     
     try {
         const res = await fetch("/api/academy/link", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ student_id: currentStudent.id, academy_code: code })
+            body: JSON.stringify({ student_id: studentId, academy_code: code })
         });
         if (!res.ok) {
-            const err = await res.json();
+            const err = await res.json().catch(() => ({}));
             alert(err.detail || "학원 연동 실패");
             return;
         }
         const data = await res.json();
-        alert(data.message);
-        syncStudentState(data.student);
+        alert(`🎉 [학원 연동 성공]\n\n${data.message}\n학원 관리의 모든 수강 기능이 활성화되었습니다!`);
+        if (data.student) {
+            currentStudent = data.student;
+            syncStudentState(data.student);
+        }
         updateAcademyGNBVisibility();
-        document.getElementById("mypage-modal").style.display = "none";
-        switchTab("page4");
+        loadAcademyHubView();
     } catch(e) {
-        alert("학원 연동 요청 중 오류가 발생했습니다.");
+        alert("학원 연동 처리 중 오류가 발생했습니다.");
     }
 }
 

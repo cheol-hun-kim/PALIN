@@ -6,7 +6,7 @@
     <title>PALIN OS - B2B 학원장 통합 관제실 (Director Cockpit)</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=5600.0">
+    <link rel="stylesheet" href="css/style.css?v=5700.0">
     <style>
         :root {
             --bg-color: #08090d;
@@ -1392,11 +1392,18 @@
                             <strong style="margin-left:6px; color:#f8fafc; font-size:0.9rem;">${info.name}</strong>
                             <div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">👥 재원생: <b style="color:#34d399;">${info.enrolled_count}명</b></div>
                         </div>
-                        <button onclick="navigator.clipboard.writeText('${inviteUrl}').then(()=>alert('📋 초대 링크 복사 완료!
-${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; font-weight:800; background:linear-gradient(135deg,#6366f1,#4f46e5); color:white;">📋 초대 링크 복사</button>
+                        <button onclick="copyInviteUrl('${inviteUrl}')" class="btn" style="padding:6px 12px; font-size:0.75rem; font-weight:800; background:linear-gradient(135deg,#6366f1,#4f46e5); color:white;">📋 초대 링크 복사</button>
                     </div>
                 `;
             } catch(e) {}
+        }
+
+        function copyInviteUrl(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                alert('📋 초대 링크가 복사되었습니다:\n' + url);
+            }).catch(() => {
+                prompt('초대 링크를 복사하세요:', url);
+            });
         }
 
         function filterFinanceTable(filter) {
