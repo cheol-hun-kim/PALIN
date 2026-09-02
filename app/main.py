@@ -234,6 +234,14 @@ def init_db_schema():
                     print("PostgreSQL Full Schema Migration Complete!")
             except Exception as e:
                 print("DB Schema Migration Warning:", e)
+
+        try:
+            from app.seed_data import auto_seed_database
+            db_session = Session(bind=engine)
+            auto_seed_database(db_session, engine)
+            db_session.close()
+        except Exception as seed_err:
+            print(f"[AUTO_SEED] Startup seed warning: {seed_err}")
     except Exception as e:
         print("DB Connection/Init Warning (Non-blocking):", e)
 
