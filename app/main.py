@@ -925,7 +925,8 @@ def verify_mission(payload: schemas.MissionVerify, db: Session = Depends(get_db)
     }
 
 @app.get("/api/planner/blocks/{student_id}")
-def get_blocks(student_id: int, db: Session = Depends(get_db)):
+@app.get("/api/planner/blocks")
+def get_blocks(student_id: Optional[int] = 1, db: Session = Depends(get_db)):
     return db.query(models.PlannerBlock).filter(
         models.PlannerBlock.student_id == student_id,
         models.PlannerBlock.deleted_at == None
@@ -940,11 +941,12 @@ def create_block(payload: schemas.PlannerBlockCreate, db: Session = Depends(get_
     return block
 
 @app.delete("/api/planner/block/{block_id}")
-def delete_block(block_id: int, db: Session = Depends(get_db)):
-    block = db.query(models.PlannerBlock).filter(models.PlannerBlock.id == block_id).first()
-    if block:
-        db.delete(block)
-        db.commit()
+def delete_planner_block(block_id: int, db: Session = Depends(get_db)):
+    block = db.query(models.PlannerBlock).filter(models.PlannerBlock.id == block_id, models.PlannerBlock.deleted_at == None).first()
+    if not block:
+        raise HTTPException(status_code=404, detail="블록을 찾을 수 없습니다.")
+    block.deleted_at = datetime.now()
+    db.commit()
     return {"status": "ok"}
 
 def update_student_streak(student: models.Student, db: Session):
@@ -2289,17 +2291,17 @@ class BatchDeletePayload(BaseModel):
 @app.post("/api/exam/materials/batch-delete")
 def batch_delete_materials(payload: BatchDeletePayload, db: Session = Depends(get_db)):
     if payload.ids:
-        db.query(models.ExamMaterial).filter(models.ExamMaterial.id.in_(payload.ids)).delete(synchronize_session=False)
+        db.query(models.ExamMaterial).filter(models.ExamMaterial.id.in_(payload.ids)).update({"deleted_at": datetime.now()}, synchronize_session=False)
         db.commit()
     return {"status": "ok", "message": f"{len(payload.ids)}개의 기출문제가 삭제되었습니다."}
 
 @app.delete("/api/admin/materials/{material_id}")
 @app.delete("/api/exam/materials/{material_id}")
 def delete_exam_material(material_id: int, db: Session = Depends(get_db)):
-    mat = db.query(models.ExamMaterial).filter(models.ExamMaterial.id == material_id).first()
+    mat = db.query(models.ExamMaterial).filter(models.ExamMaterial.id == material_id, models.ExamMaterial.deleted_at == None).first()
     if not mat:
         raise HTTPException(status_code=404, detail="자료를 찾을 수 없습니다.")
-    db.delete(mat)
+    mat.deleted_at = datetime.now()
     db.commit()
     return {"status": "ok", "message": "자료가 삭제되었습니다."}
 
@@ -2791,10 +2793,11 @@ def create_academy_feed(payload: CurriculumFeedPayload, db: Session = Depends(ge
 
 @app.delete("/api/admin/academy/feeds/{feed_id}")
 def delete_academy_feed(feed_id: int, db: Session = Depends(get_db)):
-    feed = db.query(models.CurriculumFeed).filter(models.CurriculumFeed.id == feed_id).first()
-    if feed:
-        db.delete(feed)
-        db.commit()
+    feed = db.query(models.CurriculumFeed).filter(models.CurriculumFeed.id == feed_id, models.CurriculumFeed.deleted_at == None).first()
+    if not feed:
+        raise HTTPException(status_code=404, detail="공지사항을 찾을 수 없습니다.")
+    feed.deleted_at = datetime.now()
+    db.commit()
     return {"status": "success"}
 
 
@@ -2969,10 +2972,11 @@ def update_admin_schedule(schedule_id: int, payload: dict, db: Session = Depends
 
 @app.delete("/api/admin/schedules/{schedule_id}")
 def delete_admin_schedule(schedule_id: int, db: Session = Depends(get_db)):
-    sch = db.query(models.AdminSchedule).filter(models.AdminSchedule.id == schedule_id).first()
-    if sch:
-        db.delete(sch)
-        db.commit()
+    sch = db.query(models.AdminSchedule).filter(models.AdminSchedule.id == schedule_id, models.AdminSchedule.deleted_at == None).first()
+    if not sch:
+        raise HTTPException(status_code=404, detail="일정을 찾을 수 없습니다.")
+    sch.deleted_at = datetime.now()
+    db.commit()
     return {"status": "success"}
 
 
@@ -3164,21 +3168,17 @@ def update_vod_library(item_id: int, payload: VodLibraryPayload, db: Session = D
 @app.post("/api/vod/library/batch-delete")
 def batch_delete_vod(payload: BatchDeletePayload, db: Session = Depends(get_db)):
     if payload.ids:
-        db.query(models.VodLibrary).filter(models.VodLibrary.id.in_(payload.ids)).delete(synchronize_session=False)
+        db.query(models.VodLibrary).filter(models.VodLibrary.id.in_(payload.ids)).update({"deleted_at": datetime.now()}, synchronize_session=False)
         db.commit()
     return {"status": "ok", "message": f"{len(payload.ids)}개의 VOD 강좌가 삭제되었습니다."}
 
 @app.delete("/api/vod/library/{item_id}")
-def delete_vod_library(item_id: int, db: Session = Depends(get_db)):
-    item = db.query(models.VodLibrary).filter(models.VodLibrary.id == item_id).first()
+def delete_vod_item(item_id: int, db: Session = Depends(get_db)):
+    item = db.query(models.VodLibrary).filter(models.VodLibrary.id == item_id, models.VodLibrary.deleted_at == None).first()
     if not item:
-        raise HTTPException(status_code=404, detail="해당 VOD를 찾을 수 없습니다.")
-    try:
-        db.delete(item)
-        db.commit()
-    except Exception:
-        item.deleted_at = func.now()
-        db.commit()
+        raise HTTPException(status_code=404, detail="VOD를 찾을 수 없습니다.")
+    item.deleted_at = datetime.now()
+    db.commit()
     return {"status": "success", "message": "VOD가 삭제되었습니다."}
 
 
@@ -3817,10 +3817,11 @@ def update_master_tenant(tenant_id: int, payload: TenantUpdatePayload, db: Sessi
 
 @app.delete("/api/master/tenants/{tenant_id}")
 def delete_master_tenant(tenant_id: int, db: Session = Depends(get_db)):
-    t = db.query(models.Tenant).filter(models.Tenant.id == tenant_id).first()
-    if t:
-        db.delete(t)
-        db.commit()
+    t = db.query(models.Tenant).filter(models.Tenant.id == tenant_id, models.Tenant.deleted_at == None).first()
+    if not t:
+        raise HTTPException(status_code=404, detail="학원을 찾을 수 없습니다.")
+    t.deleted_at = datetime.now()
+    db.commit()
     return {"status": "success", "message": "\ud14c\ub10c\ud2b8\uac00 \uc0ad\uc81c\ub418\uc5c8\uc2b5\ub2c8\ub2e4."}
 
 
@@ -3847,10 +3848,10 @@ def create_master_director_notice(payload: DirectorBroadcastNoticePayload, db: S
 
 @app.delete("/api/master/director-notices/{notice_id}")
 def delete_master_director_notice(notice_id: int, db: Session = Depends(get_db)):
-    notice = db.query(models.DirectorBroadcastNotice).filter(models.DirectorBroadcastNotice.id == notice_id).first()
+    notice = db.query(models.DirectorBroadcastNotice).filter(models.DirectorBroadcastNotice.id == notice_id, models.DirectorBroadcastNotice.deleted_at == None).first()
     if not notice:
-        raise HTTPException(status_code=404, detail="공지사항을 찾을 수 없습니다.")
-    db.delete(notice)
+        raise HTTPException(status_code=404, detail="공지를 찾을 수 없습니다.")
+    notice.deleted_at = datetime.now()
     db.commit()
     return {"status": "success", "message": "학원장 대상 공지가 성공적으로 삭제(철회)되었습니다."}
 
