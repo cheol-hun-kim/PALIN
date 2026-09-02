@@ -24,32 +24,47 @@ if not DATABASE_URL.startswith("sqlite"):
         DATABASE_URL = f"{DATABASE_URL}{sep}sslmode=require"
 
 # 4. 환경별 엔진 생성
-if DATABASE_URL.startswith("sqlite"):
-    engine = create_engine(
-        DATABASE_URL,
-        connect_args={"check_same_thread": False}
-    )
-else:
-    engine = create_engine(
-        DATABASE_URL,
-        connect_args={
-            "sslmode": "require",
-            "connect_timeout": 10,
-            "keepalives": 1,
-            "keepalives_idle": 30,
-            "keepalives_interval": 10,
-            "keepalives_count": 5
-        },
-        poolclass=NullPool,
-        pool_pre_ping=True
-    )
+sqlite_engine = create_engine(
+    f"sqlite:///{DEFAULT_DB_PATH}",
+    connect_args={"check_same_thread": False}
+)
+SqliteSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=sqlite_engine)
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+if DATABASE_URL.startswith("sqlite"):
+    engine = sqlite_engine
+    SessionLocal = SqliteSessionLocal
+else:
+    try:
+        engine = create_engine(
+            DATABASE_URL,
+            poolclass=NullPool,
+            pool_pre_ping=True
+        )
+        SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    except Exception as e:
+        print(f"[DB] Primary PostgreSQL Engine Init Failed ({e}), falling back to SQLite.")
+        engine = sqlite_engine
+        SessionLocal = SqliteSessionLocal
+
 Base = declarative_base()
 
 def get_db():
-    db = SessionLocal()
+    db = None
     try:
+        db = SessionLocal()
         yield db
+    except Exception as e:
+        print(f"[DB] Session connection error ({e}), switching to fallback SQLite.")
+        if db:
+            try:
+                db.close()
+            except:
+                pass
+        fallback_db = SqliteSessionLocal()
+        yield fallback_db
     finally:
-        db.close()
+        if db:
+            try:
+                db.close()
+            except:
+                pass
