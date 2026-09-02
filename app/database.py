@@ -52,19 +52,11 @@ def get_db():
     db = None
     try:
         db = SessionLocal()
-        yield db
     except Exception as e:
         print(f"[DB] Session connection error ({e}), switching to fallback SQLite.")
-        if db:
-            try:
-                db.close()
-            except:
-                pass
-        fallback_db = SqliteSessionLocal()
-        yield fallback_db
+        db = SqliteSessionLocal()
+    try:
+        yield db
     finally:
         if db:
-            try:
-                db.close()
-            except:
-                pass
+            db.close()

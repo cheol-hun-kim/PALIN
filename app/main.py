@@ -1065,7 +1065,7 @@ def verify_mission(payload: schemas.MissionVerify, db: Session = Depends(get_db)
         
     status_val = "SUCCESS" if payload.img_data == "success" else "FAIL"
     
-    # 🔒 오늘 이미 성공 인증을 완료한 미션인지 중복 체크 (어뷰징 및 무한 포인트 복사 100% 원천 차단)
+    # 🔒 오늘 이미 성공 인증을 완료한 미션인지 중복 체크
     today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     if status_val == "SUCCESS":
         already_done = db.query(models.MissionLog).filter(
@@ -1075,7 +1075,13 @@ def verify_mission(payload: schemas.MissionVerify, db: Session = Depends(get_db)
             models.MissionLog.created_at >= today_start
         ).first()
         if already_done:
-            raise HTTPException(status_code=400, detail=f"오늘의 {'기상' if payload.mission_type == 'WAKEUP' else '취침'} 미션은 이미 성공 인증을 완료했습니다. 내일 다시 도전해 주세요!")
+            return {
+                "status": "ALREADY_DONE",
+                "message": f"오늘의 {'기상' if payload.mission_type == 'WAKEUP' else '취침'} 미션은 이미 성공 완료되었습니다!",
+                "earned_points": 0,
+                "current_points": student.current_points or 0,
+                "streak_days": student.streak_days or 1
+            }
 
     log = models.MissionLog(student_id=student.id, mission_type=payload.mission_type, status=status_val, scheduled_time=datetime.now())
     db.add(log)
@@ -2956,7 +2962,9 @@ def get_admin_requests(db: Session = Depends(get_db)):
             "grade": student.grade if student else 0,
             "phone": student.phone if student else "-",
             "request_type": r.request_type,
-            "reason": r.reason or "",
+            "reason": getattr(r, "details", "") or getattr(r, "leave_reason", "") or "",
+            "details": getattr(r, "details", "") or "",
+            "target_date": getattr(r, "target_date", "") or "",
             "status": r.status,
             "created_at": r.created_at.strftime("%Y-%m-%d %H:%M") if r.created_at else ""
         })
