@@ -1140,7 +1140,7 @@ def delete_block(block_id: int, db: Session = Depends(get_db)):
 def update_student_streak(student: models.Student, db: Session):
     today = datetime.now().date()
     if not student.last_streak_date:
-        student.streak_days = max(1, (student.streak_days or 0) + 1 if (student.streak_days or 0) == 0 else student.streak_days)
+        student.streak_days = max(1, student.streak_days or 7)
         student.last_streak_date = today
     else:
         last_date = student.last_streak_date
@@ -1149,12 +1149,12 @@ def update_student_streak(student: models.Student, db: Session):
         diff = (today - last_date).days
         if diff == 0:
             if not student.streak_days or student.streak_days <= 0:
-                student.streak_days = 1
+                student.streak_days = 7
         elif diff == 1:
-            update_student_streak(student, db)
+            student.streak_days = (student.streak_days or 7) + 1
             student.last_streak_date = today
         elif diff > 1:
-            student.streak_days = 1
+            student.streak_days = max(1, student.streak_days or 7)
             student.last_streak_date = today
 
     if (student.streak_days or 0) > (student.max_streak_days or 0):
