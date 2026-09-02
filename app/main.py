@@ -1972,6 +1972,7 @@ def update_feedback_status(feedback_id: int, payload: FeedbackStatusPayload, db:
     return {"status": "ok"}
 
 @app.get("/api/notices", response_model=List[schemas.NoticeResponse])
+@app.get("/api/admin/notices", response_model=List[schemas.NoticeResponse])
 def get_notices(db: Session = Depends(get_db)):
     return db.query(models.Notice).order_by(models.Notice.is_pinned.desc(), models.Notice.created_at.desc()).limit(10).all()
 
@@ -2902,6 +2903,9 @@ def delete_academy_feed(feed_id: int, db: Session = Depends(get_db)):
 # === 📋 행정 요청(복습 VOD, 단기 결석/보강, 정규 반 변경) 칸반 API ===
 
 @app.post("/api/academy/requests")
+@app.post("/api/academy/request")
+@app.post("/api/administrative/request")
+@app.post("/api/academy/administrative/request")
 def submit_admin_request(payload: AdministrativeRequestPayload, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
     if not student:
@@ -3526,6 +3530,7 @@ def generate_weekly_survival_reports(db: Session = Depends(get_db)):
 
 # === 📡 [Phase 4] 실시간 Wi-Fi 출결 로그 조회 API ===
 @app.get("/api/admin/attendance/logs")
+@app.get("/api/admin/attendance/live-log")
 def get_admin_attendance_logs(db: Session = Depends(get_db)):
     logs = db.query(models.AttendanceLog).order_by(models.AttendanceLog.created_at.desc()).limit(100).all()
     results = []
@@ -3651,7 +3656,49 @@ def update_financial_batch(payload: AdminFinancialBatchPayload, db: Session = De
         if payload.textbook_paid is not None:
             s.textbook_paid = payload.textbook_paid
     db.commit()
-    return {"status": "success", "message": f"\uc120\ud0dd\ud55c {len(students)}\uba85\uc758 \uc218\ub0a9 \uc0c1\ud0dc\uac00 \uc77c\uad04 \ucc98\ub9ac\ub418\uc5c8\uc2b5\ub2c8\ub2e4."}
+@app.get("/api/admin/financial/erp")
+def get_admin_financial_erp(db: Session = Depends(get_db)):
+    students = db.query(models.Student).filter(models.Student.deleted_at == None).all()
+    results = []
+    for s in students:
+        results.append({
+            "id": s.id,
+            "name": s.name,
+            "high_school": s.high_school or "-",
+            "grade": s.grade or 0,
+            "enrollment_status": getattr(s, "enrollment_status", "ENROLLED") or "ENROLLED",
+            "tuition_paid": bool(getattr(s, "tuition_paid", False)),
+            "textbook_paid": bool(getattr(s, "textbook_paid", False)),
+            "textbooks_distributed": getattr(s, "textbooks_distributed", "") or ""
+        })
+    return {"status": "success", "students": results}
+
+class AdminRedcardPayload(BaseModel):
+    student_id: int
+    reason: str
+    penalty_amount: Optional[int] = 5000
+
+@app.post("/api/admin/redcard")
+def send_admin_redcard(payload: AdminRedcardPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+    
+    student.diligence_score = max(0, (student.diligence_score or 100) - 20)
+    student.current_points = max(0, (student.current_points or 0) - payload.penalty_amount)
+    db.commit()
+    
+    if student.parent and student.parent.phone:
+        try:
+            send_sms(
+                to_phone=student.parent.phone,
+                message=f"[일원학원 긴급 레드카드] {student.name} 학생에게 규정 위반(사유: {payload.reason})으로 레드카드가 발부되었습니다.",
+                title="[일원학원 레드카드]"
+            )
+        except Exception:
+            pass
+            
+    return {"status": "success", "message": f"{student.name} 학생에게 긴급 레드카드가 발부되고 학부모 통보가 완료되었습니다."}
 
 
 # ============================================================================
@@ -4094,10 +4141,6 @@ def reject_master_brain_prompt(tenant_id: int, db: Session = Depends(get_db)):
 
 
 
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
-
-
-
 @app.post("/api/student/change-password")
 def change_student_password(payload: ChangePasswordPayload, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
@@ -4128,8 +4171,6 @@ def change_student_password(payload: ChangePasswordPayload, db: Session = Depend
 
 
 # --- Role-Specific Login Notices Dynamic Management ---
-import json, os
-
 LOGIN_NOTICES_FILE = os.path.join(os.path.dirname(__file__), "data", "role_login_notices.json")
 
 def get_role_login_notices():
@@ -4169,6 +4210,7 @@ class RoleNoticesPayload(BaseModel):
     director: RoleNoticeItem
 
 @app.get("/api/public/role-login-notices")
+@app.get("/api/master/role-login-notices")
 def get_public_role_login_notices():
     return get_role_login_notices()
 
@@ -4177,3 +4219,6 @@ def update_master_role_login_notices(payload: RoleNoticesPayload):
     data = payload.model_dump()
     save_role_login_notices(data)
     return {"status": "SUCCESS", "data": data}
+
+# Static files MUST be mounted at the very end so all API routes take priority
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
