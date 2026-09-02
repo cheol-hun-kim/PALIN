@@ -3192,8 +3192,8 @@ async function fetchLeagueStatus(studentId) {
 function updateTargetBanner() {
     const targetUnivEl = document.getElementById("banner-target-univ");
     const baselineUnivEl = document.getElementById("banner-baseline-univ");
-    const target = (currentStudent && currentStudent.target_univ && currentStudent.target_univ !== "-") ? currentStudent.target_univ : (localStorage.getItem("cached_target_univ") || "서울대학교 의예과");
-    const baseline = (currentStudent && currentStudent.baseline_univ && currentStudent.baseline_univ !== "-") ? currentStudent.baseline_univ : (localStorage.getItem("cached_baseline_univ") || "연세대학교 의예과");
+    const target = (currentStudent && currentStudent.target_univ && currentStudent.target_univ !== "-") ? currentStudent.target_univ : (localStorage.getItem("cached_target_univ") || "연세대학교 의예과");
+    const baseline = (currentStudent && currentStudent.baseline_univ && currentStudent.baseline_univ !== "-") ? currentStudent.baseline_univ : (localStorage.getItem("cached_baseline_univ") || "서울대학교 화학생물공학부");
 
     if (targetUnivEl) targetUnivEl.innerText = target;
     if (baselineUnivEl) baselineUnivEl.innerText = baseline;
