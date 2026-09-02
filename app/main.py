@@ -3213,7 +3213,7 @@ class VodLibraryPayload(BaseModel):
 @app.get("/api/admin/vod/library")
 def get_vod_library(db: Session = Depends(get_db)):
     try:
-        items = db.query(models.VodLibrary).order_by(models.VodLibrary.id.desc()).all()
+        items = db.query(models.VodLibrary).filter(models.VodLibrary.deleted_at == None).order_by(models.VodLibrary.id.desc()).all()
         return items
     except Exception as e:
         return []
@@ -3226,7 +3226,8 @@ def add_vod_library(payload: VodLibraryPayload, db: Session = Depends(get_db)):
         password=payload.password or "",
         category=payload.category,
         description=payload.description or "",
-        target_audience=payload.target_audience
+        target_audience=payload.target_audience,
+        deleted_at=None
     )
     db.add(item)
     db.commit()
@@ -3254,8 +3255,12 @@ def delete_vod_library(item_id: int, db: Session = Depends(get_db)):
     item = db.query(models.VodLibrary).filter(models.VodLibrary.id == item_id).first()
     if not item:
         raise HTTPException(status_code=404, detail="\ud574\ub2f9 VOD\ub97c \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.")
-    item.deleted_at = func.now()
-    db.commit()
+    try:
+        db.delete(item)
+        db.commit()
+    except Exception:
+        item.deleted_at = func.now()
+        db.commit()
     return {"status": "success", "message": "VOD\uac00 \uc0ad\uc81c\ub418\uc5c8\uc2b5\ub2c8\ub2e4."}
 
 
