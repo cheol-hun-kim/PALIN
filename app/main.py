@@ -2313,6 +2313,7 @@ DOWNLOADS_DIR = os.path.join("static", "downloads")
 os.makedirs(DOWNLOADS_DIR, exist_ok=True)
 
 @app.get("/api/materials")
+@app.get("/api/exam/materials")
 def get_exam_materials(subject: Optional[str] = None, year: Optional[int] = None, db: Session = Depends(get_db)):
     query = db.query(models.ExamMaterial)
     if subject and subject != "전체":
@@ -2328,6 +2329,7 @@ def get_exam_materials(subject: Optional[str] = None, year: Optional[int] = None
     return materials
 
 @app.post("/api/admin/materials/upload")
+@app.post("/api/exam/materials")
 async def upload_exam_material(
     subject: str = Form(...),
     title: str = Form(...),
@@ -2387,6 +2389,7 @@ async def upload_exam_material(
     return {"status": "ok", "message": "기출문제 및 정답지가 성공적으로 등록되었습니다.", "material": mat}
 
 @app.delete("/api/admin/materials/{material_id}")
+@app.delete("/api/exam/materials/{material_id}")
 def delete_exam_material(material_id: int, db: Session = Depends(get_db)):
     mat = db.query(models.ExamMaterial).filter(models.ExamMaterial.id == material_id).first()
     if not mat:
@@ -2396,6 +2399,7 @@ def delete_exam_material(material_id: int, db: Session = Depends(get_db)):
     return {"status": "ok", "message": "자료가 삭제되었습니다."}
 
 @app.get("/api/materials/{material_id}/download")
+@app.get("/api/exam/materials/{material_id}/download")
 def download_exam_material(material_id: int, db: Session = Depends(get_db)):
     from urllib.parse import quote
     from fastapi.responses import Response, FileResponse
@@ -2451,6 +2455,7 @@ def download_exam_material(material_id: int, db: Session = Depends(get_db)):
     )
 
 @app.get("/api/materials/{material_id}/download-answer")
+@app.get("/api/exam/materials/{material_id}/download-answer")
 def download_exam_answer(material_id: int, db: Session = Depends(get_db)):
     from urllib.parse import quote
     from fastapi.responses import Response, FileResponse
