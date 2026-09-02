@@ -2136,7 +2136,7 @@ os.makedirs(DOWNLOADS_DIR, exist_ok=True)
 @app.get("/api/materials")
 @app.get("/api/exam/materials")
 def get_exam_materials(subject: Optional[str] = None, year: Optional[int] = None, db: Session = Depends(get_db)):
-    query = db.query(models.ExamMaterial)
+    query = db.query(models.ExamMaterial).filter(models.ExamMaterial.deleted_at == None)
     if subject and subject != "전체":
         if subject in ["논술", "논술/면접", "면접"]:
             query = query.filter(models.ExamMaterial.subject.in_(["논술", "논술/면접", "면접"]))
