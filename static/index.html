@@ -30,7 +30,7 @@
     </script>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=7600.0">
+    <link rel="stylesheet" href="css/style.css?v=7800.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -285,7 +285,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <!-- ================= [1] 학생 영역 ================= -->
                     <div id="auth-pane-student" style="display: block;">
                         <!-- 학생 로그인 -->
-                        <form id="student-login-form" onsubmit="handleStudentLoginSubmit(event)">
+                        <form id="student-login-form" >
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
                                 <div style="font-size: 1.05rem; font-weight: 800; color: #a5b4fc;">🧑‍🎓 학생 로그인</div>
                                 <span style="font-size: 0.72rem; color: #c7d2fe; background: rgba(99,102,241,0.25); border: 1px solid #6366f1; padding: 2px 8px; border-radius: 12px; font-weight: 700;">STUDENT</span>
@@ -306,7 +306,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </form>
 
                         <!-- 학생 회원가입 -->
-                        <form id="student-reg-form" onsubmit="handleStudentRegisterSubmit(event)" style="display: none;">
+                        <form id="student-reg-form"  style="display: none;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                                 <div style="font-size: 1.05rem; font-weight: 800; color: #a5b4fc;">📝 신규 학생 회원가입</div>
                                 <button type="button" onclick="toggleStudentRegisterForm()" style="background: rgba(255,255,255,0.1); border: none; color: #cbd5e1; font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; cursor: pointer;">← 로그인으로</button>
@@ -376,7 +376,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <!-- ================= [2] 학부모 영역 ================= -->
                     <div id="auth-pane-parent" style="display: none;">
                         <!-- 학부모 로그인 -->
-                        <form id="parent-login-form" onsubmit="handleParentLoginSubmit(event)">
+                        <form id="parent-login-form" >
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
                                 <div style="font-size: 1.05rem; font-weight: 800; color: #34d399;">👨‍👩‍👧 학부모 로그인</div>
                                 <span style="font-size: 0.72rem; color: #a7f3d0; background: rgba(16,185,129,0.25); border: 1px solid #10b981; padding: 2px 8px; border-radius: 12px; font-weight: 700;">PARENT</span>
@@ -397,7 +397,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </form>
 
                         <!-- 신규 학부모 등록 & 자녀 매핑 -->
-                        <form id="parent-register-form" onsubmit="handleParentRegisterSubmit(event)" style="display: none;">
+                        <form id="parent-register-form"  style="display: none;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                                 <div style="font-size: 1.05rem; font-weight: 800; color: #34d399;">👨‍👩‍👧 신규 학부모 등록</div>
                                 <button type="button" onclick="toggleParentAuthMode()" style="background: rgba(255,255,255,0.1); border: none; color: #cbd5e1; font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; cursor: pointer;">← 로그인으로</button>
@@ -419,7 +419,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
                     <!-- ================= [3] 학원장 전용 영역 ================= -->
                     <div id="auth-pane-director" style="display: none;">
-                        <form id="director-login-form" onsubmit="handleDirectorLoginSubmit(event)">
+                        <form id="director-login-form" >
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
                                 <div style="font-size: 1.05rem; font-weight: 800; color: #fbbf24;">🏫 학원장 관제실 로그인</div>
                                 <span style="font-size: 0.72rem; color: #fde68a; background: rgba(245,158,11,0.25); border: 1px solid #f59e0b; padding: 2px 8px; border-radius: 12px; font-weight: 800;">DIRECTOR</span>
@@ -1976,7 +1976,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <span class="material-symbols-rounded nav-icon">account_balance</span>
                 <span>학원관리</span>
             </div>
-            <div class="nav-item" id="nav-tab-admin" onclick="window.open('/admin.html', '_blank')" style="cursor: pointer;">
+            <div class="nav-item" id="nav-tab-admin" onclick="window.open('/admin.html', '_blank')" style="cursor: pointer; display: none;">
                 <span class="material-symbols-rounded nav-icon" style="color: #f59e0b;">shield_person</span>
                 <span style="color: #f59e0b; font-weight: 800;">원장관제</span>
             </div>
@@ -2705,7 +2705,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app.js?v=7600.0"></script>
+    <script src="js/app.js?v=7800.0"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소

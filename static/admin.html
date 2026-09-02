@@ -6,7 +6,7 @@
     <title>PALIN OS - B2B 학원장 통합 관제실 (Director Cockpit)</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=7600.0">
+    <link rel="stylesheet" href="css/style.css?v=7800.0">
     <style>
         :root {
             --bg-color: #08090d;
@@ -366,7 +366,7 @@
                     <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 3px;">재원생 행동 통제 · 수납 ERP · Wi-Fi 출결 로그 · AI 맞춤 뇌 이식</div>
                 </div>
                 <div class="admin-header-actions">
-                    <a id="admin-master-console-btn" href="/master.html" target="_blank" class="btn" style="display: inline-flex; padding: 8px 14px; font-size: 0.78rem; font-weight: 900; background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; border-radius: 10px; text-decoration: none; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(245,158,11,0.3);">
+                    <a id="admin-master-console-btn" href="/master.html" target="_blank" class="btn" style="display: none; padding: 8px 14px; font-size: 0.78rem; font-weight: 900; background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; border-radius: 10px; text-decoration: none; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(245,158,11,0.3);">
                         👑 갓모드 (마스터 관제)
                     </a>
                     <button onclick="openBrainSurveyModal()" class="btn" style="padding: 8px 12px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #a855f7, #7e22ce); color: white; display: flex; align-items: center; gap: 4px;">
@@ -2288,11 +2288,12 @@
             const masterBtn = document.getElementById("admin-master-console-btn");
             if (!masterBtn) return;
             const isSuperAdmin = (sessionStorage.getItem("palin_super_admin") === "true") ||
+                                (localStorage.getItem("userRole") === "SUPER_ADMIN") ||
                                 (currentTenantCode && (currentTenantCode === "ADMIN" || currentTenantCode === "MASTER"));
             if (isSuperAdmin) {
                 masterBtn.style.display = "inline-flex";
             } else {
-                masterBtn.style.display = "inline-flex";
+                masterBtn.style.display = "none";
             }
         }
 

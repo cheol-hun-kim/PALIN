@@ -5796,10 +5796,14 @@ function applyRolePermissions(role) {
 
     }
 
-    // 3. Bottom Nav Admin Tab Visibility
+    // 3. Bottom Nav Admin Tab Visibility (Only visible to SUPER_ADMIN / DIRECTOR, HIDDEN from STUDENTS & PARENTS)
     const adminNavBtn = document.getElementById('nav-tab-admin');
     if (adminNavBtn) {
-        adminNavBtn.style.display = 'flex';
+        if (userRole === 'SUPER_ADMIN' || userRole === 'DIRECTOR' || userRole === 'TENANT_ADMIN') {
+            adminNavBtn.style.display = 'flex';
+        } else {
+            adminNavBtn.style.display = 'none';
+        }
     }
 
     // 4. Parent SMS Dashboard Isolation
