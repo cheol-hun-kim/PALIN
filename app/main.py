@@ -201,11 +201,12 @@ class AdminSchedulePayload(BaseModel):
 
 class CurriculumFeedPayload(BaseModel):
     academy_code: str = "ILWON-2027"
-    curriculum_name: str
-    week_number: int
-    feed_date: str
+    curriculum_name: Optional[str] = "일원학원 수능국어"
+    title: Optional[str] = ""
+    week_number: Optional[int] = 1
+    feed_date: Optional[str] = ""
     content: str
-    is_special_notice: bool = False
+    is_special_notice: Optional[bool] = False
 
 class ExamScorePayload(BaseModel):
     student_id: int
@@ -2758,14 +2759,19 @@ def get_academy_feeds(academy_code: str = "ILWON-2027", db: Session = Depends(ge
 
 
 @app.post("/api/admin/academy/feeds")
+@app.post("/api/admin/curriculum/feed")
 def create_academy_feed(payload: CurriculumFeedPayload, db: Session = Depends(get_db)):
+    from datetime import date
+    feed_title = payload.title or payload.curriculum_name or "일원학원 수능국어"
+    f_date = payload.feed_date or date.today().isoformat()
+    w_num = payload.week_number if payload.week_number is not None else 1
     feed = models.CurriculumFeed(
-        academy_code=payload.academy_code,
-        curriculum_name=payload.curriculum_name,
-        week_number=payload.week_number,
-        feed_date=payload.feed_date,
+        academy_code=payload.academy_code or "ILWON-2027",
+        curriculum_name=feed_title,
+        week_number=w_num,
+        feed_date=f_date,
         content=payload.content,
-        is_special_notice=payload.is_special_notice
+        is_special_notice=bool(payload.is_special_notice)
     )
     db.add(feed)
     db.commit()
