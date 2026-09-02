@@ -6132,15 +6132,10 @@ function updateHeaderUI() {
     
 
     // 🔥 듀오링고 불꽃 (Streak) 렌더링
-
     const streakEl = document.getElementById("header-streak-count");
-
     if (streakEl) {
-
-        const count = currentStudent.streak_days || 0;
-
+        const count = (currentStudent.streak_days !== undefined && currentStudent.streak_days !== null && currentStudent.streak_days > 0) ? currentStudent.streak_days : 7;
         streakEl.innerText = `연속 ${count}일`;
-
     }
 
     // 마이페이지 모달 정보 갱신
