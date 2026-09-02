@@ -2238,6 +2238,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("theme-toggle-btn")?.addEventListener("click", togglePALINTheme);
 });
 
+async function loadHighSchoolsData() {
+    try {
+        const res = await fetch("/api/data/high-schools");
+        if (res.ok) {
+            HIGHSCHOOLS_DATA = await res.json();
+            filterHighSchoolsBySido("reg-sido", "highschool-datalist");
+            filterHighSchoolsBySido("edit-sido", "edit-highschool-datalist");
+        }
+    } catch (e) { console.warn("HighSchools load error:", e); }
+}
+
 async function loadRegionsData() {
     try {
         const res = await fetch("/api/data/regions");
@@ -3632,9 +3643,21 @@ function switchRole(role) {
 
 // --- 이벤트 리스너 바인딩 ---
 function setupEventListeners() {
-    document.getElementById("register-form")?.addEventListener("submit", handleRegister);
-    document.getElementById("login-form")?.addEventListener("submit", handleLogin);
-    document.getElementById("tutor-upgrade-form")?.addEventListener("submit", upgradeStudentToTutor);
+    if (typeof handleStudentRegisterSubmit === 'function') {
+        document.getElementById("student-reg-form")?.addEventListener("submit", handleStudentRegisterSubmit);
+    }
+    if (typeof handleStudentLoginSubmit === 'function') {
+        document.getElementById("student-login-form")?.addEventListener("submit", handleStudentLoginSubmit);
+    }
+    if (typeof handleParentLogin === 'function') {
+        document.getElementById("parent-login-form")?.addEventListener("submit", handleParentLogin);
+    }
+    if (typeof handleDirectorLogin === 'function') {
+        document.getElementById("director-login-form")?.addEventListener("submit", handleDirectorLogin);
+    }
+    if (typeof upgradeStudentToTutor === 'function') {
+        document.getElementById("tutor-upgrade-form")?.addEventListener("submit", upgradeStudentToTutor);
+    }
 
     // 📊 정시 예측 점수 실시간 강제 제한 (100 / 50 초과 원천 차단)
     ['pred-kor', 'pred-math', 'pred-eng', 'pred-tam1', 'pred-tam2'].forEach(id => {

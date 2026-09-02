@@ -6,7 +6,7 @@
     <title>PALIN OS - B2B 학원장 통합 관제실 (Director Cockpit)</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=4000.0">
+    <link rel="stylesheet" href="css/style.css?v=4100.0">
     <style>
         :root {
             --bg-color: #08090d;
@@ -2012,7 +2012,152 @@ ${inviteUrl}'))" class="btn" style="padding:6px 12px; font-size:0.75rem; font-we
             }
         }
 
-</script>
+        // === 📚 기출문제 & 수험자료 관리 스크립트 ===
+        let adminExamMaterialsCache = [];
+        let currentAdminExamFilter = '전체';
+
+        async function loadAdminExamMaterials() {
+            const listContainer = document.getElementById("admin-exam-materials-list");
+            const filterBar = document.getElementById("admin-exam-filter-bar");
+            const countBadge = document.getElementById("admin-exam-count-badge");
+            if (!listContainer) return;
+
+            try {
+                const res = await fetch("/api/exam/materials");
+                if (res.ok) {
+                    adminExamMaterialsCache = await res.json() || [];
+                }
+            } catch(e) {
+                console.error("loadAdminExamMaterials error:", e);
+            }
+
+            if (countBadge) countBadge.innerText = `총 ${adminExamMaterialsCache.length}개 자료`;
+
+            const subjects = ['전체', '국어', '수학', '영어', '과탐', '사탐', '한국사', '사관/경찰', '논술', '기타'];
+            if (filterBar) {
+                filterBar.innerHTML = subjects.map(sub => {
+                    const count = sub === '전체' ? adminExamMaterialsCache.length : adminExamMaterialsCache.filter(m => m.subject === sub).length;
+                    const isActive = currentAdminExamFilter === sub ? 'active' : '';
+                    return `
+                        <button type="button" onclick="filterAdminExamMaterials('${sub}')" class="btn-vod-filter ${isActive}">
+                            <span>${sub}</span>
+                            <span style="font-size: 0.72rem; opacity: 0.85;">(${count})</span>
+                        </button>
+                    `;
+                }).join('');
+            }
+
+            renderAdminExamList();
+        }
+
+        function filterAdminExamMaterials(sub) {
+            currentAdminExamFilter = sub;
+            loadAdminExamMaterials();
+        }
+
+        function renderAdminExamList() {
+            const listContainer = document.getElementById("admin-exam-materials-list");
+            if (!listContainer) return;
+
+            let list = adminExamMaterialsCache;
+            if (currentAdminExamFilter !== '전체') {
+                list = list.filter(m => m.subject === currentAdminExamFilter);
+            }
+
+            if (list.length === 0) {
+                listContainer.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.82rem; padding:20px; background:rgba(0,0,0,0.2); border-radius:10px;">등록된 기출문제 자료가 없습니다.</div>';
+                return;
+            }
+
+            listContainer.innerHTML = list.map(m => `
+                <div style="background: rgba(0,0,0,0.35); padding: 12px 14px; border-radius: 10px; border-left: 4px solid #10b981; border: 1px solid rgba(16,185,129,0.25); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div style="flex: 1; min-width: 220px;">
+                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                            <span style="font-size: 0.72rem; background: rgba(16,185,129,0.25); color: #34d399; padding: 2px 8px; border-radius: 4px; font-weight: 800;">${m.year}학년도 ${m.subject}</span>
+                            <span style="font-weight: 800; font-size: 0.92rem; color: #ffffff;">${m.title}</span>
+                        </div>
+                        <div style="font-size: 0.76rem; color: #cbd5e1; margin-bottom: 6px;">
+                            ${m.description || '상세 설명 없음'}
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="/api/exam/materials/${m.id}/download" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid #10b981; border-radius: 6px; text-decoration: none; font-weight: 700;">📄 문제지 PDF</a>
+                            <a href="/api/exam/materials/${m.id}/download-answer" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid #f59e0b; border-radius: 6px; text-decoration: none; font-weight: 700;">🔑 정답/해설 PDF</a>
+                        </div>
+                    </div>
+                    <button onclick="handleDeleteExamMaterial(${m.id})" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; color: #f87171; border-color: rgba(239,68,68,0.5); border-radius: 6px; cursor: pointer;">
+                        🗑️ 삭제
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function handleUploadExamMaterial(e) {
+            e.preventDefault();
+            const year = document.getElementById("mat-year")?.value || 2027;
+            const subject = document.getElementById("mat-subject")?.value || "국어";
+            const title = document.getElementById("mat-title")?.value.trim();
+            const desc = document.getElementById("mat-desc")?.value.trim() || "";
+            const fileInput = document.getElementById("mat-file");
+            const fileUrl = document.getElementById("mat-file-url")?.value.trim() || "";
+            const answerFileInput = document.getElementById("mat-answer-file");
+            const answerUrl = document.getElementById("mat-answer-url")?.value.trim() || "";
+
+            if (!title) {
+                alert("자료명을 입력해주세요.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("year", year);
+            formData.append("subject", subject);
+            formData.append("title", title);
+            formData.append("description", desc);
+            formData.append("target_grade", "고3/N수");
+            if (fileUrl) formData.append("file_url", fileUrl);
+            if (answerUrl) formData.append("answer_url", answerUrl);
+            if (fileInput?.files?.[0]) formData.append("file", fileInput.files[0]);
+            if (answerFileInput?.files?.[0]) formData.append("answer_file", answerFileInput.files[0]);
+
+            const btn = document.getElementById("mat-upload-btn");
+            if (btn) btn.innerText = "업로드 중...";
+
+            try {
+                const res = await fetch("/api/exam/materials", {
+                    method: "POST",
+                    body: formData
+                });
+                if (res.ok) {
+                    alert("✓ 기출문제 및 정답해설이 성공적으로 등록되었습니다!");
+                    document.getElementById("mat-title").value = "";
+                    document.getElementById("mat-desc").value = "";
+                    if (fileInput) fileInput.value = "";
+                    if (answerFileInput) answerFileInput.value = "";
+                    if (document.getElementById("mat-file-url")) document.getElementById("mat-file-url").value = "";
+                    if (document.getElementById("mat-answer-url")) document.getElementById("mat-answer-url").value = "";
+                    loadAdminExamMaterials();
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    alert(err.detail || "업로드 실패");
+                }
+            } catch(err) {
+                alert("기출문제 업로드 중 통신 오류가 발생했습니다.");
+            } finally {
+                if (btn) btn.innerText = "+ 기출문제 및 정답해설 등록 배포";
+            }
+        }
+
+        async function handleDeleteExamMaterial(id) {
+            if (!confirm("해당 기출문제 자료를 삭제하시겠습니까?")) return;
+            try {
+                const res = await fetch(`/api/exam/materials/${id}`, { method: "DELETE" });
+                if (res.ok) {
+                    alert("✓ 삭제되었습니다.");
+                    loadAdminExamMaterials();
+                }
+            } catch(e) { alert("삭제 실패"); }
+        }
+
+    </script>
 
     <!-- ✏️ VOD 강좌 수정 모달 -->
     <div id="admin-vod-edit-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(6px);">
