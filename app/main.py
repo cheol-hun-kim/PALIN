@@ -1117,7 +1117,10 @@ def verify_mission(payload: schemas.MissionVerify, db: Session = Depends(get_db)
 
 @app.get("/api/planner/blocks/{student_id}")
 def get_blocks(student_id: int, db: Session = Depends(get_db)):
-    return db.query(models.PlannerBlock).filter(models.PlannerBlock.student_id == student_id).all()
+    return db.query(models.PlannerBlock).filter(
+        models.PlannerBlock.student_id == student_id,
+        models.PlannerBlock.deleted_at == None
+    ).all()
 
 @app.post("/api/planner/block")
 def create_block(payload: schemas.PlannerBlockCreate, db: Session = Depends(get_db)):
@@ -1130,7 +1133,7 @@ def create_block(payload: schemas.PlannerBlockCreate, db: Session = Depends(get_
 def delete_block(block_id: int, db: Session = Depends(get_db)):
     block = db.query(models.PlannerBlock).filter(models.PlannerBlock.id == block_id).first()
     if block:
-        block.deleted_at = func.now()
+        db.delete(block)
         db.commit()
     return {"status": "ok"}
 
@@ -2418,6 +2421,17 @@ def debug_db_status(db: Session = Depends(get_db)):
         "sample_students": sample
     }
 
+class BatchDeletePayload(BaseModel):
+    ids: list[int]
+
+@app.post("/api/admin/materials/batch-delete")
+@app.post("/api/exam/materials/batch-delete")
+def batch_delete_materials(payload: BatchDeletePayload, db: Session = Depends(get_db)):
+    if payload.ids:
+        db.query(models.ExamMaterial).filter(models.ExamMaterial.id.in_(payload.ids)).delete(synchronize_session=False)
+        db.commit()
+    return {"status": "ok", "message": f"{len(payload.ids)}개의 기출문제가 삭제되었습니다."}
+
 @app.delete("/api/admin/materials/{material_id}")
 @app.delete("/api/exam/materials/{material_id}")
 def delete_exam_material(material_id: int, db: Session = Depends(get_db)):
@@ -3011,8 +3025,13 @@ def update_admin_request_status(request_id: int, payload: RequestStatusUpdatePay
         except Exception as e:
             print("SMS sync notice:", e)
             
-    return {"status": "success", "request": req}
+@app.post("/api/admin/requests/{request_id}/approve")
+def approve_admin_request(request_id: int, db: Session = Depends(get_db)):
+    return update_admin_request_status(request_id, RequestStatusUpdatePayload(status="APPROVED"), db)
 
+@app.post("/api/admin/requests/{request_id}/reject")
+def reject_admin_request(request_id: int, db: Session = Depends(get_db)):
+    return update_admin_request_status(request_id, RequestStatusUpdatePayload(status="REJECTED"), db)
 
 # === 💰 원장 전용 수강료/교재비 ERP 관리 API ===
 
@@ -3274,18 +3293,26 @@ def update_vod_library(item_id: int, payload: VodLibraryPayload, db: Session = D
     return {"status": "success", "message": "VOD\uac00 \uc218\uc815\ub418\uc5c8\uc2b5\ub2c8\ub2e4.", "item": item}
 
 
+@app.post("/api/admin/vod/batch-delete")
+@app.post("/api/vod/library/batch-delete")
+def batch_delete_vod(payload: BatchDeletePayload, db: Session = Depends(get_db)):
+    if payload.ids:
+        db.query(models.VodLibrary).filter(models.VodLibrary.id.in_(payload.ids)).delete(synchronize_session=False)
+        db.commit()
+    return {"status": "ok", "message": f"{len(payload.ids)}개의 VOD 강좌가 삭제되었습니다."}
+
 @app.delete("/api/vod/library/{item_id}")
 def delete_vod_library(item_id: int, db: Session = Depends(get_db)):
     item = db.query(models.VodLibrary).filter(models.VodLibrary.id == item_id).first()
     if not item:
-        raise HTTPException(status_code=404, detail="\ud574\ub2f9 VOD\ub97c \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.")
+        raise HTTPException(status_code=404, detail="해당 VOD를 찾을 수 없습니다.")
     try:
         db.delete(item)
         db.commit()
     except Exception:
         item.deleted_at = func.now()
         db.commit()
-    return {"status": "success", "message": "VOD\uac00 \uc0ad\uc81c\ub418\uc5c8\uc2b5\ub2c8\ub2e4."}
+    return {"status": "success", "message": "VOD가 삭제되었습니다."}
 
 
 @app.post("/api/admin/vod/assign")
