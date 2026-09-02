@@ -5802,9 +5802,13 @@ async function loadExamMaterials() {
             params.push(`year=${currentExamYear}`);
         }
         const url = params.length > 0 ? `/api/materials?${params.join("&")}` : "/api/materials";
-        const res = await fetch(url);
-        if (!res.ok) {
-            container.innerHTML = `<div style="text-align: center; color: var(--text-secondary); padding: 20px;">자료를 불러오지 못했습니다.</div>`;
+        let res = await fetch(url).catch(() => null);
+        if (!res || !res.ok) {
+            const fallbackUrl = params.length > 0 ? `/api/exam/materials?${params.join("&")}` : "/api/exam/materials";
+            res = await fetch(fallbackUrl).catch(() => null);
+        }
+        if (!res || !res.ok) {
+            container.innerHTML = `<div style="text-align: center; color: var(--text-secondary); padding: 20px;">자료를 불러오지 못했습니다. (서버 연결 확인)</div>`;
             return;
         }
         const materials = await res.json();
