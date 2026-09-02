@@ -6,7 +6,7 @@
     <title>PALIN OS - B2B 학원장 통합 관제실 (Director Cockpit)</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=5700.0">
+    <link rel="stylesheet" href="css/style.css?v=5800.0">
     <style>
         :root {
             --bg-color: #08090d;
@@ -1030,8 +1030,13 @@
             if (btn) btn.classList.add('active');
 
             if (tabId === 'tab-schedule') loadAdminSchedules();
-            if (tabId === 'tab-attendance') loadAdminAttendanceLogs();
-            if (tabId === 'tab-finance') loadAdminFinancialERP();
+            if (tabId === 'tab-attendance') {
+                loadAdminAttendanceLogs();
+                loadAdminAcademyCodes();
+            }
+            if (tabId === 'tab-finance') {
+                renderFinancialERP();
+            }
             if (tabId === 'tab-curriculum') {
                 loadAdminVodLibrary();
                 loadAdminExamMaterials();

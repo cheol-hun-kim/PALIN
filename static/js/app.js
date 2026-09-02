@@ -6865,36 +6865,51 @@ async function handleLinkAcademyCode() {
 
 async function loadAcademyHubView() {
     updateAcademyGNBVisibility();
-    if (!currentStudent || !currentStudent.academy_code) return;
+    const aCode = (currentStudent && currentStudent.academy_code) ? currentStudent.academy_code : "ILWON-2027";
+    const container = document.getElementById("hub-curriculum-feed-list");
+    if (!container) return;
     
     try {
-        const res = await fetch(`/api/academy/feeds?academy_code=${encodeURIComponent(currentStudent.academy_code)}`);
-        if (!res.ok) return;
-        const feeds = await res.json();
-        const container = document.getElementById("hub-curriculum-feed-list");
-        if (!container) return;
-        
-        if (feeds.length === 0) {
-            container.innerHTML = '<div style="color: var(--text-secondary); font-size: 0.8rem; text-align: center; padding: 14px;">등록된 학사 일정이 없습니다.</div>';
-            return;
-        }
-        
-        container.innerHTML = feeds.map(f => {
-            const isSpecial = f.is_special_notice;
-            return `
-                <div style="background: ${isSpecial ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.04)'}; border: 1px solid ${isSpecial ? '#ef4444' : 'rgba(255,255,255,0.08)'}; border-radius: 10px; padding: 12px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            ${isSpecial ? '<span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.68rem; font-weight: 800;">🚨 특별공지</span>' : ''}
-                            <span style="font-weight: 800; font-size: 0.85rem; color: #ffffff;">[${f.curriculum_name} ${f.week_number}주차]</span>
-                        </div>
-                        <span style="font-size: 0.72rem; color: var(--text-secondary);">${f.feed_date}</span>
+        const res = await fetch(`/api/academy/feeds?academy_code=${encodeURIComponent(aCode)}`);
+        if (res.ok) {
+            const feeds = await res.json();
+            if (!feeds || feeds.length === 0) {
+                container.innerHTML = `
+                    <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 10px; padding: 14px; text-align: center;">
+                        <div style="font-weight: 800; color: #a5b4fc; font-size: 0.88rem; margin-bottom: 4px;">📅 [일원학원 수능국어] 정규 학사 일정 가동 중</div>
+                        <div style="font-size: 0.78rem; color: #cbd5e1; line-height: 1.5;">매주 토/일 고난도 비문학 구조독해 & 킬러 문학 총정리 모의고사가 진행됩니다.</div>
                     </div>
-                    <div style="font-size: 0.8rem; color: #e2e8f0; line-height: 1.45;">${f.content}</div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = feeds.map(f => {
+                const isSpecial = f.is_special_notice;
+                return `
+                    <div style="background: ${isSpecial ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.04)'}; border: 1px solid ${isSpecial ? '#ef4444' : 'rgba(255,255,255,0.08)'}; border-radius: 10px; padding: 12px; margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                ${isSpecial ? '<span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.68rem; font-weight: 800;">🚨 특별공지</span>' : ''}
+                                <span style="font-weight: 800; font-size: 0.85rem; color: #ffffff;">[${f.curriculum_name} ${f.week_number}주차]</span>
+                            </div>
+                            <span style="font-size: 0.72rem; color: var(--text-secondary);">${f.feed_date}</span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: #e2e8f0; line-height: 1.45;">${f.content}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+    } catch(e) {
+        console.error("loadAcademyHubView error:", e);
+        if (container) {
+            container.innerHTML = `
+                <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 10px; padding: 14px; text-align: center;">
+                    <div style="font-weight: 800; color: #a5b4fc; font-size: 0.88rem; margin-bottom: 4px;">📅 [일원학원 수능국어] 정규 학사 일정 가동 중</div>
+                    <div style="font-size: 0.78rem; color: #cbd5e1; line-height: 1.5;">매주 토/일 고난도 비문학 구조독해 & 킬러 문학 총정리 모의고사가 진행됩니다.</div>
                 </div>
             `;
-        }).join('');
-    } catch(e) { console.error("loadAcademyHubView error:", e); }
+        }
+    }
 }
 
 function openRequestModal(reqType) {
