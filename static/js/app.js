@@ -2489,7 +2489,7 @@ function exitRolePreview() {
     localStorage.removeItem("studentId");
     document.body.classList.remove("role-parent");
     const bar = document.getElementById("palin-preview-floating-bar");
-    if (bar) bar.remove();
+    if (bar) { if (typeof bar.remove === "function") bar.remove(); else bar.parentNode?.removeChild(bar); }
     location.reload();
 }
 
@@ -2590,10 +2590,10 @@ async function fetchStudentInfo(studentId) {
         
         // 인증 성공 → 즉시 오버레이 완전 차단 및 UI 즉시 렌더링
         hideOverlay("register-overlay");
-        applyRolePermissions(localStorage.getItem("userRole") || "STUDENT");
-        updateHeaderUI();
-        updateTargetBanner();
-        updateStudentUnivSelectors();
+        try { applyRolePermissions(localStorage.getItem("userRole") || "STUDENT"); } catch(e) { console.warn("applyRolePermissions error:", e); }
+        try { updateHeaderUI(); } catch(e) { console.warn("updateHeaderUI error:", e); }
+        try { updateTargetBanner(); } catch(e) { console.warn("updateTargetBanner error:", e); }
+        try { updateStudentUnivSelectors(); } catch(e) { console.warn("updateStudentUnivSelectors error:", e); }
 
         // 부가 데이터는 병렬 비동기(Promise.allSettled)로 즉각 백그라운드 로드
         Promise.allSettled([
@@ -2979,7 +2979,7 @@ function applyRolePermissions(role) {
             nav.appendChild(btn);
         }
     } else {
-        if (existingDirectorBtn) existingDirectorBtn.remove();
+        if (existingDirectorBtn) { if (typeof existingDirectorBtn.remove === "function") existingDirectorBtn.remove(); else existingDirectorBtn.parentNode?.removeChild(existingDirectorBtn); }
     }
 
     // 4. Parent SMS Dashboard Isolation
@@ -3260,15 +3260,20 @@ async function fetchMicroLeague(studentId) {
             const data = await res.json();
             const titleEl = document.getElementById("micro-league-title");
             const contentEl = document.getElementById("micro-league-content");
-            if (titleEl) titleEl.innerText = data.region_title;
+            if (titleEl && data.region_title) titleEl.innerText = data.region_title;
             if (contentEl) {
-                let html = `<div style="display:flex; flex-direction:column; gap:4px;">`;
-                data.region_rankings.forEach((r, idx) => {
-                    const highlight = r.is_me ? "color: #fcd34d; font-weight: 800;" : "";
-                    html += `<div style="display:flex; justify-content:space-between; ${highlight}"><span>${idx + 1}위 ${r.name} (${r.school})</span><span>+${r.score}점</span></div>`;
-                });
-                html += `</div>`;
-                contentEl.innerHTML = html;
+                const rankings = Array.isArray(data.region_rankings) ? data.region_rankings : (Array.isArray(data.univ_rankings) ? data.univ_rankings : []);
+                if (rankings.length > 0) {
+                    let html = `<div style="display:flex; flex-direction:column; gap:6px;">`;
+                    rankings.forEach((r, idx) => {
+                        const highlight = r.is_me ? "color: #fcd34d; font-weight: 800; background: rgba(245, 158, 11, 0.15); padding: 4px 8px; border-radius: 6px;" : "padding: 2px 4px;";
+                        html += `<div style="display:flex; justify-content:space-between; align-items:center; ${highlight}"><span>${idx + 1}위 ${r.name} (${r.school})</span><span style="font-weight:700;">+${r.score}점</span></div>`;
+                    });
+                    html += `</div>`;
+                    contentEl.innerHTML = html;
+                } else {
+                    contentEl.innerHTML = `<div style="color: var(--text-secondary); font-size: 0.8rem;">현재 집계된 실시간 랭킹 데이터가 없습니다.</div>`;
+                }
             }
         }
     } catch (e) {
