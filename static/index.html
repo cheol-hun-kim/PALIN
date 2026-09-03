@@ -2059,159 +2059,168 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 </div>
             </div>
 
-            <!-- 개인 정보 및 목표/생활 규칙 직접 수정 -->
-            <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.2); padding: 14px; border-radius: 16px; margin-bottom: 16px;">
-                <div style="font-size: 0.9rem; font-weight: 700; color: #a78bfa; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-                    <span class="material-symbols-rounded" style="font-size: 1.1rem;">manage_accounts</span>
-                    개인정보 & 목표 입시 설정 수정
+            <!-- 개인 정보 및 목표/생활 규칙 직접 수정 (아코디언 드롭다운) -->
+            <div style="background: rgba(99, 102, 241, 0.08); border: 1.5px solid rgba(99, 102, 241, 0.25); border-radius: 16px; margin-bottom: 16px; overflow: hidden; transition: all 0.3s ease;">
+                <!-- 아코디언 토글 헤더 -->
+                <div onclick="toggleMyPageEditSection()" style="padding: 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
+                    <div style="font-size: 0.88rem; font-weight: 800; color: #a78bfa; display: flex; align-items: center; gap: 6px;">
+                        <span class="material-symbols-rounded" style="font-size: 1.15rem;">manage_accounts</span>
+                        <span>개인정보 & 목표 입시 설정 수정</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <span id="mypage-edit-toggle-status" style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">설정 변경</span>
+                        <span id="mypage-edit-toggle-icon" class="material-symbols-rounded" style="font-size: 1.25rem; color: #a78bfa; transition: transform 0.25s;">expand_more</span>
+                    </div>
                 </div>
                 
-                <!-- 💰 금융 인질 성실 보증금 에스크로 현황 카드 -->
-                <div style="background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <span style="font-size: 0.8rem; font-weight: 800; color: #f87171;">🛡️ 성실 보증금 에스크로 (Beeminder)</span>
-                        <span style="font-size: 0.68rem; color: #94a3b8;">미션 실패 시 차감</span>
+                <!-- 아코디언 바디 (초기 접힘) -->
+                <div id="mypage-edit-body" style="display: none; padding: 0 14px 14px 14px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px;">
+                    <!-- 💰 금융 인질 성실 보증금 에스크로 현황 카드 -->
+                    <div style="background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span style="font-size: 0.8rem; font-weight: 800; color: #f87171;">🛡️ 성실 보증금 에스크로 (Beeminder)</span>
+                            <span style="font-size: 0.68rem; color: #94a3b8;">미션 실패 시 차감</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <span style="font-size: 0.72rem; color: var(--text-secondary);">보증금 잔액:</span>
+                                <strong id="mypage-escrow-deposit" style="color: #4ade80; font-size: 0.95rem; margin-left: 4px;">50,000원</strong>
+                            </div>
+                            <div>
+                                <span style="font-size: 0.72rem; color: var(--text-secondary);">누적 벌금:</span>
+                                <strong id="mypage-escrow-deductions" style="color: #f87171; font-size: 0.95rem; margin-left: 4px;">0원</strong>
+                            </div>
+                        </div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
                         <div>
-                            <span style="font-size: 0.72rem; color: var(--text-secondary);">보증금 잔액:</span>
-                            <strong id="mypage-escrow-deposit" style="color: #4ade80; font-size: 0.95rem; margin-left: 4px;">50,000원</strong>
+                            <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">시/도</label>
+                            <select id="edit-sido" class="form-input" onchange="onSidoChange('edit-sido', 'edit-sigungu'); filterHighSchoolsBySido('edit-sido', 'edit-highschool-datalist');">
+                                <option value="">시/도 선택</option>
+                                <option value="서울특별시">서울특별시</option>
+                                <option value="경기도">경기도</option>
+                                <option value="인천광역시">인천광역시</option>
+                                <option value="부산광역시">부산광역시</option>
+                                <option value="대구광역시">대구광역시</option>
+                                <option value="광주광역시">광주광역시</option>
+                                <option value="대전광역시">대전광역시</option>
+                                <option value="울산광역시">울산광역시</option>
+                                <option value="세종특별자치시">세종특별자치시</option>
+                                <option value="강원특별자치도">강원특별자치도</option>
+                                <option value="충청북도">충청북도</option>
+                                <option value="충청남도">충청남도</option>
+                                <option value="전북특별자치도">전북특별자치도</option>
+                                <option value="전라남도">전라남도</option>
+                                <option value="경상북도">경상북도</option>
+                                <option value="경상남도">경상남도</option>
+                                <option value="제주특별자치도">제주특별자치도</option>
+                            </select>
                         </div>
                         <div>
-                            <span style="font-size: 0.72rem; color: var(--text-secondary);">누적 벌금:</span>
-                            <strong id="mypage-escrow-deductions" style="color: #f87171; font-size: 0.95rem; margin-left: 4px;">0원</strong>
+                            <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">시/군/구</label>
+                            <select id="edit-sigungu" class="form-input">
+                                <option value="">시/군/구 선택</option>
+                            </select>
+                        </div>
+                    </div>
+                    <input type="hidden" id="edit-region">
+
+                    <div style="margin-bottom: 8px;">
+                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">소속 고등학교 (지역 선택 시 해당 지역 고교 추천)</label>
+                        <input type="text" id="edit-high-school" class="form-input" placeholder="고등학교명 검색 및 선택" list="edit-highschool-datalist">
+                        <datalist id="edit-highschool-datalist"></datalist>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                        <div>
+                            <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">학년 선택</label>
+                            <select id="edit-grade" class="form-input">
+                                <option value="1">고등학교 1학년</option>
+                                <option value="2">고등학교 2학년</option>
+                                <option value="3">고등학교 3학년</option>
+                                <option value="4">N수생 (재수/삼수 이상)</option>
+                                <option value="0">기타 (직접입력)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">전공 엠블럼</label>
+                            <select id="edit-medical-symbol" class="form-input">
+                                <option value="GENERAL">일반 인문/자연</option>
+                                <option value="MED">의예과</option>
+                                <option value="DENT">치의예과</option>
+                                <option value="PHARM">약학과</option>
+                                <option value="KMED">한의예과</option>
+                                <option value="VET">수의예과</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="dday-custom-title" style="font-size: 0.78rem; font-weight: 800; margin-top: 10px; margin-bottom: 4px;">목표 D-Day 설정</div>
+                    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 8px; margin-bottom: 10px;">
+                        <div>
+                            <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">시험명</label>
+                            <input type="text" id="edit-dday-title" class="form-input" placeholder="예: 2027 수능 / 6월 모평">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">목표 날짜</label>
+                            <input type="date" id="edit-dday-date" class="form-input" style="color-scheme: dark;">
+                        </div>
+                    </div>
+
+                    <div style="font-size: 0.75rem; color: #a78bfa; font-weight: 700; margin-top: 8px; margin-bottom: 4px;">목표 희망 대학 (11,688개 대학/학과 연동)</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 4px;">
+                        <select id="edit-target-univ-select" class="form-input"></select>
+                        <select id="edit-target-dept-select" class="form-input" onchange="checkCustomDept(this, 'edit-target-dept-custom')"></select>
+                    </div>
+                    <input type="text" id="edit-target-dept-custom" class="form-input" placeholder="직접 입력 (예: 디자인학부 / 체육교육과 / 실용음악과)" style="display: none; margin-bottom: 8px;">
+
+                    <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; margin-top: 6px; margin-bottom: 4px;">안정 마지노선 대학 (안정 백업)</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 4px;">
+                        <select id="edit-baseline-univ-select" class="form-input"></select>
+                        <select id="edit-baseline-dept-select" class="form-input" onchange="checkCustomDept(this, 'edit-baseline-dept-custom')"></select>
+                    </div>
+                    <input type="text" id="edit-baseline-dept-custom" class="form-input" placeholder="직접 입력 (예: 디자인학부 / 체육교육과 / 실용음악과)" style="display: none; margin-bottom: 8px;">
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; margin-top: 6px;">
+                        <div>
+                            <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">목표 기상 시간</label>
+                            <input type="time" id="edit-wake-time" class="form-input" value="06:30" style="color-scheme: dark;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">목표 취침 시간</label>
+                            <input type="time" id="edit-sleep-time" class="form-input" value="23:30" style="color-scheme: dark;">
+                        </div>
+                    </div>
+                    <button onclick="saveStudentProfileSettings()" class="btn" style="width: 100%; padding: 10px 0; font-size: 0.88rem; background: linear-gradient(135deg, #10b981, #059669); font-weight: 700;">💾 변경된 개인정보 및 입시 설정 저장</button>
+
+                    <!-- 🔐 비밀번호 변경 섹션 (최대 12자리) -->
+                    <div style="margin-top: 14px; padding: 14px 12px; background: rgba(0,0,0,0.25); border: 1px solid rgba(167,139,250,0.3); border-radius: 12px;">
+                        <div style="font-size: 0.82rem; font-weight: 800; color: #a78bfa; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">
+                            <span>🔐</span> 로그인 비밀번호 변경 (최대 12자리)
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px;">
+                            <input type="password" id="mypage-current-password" class="form-input" placeholder="현재 비밀번호 (기존 회원 초기 비번: 1010)" maxlength="12" style="font-size: 0.8rem;">
+                            <input type="password" id="mypage-new-password" class="form-input" placeholder="새 비밀번호 (4~12자리)" maxlength="12" style="font-size: 0.8rem;">
+                            <input type="password" id="mypage-new-password-confirm" class="form-input" placeholder="새 비밀번호 확인 (최대 12자리)" maxlength="12" style="font-size: 0.8rem;">
+                        </div>
+                        <button type="button" onclick="changeStudentPassword()" class="btn btn-secondary" style="width: 100%; padding: 8px 0; font-size: 0.8rem; font-weight: 700; border-color: #6366f1; color: #a5b4fc;">
+                            ✓ 비밀번호 변경하기
+                        </button>
+                    </div>
+
+                    <!-- 🏫 학원 초대 코드 등록 & 가맹 승인 신청 폼 -->
+                    <div style="margin-top: 14px; padding: 14px 12px; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 12px;">
+                        <div style="font-size: 0.82rem; font-weight: 800; color: #a5b4fc; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                            <span>🔑</span> 소속 학원 초대 코드 등록
+                        </div>
+                        <div style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 8px;">소속 학원의 가맹 코드를 등록하면 원장님 승인 후 Tier 3 마스터 혜택이 전액 무료 적용됩니다.</div>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" id="mypage-academy-code-input" class="form-input" placeholder="예: ILWON-2027" style="height: 38px; text-transform: uppercase; font-weight: 800; margin-bottom: 0;">
+                            <button type="button" onclick="handleApplyAcademyCode()" class="btn" style="padding: 0 16px; font-size: 0.8rem; font-weight: 800; background: #6366f1; white-space: nowrap;">등록 요청</button>
                         </div>
                     </div>
                 </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
-                    <div>
-                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">시/도</label>
-                        <select id="edit-sido" class="form-input" onchange="onSidoChange('edit-sido', 'edit-sigungu'); filterHighSchoolsBySido('edit-sido', 'edit-highschool-datalist');">
-                            <option value="">시/도 선택</option>
-                            <option value="서울특별시">서울특별시</option>
-                            <option value="경기도">경기도</option>
-                            <option value="인천광역시">인천광역시</option>
-                            <option value="부산광역시">부산광역시</option>
-                            <option value="대구광역시">대구광역시</option>
-                            <option value="광주광역시">광주광역시</option>
-                            <option value="대전광역시">대전광역시</option>
-                            <option value="울산광역시">울산광역시</option>
-                            <option value="세종특별자치시">세종특별자치시</option>
-                            <option value="강원특별자치도">강원특별자치도</option>
-                            <option value="충청북도">충청북도</option>
-                            <option value="충청남도">충청남도</option>
-                            <option value="전북특별자치도">전북특별자치도</option>
-                            <option value="전라남도">전라남도</option>
-                            <option value="경상북도">경상북도</option>
-                            <option value="경상남도">경상남도</option>
-                            <option value="제주특별자치도">제주특별자치도</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">시/군/구</label>
-                        <select id="edit-sigungu" class="form-input">
-                            <option value="">시/군/구 선택</option>
-                        </select>
-                    </div>
-                </div>
-                <input type="hidden" id="edit-region">
-
-                <div style="margin-bottom: 8px;">
-                    <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">소속 고등학교 (지역 선택 시 해당 지역 고교 추천)</label>
-                    <input type="text" id="edit-high-school" class="form-input" placeholder="고등학교명 검색 및 선택" list="edit-highschool-datalist">
-                    <datalist id="edit-highschool-datalist"></datalist>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
-                    <div>
-                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">학년 선택</label>
-                        <select id="edit-grade" class="form-input">
-                            <option value="1">고등학교 1학년</option>
-                            <option value="2">고등학교 2학년</option>
-                            <option value="3">고등학교 3학년</option>
-                            <option value="4">N수생 (재수/삼수 이상)</option>
-                            <option value="0">기타 (직접입력)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">전공 엠블럼</label>
-                        <select id="edit-medical-symbol" class="form-input">
-                            <option value="GENERAL">일반 인문/자연</option>
-                            <option value="MED">의예과</option>
-                            <option value="DENT">치의예과</option>
-                            <option value="PHARM">약학과</option>
-                            <option value="KMED">한의예과</option>
-                            <option value="VET">수의예과</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="dday-custom-title" style="font-size: 0.78rem; font-weight: 800; margin-top: 10px; margin-bottom: 4px;">목표 D-Day 설정</div>
-                <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 8px; margin-bottom: 10px;">
-                    <div>
-                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">시험명</label>
-                        <input type="text" id="edit-dday-title" class="form-input" placeholder="예: 2027 수능 / 6월 모평">
-                    </div>
-                    <div>
-                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">목표 날짜</label>
-                        <input type="date" id="edit-dday-date" class="form-input" style="color-scheme: dark;">
-                    </div>
-                </div>
-
-                <div style="font-size: 0.75rem; color: #a78bfa; font-weight: 700; margin-top: 8px; margin-bottom: 4px;">목표 희망 대학 (11,688개 대학/학과 연동)</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 4px;">
-                    <select id="edit-target-univ-select" class="form-input"></select>
-                    <select id="edit-target-dept-select" class="form-input" onchange="checkCustomDept(this, 'edit-target-dept-custom')"></select>
-                </div>
-                <input type="text" id="edit-target-dept-custom" class="form-input" placeholder="직접 입력 (예: 디자인학부 / 체육교육과 / 실용음악과)" style="display: none; margin-bottom: 8px;">
-
-                <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; margin-top: 6px; margin-bottom: 4px;">안정 마지노선 대학 (안정 백업)</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 4px;">
-                    <select id="edit-baseline-univ-select" class="form-input"></select>
-                    <select id="edit-baseline-dept-select" class="form-input" onchange="checkCustomDept(this, 'edit-baseline-dept-custom')"></select>
-                </div>
-                <input type="text" id="edit-baseline-dept-custom" class="form-input" placeholder="직접 입력 (예: 디자인학부 / 체육교육과 / 실용음악과)" style="display: none; margin-bottom: 8px;">
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; margin-top: 6px;">
-                    <div>
-                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">목표 기상 시간</label>
-                        <input type="time" id="edit-wake-time" class="form-input" value="06:30" style="color-scheme: dark;">
-                    </div>
-                    <div>
-                        <label style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">목표 취침 시간</label>
-                        <input type="time" id="edit-sleep-time" class="form-input" value="23:30" style="color-scheme: dark;">
-                    </div>
-                </div>
-                <button onclick="saveStudentProfileSettings()" class="btn" style="width: 100%; padding: 10px 0; font-size: 0.88rem; background: linear-gradient(135deg, #10b981, #059669); font-weight: 700;">💾 변경된 개인정보 및 입시 설정 저장</button>
-
-                <!-- 🔐 비밀번호 변경 섹션 (최대 12자리) -->
-                <div style="margin-top: 14px; padding: 14px 12px; background: rgba(0,0,0,0.25); border: 1px solid rgba(167,139,250,0.3); border-radius: 12px;">
-                    <div style="font-size: 0.82rem; font-weight: 800; color: #a78bfa; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">
-                        <span>🔐</span> 로그인 비밀번호 변경 (최대 12자리)
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px;">
-                        <input type="password" id="mypage-current-password" class="form-input" placeholder="현재 비밀번호 (기존 회원 초기 비번: 1010)" maxlength="12" style="font-size: 0.8rem;">
-                        <input type="password" id="mypage-new-password" class="form-input" placeholder="새 비밀번호 (4~12자리)" maxlength="12" style="font-size: 0.8rem;">
-                        <input type="password" id="mypage-new-password-confirm" class="form-input" placeholder="새 비밀번호 확인 (최대 12자리)" maxlength="12" style="font-size: 0.8rem;">
-                    </div>
-                    <button type="button" onclick="changeStudentPassword()" class="btn btn-secondary" style="width: 100%; padding: 8px 0; font-size: 0.8rem; font-weight: 700; border-color: #6366f1; color: #a5b4fc;">
-                        ✓ 비밀번호 변경하기
-                    </button>
-                </div>
-
-                <!-- 🏫 학원 초대 코드 등록 & 가맹 승인 신청 폼 -->
-                <div style="margin-top: 14px; padding: 14px 12px; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 12px;">
-                    <div style="font-size: 0.82rem; font-weight: 800; color: #a5b4fc; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
-                        <span>🔑</span> 소속 학원 초대 코드 등록
-                    </div>
-                    <div style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 8px;">소속 학원의 가맹 코드를 등록하면 원장님 승인 후 Tier 3 마스터 혜택이 전액 무료 적용됩니다.</div>
-                    <div style="display: flex; gap: 6px;">
-                        <input type="text" id="mypage-academy-code-input" class="form-input" placeholder="예: ILWON-2027" style="height: 38px; text-transform: uppercase; font-weight: 800; margin-bottom: 0;">
-                        <button type="button" onclick="handleApplyAcademyCode()" class="btn" style="padding: 0 16px; font-size: 0.8rem; font-weight: 800; background: #6366f1; white-space: nowrap;">등록 요청</button>
-                    </div>
-                </div>
-
             </div>
 
             <!-- 📱 토스/애플 스타일 프리미엄 마이페이지 메뉴 리스트 -->
