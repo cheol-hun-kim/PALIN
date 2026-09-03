@@ -6,7 +6,7 @@
     <title>PALIN OS - 총괄 제작자 슈퍼 마스터 콘솔 (Super Admin God Mode)</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=8800.0">
+    <link rel="stylesheet" href="css/style.css?v=20260904.1">
     <style>
         :root {
             --master-bg: #06070a;
@@ -569,7 +569,7 @@
                         <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">
                             • <b>Tier 1 (기본)</b>: 객관적 입시 코칭 프롬프트<br>
                             • <b>Tier 2 (맞춤 뇌)</b>: 원장 문진표 기반 슈퍼 어드민이 최적화 주입한 커스텀 프롬프트 & 전용 봇 이름<br>
-                            • <b>Tier 3 (플래그십)</b>: 김철훈 원장 수험생활 백서 RAG + 실패의 원리 칼럼 풀 가동
+                            • <b>Tier 3 (플래그십)</b>: 수석 입시 전략 컨설턴트 수험생활 백서 RAG + 실패의 원리 칼럼 풀 가동
                         </div>
                     </div>
 
@@ -578,7 +578,7 @@
                             <div class="section-header" style="color: #fbbf24; margin-bottom: 4px; font-size: 0.9rem;">
                                 <span>🏢 글로벌 화이트라벨 모드</span>
                             </div>
-                            <div id="white-label-status-badge" style="font-size: 0.72rem; padding: 4px 8px; border-radius: 6px; font-weight: 800; background: #10b981; color: white; display: inline-block;">김철훈 백서 활성 중</div>
+                            <div id="white-label-status-badge" style="font-size: 0.72rem; padding: 4px 8px; border-radius: 6px; font-weight: 800; background: #10b981; color: white; display: inline-block;">정밀 백서 활성 중</div>
                         </div>
                         <button onclick="toggleWhiteLabelMode()" class="btn btn-gold" style="padding: 8px; font-size: 0.78rem; margin-top: 8px; width: 100%;">
                             🔄 화이트라벨 모드 전환
@@ -1288,7 +1288,7 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
                     const data = await res.json();
                     const badge = document.getElementById("white-label-status-badge");
                     if (badge) {
-                        badge.innerText = data.is_white_label ? "🏢 화이트라벨 모드" : "🌟 김철훈 백서 탑재";
+                        badge.innerText = data.is_white_label ? "🏢 화이트라벨 모드" : "🌟 기본 전략 백서 탑재";
                         badge.style.background = data.is_white_label ? "#eab308" : "#10b981";
                     }
                 }
@@ -1306,7 +1306,7 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
                     body: JSON.stringify({ is_white_label: newMode })
                 });
                 if (res.ok) {
-                    alert(`✅ 화이트라벨 상태가 [${newMode ? '활성화 (외부 B2B용)' : '기본 탑재 (김철훈 백서)'}]로 변경되었습니다.`);
+                    alert(`✅ 화이트라벨 상태가 [${newMode ? '활성화 (외부 B2B용)' : '기본 탑재 (정밀 전략 백서)'}]로 변경되었습니다.`);
                     loadWhiteLabelStatus();
                 }
             } catch(e) {}

@@ -4390,58 +4390,28 @@ const DEFAULT_HIGHSCHOOLS_DATA = [
 
 let HIGHSCHOOLS_DATA = DEFAULT_HIGHSCHOOLS_DATA;
 
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. Fast Auth Check (0.001s immediate execution to prevent double-layer page flash)
+    checkAuth();
 
     initPALINThemeEngine();
 
-    
-
-    // 1. 내장 정적 지역 및 고등학교 데이터로 즉시 렌더링 (0.001초 즉시 렌더링 보장)
-
+    // 2. 내장 정적 지역 및 고등학교 데이터로 즉시 렌더링
     populateSidoOptions("reg-sido");
-
     populateSidoOptions("edit-sido");
-
     filterHighSchoolsBySido("reg-sido", "highschool-datalist");
-
     filterHighSchoolsBySido("edit-sido", "edit-highschool-datalist");
 
-    
-
-    // 2. 비동기 데이터 로딩을 안전하게 병렬 처리
-
-    try {
-
-        await Promise.all([
-
-            fetchUnivData(),
-
-            loadRegionsData(),
-
-            loadHighSchoolsData()
-
-        ]);
-
-    } catch (err) {
-
-        console.error("Initial data loading error:", err);
-
-    }
-
-    
-
-    checkAuth();
-
     setupEventListeners();
-
     setupDistractionDetection();
-
-    
-
     document.getElementById("header-streak-badge")?.addEventListener("click", openStreakModal);
 
-    // theme-toggle-btn handled via onclick in HTML
-
+    // 3. 비동기 대용량 데이터 로딩 (UI 렌더링 블로킹 방지)
+    Promise.all([
+        fetchUnivData(),
+        loadRegionsData(),
+        loadHighSchoolsData()
+    ]).catch(err => console.warn("Background data loading notice:", err));
 });
 
 async function loadHighSchoolsData() {
@@ -5044,7 +5014,7 @@ async function fetchStudentInfo(studentId) {
 
                 id: 1,
 
-                name: "김철훈",
+                name: "학생",
 
                 phone: "010-5527-2979",
 
@@ -5130,7 +5100,7 @@ async function fetchStudentInfo(studentId) {
 
                 id: 1,
 
-                name: "김철훈",
+                name: "학생",
 
                 phone: "010-5527-2979",
 
@@ -6046,7 +6016,7 @@ function updateHeaderUI() {
     // 👑 갓모드(마스터 모드) 버튼 노출 제어
     const godBtn = document.getElementById("header-godmode-btn");
     if (godBtn) {
-        const isMaster = (currentStudent && (currentStudent.id === 1 || currentStudent.name === '김철훈' || (currentStudent.email && currentStudent.email.includes('cheolhun')))) ||
+        const isMaster = (currentStudent && (currentStudent.id === 1 || currentStudent.role === 'SUPER_ADMIN' || (currentStudent.email && (currentStudent.email.includes('admin') || currentStudent.email.includes('master'))))) ||
                          localStorage.getItem('userRole') === 'SUPER_ADMIN' ||
                          sessionStorage.getItem('palin_super_admin') === 'true';
         godBtn.style.display = isMaster ? "inline-flex" : "none";
@@ -6477,24 +6447,83 @@ async function executeTokenPurchase(amount = 4900, count = 50) {
     }
 }
 
-async function executeB2CSubscribe(tier = 'TIER_2_PARENT') {
+let selectedCheckoutTier = 'TIER_2_PARENT';
+
+function openB2CCheckoutModal(tier = 'TIER_2_PARENT') {
+    selectedCheckoutTier = tier;
+    const nameEl = document.getElementById("checkout-plan-name");
+    const priceEl = document.getElementById("checkout-plan-price");
+    const submitBtn = document.getElementById("checkout-submit-btn");
+
+    if (tier === 'TIER_3_MASTER') {
+        if (nameEl) nameEl.innerText = "Tier 3 마스터 AI 풀패키지";
+        if (priceEl) priceEl.innerText = "월 99,000원";
+        if (submitBtn) submitBtn.innerText = "⚡ 99,000원 정기결제 및 구독 시작";
+    } else {
+        if (nameEl) nameEl.innerText = "Tier 2 스탠다드 멤버십";
+        if (priceEl) priceEl.innerText = "월 19,900원";
+        if (submitBtn) submitBtn.innerText = "⚡ 19,900원 정기결제 및 구독 시작";
+    }
+
+    const modal = document.getElementById("b2c-checkout-modal");
+    if (modal) modal.style.display = "flex";
+}
+
+function closeB2CCheckoutModal() {
+    const modal = document.getElementById("b2c-checkout-modal");
+    if (modal) modal.style.display = "none";
+}
+
+function executeB2CSubscribe(tier = 'TIER_2_PARENT') {
+    // Open checkout order modal first
+    openB2CCheckoutModal(tier);
+}
+
+async function confirmB2CPayment() {
+    const agreeCheck = document.getElementById("checkout-terms-agree");
+    if (agreeCheck && !agreeCheck.checked) {
+        alert("정기과금 및 환불 정책 이용약관에 동의해 주세요.");
+        return;
+    }
+
+    const payMethodRadio = document.querySelector('input[name="pay-method"]:checked');
+    const payMethod = payMethodRadio ? payMethodRadio.value : 'CARD';
+
+    const submitBtn = document.getElementById("checkout-submit-btn");
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = "⏳ 결제 승인 처리 중...";
+    }
+
     const sid = (currentStudent && currentStudent.id) ? currentStudent.id : parseInt(localStorage.getItem('studentId') || '1', 10);
     try {
         const res = await fetch("/api/payment/b2c-subscription", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ student_id: sid, tier: tier })
+            body: JSON.stringify({ 
+                student_id: sid, 
+                tier: selectedCheckoutTier,
+                payment_method: payMethod 
+            })
         });
         const data = await res.json();
         if (res.ok) {
-            alert(`🎉 ${data.message}`);
+            alert(`🎉 [결제 및 구독 완료]\n${data.message}\n매월 정기결제가 안전하게 등록되었습니다.`);
+            closeB2CCheckoutModal();
+            closeStudentBrochureModal();
+            closeParentBrochureModal();
             closeB2CMembershipModal();
             if (typeof fetchStudentInfo === 'function') fetchStudentInfo(sid);
         } else {
-            alert(data.detail || "구독 결제 실패");
+            alert(data.detail || "구독 결제 승인 실패");
         }
     } catch (e) {
-        alert("구독 처리 중 오류가 발생했습니다.");
+        alert("결제 처리 중 통신 오류가 발생했습니다.");
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = "⚡ 결제 진행 및 구독 활성화";
+        }
     }
 }
 
@@ -11335,7 +11364,7 @@ function openStudentCardModal() {
 
         currentStudent = {
 
-            id: 1, name: "김철훈", high_school: "낙생고", grade: 4,
+            id: 1, name: "학생", high_school: "낙생고", grade: 4,
 
             target_univ: "연세대학교 의예과", referral_code: "PL-2027-0001"
 
@@ -11859,7 +11888,7 @@ async function executeTierOrder() {
 
         const consultType = isVIPInPerson ? "대면 50분 집무실 상담" : "유선 심층 전화 상담 (30~40분)";
 
-        if (!confirm(`👑 [김철훈 원장 1:1 ${consultType}]\n\n비용: ${vipCost.toLocaleString()} PALIN 캐시\n\n신청 시 원장이 직접 24시간 내 유선으로 일정을 조율합니다. 신청하시겠습니까?`)) {
+        if (!confirm(`👑 [1:1 수석 입시 컨설턴트 ${consultType}]\n\n비용: ${vipCost.toLocaleString()} PALIN 캐시\n\n신청 시 수석 컨설턴트가 직접 24시간 내 유선으로 일정을 조율합니다. 신청하시겠습니까?`)) {
 
             return;
 
@@ -12199,7 +12228,7 @@ function openReferralModal() {
 
         currentStudent = {
 
-            id: 1, name: "김철훈", free_report_tickets: 3, referral_code: "PL-SNU01"
+            id: 1, name: "학생", free_report_tickets: 3, referral_code: "PL-SNU01"
 
         };
 
@@ -12253,7 +12282,7 @@ function openCashModal() {
 
         currentStudent = {
 
-            id: 1, name: "김철훈", paid_cash: 0
+            id: 1, name: "학생", paid_cash: 0
 
         };
 
@@ -12455,19 +12484,27 @@ async function loadMicroRankings() {
 
     const regEl = document.getElementById("my-ranking-region-name");
     const schEl = document.getElementById("my-ranking-school-name");
+    const regPosEl = document.getElementById("my-ranking-region-pos");
+    const schPosEl = document.getElementById("my-ranking-school-pos");
     if (regEl) regEl.innerText = myRegion;
     if (schEl) schEl.innerText = mySchool;
+    if (regPosEl) regPosEl.innerText = "-";
+    if (schPosEl) schPosEl.innerText = "-";
 
     try {
         const res = await fetch(`/api/gamification/micro-rankings?student_id=${sid}`);
         if (res.ok) {
             const data = await res.json();
-            if (regEl) regEl.innerText = data.region_name;
-            if (schEl) schEl.innerText = data.school_name;
+            if (regEl) regEl.innerText = data.region_name || myRegion;
+            if (schEl) schEl.innerText = data.school_name || mySchool;
+            if (regPosEl) regPosEl.innerText = data.region_pos_str || "-";
+            if (schPosEl) schPosEl.innerText = data.school_pos_str || "-";
 
             listEl.innerHTML = "";
             (data.rankers || []).forEach(r => {
-                const medal = r.rank === 1 ? "🥇" : (r.rank === 2 ? "🥈" : (r.rank === 3 ? "🥉" : `${r.rank}위`));
+                const medal = (r.studySeconds && r.studySeconds > 0)
+                    ? (r.rank === 1 ? "🥇" : (r.rank === 2 ? "🥈" : (r.rank === 3 ? "🥉" : `${r.rank}위`)))
+                    : "-";
                 const isDayMode = document.body.classList.contains('day-mode');
                 const bg = r.isMe 
                     ? (isDayMode ? "#fef3c7" : "rgba(234, 179, 8, 0.15)") 
@@ -13775,7 +13812,7 @@ async function handleSendDiagnosticSurvey(e) {
 
             const data = await res.json();
 
-            alert(`🩺 [김철훈 원장 맞춤 처방전 발급 완료]
+            alert(`🩺 [초정밀 1:1 맞춤 입시 처방전 발급 완료]
 
 처방 내용: ${data.prescription}
 
