@@ -22,6 +22,17 @@ def init_db_schema():
     # 1. ALWAYS initialize SQLite database (local base)
     try:
         models.Base.metadata.create_all(bind=database.sqlite_engine)
+        with database.sqlite_engine.connect() as conn:
+            for table_name, table_obj in models.Base.metadata.tables.items():
+                try:
+                    res = conn.execute(text(f"PRAGMA table_info({table_name})")).fetchall()
+                    existing_cols = set(r[1] for r in res)
+                    for col in table_obj.columns:
+                        if col.name not in existing_cols:
+                            conn.execute(text(f"ALTER TABLE {table_name} ADD COLUMN {col.name} TEXT;"))
+                            conn.commit()
+                except Exception:
+                    pass
         sq_db = database.SqliteSessionLocal()
         seed_data.auto_seed_database(sq_db, database.sqlite_engine)
         sq_db.close()
@@ -1031,11 +1042,11 @@ def manage_session(payload: schemas.StudySessionRequest, db: Session = Depends(g
 
 @app.post("/api/ai/chat", response_model=schemas.AIChatResponse)
 def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)):
-    tier = 3
+    tier = 1
     custom_prompt = None
-    bot_name = "PALIN BOT"
+    bot_name = "PALIN AI 멘토"
     is_active = True
-    remaining = 5
+    remaining = 10
     user_role = (payload.user_role or "STUDENT").upper().strip()
 
     try:
@@ -1043,22 +1054,53 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
             try:
                 student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
                 if student:
-                    if student.parent and getattr(student.parent, 'is_premium_subscribed', False):
-                        remaining = 999
-                    elif getattr(student, 'has_unlimited_chat', False):
-                        remaining = 999
+                    # 1. Tier Resolution (B2C Subscription vs B2B Tenant Sponsor)
+                    if getattr(student, 'b2c_subscription_tier', '') == "TIER_3_MASTER":
+                        tier = 3
+                    elif getattr(student, 'b2c_subscription_tier', '') == "TIER_2_PARENT":
+                        tier = 2
+
                     if student.academy_code:
                         code = student.academy_code.upper().strip()
                         tenant = db.query(models.Tenant).filter(
                             (models.Tenant.code == code) | (models.Tenant.code == code.replace("-2027", "1"))
                         ).first()
                         if tenant:
-                            tier = tenant.tier or 2
+                            if tenant.tier >= 3 or getattr(tenant, 'license_tier', 1) >= 3:
+                                tier = 3  # B2B Tier 3 auto-sponsors student to Master AI
+                            elif tenant.tier == 2 and tier < 2:
+                                tier = 2
                             custom_prompt = tenant.custom_system_prompt
                             bot_name = tenant.bot_name or "PALIN AI 멘토"
                             is_active = tenant.is_active if tenant.is_active is not None else True
+
+                    # 2. Token Economics (Deduct token unless unlimited pass)
+                    is_unlimited = False
+                    if student.parent and getattr(student.parent, 'is_premium_subscribed', False):
+                        is_unlimited = True
+                    elif getattr(student, 'has_unlimited_chat', False):
+                        is_unlimited = True
+                    elif student.academy_code and tier >= 3:
+                        is_unlimited = True
+
+                    if is_unlimited:
+                        remaining = 999
+                    else:
+                        current_toks = getattr(student, 'chat_tokens', 10)
+                        if current_toks is None:
+                            current_toks = 10
+                        if current_toks <= 0:
+                            raise HTTPException(
+                                status_code=402,
+                                detail="보유하신 AI 질문 토큰이 모두 소진되었습니다. [질문권 50회 충전 (4,900원)]을 진행해 주세요."
+                            )
+                        student.chat_tokens = max(0, current_toks - 1)
+                        db.commit()
+                        remaining = student.chat_tokens
+            except HTTPException:
+                raise
             except Exception as e:
-                print("Student/Tenant lookup error in chat (ignorable):", e)
+                print("Student/Tenant lookup note in chat:", e)
 
         history_dicts = None
         if payload.history:
@@ -1084,6 +1126,8 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
             user_role=user_role
         )
         return schemas.AIChatResponse(reply=reply, remaining_chats=remaining)
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"CHAT ENDPOINT FATAL ERROR: {e}")
         return schemas.AIChatResponse(
@@ -2945,7 +2989,7 @@ def update_student_financial(student_id: int, payload: FinancialUpdatePayload, d
 
 @app.get("/api/admin/schedules")
 def get_admin_schedules(db: Session = Depends(get_db)):
-    schedules = db.query(models.AdminSchedule).order_by(models.AdminSchedule.schedule_date.asc()).all()
+    schedules = db.query(models.AdminSchedule).filter(models.AdminSchedule.deleted_at == None).order_by(models.AdminSchedule.schedule_date.asc()).all()
     return schedules
 
 
@@ -3718,6 +3762,11 @@ def get_master_macro_stats(db: Session = Depends(get_db)):
             tier1_cnt += 1
         total_royalty += int((t.monthly_revenue or 0) * (t.royalty_rate or 15.0) / 100)
 
+    logs = db.query(models.PlatformRevenueLog).filter(models.PlatformRevenueLog.deleted_at == None).all()
+    total_platform_rev = sum(l.amount for l in logs) if logs else 0
+    if total_platform_rev > 0:
+        total_royalty = total_platform_rev
+
     return {
         "status": "success",
         "total_tenants": max(len(tenants), 4),
@@ -4157,5 +4206,368 @@ def update_master_role_login_notices(payload: RoleNoticesPayload):
     save_role_login_notices(data)
     return {"status": "SUCCESS", "data": data}
 
+
+# ============================================================================
+# 🏆 Phase 8: 3-Ranking Gamification, Token Economics & B2B/B2C Monetization
+# ============================================================================
+
+@app.get("/api/ranking/matrix")
+def get_ranking_matrix(student_id: Optional[int] = None, db: Session = Depends(get_db)):
+    """
+    1. 학교 대항전 (Guild War): 학교별 총 누적 자습시간/성실도 랭킹
+    2. 마이크로 로컬 제왕 (Geo Throne): 구/동 단위 지역 1위 실시간 산출 및 브로드캐스트 배너
+    3. 상위 1% VIP 블랙 라운지 강등제: 주간 백분위 상위 1% 판정
+    """
+    students = db.query(models.Student).filter(models.Student.deleted_at == None).all()
+    
+    # 1. 학교 대항전 (Guild War)
+    school_map = {}
+    for s in students:
+        sch = s.high_school or "낙생고등학교"
+        sch_clean = sch.strip()
+        pts = (getattr(s, 'weekly_diligence_points', 0) or 0) + (s.diligence_score or 0)
+        if sch_clean not in school_map:
+            school_map[sch_clean] = {"school": sch_clean, "total_points": 0, "student_count": 0}
+        school_map[sch_clean]["total_points"] += pts
+        school_map[sch_clean]["student_count"] += 1
+        
+    school_ranking = sorted(school_map.values(), key=lambda x: x["total_points"], reverse=True)
+    for idx, sch in enumerate(school_ranking, 1):
+        sch["rank"] = idx
+        sch["is_champion"] = (idx == 1)
+
+    # 2. 마이크로 로컬 제왕 (Geo Throne)
+    region_map = {}
+    for s in students:
+        reg = s.sigungu or s.region or "성남시 분당구"
+        reg_clean = "분당구" if "분당" in reg else ("강남구" if "강남" in reg else ("수성구" if "수성" in reg else reg.split()[-1]))
+        pts = (getattr(s, 'weekly_diligence_points', 0) or 0) + (s.diligence_score or 0)
+        if reg_clean not in region_map or pts > region_map[reg_clean]["points"]:
+            masked_name = s.name[0] + "*" + s.name[2:] if len(s.name) >= 3 else (s.name[0] + "*" if len(s.name) == 2 else s.name)
+            region_map[reg_clean] = {
+                "region": reg_clean,
+                "leader_id": s.id,
+                "leader_name": masked_name,
+                "leader_school": s.high_school or "고교",
+                "points": pts
+            }
+
+    # Current student's region broadcast ticker
+    current_student = next((s for s in students if s.id == student_id), None) if student_id else None
+    user_reg = "분당구"
+    if current_student:
+        reg_str = current_student.sigungu or current_student.region or "분당구"
+        user_reg = "분당구" if "분당" in reg_str else ("강남구" if "강남" in reg_str else reg_str.split()[-1])
+    
+    local_king = region_map.get(user_reg, {
+        "region": user_reg,
+        "leader_name": "김*훈",
+        "leader_school": "낙생고",
+        "points": 1250
+    })
+    
+    ticker_message = f"👑 [{local_king['region']} 제왕] 현재 1위: {local_king['leader_school']} {local_king['leader_name']} (+{local_king['points']:,}P)"
+
+    # 3. 상위 1% VIP 블랙 라운지 판정
+    sorted_students = sorted(students, key=lambda s: ((getattr(s, 'weekly_diligence_points', 0) or 0) + (s.diligence_score or 0)), reverse=True)
+    total_count = max(1, len(sorted_students))
+    top_1_pct_index = max(1, int(total_count * 0.01))
+    vip_cutoff_points = ((getattr(sorted_students[top_1_pct_index - 1], 'weekly_diligence_points', 0) or 0) + (sorted_students[top_1_pct_index - 1].diligence_score or 0)) if sorted_students else 1000
+
+    user_rank = 1
+    is_vip = False
+    if current_student:
+        user_pts = (getattr(current_student, 'weekly_diligence_points', 0) or 0) + (current_student.diligence_score or 0)
+        user_rank = next((idx for idx, s in enumerate(sorted_students, 1) if s.id == current_student.id), total_count)
+        is_vip = (user_rank <= top_1_pct_index) or bool(current_student.is_vip) or bool(getattr(current_student, 'is_vip_this_week', False))
+
+    return {
+        "school_ranking": school_ranking[:10],
+        "local_thrones": list(region_map.values()),
+        "current_local_king": local_king,
+        "ticker_message": ticker_message,
+        "vip_lounge": {
+            "is_vip_access": is_vip,
+            "user_rank": user_rank,
+            "total_users": total_count,
+            "top_percentage": round((user_rank / total_count) * 100, 1),
+            "cutoff_points": vip_cutoff_points
+        }
+    }
+
+
+@app.post("/api/ranking/weekly-reset")
+def run_weekly_ranking_reset(db: Session = Depends(get_db)):
+    """일요일 23:59 주간 성실도 리셋 & 상위 1% VIP 강등/승격 배치 엔진"""
+    students = db.query(models.Student).filter(models.Student.deleted_at == None).all()
+    if not students:
+        return {"status": "ok", "message": "초기화 대상 유저 없음"}
+
+    sorted_students = sorted(students, key=lambda s: (getattr(s, 'weekly_diligence_points', 0) or 0), reverse=True)
+    total = len(sorted_students)
+    top_1_pct_count = max(1, int(total * 0.01))
+
+    for idx, s in enumerate(sorted_students):
+        if idx < top_1_pct_count:
+            s.is_vip_this_week = True
+            s.is_vip = True
+        else:
+            s.is_vip_this_week = False
+            if s.role != "SUPER_ADMIN":
+                s.is_vip = False
+        s.weekly_diligence_points = 0
+
+    db.commit()
+    return {
+        "status": "success",
+        "reset_count": total,
+        "vip_promoted_count": top_1_pct_count,
+        "message": f"주간 랭킹 리셋 완료 (상위 1% VIP {top_1_pct_count}명 승격, 나머지 강등 완료)"
+    }
+
+
+# --- B2C / B2B 결제 및 토큰 충전 파이프라인 ---
+
+class ChatTokenPayload(BaseModel):
+    student_id: int
+    amount: int = 4900 # 50회 충전
+    token_count: int = 50
+
+@app.post("/api/payment/chat-tokens")
+def purchase_chat_tokens(payload: ChatTokenPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+
+    curr_toks = 10
+    try:
+        curr_toks = int(getattr(student, 'chat_tokens', 10) or 10)
+    except Exception:
+        curr_toks = 10
+    student.chat_tokens = curr_toks + int(payload.token_count)
+    
+    # Record revenue
+    rev = models.PlatformRevenueLog(
+        category="TOKEN_CHARGE",
+        title=f"AI 질문권 {payload.token_count}회 충전 ({student.name})",
+        amount=int(payload.amount),
+        net_margin=int(payload.amount),
+        student_id=student.id,
+        tenant_code=student.academy_code
+    )
+    db.add(rev)
+    db.commit()
+
+    return {
+        "status": "success",
+        "message": f"🎉 AI 질문권 {payload.token_count}회가 성공적으로 충전되었습니다!",
+        "chat_tokens": int(student.chat_tokens)
+    }
+
+
+class B2CSubPayload(BaseModel):
+    student_id: int
+    tier: str # 'TIER_2_PARENT' (19,900) | 'TIER_3_MASTER' (99,000)
+
+@app.post("/api/payment/b2c-subscription")
+def subscribe_b2c_tier(payload: B2CSubPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+
+    # Check if student belongs to B2B Tier 3 Academy
+    if student.academy_code:
+        tenant = db.query(models.Tenant).filter(models.Tenant.code == student.academy_code.upper()).first()
+        if tenant and (int(getattr(tenant, 'tier', 1) or 1) >= 3 or int(getattr(tenant, 'license_tier', 1) or 1) >= 3):
+            student.b2c_subscription_tier = "TIER_3_MASTER"
+            db.commit()
+            return {
+                "status": "success",
+                "is_academy_sponsored": True,
+                "message": f"🏫 [{tenant.name}] 원장님 전액 지원으로 Tier 3 마스터 AI가 무료 활성화되었습니다!",
+                "tier": "TIER_3_MASTER"
+            }
+
+    price_map = {"TIER_2_PARENT": 19900, "TIER_3_MASTER": 99000}
+    price = price_map.get(payload.tier, 19900)
+    student.b2c_subscription_tier = payload.tier
+
+    rev = models.PlatformRevenueLog(
+        category="B2C_SUB",
+        title=f"B2C {payload.tier} 1개월 구독 ({student.name})",
+        amount=price,
+        net_margin=price,
+        student_id=student.id,
+        tenant_code=student.academy_code
+    )
+    db.add(rev)
+    db.commit()
+
+    return {
+        "status": "success",
+        "is_academy_sponsored": False,
+        "message": f"🎉 {payload.tier} 구독 결제가 완료되었습니다!",
+        "tier": student.b2c_subscription_tier
+    }
+
+
+class ReportPurchasePayload(BaseModel):
+    student_id: int
+    report_type: str = "STANDARD" # 'STANDARD' (16,900) | 'PREMIUM_MEDICAL' (34,900)
+
+@app.post("/api/payment/admission-report")
+def purchase_admission_report(payload: ReportPurchasePayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+
+    price = 34900 if payload.report_type == "PREMIUM_MEDICAL" else 16900
+    curr_tix = 0
+    try:
+        curr_tix = int(getattr(student, 'free_report_tickets', 0) or 0)
+    except Exception:
+        curr_tix = 0
+    student.free_report_tickets = curr_tix + 1
+
+    rev = models.PlatformRevenueLog(
+        category="B2C_REPORT",
+        title=f"AI 입시 정밀 진단서 ({payload.report_type}) - {student.name}",
+        amount=price,
+        net_margin=price,
+        student_id=student.id,
+        tenant_code=student.academy_code
+    )
+    db.add(rev)
+    db.commit()
+
+    return {
+        "status": "success",
+        "message": f"📊 AI 입시 심층 리포트 열람권이 발급되었습니다!",
+        "tickets": int(student.free_report_tickets)
+    }
+
+
+class B2BSMSChargePayload(BaseModel):
+    tenant_code: str
+    amount: int = 30000 # 30,000원 -> 1,200건 (건당 25원)
+
+@app.post("/api/admin/b2b/charge-sms")
+def charge_b2b_sms(payload: B2BSMSChargePayload, db: Session = Depends(get_db)):
+    code = payload.tenant_code.upper().strip()
+    tenant = db.query(models.Tenant).filter(
+        (models.Tenant.code == code) | 
+        (models.Tenant.code == code.replace("-2027", "1")) |
+        (models.Tenant.code == "ILWON-2027") |
+        (models.Tenant.code == "ILWON1")
+    ).first()
+    if not tenant:
+        tenant = db.query(models.Tenant).filter(models.Tenant.deleted_at == None).first()
+    if not tenant:
+        raise HTTPException(status_code=404, detail="가맹 학원을 찾을 수 없습니다.")
+
+    curr_sms = 5000
+    try:
+        curr_sms = int(getattr(tenant, 'sms_credits', 5000) or 5000)
+    except Exception:
+        curr_sms = 5000
+    tenant.sms_credits = curr_sms + int(payload.amount)
+    net_margin = int(int(payload.amount) * 0.40) # 25원 중 10원 마진 (40%)
+
+    rev = models.PlatformRevenueLog(
+        category="B2B_SMS",
+        title=f"학원 알림톡/SMS 크레딧 충전 ({tenant.name})",
+        amount=int(payload.amount),
+        net_margin=net_margin,
+        tenant_code=tenant.code
+    )
+    db.add(rev)
+    db.commit()
+
+    return {
+        "status": "success",
+        "message": f"📨 [{tenant.name}] SMS 크레딧 {payload.amount:,}원이 충전되었습니다! (잔액: {int(tenant.sms_credits):,}원)",
+        "sms_credits": int(tenant.sms_credits)
+    }
+
+
+class B2BLicensePayload(BaseModel):
+    tenant_code: str
+    tier: int # 1: 299,000 | 2: 599,000 | 3: 999,000
+
+@app.post("/api/admin/b2b/upgrade-license")
+def upgrade_b2b_license(payload: B2BLicensePayload, db: Session = Depends(get_db)):
+    code = payload.tenant_code.upper().strip()
+    tenant = db.query(models.Tenant).filter(
+        (models.Tenant.code == code) | 
+        (models.Tenant.code == code.replace("-2027", "1")) |
+        (models.Tenant.code == "ILWON-2027") |
+        (models.Tenant.code == "ILWON1")
+    ).first()
+    if not tenant:
+        tenant = db.query(models.Tenant).filter(models.Tenant.deleted_at == None).first()
+    if not tenant:
+        raise HTTPException(status_code=404, detail="가맹 학원을 찾을 수 없습니다.")
+
+    price_map = {1: 299000, 2: 599000, 3: 999000}
+    price = price_map.get(payload.tier, 299000)
+    tenant.license_tier = payload.tier
+    tenant.tier = payload.tier
+
+    rev = models.PlatformRevenueLog(
+        category="B2B_LICENSE",
+        title=f"학원 SaaS Tier {payload.tier} 라이선스 월 구독 ({tenant.name})",
+        amount=price,
+        net_margin=price,
+        tenant_code=tenant.code
+    )
+    db.add(rev)
+    db.commit()
+
+    return {
+        "status": "success",
+        "message": f"🚀 [{tenant.name}] Tier {payload.tier} 라이선스가 성공적으로 활성화되었습니다!",
+        "license_tier": tenant.license_tier
+    }
+
+
+@app.get("/api/super-admin/royalty-revenue")
+def get_super_admin_royalty_revenue(db: Session = Depends(get_db)):
+    """총괄 제작자 마스터 콘솔용 당월 본사 청구 로열티 & 전체 매출 실시간 SUM API"""
+    logs = db.query(models.PlatformRevenueLog).filter(models.PlatformRevenueLog.deleted_at == None).order_by(models.PlatformRevenueLog.created_at.desc()).all()
+
+    total_gross = sum(l.amount for l in logs)
+    total_margin = sum(l.net_margin for l in logs)
+
+    breakdown = {
+        "B2B_LICENSE": sum(l.amount for l in logs if l.category == "B2B_LICENSE"),
+        "B2B_SMS": sum(l.amount for l in logs if l.category == "B2B_SMS"),
+        "B2C_SUB": sum(l.amount for l in logs if l.category == "B2C_SUB"),
+        "B2C_REPORT": sum(l.amount for l in logs if l.category == "B2C_REPORT"),
+        "TOKEN_CHARGE": sum(l.amount for l in logs if l.category == "TOKEN_CHARGE"),
+        "ESCROW_TAX": sum(l.amount for l in logs if l.category == "ESCROW_TAX"),
+    }
+
+    recent_txs = [
+        {
+            "id": l.id,
+            "category": l.category,
+            "title": l.title,
+            "amount": l.amount,
+            "net_margin": l.net_margin,
+            "tenant_code": l.tenant_code or "-",
+            "created_at": l.created_at.strftime("%Y-%m-%d %H:%M") if l.created_at else "-"
+        }
+        for l in logs[:20]
+    ]
+
+    return {
+        "total_gross_revenue": total_gross,
+        "total_net_margin": total_margin,
+        "breakdown": breakdown,
+        "transaction_count": len(logs),
+        "recent_transactions": recent_txs
+    }
+
 # Static files MUST be mounted at the very end so all API routes take priority
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
+

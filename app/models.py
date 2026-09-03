@@ -73,6 +73,12 @@ class Student(Base):
     referral_code = Column(String, unique=True, index=True, nullable=True) # 내 고유 친구 초대 코드
     referred_by = Column(String, nullable=True)           # 나를 초대한 친구 코드
     has_unlimited_chat = Column(Boolean, default=False)   # AI 멘토 무제한 패스 보유 여부
+    chat_tokens = Column(Integer, default=10)             # AI 질문 잔여 토큰 (기본 10회, 소진 시 50회 4,900원)
+    b2c_subscription_tier = Column(String, default="TIER_1_FREE") # TIER_1_FREE | TIER_2_PARENT | TIER_3_MASTER
+    
+    # 🏆 Phase 8: 3대 랭킹 게이미피케이션 필드 (주간 성실도 및 상위 1% VIP)
+    weekly_diligence_points = Column(Integer, default=0)  # 주간 누적 성실도 포인트 (매주 월요일 00:00 0점 초기화)
+    is_vip_this_week = Column(Boolean, default=False)     # 상위 1% VIP 블랙 라운지 진입 권한
     
     # 🏫 Phase 1~5 B2B 학원 테넌트 & ERP & 출결 & 수납 관리 필드
     previous_b2c_tier = Column(String, default="B2C_FREE") # B2C 티어 백업 스냅샷
@@ -641,6 +647,9 @@ class Tenant(Base):
     role = Column(String, default="TENANT_ADMIN")                # 원장 연락처
     director_pin = Column(String, default="1286")                 # 관제실 접속 PIN
     tier = Column(Integer, default=1)                             # Tier 1(기본), Tier 2(맞춤 커스텀 뇌), Tier 3(김철훈 백서 RAG 풀탑재)
+    license_tier = Column(Integer, default=1)                     # 1: 29.9만, 2: 59.9만, 3: 99.9만
+    sms_credits = Column(Integer, default=5000)                   # 알림톡/SMS 선불 크레딧 잔액 (원)
+    vod_storage_used_gb = Column(Float, default=0.0)              # VOD 스토리지 사용량 (GB, 50GB 초과 시 종량 과금)
     max_students = Column(Integer, default=100)                   # 라이선스 CAP 정원 (50, 100, 99999=무제한)
     is_active = Column(Boolean, default=True)                     # 킬 스위치 (False 시 고유코드 무효화 및 학생 차단)
     logo_url = Column(String, nullable=True)                      # 화이트라벨 로고 이미지 URL
@@ -691,3 +700,22 @@ class DirectorBroadcastNotice(Base):
     is_mandatory_popup = Column(Boolean, default=True) # 대시보드 로그인 시 강제 모달 팝업
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
+
+
+class PlatformRevenueLog(Base):
+    """본사 전체 과금 및 로열티 수수료 실시간 매출 로그 (Super Admin SUM 전용)"""
+    __tablename__ = "platform_revenue_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    category = Column(String, nullable=False)  # 'B2B_LICENSE' | 'B2B_SMS' | 'B2C_SUB' | 'B2C_REPORT' | 'ESCROW_TAX' | 'TOKEN_CHARGE'
+    title = Column(String, nullable=False)     # 결제명
+    amount = Column(Integer, nullable=False)    # 결제 총액 (원)
+    net_margin = Column(Integer, default=0)    # 본사 순마진 (원)
+    tenant_code = Column(String, nullable=True) # 소속 학원 코드
+    student_id = Column(Integer, nullable=True) # 학생 ID
+    parent_id = Column(Integer, nullable=True)  # 학부모 ID
+    payment_method = Column(String, default="CARD") # 'CARD' | 'POINT' | 'AUTO_DEBIT'
+    status = Column(String, default="PAID")    # 'PAID' | 'REFUNDED'
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
+
