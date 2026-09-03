@@ -908,6 +908,7 @@
                                     <th>연락처</th>
                                     <th>학교/학년</th>
                                     <th>목표대학</th>
+                                    <th>AI 티어</th>
                                     <th>리그</th>
                                     <th>배율</th>
                                     <th>보유P</th>
@@ -1212,12 +1213,19 @@
                 data.students.forEach(s => {
                     const tr = document.createElement("tr");
                     const tierClass = `league-${(s.league_tier || 'BRONZE').toLowerCase()}`;
+                    const aiTierBadge = (s.academy_approval_status === 'APPROVED' || s.academy_code)
+                        ? '<span style="background:rgba(16,185,129,0.2); color:#34d399; font-size:0.72rem; padding:2px 7px; border-radius:4px; font-weight:800;">Tier 3 (학원생)</span>'
+                        : (s.b2c_subscription_tier === 'TIER_2_PARENT' 
+                            ? '<span style="background:rgba(99,102,241,0.2); color:#818cf8; font-size:0.72rem; padding:2px 7px; border-radius:4px; font-weight:800;">Tier 2 (스탠다드)</span>'
+                            : '<span style="background:rgba(255,255,255,0.08); color:#94a3b8; font-size:0.72rem; padding:2px 7px; border-radius:4px; font-weight:800;">Tier 1 (무료)</span>');
+
                     tr.innerHTML = `
                         <td>#${s.id}</td>
                         <td style="font-weight: 700; color: #f8fafc;">${s.name}</td>
                         <td>${s.phone}</td>
                         <td>${s.high_school} (${s.grade}학년)</td>
                         <td>${s.target_univ}</td>
+                        <td>${aiTierBadge}</td>
                         <td><span class="league-badge ${tierClass}">${s.league_tier}</span></td>
                         <td style="font-weight: 700; color: #a78bfa;">${s.point_multiplier}x</td>
                         <td>${s.current_points} P</td>
@@ -1281,6 +1289,7 @@
                 try { loadAdminAttendanceLogs(); } catch(e) { console.warn("loadAdminAttendanceLogs error", e); }
                 try { loadAdminAcademyCodes(); } catch(e) { console.warn("loadAdminAcademyCodes error", e); }
                 try { loadAdminRequests(); } catch(e) { console.warn("loadAdminRequests error", e); }
+                try { loadPendingStudents(); } catch(e) { console.warn("loadPendingStudents error", e); }
                 try { renderTutorApprovals(data.pending_tutors || []); } catch(e) { console.warn("renderTutorApprovals error", e); }
                 try { populateSMSTargets(); } catch(e) { console.warn("populateSMSTargets error", e); }
             } catch (e) {

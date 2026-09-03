@@ -2003,8 +2003,17 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 </div>
                 <!-- 💎 B2B 학원 지원 & 티어 뱃지 -->
                 <div id="mypage-tier-badge-container" style="margin-top: 10px;">
-                    <div id="mypage-tier-active-badge" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(99, 102, 241, 0.2)); border: 1px solid #10b981; border-radius: 8px; padding: 6px 10px; font-size: 0.76rem; font-weight: 800; color: #34d399; display: flex; align-items: center; justify-content: space-between; gap: 6px;">
-                        <span>Tier 3 마스터 AI 활성화</span>
+                    <div id="mypage-tier-free-badge" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                        <div>
+                            <span style="font-size: 0.78rem; font-weight: 800; color: #94a3b8;">Tier 1 기본 AI (무료 체험)</span>
+                            <div style="font-size: 0.68rem; color: #64748b; margin-top: 1px;">일반 학습 코칭 · 잔여 토큰 10회</div>
+                        </div>
+                        <button type="button" onclick="openB2CMembershipModal()" class="btn" style="padding: 5px 10px; font-size: 0.72rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border-radius: 6px; white-space: nowrap;">
+                            멤버십 요금제 보기
+                        </button>
+                    </div>
+                    <div id="mypage-tier-active-badge" style="display: none; background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(99, 102, 241, 0.2)); border: 1px solid #10b981; border-radius: 8px; padding: 6px 10px; font-size: 0.76rem; font-weight: 800; color: #34d399; justify-content: space-between; align-items: center; gap: 6px;">
+                        <span id="mypage-tier-title">Tier 3 마스터 AI 활성화</span>
                         <span id="mypage-academy-sponsor-text" style="font-size: 0.68rem; color: #fbbf24; font-weight: 700;">일원학원 원장님 전액 지원</span>
                     </div>
                     <div id="mypage-tier-pending-badge" style="display: none; background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; border-radius: 8px; padding: 6px 10px; font-size: 0.76rem; font-weight: 800; color: #fbbf24;">
@@ -2763,46 +2772,9 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             </div>
 
             <button onclick="executeTokenPurchase(4900, 50)" class="btn" style="width: 100%; padding: 12px 0; background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; font-size: 0.95rem; border-radius: 10px; cursor: pointer;">⚡ 4,900원 충전 및 즉시 이용</button>
-            <button onclick="openB2CSubModal()" class="btn btn-secondary" style="width: 100%; margin-top: 8px; padding: 10px 0; font-size: 0.82rem; border-radius: 10px; cursor: pointer;">💎 월 무제한 구독 플랜 보기</button>
+            <button onclick="openB2CMembershipModal()" class="btn btn-secondary" style="width: 100%; margin-top: 8px; padding: 10px 0; font-size: 0.82rem; border-radius: 10px; cursor: pointer;">💎 월 무제한 구독 플랜 보기</button>
         </div>
     </div>
-
-    <!-- 💎 Phase 8: B2C 프리미엄 구독 모달 -->
-    <div class="modal" id="b2c-sub-modal" style="display: none; align-items: center; justify-content: center; z-index: 10002; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);">
-        <div class="modal-content" style="max-width: 440px; width: 92%; background: #0f172a; border: 1.5px solid #f59e0b; border-radius: 18px; padding: 22px; box-shadow: 0 16px 40px rgba(0,0,0,0.6);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                <div style="font-size: 1.15rem; font-weight: 800; color: #fbbf24; display: flex; align-items: center; gap: 6px;">
-                    <span class="material-symbols-rounded">workspace_premium</span>
-                    PALIN OS 멤버십 요금제
-                </div>
-                <button onclick="closeB2CSubModal()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8rem; border: none; cursor: pointer;">&times;</button>
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
-                <!-- Tier 2 플랜 -->
-                <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid #10b981; border-radius: 12px; padding: 14px; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div style="font-weight: 800; color: #34d399; font-size: 0.9rem;">Tier 2 스탠다드 (학부모 연동)</div>
-                        <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">실시간 리포트 수신 + VIP 라운지 입장권</div>
-                    </div>
-                    <div style="text-align: right;">
-                        <div style="font-weight: 900; color: #ffffff; font-size: 1.05rem;">월 19,900원</div>
-                        <button onclick="executeB2CSubscribe('TIER_2_PARENT')" class="btn" style="margin-top: 4px; padding: 4px 10px; font-size: 0.72rem; background: #10b981; color: white; font-weight: 800; border-radius: 6px; cursor: pointer;">구독하기</button>
-                    </div>
-                </div>
-
-                <!-- Tier 3 플랜 (앵커링) -->
-                <div style="background: rgba(245, 158, 11, 0.1); border: 1.5px solid #f59e0b; border-radius: 12px; padding: 14px; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div style="font-weight: 800; color: #fbbf24; font-size: 0.9rem;">Tier 3 마스터 AI 풀패키지</div>
-                        <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">김철훈 백서 풀 RAG + 168시간 AI 코칭</div>
-                    </div>
-                    <div style="text-align: right;">
-                        <div style="font-weight: 900; color: #fbbf24; font-size: 1.05rem;">월 99,000원</div>
-                        <button onclick="executeB2CSubscribe('TIER_3_MASTER')" class="btn" style="margin-top: 4px; padding: 4px 10px; font-size: 0.72rem; background: #f59e0b; color: #000; font-weight: 800; border-radius: 6px; cursor: pointer;">구독하기</button>
-                    </div>
-                </div>
-            </div>
 
     <!-- 🏢 B2B 학원 솔루션 PPT 슬라이드형 가맹 브로슈어 모달 -->
     <div class="modal" id="b2b-franchise-modal" style="display: none; align-items: center; justify-content: center; z-index: 10002; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);">

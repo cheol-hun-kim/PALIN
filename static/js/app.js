@@ -6809,28 +6809,59 @@ function openMyPageModal() {
         const hsInput = document.getElementById("edit-high-school");
         if (hsInput) hsInput.value = currentStudent.high_school || "";
 
-        // 💎 B2B 학원 지원 & 가맹 승인 상태 뱃지 렌더링
+        // 💎 B2B 학원 지원 & 티어 뱃지 렌더링
         const activeBadge = document.getElementById("mypage-tier-active-badge");
         const pendingBadge = document.getElementById("mypage-tier-pending-badge");
+        const freeBadge = document.getElementById("mypage-tier-free-badge");
         const sponsorText = document.getElementById("mypage-academy-sponsor-text");
         const pendingAcadName = document.getElementById("mypage-pending-academy-name");
+        const tierTitle = document.getElementById("mypage-tier-title");
 
-        const approvalStatus = currentStudent.academy_approval_status || "APPROVED";
-        const acadCode = currentStudent.academy_code || "ILWON-2027";
-        const acadName = (acadCode.includes("ILWON") || acadCode.includes("일원")) ? "일원학원" : (currentStudent.academy_name || acadCode);
+        const approvalStatus = currentStudent.academy_approval_status || "NONE";
+        const acadCode = currentStudent.academy_code;
+        const b2cTier = currentStudent.b2c_subscription_tier || "TIER_1_FREE";
 
-        if (approvalStatus === "PENDING") {
+        if (acadCode && approvalStatus === "APPROVED") {
+            // Case 1: 가맹 학원 원장님 전액 지원 승인 완료 학생 (Tier 3 무료)
+            if (pendingBadge) pendingBadge.style.display = "none";
+            if (freeBadge) freeBadge.style.display = "none";
+            if (activeBadge) {
+                activeBadge.style.display = "flex";
+                if (tierTitle) tierTitle.innerText = "Tier 3 마스터 AI 활성화";
+                const acadName = (acadCode.includes("ILWON") || acadCode.includes("일원")) ? "일원학원" : (currentStudent.academy_name || acadCode);
+                if (sponsorText) sponsorText.innerText = `${acadName} 원장님 전액 지원 (월 99,000원 혜택)`;
+            }
+        } else if (approvalStatus === "PENDING") {
+            // Case 2: 학원 초대코드 입력 후 원장님 승인 대기 중
             if (activeBadge) activeBadge.style.display = "none";
+            if (freeBadge) freeBadge.style.display = "none";
             if (pendingBadge) {
                 pendingBadge.style.display = "block";
                 if (pendingAcadName) pendingAcadName.innerText = currentStudent.pending_tenant_code || "학원";
             }
-        } else {
+        } else if (b2cTier === "TIER_2_PARENT") {
+            // Case 3: B2C Tier 2 스탠다드 구독 (월 19,900원)
             if (pendingBadge) pendingBadge.style.display = "none";
+            if (freeBadge) freeBadge.style.display = "none";
             if (activeBadge) {
                 activeBadge.style.display = "flex";
-                if (sponsorText) sponsorText.innerText = `${acadName} 원장님 전액 지원 (월 99,000원 혜택)`;
+                if (tierTitle) tierTitle.innerText = "Tier 2 스탠다드 AI 활성화";
+                if (sponsorText) sponsorText.innerText = "월 19,900원 멤버십 이용 중";
             }
+        } else if (b2cTier === "TIER_3_MASTER") {
+            // Case 4: B2C Tier 3 마스터 구독 (월 99,000원)
+            if (pendingBadge) pendingBadge.style.display = "none";
+            if (freeBadge) freeBadge.style.display = "none";
+            if (activeBadge) {
+                activeBadge.style.display = "flex";
+                if (tierTitle) tierTitle.innerText = "Tier 3 마스터 AI 활성화";
+                if (sponsorText) sponsorText.innerText = "월 99,000원 프리미엄 플랜";
+            }
+        } else {
+            // Case 5: B2C Tier 1 무료 체험 회원 (신규 가입 기본값)
+            if (activeBadge) activeBadge.style.display = "none";
+            if (pendingBadge) pendingBadge.style.display = "none";
+            if (freeBadge) freeBadge.style.display = "flex";
         }
 
         // 지역 (시도 / 시군구 분리 로드)
@@ -12347,100 +12378,58 @@ async function requestTutorMatch(tutorId) {
 // ==========================================
 
 async function loadMicroRankings() {
-
     const listEl = document.getElementById("micro-ranking-list");
-
     if (!listEl) return;
 
-    
-
+    const sid = (currentStudent && currentStudent.id) ? currentStudent.id : parseInt(localStorage.getItem('studentId') || '1', 10);
     const myRegion = currentStudent?.region || "성남시 분당구";
-
     const mySchool = currentStudent?.high_school || "낙생고등학교";
 
-    
+    const regEl = document.getElementById("my-ranking-region-name");
+    const schEl = document.getElementById("my-ranking-school-name");
+    if (regEl) regEl.innerText = myRegion;
+    if (schEl) schEl.innerText = mySchool;
 
-    document.getElementById("my-ranking-region-name").innerText = myRegion;
+    try {
+        const res = await fetch(`/api/gamification/micro-rankings?student_id=${sid}`);
+        if (res.ok) {
+            const data = await res.json();
+            if (regEl) regEl.innerText = data.region_name;
+            if (schEl) schEl.innerText = data.school_name;
 
-    document.getElementById("my-ranking-school-name").innerText = mySchool;
+            listEl.innerHTML = "";
+            (data.rankers || []).forEach(r => {
+                const medal = r.rank === 1 ? "🥇" : (r.rank === 2 ? "🥈" : (r.rank === 3 ? "🥉" : `${r.rank}위`));
+                const isDayMode = document.body.classList.contains('day-mode');
+                const bg = r.isMe 
+                    ? (isDayMode ? "#fef3c7" : "rgba(234, 179, 8, 0.15)") 
+                    : (isDayMode ? "#ffffff" : "rgba(255,255,255,0.03)");
+                const border = r.isMe 
+                    ? "1.5px solid #eab308" 
+                    : (isDayMode ? "1px solid #cbd5e1" : "1px solid rgba(255,255,255,0.06)");
 
-    
-
-    const myStreak = currentStudent?.streak_days || currentStudent?.consecutive_days || 1;
-
-    const dummyRankers = [
-
-        { rank: 1, name: currentStudent?.name || "나", school: mySchool, region: myRegion, studyHours: "14시간 20분", streak: myStreak, isMe: true },
-
-        { rank: 2, name: "이*준", school: mySchool, region: myRegion, studyHours: "13시간 50분", streak: Math.max(1, myStreak - 1), isMe: false },
-
-        { rank: 3, name: "박*우", school: "분당대진고", region: myRegion, studyHours: "12시간 40분", streak: Math.max(1, myStreak - 1), isMe: false },
-
-        { rank: 4, name: "최*진", school: "서현고", region: myRegion, studyHours: "11시간 10분", streak: Math.max(1, myStreak - 2), isMe: false },
-
-        { rank: 5, name: "정*원", school: "중앙고", region: myRegion, studyHours: "10시간 30분", streak: Math.max(1, myStreak - 2), isMe: false }
-
-    ];
-
-    
-
-    listEl.innerHTML = "";
-
-    dummyRankers.forEach(r => {
-
-        const medal = r.rank === 1 ? "🥇" : (r.rank === 2 ? "🥈" : (r.rank === 3 ? "🥉" : `${r.rank}위`));
-
-        const isDayMode = document.body.classList.contains('day-mode');
-
-        const bg = r.isMe 
-
-            ? (isDayMode ? "#fef3c7" : "rgba(234, 179, 8, 0.15)") 
-
-            : (isDayMode ? "#ffffff" : "rgba(255,255,255,0.03)");
-
-        const border = r.isMe 
-
-            ? "1.5px solid #eab308" 
-
-            : (isDayMode ? "1px solid #cbd5e1" : "1px solid rgba(255,255,255,0.06)");
-
-        
-
-        listEl.innerHTML += `
-
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: ${bg}; border-radius: 8px; border: ${border}; margin-bottom: 4px;">
-
-                <div style="display: flex; align-items: center; gap: 10px;">
-
-                    <span style="font-weight: 800; font-size: 0.95rem; min-width: 24px;">${medal}</span>
-
-                    <div>
-
-                        <div style="font-weight: 700; font-size: 0.85rem; color: var(--text-primary);">
-
-                            ${r.name} ${r.isMe ? '<span style="font-size:0.68rem; background:#eab308; color:#000; padding:1px 6px; border-radius:8px; font-weight:800; margin-left:4px;">ME</span>' : ''}
-
+                listEl.innerHTML += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: ${bg}; border-radius: 8px; border: ${border}; margin-bottom: 4px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-weight: 800; font-size: 0.95rem; min-width: 24px;">${medal}</span>
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.85rem; color: var(--text-primary);">
+                                    ${r.name} ${r.isMe ? '<span style="background: #fbbf24; color: #000; font-size: 0.65rem; padding: 1px 5px; border-radius: 4px; font-weight: 900;">ME</span>' : ''}
+                                </div>
+                                <div style="font-size: 0.72rem; color: var(--text-secondary);">${r.school} · ${r.region}</div>
+                            </div>
                         </div>
-
-                        <div style="font-size: 0.72rem; color: var(--text-secondary);">${r.school} · ${r.region}</div>
-
+                        <div style="text-align: right;">
+                            <div style="font-weight: 800; font-size: 0.85rem; color: #fbbf24;">${r.studyHours}</div>
+                            <div style="font-size: 0.7rem; color: #f97316; font-weight: 700;">연속 ${r.streak}일 달성</div>
+                        </div>
                     </div>
-
-                </div>
-
-                <div style="text-align: right;">
-
-                    <div style="font-size: 0.82rem; font-weight: 800; color: #d97706;">${r.studyHours}</div>
-
-                    <div style="font-size: 0.68rem; color: #059669; font-weight: 700;">연속 ${r.streak}일 달성 🔥</div>
-
-                </div>
-
-            </div>
-
-        `;
-
-    });
+                `;
+            });
+        }
+    } catch(e) {
+        console.warn("loadMicroRankings error:", e);
+    }
 
     // Render School Guild List
     const guildListEl = document.getElementById("p3-school-guild-list");
