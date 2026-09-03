@@ -23,7 +23,7 @@ if not DATABASE_URL.startswith("sqlite"):
         sep = "&" if "?" in DATABASE_URL else "?"
         DATABASE_URL = f"{DATABASE_URL}{sep}sslmode=require"
 
-# 4. SQLite 백업 엔진 생성
+# 4. SQLite 로컬 엔진
 sqlite_engine = create_engine(
     f"sqlite:///{DEFAULT_DB_PATH}",
     connect_args={"check_same_thread": False}
@@ -47,9 +47,10 @@ if not DATABASE_URL.startswith("sqlite"):
         SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=pg_engine)
         print("[DB] PostgreSQL Live Supabase Connection Succeeded 100%!")
     except Exception as e:
-        print(f"[DB] PostgreSQL Connection Warning: {e}, using SQLite.")
-        engine = sqlite_engine
-        SessionLocal = SqliteSessionLocal
+        print(f"[DB CRITICAL ERROR] PostgreSQL Connection Failed: {e}. Strict mode active (NO SILENT FALLBACK).")
+        # In strict mode, keep pg_engine to prevent silently masquerading as SQLite
+        engine = pg_engine
+        SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=pg_engine)
 
 Base = declarative_base()
 
