@@ -6969,6 +6969,23 @@ function closeMyPageModal() {
     if (modal) modal.style.display = "none";
 }
 
+function toggleMyPageEditSection() {
+    const body = document.getElementById("mypage-edit-body");
+    const icon = document.getElementById("mypage-edit-toggle-icon");
+    const status = document.getElementById("mypage-edit-toggle-status");
+    if (!body) return;
+    if (body.style.display === "none" || !body.style.display) {
+        body.style.display = "block";
+        if (icon) icon.style.transform = "rotate(180deg)";
+        if (status) status.innerText = "접기";
+    } else {
+        body.style.display = "none";
+        if (icon) icon.style.transform = "rotate(0deg)";
+        if (status) status.innerText = "설정 변경";
+    }
+}
+window.toggleMyPageEditSection = toggleMyPageEditSection;
+
 function switchRole(role) {
 
     activeRole = role;
