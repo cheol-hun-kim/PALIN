@@ -620,7 +620,7 @@ class AttendanceLog(Base):
 
 
 class WeeklyReport(Base):
-    """화요일 22:00 발간 김철훈 원장 AI 주간 생존 종합 레포트"""
+    """화요일 22:00 발간 AI 주간 생존 종합 레포트"""
     __tablename__ = "weekly_reports"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -648,7 +648,7 @@ class Tenant(Base):
     director_password_hash = Column(String, nullable=True)
     role = Column(String, default="TENANT_ADMIN")                # 원장 연락처
     director_pin = Column(String, default="1286")                 # 관제실 접속 PIN
-    tier = Column(Integer, default=1)                             # Tier 1(기본), Tier 2(맞춤 커스텀 뇌), Tier 3(김철훈 백서 RAG 풀탑재)
+    tier = Column(Integer, default=1)                             # Tier 1(기본), Tier 2(맞춤 커스텀 뇌), Tier 3(수험 전략 백서 RAG 풀탑재)
     license_tier = Column(Integer, default=1)                     # 1: 29.9만, 2: 59.9만, 3: 99.9만
     sms_credits = Column(Integer, default=5000)                   # 알림톡/SMS 선불 크레딧 잔액 (원)
     vod_storage_used_gb = Column(Float, default=0.0)              # VOD 스토리지 사용량 (GB, 50GB 초과 시 종량 과금)

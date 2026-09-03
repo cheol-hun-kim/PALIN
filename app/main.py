@@ -312,7 +312,7 @@ def handle_role_login(payload: schemas.RoleLoginRequest, db: Session = Depends(g
                 user_id=1,
                 student_id=1,
                 email="1286orbital21@gmail.com",
-                name="김철훈",
+                name="최고관리자",
                 role="SUPER_ADMIN",
                 token=token,
                 must_set_password=False,
@@ -1354,7 +1354,7 @@ def request_vip_consulting(payload: VIPConsultingPayload, db: Session = Depends(
         raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
 
     cost = 500000 if payload.is_in_person else 300000
-    consulting_type_str = "원장 집무실 1:1 대면 상담 (50분)" if payload.is_in_person else "김철훈 원장 1:1 유선 심층 전화 상담 (30~40분)"
+    consulting_type_str = "프라이빗 센터 1:1 대면 상담 (50분)" if payload.is_in_person else "수석 입시 컨설턴트 1:1 유선 심층 전화 상담 (30~40분)"
 
     current_cash = student.paid_cash or 0
     if current_cash < cost:
@@ -1386,7 +1386,7 @@ def request_vip_consulting(payload: VIPConsultingPayload, db: Session = Depends(
     db.add(consulting_record)
 
     # 학부모 및 학생에게 확인 SMS 발송
-    msg_to_parent = f"[PALIN OS] 김철훈 원장 {consulting_type_str} 신청이 정상 접수되었습니다. 원장이 직접 24시간 내 유선 연락드려 정밀 일정을 조율합니다."
+    msg_to_parent = f"[PALIN OS] {consulting_type_str} 신청이 정상 접수되었습니다. 수석 컨설턴트가 직접 24시간 내 유선 연락드려 정밀 일정을 조율합니다."
     sms.send_sms(parent_ph, msg_to_parent, "[PALIN VIP]")
 
     db.commit()
@@ -1394,7 +1394,7 @@ def request_vip_consulting(payload: VIPConsultingPayload, db: Session = Depends(
 
     return {
         "status": "ok",
-        "message": f"👑 {consulting_type_str} 신청이 완료되었습니다! 김철훈 원장이 직접 생기부와 성적을 분석한 뒤 24시간 내 전화로 일정을 조율합니다.",
+        "message": f"👑 {consulting_type_str} 신청이 완료되었습니다! 수석 입시 컨설턴트가 직접 생기부와 성적을 분석한 뒤 24시간 내 전화로 일정을 조율합니다.",
         "cost": cost,
         "remaining_cash": student.paid_cash or 0
     }
@@ -3476,7 +3476,7 @@ def assign_manual_red_card(user_id: int, payload: ManualPenaltyPayload, db: Sess
     
     if student.parent and student.parent.phone:
         try:
-            msg = f"[일원학원 긴급 징계] 김철훈 원장 직통 레드카드 발부.\n사유: {payload.reason}\n성실 보증금 {penalty:,}원이 차감되었습니다."
+            msg = f"[일원학원 긴급 징계] 원장 직통 레드카드 발부.\n사유: {payload.reason}\n성실 보증금 {penalty:,}원이 차감되었습니다."
             sms.send_sms(student.parent.phone, msg)
         except Exception as e:
             print("Penalty SMS error:", e)
@@ -3485,7 +3485,7 @@ def assign_manual_red_card(user_id: int, payload: ManualPenaltyPayload, db: Sess
 
 
 # ============================================================================
-# 📑 [Phase 5] 화요일 22:00 발간 김철훈 원장 AI 주간 생존 종합 레포트 API
+# 📑 [Phase 5] 화요일 22:00 발간 AI 주간 생존 종합 레포트 API
 # ============================================================================
 
 @app.post("/api/cron/weekly-survival-report")
@@ -3498,7 +3498,7 @@ def generate_weekly_survival_reports(db: Session = Depends(get_db)):
         is_textbook_unpaid = not s.textbook_paid
         has_unpaid = is_tuition_unpaid or is_textbook_unpaid
         
-        report_text = f"[일원학원 김철훈 원장 주간 리포트]\n{s.name} 학생은 이번 주 목표 자습 시간 대비 3회의 이탈이 발생했습니다. 국어 성적은 2등급선(상위 12.4%)을 유지 중이나, 고난도 비문학 지문 완성도가 여전히 미흡합니다.\n이번 주말까지 취약 영역 보강 과제를 완수하도록 가정에서도 엄격히 지도해 주십시오."
+        report_text = f"[일원학원 AI 주간 정밀 리포트]\n{s.name} 학생은 이번 주 목표 자습 시간 대비 3회의 이탈이 발생했습니다. 국어 성적은 2등급선(상위 12.4%)을 유지 중이나, 고난도 비문학 지문 완성도가 여전히 미흡합니다.\n이번 주말까지 취약 영역 보강 과제를 완수하도록 가정에서도 엄격히 지도해 주십시오."
         
         if is_tuition_unpaid and is_textbook_unpaid:
             report_text += "\n\n[안내] 현재 이번 달 수업료 및 교재비가 미납 상태입니다. 원활한 학사 운영을 위해 확인 후 납부 부탁드립니다."
@@ -3798,7 +3798,7 @@ def get_master_tenants(db: Session = Depends(get_db)):
     tenants = db.query(models.Tenant).order_by(models.Tenant.id.asc()).all()
     if not tenants:
         seed_tenants = [
-            models.Tenant(code="ILWON1", name="일원학원", director_name="김철훈 원장", director_phone="010-1286-2386", director_pin="1286", tier=2, max_students=99999, is_active=True, brand_color="#6366f1", royalty_rate=15.0, monthly_revenue=4800000, subject_desc="수능국어, 대치동 직강"),
+            models.Tenant(code="ILWON1", name="일원학원", director_name="대표 원장", director_phone="010-1286-2386", director_pin="1286", tier=2, max_students=99999, is_active=True, brand_color="#6366f1", royalty_rate=15.0, monthly_revenue=4800000, subject_desc="수능국어, 대치동 직강"),
             models.Tenant(code="DAECH1", name="대치 에듀포레 학원", director_name="박서현 원장", director_phone="010-4821-9921", director_pin="1286", tier=2, max_students=100, is_active=True, brand_color="#a855f7", royalty_rate=15.0, monthly_revenue=3200000, subject_desc="수능수학, 의대관"),
             models.Tenant(code="MOKDN1", name="목동 종로엠스쿨", director_name="이지훈 원장", director_phone="010-3341-7890", director_pin="1286", tier=1, max_students=50, is_active=True, brand_color="#3b82f6", royalty_rate=12.0, monthly_revenue=1500000, subject_desc="수능영어, 내신관리"),
             models.Tenant(code="SUNGN1", name="분당 정진학원", director_name="최민석 원장", director_phone="010-9981-2245", director_pin="1286", tier=1, max_students=50, is_active=False, brand_color="#f59e0b", royalty_rate=10.0, monthly_revenue=0, subject_desc="전과목 입시컨설팅")
@@ -4774,7 +4774,6 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
     if not student:
         raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
 
-    # Calculate actual study seconds for this student today
     today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     today_sessions = db.query(models.StudySession).filter(
         models.StudySession.student_id == student.id,
@@ -4786,17 +4785,60 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
     my_rem_mins = my_mins % 60
     my_time_str = f"{my_hours}시간 {my_rem_mins}분" if my_hours > 0 else f"{my_rem_mins}분"
 
-    my_region = student.region or "성남시 분당구"
-    my_school = student.high_school or "낙생고등학교"
+    my_region = student.region or "지역 미설정"
+    my_school = student.high_school or "학교 미설정"
 
-    # Get other students
+    # 1. Real Region Ranking Calculation
+    region_students = db.query(models.Student).filter(
+        models.Student.region == student.region,
+        models.Student.deleted_at == None
+    ).all() if student.region else [student]
+
+    region_scores = []
+    for st in region_students:
+        st_sess = db.query(models.StudySession).filter(
+            models.StudySession.student_id == st.id,
+            models.StudySession.created_at >= today_start
+        ).all()
+        sec = sum(getattr(s, 'duration_seconds', 0) or 0 for s in st_sess)
+        region_scores.append((st.id, sec))
+    region_scores.sort(key=lambda x: x[1], reverse=True)
+
+    # 2. Real School Ranking Calculation
+    school_students = db.query(models.Student).filter(
+        models.Student.high_school == student.high_school,
+        models.Student.deleted_at == None
+    ).all() if student.high_school else [student]
+
+    school_scores = []
+    for st in school_students:
+        st_sess = db.query(models.StudySession).filter(
+            models.StudySession.student_id == st.id,
+            models.StudySession.created_at >= today_start
+        ).all()
+        sec = sum(getattr(s, 'duration_seconds', 0) or 0 for s in st_sess)
+        school_scores.append((st.id, sec))
+    school_scores.sort(key=lambda x: x[1], reverse=True)
+
+    region_rank = next((idx + 1 for idx, (sid, _) in enumerate(region_scores) if sid == student.id), 1)
+    school_rank = next((idx + 1 for idx, (sid, _) in enumerate(school_scores) if sid == student.id), 1)
+
+    if my_seconds == 0:
+        region_pos_str = "자습 0분 (기록 없음)"
+        school_pos_str = "자습 0분 (기록 없음)"
+    else:
+        medal_r = "🥇" if region_rank == 1 else ("🥈" if region_rank == 2 else ("🥉" if region_rank == 3 else ""))
+        medal_s = "🥇" if school_rank == 1 else ("🥈" if school_rank == 2 else ("🥉" if school_rank == 3 else ""))
+        region_pos_str = f"자습 {region_rank}위 {medal_r}".strip()
+        school_pos_str = f"전교 {school_rank}위 {medal_s}".strip()
+
+    # Get peers for display
     peer_students = db.query(models.Student).filter(
         models.Student.id != student.id,
         models.Student.deleted_at == None
     ).limit(10).all()
 
     rankers = []
-    # Current student item
     rankers.append({
         "id": student.id,
         "name": student.name,
@@ -4804,7 +4846,7 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
         "region": my_region,
         "studySeconds": my_seconds,
         "studyHours": my_time_str,
-        "streak": student.streak_days or 1,
+        "streak": student.streak_days or 0,
         "isMe": True
     })
 
@@ -4827,7 +4869,7 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
             "region": p.region or my_region,
             "studySeconds": p_sec,
             "studyHours": p_time_str,
-            "streak": p.streak_days or 1,
+            "streak": p.streak_days or 0,
             "isMe": False
         })
 
@@ -4840,6 +4882,8 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
     return {
         "region_name": my_region,
         "school_name": my_school,
+        "region_pos_str": region_pos_str,
+        "school_pos_str": school_pos_str,
         "my_rank": my_rank,
         "my_study_hours": my_time_str,
         "rankers": rankers[:5]
