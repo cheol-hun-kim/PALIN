@@ -6479,6 +6479,28 @@ function executeB2CSubscribe(tier = 'TIER_2_PARENT') {
     openB2CCheckoutModal(tier);
 }
 
+function openB2BContactModal() {
+    const modal = document.getElementById("b2b-contact-modal");
+    if (modal) modal.style.display = "flex";
+}
+window.openB2BContactModal = openB2BContactModal;
+
+function closeB2BContactModal() {
+    const modal = document.getElementById("b2b-contact-modal");
+    if (modal) modal.style.display = "none";
+}
+window.closeB2BContactModal = closeB2BContactModal;
+
+function copyB2BContactEmail() {
+    const email = "1286orbital21@gmail.com";
+    navigator.clipboard.writeText(email).then(() => {
+        alert(`📋 공식 도입 문의 이메일 주소(${email})가 클립보드에 복사되었습니다.\n학원명과 원장님 연락처를 기재하여 메일을 보내주시면 24시간 내 회신드립니다.`);
+    }).catch(() => {
+        prompt("아래 이메일 주소를 복사하세요:", email);
+    });
+}
+window.copyB2BContactEmail = copyB2BContactEmail;
+
 async function confirmB2CPayment() {
     const agreeCheck = document.getElementById("checkout-terms-agree");
     if (agreeCheck && !agreeCheck.checked) {
@@ -6486,45 +6508,9 @@ async function confirmB2CPayment() {
         return;
     }
 
-    const payMethodRadio = document.querySelector('input[name="pay-method"]:checked');
-    const payMethod = payMethodRadio ? payMethodRadio.value : 'CARD';
-
-    const submitBtn = document.getElementById("checkout-submit-btn");
-    if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerText = "⏳ 결제 승인 처리 중...";
-    }
-
-    const sid = (currentStudent && currentStudent.id) ? currentStudent.id : parseInt(localStorage.getItem('studentId') || '1', 10);
-    try {
-        const res = await fetch("/api/payment/b2c-subscription", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                student_id: sid, 
-                tier: selectedCheckoutTier,
-                payment_method: payMethod 
-            })
-        });
-        const data = await res.json();
-        if (res.ok) {
-            alert(`🎉 [결제 및 구독 완료]\n${data.message}\n매월 정기결제가 안전하게 등록되었습니다.`);
-            closeB2CCheckoutModal();
-            closeStudentBrochureModal();
-            closeParentBrochureModal();
-            closeB2CMembershipModal();
-            if (typeof fetchStudentInfo === 'function') fetchStudentInfo(sid);
-        } else {
-            alert(data.detail || "구독 결제 승인 실패");
-        }
-    } catch (e) {
-        alert("결제 처리 중 통신 오류가 발생했습니다.");
-    } finally {
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerText = "⚡ 결제 진행 및 구독 활성화";
-        }
-    }
+    // 🔒 실제 PG 전자결제 모듈 연동 심사 단계 방어 (무단 무료 승격 방지)
+    alert("📢 [PG 전자결제 모듈 연동 심사 중 안내]\n\n현재 토스페이먼츠 / KG이니시스 정기 자동결제 모듈 심사 및 연동 준비 단계입니다.\n\n정식 전자결제 서비스 오픈 전까지는 준비 중 상태로 안전하게 보호되며, 실제 과금 및 멤버십 변경이 발생하지 않습니다.\n(정식 오픈 시 전체 공지사항을 통해 안내해 드리겠습니다.)");
+    closeB2CCheckoutModal();
 }
 
 // === 1. B2B Franchise (Director) Brochure Slide Controls ===

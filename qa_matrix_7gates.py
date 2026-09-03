@@ -117,19 +117,22 @@ if auth_idx == -1 or (promise_idx != -1 and auth_idx > promise_idx and 'await Pr
     print("[GATE 1.3 FAIL] Anti-FOUC Violation: checkAuth() must execute immediately before blocking async data load!")
     sys.exit(1)
 
-# Verify MyPage does NOT contain B2B franchise brochure button
+# Verify MyPage does NOT contain B2B franchise brochure button and has proper containment
 with open(os.path.join(ROOT_DIR, 'static', 'index.html'), 'r', encoding='utf-8') as f:
     idx_html = f.read()
 
 mypage_start = idx_html.find('id="mypage-modal"')
 if mypage_start != -1:
-    mypage_end = idx_html.find('<!-- 📱 토스/애플 스타일 프리미엄 마이페이지 메뉴 리스트 -->', mypage_start)
-    mypage_section = idx_html[mypage_start:mypage_end if mypage_end != -1 else mypage_start + 8000]
+    mypage_end = idx_html.find('<!-- 🪪 1. 27학번 가상 학생증 모달 -->', mypage_start)
+    mypage_section = idx_html[mypage_start:mypage_end if mypage_end != -1 else mypage_start + 12000]
     if 'openB2BFranchiseModal()' in mypage_section or 'B2B 가맹 솔루션' in mypage_section:
         print("[GATE 1.3 FAIL] B2B Franchise button leaked into Student MyPage!")
         sys.exit(1)
+    if 'mypage-menu-group' not in mypage_section:
+        print("[GATE 1.3 FAIL] Layout Integrity Error: mypage-menu-group must be contained inside mypage-modal!")
+        sys.exit(1)
 
-print("[GATE 1.3 PASS] Anti-FOUC (Zero Double-Layer Flash) & Student MyPage B2B Isolation Verified!")
+print("[GATE 1.3 PASS] Anti-FOUC, MyPage Modal Layout Containment & B2B Isolation Verified!")
 
 # ==============================================================================
 # GATE 2: DOM Event Listener & Dead Button Scanner
@@ -147,7 +150,7 @@ for form in forms:
         sys.exit(1)
 
 # Verify critical brochure modals exist in DOM
-for modal_id in ['b2b-franchise-modal', 'student-brochure-modal', 'parent-brochure-modal', 'mypage-modal']:
+for modal_id in ['b2b-franchise-modal', 'b2b-contact-modal', 'student-brochure-modal', 'parent-brochure-modal', 'mypage-modal', 'b2c-checkout-modal']:
     if f'id="{modal_id}"' not in index_html:
         print(f"[GATE 2 FAIL] Critical modal #{modal_id} missing from index.html DOM!")
         sys.exit(1)
@@ -156,6 +159,9 @@ print(f"[GATE 2.1 PASS] Analyzed {len(buttons)} buttons and {len(forms)} forms. 
 
 # 2.2 Programmatic Modal Function & Trigger Existence Test (Student, Parent, Director)
 modal_functions = [
+    ("openB2BContactModal", "b2b-contact-modal"),
+    ("closeB2BContactModal", "b2b-contact-modal"),
+    ("copyB2BContactEmail", "1286orbital21@gmail.com"),
     ("openB2BFranchiseModal", "b2b-franchise-modal"),
     ("closeB2BFranchiseModal", "b2b-franchise-modal"),
     ("nextB2BSlide", "b2b-slide-"),
