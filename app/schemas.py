@@ -16,6 +16,8 @@ class TutorProfileResponse(BaseModel):
     bio: str
     contact_link: str
     is_verified: bool
+    is_suspended: bool = False
+    suspend_reason: Optional[str] = None
     univ_emblem: Optional[str] = None
     high_school_emblem: Optional[str] = None
 
@@ -34,31 +36,105 @@ class StudentCreate(BaseModel):
     baseline_univ: str
     parent_name: str
     parent_phone: str
+    referred_by: Optional[str] = None # 추천인 코드
 
 class StudentResponse(BaseModel):
     id: int
     email: str
-    name: str
-    phone: str
-    grade: int
-    region: str
-    high_school: str
-    target_univ: str
-    baseline_univ: str
-    current_points: int
-    parent_id: int
+    name: Optional[str] = "학생"
+    phone: Optional[str] = "-"
+    grade: Optional[int] = 0
+    region: Optional[str] = "-"
+    high_school: Optional[str] = "-"
+    target_univ: Optional[str] = "-"
+    baseline_univ: Optional[str] = "-"
+    wake_target_time: Optional[str] = "06:30"
+    sleep_target_time: Optional[str] = "23:30"
+    current_points: Optional[int] = 100
+    parent_id: Optional[int] = None
+    
+    # 💎 B2C 유료 캐시 & 친구 초대 바이럴 필드
+    paid_cash: Optional[int] = 0
+    free_report_tickets: Optional[int] = 0
+    referral_code: Optional[str] = None
+    referred_by: Optional[str] = None
+    has_unlimited_chat: Optional[bool] = False
     
     # PALIN OS 필드
-    league_tier: str = "BRONZE"
-    point_multiplier: float = 1.0
-    golden_tickets_count: int = 3
-    diligence_score: int = 0
+    league_tier: Optional[str] = "BRONZE"
+    point_multiplier: Optional[float] = 1.0
+    golden_tickets_count: Optional[int] = 0
+    diligence_score: Optional[int] = 0
     referrer_id: Optional[int] = None
+    is_banned: Optional[bool] = False
+    ban_reason: Optional[str] = None
+    
+    # 심리통제 & D-Day 확장
+    dday_date: Optional[str] = "2026-11-19"
+    dday_title: Optional[str] = "2027 수능"
+    streak_days: Optional[int] = 0
+    max_streak_days: Optional[int] = 0
+    medical_symbol: Optional[str] = "GENERAL"
 
     tutor_profile: Optional[TutorProfileResponse] = None # 연계 튜터 정보 연동 추가
     
     class Config:
         from_attributes = True
+
+class StudentProfileUpdate(BaseModel):
+    student_id: int
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    grade: Optional[int] = None
+    region: Optional[str] = None
+    high_school: Optional[str] = None
+    target_univ: Optional[str] = None
+    baseline_univ: Optional[str] = None
+    wake_target_time: Optional[str] = None
+    sleep_target_time: Optional[str] = None
+    dday_date: Optional[str] = None
+    dday_title: Optional[str] = None
+    medical_symbol: Optional[str] = None
+
+class NoticeCreate(BaseModel):
+    title: str
+    content: str
+    category: str = "일반공지"
+    is_pinned: bool = False
+
+class NoticeResponse(BaseModel):
+    id: int
+    title: str
+    content: str
+    category: str
+    is_pinned: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class FeedbackCreate(BaseModel):
+    student_id: Optional[int] = None
+    user_email: Optional[str] = None
+    category: str = "불편사항" # 불편사항 | 기능제안 | 기타
+    content: str
+
+class FeedbackResponse(BaseModel):
+    id: int
+    student_id: Optional[int] = None
+    student_name: Optional[str] = None
+    user_email: Optional[str] = None
+    category: str
+    content: str
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class FeedbackStatusUpdate(BaseModel):
+    status: str # 접수됨 | 처리중 | 완료
+
 
 class GoldenTicketClaim(BaseModel):
     student_id: int
@@ -155,9 +231,16 @@ class StudySessionResponse(BaseModel):
 
 
 # --- AI 관련 스키마 ---
+class ChatHistoryItem(BaseModel):
+    role: str  # "user" or "bot"
+    content: str
+
 class AIChatRequest(BaseModel):
-    student_id: int
+    student_id: Optional[int] = None
+    parent_id: Optional[int] = None
+    user_role: Optional[str] = "STUDENT"
     message: str
+    history: Optional[List[Any]] = None
 
 class AIChatResponse(BaseModel):
     reply: str
@@ -197,18 +280,21 @@ class QAPostCreate(BaseModel):
     title: str
     content: str
     reward_points: int
+    is_anonymous: Optional[bool] = False
 
 class QACommentCreate(BaseModel):
     student_id: int
     content: str
+    is_anonymous: Optional[bool] = False
 
 class QACommentResponse(BaseModel):
     id: int
     post_id: int
-    student_id: int
+    student_id: Optional[int] = None
     student_name: Optional[str] = None
     content: str
     is_accepted: bool
+    is_anonymous: Optional[bool] = False
     created_at: datetime
 
     class Config:
@@ -216,13 +302,14 @@ class QACommentResponse(BaseModel):
 
 class QAPostResponse(BaseModel):
     id: int
-    student_id: int
+    student_id: Optional[int] = None
     student_name: Optional[str] = None
     subject: str
     title: str
     content: str
     reward_points: int
     is_resolved: bool
+    is_anonymous: Optional[bool] = False
     created_at: datetime
     comments: List[QACommentResponse] = []
 
@@ -266,3 +353,66 @@ class ProposalResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# ============================================================================
+# 🛡️ Phase 7: 4-Tier RBAC & Security Routing Schemas
+# ============================================================================
+
+class RoleLoginRequest(BaseModel):
+    login_type: str = "STUDENT"  # "STUDENT" | "PARENT" | "DIRECTOR"
+    email: str
+    password: Optional[str] = None
+    academy_code: Optional[str] = None
+
+class RoleLoginResponse(BaseModel):
+    status: str = "success"
+    user_id: int
+    email: str
+    name: str
+    role: str  # "STUDENT" | "PARENT" | "TENANT_ADMIN" | "SUPER_ADMIN"
+    token: str
+    must_set_password: bool = False
+    student_id: Optional[int] = None
+    parent_id: Optional[int] = None
+    tenant_code: Optional[str] = None
+    wallet_balance: Optional[int] = 0
+    parent_invite_code: Optional[str] = None
+
+class SetPasswordRequest(BaseModel):
+    user_id: int
+    role: str
+    new_password: str
+
+class StudentRegisterRequest(BaseModel):
+    email: EmailStr
+    password: Optional[str] = None
+    name: str
+    phone: str
+    grade: int
+    region: str
+    high_school: str
+    target_univ: str
+    baseline_univ: str
+    parent_name: Optional[str] = None
+    parent_phone: Optional[str] = None
+    referred_by: Optional[str] = None
+    academy_code: Optional[str] = None
+
+class ParentRegisterRequest(BaseModel):
+    email: EmailStr
+    password: str
+    name: str
+    phone: str
+    student_invite_code: str
+
+class ParentSponsorChargeRequest(BaseModel):
+    parent_id: int
+    amount: int
+
+class ParentSponsorPayRequest(BaseModel):
+    parent_id: int
+    student_id: int
+    item_type: str  # "TUTOR" | "VOD" | "REPORT"
+    amount: int
+    item_title: str

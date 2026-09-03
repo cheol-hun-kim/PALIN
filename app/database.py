@@ -1,25 +1,64 @@
-from sqlalchemy import create_engine
+# -*- coding: utf-8 -*-
+from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import NullPool
 import os
 
-DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./dev.db")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_DB_PATH = os.path.join(BASE_DIR, "palin_data.db").replace(os.sep, "/")
+DATABASE_URL = os.environ.get("DATABASE_URL", f"sqlite:///{DEFAULT_DB_PATH}")
 
-# Render.com provides postgres:// but SQLAlchemy needs postgresql://
+# 1. postgres:// -> postgresql:// 변환 (Heroku / Render 호환)
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+# 2. Supabase Pooler 포트 5432 -> 6543 자동 치환 (PgBouncer IPv4 안정성 보장)
+if "pooler.supabase.com:5432" in DATABASE_URL:
+    DATABASE_URL = DATABASE_URL.replace("pooler.supabase.com:5432", "pooler.supabase.com:6543")
 
-engine = create_engine(DATABASE_URL, connect_args=connect_args)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# 3. PostgreSQL 연결 시 SSL 모드 강제 보장
+if not DATABASE_URL.startswith("sqlite"):
+    if "sslmode=" not in DATABASE_URL:
+        sep = "&" if "?" in DATABASE_URL else "?"
+        DATABASE_URL = f"{DATABASE_URL}{sep}sslmode=require"
+
+# 4. SQLite 로컬 엔진
+sqlite_engine = create_engine(
+    f"sqlite:///{DEFAULT_DB_PATH}",
+    connect_args={"check_same_thread": False}
+)
+SqliteSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=sqlite_engine)
+
+engine = sqlite_engine
+SessionLocal = SqliteSessionLocal
+
+if not DATABASE_URL.startswith("sqlite"):
+    try:
+        pg_engine = create_engine(
+            DATABASE_URL,
+            poolclass=NullPool,
+            pool_pre_ping=True,
+            connect_args={"connect_timeout": 15}
+        )
+        with pg_engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        engine = pg_engine
+        SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=pg_engine)
+        print("[DB] PostgreSQL Live Supabase Connection Succeeded 100%!")
+    except Exception as e:
+        print(f"[DB CRITICAL ERROR] PostgreSQL Connection Failed: {e}. Strict mode active (NO SILENT FALLBACK).")
+        # In strict mode, keep pg_engine to prevent silently masquerading as SQLite
+        engine = pg_engine
+        SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=pg_engine)
 
 Base = declarative_base()
 
-# DB 세션 의존성 주입용 헬퍼
 def get_db():
-    db = SessionLocal()
+    db = None
     try:
+        db = SessionLocal()
         yield db
     finally:
-        db.close()
+        if db:
+            db.close()
