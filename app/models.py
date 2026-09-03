@@ -277,6 +277,11 @@ class TutorProfile(Base):
     univ_emblem = Column(String, nullable=True)
     high_school_emblem = Column(String, nullable=True)
 
+    # 🎓 학원 출신 선배 튜터 및 정산 필드 (8:1:1 모델: 튜터 80% : 원장 10% : 본사 10%)
+    origin_academy_code = Column(String, nullable=True) # 출신 학원 코드 (예: ILWON-2027)
+    academy_settlement_rate = Column(Float, default=0.10) # 학원장 수수료율 (기본 10%)
+    accumulated_academy_settlement = Column(Integer, default=0) # 학원장 누적 정산액
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
