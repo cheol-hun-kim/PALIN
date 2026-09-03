@@ -30,7 +30,7 @@
     </script>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=7800.0">
+    <link rel="stylesheet" href="css/style.css?v=7900.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -632,13 +632,13 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <!-- 목표 대학 -->
                         <div>
                             <div style="font-size: 0.72rem; color: #818cf8; font-weight: 800; letter-spacing: 0.3px; margin-bottom: 2px;">🎯 목표 대학</div>
-                            <div class="univ-name" id="banner-target-univ" style="font-size: 0.98rem; font-weight: 800; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.3px;">연세대학교 의예과</div>
+                            <div class="univ-name" id="banner-target-univ" style="font-size: 0.98rem; font-weight: 800; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.3px;">목표 대학을 설정해 주세요</div>
                         </div>
                         
                         <!-- 마지노선 대학 -->
                         <div style="display: flex; align-items: center; gap: 6px; font-size: 0.78rem;">
                             <span style="color: #94a3b8; font-weight: 600;">마지노선</span>
-                            <span id="banner-baseline-univ" style="font-weight: 700; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">서울대학교 화학생물공학부</span>
+                            <span id="banner-baseline-univ" style="font-weight: 700; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">마지노선 대학 미설정</span>
                         </div>
                     </div>
 
@@ -655,15 +655,11 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <div class="card" id="micro-league-card" style="margin-bottom: 12px; background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.25);">
                     <div class="card-title" style="color: #a78bfa; font-size: 0.88rem;">
                         <span class="material-symbols-rounded" style="color: #818cf8;">leaderboard</span>
-                        <span id="micro-league-title">재원생 실시간 몰입 랭킹</span>
+                        <span id="micro-league-title">수험생 주간 성실도 랭킹</span>
                     </div>
                     <div id="micro-league-content" style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5;">
-                        <div style="display:flex; flex-direction:column; gap:6px;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; padding: 2px 4px;"><span>1위 함*아 (낙생고)</span><span style="font-weight:700;">+580점</span></div>
-                            <div style="display:flex; justify-content:space-between; align-items:center; color: #fcd34d; font-weight: 800; background: rgba(245, 158, 11, 0.15); padding: 4px 8px; border-radius: 6px;"><span>2위 김*훈 (낙생고)</span><span style="font-weight:700;">+480점</span></div>
-                            <div style="display:flex; justify-content:space-between; align-items:center; padding: 2px 4px;"><span>3위 이*은 (분당대진고)</span><span style="font-weight:700;">+410점</span></div>
-                            <div style="display:flex; justify-content:space-between; align-items:center; padding: 2px 4px;"><span>4위 박*호 (세화고)</span><span style="font-weight:700;">+310점</span></div>
-                            <div style="display:flex; justify-content:space-between; align-items:center; padding: 2px 4px;"><span>5위 이*윤 (서현고)</span><span style="font-weight:700;">+280점</span></div>
+                        <div style="text-align: center; color: var(--text-secondary); padding: 14px 6px;">
+                            <span style="font-size: 0.78rem;">실시간 성실도 랭킹을 집계 중입니다...</span>
                         </div>
                     </div>
                 </div>
@@ -2705,7 +2701,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app.js?v=7800.0"></script>
+    <script src="js/app.js?v=7900.0"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소

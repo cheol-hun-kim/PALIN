@@ -4824,16 +4824,16 @@ function checkAuth() {
 
     }
 
-    let studentId = localStorage.getItem("studentId");
+    const jwtToken = localStorage.getItem("jwtToken");
+    const studentId = localStorage.getItem("studentId");
 
-    if (!studentId || isNaN(parseInt(studentId, 10))) {
-
+    if (!jwtToken || !studentId || isNaN(parseInt(studentId, 10))) {
+        localStorage.removeItem("studentId");
+        localStorage.removeItem("jwtToken");
+        localStorage.removeItem("userRole");
         const overlay = document.getElementById("register-overlay");
-
         if (overlay) overlay.style.display = "flex";
-
         return;
-
     }
 
     fetchStudentInfo(parseInt(studentId, 10));
@@ -13658,11 +13658,7 @@ async function changeStudentPassword() {
 // === 🚪 학생 로그아웃 / 계정 전환 함수 ===
 function logoutStudent() {
     if (!confirm("정말 로그아웃하시겠습니까?")) return;
-    localStorage.removeItem("studentId");
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("token");
-    localStorage.removeItem("palin_auth_token");
-    localStorage.removeItem("role");
+    localStorage.clear();
     sessionStorage.clear();
     location.reload();
 }
