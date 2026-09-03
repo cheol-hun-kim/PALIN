@@ -5056,9 +5056,9 @@ async function fetchStudentInfo(studentId) {
 
                 baseline_univ: "서울대학교 화학생물공학부",
 
-                current_points: 670,
+                current_points: 100,
 
-                streak_days: 7,
+                streak_days: 0,
 
                 diligence_score: 50,
 
@@ -5142,9 +5142,9 @@ async function fetchStudentInfo(studentId) {
 
                 baseline_univ: "서울대학교 화학생물공학부",
 
-                current_points: 670,
+                current_points: 100,
 
-                streak_days: 7,
+                streak_days: 0,
 
                 diligence_score: 50,
 
@@ -6108,8 +6108,8 @@ function updateHeaderUI() {
     // 🔥 듀오링고 불꽃 (Streak) 렌더링
     const streakEl = document.getElementById("header-streak-count");
     if (streakEl) {
-        const count = (currentStudent.streak_days !== undefined && currentStudent.streak_days !== null && currentStudent.streak_days > 0) ? currentStudent.streak_days : 7;
-        streakEl.innerText = `연속 ${count}일`;
+        const count = (currentStudent.streak_days !== undefined && currentStudent.streak_days !== null) ? currentStudent.streak_days : 0;
+        streakEl.innerText = count > 0 ? `연속 ${count}일` : "연속 0일";
     }
 
     // 마이페이지 모달 정보 갱신
@@ -6498,7 +6498,7 @@ async function executeB2CSubscribe(tier = 'TIER_2_PARENT') {
     }
 }
 
-// === B2B Franchise Brochure Slide Controls ===
+// === 1. B2B Franchise (Director) Brochure Slide Controls ===
 let currentB2BSlide = 1;
 const totalB2BSlides = 5;
 
@@ -6595,49 +6595,49 @@ async function handleFranchiseInquirySubmit(e) {
     }
 }
 
-// === B2C Membership Brochure Slide Controls ===
-let currentB2CSlide = 1;
-const totalB2CSlides = 4;
+// === 2. Student Persona Brochure Slide Controls ===
+let currentStudentSlide = 1;
+const totalStudentSlides = 4;
 
-function openB2CMembershipModal() {
-    currentB2CSlide = 1;
-    updateB2CSlideView();
-    const modal = document.getElementById("b2c-membership-modal");
+function openStudentBrochureModal() {
+    currentStudentSlide = 1;
+    updateStudentSlideView();
+    const modal = document.getElementById("student-brochure-modal");
     if (modal) modal.style.display = "flex";
 }
 
-function closeB2CMembershipModal() {
-    const modal = document.getElementById("b2c-membership-modal");
+function closeStudentBrochureModal() {
+    const modal = document.getElementById("student-brochure-modal");
     if (modal) modal.style.display = "none";
 }
 
-function nextB2CSlide() {
-    if (currentB2CSlide < totalB2CSlides) {
-        currentB2CSlide++;
-        updateB2CSlideView();
+function nextStudentSlide() {
+    if (currentStudentSlide < totalStudentSlides) {
+        currentStudentSlide++;
+        updateStudentSlideView();
     }
 }
 
-function prevB2CSlide() {
-    if (currentB2CSlide > 1) {
-        currentB2CSlide--;
-        updateB2CSlideView();
+function prevStudentSlide() {
+    if (currentStudentSlide > 1) {
+        currentStudentSlide--;
+        updateStudentSlideView();
     }
 }
 
-function updateB2CSlideView() {
-    for (let i = 1; i <= totalB2CSlides; i++) {
-        const slideEl = document.getElementById(`b2c-slide-${i}`);
-        if (slideEl) slideEl.style.display = (i === currentB2CSlide) ? "block" : "none";
+function updateStudentSlideView() {
+    for (let i = 1; i <= totalStudentSlides; i++) {
+        const slideEl = document.getElementById(`student-slide-${i}`);
+        if (slideEl) slideEl.style.display = (i === currentStudentSlide) ? "block" : "none";
     }
-    const counterEl = document.getElementById("b2c-slide-counter");
-    if (counterEl) counterEl.innerText = `Slide ${currentB2CSlide} / ${totalB2CSlides}`;
+    const counterEl = document.getElementById("student-slide-counter");
+    if (counterEl) counterEl.innerText = `Slide ${currentStudentSlide} / ${totalStudentSlides}`;
     
-    const prevBtn = document.getElementById("b2c-prev-btn");
-    const nextBtn = document.getElementById("b2c-next-btn");
-    if (prevBtn) prevBtn.disabled = (currentB2CSlide === 1);
+    const prevBtn = document.getElementById("student-prev-btn");
+    const nextBtn = document.getElementById("student-next-btn");
+    if (prevBtn) prevBtn.disabled = (currentStudentSlide === 1);
     if (nextBtn) {
-        if (currentB2CSlide === totalB2CSlides) {
+        if (currentStudentSlide === totalStudentSlides) {
             nextBtn.style.display = "none";
         } else {
             nextBtn.style.display = "block";
@@ -6646,15 +6646,83 @@ function updateB2CSlideView() {
     }
     
     // Update Dots
-    const dots = document.querySelectorAll(".b2c-dot");
+    const dots = document.querySelectorAll(".student-dot");
     dots.forEach((dot, idx) => {
-        if (idx + 1 === currentB2CSlide) {
+        if (idx + 1 === currentStudentSlide) {
             dot.style.background = "#818cf8";
         } else {
             dot.style.background = "rgba(255,255,255,0.2)";
         }
     });
 }
+
+// === 3. Parent Persona Brochure Slide Controls ===
+let currentParentSlide = 1;
+const totalParentSlides = 4;
+
+function openParentBrochureModal() {
+    currentParentSlide = 1;
+    updateParentSlideView();
+    const modal = document.getElementById("parent-brochure-modal");
+    if (modal) modal.style.display = "flex";
+}
+
+function closeParentBrochureModal() {
+    const modal = document.getElementById("parent-brochure-modal");
+    if (modal) modal.style.display = "none";
+}
+
+function nextParentSlide() {
+    if (currentParentSlide < totalParentSlides) {
+        currentParentSlide++;
+        updateParentSlideView();
+    }
+}
+
+function prevParentSlide() {
+    if (currentParentSlide > 1) {
+        currentParentSlide--;
+        updateParentSlideView();
+    }
+}
+
+function updateParentSlideView() {
+    for (let i = 1; i <= totalParentSlides; i++) {
+        const slideEl = document.getElementById(`parent-slide-${i}`);
+        if (slideEl) slideEl.style.display = (i === currentParentSlide) ? "block" : "none";
+    }
+    const counterEl = document.getElementById("parent-slide-counter");
+    if (counterEl) counterEl.innerText = `Slide ${currentParentSlide} / ${totalParentSlides}`;
+    
+    const prevBtn = document.getElementById("parent-prev-btn");
+    const nextBtn = document.getElementById("parent-next-btn");
+    if (prevBtn) prevBtn.disabled = (currentParentSlide === 1);
+    if (nextBtn) {
+        if (currentParentSlide === totalParentSlides) {
+            nextBtn.style.display = "none";
+        } else {
+            nextBtn.style.display = "block";
+            nextBtn.innerText = "다음";
+        }
+    }
+    
+    // Update Dots
+    const dots = document.querySelectorAll(".parent-dot");
+    dots.forEach((dot, idx) => {
+        if (idx + 1 === currentParentSlide) {
+            dot.style.background = "#34d399";
+        } else {
+            dot.style.background = "rgba(255,255,255,0.2)";
+        }
+    });
+}
+
+// B2C backward compatibility aliases
+function openB2CMembershipModal() { openStudentBrochureModal(); }
+function closeB2CMembershipModal() { closeStudentBrochureModal(); }
+function nextB2CSlide() { nextStudentSlide(); }
+function prevB2CSlide() { prevStudentSlide(); }
+function updateB2CSlideView() { updateStudentSlideView(); }
 
 // Student Academy Code Application
 async function handleApplyAcademyCode() {

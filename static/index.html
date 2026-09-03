@@ -303,6 +303,11 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                     ✨ 처음이신가요? <b>신규 학생 회원가입 (100P 지급) →</b>
                                 </button>
                             </div>
+                            <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
+                                <button type="button" onclick="openStudentBrochureModal()" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #a5b4fc; border-color: rgba(99,102,241,0.4); background: rgba(99,102,241,0.08); border-radius: 8px;">
+                                    🎓 PALIN OS 수험생 소개 브로슈어 보기
+                                </button>
+                            </div>
                         </form>
 
                         <!-- 학생 회원가입 -->
@@ -392,6 +397,11 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             <div style="text-align: center; margin-top: 14px;">
                                 <button type="button" onclick="toggleParentAuthMode()" style="background: none; border: none; color: #cbd5e1; font-size: 0.82rem; cursor: pointer; text-decoration: underline;">
                                     ✨ 자녀와 처음 연결하시나요? <b>신규 학부모 등록 (자녀 1:1 매핑) →</b>
+                                </button>
+                            </div>
+                            <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
+                                <button type="button" onclick="openParentBrochureModal()" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #34d399; border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.08); border-radius: 8px;">
+                                    👨‍👩‍👧 학부모 안심 솔루션 브로슈어 보기
                                 </button>
                             </div>
                         </form>
@@ -2584,204 +2594,12 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    
-    <!-- 8. 행정 요청 모달 (VOD, 결석/보강, 반변경) -->
-    <div id="academy-request-modal" class="trigger-modal" style="display: none;">
-        <div class="trigger-content" style="border-color: #818cf8;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <div id="req-modal-title" style="font-size: 1.1rem; font-weight: 800; color: #818cf8;">행정 요청 신청</div>
-                <button onclick="document.getElementById('academy-request-modal').style.display='none'" class="btn btn-secondary" style="padding: 4px 8px; border: none;">&times;</button>
-            </div>
-            <form onsubmit="handleSendAcademyRequest(event)">
-                <input type="hidden" id="req-type-input" value="VOD">
-                <div style="margin-bottom: 10px;">
-                    <label id="req-date-label" style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">해당 일자</label>
-                    <input type="date" id="req-date-input" class="form-input" style="width: 100%; color-scheme: dark;">
-                </div>
-                <div style="margin-bottom: 12px;">
-                    <label id="req-details-label" style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">신청 상세 사유</label>
-                    <textarea id="req-details-input" class="form-input" style="height: 90px; resize: none; width: 100%;" placeholder="상세 내용을 적어주세요..." required></textarea>
-                </div>
-                <button type="submit" class="btn" style="width: 100%; padding: 10px 0; background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800;">신청서 제출 (학부모 알림톡 전송)</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- 9. 장기 휴강 신청 모달 -->
-    <div id="academy-leave-modal" class="trigger-modal" style="display: none;">
-        <div class="trigger-content" style="border-color: #ef4444;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <div style="font-size: 1.1rem; font-weight: 800; color: #f87171;">장기 휴강 신청</div>
-                <button onclick="document.getElementById('academy-leave-modal').style.display='none'" class="btn btn-secondary" style="padding: 4px 8px; border: none;">&times;</button>
-            </div>
-            <form onsubmit="handleSendAcademyLeave(event)">
-                <div style="margin-bottom: 10px;">
-                    <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">휴강 사유 (필수)</label>
-                    <select id="leave-reason-select" class="form-input" style="width: 100%;" onchange="onLeaveReasonChanged(this.value)">
-                        <option value="내신 휴강">📚 내신 휴강 (수시 집중)</option>
-                        <option value="개인 사유">🏡 개인 사유 (건강/가정)</option>
-                        <option value="상담 후 결정">💬 원장님과 상담 후 결정</option>
-                    </select>
-                </div>
-                <!-- 사유별 자동 멘트 매핑 영역 -->
-                <div id="leave-auto-ment-box" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-radius: 8px; padding: 10px; font-size: 0.78rem; color: #f87171; line-height: 1.5; margin-bottom: 10px;">
-                    💡 <b>내신 휴강 안내:</b> 내신 기간 집중을 응원합니다. 신청 시 수시 6장 카드 전략 및 내신 컨설팅 VOD 가이드가 제공됩니다.
-                </div>
-                <div style="margin-bottom: 12px;">
-                    <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">상세 사유</label>
-                    <textarea id="leave-details-input" class="form-input" style="height: 70px; resize: none; width: 100%;" placeholder="휴강 예정 기간 및 상세 사유를 입력하세요..."></textarea>
-                </div>
-                <div style="font-size: 0.72rem; color: #f87171; margin-bottom: 10px; font-weight: 700;">
-                    ⚠️ 앱 내 자동 처리는 불가하며, 김철훈 원장과의 최종 상담을 통해서만 확정됩니다.
-                </div>
-                <button type="submit" class="btn" style="width: 100%; padding: 10px 0; background: linear-gradient(135deg, #ef4444, #dc2626); font-weight: 800;">휴강 상담 신청하기</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- 10. 퇴원 상담 안내 모달 (원장 직통 번호 노출) -->
-    <div id="academy-withdraw-modal" class="trigger-modal" style="display: none;">
-        <div class="trigger-content" style="border-color: #64748b; text-align: center;">
-            <div style="font-size: 1.2rem; font-weight: 900; color: #ffffff; margin-bottom: 8px;">학원 퇴원 상담 안내</div>
-            <div style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
-                퇴원 처리는 수강생의 입시 로드맵 점검 및 잔여 수강료 정산을 위해 <b>김철훈 원장과의 1:1 직통 상담</b>을 통해서만 진행됩니다.
-            </div>
-            <div style="background: rgba(255,255,255,0.06); padding: 14px; border-radius: 10px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.15);">
-                <div style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 4px;">일원학원 김철훈 원장 직통</div>
-                <div style="font-size: 1.25rem; font-weight: 900; color: #818cf8; letter-spacing: 1px;">010-9876-5432</div>
-            </div>
-            <button onclick="document.getElementById('academy-withdraw-modal').style.display='none'" class="btn" style="width: 100%; padding: 10px 0; background: #334155; font-weight: 700;">확인 및 닫기</button>
-        </div>
-    </div>
-
-    
-    <!-- 11. 시험 직후 맞춤 문진표 & 김철훈 원장 처방전 팝업 모달 -->
-    <div id="diagnostic-survey-modal" class="trigger-modal" style="display: none;">
-        <div class="trigger-content" style="border-color: #34d399; max-width: 500px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <div style="font-size: 1.1rem; font-weight: 800; color: #34d399; display: flex; align-items: center; gap: 6px;">
-                    <span class="material-symbols-rounded">medical_services</span>
-                    <span>시험 후 정밀 취약점 문진표</span>
-                </div>
-                <button onclick="document.getElementById('diagnostic-survey-modal').style.display='none'" class="btn btn-secondary" style="padding: 4px 8px; border: none;">&times;</button>
-            </div>
-            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.4;">
-                이번 주 시험에서 가장 막혔던 영역을 선택하시면 <b>김철훈 원장의 1:1 맞춤 학습 처방전</b>이 즉시 발급되며 학부모님께 자동 전달됩니다.
-            </div>
-            <form onsubmit="handleSendDiagnosticSurvey(event)">
-                <div style="margin-bottom: 12px;">
-                    <label style="font-size: 0.78rem; font-weight: 700; color: #ffffff; display: block; margin-bottom: 6px;">Q. 이번 시험에서 가장 큰 감점 요인은 무엇인가요?</label>
-                    <div style="display: flex; flex-direction: column; gap: 6px;">
-                        <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer;">
-                            <input type="radio" name="diag-q1" value="비문학 구조독해 시간 부족" checked> 1. 비문학 철학/경제 고난도 지문 시간 부족
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer;">
-                            <input type="radio" name="diag-q1" value="문학 킬러 보기 문항 오답"> 2. 현대시/고전문학 보기 판별 오답
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer;">
-                            <input type="radio" name="diag-q1" value="언매/화작 실전 개념 실수"> 3. 선택과목(언매/화작) 개념 실수 및 시간 지연
-                        </label>
-                    </div>
-                </div>
-                <button type="submit" class="btn" style="width: 100%; padding: 11px 0; background: linear-gradient(135deg, #10b981, #059669); font-weight: 800;">
-                    🩺 원장 맞춤 처방전 발급받기
-                </button>
-            </form>
-        </div>
-    </div>
-
-    
-    <!-- 12. 신규 학원 / 독서실 / 재수학원 추가 연동 모달 -->
-    <div id="add-facility-modal" class="trigger-modal" style="display: none;">
-        <div class="trigger-content" style="border-color: #6366f1; max-width: 440px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <div style="font-size: 1.1rem; font-weight: 800; color: #6366f1; display: flex; align-items: center; gap: 6px;">
-                    <span class="material-symbols-rounded">add_business</span>
-                    <span>학원 / 독서실 추가 연동</span>
-                </div>
-                <button onclick="document.getElementById('add-facility-modal').style.display='none'" class="btn btn-secondary" style="padding: 4px 8px; border: none;">&times;</button>
-            </div>
-            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.4;">
-                다니고 계신 <b>단과학원, 관리형 독서실, 스터디카페, 재수학원</b>의 고유 코드를 등록하시면, 한 앱에서 모든 기관의 일정과 출결을 통합 관리할 수 있습니다.
-            </div>
-            <form onsubmit="handleAddNewFacility(event)">
-                <div style="margin-bottom: 12px;">
-                    <label style="font-size: 0.74rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">기관 고유 코드</label>
-                    <input type="text" id="add-facility-code-input" placeholder="코드 입력 (예: DAECHI-2027, STUDY-GANGNAM)" required class="form-input" style="width: 100%; text-transform: uppercase; font-weight: 800;">
-                </div>
-                <button type="submit" class="btn" style="width: 100%; padding: 11px 0; background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800;">
-                    🚀 기관 추가 연동하기
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- 7. 불편사항 & 아이디어 건의 모달 -->
-    <div id="feedback-modal" class="trigger-modal" style="display: none;">
-        <div class="trigger-content" style="border-color: #f59e0b;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                <div style="font-size: 1.15rem; font-weight: 800; color: #f59e0b; display: flex; align-items: center; gap: 6px;">
-                    <span class="material-symbols-rounded">feedback</span>
-                    서비스 불편사항 & 개선 아이디어 건의함
-                </div>
-                <button onclick="closeFeedbackModal()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8rem; border: none;">&times;</button>
-            </div>
-            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4;">
-                사용 중 느끼신 불편한 점이나 추가되었으면 하는 기능이 있다면 언제든 알려주세요. 개발팀이 직접 확인 후 신속하게 반영하겠습니다.
-            </div>
-            <form onsubmit="handleSendFeedback(event)">
-                <div style="margin-bottom: 10px;">
-                    <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">건의 분류</label>
-                    <select id="feedback-category" class="form-input" style="width: 100%;">
-                        <option value="불편사항">🐛 버그 / 서비스 불편사항</option>
-                        <option value="기능제안">💡 새로운 기능 제안</option>
-                        <option value="기타">💬 입시 질문 / 기타 건의</option>
-                    </select>
-                </div>
-                <div style="margin-bottom: 12px;">
-                    <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">상세 내용</label>
-                    <textarea id="feedback-content" class="form-input" style="height: 100px; resize: none; width: 100%;" placeholder="불편사항이나 제안할 내용을 자세히 적어주세요..." required></textarea>
-                </div>
-                <button type="submit" class="btn" style="width: 100%; padding: 10px 0; background: linear-gradient(135deg, #f59e0b, #d97706); font-weight: 700;">📨 건의 내용 제출하기</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- ⚡ Phase 8: AI 질문 토큰 충전 모달 -->
-    <div class="modal" id="token-charge-modal" style="display: none; align-items: center; justify-content: center; z-index: 10001; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);">
-        <div class="modal-content" style="max-width: 400px; width: 92%; background: #0f172a; border: 1.5px solid #6366f1; border-radius: 18px; padding: 22px; box-shadow: 0 16px 40px rgba(0,0,0,0.6);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                <div style="font-size: 1.15rem; font-weight: 800; color: #818cf8; display: flex; align-items: center; gap: 6px;">
-                    <span class="material-symbols-rounded">bolt</span>
-                    AI 질문 토큰 충전소
-                </div>
-                <button onclick="closeTokenPurchaseModal()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8rem; border: none; cursor: pointer;">&times;</button>
-            </div>
-            <div style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.4;">
-                무료 질문 토큰을 모두 소진하셨습니다. 질문권을 충전하시면 수험생활백서 기반 심층 코칭을 즉시 이어서 이용하실 수 있습니다.
-            </div>
-            
-            <div style="background: rgba(99, 102, 241, 0.1); border: 1px solid #6366f1; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 14px;">
-                <div style="font-size: 0.85rem; color: #a5b4fc; font-weight: 700; margin-bottom: 4px;">⚡ 질문권 50회 충전 패키지</div>
-                <div style="font-size: 1.4rem; font-weight: 900; color: #ffffff;">4,900원</div>
-                <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px;">(1회 질문당 약 98원 / 무기한 사용 가능)</div>
-            </div>
-
-            <div id="academy-sponsored-banner" style="display: none; background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; border-radius: 10px; padding: 10px; margin-bottom: 14px; text-align: center; font-size: 0.78rem; color: #34d399; font-weight: 800;">
-                🏫 소속 학원 지원으로 Tier 3 마스터 AI 무료 활성화됨
-            </div>
-
-            <button onclick="executeTokenPurchase(4900, 50)" class="btn" style="width: 100%; padding: 12px 0; background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; font-size: 0.95rem; border-radius: 10px; cursor: pointer;">⚡ 4,900원 충전 및 즉시 이용</button>
-            <button onclick="openB2CMembershipModal()" class="btn btn-secondary" style="width: 100%; margin-top: 8px; padding: 10px 0; font-size: 0.82rem; border-radius: 10px; cursor: pointer;">💎 월 무제한 구독 플랜 보기</button>
-        </div>
-    </div>
-
-    <!-- 🏢 B2B 학원 솔루션 PPT 슬라이드형 가맹 브로슈어 모달 -->
+    <!-- 🏢 1. 학원장/교육기관 전용 B2B PPT 슬라이드형 가맹 브로슈어 모달 -->
     <div class="modal" id="b2b-franchise-modal" style="display: none; align-items: center; justify-content: center; z-index: 10002; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);">
         <div class="modal-content" style="max-width: 520px; width: 92%; background: #0f172a; border: 1.5px solid #f59e0b; border-radius: 20px; padding: 22px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); max-height: 88vh; overflow-y: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
                 <div>
-                    <div style="font-size: 1.05rem; font-weight: 900; color: #fbbf24;">PALIN OS B2B 도입 가이드</div>
+                    <div style="font-size: 1.05rem; font-weight: 900; color: #fbbf24;">PALIN OS B2B 가맹 가이드</div>
                     <div style="font-size: 0.72rem; color: #94a3b8;" id="b2b-slide-counter">Slide 1 / 5</div>
                 </div>
                 <button onclick="closeB2BFranchiseModal()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.85rem; border: none; cursor: pointer;">&times;</button>
@@ -2849,42 +2667,37 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     </div>
                     <div style="background: rgba(245,158,11,0.12); border: 1.5px solid #f59e0b; border-radius: 10px; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <div style="font-weight: 900; color: #fbbf24; font-size: 0.85rem;">Tier 3 마스터 (추천)</div>
-                            <div style="font-size: 0.7rem; color: #cbd5e1;">재원생 무제한 · 전원 월 99,000원 AI 무료</div>
+                            <div style="font-weight: 900; color: #fbbf24; font-size: 0.85rem;">Tier 3 엔터프라이즈</div>
+                            <div style="font-size: 0.7rem; color: #fde68a;">무제한 재원생 · 단독 전용 서버망</div>
                         </div>
-                        <div style="font-weight: 900; color: #fbbf24; font-size: 1rem;">월 99.9만</div>
+                        <div style="font-weight: 900; color: #fbbf24; font-size: 1.05rem;">월 99.9만</div>
                     </div>
                 </div>
             </div>
 
             <!-- Slide 5: 1분 가맹 도입 신청서 -->
             <div id="b2b-slide-5" class="b2b-slide" style="display: none;">
-                <div style="font-size: 0.95rem; font-weight: 800; color: #fbbf24; margin-bottom: 10px; text-align: center;">가맹 도입 상담 & 신청서 접수</div>
-                <form onsubmit="handleFranchiseInquirySubmit(event)" style="display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                        <input type="text" id="b2b-form-academy" class="form-input" placeholder="학원명 (상호)" required style="height: 38px; font-size: 0.8rem;">
-                        <input type="text" id="b2b-form-director" class="form-input" placeholder="원장님 성함" required style="height: 38px; font-size: 0.8rem;">
+                <div style="background: rgba(245,158,11,0.08); border: 1px solid #f59e0b; border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+                    <div style="font-size: 0.88rem; font-weight: 800; color: #fbbf24; margin-bottom: 2px;">⚡ 1분 가맹 도입 신청서 접수</div>
+                    <div style="font-size: 0.72rem; color: #cbd5e1;">신청 즉시 전담 컨설턴트가 배정되어 24시간 내 무료 데모를 개설해 드립니다.</div>
+                </div>
+                <form id="b2b-inquiry-form" onsubmit="submitB2BFranchiseInquiry(event)" style="display: flex; flex-direction: column; gap: 8px;">
+                    <input type="text" id="b2b-inq-academy-name" class="auth-input" placeholder="학원명 (예: 일원학원 본원)" required style="margin-bottom: 0;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <input type="text" id="b2b-inq-director-name" class="auth-input" placeholder="원장님 성함" required style="margin-bottom: 0;">
+                        <input type="tel" id="b2b-inq-phone" class="auth-input" placeholder="연락처 (010-XXXX-XXXX)" required style="margin-bottom: 0;">
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                        <input type="tel" id="b2b-form-phone" class="form-input" placeholder="연락처 (010-0000-0000)" required style="height: 38px; font-size: 0.8rem;">
-                        <input type="text" id="b2b-form-region" class="form-input" placeholder="지역 (예: 경기 성남 분당)" required style="height: 38px; font-size: 0.8rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <input type="text" id="b2b-inq-region" class="auth-input" placeholder="소재 지역 (예: 서울 강남구)" required style="margin-bottom: 0;">
+                        <input type="number" id="b2b-inq-students-count" class="auth-input" placeholder="현재 재원생 수 (명)" required style="margin-bottom: 0;">
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                        <select id="b2b-form-count" class="form-input" style="height: 38px; font-size: 0.8rem;">
-                            <option value="30">재원생 30명 내외</option>
-                            <option value="50" selected>재원생 50명 내외</option>
-                            <option value="100">재원생 100명 내외</option>
-                            <option value="200">재원생 200명 이상</option>
-                        </select>
-                        <select id="b2b-form-tier" class="form-input" style="height: 38px; font-size: 0.8rem; font-weight: 800; color: #fbbf24;">
-                            <option value="3" selected>Tier 3 마스터 (99.9만)</option>
-                            <option value="2">Tier 2 프로 (59.9만)</option>
-                            <option value="1">Tier 1 스타터 (29.9만)</option>
-                        </select>
-                    </div>
-                    <textarea id="b2b-form-notes" class="form-input" placeholder="문의 사항이나 요청사항을 적어주세요 (선택)" style="height: 60px; font-size: 0.78rem; resize: none;"></textarea>
-                    <button type="submit" class="btn" style="width: 100%; padding: 12px; font-weight: 900; font-size: 0.92rem; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000000; border-radius: 8px; margin-top: 4px;">
-                        가맹 도입 신청서 제출하기
+                    <select id="b2b-inq-tier" class="auth-input" style="margin-bottom: 0;">
+                        <option value="TIER_2_PRO" selected>희망 요금제: Tier 2 프로 (월 59.9만 - 권장)</option>
+                        <option value="TIER_1_STARTER">희망 요금제: Tier 1 스타터 (월 29.9만)</option>
+                        <option value="TIER_3_ENTERPRISE">희망 요금제: Tier 3 엔터프라이즈 (월 99.9만)</option>
+                    </select>
+                    <button type="submit" class="auth-submit-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 900; margin-top: 4px;">
+                        🚀 가맹 도입 신청서 제출하기
                     </button>
                 </form>
             </div>
@@ -2899,77 +2712,71 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <span class="b2b-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2);"></span>
                     <span class="b2b-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2);"></span>
                 </div>
-                <button type="button" id="b2b-next-btn" onclick="nextB2BSlide()" class="btn" style="padding: 6px 14px; font-size: 0.78rem; background: #6366f1;">다음</button>
+                <button type="button" id="b2b-next-btn" onclick="nextB2BSlide()" class="btn" style="padding: 6px 14px; font-size: 0.78rem; background: #f59e0b; color: #000; font-weight: 800;">다음</button>
             </div>
         </div>
     </div>
 
-
-    <!-- 💎 B2C 개인 멤버십 슬라이드형 브로슈어 모달 -->
-    <div class="modal" id="b2c-membership-modal" style="display: none; align-items: center; justify-content: center; z-index: 10002; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);">
+    <!-- 🎓 2. 학생 전용 PPT 슬라이드형 브로슈어 모달 (철저한 학생 관점 & 정보 통제) -->
+    <div class="modal" id="student-brochure-modal" style="display: none; align-items: center; justify-content: center; z-index: 10002; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);">
         <div class="modal-content" style="max-width: 480px; width: 92%; background: #0f172a; border: 1.5px solid #6366f1; border-radius: 20px; padding: 22px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); max-height: 88vh; overflow-y: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
                 <div>
-                    <div style="font-size: 1.05rem; font-weight: 900; color: #818cf8;">PALIN OS 개인 멤버십 플랜</div>
-                    <div style="font-size: 0.72rem; color: #94a3b8;" id="b2c-slide-counter">Slide 1 / 4</div>
+                    <div style="font-size: 1.05rem; font-weight: 900; color: #818cf8;">PALIN OS 수험생 1등급 비밀 무기</div>
+                    <div style="font-size: 0.72rem; color: #94a3b8;" id="student-slide-counter">Slide 1 / 4</div>
                 </div>
-                <button onclick="closeB2CMembershipModal()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.85rem; border: none; cursor: pointer;">&times;</button>
+                <button onclick="closeStudentBrochureModal()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.85rem; border: none; cursor: pointer;">&times;</button>
             </div>
 
-            <!-- Slide 1: 멘탈 관리 -->
-            <div id="b2c-slide-1" class="b2c-slide" style="display: block;">
+            <!-- Student Slide 1: 24시간 1:1 AI 입시 멘토링 -->
+            <div id="student-slide-1" class="student-slide" style="display: block;">
                 <div style="background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(168,85,247,0.1)); border: 1px solid #6366f1; border-radius: 14px; padding: 16px; margin-bottom: 14px;">
-                    <div style="font-size: 0.82rem; color: #a5b4fc; font-weight: 800; margin-bottom: 4px;">수험생활백서 13년 멘토링</div>
+                    <div style="font-size: 0.82rem; color: #a5b4fc; font-weight: 800; margin-bottom: 4px;">Point 1. 24시간 1:1 AI 입시 멘토링</div>
                     <div style="font-size: 1.15rem; font-weight: 900; color: #ffffff; line-height: 1.35; margin-bottom: 10px;">
-                        흔들리는 수험생 멘탈과 순공시간,<br><span style="color: #818cf8;">24시간 밀착 코칭 AI</span>
+                        새벽 2시에도 막히는 문제와 불안한 멘탈,<br><span style="color: #818cf8;">김철훈 원장 백서 AI가 즉시 처방</span>
                     </div>
                     <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">
-                        • 타이머 자습 관리, 기상/취침 미션, 수험생활백서 기반의 팩트폭격 AI 코칭으로 매일의 공부 밀도를 극대화합니다.<br>
-                        • 모의고사 성적 기반 대학별 실시간 합격 가능성을 정밀 예측합니다.
+                        • 13년 수험생 멘토링 지식(30,000자 백서)이 완벽 주입되어 단순 지식 전달을 넘어 슬럼프 극복과 과목별 주차 계획을 밀착 지도합니다.<br>
+                        • 모의고사 성적 기반 목표 대학 실시간 정밀 합격선을 즉시 분석합니다.
                     </div>
                 </div>
             </div>
 
-            <!-- Slide 2: AI 두뇌 및 답변 비교 -->
-            <div id="b2c-slide-2" class="b2c-slide" style="display: none;">
-                <div style="font-size: 0.95rem; font-weight: 800; color: #ffffff; margin-bottom: 10px; text-align: center;">AI 두뇌 & 코칭 깊이 비교</div>
-                <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
-                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px;">
-                        <div style="font-weight: 800; color: #94a3b8; font-size: 0.82rem;">Tier 1 기본 AI (무료)</div>
-                        <div style="font-size: 0.72rem; color: #64748b; margin-top: 2px;">지식 없는 밋밋한 일반 AI 답변 (10회 제한)</div>
-                    </div>
-                    <div style="background: rgba(16,185,129,0.08); border: 1px solid #10b981; border-radius: 10px; padding: 10px;">
-                        <div style="font-weight: 800; color: #34d399; font-size: 0.82rem;">Tier 2 스탠다드 (월 19,900원)</div>
-                        <div style="font-size: 0.72rem; color: #cbd5e1; margin-top: 2px;">백서 팩트 기반 <b>1/10 요약형 핵심 팩트폭격 코칭</b> (1~2문장 단호한 지침)</div>
-                    </div>
-                    <div style="background: rgba(245,158,11,0.1); border: 1.5px solid #f59e0b; border-radius: 10px; padding: 10px;">
-                        <div style="font-weight: 900; color: #fbbf24; font-size: 0.85rem;">Tier 3 마스터 AI (월 99,000원 / 학원생 무료)</div>
-                        <div style="font-size: 0.72rem; color: #fde68a; margin-top: 2px;"><b>김철훈 백서 풀 RAG</b> + A4 1장 분량 심층 1:1 처방전 (무제한)</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Slide 3: 학부모 연동 & 리포트 -->
-            <div id="b2c-slide-3" class="b2c-slide" style="display: none;">
+            <!-- Student Slide 2: 168시간 순공 & 루틴 챌린지 -->
+            <div id="student-slide-2" class="student-slide" style="display: none;">
                 <div style="background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(99,102,241,0.15)); border: 1px solid #10b981; border-radius: 14px; padding: 16px; margin-bottom: 14px;">
-                    <div style="font-size: 0.82rem; color: #34d399; font-weight: 800; margin-bottom: 4px;">학부모 안심 리포트</div>
+                    <div style="font-size: 0.82rem; color: #34d399; font-weight: 800; margin-bottom: 4px;">Point 2. 극강의 순공시간 & 루틴 챌린지</div>
                     <div style="font-size: 1.15rem; font-weight: 900; color: #ffffff; line-height: 1.35; margin-bottom: 10px;">
-                        자녀의 학습 궤적을<br><span style="color: #34d399;">매일 실시간 카톡으로 전송</span>
+                        공부 집중 타이머 & 기상 챌린지로<br><span style="color: #34d399;">매일의 공부 밀도를 극대화</span>
                     </div>
                     <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">
-                        • 기상 미션 성공 여부와 일일 순공시간을 학부모님께 실시간 리포트로 전달합니다.<br>
-                        • 과목별 취약점 진단 및 정시 합격 전략 리포트를 제공합니다.
+                        • 듀오링고 스타일의 연속 출석 불꽃(Streak)과 리그 배율 시스템으로 지루한 수험생활에 강력한 성취감을 부여합니다.<br>
+                        • 미션 성공 시 성실 포인트를 적립하여 다양한 리워드 혜택을 누릴 수 있습니다.
                     </div>
                 </div>
             </div>
 
-            <!-- Slide 4: 플랜 결제 & 가맹학원 무료 연동 -->
-            <div id="b2c-slide-4" class="b2c-slide" style="display: none;">
+            <!-- Student Slide 3: 학교 대항전 & 정시 예측 -->
+            <div id="student-slide-3" class="student-slide" style="display: none;">
+                <div style="background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(99,102,241,0.15)); border: 1px solid #a855f7; border-radius: 14px; padding: 16px; margin-bottom: 14px;">
+                    <div style="font-size: 0.82rem; color: #c084fc; font-weight: 800; margin-bottom: 4px;">Point 3. 학교 대항전(길드전) & 선배 튜터링</div>
+                    <div style="font-size: 1.15rem; font-weight: 900; color: #ffffff; line-height: 1.35; margin-bottom: 10px;">
+                        우리 학교 친구들과 함께 1등 도전,<br><span style="color: #c084fc;">검증된 명문대 선배 1:1 과외 매칭</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">
+                        • 학교별 누적 자습시간 실시간 랭킹전으로 우리 학교를 전국 최상위권으로 끌어올리는 재미를 경험하세요.<br>
+                        • 어려운 킬러 문항은 의대/SKY 선배 멘토에게 1:1로 직접 질문하고 답변을 받습니다.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Slide 4: 플랜 안내 & 가맹학원 무료 연동 -->
+            <div id="student-slide-4" class="student-slide" style="display: none;">
                 <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
                     <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid #10b981; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <div style="font-weight: 800; color: #34d399; font-size: 0.85rem;">Tier 2 스탠다드 (학부모 연동)</div>
-                            <div style="font-size: 0.7rem; color: #94a3b8;">1/10 팩트폭격 AI + 학부모 카톡 리포트</div>
+                            <div style="font-weight: 800; color: #34d399; font-size: 0.85rem;">Tier 2 스탠다드</div>
+                            <div style="font-size: 0.7rem; color: #94a3b8;">1/10 핵심 팩트폭격 AI 코칭 (1~2문장)</div>
                         </div>
                         <div style="text-align: right;">
                             <div style="font-weight: 900; color: #ffffff; font-size: 0.95rem;">월 19,900원</div>
@@ -2980,7 +2787,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <div style="background: rgba(245, 158, 11, 0.1); border: 1.5px solid #f59e0b; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <div style="font-weight: 800; color: #fbbf24; font-size: 0.85rem;">Tier 3 마스터 AI 풀패키지</div>
-                            <div style="font-size: 0.7rem; color: #94a3b8;">김철훈 백서 풀 RAG + 무제한 심층 코칭</div>
+                            <div style="font-size: 0.7rem; color: #94a3b8;">김철훈 백서 풀 RAG + 무제한 심층 처방전</div>
                         </div>
                         <div style="text-align: right;">
                             <div style="font-weight: 900; color: #fbbf24; font-size: 0.95rem;">월 99,000원</div>
@@ -2991,24 +2798,124 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
                 <!-- 역바이럴 박스 -->
                 <div style="background: rgba(99, 102, 241, 0.1); border: 1px dashed #818cf8; border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 0.76rem; font-weight: 800; color: #a5b4fc; margin-bottom: 2px;">혹시 학원에 다니고 계신가요?</div>
-                    <div style="font-size: 0.7rem; color: #cbd5e1; margin-bottom: 8px;">우리 학원이 가맹 학원이면 이 모든 기능이 100% 무료입니다!</div>
-                    <button type="button" onclick="closeB2CMembershipModal(); openMyPageModal();" class="btn" style="padding: 6px 14px; font-size: 0.74rem; background: #6366f1; color: white; font-weight: 800; border-radius: 6px;">
-                        학원 초대 코드 등록하러 가기
+                    <div style="font-size: 0.76rem; font-weight: 800; color: #a5b4fc; margin-bottom: 2px;">🎁 혹시 가맹 학원에 다니고 계신가요?</div>
+                    <div style="font-size: 0.7rem; color: #cbd5e1; margin-bottom: 8px;">우리 학원이 가맹 학원이면 원장님 전액 지원으로 100% 무료입니다!</div>
+                    <button type="button" onclick="closeStudentBrochureModal(); openMyPageModal();" class="btn" style="padding: 6px 14px; font-size: 0.74rem; background: #6366f1; color: white; font-weight: 800; border-radius: 6px;">
+                        🔑 학원 초대 코드 등록하러 가기
                     </button>
                 </div>
             </div>
 
             <!-- Slide Navigation Buttons -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; pt: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
-                <button type="button" id="b2c-prev-btn" onclick="prevB2CSlide()" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.78rem;" disabled>이전</button>
-                <div style="display: flex; gap: 5px;" id="b2c-dots-container">
-                    <span class="b2c-dot active" style="width: 8px; height: 8px; border-radius: 50%; background: #818cf8;"></span>
-                    <span class="b2c-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2);"></span>
-                    <span class="b2c-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2);"></span>
-                    <span class="b2c-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2);"></span>
+                <button type="button" id="student-prev-btn" onclick="prevStudentSlide()" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.78rem;" disabled>이전</button>
+                <div style="display: flex; gap: 5px;" id="student-dots-container">
+                    <span class="student-dot active" style="width: 8px; height: 8px; border-radius: 50%; background: #818cf8;"></span>
+                    <span class="student-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2);"></span>
+                    <span class="student-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2);"></span>
+                    <span class="student-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2);"></span>
                 </div>
-                <button type="button" id="b2c-next-btn" onclick="nextB2CSlide()" class="btn" style="padding: 6px 14px; font-size: 0.78rem; background: #6366f1;">다음</button>
+                <button type="button" id="student-next-btn" onclick="nextStudentSlide()" class="btn" style="padding: 6px 14px; font-size: 0.78rem; background: #6366f1;">다음</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 👨‍👩‍👧 3. 학부모 전용 PPT 슬라이드형 브로슈어 모달 (안심 케어 관점 & 학원 B2B 정보 통제) -->
+    <div class="modal" id="parent-brochure-modal" style="display: none; align-items: center; justify-content: center; z-index: 10002; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);">
+        <div class="modal-content" style="max-width: 480px; width: 92%; background: #0f172a; border: 1.5px solid #10b981; border-radius: 20px; padding: 22px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); max-height: 88vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
+                <div>
+                    <div style="font-size: 1.05rem; font-weight: 900; color: #34d399;">PALIN OS 학부모 안심 솔루션</div>
+                    <div style="font-size: 0.72rem; color: #94a3b8;" id="parent-slide-counter">Slide 1 / 4</div>
+                </div>
+                <button onclick="closeParentBrochureModal()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.85rem; border: none; cursor: pointer;">&times;</button>
+            </div>
+
+            <!-- Parent Slide 1: 잔소리 없는 168시간 멘탈/습관 케어 -->
+            <div id="parent-slide-1" class="parent-slide" style="display: block;">
+                <div style="background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(99,102,241,0.15)); border: 1px solid #10b981; border-radius: 14px; padding: 16px; margin-bottom: 14px;">
+                    <div style="font-size: 0.82rem; color: #34d399; font-weight: 800; margin-bottom: 4px;">Point 1. 잔소리 없는 자녀 멘탈/습관 케어</div>
+                    <div style="font-size: 1.15rem; font-weight: 900; color: #ffffff; line-height: 1.35; margin-bottom: 10px;">
+                        부모님의 잔소리 대신,<br><span style="color: #34d399;">13년 베테랑 입시 AI가 24시간 밀착 코칭</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">
+                        • 방황하고 흔들리는 수험생 자녀의 멘탈과 수면/기상 루틴을 수험생활백서 기반 AI가 전문적으로 바로잡습니다.<br>
+                        • 자녀와의 불필요한 감정 소모를 없애고 자녀 스스로 책상에 앉도록 만듭니다.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parent Slide 2: 매일 밤 실시간 안심 카톡 리포트 -->
+            <div id="parent-slide-2" class="parent-slide" style="display: none;">
+                <div style="background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(16,185,129,0.15)); border: 1px solid #6366f1; border-radius: 14px; padding: 16px; margin-bottom: 14px;">
+                    <div style="font-size: 0.82rem; color: #a5b4fc; font-weight: 800; margin-bottom: 4px;">Point 2. 매일 밤 실시간 안심 알림톡 리포트</div>
+                    <div style="font-size: 1.15rem; font-weight: 900; color: #ffffff; line-height: 1.35; margin-bottom: 10px;">
+                        오늘 하루 자녀의 공부 현황을<br><span style="color: #818cf8;">매일 실시간 카카오톡으로 안심 전송</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">
+                        • 아침 기상 미션 성공 여부와 실제 집중 자습 시간을 투명하게 확인하실 수 있습니다.<br>
+                        • 과목별 취약 영역과 주간 공부 시간 추이를 한눈에 파악할 수 있는 정밀 리포트를 제공합니다.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parent Slide 3: 정밀 합격선 진단 & 명문대 선배 1:1 과외 -->
+            <div id="parent-slide-3" class="parent-slide" style="display: none;">
+                <div style="background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(16,185,129,0.15)); border: 1px solid #f59e0b; border-radius: 14px; padding: 16px; margin-bottom: 14px;">
+                    <div style="font-size: 0.82rem; color: #fbbf24; font-weight: 800; margin-bottom: 4px;">Point 3. 정시 합격선 진단 & 명문대 멘토링</div>
+                    <div style="font-size: 1.15rem; font-weight: 900; color: #ffffff; line-height: 1.35; margin-bottom: 10px;">
+                        모의고사 성적 기반 정시 합격 진단과<br><span style="color: #fbbf24;">신원 검증된 명문대 선배 1:1 과외 연결</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">
+                        • 전국 대학/의치한약수의 실시간 환산점수 및 합격 가능성을 정밀 예측합니다.<br>
+                        • 부족한 취약 과목은 원장님이 검증한 SKY/의대 출신 멘토에게 1:1 맞춤 과외를 의뢰할 수 있습니다.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parent Slide 4: 학부모 멤버십 플랜 & 가맹학원 지원 -->
+            <div id="parent-slide-4" class="parent-slide" style="display: none;">
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+                    <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid #10b981; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 800; color: #34d399; font-size: 0.85rem;">Tier 2 스탠다드 (학부모 안심 플랜)</div>
+                            <div style="font-size: 0.7rem; color: #94a3b8;">매일 실시간 카톡 리포트 + 자녀 AI 멘토</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 900; color: #ffffff; font-size: 0.95rem;">월 19,900원</div>
+                            <button onclick="executeB2CSubscribe('TIER_2_PARENT')" class="btn" style="margin-top: 4px; padding: 4px 10px; font-size: 0.72rem; background: #10b981; color: white; font-weight: 800; border-radius: 6px; cursor: pointer;">구독하기</button>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(245, 158, 11, 0.1); border: 1.5px solid #f59e0b; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 800; color: #fbbf24; font-size: 0.85rem;">Tier 3 마스터 풀패키지</div>
+                            <div style="font-size: 0.7rem; color: #94a3b8;">김철훈 백서 풀 RAG + 무제한 1:1 처방전</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 900; color: #fbbf24; font-size: 0.95rem;">월 99,000원</div>
+                            <button onclick="executeB2CSubscribe('TIER_3_MASTER')" class="btn" style="margin-top: 4px; padding: 4px 10px; font-size: 0.72rem; background: #f59e0b; color: #000; font-weight: 800; border-radius: 6px; cursor: pointer;">구독하기</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 학원 연동 안내 -->
+                <div style="background: rgba(16, 185, 129, 0.1); border: 1px dashed #10b981; border-radius: 12px; padding: 12px; text-align: center;">
+                    <div style="font-size: 0.76rem; font-weight: 800; color: #34d399; margin-bottom: 2px;">🏫 자녀가 다니는 학원이 가맹 학원인가요?</div>
+                    <div style="font-size: 0.7rem; color: #cbd5e1; line-height: 1.4;">소속 학원이 PALIN OS 가맹 학원인 경우, 학원 원장님의 전액 지원으로 <b>학부모님과 자녀 모두 100% 무료</b>로 이용하실 수 있습니다.</div>
+                </div>
+            </div>
+
+            <!-- Slide Navigation Buttons -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; pt: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
+                <button type="button" id="parent-prev-btn" onclick="prevParentSlide()" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.78rem;" disabled>이전</button>
+                <div style="display: flex; gap: 5px;" id="parent-dots-container">
+                    <span class="parent-dot active" style="width: 8px; height: 8px; border-radius: 50%; background: #34d399;"></span>
+                    <span class="parent-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2);"></span>
+                    <span class="parent-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2);"></span>
+                    <span class="parent-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2);"></span>
+                </div>
+                <button type="button" id="parent-next-btn" onclick="nextParentSlide()" class="btn" style="padding: 6px 14px; font-size: 0.78rem; background: #10b981; color: white; font-weight: 800;">다음</button>
             </div>
         </div>
     </div>
