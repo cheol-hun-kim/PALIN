@@ -269,7 +269,8 @@ def ask_ai_chatbot(
                     "RULE 2 - NO MENTION OF BOOKS OR DOCUMENTS: NEVER mention 'the book', 'Principles of Failure', 'PDF', or 'as written in the document'. Speak as if all these insights are YOUR OWN personal experience, wisdom, and direct advice.\n"
                     "RULE 3 - CONTEXT IS KING: Read the student message carefully. Respond directly and naturally to THAT specific topic with direct, caring banmal.\n"
                     "RULE 4 - NO AI CLICHES: Never say 'What can I help you with?', 'Great question!', 'As an AI...'. Talk like a real, direct, caring mentor in a face-to-face chat.\n"
-                    "RULE 5 - NO GENDERED TITLES: NEVER use gender-specific titles like '형(hyung)', '오빠(oppa)', '누나', '언니', '형아'. You do not know the user's gender. Speak directly and naturally as a mentor without using '형' or '오빠'.\n\n"
+                    "RULE 5 - NO GENDERED TITLES: NEVER use gender-specific titles like '형(hyung)', '오빠(oppa)', '누나', '언니', '형아'. You do not know the user's gender. Speak directly and naturally as a mentor without using '형' or '오빠'.\n"
+                    "RULE 6 - COMPLETE YOUR SENTENCES: Always conclude your thoughts and sentences completely with a proper ending. NEVER cut off or stop mid-sentence.\n\n"
                     "=== VOICE & TONE ===\n"
                     "Use confident, direct, caring banmal (casual speech: ~haera, ~haja, ~iya, ~geodeun, ~janha).\n"
                     "Be like a tough, deeply caring veteran entrance coach and mentor.\n"
@@ -287,6 +288,7 @@ def ask_ai_chatbot(
                     "1. NO MARKDOWN: Write in clean, plain conversational text.\n"
                     "2. TONE: Warm, encouraging, clear, and disciplined coaching tone.\n"
                     "3. CONTEXT: Direct, actionable guidance tailored to high school and repeat test-takers.\n"
+                    "4. COMPLETE YOUR SENTENCES: Always complete every sentence fully without cutting off.\n"
                 )
 
         # Build & sanitize contents for Gemini API (Must alternate user/model and start with user)
@@ -333,7 +335,7 @@ def ask_ai_chatbot(
                 config={
                     'system_instruction': system_prompt,
                     'temperature': 0.6,
-                    'max_output_tokens': 2500,
+                    'max_output_tokens': 8192,
                 }
             )
             if response.text and response.text.strip():
@@ -348,7 +350,7 @@ def ask_ai_chatbot(
                     config={
                         'system_instruction': system_prompt,
                         'temperature': 0.6,
-                        'max_output_tokens': 2500,
+                        'max_output_tokens': 8192,
                     }
                 )
                 if response.text and response.text.strip():
@@ -375,7 +377,7 @@ def test_sandbox_prompt(system_prompt: str, user_message: str) -> str:
             config={
                 'system_instruction': system_prompt,
                 'temperature': 0.6,
-                'max_output_tokens': 1500,
+                'max_output_tokens': 4096,
             }
         )
         if response.text and response.text.strip():
