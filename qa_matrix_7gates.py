@@ -106,6 +106,31 @@ for hf in html_files:
 
 print("[GATE 1.2 PASS] HTML DOM parsed: 0 nested modals and 100% top-level modal containment verified!")
 
+# 1.3 Anti-FOUC & Double-Layer Page Flash Defense Validator
+with open(os.path.join(ROOT_DIR, 'static', 'js', 'app.js'), 'r', encoding='utf-8') as f:
+    app_js_text = f.read()
+
+dom_idx = app_js_text.find('DOMContentLoaded')
+auth_idx = app_js_text.find('checkAuth()', dom_idx)
+promise_idx = app_js_text.find('Promise.all', dom_idx)
+if auth_idx == -1 or (promise_idx != -1 and auth_idx > promise_idx and 'await Promise.all' in app_js_text[dom_idx:auth_idx]):
+    print("[GATE 1.3 FAIL] Anti-FOUC Violation: checkAuth() must execute immediately before blocking async data load!")
+    sys.exit(1)
+
+# Verify MyPage does NOT contain B2B franchise brochure button
+with open(os.path.join(ROOT_DIR, 'static', 'index.html'), 'r', encoding='utf-8') as f:
+    idx_html = f.read()
+
+mypage_start = idx_html.find('id="mypage-modal"')
+if mypage_start != -1:
+    mypage_end = idx_html.find('<!-- 📱 토스/애플 스타일 프리미엄 마이페이지 메뉴 리스트 -->', mypage_start)
+    mypage_section = idx_html[mypage_start:mypage_end if mypage_end != -1 else mypage_start + 8000]
+    if 'openB2BFranchiseModal()' in mypage_section or 'B2B 가맹 솔루션' in mypage_section:
+        print("[GATE 1.3 FAIL] B2B Franchise button leaked into Student MyPage!")
+        sys.exit(1)
+
+print("[GATE 1.3 PASS] Anti-FOUC (Zero Double-Layer Flash) & Student MyPage B2B Isolation Verified!")
+
 # ==============================================================================
 # GATE 2: DOM Event Listener & Dead Button Scanner
 # ==============================================================================

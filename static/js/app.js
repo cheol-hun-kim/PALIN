@@ -4390,58 +4390,28 @@ const DEFAULT_HIGHSCHOOLS_DATA = [
 
 let HIGHSCHOOLS_DATA = DEFAULT_HIGHSCHOOLS_DATA;
 
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. Fast Auth Check (0.001s immediate execution to prevent double-layer page flash)
+    checkAuth();
 
     initPALINThemeEngine();
 
-    
-
-    // 1. 내장 정적 지역 및 고등학교 데이터로 즉시 렌더링 (0.001초 즉시 렌더링 보장)
-
+    // 2. 내장 정적 지역 및 고등학교 데이터로 즉시 렌더링
     populateSidoOptions("reg-sido");
-
     populateSidoOptions("edit-sido");
-
     filterHighSchoolsBySido("reg-sido", "highschool-datalist");
-
     filterHighSchoolsBySido("edit-sido", "edit-highschool-datalist");
 
-    
-
-    // 2. 비동기 데이터 로딩을 안전하게 병렬 처리
-
-    try {
-
-        await Promise.all([
-
-            fetchUnivData(),
-
-            loadRegionsData(),
-
-            loadHighSchoolsData()
-
-        ]);
-
-    } catch (err) {
-
-        console.error("Initial data loading error:", err);
-
-    }
-
-    
-
-    checkAuth();
-
     setupEventListeners();
-
     setupDistractionDetection();
-
-    
-
     document.getElementById("header-streak-badge")?.addEventListener("click", openStreakModal);
 
-    // theme-toggle-btn handled via onclick in HTML
-
+    // 3. 비동기 대용량 데이터 로딩 (UI 렌더링 블로킹 방지)
+    Promise.all([
+        fetchUnivData(),
+        loadRegionsData(),
+        loadHighSchoolsData()
+    ]).catch(err => console.warn("Background data loading notice:", err));
 });
 
 async function loadHighSchoolsData() {
