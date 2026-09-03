@@ -152,7 +152,14 @@ def register_student(payload: schemas.StudentCreate, db: Session = Depends(get_d
             grade=payload.grade, region=payload.region, high_school=payload.high_school,
             target_univ=payload.target_univ, baseline_univ=payload.baseline_univ,
             current_points=initial_points, paid_cash=0, free_report_tickets=0,
-            referred_by=referred_by_code, parent_id=parent.id
+            referred_by=referred_by_code, parent_id=parent.id,
+            academy_code=None,
+            academy_approval_status="NONE",
+            pending_tenant_code=None,
+            b2c_subscription_tier="TIER_1_FREE",
+            ai_level="B2C_FREE",
+            has_unlimited_chat=False,
+            chat_tokens=10
         )
         db.add(student)
         db.commit()
@@ -738,14 +745,18 @@ def get_student(student_id: int, db: Session = Depends(get_db)):
         "streak_days": student.streak_days or 0,
         "max_streak_days": student.max_streak_days or 0,
         "medical_symbol": getattr(student, 'medical_symbol', 'GENERAL') or "GENERAL",
-            "previous_b2c_tier": getattr(student, 'previous_b2c_tier', 'B2C_FREE') or "B2C_FREE",
-            "academy_code": getattr(student, 'academy_code', None),
-            "ai_level": getattr(student, 'ai_level', 'B2C_FREE') or "B2C_FREE",
-            "tuition_paid": bool(getattr(student, 'tuition_paid', False)),
-            "textbook_paid": bool(getattr(student, 'textbook_paid', False)),
-            "textbooks_distributed": getattr(student, 'textbooks_distributed', '') or "",
-            "enrollment_status": getattr(student, 'enrollment_status', 'ENROLLED') or "ENROLLED",
-            "leave_reason": getattr(student, 'leave_reason', None)
+        "previous_b2c_tier": getattr(student, 'previous_b2c_tier', 'B2C_FREE') or "B2C_FREE",
+        "academy_code": getattr(student, 'academy_code', None),
+        "academy_approval_status": getattr(student, 'academy_approval_status', 'NONE') or "NONE",
+        "pending_tenant_code": getattr(student, 'pending_tenant_code', None),
+        "b2c_subscription_tier": getattr(student, 'b2c_subscription_tier', 'TIER_1_FREE') or "TIER_1_FREE",
+        "chat_tokens": getattr(student, 'chat_tokens', 10) if getattr(student, 'chat_tokens', None) is not None else 10,
+        "ai_level": getattr(student, 'ai_level', 'B2C_FREE') or "B2C_FREE",
+        "tuition_paid": bool(getattr(student, 'tuition_paid', False)),
+        "textbook_paid": bool(getattr(student, 'textbook_paid', False)),
+        "textbooks_distributed": getattr(student, 'textbooks_distributed', '') or "",
+        "enrollment_status": getattr(student, 'enrollment_status', 'ENROLLED') or "ENROLLED",
+        "leave_reason": getattr(student, 'leave_reason', None)
         }
 
 @app.get("/api/student/{student_id}/parent", response_model=schemas.ParentResponse)
@@ -4754,6 +4765,84 @@ def reject_student_enrollment(student_id: int, db: Session = Depends(get_db)):
     return {
         "status": "success",
         "message": f"[{student.name}] 학생의 가맹 등록 요청을 반려했습니다."
+    }
+
+
+@app.get("/api/gamification/micro-rankings")
+def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+
+    # Calculate actual study seconds for this student today
+    today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    today_sessions = db.query(models.StudySession).filter(
+        models.StudySession.student_id == student.id,
+        models.StudySession.created_at >= today_start
+    ).all()
+    my_seconds = sum(getattr(s, 'duration_seconds', 0) or 0 for s in today_sessions)
+    my_mins = my_seconds // 60
+    my_hours = my_mins // 60
+    my_rem_mins = my_mins % 60
+    my_time_str = f"{my_hours}시간 {my_rem_mins}분" if my_hours > 0 else f"{my_rem_mins}분"
+
+    my_region = student.region or "성남시 분당구"
+    my_school = student.high_school or "낙생고등학교"
+
+    # Get other students
+    peer_students = db.query(models.Student).filter(
+        models.Student.id != student.id,
+        models.Student.deleted_at == None
+    ).limit(10).all()
+
+    rankers = []
+    # Current student item
+    rankers.append({
+        "id": student.id,
+        "name": student.name,
+        "school": my_school,
+        "region": my_region,
+        "studySeconds": my_seconds,
+        "studyHours": my_time_str,
+        "streak": student.streak_days or 1,
+        "isMe": True
+    })
+
+    for p in peer_students:
+        p_sessions = db.query(models.StudySession).filter(
+            models.StudySession.student_id == p.id,
+            models.StudySession.created_at >= today_start
+        ).all()
+        p_sec = sum(getattr(s, 'duration_seconds', 0) or 0 for s in p_sessions)
+        p_m = p_sec // 60
+        p_h = p_m // 60
+        p_rm = p_m % 60
+        p_time_str = f"{p_h}시간 {p_rm}분" if p_h > 0 else f"{p_rm}분"
+
+        masked_name = p.name[0] + "*" + (p.name[2:] if len(p.name) > 2 else "") if len(p.name) > 1 else p.name
+        rankers.append({
+            "id": p.id,
+            "name": masked_name,
+            "school": p.high_school or my_school,
+            "region": p.region or my_region,
+            "studySeconds": p_sec,
+            "studyHours": p_time_str,
+            "streak": p.streak_days or 1,
+            "isMe": False
+        })
+
+    rankers.sort(key=lambda r: r["studySeconds"], reverse=True)
+    for idx, r in enumerate(rankers):
+        r["rank"] = idx + 1
+
+    my_rank = next((r["rank"] for r in rankers if r["isMe"]), 1)
+
+    return {
+        "region_name": my_region,
+        "school_name": my_school,
+        "my_rank": my_rank,
+        "my_study_hours": my_time_str,
+        "rankers": rankers[:5]
     }
 
 

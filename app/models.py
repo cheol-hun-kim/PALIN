@@ -83,7 +83,7 @@ class Student(Base):
     # 🏫 Phase 1~5 B2B 학원 테넌트 & ERP & 출결 & 수납 관리 필드
     previous_b2c_tier = Column(String, default="B2C_FREE") # B2C 티어 백업 스냅샷
     academy_code = Column(String, nullable=True, index=True) # 소속 학원 코드 (예: ILWON-2027)
-    academy_approval_status = Column(String, default="APPROVED") # APPROVED | PENDING | REJECTED
+    academy_approval_status = Column(String, default="NONE") # NONE | PENDING | APPROVED | REJECTED
     pending_tenant_code = Column(String, nullable=True) # 승인 대기 중인 학원 코드
     ai_level = Column(String, default="B2C_FREE")          # AI 권한 레벨
     tuition_paid = Column(Boolean, default=False)          # 수업료 납부 완료 여부
