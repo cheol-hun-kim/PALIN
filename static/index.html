@@ -30,7 +30,7 @@
     </script>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=8800.0">
+    <link rel="stylesheet" href="css/style.css?v=8900.0">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -433,6 +433,12 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 🔐 학원장 관제실 접속
                             </button>
                         </form>
+                        <div style="text-align: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08);">
+                            <div style="font-size: 0.76rem; color: #94a3b8; margin-bottom: 6px;">아직 PALIN OS 가맹 학원이 아니신가요?</div>
+                            <button type="button" onclick="openB2BFranchiseModal()" class="btn btn-secondary" style="width: 100%; padding: 10px; font-size: 0.82rem; font-weight: 800; color: #fbbf24; border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.08); border-radius: 8px;">
+                                B2B 가맹 도입 문의 & 브로슈어 보기
+                            </button>
+                        </div>
                     </div>
 
                 </div>
@@ -622,17 +628,6 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     </div>
                 </div>
 
-                <!-- 👑 Phase 8: 마이크로 로컬 제왕 실시간 브로드캐스트 띠배너 -->
-                <div id="geo-throne-ticker-bar" style="background: linear-gradient(90deg, rgba(245, 158, 11, 0.18), rgba(99, 102, 241, 0.22)); border: 1.5px solid rgba(245, 158, 11, 0.4); border-radius: 12px; padding: 10px 14px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.15);">
-                    <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
-                        <span style="font-size: 1.1rem; flex-shrink: 0;">👑</span>
-                        <div id="geo-throne-ticker-text" style="font-size: 0.84rem; font-weight: 800; color: #fbbf24; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            [분당구 제왕] 현재 1위: 낙생고 김*훈 (+1,250P)
-                        </div>
-                    </div>
-                    <button onclick="switchRankingSubTab('GEO')" class="btn" style="padding: 4px 10px; font-size: 0.72rem; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 900; border-radius: 8px; border: none; flex-shrink: 0; cursor: pointer;">🏆 랭킹보기</button>
-                </div>
-
                 <!-- 목표대학 & D-Day 배너 (D-Day 수동 변경 지원) -->
                 <div class="univ-banner" id="univ-target-banner" style="margin-bottom: 14px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 12px; transition: all 0.3s ease;">
                     <!-- 대학별 배경 세리프 워터마크 (카드 중앙-좌측에 자연스럽게 배치) -->
@@ -658,31 +653,6 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <div style="background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; padding: 8px 14px; border-radius: 12px; text-align: center; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 72px;">
                             <span style="font-size: 0.68rem; font-weight: 800; color: #ffffff !important; opacity: 0.95; letter-spacing: 0.3px; line-height: 1;" id="banner-dday-title">2027 수능</span>
                             <span style="font-size: 1.08rem; font-weight: 900; color: #ffffff !important; letter-spacing: -0.3px; line-height: 1.1;" id="banner-dday">D-78</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 🏆 Phase 8: 3대 주간 랭킹 게이미피케이션 매트릭스 카드 -->
-                <div class="card" id="micro-league-card" style="margin-bottom: 12px; background: rgba(99, 102, 241, 0.05); border: 1.5px solid rgba(99, 102, 241, 0.3); border-radius: 14px; padding: 16px;">
-                    <div class="card-title" style="color: #c084fc; font-size: 0.92rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <span class="material-symbols-rounded" style="color: #a855f7;">emoji_events</span>
-                            <span id="micro-league-title" style="font-weight: 800;">3대 주간 성실도 랭킹</span>
-                        </div>
-                        <span style="font-size: 0.7rem; color: #94a3b8; font-weight: 600;">매주 월 00:00 리셋</span>
-                    </div>
-
-                    <!-- 3단 서브 랭킹 탭 바 -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 12px;">
-                        <button id="rank-tab-school" onclick="switchRankingSubTab('SCHOOL')" class="subtab-btn-hub active" style="padding: 8px 4px; font-size: 0.75rem;">🏫 학교 대항전</button>
-                        <button id="rank-tab-geo" onclick="switchRankingSubTab('GEO')" class="subtab-btn-hub" style="padding: 8px 4px; font-size: 0.75rem;">👑 지역 제왕</button>
-                        <button id="rank-tab-vip" onclick="switchRankingSubTab('VIP')" class="subtab-btn-hub" style="padding: 8px 4px; font-size: 0.75rem;">💎 VIP 1%</button>
-                    </div>
-
-                    <!-- 랭킹 내용 컨테이너 -->
-                    <div id="micro-league-content" style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5;">
-                        <div style="text-align: center; color: var(--text-secondary); padding: 14px 6px;">
-                            <span style="font-size: 0.78rem;">실시간 3대 랭킹 데이터를 집계 중입니다...</span>
                         </div>
                     </div>
                 </div>
@@ -1673,28 +1643,41 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <div class="card" style="background: linear-gradient(135deg, rgba(234, 179, 8, 0.08), rgba(245, 158, 11, 0.04)); border: 1.5px solid rgba(234, 179, 8, 0.3);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                             <div style="font-weight: 800; font-size: 0.95rem; color: #fbbf24;">🏆 마이크로 실시간 랭킹</div>
-                            <span style="font-size: 0.68rem; background: rgba(234, 179, 8, 0.2); color: #fbbf24; padding: 2px 7px; border-radius: 10px; font-weight: 800;">LIVE</span>
+                            <span style="font-size: 0.68rem; background: rgba(234, 179, 8, 0.2); color: #fbbf24; padding: 2px 7px; border-radius: 10px; font-weight: 800;">매주 월 00:00 리셋</span>
                         </div>
                         <p style="font-size: 0.76rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4;">
                             전국 수십만 명이 아닌, <b>내가 사는 동네와 우리 학교 친구들 사이의 실시간 순위</b>입니다.
                         </p>
 
-                        <!-- 내 지역 / 학교 하이라이트 배너 -->
-                        <div class="ranking-stat-box" style="background: rgba(0,0,0,0.3); border-radius: 10px; padding: 12px; margin-bottom: 12px; display: flex; justify-content: space-around; text-align: center;">
-                            <div>
-                                <div class="ranking-label" style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;" id="my-ranking-region-name">성남시 분당구</div>
-                                <div style="font-size: 1.1rem; font-weight: 900; color: #f59e0b; margin-top: 2px;" id="my-ranking-region-pos">자습 1위 🥇</div>
-                            </div>
-                            <div class="ranking-divider" style="width: 1px; background: rgba(255,255,255,0.1);"></div>
-                            <div>
-                                <div class="ranking-label" style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;" id="my-ranking-school-name">낙생고등학교</div>
-                                <div style="font-size: 1.1rem; font-weight: 900; color: #0284c7; margin-top: 2px;" id="my-ranking-school-pos">전교 2위 🥈</div>
-                            </div>
+                        <!-- 개인전 vs 학교 대항전 토글 버튼 -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px;">
+                            <button id="p3-rank-btn-personal" onclick="switchP3RankingMode('PERSONAL')" class="subtab-btn-hub active" style="padding: 8px 4px; font-size: 0.78rem;">👤 개인 순위 (동네/학교)</button>
+                            <button id="p3-rank-btn-guild" onclick="switchP3RankingMode('GUILD')" class="subtab-btn-hub" style="padding: 8px 4px; font-size: 0.78rem;">🏫 학교 대항전 (길드전)</button>
                         </div>
 
-                        <!-- 랭킹 목록 -->
-                        <div style="display: flex; flex-direction: column; gap: 6px;" id="micro-ranking-list">
-                            <!-- 동적 랭킹 렌더링 -->
+                        <!-- 1. 개인전 뷰 -->
+                        <div id="p3-rank-personal-view" style="display: block;">
+                            <!-- 내 지역 / 학교 하이라이트 배너 -->
+                            <div class="ranking-stat-box" style="background: rgba(0,0,0,0.3); border-radius: 10px; padding: 12px; margin-bottom: 12px; display: flex; justify-content: space-around; text-align: center;">
+                                <div>
+                                    <div class="ranking-label" style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;" id="my-ranking-region-name">성남시 분당구</div>
+                                    <div style="font-size: 1.1rem; font-weight: 900; color: #f59e0b; margin-top: 2px;" id="my-ranking-region-pos">자습 1위 🥇</div>
+                                </div>
+                                <div class="ranking-divider" style="width: 1px; background: rgba(255,255,255,0.1);"></div>
+                                <div>
+                                    <div class="ranking-label" style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;" id="my-ranking-school-name">낙생고등학교</div>
+                                    <div style="font-size: 1.1rem; font-weight: 900; color: #0284c7; margin-top: 2px;" id="my-ranking-school-pos">전교 2위 🥈</div>
+                                </div>
+                            </div>
+
+                            <!-- 개인 랭킹 목록 -->
+                            <div style="display: flex; flex-direction: column; gap: 6px;" id="micro-ranking-list"></div>
+                        </div>
+
+                        <!-- 2. 학교 대항전 (길드전) 뷰 -->
+                        <div id="p3-rank-guild-view" style="display: none;">
+                            <div style="font-size: 0.75rem; color: #a5b4fc; font-weight: 700; margin-bottom: 8px;">🏫 고등학교별 주간 총합 자습 순위</div>
+                            <div style="display: flex; flex-direction: column; gap: 6px;" id="p3-school-guild-list"></div>
                         </div>
                     </div>
                 </div>
@@ -2014,9 +1997,19 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             <div style="background: rgba(255,255,255,0.04); padding: 14px; border-radius: 16px; margin-bottom: 12px;">
                 <div style="font-size: 1rem; font-weight: 700; color: var(--text-primary);" id="mypage-student-fullname">김철훈 학생</div>
                 <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px;" id="mypage-student-sub">낙생고 3학년 | 경기도 성남시 분당구</div>
-                <div style="margin-top: 10px; display: flex; gap: 8px; align-items: center;">
+                <div style="margin-top: 10px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                     <span style="font-size: 0.78rem; color: var(--text-secondary);">성실도 리그:</span>
                     <span id="mypage-league-badge" class="league-badge league-bronze">BRONZE (1.0x)</span>
+                </div>
+                <!-- 💎 B2B 학원 지원 & 티어 뱃지 -->
+                <div id="mypage-tier-badge-container" style="margin-top: 10px;">
+                    <div id="mypage-tier-active-badge" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(99, 102, 241, 0.2)); border: 1px solid #10b981; border-radius: 8px; padding: 6px 10px; font-size: 0.76rem; font-weight: 800; color: #34d399; display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+                        <span>Tier 3 마스터 AI 활성화</span>
+                        <span id="mypage-academy-sponsor-text" style="font-size: 0.68rem; color: #fbbf24; font-weight: 700;">일원학원 원장님 전액 지원</span>
+                    </div>
+                    <div id="mypage-tier-pending-badge" style="display: none; background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; border-radius: 8px; padding: 6px 10px; font-size: 0.76rem; font-weight: 800; color: #fbbf24;">
+                        ⏳ <span id="mypage-pending-academy-name">학원</span> 가맹 승인 대기 중 (원장님 승인 대기)
+                    </div>
                 </div>
             </div>
 
@@ -2186,6 +2179,27 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     </div>
                     <button type="button" onclick="changeStudentPassword()" class="btn btn-secondary" style="width: 100%; padding: 8px 0; font-size: 0.8rem; font-weight: 700; border-color: #6366f1; color: #a5b4fc;">
                         ✓ 비밀번호 변경하기
+                    </button>
+                </div>
+
+                <!-- 🏫 학원 초대 코드 등록 & 가맹 승인 신청 폼 -->
+                <div style="margin-top: 14px; padding: 14px 12px; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 12px;">
+                    <div style="font-size: 0.82rem; font-weight: 800; color: #a5b4fc; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                        <span>🔑</span> 소속 학원 초대 코드 등록
+                    </div>
+                    <div style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 8px;">소속 학원의 가맹 코드를 등록하면 원장님 승인 후 Tier 3 마스터 혜택이 전액 무료 적용됩니다.</div>
+                    <div style="display: flex; gap: 6px;">
+                        <input type="text" id="mypage-academy-code-input" class="form-input" placeholder="예: ILWON-2027" style="height: 38px; text-transform: uppercase; font-weight: 800; margin-bottom: 0;">
+                        <button type="button" onclick="handleApplyAcademyCode()" class="btn" style="padding: 0 16px; font-size: 0.8rem; font-weight: 800; background: #6366f1; white-space: nowrap;">등록 요청</button>
+                    </div>
+                </div>
+
+                <!-- 🏢 B2B 가맹 도입 문의 배너 (원장님용) -->
+                <div style="margin-top: 12px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(99, 102, 241, 0.15)); border: 1px dashed rgba(245, 158, 11, 0.4); border-radius: 12px; padding: 12px; text-align: center;">
+                    <div style="font-size: 0.8rem; font-weight: 800; color: #fbbf24; margin-bottom: 2px;">학원장 / 교육기관 도입 문의</div>
+                    <div style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 8px;">우리 학원 전용 PALIN OS 인프라 및 AI 뇌 이식 브로슈어</div>
+                    <button type="button" onclick="openB2BFranchiseModal()" class="btn" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000000; border-radius: 8px;">
+                        B2B 가맹 솔루션 브로슈어 보기
                     </button>
                 </div>
             </div>
@@ -2790,13 +2804,244 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 </div>
             </div>
 
-            <div style="font-size: 0.72rem; color: #64748b; text-align: center;">
-                * 가맹 학원 재원생은 학원 라이선스 혜택으로 자동 지원됩니다.
+    <!-- 🏢 B2B 학원 솔루션 PPT 슬라이드형 가맹 브로슈어 모달 -->
+    <div class="modal" id="b2b-franchise-modal" style="display: none; align-items: center; justify-content: center; z-index: 10002; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);">
+        <div class="modal-content" style="max-width: 520px; width: 92%; background: #0f172a; border: 1.5px solid #f59e0b; border-radius: 20px; padding: 22px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); max-height: 88vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
+                <div>
+                    <div style="font-size: 1.05rem; font-weight: 900; color: #fbbf24;">PALIN OS B2B 도입 가이드</div>
+                    <div style="font-size: 0.72rem; color: #94a3b8;" id="b2b-slide-counter">Slide 1 / 5</div>
+                </div>
+                <button onclick="closeB2BFranchiseModal()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.85rem; border: none; cursor: pointer;">&times;</button>
+            </div>
+
+            <!-- Slide 1: 퇴원율 0% & 학부모 상담 -->
+            <div id="b2b-slide-1" class="b2b-slide" style="display: block;">
+                <div style="background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(245,158,11,0.1)); border: 1px solid rgba(245,158,11,0.3); border-radius: 14px; padding: 16px; margin-bottom: 14px;">
+                    <div style="font-size: 0.82rem; color: #fbbf24; font-weight: 800; margin-bottom: 4px;">Point 1. 학원 퇴원율 0% 솔루션</div>
+                    <div style="font-size: 1.15rem; font-weight: 900; color: #ffffff; line-height: 1.35; margin-bottom: 10px;">
+                        단순 출결이 아닌,<br><span style="color: #fbbf24;">168시간 수험생 생활/멘탈 통제 OS</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">
+                        • 기상/취침 미션, 타이머 자습, 비콘 출결을 하나로 묶어 학생의 하루 전체를 학원 시스템 안에 락인(Lock-in)합니다.<br>
+                        • 학부모님께 매일 실시간 알림톡이 전송되어 학부모 만족도 98%와 재원율 40% 상승을 실증했습니다.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: 커스텀 AI 뇌 이식 -->
+            <div id="b2b-slide-2" class="b2b-slide" style="display: none;">
+                <div style="background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(99,102,241,0.15)); border: 1px solid #10b981; border-radius: 14px; padding: 16px; margin-bottom: 14px;">
+                    <div style="font-size: 0.82rem; color: #34d399; font-weight: 800; margin-bottom: 4px;">Point 2. 원장님만의 커스텀 AI 뇌 이식</div>
+                    <div style="font-size: 1.15rem; font-weight: 900; color: #ffffff; line-height: 1.35; margin-bottom: 10px;">
+                        원장님의 교육 철학과 커리큘럼을<br><span style="color: #34d399;">24시간 지도하는 AI 멘토로 복제</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">
+                        • 13년 베테랑 김철훈 원장의 수험생활백서 RAG와 원장님의 강의 자료가 결합되어 새벽에도 학생 질문에 1:1 심층 코칭을 제공합니다.<br>
+                        • 우리 학원만의 브랜딩으로 학생과 학부모의 신뢰를 독점합니다.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3: 3대 랭킹 게이미피케이션 -->
+            <div id="b2b-slide-3" class="b2b-slide" style="display: none;">
+                <div style="background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(99,102,241,0.15)); border: 1px solid #a855f7; border-radius: 14px; padding: 16px; margin-bottom: 14px;">
+                    <div style="font-size: 0.82rem; color: #c084fc; font-weight: 800; margin-bottom: 4px;">Point 3. 자발적 친구 추천 바이럴 엔진</div>
+                    <div style="font-size: 1.15rem; font-weight: 900; color: #ffffff; line-height: 1.35; margin-bottom: 10px;">
+                        학교 대항전(길드전)과 지역 제왕으로<br><span style="color: #c084fc;">학생들이 친구를 학원으로 초대</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">
+                        • 학교별 누적 자습시간 랭킹전으로 "우리 학교 1등 만들자"며 친구를 학원과 앱으로 이끄는 강력한 네트워크 효과가 발생합니다.<br>
+                        • 매주 월요일 00:00 리셋으로 신규 유저도 즉시 경쟁에 참여합니다.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4: SaaS 요금제 비교표 -->
+            <div id="b2b-slide-4" class="b2b-slide" style="display: none;">
+                <div style="font-size: 0.95rem; font-weight: 800; color: #ffffff; margin-bottom: 10px; text-align: center;">학원 규모별 SaaS 요금제 비교</div>
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
+                    <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 800; color: #94a3b8; font-size: 0.82rem;">Tier 1 스타터</div>
+                            <div style="font-size: 0.7rem; color: #64748b;">재원생 50명 CAP · 기본 출결/행정 ERP</div>
+                        </div>
+                        <div style="font-weight: 800; color: #ffffff; font-size: 0.95rem;">월 29.9만</div>
+                    </div>
+                    <div style="background: rgba(99,102,241,0.08); border: 1px solid #6366f1; border-radius: 10px; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 800; color: #a5b4fc; font-size: 0.82rem;">Tier 2 프로</div>
+                            <div style="font-size: 0.7rem; color: #94a3b8;">재원생 100명 CAP · 커스텀 AI 뇌 이식</div>
+                        </div>
+                        <div style="font-weight: 800; color: #818cf8; font-size: 0.95rem;">월 59.9만</div>
+                    </div>
+                    <div style="background: rgba(245,158,11,0.12); border: 1.5px solid #f59e0b; border-radius: 10px; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 900; color: #fbbf24; font-size: 0.85rem;">Tier 3 마스터 (추천)</div>
+                            <div style="font-size: 0.7rem; color: #cbd5e1;">재원생 무제한 · 전원 월 99,000원 AI 무료</div>
+                        </div>
+                        <div style="font-weight: 900; color: #fbbf24; font-size: 1rem;">월 99.9만</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5: 1분 가맹 도입 신청서 -->
+            <div id="b2b-slide-5" class="b2b-slide" style="display: none;">
+                <div style="font-size: 0.95rem; font-weight: 800; color: #fbbf24; margin-bottom: 10px; text-align: center;">가맹 도입 상담 & 신청서 접수</div>
+                <form onsubmit="handleFranchiseInquirySubmit(event)" style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                        <input type="text" id="b2b-form-academy" class="form-input" placeholder="학원명 (상호)" required style="height: 38px; font-size: 0.8rem;">
+                        <input type="text" id="b2b-form-director" class="form-input" placeholder="원장님 성함" required style="height: 38px; font-size: 0.8rem;">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                        <input type="tel" id="b2b-form-phone" class="form-input" placeholder="연락처 (010-0000-0000)" required style="height: 38px; font-size: 0.8rem;">
+                        <input type="text" id="b2b-form-region" class="form-input" placeholder="지역 (예: 경기 성남 분당)" required style="height: 38px; font-size: 0.8rem;">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                        <select id="b2b-form-count" class="form-input" style="height: 38px; font-size: 0.8rem;">
+                            <option value="30">재원생 30명 내외</option>
+                            <option value="50" selected>재원생 50명 내외</option>
+                            <option value="100">재원생 100명 내외</option>
+                            <option value="200">재원생 200명 이상</option>
+                        </select>
+                        <select id="b2b-form-tier" class="form-input" style="height: 38px; font-size: 0.8rem; font-weight: 800; color: #fbbf24;">
+                            <option value="3" selected>Tier 3 마스터 (99.9만)</option>
+                            <option value="2">Tier 2 프로 (59.9만)</option>
+                            <option value="1">Tier 1 스타터 (29.9만)</option>
+                        </select>
+                    </div>
+                    <textarea id="b2b-form-notes" class="form-input" placeholder="문의 사항이나 요청사항을 적어주세요 (선택)" style="height: 60px; font-size: 0.78rem; resize: none;"></textarea>
+                    <button type="submit" class="btn" style="width: 100%; padding: 12px; font-weight: 900; font-size: 0.92rem; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000000; border-radius: 8px; margin-top: 4px;">
+                        가맹 도입 신청서 제출하기
+                    </button>
+                </form>
+            </div>
+
+            <!-- Slide Navigation Buttons -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; pt: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
+                <button type="button" id="b2b-prev-btn" onclick="prevB2BSlide()" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.78rem;" disabled>이전</button>
+                <div style="display: flex; gap: 5px;" id="b2b-dots-container">
+                    <span class="b2b-dot active" style="width: 8px; height: 8px; border-radius: 50%; background: #fbbf24;"></span>
+                    <span class="b2b-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2);"></span>
+                    <span class="b2b-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2);"></span>
+                    <span class="b2b-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2);"></span>
+                    <span class="b2b-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2);"></span>
+                </div>
+                <button type="button" id="b2b-next-btn" onclick="nextB2BSlide()" class="btn" style="padding: 6px 14px; font-size: 0.78rem; background: #6366f1;">다음</button>
             </div>
         </div>
     </div>
 
-    <script src="js/app.js?v=8800.0"></script>
+
+    <!-- 💎 B2C 개인 멤버십 슬라이드형 브로슈어 모달 -->
+    <div class="modal" id="b2c-membership-modal" style="display: none; align-items: center; justify-content: center; z-index: 10002; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);">
+        <div class="modal-content" style="max-width: 480px; width: 92%; background: #0f172a; border: 1.5px solid #6366f1; border-radius: 20px; padding: 22px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); max-height: 88vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
+                <div>
+                    <div style="font-size: 1.05rem; font-weight: 900; color: #818cf8;">PALIN OS 개인 멤버십 플랜</div>
+                    <div style="font-size: 0.72rem; color: #94a3b8;" id="b2c-slide-counter">Slide 1 / 4</div>
+                </div>
+                <button onclick="closeB2CMembershipModal()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.85rem; border: none; cursor: pointer;">&times;</button>
+            </div>
+
+            <!-- Slide 1: 멘탈 관리 -->
+            <div id="b2c-slide-1" class="b2c-slide" style="display: block;">
+                <div style="background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(168,85,247,0.1)); border: 1px solid #6366f1; border-radius: 14px; padding: 16px; margin-bottom: 14px;">
+                    <div style="font-size: 0.82rem; color: #a5b4fc; font-weight: 800; margin-bottom: 4px;">수험생활백서 13년 멘토링</div>
+                    <div style="font-size: 1.15rem; font-weight: 900; color: #ffffff; line-height: 1.35; margin-bottom: 10px;">
+                        흔들리는 수험생 멘탈과 순공시간,<br><span style="color: #818cf8;">24시간 밀착 코칭 AI</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">
+                        • 타이머 자습 관리, 기상/취침 미션, 수험생활백서 기반의 팩트폭격 AI 코칭으로 매일의 공부 밀도를 극대화합니다.<br>
+                        • 모의고사 성적 기반 대학별 실시간 합격 가능성을 정밀 예측합니다.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: AI 두뇌 및 답변 비교 -->
+            <div id="b2c-slide-2" class="b2c-slide" style="display: none;">
+                <div style="font-size: 0.95rem; font-weight: 800; color: #ffffff; margin-bottom: 10px; text-align: center;">AI 두뇌 & 코칭 깊이 비교</div>
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px;">
+                        <div style="font-weight: 800; color: #94a3b8; font-size: 0.82rem;">Tier 1 기본 AI (무료)</div>
+                        <div style="font-size: 0.72rem; color: #64748b; margin-top: 2px;">지식 없는 밋밋한 일반 AI 답변 (10회 제한)</div>
+                    </div>
+                    <div style="background: rgba(16,185,129,0.08); border: 1px solid #10b981; border-radius: 10px; padding: 10px;">
+                        <div style="font-weight: 800; color: #34d399; font-size: 0.82rem;">Tier 2 스탠다드 (월 19,900원)</div>
+                        <div style="font-size: 0.72rem; color: #cbd5e1; margin-top: 2px;">백서 팩트 기반 <b>1/10 요약형 핵심 팩트폭격 코칭</b> (1~2문장 단호한 지침)</div>
+                    </div>
+                    <div style="background: rgba(245,158,11,0.1); border: 1.5px solid #f59e0b; border-radius: 10px; padding: 10px;">
+                        <div style="font-weight: 900; color: #fbbf24; font-size: 0.85rem;">Tier 3 마스터 AI (월 99,000원 / 학원생 무료)</div>
+                        <div style="font-size: 0.72rem; color: #fde68a; margin-top: 2px;"><b>김철훈 백서 풀 RAG</b> + A4 1장 분량 심층 1:1 처방전 (무제한)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3: 학부모 연동 & 리포트 -->
+            <div id="b2c-slide-3" class="b2c-slide" style="display: none;">
+                <div style="background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(99,102,241,0.15)); border: 1px solid #10b981; border-radius: 14px; padding: 16px; margin-bottom: 14px;">
+                    <div style="font-size: 0.82rem; color: #34d399; font-weight: 800; margin-bottom: 4px;">학부모 안심 리포트</div>
+                    <div style="font-size: 1.15rem; font-weight: 900; color: #ffffff; line-height: 1.35; margin-bottom: 10px;">
+                        자녀의 학습 궤적을<br><span style="color: #34d399;">매일 실시간 카톡으로 전송</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">
+                        • 기상 미션 성공 여부와 일일 순공시간을 학부모님께 실시간 리포트로 전달합니다.<br>
+                        • 과목별 취약점 진단 및 정시 합격 전략 리포트를 제공합니다.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4: 플랜 결제 & 가맹학원 무료 연동 -->
+            <div id="b2c-slide-4" class="b2c-slide" style="display: none;">
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+                    <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid #10b981; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 800; color: #34d399; font-size: 0.85rem;">Tier 2 스탠다드 (학부모 연동)</div>
+                            <div style="font-size: 0.7rem; color: #94a3b8;">1/10 팩트폭격 AI + 학부모 카톡 리포트</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 900; color: #ffffff; font-size: 0.95rem;">월 19,900원</div>
+                            <button onclick="executeB2CSubscribe('TIER_2_PARENT')" class="btn" style="margin-top: 4px; padding: 4px 10px; font-size: 0.72rem; background: #10b981; color: white; font-weight: 800; border-radius: 6px; cursor: pointer;">구독하기</button>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(245, 158, 11, 0.1); border: 1.5px solid #f59e0b; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 800; color: #fbbf24; font-size: 0.85rem;">Tier 3 마스터 AI 풀패키지</div>
+                            <div style="font-size: 0.7rem; color: #94a3b8;">김철훈 백서 풀 RAG + 무제한 심층 코칭</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 900; color: #fbbf24; font-size: 0.95rem;">월 99,000원</div>
+                            <button onclick="executeB2CSubscribe('TIER_3_MASTER')" class="btn" style="margin-top: 4px; padding: 4px 10px; font-size: 0.72rem; background: #f59e0b; color: #000; font-weight: 800; border-radius: 6px; cursor: pointer;">구독하기</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 역바이럴 박스 -->
+                <div style="background: rgba(99, 102, 241, 0.1); border: 1px dashed #818cf8; border-radius: 12px; padding: 12px; text-align: center;">
+                    <div style="font-size: 0.76rem; font-weight: 800; color: #a5b4fc; margin-bottom: 2px;">혹시 학원에 다니고 계신가요?</div>
+                    <div style="font-size: 0.7rem; color: #cbd5e1; margin-bottom: 8px;">우리 학원이 가맹 학원이면 이 모든 기능이 100% 무료입니다!</div>
+                    <button type="button" onclick="closeB2CMembershipModal(); openMyPageModal();" class="btn" style="padding: 6px 14px; font-size: 0.74rem; background: #6366f1; color: white; font-weight: 800; border-radius: 6px;">
+                        학원 초대 코드 등록하러 가기
+                    </button>
+                </div>
+            </div>
+
+            <!-- Slide Navigation Buttons -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; pt: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
+                <button type="button" id="b2c-prev-btn" onclick="prevB2CSlide()" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.78rem;" disabled>이전</button>
+                <div style="display: flex; gap: 5px;" id="b2c-dots-container">
+                    <span class="b2c-dot active" style="width: 8px; height: 8px; border-radius: 50%; background: #818cf8;"></span>
+                    <span class="b2c-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2);"></span>
+                    <span class="b2c-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2);"></span>
+                    <span class="b2c-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2);"></span>
+                </div>
+                <button type="button" id="b2c-next-btn" onclick="nextB2CSlide()" class="btn" style="padding: 6px 14px; font-size: 0.78rem; background: #6366f1;">다음</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js?v=8900.0"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소

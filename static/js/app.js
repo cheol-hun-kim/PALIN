@@ -6447,9 +6447,13 @@ function openB2CSubModal() {
     if (modal) modal.style.display = "flex";
 }
 
+function openB2CSubModal() {
+    closeTokenPurchaseModal();
+    openB2CMembershipModal();
+}
+
 function closeB2CSubModal() {
-    const modal = document.getElementById("b2c-sub-modal");
-    if (modal) modal.style.display = "none";
+    closeB2CMembershipModal();
 }
 
 async function executeTokenPurchase(amount = 4900, count = 50) {
@@ -6484,13 +6488,198 @@ async function executeB2CSubscribe(tier = 'TIER_2_PARENT') {
         const data = await res.json();
         if (res.ok) {
             alert(`🎉 ${data.message}`);
-            closeB2CSubModal();
+            closeB2CMembershipModal();
             if (typeof fetchStudentInfo === 'function') fetchStudentInfo(sid);
         } else {
             alert(data.detail || "구독 결제 실패");
         }
     } catch (e) {
         alert("구독 처리 중 오류가 발생했습니다.");
+    }
+}
+
+// === B2B Franchise Brochure Slide Controls ===
+let currentB2BSlide = 1;
+const totalB2BSlides = 5;
+
+function openB2BFranchiseModal() {
+    currentB2BSlide = 1;
+    updateB2BSlideView();
+    const modal = document.getElementById("b2b-franchise-modal");
+    if (modal) modal.style.display = "flex";
+}
+
+function closeB2BFranchiseModal() {
+    const modal = document.getElementById("b2b-franchise-modal");
+    if (modal) modal.style.display = "none";
+}
+
+function nextB2BSlide() {
+    if (currentB2BSlide < totalB2BSlides) {
+        currentB2BSlide++;
+        updateB2BSlideView();
+    }
+}
+
+function prevB2BSlide() {
+    if (currentB2BSlide > 1) {
+        currentB2BSlide--;
+        updateB2BSlideView();
+    }
+}
+
+function updateB2BSlideView() {
+    for (let i = 1; i <= totalB2BSlides; i++) {
+        const slideEl = document.getElementById(`b2b-slide-${i}`);
+        if (slideEl) slideEl.style.display = (i === currentB2BSlide) ? "block" : "none";
+    }
+    const counterEl = document.getElementById("b2b-slide-counter");
+    if (counterEl) counterEl.innerText = `Slide ${currentB2BSlide} / ${totalB2BSlides}`;
+    
+    const prevBtn = document.getElementById("b2b-prev-btn");
+    const nextBtn = document.getElementById("b2b-next-btn");
+    if (prevBtn) prevBtn.disabled = (currentB2BSlide === 1);
+    if (nextBtn) {
+        if (currentB2BSlide === totalB2BSlides) {
+            nextBtn.style.display = "none";
+        } else {
+            nextBtn.style.display = "block";
+            nextBtn.innerText = "다음";
+        }
+    }
+    
+    // Update Dots
+    const dots = document.querySelectorAll(".b2b-dot");
+    dots.forEach((dot, idx) => {
+        if (idx + 1 === currentB2BSlide) {
+            dot.style.background = "#fbbf24";
+        } else {
+            dot.style.background = "rgba(255,255,255,0.2)";
+        }
+    });
+}
+
+async function handleFranchiseInquirySubmit(e) {
+    e.preventDefault();
+    const academy = document.getElementById("b2b-form-academy").value;
+    const director = document.getElementById("b2b-form-director").value;
+    const phone = document.getElementById("b2b-form-phone").value;
+    const region = document.getElementById("b2b-form-region").value;
+    const count = parseInt(document.getElementById("b2b-form-count").value, 10);
+    const tier = parseInt(document.getElementById("b2b-form-tier").value, 10);
+    const notes = document.getElementById("b2b-form-notes").value;
+
+    try {
+        const res = await fetch("/api/public/b2b/inquiry", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                academy_name: academy,
+                director_name: director,
+                phone: phone,
+                region: region,
+                student_count: count,
+                desired_tier: tier,
+                notes: notes
+            })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(`🎉 ${data.message}`);
+            closeB2BFranchiseModal();
+        } else {
+            alert(data.detail || "신청서 제출 실패");
+        }
+    } catch(err) {
+        alert("가맹 신청 처리 중 오류가 발생했습니다.");
+    }
+}
+
+// === B2C Membership Brochure Slide Controls ===
+let currentB2CSlide = 1;
+const totalB2CSlides = 4;
+
+function openB2CMembershipModal() {
+    currentB2CSlide = 1;
+    updateB2CSlideView();
+    const modal = document.getElementById("b2c-membership-modal");
+    if (modal) modal.style.display = "flex";
+}
+
+function closeB2CMembershipModal() {
+    const modal = document.getElementById("b2c-membership-modal");
+    if (modal) modal.style.display = "none";
+}
+
+function nextB2CSlide() {
+    if (currentB2CSlide < totalB2CSlides) {
+        currentB2CSlide++;
+        updateB2CSlideView();
+    }
+}
+
+function prevB2CSlide() {
+    if (currentB2CSlide > 1) {
+        currentB2CSlide--;
+        updateB2CSlideView();
+    }
+}
+
+function updateB2CSlideView() {
+    for (let i = 1; i <= totalB2CSlides; i++) {
+        const slideEl = document.getElementById(`b2c-slide-${i}`);
+        if (slideEl) slideEl.style.display = (i === currentB2CSlide) ? "block" : "none";
+    }
+    const counterEl = document.getElementById("b2c-slide-counter");
+    if (counterEl) counterEl.innerText = `Slide ${currentB2CSlide} / ${totalB2CSlides}`;
+    
+    const prevBtn = document.getElementById("b2c-prev-btn");
+    const nextBtn = document.getElementById("b2c-next-btn");
+    if (prevBtn) prevBtn.disabled = (currentB2CSlide === 1);
+    if (nextBtn) {
+        if (currentB2CSlide === totalB2CSlides) {
+            nextBtn.style.display = "none";
+        } else {
+            nextBtn.style.display = "block";
+            nextBtn.innerText = "다음";
+        }
+    }
+    
+    // Update Dots
+    const dots = document.querySelectorAll(".b2c-dot");
+    dots.forEach((dot, idx) => {
+        if (idx + 1 === currentB2CSlide) {
+            dot.style.background = "#818cf8";
+        } else {
+            dot.style.background = "rgba(255,255,255,0.2)";
+        }
+    });
+}
+
+// Student Academy Code Application
+async function handleApplyAcademyCode() {
+    const inputEl = document.getElementById("mypage-academy-code-input");
+    const code = inputEl ? inputEl.value.trim().toUpperCase() : "";
+    if (!code) {
+        alert("학원 초대 코드를 입력해 주세요.");
+        return;
+    }
+    const sid = (currentStudent && currentStudent.id) ? currentStudent.id : parseInt(localStorage.getItem('studentId') || '1', 10);
+    try {
+        const res = await fetch("/api/student/apply-academy-code", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: sid, academy_code: code })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(`✅ ${data.message}`);
+            if (typeof fetchStudentInfo === 'function') fetchStudentInfo(sid);
+        } else {
+            alert(data.detail || "초대 코드 등록 실패");
+        }
+    } catch(e) {
+        alert("코드 등록 처리 중 오류가 발생했습니다.");
     }
 }
 
@@ -6619,6 +6808,30 @@ function openMyPageModal() {
 
         const hsInput = document.getElementById("edit-high-school");
         if (hsInput) hsInput.value = currentStudent.high_school || "";
+
+        // 💎 B2B 학원 지원 & 가맹 승인 상태 뱃지 렌더링
+        const activeBadge = document.getElementById("mypage-tier-active-badge");
+        const pendingBadge = document.getElementById("mypage-tier-pending-badge");
+        const sponsorText = document.getElementById("mypage-academy-sponsor-text");
+        const pendingAcadName = document.getElementById("mypage-pending-academy-name");
+
+        const approvalStatus = currentStudent.academy_approval_status || "APPROVED";
+        const acadCode = currentStudent.academy_code || "ILWON-2027";
+        const acadName = (acadCode.includes("ILWON") || acadCode.includes("일원")) ? "일원학원" : (currentStudent.academy_name || acadCode);
+
+        if (approvalStatus === "PENDING") {
+            if (activeBadge) activeBadge.style.display = "none";
+            if (pendingBadge) {
+                pendingBadge.style.display = "block";
+                if (pendingAcadName) pendingAcadName.innerText = currentStudent.pending_tenant_code || "학원";
+            }
+        } else {
+            if (pendingBadge) pendingBadge.style.display = "none";
+            if (activeBadge) {
+                activeBadge.style.display = "flex";
+                if (sponsorText) sponsorText.innerText = `${acadName} 원장님 전액 지원 (월 99,000원 혜택)`;
+            }
+        }
 
         // 지역 (시도 / 시군구 분리 로드)
         const curRegion = currentStudent.region || "서울특별시 강남구";
@@ -12229,6 +12442,59 @@ async function loadMicroRankings() {
 
     });
 
+    // Render School Guild List
+    const guildListEl = document.getElementById("p3-school-guild-list");
+    if (guildListEl) {
+        try {
+            const sid = (currentStudent && currentStudent.id) ? currentStudent.id : 1;
+            const matrixRes = await fetch(`/api/ranking/matrix?student_id=${sid}`);
+            if (matrixRes.ok) {
+                const matrixData = await matrixRes.json();
+                const schools = matrixData.school_ranking || [];
+                if (schools.length === 0) {
+                    guildListEl.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:14px;">집계된 학교 랭킹이 없습니다.</div>';
+                } else {
+                    guildListEl.innerHTML = schools.map((s, idx) => {
+                        const champBadge = s.is_champion ? '<span style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; font-weight:900; padding:2px 6px; border-radius:4px; font-size:0.68rem; margin-left:4px;">🏆 1위 챔피언</span>' : '';
+                        const bg = idx === 0 ? 'background:rgba(245, 158, 11, 0.15); border:1px solid rgba(245, 158, 11, 0.3);' : (idx < 3 ? 'background:rgba(99, 102, 241, 0.1);' : 'background:rgba(255,255,255,0.03);');
+                        return `
+                            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-radius:8px; ${bg}">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span style="font-weight:900; font-size:0.95rem; color:${idx === 0 ? '#fbbf24' : '#ffffff'};">${idx + 1}위</span>
+                                    <span style="font-weight:700; font-size:0.85rem; color:#f8fafc;">${s.school}</span>
+                                    ${champBadge}
+                                </div>
+                                <div style="font-weight:800; font-size:0.85rem; color:#818cf8;">
+                                    +${s.total_points.toLocaleString()}P <span style="font-size:0.7rem; color:#94a3b8; font-weight:500;">(${s.student_count}명)</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            }
+        } catch (e) {
+            console.warn("Guild list load:", e);
+        }
+    }
+}
+
+function switchP3RankingMode(mode) {
+    const pBtn = document.getElementById("p3-rank-btn-personal");
+    const gBtn = document.getElementById("p3-rank-btn-guild");
+    const pView = document.getElementById("p3-rank-personal-view");
+    const gView = document.getElementById("p3-rank-guild-view");
+
+    if (mode === 'PERSONAL') {
+        if (pBtn) pBtn.className = 'subtab-btn-hub active';
+        if (gBtn) gBtn.className = 'subtab-btn-hub';
+        if (pView) pView.style.display = 'block';
+        if (gView) gView.style.display = 'none';
+    } else {
+        if (pBtn) pBtn.className = 'subtab-btn-hub';
+        if (gBtn) gBtn.className = 'subtab-btn-hub active';
+        if (pView) pView.style.display = 'none';
+        if (gView) gView.style.display = 'block';
+    }
 }
 
 // ==========================================

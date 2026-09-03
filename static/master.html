@@ -512,6 +512,23 @@
                     </form>
                 </div>
 
+                <!-- 📨 Phase 8.5: 신규 B2B 가맹 도입 신청 접수함 -->
+                <div class="section-box" style="border-color: rgba(245, 158, 11, 0.5); background: rgba(245, 158, 11, 0.04); margin-bottom: 16px;">
+                    <div class="section-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-rounded" style="color: #fbbf24;">mark_email_unread</span>
+                            <span style="font-weight: 800; font-size: 1rem; color: #fbbf24;">실시간 B2B 가맹 도입 신청 접수함</span>
+                        </div>
+                        <span id="master-inquiries-count-badge" style="background: #f59e0b; color: #000; font-size: 0.72rem; font-weight: 900; padding: 2px 8px; border-radius: 10px;">0건</span>
+                    </div>
+                    <div style="font-size: 0.76rem; color: #94a3b8; margin-bottom: 12px;">
+                        학생 앱 및 로그인 화면을 통해 가맹 도입을 신청한 원장님 명단입니다. [1-클릭 승인] 시 가맹 테넌트와 초대코드가 즉시 생성됩니다.
+                    </div>
+                    <div id="master-inquiries-list" style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="text-align: center; color: #64748b; font-size: 0.8rem; padding: 14px;">현재 대기 중인 가맹 신청서가 없습니다.</div>
+                    </div>
+                </div>
+
                 <!-- 고객사 리스트 & 갓모드 섀도잉 테이블 -->
                 <div class="section-box">
                     <div class="section-header">
@@ -929,9 +946,71 @@
                     document.getElementById("stat-total-royalty").innerText = `${(stats.total_monthly_royalty || 0).toLocaleString()}원`;
                 }
                 loadMasterTenants();
+                loadMasterB2BInquiries();
                 loadWhiteLabelStatus();
             } catch (e) {
                 console.error("Master dashboard fetch error:", e);
+            }
+        }
+
+        async function loadMasterB2BInquiries() {
+            const listEl = document.getElementById("master-inquiries-list");
+            const badgeEl = document.getElementById("master-inquiries-count-badge");
+            if (!listEl) return;
+            try {
+                const res = await fetch("/api/master/b2b-inquiries");
+                if (res.ok) {
+                    const inquiries = await res.json();
+                    const pending = inquiries.filter(i => i.status === "PENDING");
+                    if (badgeEl) badgeEl.innerText = `${pending.length}건`;
+                    if (inquiries.length === 0) {
+                        listEl.innerHTML = '<div style="text-align:center; color:#64748b; font-size:0.8rem; padding:14px;">현재 대기 중인 가맹 신청서가 없습니다.</div>';
+                        return;
+                    }
+                    listEl.innerHTML = inquiries.map(i => {
+                        const isApproved = i.status === "APPROVED";
+                        const statusBadge = isApproved 
+                            ? '<span style="background:#10b981; color:white; font-size:0.72rem; padding:2px 8px; border-radius:4px; font-weight:800;">개설 완료</span>'
+                            : '<span style="background:#f59e0b; color:black; font-size:0.72rem; padding:2px 8px; border-radius:4px; font-weight:800;">신청 대기</span>';
+                        const actionBtn = isApproved
+                            ? '<button class="btn btn-secondary" style="padding:4px 8px; font-size:0.72rem; opacity:0.6;" disabled>승인됨</button>'
+                            : `<button onclick="approveMasterB2BInquiry(${i.id})" class="btn" style="padding:6px 12px; font-size:0.75rem; background:linear-gradient(135deg, #f59e0b, #d97706); color:black; font-weight:900; border-radius:6px; cursor:pointer;">⚡ 1-클릭 승인 & 테넌트 개설</button>`;
+
+                        return `
+                            <div style="background:rgba(0,0,0,0.35); border:1px solid rgba(245,158,11,0.25); border-radius:10px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                                        <span style="font-weight:900; font-size:0.95rem; color:#ffffff;">${i.academy_name}</span>
+                                        <span style="font-size:0.75rem; color:#fbbf24; font-weight:700;">${i.director_name} 원장 (${i.phone})</span>
+                                        ${statusBadge}
+                                    </div>
+                                    <div style="font-size:0.74rem; color:#94a3b8;">
+                                        지역: ${i.region} · 재원생: 약 ${i.student_count}명 · 희망 티어: Tier ${i.desired_tier} · 접수: ${i.created_at}
+                                    </div>
+                                    ${i.notes && i.notes !== '-' ? `<div style="font-size:0.72rem; color:#cbd5e1; margin-top:4px; background:rgba(255,255,255,0.04); padding:4px 8px; border-radius:4px;">💬 요청: ${i.notes}</div>` : ''}
+                                </div>
+                                <div>${actionBtn}</div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            } catch(e) {
+                console.warn("loadMasterB2BInquiries error:", e);
+            }
+        }
+
+        async function approveMasterB2BInquiry(inquiryId) {
+            try {
+                const res = await fetch(`/api/master/b2b-inquiries/${inquiryId}/approve`, { method: "POST" });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`🎉 ${data.message}`);
+                    fetchMasterData();
+                } else {
+                    alert(data.detail || "승인 실패");
+                }
+            } catch(e) {
+                alert("가맹 승인 처리 중 오류가 발생했습니다.");
             }
         }
 

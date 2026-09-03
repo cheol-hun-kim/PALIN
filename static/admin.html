@@ -812,6 +812,23 @@
 
             <!-- TAB 5: 👥 5. 학생관리 -->
             <div id="tab-students" class="cockpit-tab-view" style="display: none;">
+                <!-- 🔔 신규 학원생 가맹 승인 대기함 (원장 1-클릭 승인) -->
+                <div id="admin-pending-students-card" class="kpi-card" style="border: 1.5px solid rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.04); margin-bottom: 16px;">
+                    <div class="section-title" style="color: #fbbf24; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span class="material-symbols-rounded">how_to_reg</span>
+                            <span>신규 학생 가맹 등록 승인 대기함</span>
+                        </div>
+                        <span id="pending-students-count-badge" style="background: #f59e0b; color: #000; font-size: 0.72rem; font-weight: 900; padding: 2px 8px; border-radius: 10px;">0건</span>
+                    </div>
+                    <div style="font-size: 0.76rem; color: #94a3b8; margin-bottom: 10px;">
+                        학원 초대 코드를 입력하여 승인을 요청한 학생들입니다. 승인 시 Tier 3 마스터 AI 무료 혜택이 부여됩니다.
+                    </div>
+                    <div id="admin-pending-students-list" style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="text-align: center; color: #64748b; font-size: 0.78rem; padding: 12px;">현재 승인 대기 중인 학생이 없습니다.</div>
+                    </div>
+                </div>
+
                 <div class="kpi-card" style="border: 1.5px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.03); margin-bottom: 16px;">
                     <div class="section-title" style="color: #34d399;">
                         <span class="material-symbols-rounded">sms</span>
@@ -2645,12 +2662,81 @@
                     const badgeEl = document.getElementById("tenant-license-badge");
                     if (badgeEl) badgeEl.innerText = `Tier ${tier} 라이선스 활성화`;
                 } else {
-                    alert(data.detail || "라이선스 업그레이드 실패");
-                }
             } catch(e) {
                 alert("라이선스 변경 처리 중 오류가 발생했습니다.");
             }
         }
+
+        async function loadPendingStudents() {
+            const listEl = document.getElementById("admin-pending-students-list");
+            const countBadge = document.getElementById("pending-students-count-badge");
+            if (!listEl) return;
+            const tenantCode = localStorage.getItem('directorAcademyCode') || 'ILWON-2027';
+            try {
+                const res = await fetch(`/api/admin/pending-students?tenant_code=${tenantCode}`);
+                if (res.ok) {
+                    const students = await res.json();
+                    if (countBadge) countBadge.innerText = `${students.length}건`;
+                    if (students.length === 0) {
+                        listEl.innerHTML = '<div style="text-align:center; color:#64748b; font-size:0.78rem; padding:12px;">현재 승인 대기 중인 학생이 없습니다.</div>';
+                        return;
+                    }
+                    listEl.innerHTML = students.map(s => `
+                        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(245,158,11,0.3); border-radius: 10px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                            <div>
+                                <div style="display:flex; align-items:center; gap:6px;">
+                                    <span style="font-weight:800; font-size:0.88rem; color:#ffffff;">${s.name}</span>
+                                    <span style="font-size:0.72rem; color:#a5b4fc; background:rgba(99,102,241,0.2); padding:1px 6px; border-radius:4px;">${s.high_school}</span>
+                                </div>
+                                <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">신청일: ${s.applied_at} · 지역: ${s.region}</div>
+                            </div>
+                            <div style="display:flex; gap:6px;">
+                                <button onclick="approvePendingStudent(${s.id})" class="btn" style="padding:4px 10px; font-size:0.74rem; background:#10b981; color:white; font-weight:800; border-radius:6px; cursor:pointer;">승인</button>
+                                <button onclick="rejectPendingStudent(${s.id})" class="btn btn-secondary" style="padding:4px 8px; font-size:0.74rem; color:#f87171; border-color:rgba(239,68,68,0.4); border-radius:6px; cursor:pointer;">반려</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {
+                console.warn("loadPendingStudents error:", e);
+            }
+        }
+
+        async function approvePendingStudent(studentId) {
+            try {
+                const res = await fetch(`/api/admin/students/${studentId}/approve-enrollment`, { method: "POST" });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`✅ ${data.message}`);
+                    loadPendingStudents();
+                } else {
+                    alert(data.detail || "승인 실패");
+                }
+            } catch(e) {
+                alert("승인 처리 중 오류가 발생했습니다.");
+            }
+        }
+
+        async function rejectPendingStudent(studentId) {
+            if (!confirm("해당 학생의 가맹 등록 요청을 반려하시겠습니까?")) return;
+            try {
+                const res = await fetch(`/api/admin/students/${studentId}/reject-enrollment`, { method: "POST" });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`✅ ${data.message}`);
+                    loadPendingStudents();
+                } else {
+                    alert(data.detail || "반려 실패");
+                }
+            } catch(e) {
+                alert("반려 처리 중 오류가 발생했습니다.");
+            }
+        }
+
+        // Auto-load on student tab open
+        document.addEventListener("DOMContentLoaded", () => {
+            loadPendingStudents();
+        });
     </script>
 </body>
 </html>
