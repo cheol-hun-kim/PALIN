@@ -6311,58 +6311,187 @@ async function fetchNotices() {
 
 }
 
+let cachedRankingMatrix = null;
+let currentRankingSubTab = 'SCHOOL';
+
 async function fetchMicroLeague(studentId) {
-
     try {
-
-        const res = await fetch(`/api/micro-league/${studentId}`);
-
+        const sid = studentId || (currentStudent && currentStudent.id) || 1;
+        const res = await fetch(`/api/ranking/matrix?student_id=${sid}`);
         if (res.ok) {
-
             const data = await res.json();
+            cachedRankingMatrix = data;
 
-            const titleEl = document.getElementById("micro-league-title");
-
-            const contentEl = document.getElementById("micro-league-content");
-
-            if (titleEl && data.region_title) titleEl.innerText = data.region_title;
-
-            if (contentEl) {
-
-                const rankings = Array.isArray(data.region_rankings) ? data.region_rankings : (Array.isArray(data.univ_rankings) ? data.univ_rankings : []);
-
-                if (rankings.length > 0) {
-
-                    let html = `<div style="display:flex; flex-direction:column; gap:6px;">`;
-
-                    rankings.forEach((r, idx) => {
-
-                        const highlight = r.is_me ? "color: #fcd34d; font-weight: 800; background: rgba(245, 158, 11, 0.15); padding: 4px 8px; border-radius: 6px;" : "padding: 2px 4px;";
-
-                        html += `<div style="display:flex; justify-content:space-between; align-items:center; ${highlight}"><span>${idx + 1}위 ${r.name} (${r.school})</span><span style="font-weight:700;">+${r.score}점</span></div>`;
-
-                    });
-
-                    html += `</div>`;
-
-                    contentEl.innerHTML = html;
-
-                } else {
-
-                    contentEl.innerHTML = `<div style="color: var(--text-secondary); font-size: 0.8rem;">현재 집계된 실시간 랭킹 데이터가 없습니다.</div>`;
-
-                }
-
+            // 1. Ticker Banner
+            const tickerEl = document.getElementById("geo-throne-ticker-text");
+            if (tickerEl && data.ticker_message) {
+                tickerEl.innerText = data.ticker_message;
             }
 
+            renderRankingSubTab(currentRankingSubTab);
         }
-
     } catch (e) {
-
-        console.warn("Micro league load:", e);
-
+        console.warn("Ranking matrix load:", e);
     }
+}
 
+function switchRankingSubTab(tab) {
+    currentRankingSubTab = tab;
+    ['school', 'geo', 'vip'].forEach(t => {
+        const btn = document.getElementById(`rank-tab-${t}`);
+        if (btn) {
+            if (t === tab.toLowerCase()) {
+                btn.className = 'subtab-btn-hub active';
+            } else {
+                btn.className = 'subtab-btn-hub';
+            }
+        }
+    });
+    renderRankingSubTab(tab);
+}
+
+function renderRankingSubTab(tab) {
+    const contentEl = document.getElementById("micro-league-content");
+    if (!contentEl || !cachedRankingMatrix) return;
+
+    if (tab === 'SCHOOL') {
+        const schools = cachedRankingMatrix.school_ranking || [];
+        if (schools.length === 0) {
+            contentEl.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:12px;">집계된 학교 랭킹이 없습니다.</div>';
+            return;
+        }
+        let html = `<div style="display:flex; flex-direction:column; gap:6px;">`;
+        schools.forEach((s, idx) => {
+            const champBadge = s.is_champion ? '<span style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; font-weight:900; padding:2px 6px; border-radius:4px; font-size:0.68rem; margin-left:4px;">🏆 1위</span>' : '';
+            const bg = idx === 0 ? 'background:rgba(245, 158, 11, 0.15); border:1px solid rgba(245, 158, 11, 0.3);' : (idx < 3 ? 'background:rgba(99, 102, 241, 0.1);' : 'background:rgba(255,255,255,0.03);');
+            html += `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-radius:8px; ${bg}">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span style="font-weight:800; font-size:0.85rem; color:${idx === 0 ? '#fbbf24' : '#ffffff'};">${idx + 1}위</span>
+                        <span style="font-weight:700; font-size:0.82rem; color:#f8fafc;">${s.school}</span>
+                        ${champBadge}
+                    </div>
+                    <div style="font-weight:800; font-size:0.82rem; color:#818cf8;">
+                        +${s.total_points.toLocaleString()}P <span style="font-size:0.68rem; color:#94a3b8; font-weight:500;">(${s.student_count}명)</span>
+                    </div>
+                </div>
+            `;
+        });
+        html += `</div>`;
+        contentEl.innerHTML = html;
+    } else if (tab === 'GEO') {
+        const thrones = cachedRankingMatrix.local_thrones || [];
+        let html = `<div style="display:flex; flex-direction:column; gap:6px;">`;
+        thrones.forEach(t => {
+            html += `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-radius:8px; background:rgba(245, 158, 11, 0.08); border:1px solid rgba(245, 158, 11, 0.2);">
+                    <div>
+                        <div style="font-weight:800; font-size:0.82rem; color:#fbbf24;">👑 ${t.region} 제왕</div>
+                        <div style="font-size:0.75rem; color:#cbd5e1; margin-top:2px;">${t.leader_school} ${t.leader_name}</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-weight:900; font-size:0.85rem; color:#ffffff;">+${t.points.toLocaleString()}P</div>
+                        <span style="font-size:0.68rem; color:#a5b4fc; font-weight:700;">실시간 1위</span>
+                    </div>
+                </div>
+            `;
+        });
+        html += `</div>`;
+        contentEl.innerHTML = html;
+    } else if (tab === 'VIP') {
+        const vip = cachedRankingMatrix.vip_lounge || {};
+        const isAccess = vip.is_vip_access;
+        const statusBadge = isAccess 
+            ? '<span style="background:#10b981; color:white; padding:4px 8px; border-radius:6px; font-weight:800; font-size:0.75rem;">👑 VIP 입장 가능</span>'
+            : '<span style="background:#ef4444; color:white; padding:4px 8px; border-radius:6px; font-weight:800; font-size:0.75rem;">🔒 입장 제한 (상위 1% 필요)</span>';
+
+        contentEl.innerHTML = `
+            <div style="background:rgba(0,0,0,0.3); border-radius:10px; padding:12px; border:1px solid rgba(255,255,255,0.08);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-weight:800; font-size:0.85rem; color:#ffffff;">내 VIP 라운지 진입 판정</span>
+                    ${statusBadge}
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; text-align:center; margin-top:8px;">
+                    <div style="background:rgba(255,255,255,0.04); padding:8px; border-radius:8px;">
+                        <div style="font-size:0.7rem; color:#94a3b8;">내 성실도 순위</div>
+                        <div style="font-weight:800; font-size:0.95rem; color:#fbbf24; margin-top:2px;">${vip.user_rank || 1}위 (상위 ${vip.top_percentage || 1}%)</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.04); padding:8px; border-radius:8px;">
+                        <div style="font-size:0.7rem; color:#94a3b8;">VIP 커트라인</div>
+                        <div style="font-weight:800; font-size:0.95rem; color:#a5b4fc; margin-top:2px;">${(vip.cutoff_points || 1000).toLocaleString()}P</div>
+                    </div>
+                </div>
+                <div style="font-size:0.7rem; color:#64748b; margin-top:8px; text-align:center;">
+                    * 매주 일요일 23:59 상위 1% 유저에게만 다음 주 VIP 라운지 입장권이 부여됩니다.
+                </div>
+            </div>
+        `;
+    }
+}
+
+// === Phase 8 Token Economics & B2C Subscription Handlers ===
+
+function openTokenPurchaseModal() {
+    const modal = document.getElementById("token-charge-modal");
+    if (modal) modal.style.display = "flex";
+}
+
+function closeTokenPurchaseModal() {
+    const modal = document.getElementById("token-charge-modal");
+    if (modal) modal.style.display = "none";
+}
+
+function openB2CSubModal() {
+    closeTokenPurchaseModal();
+    const modal = document.getElementById("b2c-sub-modal");
+    if (modal) modal.style.display = "flex";
+}
+
+function closeB2CSubModal() {
+    const modal = document.getElementById("b2c-sub-modal");
+    if (modal) modal.style.display = "none";
+}
+
+async function executeTokenPurchase(amount = 4900, count = 50) {
+    const sid = (currentStudent && currentStudent.id) ? currentStudent.id : parseInt(localStorage.getItem('studentId') || '1', 10);
+    try {
+        const res = await fetch("/api/payment/chat-tokens", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: sid, amount: amount, token_count: count })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(`✅ ${data.message}`);
+            closeTokenPurchaseModal();
+            if (typeof fetchStudentInfo === 'function') fetchStudentInfo(sid);
+        } else {
+            alert(data.detail || "토큰 충전 실패");
+        }
+    } catch (e) {
+        alert("토큰 충전 처리 중 오류가 발생했습니다.");
+    }
+}
+
+async function executeB2CSubscribe(tier = 'TIER_2_PARENT') {
+    const sid = (currentStudent && currentStudent.id) ? currentStudent.id : parseInt(localStorage.getItem('studentId') || '1', 10);
+    try {
+        const res = await fetch("/api/payment/b2c-subscription", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: sid, tier: tier })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(`🎉 ${data.message}`);
+            closeB2CSubModal();
+            if (typeof fetchStudentInfo === 'function') fetchStudentInfo(sid);
+        } else {
+            alert(data.detail || "구독 결제 실패");
+        }
+    } catch (e) {
+        alert("구독 처리 중 오류가 발생했습니다.");
+    }
 }
 
 function setPrimaryDDay(title, dateStr) {

@@ -6,7 +6,7 @@
     <title>PALIN OS - B2B 학원장 통합 관제실 (Director Cockpit)</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=8600.0">
+    <link rel="stylesheet" href="css/style.css?v=8800.0">
     <style>
         :root {
             --bg-color: #08090d;
@@ -504,6 +504,39 @@
 
             <!-- TAB 3: 💰 3. 수업료 & 수납ERP -->
             <div id="tab-finance" class="cockpit-tab-view" style="display: none;">
+                <!-- 🏢 Phase 8: B2B 학원 SaaS 라이선스 & SMS 크레딧 관리 -->
+                <div style="background: rgba(99, 102, 241, 0.08); border: 1.5px solid rgba(99, 102, 241, 0.35); border-radius: 14px; padding: 16px; margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-rounded" style="color: #818cf8;">corporate_fare</span>
+                            <span style="font-weight: 800; font-size: 0.95rem; color: #ffffff;">B2B 인프라 & SMS 종량제 관리</span>
+                        </div>
+                        <span id="tenant-license-badge" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #000000; padding: 4px 10px; border-radius: 20px; font-weight: 900; font-size: 0.75rem;">Tier 3 무제한 라이선스</span>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 12px;">
+                        <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
+                            <div style="font-size: 0.72rem; color: #94a3b8;">알림톡/SMS 잔여 크레딧</div>
+                            <div id="tenant-sms-credits" style="font-size: 1.25rem; font-weight: 900; color: #34d399; margin-top: 4px;">65,000원</div>
+                            <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;">(발송 가능 잔여: 약 2,600건)</div>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
+                            <div style="font-size: 0.72rem; color: #94a3b8;">VOD 스토리지 사용량</div>
+                            <div id="tenant-vod-storage" style="font-size: 1.25rem; font-weight: 900; color: #a5b4fc; margin-top: 4px;">2.4 GB <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 500;">/ 50 GB</span></div>
+                            <div style="font-size: 0.68rem; color: #34d399; margin-top: 2px;">기본 용량 내 안전</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button onclick="handleChargeSMSCredit(30000)" class="btn" style="flex: 1; padding: 10px; font-size: 0.8rem; background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: 800; border-radius: 8px; cursor: pointer;">
+                            📨 SMS 크레딧 충전 (+30,000원)
+                        </button>
+                        <button onclick="handleUpgradeLicenseTier()" class="btn" style="flex: 1; padding: 10px; font-size: 0.8rem; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; font-weight: 800; border-radius: 8px; cursor: pointer;">
+                            🚀 라이선스 플랜 업그레이드
+                        </button>
+                    </div>
+                </div>
+
                 <div class="kpi-card" style="border: 1.5px solid rgba(234, 179, 8, 0.4);">
                     <div class="section-title" style="color: #fbbf24;">
                         <span class="material-symbols-rounded">payments</span>
@@ -1318,15 +1351,62 @@
                     container.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.8rem; padding:12px;">등록된 일정이 없습니다.</div>';
                     return;
                 }
-                container.innerHTML = list.map(s => `
+                container.innerHTML = list.map(s => {
+                    const safeTitle = (s.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    return `
                     <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.3); padding:10px 12px; border-radius:8px; border-left:4px solid #6366f1; flex-wrap:wrap; gap:6px;">
                         <div>
                             <span style="font-size:0.72rem; background:rgba(99,102,241,0.2); color:#818cf8; padding:2px 6px; border-radius:4px; font-weight:800;">${s.category} [${s.schedule_date || '-'}]</span>
                             <span style="font-weight:800; font-size:0.88rem; color:white; margin-left:4px;">${s.title}</span>
                         </div>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <button onclick="editAdminSchedule(${s.id}, '${safeTitle}', '${s.schedule_date || ''}', '${s.category || ''}')" class="btn" style="padding:4px 9px; font-size:0.72rem; background:rgba(99,102,241,0.25); color:#a5b4fc; border:1px solid #6366f1; border-radius:6px; font-weight:700; cursor:pointer;">✏️ 수정</button>
+                            <button onclick="deleteAdminSchedule(${s.id}, '${safeTitle}')" class="btn" style="padding:4px 9px; font-size:0.72rem; background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid #ef4444; border-radius:6px; font-weight:700; cursor:pointer;">🗑️ 삭제</button>
+                        </div>
                     </div>
-                `).join('');
+                `}).join('');
             } catch(e) {}
+        }
+
+        async function editAdminSchedule(id, currentTitle, currentDate, currentCat) {
+            const newTitle = prompt("수정할 일정 제목을 입력하세요:", currentTitle);
+            if (newTitle === null) return;
+            const newDate = prompt("수정할 일정 날짜를 입력하세요 (YYYY-MM-DD):", currentDate);
+            if (newDate === null) return;
+            if (!newTitle.trim()) {
+                alert("일정 제목을 입력해 주세요.");
+                return;
+            }
+            try {
+                const res = await fetch(`/api/admin/schedules/${id}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title: newTitle.trim(), schedule_date: newDate.trim() })
+                });
+                if (res.ok) {
+                    alert("✅ 일정이 성공적으로 수정되었습니다.");
+                    loadAdminSchedules();
+                } else {
+                    const data = await res.json();
+                    alert(data.detail || "수정 실패");
+                }
+            } catch(e) { alert("서버 통신 오류"); }
+        }
+
+        async function deleteAdminSchedule(id, title) {
+            if (!confirm(`'${title}' 일정을 삭제하시겠습니까?`)) return;
+            try {
+                const res = await fetch(`/api/admin/schedules/${id}`, {
+                    method: "DELETE"
+                });
+                if (res.ok) {
+                    alert("🗑️ 일정이 삭제되었습니다.");
+                    loadAdminSchedules();
+                } else {
+                    const data = await res.json();
+                    alert(data.detail || "삭제 실패");
+                }
+            } catch(e) { alert("서버 통신 오류"); }
         }
 
         async function handleCreateSchedule(e) {
@@ -2521,6 +2601,56 @@
             </form>
         </div>
     </div>
+    <script>
+        async function handleChargeSMSCredit(amount = 30000) {
+            const tenantCode = localStorage.getItem('directorAcademyCode') || 'ILWON-2027';
+            if (!confirm(`알림톡/SMS 크레딧 ${amount.toLocaleString()}원을 충전하시겠습니까? (건당 25원 / 약 1,200건 발송 가능)`)) return;
+            try {
+                const res = await fetch("/api/admin/b2b/charge-sms", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ tenant_code: tenantCode, amount: amount })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`✅ ${data.message}`);
+                    const smsEl = document.getElementById("tenant-sms-credits");
+                    if (smsEl) smsEl.innerText = `${data.sms_credits.toLocaleString()}원`;
+                } else {
+                    alert(data.detail || "충전 실패");
+                }
+            } catch(e) {
+                alert("SMS 충전 처리 중 오류가 발생했습니다.");
+            }
+        }
 
+        async function handleUpgradeLicenseTier() {
+            const tierStr = prompt("업그레이드할 SaaS 라이선스 티어를 선택하세요 (1: Tier 1(29.9만), 2: Tier 2(59.9만), 3: Tier 3(99.9만)):", "3");
+            if (!tierStr) return;
+            const tier = parseInt(tierStr, 10);
+            if (![1, 2, 3].includes(tier)) {
+                alert("1, 2, 3 중 하나의 숫자를 입력해 주세요.");
+                return;
+            }
+            const tenantCode = localStorage.getItem('directorAcademyCode') || 'ILWON-2027';
+            try {
+                const res = await fetch("/api/admin/b2b/upgrade-license", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ tenant_code: tenantCode, tier: tier })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`🚀 ${data.message}`);
+                    const badgeEl = document.getElementById("tenant-license-badge");
+                    if (badgeEl) badgeEl.innerText = `Tier ${tier} 라이선스 활성화`;
+                } else {
+                    alert(data.detail || "라이선스 업그레이드 실패");
+                }
+            } catch(e) {
+                alert("라이선스 변경 처리 중 오류가 발생했습니다.");
+            }
+        }
+    </script>
 </body>
 </html>
