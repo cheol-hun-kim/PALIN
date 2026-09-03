@@ -83,6 +83,8 @@ class Student(Base):
     # 🏫 Phase 1~5 B2B 학원 테넌트 & ERP & 출결 & 수납 관리 필드
     previous_b2c_tier = Column(String, default="B2C_FREE") # B2C 티어 백업 스냅샷
     academy_code = Column(String, nullable=True, index=True) # 소속 학원 코드 (예: ILWON-2027)
+    academy_approval_status = Column(String, default="APPROVED") # APPROVED | PENDING | REJECTED
+    pending_tenant_code = Column(String, nullable=True) # 승인 대기 중인 학원 코드
     ai_level = Column(String, default="B2C_FREE")          # AI 권한 레벨
     tuition_paid = Column(Boolean, default=False)          # 수업료 납부 완료 여부
     textbook_paid = Column(Boolean, default=False)         # 교재비 납부 완료 여부
@@ -718,4 +720,22 @@ class PlatformRevenueLog(Base):
     status = Column(String, default="PAID")    # 'PAID' | 'REFUNDED'
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     deleted_at = Column(DateTime(timezone=True), nullable=True)
+
+
+class B2BFranchiseInquiry(Base):
+    """B2B 학원장 가맹 도입 문의 및 신청서 (God Mode 연동)"""
+    __tablename__ = "b2b_franchise_inquiries"
+
+    id = Column(Integer, primary_key=True, index=True)
+    academy_name = Column(String, nullable=False)   # 학원명
+    director_name = Column(String, nullable=False)  # 원장님 성함
+    phone = Column(String, nullable=False)          # 연락처
+    region = Column(String, nullable=False)         # 학원 지역 (예: 서울 강남구, 경기 성남시)
+    student_count = Column(Integer, default=50)     # 재원생 규모
+    desired_tier = Column(Integer, default=3)       # 희망 SaaS 티어 (1, 2, 3)
+    notes = Column(Text, nullable=True)             # 문의 사항 및 특별 요청
+    status = Column(String, default="PENDING")      # PENDING(접수 대기) | APPROVED(승인/테넌트 개설완료) | CONTACTED(상담 완료)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
+
 

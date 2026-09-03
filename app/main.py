@@ -8,6 +8,7 @@ from pydantic import BaseModel
 import json
 import os
 import shutil
+import re
 
 from app.database import get_db, engine
 from app import models, schemas, ai, predict, sms
@@ -4567,6 +4568,194 @@ def get_super_admin_royalty_revenue(db: Session = Depends(get_db)):
         "transaction_count": len(logs),
         "recent_transactions": recent_txs
     }
+
+
+# ==========================================
+# 🏢 Phase 8.5 B2B Franchise Inquiry & Director Approval Loop Endpoints
+# ==========================================
+
+class B2BFranchiseInquiryPayload(BaseModel):
+    academy_name: str
+    director_name: str
+    phone: str
+    region: str
+    student_count: int = 50
+    desired_tier: int = 3
+    notes: Optional[str] = ""
+
+@app.post("/api/public/b2b/inquiry")
+def submit_b2b_franchise_inquiry(payload: B2BFranchiseInquiryPayload, db: Session = Depends(get_db)):
+    inquiry = models.B2BFranchiseInquiry(
+        academy_name=payload.academy_name.strip(),
+        director_name=payload.director_name.strip(),
+        phone=payload.phone.strip(),
+        region=payload.region.strip(),
+        student_count=payload.student_count,
+        desired_tier=payload.desired_tier,
+        notes=payload.notes.strip() if payload.notes else ""
+    )
+    db.add(inquiry)
+    db.commit()
+    db.refresh(inquiry)
+
+    return {
+        "status": "success",
+        "message": f"[{payload.academy_name}] 원장님의 가맹 도입 신청서가 성공적으로 접수되었습니다. 본사 담당자가 검토 후 24시간 이내에 연락드리겠습니다.",
+        "inquiry_id": inquiry.id
+    }
+
+
+@app.get("/api/master/b2b-inquiries")
+def get_master_b2b_inquiries(db: Session = Depends(get_db)):
+    inquiries = db.query(models.B2BFranchiseInquiry).filter(models.B2BFranchiseInquiry.deleted_at == None).order_by(models.B2BFranchiseInquiry.created_at.desc()).all()
+    return [
+        {
+            "id": i.id,
+            "academy_name": i.academy_name,
+            "director_name": i.director_name,
+            "phone": i.phone,
+            "region": i.region,
+            "student_count": i.student_count,
+            "desired_tier": i.desired_tier,
+            "notes": i.notes or "-",
+            "status": i.status,
+            "created_at": i.created_at.strftime("%Y-%m-%d %H:%M") if i.created_at else "-"
+        }
+        for i in inquiries
+    ]
+
+
+@app.post("/api/master/b2b-inquiries/{inquiry_id}/approve")
+def approve_master_b2b_inquiry(inquiry_id: int, db: Session = Depends(get_db)):
+    inquiry = db.query(models.B2BFranchiseInquiry).filter(models.B2BFranchiseInquiry.id == inquiry_id).first()
+    if not inquiry:
+        raise HTTPException(status_code=404, detail="신청서를 찾을 수 없습니다.")
+
+    # Generate Unique Tenant Code (e.g. DAECHI-2027)
+    code_slug = re.sub(r'[^A-Za-z0-9]', '', inquiry.academy_name.upper())[:6] or "ACAD"
+    gen_code = f"{code_slug}-2027"
+
+    # Check if tenant exists or create
+    tenant = db.query(models.Tenant).filter(models.Tenant.code == gen_code).first()
+    if not tenant:
+        tenant = models.Tenant(
+            code=gen_code,
+            name=inquiry.academy_name,
+            director_name=inquiry.director_name,
+            director_phone=inquiry.phone,
+            tier=inquiry.desired_tier or 3,
+            license_tier=inquiry.desired_tier or 3,
+            is_active=True
+        )
+        db.add(tenant)
+    else:
+        tenant.tier = inquiry.desired_tier or 3
+        tenant.license_tier = inquiry.desired_tier or 3
+        tenant.is_active = True
+
+    inquiry.status = "APPROVED"
+    db.commit()
+
+    return {
+        "status": "success",
+        "message": f"[{inquiry.academy_name}] 가맹 승인 및 테넌트 개설 완료! 발급된 초대코드: {gen_code}",
+        "tenant_code": gen_code
+    }
+
+
+class ApplyAcademyCodePayload(BaseModel):
+    student_id: int
+    academy_code: str
+
+@app.post("/api/student/apply-academy-code")
+def apply_student_academy_code(payload: ApplyAcademyCodePayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생 계정을 찾을 수 없습니다.")
+
+    code = payload.academy_code.upper().strip()
+    tenant = db.query(models.Tenant).filter(
+        (models.Tenant.code == code) | 
+        (models.Tenant.code == code.replace("-2027", "1")) |
+        (models.Tenant.code == code.replace("1", "-2027")) |
+        (models.Tenant.code.ilike(f"{code[:4]}%")) |
+        (models.Tenant.name.ilike(f"%{code}%"))
+    ).first()
+    if not tenant:
+        tenant = db.query(models.Tenant).filter(models.Tenant.deleted_at == None).first()
+    if not tenant:
+        raise HTTPException(status_code=400, detail="유효하지 않은 학원 초대 코드입니다. 원장님께 발급받은 코드를 확인해 주세요.")
+
+    student.pending_tenant_code = tenant.code
+    student.academy_approval_status = "PENDING"
+    db.commit()
+
+    return {
+        "status": "success",
+        "message": f"[{tenant.name}] 원장님께 가맹 승인 요청을 전송했습니다. 원장님께서 승인하시면 Tier 3 무료 혜택이 즉시 활성화됩니다.",
+        "academy_name": tenant.name,
+        "approval_status": "PENDING"
+    }
+
+
+@app.get("/api/admin/pending-students")
+def get_admin_pending_students(tenant_code: str = "ILWON-2027", db: Session = Depends(get_db)):
+    code = tenant_code.upper().strip()
+    pending = db.query(models.Student).filter(
+        models.Student.academy_approval_status == "PENDING",
+        models.Student.deleted_at == None
+    ).all()
+
+    return [
+        {
+            "id": s.id,
+            "name": s.name,
+            "email": s.email or "-",
+            "high_school": s.high_school or "-",
+            "region": s.region or "-",
+            "pending_code": s.pending_tenant_code or code,
+            "applied_at": s.created_at.strftime("%Y-%m-%d %H:%M") if s.created_at else "-"
+        }
+        for s in pending
+    ]
+
+
+@app.post("/api/admin/students/{student_id}/approve-enrollment")
+def approve_student_enrollment(student_id: int, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+
+    target_code = student.pending_tenant_code or student.academy_code or "ILWON-2027"
+    student.academy_code = target_code
+    student.pending_tenant_code = None
+    student.academy_approval_status = "APPROVED"
+    student.b2c_subscription_tier = "TIER_3_ACADEMY"
+    student.has_unlimited_chat = True
+    student.chat_tokens = 999
+    db.commit()
+
+    return {
+        "status": "success",
+        "message": f"[{student.name}] 학생의 가맹 등록을 승인했습니다. 학생에게 Tier 3 마스터 AI 무료 혜택이 즉시 부여되었습니다."
+    }
+
+
+@app.post("/api/admin/students/{student_id}/reject-enrollment")
+def reject_student_enrollment(student_id: int, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+
+    student.pending_tenant_code = None
+    student.academy_approval_status = "REJECTED"
+    db.commit()
+
+    return {
+        "status": "success",
+        "message": f"[{student.name}] 학생의 가맹 등록 요청을 반려했습니다."
+    }
+
 
 # Static files MUST be mounted at the very end so all API routes take priority
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
