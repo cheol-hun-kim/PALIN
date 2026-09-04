@@ -443,6 +443,11 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 🔐 학원장 관제실 접속
                             </button>
                         </form>
+                        <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06);">
+                            <button type="button" onclick="openDirectorDemoModal()" style="background: none; border: none; font-size: 0.78rem; font-weight: 700; color: #fbbf24; cursor: pointer; text-decoration: none;">
+                                ✨ 관제실 기능을 미리 둘러보고 싶으신가요? <u style="text-underline-offset: 3px;">원장 체험 모드 (데모) →</u>
+                            </button>
+                        </div>
                         <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
                             <button type="button" onclick="openB2BContactModal()" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #fbbf24; border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.08); border-radius: 8px;">
                                 🏫 학원장 전용 가맹 솔루션 도입 문의
@@ -3010,7 +3015,48 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app.js?v=20260904.1"></script>
+    <!-- 🏛️ 6. 학원장 관제실 모델하우스(체험 모드) 안내 모달 -->
+    <div class="modal" id="director-demo-modal" style="display: none; align-items: center; justify-content: center; z-index: 10003; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);">
+        <div class="modal-content" style="max-width: 440px; width: 92%; background: #0f172a; border: 1.5px solid #fbbf24; border-radius: 20px; padding: 22px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
+                <div style="font-size: 1.05rem; font-weight: 900; color: #fbbf24; display: flex; align-items: center; gap: 6px;">
+                    <span class="material-symbols-rounded">visibility</span>
+                    <span>학원장 관제실 모델하우스 (체험 모드)</span>
+                </div>
+                <button onclick="closeDirectorDemoModal()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.85rem; border: none; cursor: pointer;">&times;</button>
+            </div>
+            
+            <p style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 14px;">
+                가맹 전, <b>원장님 전용 중앙 관제실(God Mode ERP)</b>의 핵심 통제 기능을 미리 둘러보실 수 있는 프리뷰 안내입니다.
+            </p>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(245,158,11,0.25); border-radius: 10px; padding: 10px;">
+                    <div style="font-size: 0.82rem; font-weight: 800; color: #fbbf24;">📡 실시간 재원생 레이더 & 출결 매트릭스</div>
+                    <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">전체 원생의 자습/이탈 상태 및 0.1초 네트워크 출결 현황을 실시간 조망</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(245,158,11,0.25); border-radius: 10px; padding: 10px;">
+                    <div style="font-size: 0.82rem; font-weight: 800; color: #fbbf24;">🧠 원장 전용 AI 뇌 이식 (RAG 스튜디오)</div>
+                    <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">원장님의 커리큘럼/상담 대본을 업로드하여 24시간 1:1 상담 챗봇 가동</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(245,158,11,0.25); border-radius: 10px; padding: 10px;">
+                    <div style="font-size: 0.82rem; font-weight: 800; color: #fbbf24;">🟥 원클릭 레드카드 & 보증금 에스크로 차감</div>
+                    <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">태도 불량 적발 시 원클릭으로 경고 발부 및 학부모 긴급 문자 동시 발송</div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+                <button type="button" onclick="openB2BContactModal(); closeDirectorDemoModal();" class="btn btn-gold" style="flex: 1; padding: 10px; font-size: 0.82rem; font-weight: 800;">
+                    🏢 공식 가맹/도입 문의
+                </button>
+                <button type="button" onclick="closeDirectorDemoModal()" class="btn btn-secondary" style="padding: 10px 16px; font-size: 0.82rem; font-weight: 800;">
+                    닫기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js?v=20260904.2"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소

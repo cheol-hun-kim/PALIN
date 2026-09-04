@@ -5029,29 +5029,20 @@ async function fetchStudentInfo(studentId) {
                 current_points: 100,
 
                 streak_days: 0,
-
                 diligence_score: 50,
-
-                academy_code: "ILWON-2027",
-
-                ai_level: "B2B_PREMIUM",
-
-                league_tier: "PLATINUM",
-
+                academy_code: null,
+                academy_approval_status: "NONE",
+                b2c_subscription_tier: "TIER_1_FREE",
+                ai_level: "B2C_FREE",
+                chat_tokens: 5,
+                league_tier: "BRONZE",
                 point_multiplier: 1.0,
-
-                golden_tickets_count: 3,
-
-                paid_cash: 128200,
-
-                medical_symbol: "MED",
-
-                enrollment_status: "ENROLLED"
-
+                golden_tickets_count: 0,
+                paid_cash: 0,
+                medical_symbol: "GENERAL",
+                enrollment_status: "NONE"
             };
-
             localStorage.setItem("studentId", "1");
-
         }
 
         
@@ -6490,6 +6481,18 @@ function closeB2BContactModal() {
     if (modal) modal.style.display = "none";
 }
 window.closeB2BContactModal = closeB2BContactModal;
+
+function openDirectorDemoModal() {
+    const modal = document.getElementById("director-demo-modal");
+    if (modal) modal.style.display = "flex";
+}
+window.openDirectorDemoModal = openDirectorDemoModal;
+
+function closeDirectorDemoModal() {
+    const modal = document.getElementById("director-demo-modal");
+    if (modal) modal.style.display = "none";
+}
+window.closeDirectorDemoModal = closeDirectorDemoModal;
 
 function copyB2BContactEmail() {
     const email = "1286orbital21@gmail.com";
@@ -8512,11 +8515,11 @@ function loadPage2Data() {
     
     if (dispTarget) {
         const parts = target.split(' ');
-        dispTarget.innerHTML = `<span style="color:#ffffff; font-weight:800;">${parts[0] || '-'}</span> <span style="font-size:0.75rem; color:#a5b4fc;">${parts.slice(1).join(' ') || ''}</span>`;
+        dispTarget.innerHTML = `<span style="color: var(--text-primary); font-weight:800;">${parts[0] || '-'}</span> <span style="font-size:0.75rem; color:#818cf8; font-weight:700;">${parts.slice(1).join(' ') || ''}</span>`;
     }
     if (dispBase) {
         const parts = baseline.split(' ');
-        dispBase.innerHTML = `<span style="color:#ffffff; font-weight:800;">${parts[0] || '-'}</span> <span style="font-size:0.75rem; color:#94a3b8;">${parts.slice(1).join(' ') || ''}</span>`;
+        dispBase.innerHTML = `<span style="color: var(--text-primary); font-weight:800;">${parts[0] || '-'}</span> <span style="font-size:0.75rem; color: var(--text-secondary); font-weight:700;">${parts.slice(1).join(' ') || ''}</span>`;
     }
     if (predTarget && (!predTarget.value || predTarget.value === "")) {
         predTarget.value = target.split(' ')[0] || target;
@@ -8630,12 +8633,16 @@ async function sendChatMessage() {
         
 
         // 대화 기록에 봇 응답 추가
-
         chatHistory.push({ role: "bot", content: data.reply });
 
-        
-
-        document.getElementById("chat-limit-label").innerText = `오늘 남은 무료 대화: ${data.remaining_chats}회`;
+        const limitLabel = document.getElementById("chat-limit-label");
+        if (limitLabel) {
+            if (data.remaining_chats >= 900) {
+                limitLabel.innerText = "⚡ 무제한 마스터 AI 대화 패스 활성화 중";
+            } else {
+                limitLabel.innerText = `오늘 남은 무료 대화: ${data.remaining_chats}회`;
+            }
+        }
 
     } catch (e) {
 
@@ -12854,80 +12861,57 @@ function updateAcademyGNBVisibility() {
 
     
 
-    if (currentStudent && currentStudent.academy_code) {
+    const isApproved = currentStudent && currentStudent.academy_code && (currentStudent.academy_approval_status === "APPROVED");
+    const isPending = currentStudent && currentStudent.academy_code && (currentStudent.academy_approval_status === "PENDING");
 
+    if (isApproved) {
         if (unlinkedCard) unlinkedCard.style.display = "none";
-
         updateFacilitySelectorUI();
-
         if (linkedContent) linkedContent.style.display = "block";
 
-        
-
         const hubName = document.getElementById("hub-academy-name");
-
         const badge = document.getElementById("hub-enrollment-badge");
-
         const leaveNotice = document.getElementById("hub-leave-notice-card");
-
         const mainArea = document.getElementById("hub-main-content-area");
-
-        
 
         if (hubName) hubName.innerText = currentStudent.academy_code === "ILWON-2027" ? "일원학원" : currentStudent.academy_code;
 
-        
-
         if (badge) {
-
             if (currentStudent.enrollment_status === "ON_LEAVE") {
-
                 badge.innerText = "휴강생";
-
                 badge.style.background = "#ef4444";
-
                 if (leaveNotice) leaveNotice.style.display = "block";
-
                 if (mainArea) {
-
                     mainArea.style.opacity = "0.4";
-
                     mainArea.style.pointerEvents = "none";
-
                 }
-
             } else if (currentStudent.enrollment_status === "WITHDRAWN") {
-
                 badge.innerText = "퇴원생";
-
                 badge.style.background = "#64748b";
-
             } else {
-
                 badge.innerText = "재원생";
-
                 badge.style.background = "#10b981";
-
                 if (leaveNotice) leaveNotice.style.display = "none";
-
                 if (mainArea) {
-
                     mainArea.style.opacity = "1";
-
                     mainArea.style.pointerEvents = "auto";
-
                 }
-
             }
-
         }
-
     } else {
-
-        if (unlinkedCard) unlinkedCard.style.display = "block";
-
+        if (unlinkedCard) {
+            unlinkedCard.style.display = "block";
+            const unlinkedTitle = unlinkedCard.querySelector('div[style*="font-size: 1.15rem"]');
+            const unlinkedDesc = unlinkedCard.querySelector('div[style*="font-size: 0.8rem"]');
+            if (isPending) {
+                if (unlinkedTitle) unlinkedTitle.innerText = "⏳ 학원장 승인 대기 중";
+                if (unlinkedDesc) unlinkedDesc.innerHTML = `소속 학원(<b>${currentStudent.academy_code}</b>)으로 등록 요청이 전송되었습니다.<br>학원 관리자(원장님)의 승인 완료 후 학사 일정, VOD, OMR 채점이 활성화됩니다.`;
+            } else {
+                if (unlinkedTitle) unlinkedTitle.innerText = "소속 학원(B2B) 연동";
+                if (unlinkedDesc) unlinkedDesc.innerHTML = "일원학원 등 소속 학원에서 발급받은 <b>학원 고유코드(예: ILWON-2027)</b>를 입력하시면 주차별 학사 일정, 복습 VOD(7일 락), OMR 자동채점 및 출결 관리가 즉시 활성화됩니다.";
+            }
+        }
         if (linkedContent) linkedContent.style.display = "none";
-
     }
 
 }
