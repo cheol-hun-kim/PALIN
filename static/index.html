@@ -304,7 +304,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 </button>
                             </div>
                             <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
-                                <button type="button" onclick="openStudentBrochureModal()" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #ffffff; border: 1.5px solid #818cf8; background: rgba(99,102,241,0.25); border-radius: 8px; min-height: 38px; display: flex; align-items: center; justify-content: center;">
+                                <button type="button" onclick="openStudentBrochureModal()" class="btn brochure-btn-student" style="width: 100%; padding: 10px; font-size: 0.82rem; font-weight: 800; border-radius: 10px; min-height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
                                     🎓 PALIN OS 수험생 소개 브로슈어 보기
                                 </button>
                             </div>
@@ -400,7 +400,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 </button>
                             </div>
                             <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
-                                <button type="button" onclick="openParentBrochureModal()" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #ffffff; border: 1.5px solid #34d399; background: rgba(16,185,129,0.25); border-radius: 8px; min-height: 38px; display: flex; align-items: center; justify-content: center;">
+                                <button type="button" onclick="openParentBrochureModal()" class="btn brochure-btn-parent" style="width: 100%; padding: 10px; font-size: 0.82rem; font-weight: 800; border-radius: 10px; min-height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
                                     👨‍👩‍👧 학부모 안심 솔루션 브로슈어 보기
                                 </button>
                             </div>
@@ -448,7 +448,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 </button>
                             </div>
                             <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
-                                <button type="button" onclick="openB2BContactModal()" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #ffffff; border: 1.5px solid #fbbf24; background: rgba(245,158,11,0.25); border-radius: 8px; min-height: 38px; display: flex; align-items: center; justify-content: center;">
+                                <button type="button" onclick="openB2BContactModal()" class="btn brochure-btn-director" style="width: 100%; padding: 10px; font-size: 0.82rem; font-weight: 800; border-radius: 10px; min-height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
                                     🏫 학원장 전용 가맹 솔루션 도입 문의
                                 </button>
                             </div>
@@ -783,20 +783,20 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 <span id="quick-subject-selected" style="color: #818cf8; font-weight: 800;">[수학] 2시간</span>
                             </div>
                             <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;" id="quick-subject-bar">
-                                <button type="button" class="btn quick-sub-btn active" data-subject="수학" onclick="setQuickSubject('수학', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #6366f1; color: white;">수학</button>
-                                <button type="button" class="btn quick-sub-btn" data-subject="국어" onclick="setQuickSubject('국어', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #334155; color: #cbd5e1;">국어</button>
-                                <button type="button" class="btn quick-sub-btn" data-subject="영어" onclick="setQuickSubject('영어', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #334155; color: #cbd5e1;">영어</button>
-                                <button type="button" class="btn quick-sub-btn" data-subject="탐구" onclick="setQuickSubject('탐구', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #334155; color: #cbd5e1;">탐구</button>
-                                <button type="button" class="btn quick-sub-btn" data-subject="자습" onclick="setQuickSubject('자습', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #334155; color: #cbd5e1;">자습</button>
-                                <button type="button" class="btn quick-sub-btn" data-subject="인강" onclick="setQuickSubject('인강', this)" style="padding: 4px 10px; font-size: 0.75rem; background: #334155; color: #cbd5e1;">인강</button>
+                                <button type="button" class="quick-sub-btn active" data-subject="수학" onclick="setQuickSubject('수학', this)">수학</button>
+                                <button type="button" class="quick-sub-btn" data-subject="국어" onclick="setQuickSubject('국어', this)">국어</button>
+                                <button type="button" class="quick-sub-btn" data-subject="영어" onclick="setQuickSubject('영어', this)">영어</button>
+                                <button type="button" class="quick-sub-btn" data-subject="탐구" onclick="setQuickSubject('탐구', this)">탐구</button>
+                                <button type="button" class="quick-sub-btn" data-subject="자습" onclick="setQuickSubject('자습', this)">자습</button>
+                                <button type="button" class="quick-sub-btn" data-subject="인강" onclick="setQuickSubject('인강', this)">인강</button>
                             </div>
                             <!-- 시간 길이 프리셋 바 -->
-                            <div style="display: flex; gap: 4px; align-items: center;">
-                                <span style="font-size: 0.7rem; color: var(--text-secondary); margin-right: 4px;">시간 길이:</span>
-                                <button type="button" class="btn btn-secondary quick-dur-btn" onclick="setQuickDuration(1.0, this)" style="padding: 3px 8px; font-size: 0.72rem;">1시간</button>
-                                <button type="button" class="btn btn-secondary quick-dur-btn" onclick="setQuickDuration(1.5, this)" style="padding: 3px 8px; font-size: 0.72rem;">1.5시간</button>
-                                <button type="button" class="btn quick-dur-btn active" onclick="setQuickDuration(2.0, this)" style="padding: 3px 8px; font-size: 0.72rem; background: #6366f1; color: white;">2시간</button>
-                                <button type="button" class="btn btn-secondary quick-dur-btn" onclick="setQuickDuration(3.0, this)" style="padding: 3px 8px; font-size: 0.72rem;">3시간</button>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <span style="font-size: 0.72rem; color: var(--text-secondary); margin-right: 2px;">시간 길이:</span>
+                                <button type="button" class="quick-dur-btn" onclick="setQuickDuration(1.0, this)">1시간</button>
+                                <button type="button" class="quick-dur-btn" onclick="setQuickDuration(1.5, this)">1.5시간</button>
+                                <button type="button" class="quick-dur-btn active" onclick="setQuickDuration(2.0, this)">2시간</button>
+                                <button type="button" class="quick-dur-btn" onclick="setQuickDuration(3.0, this)">3시간</button>
                             </div>
                         </div>
 
@@ -2016,8 +2016,8 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <span>학원관리</span>
             </div>
             <div class="nav-item" id="nav-tab-admin" onclick="window.open('/admin.html', '_blank')" style="cursor: pointer; display: none;">
-                <span class="material-symbols-rounded nav-icon" style="color: #f59e0b;">shield_person</span>
-                <span style="color: #f59e0b; font-weight: 800;">원장관제</span>
+                <span class="material-symbols-rounded nav-icon nav-icon-director">shield_person</span>
+                <span class="nav-text-director">원장관제</span>
             </div>
         </div>
 

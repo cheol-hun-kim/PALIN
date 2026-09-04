@@ -483,6 +483,8 @@ const UNIVERSITY_REGION_MAP = {"가천대학교":"경기도","가톨릭관동대
 // --- 전역 상태 관리 ---
 
 let currentStudent = null;
+isDemoMode = false;
+currentActiveFacility = "ILWON-2027";
 
 let activeTab = "page1"; // page1: 생활, page2: 학습, page3: 매칭
 
@@ -5245,6 +5247,7 @@ function toggleParentAuthMode() {
 
 function resetSessionState() {
     isDemoMode = false;
+    currentActiveFacility = currentStudent?.academy_code || "ILWON-2027";
     
     // 1. AI 챗봇 메시지 DOM 및 히스토리 완전 초기화
     const chatContainer = document.getElementById("chat-messages");
@@ -5302,7 +5305,21 @@ function resetSessionState() {
     }
     if (typeof allPlannerBlocksCache !== 'undefined') allPlannerBlocksCache = [];
     
-    // 4. 데모 모드 플로팅 바 및 시뮬레이션 모달 닫기
+    // 4. 학원 자료실 및 VOD 라이브러리 컨테이너 즉시 소거 (데모 잔상 방지)
+    const matList = document.getElementById("hub-academy-materials-list");
+    if (matList) matList.innerHTML = "";
+    const p4MatList = document.getElementById("p4-materials-list");
+    if (p4MatList) p4MatList.innerHTML = "";
+    const p2MatList = document.getElementById("p2-materials-list");
+    if (p2MatList) p2MatList.innerHTML = "";
+    const vodBox = document.getElementById("hub-academy-vod-container");
+    if (vodBox) vodBox.innerHTML = "";
+    const hubVodList = document.getElementById("hub-vod-list-container");
+    if (hubVodList) hubVodList.innerHTML = "";
+    const p4VodBox = document.getElementById("p4-vod-list");
+    if (p4VodBox) p4VodBox.innerHTML = "";
+    
+    // 5. 데모 모드 플로팅 바 및 시뮬레이션 모달 닫기
     const floatBar = document.getElementById("demo-mode-floating-bar");
     if (floatBar) floatBar.style.display = "none";
     const dirCockpit = document.getElementById("demo-director-cockpit-modal");
@@ -7501,89 +7518,48 @@ let currentQuickSubject = "수학";
 let currentQuickDuration = 2.0; // 기본 2시간
 
 function setQuickSubject(subject, btnEl) {
-
     currentQuickSubject = subject;
 
-    
-
-    // 1. 버튼 액티브 스타일 즉시 갱신
-
+    // 1. 버튼 액티브 스타일 즉시 갱신 (CSS 클래스 기반 고대비 지원)
     document.querySelectorAll(".quick-sub-btn").forEach(btn => {
-
         btn.classList.remove("active");
-
-        btn.style.background = "#334155";
-
-        btn.style.color = "#cbd5e1";
-
+        btn.style.background = "";
+        btn.style.color = "";
     });
 
     if (btnEl) {
-
         btnEl.classList.add("active");
-
-        btnEl.style.background = "#6366f1";
-
-        btnEl.style.color = "#ffffff";
-
+        btnEl.style.background = "";
+        btnEl.style.color = "";
     }
-
-    
 
     // 2. 상단 라벨 변경
-
     updateQuickHeaderLabel();
 
-    
-
     // 3. 하단 폼 계획명 입력창에 자동 반영
-
     const planTitleInput = document.getElementById("plan-title");
-
     if (planTitleInput) {
-
         planTitleInput.value = `${subject} 집중 학습`;
-
     }
-
 }
 
 function setQuickDuration(hours, btnEl) {
-
     currentQuickDuration = parseFloat(hours);
 
-    
-
     document.querySelectorAll(".quick-dur-btn").forEach(btn => {
-
         btn.classList.remove("active");
-
-        btn.classList.add("btn-secondary");
-
         btn.style.background = "";
-
         btn.style.color = "";
-
     });
 
     if (btnEl) {
-
-        btnEl.classList.remove("btn-secondary");
-
         btnEl.classList.add("active");
-
-        btnEl.style.background = "#6366f1";
-
-        btnEl.style.color = "#ffffff";
-
+        btnEl.style.background = "";
+        btnEl.style.color = "";
     }
 
-    
-
     updateQuickHeaderLabel();
-
     syncPlanEndTime();
-
 }
 
 function updateQuickHeaderLabel() {
@@ -12965,7 +12941,7 @@ function updateAcademyGNBVisibility() {
         const leaveNotice = document.getElementById("hub-leave-notice-card");
         const mainArea = document.getElementById("hub-main-content-area");
 
-        if (isDemoMode || currentStudent.academy_code === "PALIN-2027" || currentStudent.id === 9999) {
+        if (isDemoMode || currentStudent.id === 9999 || (currentStudent.academy_code === "PALIN-2027" && isDemoMode)) {
             if (hubName) hubName.innerText = "팰린 마스터 학원";
             if (hubLogo) { hubLogo.src = "img/palin_master_logo.svg"; hubLogo.alt = "팰린 마스터 학원 로고"; }
         } else {
@@ -13087,7 +13063,7 @@ async function loadAcademyHubView() {
         return;
     }
 
-    if (isDemoMode || aCode === "PALIN-2027" || currentStudent?.id === 9999) {
+    if (isDemoMode || currentStudent?.id === 9999 || (aCode === "PALIN-2027" && isDemoMode)) {
         container.innerHTML = `
             <div style="background: rgba(239,68,68,0.1); border: 1px solid #ef4444; border-radius: 10px; padding: 12px; margin-bottom: 8px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
@@ -13477,7 +13453,7 @@ async function loadAcademyMaterials() {
 
     const activeFacility = (typeof currentActiveFacility !== 'undefined' && currentActiveFacility) ? currentActiveFacility : (currentStudent?.academy_code || "ILWON-2027");
 
-    if (isDemoMode || currentStudent?.id === 9999 || activeFacility === "PALIN-2027") {
+    if (isDemoMode || currentStudent?.id === 9999 || (activeFacility === "PALIN-2027" && isDemoMode)) {
         container.innerHTML = `
             <div style="display: flex; flex-direction: column; gap: 12px;">
                 <!-- 모의 워크북 1 -->
@@ -13605,7 +13581,7 @@ async function loadStudentVods() {
     const container = document.getElementById("hub-vod-list-container");
     if (!container) return;
 
-    if (isDemoMode || currentStudent?.id === 9999 || currentStudent?.academy_code === "PALIN-2027") {
+    if (isDemoMode || currentStudent?.id === 9999 || (currentStudent?.academy_code === "PALIN-2027" && isDemoMode)) {
         container.innerHTML = `
             <div style="margin-bottom: 18px;">
                 <div style="font-size: 0.88rem; font-weight: 800; color: #4338ca; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
@@ -13774,7 +13750,7 @@ async function loadStudentExamHistory() {
     const container = document.getElementById("hub-exam-history-list");
     if (!container) return;
 
-    if (isDemoMode || currentStudent?.id === 9999 || currentStudent?.academy_code === "PALIN-2027") {
+    if (isDemoMode || currentStudent?.id === 9999 || (currentStudent?.academy_code === "PALIN-2027" && isDemoMode)) {
         container.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 14px; margin-bottom: 6px;">
                 <div>
@@ -13989,7 +13965,7 @@ document.addEventListener("DOMContentLoaded", () => {
 let currentActiveFacility = "ILWON-2027";
 
 function getEnrolledFacilities() {
-    if (isDemoMode || currentStudent?.id === 9999 || currentStudent?.academy_code === "PALIN-2027") {
+    if (isDemoMode || currentStudent?.id === 9999 || (currentStudent?.academy_code === "PALIN-2027" && isDemoMode)) {
         return [
             { code: "PALIN-2027", name: "팰린 마스터 학원", desc: "수능국어·입시전략", type: "가상학원" }
         ];
