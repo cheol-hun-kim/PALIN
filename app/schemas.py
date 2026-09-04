@@ -37,6 +37,7 @@ class StudentCreate(BaseModel):
     parent_name: str
     parent_phone: str
     referred_by: Optional[str] = None # 추천인 코드
+    academy_code: Optional[str] = None # 소속 학원 초대 코드
 
 class StudentResponse(BaseModel):
     id: int

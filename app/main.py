@@ -147,15 +147,49 @@ def register_student(payload: schemas.StudentCreate, db: Session = Depends(get_d
         initial_points = 100
         referred_by_code = payload.referred_by.strip().upper() if payload.referred_by else None
         
+        # 학원 코드 처리 (별도 academy_code 필드 또는 추천인 코드 칸에 학원코드를 적었을 때도 자동 인식)
+        raw_ac_code = (getattr(payload, 'academy_code', None) or "").strip().upper()
+        if not raw_ac_code and referred_by_code:
+            # Check if referred_by_code matches an academy code
+            t_match = db.query(models.Tenant).filter(
+                (models.Tenant.code == referred_by_code) | 
+                (models.Tenant.code == referred_by_code.replace("-2027", "1")) |
+                (models.Tenant.code == referred_by_code.replace("1", "-2027")) |
+                (models.Tenant.code.ilike(f"{referred_by_code[:4]}%")) |
+                (models.Tenant.name.ilike(f"%{referred_by_code}%"))
+            ).first()
+            if t_match:
+                raw_ac_code = t_match.code
+                referred_by_code = None
+
+        academy_code_val = None
+        pending_code_val = None
+        approval_status_val = "NONE"
+
+        if raw_ac_code:
+            tenant = db.query(models.Tenant).filter(
+                (models.Tenant.code == raw_ac_code) | 
+                (models.Tenant.code == raw_ac_code.replace("-2027", "1")) |
+                (models.Tenant.code == raw_ac_code.replace("1", "-2027")) |
+                (models.Tenant.code.ilike(f"{raw_ac_code[:4]}%")) |
+                (models.Tenant.name.ilike(f"%{raw_ac_code}%"))
+            ).first()
+            if not tenant:
+                tenant = db.query(models.Tenant).filter(models.Tenant.deleted_at == None).first()
+            if tenant:
+                academy_code_val = tenant.code
+                pending_code_val = tenant.code
+                approval_status_val = "PENDING"
+
         student = models.Student(
             email=clean_email, name=payload.name, phone=payload.phone,
             grade=payload.grade, region=payload.region, high_school=payload.high_school,
             target_univ=payload.target_univ, baseline_univ=payload.baseline_univ,
             current_points=initial_points, paid_cash=0, free_report_tickets=0,
             referred_by=referred_by_code, parent_id=parent.id,
-            academy_code=None,
-            academy_approval_status="NONE",
-            pending_tenant_code=None,
+            academy_code=academy_code_val,
+            academy_approval_status=approval_status_val,
+            pending_tenant_code=pending_code_val,
             b2c_subscription_tier="TIER_1_FREE",
             ai_level="B2C_FREE",
             has_unlimited_chat=False,
@@ -504,13 +538,47 @@ def handle_student_register_auth(payload: schemas.StudentRegisterRequest, db: Se
             db.refresh(parent)
 
     initial_points = 100
-    referred_by_code = payload.referred_by.strip() if payload.referred_by else None
+    referred_by_code = payload.referred_by.strip().upper() if payload.referred_by else None
+    
+    # 학원 코드 처리 (별도 academy_code 필드 또는 추천인 코드 칸에 학원코드를 적었을 때도 자동 인식)
+    raw_ac_code = (payload.academy_code or "").strip().upper() if hasattr(payload, 'academy_code') and payload.academy_code else ""
+    if not raw_ac_code and referred_by_code:
+        t_match = db.query(models.Tenant).filter(
+            (models.Tenant.code == referred_by_code) | 
+            (models.Tenant.code == referred_by_code.replace("-2027", "1")) |
+            (models.Tenant.code == referred_by_code.replace("1", "-2027")) |
+            (models.Tenant.code.ilike(f"{referred_by_code[:4]}%")) |
+            (models.Tenant.name.ilike(f"%{referred_by_code}%"))
+        ).first()
+        if t_match:
+            raw_ac_code = t_match.code
+            referred_by_code = None
+
     if referred_by_code:
         referrer = db.query(models.Student).filter(models.Student.referral_code == referred_by_code).first()
         if referrer:
             initial_points += 50
             referrer.current_points = (referrer.current_points or 0) + 50
             referrer.free_report_tickets = (referrer.free_report_tickets or 0) + 1
+
+    ac_code_val = None
+    pending_code_val = None
+    approval_status_val = "NONE"
+
+    if raw_ac_code:
+        tenant = db.query(models.Tenant).filter(
+            (models.Tenant.code == raw_ac_code) | 
+            (models.Tenant.code == raw_ac_code.replace("-2027", "1")) |
+            (models.Tenant.code == raw_ac_code.replace("1", "-2027")) |
+            (models.Tenant.code.ilike(f"{raw_ac_code[:4]}%")) |
+            (models.Tenant.name.ilike(f"%{raw_ac_code}%"))
+        ).first()
+        if not tenant:
+            tenant = db.query(models.Tenant).filter(models.Tenant.deleted_at == None).first()
+        if tenant:
+            ac_code_val = tenant.code
+            pending_code_val = tenant.code
+            approval_status_val = "PENDING"
 
     pw_hash = models.hash_password(payload.password.strip()) if payload.password else None
 
@@ -530,7 +598,13 @@ def handle_student_register_auth(payload: schemas.StudentRegisterRequest, db: Se
         free_report_tickets=0,
         referred_by=referred_by_code,
         parent_id=parent.id if parent else None,
-        academy_code=payload.academy_code.strip().upper() if payload.academy_code else "ILWON-2027"
+        academy_code=ac_code_val,
+        pending_tenant_code=pending_code_val,
+        academy_approval_status=approval_status_val,
+        b2c_subscription_tier="TIER_1_FREE",
+        ai_level="B2C_FREE",
+        has_unlimited_chat=False,
+        chat_tokens=5
     )
     db.add(student)
     db.commit()
@@ -4330,6 +4404,138 @@ def update_master_role_login_notices(payload: RoleNoticesPayload):
     data = payload.model_dump()
     save_role_login_notices(data)
     return {"status": "SUCCESS", "data": data}
+
+
+class MasterStudentActionPayload(BaseModel):
+    action: str  # 'FORCE_APPROVE' | 'REJECT' | 'SET_TIER' | 'SET_POINTS' | 'ADD_POINTS' | 'ADD_TICKETS' | 'DELETE' | 'RESTORE'
+    value: Optional[str] = None
+
+@app.get("/api/master/students")
+def get_master_all_students(include_deleted: bool = True, db: Session = Depends(get_db)):
+    query = db.query(models.Student)
+    if not include_deleted:
+        query = query.filter(models.Student.deleted_at == None)
+    students = query.order_by(models.Student.id.desc()).all()
+
+    result = []
+    for s in students:
+        total_mins = 0
+        try:
+            sessions = s.study_sessions
+            total_mins = sum(getattr(sess, 'duration_min', 0) or ((getattr(sess, 'duration_seconds', 0) or 0)//60) for sess in sessions)
+        except Exception:
+            total_mins = 0
+
+        p_name = s.parent.name if s.parent else "-"
+        p_phone = s.parent.phone if s.parent else "-"
+
+        result.append({
+            "id": s.id,
+            "name": s.name,
+            "email": s.email or "-",
+            "phone": s.phone or "-",
+            "parent_name": p_name,
+            "parent_phone": p_phone,
+            "grade": s.grade or 3,
+            "high_school": s.high_school or "-",
+            "region": s.region or "-",
+            "target_univ": s.target_univ or "-",
+            "baseline_univ": s.baseline_univ or "-",
+            "academy_code": s.academy_code or "-",
+            "pending_tenant_code": s.pending_tenant_code or "-",
+            "academy_approval_status": s.academy_approval_status or "NONE",
+            "b2c_subscription_tier": s.b2c_subscription_tier or "TIER_1_FREE",
+            "ai_level": s.ai_level or "B2C_FREE",
+            "enrollment_status": s.enrollment_status or "ENROLLED",
+            "current_points": s.current_points or 0,
+            "paid_cash": s.paid_cash or 0,
+            "free_report_tickets": s.free_report_tickets or 0,
+            "golden_tickets_count": getattr(s, 'golden_tickets_count', 0) or getattr(s, 'golden_tickets', 0) or 0,
+            "diligence_score": s.diligence_score or 0,
+            "streak_days": s.streak_days or 0,
+            "total_study_minutes": total_mins,
+            "is_deleted": s.deleted_at is not None,
+            "created_at": s.created_at.strftime("%Y-%m-%d %H:%M") if s.created_at else "-"
+        })
+
+    return {
+        "status": "success",
+        "total_count": len(result),
+        "students": result
+    }
+
+@app.post("/api/master/students/{student_id}/action")
+def execute_master_student_action(student_id: int, payload: MasterStudentActionPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생 계정을 찾을 수 없습니다.")
+
+    action = payload.action.upper()
+    val = payload.value
+
+    if action == "FORCE_APPROVE":
+        target_code = student.pending_tenant_code or student.academy_code or "ILWON-2027"
+        student.academy_code = target_code
+        student.pending_tenant_code = None
+        student.academy_approval_status = "APPROVED"
+        student.b2c_subscription_tier = "TIER_3_ACADEMY"
+        student.ai_level = "B2B_MASTER_AI"
+        student.has_unlimited_chat = True
+        student.chat_tokens = 999
+        db.commit()
+        return {"status": "success", "message": f"[{student.name}] 학생의 가맹 등록을 갓모드 권한으로 즉시 강제 승인(Tier 3 활성화)했습니다."}
+
+    elif action == "REJECT":
+        student.pending_tenant_code = None
+        student.academy_approval_status = "REJECTED"
+        db.commit()
+        return {"status": "success", "message": f"[{student.name}] 학생의 가맹 등록 요청을 반려했습니다."}
+
+    elif action == "SET_TIER":
+        target_tier = val or "TIER_1_FREE"
+        student.b2c_subscription_tier = target_tier
+        if target_tier in ["TIER_3_MASTER", "TIER_3_ACADEMY"]:
+            student.ai_level = "B2B_MASTER_AI"
+            student.has_unlimited_chat = True
+            student.chat_tokens = 999
+        elif target_tier in ["TIER_2_PARENT", "TIER_2_ACADEMY"]:
+            student.ai_level = "B2B_CUSTOM_BRAIN"
+            student.has_unlimited_chat = False
+            student.chat_tokens = 50
+        else:
+            student.ai_level = "B2C_FREE"
+            student.has_unlimited_chat = False
+            student.chat_tokens = 15
+        db.commit()
+        return {"status": "success", "message": f"[{student.name}] 학생의 구독 티어를 [{target_tier}]로 변경했습니다."}
+
+    elif action == "ADD_POINTS":
+        amount = int(val or 100)
+        student.current_points = (student.current_points or 0) + amount
+        db.add(models.PointHistory(student_id=student.id, amount=amount, description=f"갓모드 마스터 특별 포인트 지급 ({amount}P)"))
+        db.commit()
+        return {"status": "success", "message": f"[{student.name}] 학생에게 {amount} 포인트를 지급했습니다. (현재 잔액: {student.current_points}P)"}
+
+    elif action == "ADD_TICKETS":
+        amount = int(val or 1)
+        for _ in range(amount):
+            db.add(models.GoldenTicket(code=f"GT-{student.id}-{os.urandom(3).hex().upper()}", referrer_id=student.id))
+        student.free_report_tickets = (student.free_report_tickets or 0) + amount
+        db.commit()
+        return {"status": "success", "message": f"[{student.name}] 학생에게 황금 티켓/리포트 무료권 {amount}장을 지급했습니다."}
+
+    elif action == "DELETE":
+        student.deleted_at = datetime.now()
+        db.commit()
+        return {"status": "success", "message": f"[{student.name}] 학생 계정을 소프트 삭제 처리했습니다."}
+
+    elif action == "RESTORE":
+        student.deleted_at = None
+        db.commit()
+        return {"status": "success", "message": f"[{student.name}] 학생 계정을 정상 복구했습니다."}
+
+    else:
+        raise HTTPException(status_code=400, detail=f"알 수 없는 액션입니다: {action}")
 
 
 # ============================================================================
