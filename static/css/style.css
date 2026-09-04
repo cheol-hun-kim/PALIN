@@ -2630,3 +2630,47 @@ body.role-parent .timetable-day-column {
     border-color: #c084fc !important;
     box-shadow: 0 4px 12px rgba(168, 85, 247, 0.45) !important;
 }
+
+/* ☀️ Day-Mode / Light Mode High-Contrast Rules for Modals & Demo Views */
+body.day-mode #demo-director-cockpit-modal .modal-content,
+body.day-mode #demo-parent-weekly-report-modal .modal-content,
+body.day-mode #demo-sms-simulation-modal .modal-content,
+body.day-mode #demo-director-modal .modal-content {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15) !important;
+}
+
+body.day-mode #demo-director-cockpit-modal .card,
+body.day-mode #demo-parent-weekly-report-modal .card {
+    background: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+body.day-mode #demo-director-cockpit-modal [style*="color: #cbd5e1"],
+body.day-mode #demo-parent-weekly-report-modal [style*="color: #cbd5e1"] {
+    color: #334155 !important;
+}
+
+body.day-mode #demo-director-cockpit-modal [style*="color: #fde68a"] {
+    color: #b45309 !important;
+}
+
+body.day-mode #demo-director-cockpit-modal [style*="color: #a5b4fc"] {
+    color: #4338ca !important;
+}
+
+body.day-mode #demo-director-cockpit-modal [style*="color: #6ee7b7"] {
+    color: #065f46 !important;
+}
+
+body.day-mode #pred-target-univ-name,
+body.day-mode #pred-baseline-univ-name,
+body.day-mode #disp-target-univ,
+body.day-mode #disp-baseline-univ,
+body.day-mode #banner-target-univ {
+    color: #0f172a !important;
+}
+

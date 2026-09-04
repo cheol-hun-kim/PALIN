@@ -5008,7 +5008,7 @@ async function fetchStudentInfo(studentId) {
 
         } else {
 
-            console.warn("fetchStudentInfo non-ok, initializing default Kim Cheolhun profile.");
+            console.warn("fetchStudentInfo non-ok, initializing default student profile.");
 
             currentStudent = {
 
@@ -5109,21 +5109,27 @@ async function fetchStudentInfo(studentId) {
 
                 diligence_score: 50,
 
-                academy_code: "ILWON-2027",
+                academy_code: null,
 
-                ai_level: "B2B_PREMIUM",
+                academy_approval_status: "NONE",
 
-                league_tier: "PLATINUM",
+                b2c_subscription_tier: "TIER_1_FREE",
+
+                ai_level: "B2C_FREE",
+
+                league_tier: "BRONZE",
 
                 point_multiplier: 1.0,
 
-                golden_tickets_count: 3,
+                golden_tickets_count: 0,
 
-                paid_cash: 128200,
+                paid_cash: 0,
 
-                medical_symbol: "MED",
+                medical_symbol: "GENERAL",
 
-                enrollment_status: "ENROLLED"
+                enrollment_status: "NONE",
+
+                chat_tokens: 5
 
             };
 
@@ -7847,9 +7853,13 @@ async function loadTimetable() {
 
     try {
 
-        const res = await fetch(`/api/planner/blocks/${currentStudent.id}`);
-
-        const blocks = await res.json();
+        let blocks = [];
+        if (isDemoMode) {
+            blocks = (typeof demoPlannerBlocks !== 'undefined' && Array.isArray(demoPlannerBlocks)) ? demoPlannerBlocks : [];
+        } else {
+            const res = await fetch(`/api/planner/blocks/${currentStudent.id}`);
+            blocks = await res.json();
+        }
 
         allPlannerBlocksCache = blocks || [];
 
@@ -8035,6 +8045,25 @@ async function addPlannerBlock(e) {
 
     }
 
+    if (isDemoMode) {
+        const newBlock = {
+            id: Date.now(),
+            student_id: currentStudent ? currentStudent.id : 9999,
+            day_of_week: day,
+            start_time: start,
+            end_time: end,
+            title: title
+        };
+        if (typeof demoPlannerBlocks === 'undefined' || !Array.isArray(demoPlannerBlocks)) {
+            demoPlannerBlocks = [];
+        }
+        demoPlannerBlocks.push(newBlock);
+        const titleInput = document.getElementById("plan-title");
+        if (titleInput) titleInput.value = "";
+        await loadTimetable();
+        return;
+    }
+
     try {
 
         const res = await fetch("/api/planner/block", {
@@ -8092,6 +8121,13 @@ async function deletePlannerBlock(e, blockId) {
         return;
     }
     if (!confirm("해당 계획 시간표를 삭제하시겠습니까?")) return;
+    if (isDemoMode) {
+        if (typeof demoPlannerBlocks !== 'undefined' && Array.isArray(demoPlannerBlocks)) {
+            demoPlannerBlocks = demoPlannerBlocks.filter(b => b.id !== blockId);
+        }
+        await loadTimetable();
+        return;
+    }
     try {
         const res = await fetch(`/api/planner/block/${blockId}`, { method: "DELETE" });
         if (res.ok) {
@@ -11192,7 +11228,30 @@ async function loadExamMaterials() {
 
     if (!container) return;
 
-    
+    // 🔒 1. 소속 학원 승인 재원생(B2B) 또는 프리미엄 구독자 여부 확인 (신규 가입자/미승인자 원천 잠금)
+    const isApprovedAcademy = currentStudent && currentStudent.academy_code && (currentStudent.academy_approval_status === "APPROVED" || currentStudent.enrollment_status === "ENROLLED" || currentStudent.enrollment_status === "APPROVED");
+    const isPremium = currentStudent && (currentStudent.b2c_subscription_tier === "TIER_2_PARENT" || currentStudent.b2c_subscription_tier === "TIER_3_MASTER" || currentStudent.ai_level === "B2B_PREMIUM");
+
+    if (!isDemoMode && !isApprovedAcademy && !isPremium) {
+        container.innerHTML = `
+            <div class="card" style="text-align: center; padding: 36px 18px; border: 1.5px dashed rgba(99,102,241,0.4); background: rgba(99,102,241,0.04); border-radius: 16px;">
+                <div style="font-size: 2.4rem; margin-bottom: 10px;">🔒</div>
+                <div style="font-size: 1.05rem; font-weight: 900; color: var(--text-primary); margin-bottom: 6px;">학원 전용 기출 & 수험자료실 잠금</div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 18px; max-width: 380px; margin-left: auto; margin-right: auto;">
+                    원장님께서 업로드하신 실전 모의고사 및 고난도 분석 자료실은 <b>소속 학원 승인 재원생(B2B)</b> 또는 <b>PALIN 프리미엄 회원</b> 전용 서비스입니다.
+                </div>
+                <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                    <button type="button" onclick="openMyPageModal()" class="btn btn-secondary" style="padding: 10px 18px; font-size: 0.82rem; font-weight: 800;">
+                        🏢 학원 코드 입력하기
+                    </button>
+                    <button type="button" onclick="openReferralModal()" class="btn btn-gold" style="padding: 10px 18px; font-size: 0.82rem; font-weight: 800;">
+                        👑 프리미엄 업그레이드
+                    </button>
+                </div>
+            </div>
+        `;
+        return;
+    }
 
     try {
 
@@ -11282,13 +11341,16 @@ async function loadExamMaterials() {
 
             const badgeInfo = subjectBadges[m.subject] || { bg: "rgba(255,255,255,0.1)", color: "#e2e8f0", icon: "📄" };
 
-            
-
             const hasAnswer = !!m.answer_file_url;
+
+            const demoDownloadAlert = "alert('🔒 [체험 모드 안내]\\n정식 학원 연동 또는 프리미엄 구독 시 원본 수험 기출 및 해설지를 무제한 다운로드하실 수 있습니다.'); return false;";
+            const downloadHref = isDemoMode ? '#' : `/api/materials/${m.id}/download`;
+            const downloadAnswerHref = isDemoMode ? '#' : `/api/materials/${m.id}/download-answer`;
+            const downloadClickAttr = isDemoMode ? `onclick="${demoDownloadAlert}"` : '';
 
             const answerBtn = hasAnswer ? `
 
-                <a href="/api/materials/${m.id}/download-answer" target="_blank" download class="btn btn-secondary" style="padding: 10px 12px; font-size: 0.82rem; font-weight: 800; color: #10b981 !important; border: 1.5px solid #10b981; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none;">
+                <a href="${downloadAnswerHref}" ${downloadClickAttr} target="_blank" download class="btn btn-secondary" style="padding: 10px 12px; font-size: 0.82rem; font-weight: 800; color: #10b981 !important; border: 1.5px solid #10b981; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none;">
 
                     <span>📝</span> 정답/해설지
 
@@ -11324,9 +11386,9 @@ async function loadExamMaterials() {
 
                     <div>
 
-                        <div class="material-title" style="font-size: 1.05rem; font-weight: 900; color: #ffffff; letter-spacing: -0.3px; line-height: 1.35;">${m.title}</div>
+                        <div class="material-title" style="font-size: 1.05rem; font-weight: 900; color: var(--text-primary); letter-spacing: -0.3px; line-height: 1.35;">${m.title}</div>
 
-                        ${m.description ? `<div class="material-desc" style="font-size: 0.78rem; color: #94a3b8; margin-top: 4px; line-height: 1.4;">${m.description}</div>` : ''}
+                        ${m.description ? `<div class="material-desc" style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 4px; line-height: 1.4;">${m.description}</div>` : ''}
 
                     </div>
 
@@ -11334,7 +11396,7 @@ async function loadExamMaterials() {
 
                     <div style="display: grid; grid-template-columns: ${hasAnswer ? '1fr 1fr' : '1fr'}; gap: 8px; margin-top: 4px;">
 
-                        <a href="/api/materials/${m.id}/download" target="_blank" download class="btn" style="padding: 10px 12px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff !important; text-decoration: none; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(99,102,241,0.3);">
+                        <a href="${downloadHref}" ${downloadClickAttr} target="_blank" download class="btn" style="padding: 10px 12px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff !important; text-decoration: none; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(99,102,241,0.3);">
 
                             <span>📖</span> 문제지 다운로드
 
@@ -12920,7 +12982,7 @@ async function handleLinkAcademyCodeDirect() {
 
     const input = document.getElementById("hub-input-academy-code");
 
-    const code = (input?.value || "ILWON-2027").trim().toUpperCase();
+    const code = (input?.value || "").trim().toUpperCase();
 
     if (!code) {
 
@@ -12982,7 +13044,7 @@ async function handleLinkAcademyCode() {
 
     const codeInput = document.getElementById("setting-academy-code") || document.getElementById("hub-input-academy-code");
 
-    const code = (codeInput?.value || "ILWON-2027").trim().toUpperCase();
+    const code = (codeInput?.value || "").trim().toUpperCase();
 
     if (!code) {
 
@@ -13046,11 +13108,16 @@ async function loadAcademyHubView() {
 
     updateAcademyGNBVisibility();
 
-    const aCode = (currentStudent && currentStudent.academy_code) ? currentStudent.academy_code : "ILWON-2027";
+    const aCode = (currentStudent && currentStudent.academy_code) ? currentStudent.academy_code : "";
 
     const container = document.getElementById("hub-curriculum-feed-list");
 
     if (!container) return;
+
+    if (!aCode) {
+        container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 18px;">학원 연동 후 학사 일정을 확인하실 수 있습니다.</div>';
+        return;
+    }
 
     
 
@@ -14158,7 +14225,7 @@ let backupStudentBeforeDemo = null;
 const DEMO_STUDENT = {
     id: 9999,
     name: "김학생",
-    email: "student_demo@ilwon.edu",
+    email: "student_demo@palin-edu.kr",
     phone: "010-9999-1286",
     grade: 3,
     region: "경기 성남시 분당구",
@@ -14168,7 +14235,7 @@ const DEMO_STUDENT = {
     current_points: 1540,
     streak_days: 7,
     diligence_score: 96,
-    academy_code: "ILWON-2027",
+    academy_code: "PALIN-2027",
     academy_approval_status: "APPROVED",
     b2c_subscription_tier: "TIER_3_MASTER",
     ai_level: "B2B_PREMIUM",
@@ -14202,7 +14269,21 @@ let demoTimetablePlans = [
     { id: "demo_p1", day: "월", start: "07:00", end: "08:30", text: "수능국어 비문학 킬러 3지문 독해 & 오답 분석", tag: "국어" },
     { id: "demo_p2", day: "월", start: "09:00", end: "12:00", text: "확률과통계 4점 킬러 기출 유형 분석", tag: "수학" },
     { id: "demo_p3", day: "월", start: "14:00", end: "17:30", text: "사회탐구(생윤/사문) 고난도 실전 모의고사 풀이", tag: "탐구" },
-    { id: "demo_p4", day: "월", start: "19:00", end: "22:00", text: "일원학원 수능국어 정규 직강 수강 & VOD 복습", tag: "학원" }
+    { id: "demo_p4", day: "월", start: "19:00", end: "22:00", text: "팰린 마스터 학원 정규 직강 수강 & VOD 복습", tag: "학원" }
+];
+
+let demoPlannerBlocks = [
+    { id: 9001, student_id: 9999, day_of_week: 0, start_time: "07:00", end_time: "08:30", title: "[수능국어] 비문학 킬러 3지문 독해 & 오답 분석" },
+    { id: 9002, student_id: 9999, day_of_week: 0, start_time: "09:00", end_time: "12:00", title: "[수학] 확률과통계 4점 킬러 기출 유형 분석" },
+    { id: 9003, student_id: 9999, day_of_week: 0, start_time: "14:00", end_time: "17:30", title: "[사탐] 생윤/사문 고난도 실전 모의고사 풀이" },
+    { id: 9004, student_id: 9999, day_of_week: 0, start_time: "19:00", end_time: "22:00", title: "[학원직강] 팰린 마스터 정규 수업 & VOD 복습" },
+    { id: 9005, student_id: 9999, day_of_week: 1, start_time: "09:00", end_time: "12:00", title: "[영어] 수능특강 빈칸추론 30제 실전 훈련" },
+    { id: 9006, student_id: 9999, day_of_week: 1, start_time: "14:00", end_time: "17:00", title: "[수학] 확통 통계 파트 오답 클리닉" },
+    { id: 9007, student_id: 9999, day_of_week: 2, start_time: "08:00", end_time: "11:30", title: "[국어] 문학 고전시가 핵심 테마 총정리" },
+    { id: 9008, student_id: 9999, day_of_week: 3, start_time: "13:30", end_time: "17:00", title: "[사탐] 사문 도표통계 유형 완전정복" },
+    { id: 9009, student_id: 9999, day_of_week: 4, start_time: "09:00", end_time: "13:00", title: "[전과목] 9월 평가원 실전 리허설 모의고사" },
+    { id: 9010, student_id: 9999, day_of_week: 5, start_time: "10:00", end_time: "13:00", title: "[학원직강] 킬러 문항 집중 공략 특강" },
+    { id: 9011, student_id: 9999, day_of_week: 6, start_time: "14:00", end_time: "18:00", title: "[주간결산] 168시간 시간표 자습 총평 피드백" }
 ];
 
 function startDirectorDemoExperience() {
@@ -14263,7 +14344,7 @@ function switchDemoPersona(role) {
 
         renderDemoTimetable();
 
-        // 🏫 정시 합격예측기 폼에 현실적인 문과 모평 성적(국 90, 수 88, 영 82, 한 42, 탐1 92, 탐2 85) 사전 주입
+        // 🏫 정시 합격예측기 폼에 현실적인 문과 모평 성적(국 90, 수 88, 영 82, 한 42, 탐1 92, 탐2 85) 사전 주입 & 잠금
         setTimeout(() => {
             const gy = document.getElementById("pred-gyeyeol");
             const mt = document.getElementById("pred-math-type");
@@ -14275,15 +14356,15 @@ function switchDemoPersona(role) {
             const t2 = document.getElementById("pred-tam2");
             const targetUniv = document.getElementById("pred-target-univ");
 
-            if (gy) gy.value = "문과";
-            if (mt) mt.value = "확통";
-            if (k) k.value = "90";
-            if (m) m.value = "88";
-            if (e) e.value = "82";
-            if (h) h.value = "42";
-            if (t1) t1.value = "92";
-            if (t2) t2.value = "85";
-            if (targetUniv) targetUniv.value = "성균관대학교";
+            if (gy) { gy.value = "문과"; gy.disabled = true; }
+            if (mt) { mt.value = "확통"; mt.disabled = true; }
+            if (k) { k.value = "90"; k.readOnly = true; }
+            if (m) { m.value = "88"; m.readOnly = true; }
+            if (e) { e.value = "82"; e.readOnly = true; }
+            if (h) { h.value = "42"; h.readOnly = true; }
+            if (t1) { t1.value = "92"; t1.readOnly = true; }
+            if (t2) { t2.value = "85"; t2.readOnly = true; }
+            if (targetUniv) { targetUniv.value = "성균관대학교"; targetUniv.readOnly = true; }
         }, 100);
     } else if (role === 'PARENT') {
         // 학부모 뷰 활성화
@@ -14304,6 +14385,27 @@ function exitDemoExperience() {
 
     isDemoMode = false;
     currentDemoPersona = 'DIRECTOR';
+
+    // 성적 입력 잠금 해제
+    const gy = document.getElementById("pred-gyeyeol");
+    const mt = document.getElementById("pred-math-type");
+    const k = document.getElementById("pred-kor");
+    const m = document.getElementById("pred-math");
+    const e = document.getElementById("pred-eng");
+    const h = document.getElementById("pred-hist");
+    const t1 = document.getElementById("pred-tam1");
+    const t2 = document.getElementById("pred-tam2");
+    const targetUniv = document.getElementById("pred-target-univ");
+
+    if (gy) gy.disabled = false;
+    if (mt) mt.disabled = false;
+    if (k) k.readOnly = false;
+    if (m) m.readOnly = false;
+    if (e) e.readOnly = false;
+    if (h) h.readOnly = false;
+    if (t1) t1.readOnly = false;
+    if (t2) t2.readOnly = false;
+    if (targetUniv) targetUniv.readOnly = false;
 
     // 데모 UI 전체 숨김
     const floatBar = document.getElementById("demo-mode-floating-bar");
@@ -14362,11 +14464,11 @@ function renderDemoDirectorStudents() {
         `;
 
         container.innerHTML += `
-            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 8px 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 10px;">
                 <div style="flex: 1; min-width: 0;">
                     <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-weight: 800; font-size: 0.84rem; color: #ffffff;">${st.name}</span>
-                        <span style="font-size: 0.72rem; color: #94a3b8;">${st.school} (${st.target})</span>
+                        <span style="font-weight: 800; font-size: 0.84rem; color: var(--text-primary);">${st.name}</span>
+                        <span style="font-size: 0.72rem; color: var(--text-secondary);">${st.school} (${st.target})</span>
                         ${st.redCards > 0 ? `<span style="background: #991b1b; color: white; font-size: 0.65rem; padding: 1px 4px; border-radius: 4px; font-weight: 800;">벌점 ${st.redCards}</span>` : ''}
                     </div>
                     <div style="margin-top: 2px;">${statusBadge}</div>
@@ -14388,7 +14490,7 @@ function demoIssueRedCard(studentId, studentName) {
         renderDemoDirectorStudents();
     }
 
-    const smsContent = `[일원학원 안심 지도] 어머님, ${studentName} 학생이 자습 규율 위반(무단 외출/딴짓)으로 원장실 즉각 지도 및 벌점 1점이 부과되었습니다. (현재 누적 벌점: ${student ? student.redCards : 1}점)`;
+    const smsContent = `[팰린 마스터 학원 안심 지도] 어머님, ${studentName} 학생이 자습 규율 위반(무단 외출/딴짓)으로 원장실 즉각 지도 및 벌점 1점이 부과되었습니다. (현재 누적 벌점: ${student ? student.redCards : 1}점)`;
     openDemoSmsSimulationModal(smsContent);
 }
 window.demoIssueRedCard = demoIssueRedCard;
@@ -14429,7 +14531,7 @@ function renderDemoTimetable() {
             <div class="timetable-card" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; margin-bottom: 6px; background: rgba(99,102,241,0.08); border-left: 4px solid #6366f1; border-radius: 8px;">
                 <div>
                     <div style="font-size: 0.75rem; color: #a5b4fc; font-weight: 700;">[${p.day}] ${p.start} ~ ${p.end} (${p.tag})</div>
-                    <div style="font-size: 0.85rem; font-weight: 800; color: #ffffff; margin-top: 2px;">${p.text}</div>
+                    <div style="font-size: 0.85rem; font-weight: 800; color: var(--text-primary); margin-top: 2px;">${p.text}</div>
                 </div>
                 <button onclick="demoDeleteTimetablePlan('${p.id}')" style="background: none; border: none; color: #94a3b8; font-size: 1.1rem; cursor: pointer; padding: 4px 8px;">&times;</button>
             </div>
@@ -14442,4 +14544,5 @@ function demoDeleteTimetablePlan(planId) {
     renderDemoTimetable();
 }
 window.demoDeleteTimetablePlan = demoDeleteTimetablePlan;
+
 

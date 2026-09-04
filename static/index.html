@@ -442,17 +442,17 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             <button type="submit" class="auth-submit-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #000000; font-weight: 900; box-shadow: 0 4px 16px rgba(245,158,11,0.4);">
                                 🔐 학원장 관제실 접속
                             </button>
+                            <div style="text-align: center; margin-top: 14px;">
+                                <button type="button" onclick="openDirectorDemoModal()" style="background: none; border: none; color: #fbbf24; font-size: 0.82rem; cursor: pointer; text-decoration: underline;">
+                                    ✨ 관제실 기능을 미리 둘러보고 싶으신가요? <b>원장 체험 모드 (데모) →</b>
+                                </button>
+                            </div>
+                            <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
+                                <button type="button" onclick="openB2BContactModal()" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #fbbf24; border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.08); border-radius: 8px;">
+                                    🏫 학원장 전용 가맹 솔루션 도입 문의
+                                </button>
+                            </div>
                         </form>
-                        <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06);">
-                            <button type="button" onclick="openDirectorDemoModal()" style="background: none; border: none; font-size: 0.78rem; font-weight: 700; color: #fbbf24; cursor: pointer; text-decoration: none;">
-                                ✨ 관제실 기능을 미리 둘러보고 싶으신가요? <u style="text-underline-offset: 3px;">원장 체험 모드 (데모) →</u>
-                            </button>
-                        </div>
-                        <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
-                            <button type="button" onclick="openB2BContactModal()" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #fbbf24; border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.08); border-radius: 8px;">
-                                🏫 학원장 전용 가맹 솔루션 도입 문의
-                            </button>
-                        </div>
                     </div>
 
                 </div>
@@ -1346,14 +1346,14 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             <!-- 희망대학 -->
             <div id="pred-target-card" style="text-align: center; border-radius: 12px; padding: 12px 8px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
                 <div style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 4px;">🎯 희망 대학</div>
-                <div id="pred-target-univ-name" style="font-weight: 800; font-size: 0.85rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
+                <div id="pred-target-univ-name" style="font-weight: 800; font-size: 0.85rem; margin-bottom: 2px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
                 <div id="pred-target-dept-name" style="font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
                 <div id="pred-target-verdict" style="display: inline-block; padding: 5px 16px; border-radius: 20px; font-weight: 800; font-size: 0.95rem; color: white; background: #666;">-</div>
             </div>
             <!-- 마지노선 대학 -->
             <div id="pred-baseline-card" style="text-align: center; border-radius: 12px; padding: 12px 8px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
                 <div style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 4px;">🛡️ 마지노선</div>
-                <div id="pred-baseline-univ-name" style="font-weight: 800; font-size: 0.85rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
+                <div id="pred-baseline-univ-name" style="font-weight: 800; font-size: 0.85rem; margin-bottom: 2px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
                 <div id="pred-baseline-dept-name" style="font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
                 <div id="pred-baseline-verdict" style="display: inline-block; padding: 5px 16px; border-radius: 20px; font-weight: 800; font-size: 0.95rem; color: white; background: #666;">-</div>
             </div>
@@ -1741,7 +1741,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         일원학원 등 소속 학원에서 발급받은 <b>학원 고유코드(예: ILWON-2027)</b>를 입력하시면 주차별 학사 일정, 복습 VOD(7일 락), OMR 자동채점 및 출결 관리가 즉시 활성화됩니다.
                     </div>
                     <div style="display: flex; gap: 8px; max-width: 340px; margin: 0 auto;">
-                        <input type="text" id="hub-input-academy-code" class="form-input" placeholder="학원 코드 (예: ILWON-2027)" value="ILWON-2027" style="flex: 1; text-align: center; text-transform: uppercase; font-weight: 800; font-size: 0.92rem; letter-spacing: 1px;">
+                        <input type="text" id="hub-input-academy-code" class="form-input" placeholder="학원 코드 (예: ILWON-2027)" value="" style="flex: 1; text-align: center; text-transform: uppercase; font-weight: 800; font-size: 0.92rem; letter-spacing: 1px;">
                         <button onclick="handleLinkAcademyCodeDirect()" class="btn" style="padding: 10px 18px; font-size: 0.88rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); white-space: nowrap;">연동하기</button>
                     </div>
                 </div>
@@ -3065,7 +3065,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
     <div id="demo-mode-floating-bar" style="display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 10006; background: rgba(15, 23, 42, 0.96); backdrop-filter: blur(14px); border-bottom: 2px solid #fbbf24; padding: 8px 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.7); align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
         <div style="display: flex; align-items: center; gap: 8px;">
             <span style="background: #fbbf24; color: #000; font-size: 0.72rem; font-weight: 900; padding: 2px 8px; border-radius: 6px; letter-spacing: 0.5px;">DEMO</span>
-            <span style="font-size: 0.84rem; font-weight: 800; color: #ffffff;">일원학원 모델하우스 체험 중</span>
+            <span style="font-size: 0.84rem; font-weight: 800; color: #ffffff;">팰린 마스터 학원 모델하우스 체험 중</span>
             <span style="font-size: 0.72rem; color: #94a3b8; display: none;" id="demo-db-notice">(휘발성 샌드박스)</span>
         </div>
         <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
@@ -3093,7 +3093,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
                 <div style="font-size: 1.1rem; font-weight: 900; color: #fbbf24; display: flex; align-items: center; gap: 6px;">
                     <span class="material-symbols-rounded">admin_panel_settings</span>
-                    <span>일원학원 마스터 관제실 (체험용 데모)</span>
+                    <span>팰린 마스터 학원 마스터 관제실 (체험용 데모)</span>
                 </div>
                 <button onclick="closeDemoDirectorCockpit()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.85rem; border: none; cursor: pointer;">&times;</button>
             </div>
@@ -3113,8 +3113,8 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             <div class="card" style="margin-bottom: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(99,102,241,0.3); padding: 12px;">
                 <div style="font-size: 0.85rem; font-weight: 800; color: #a5b4fc; margin-bottom: 6px;">🧠 원장 AI 뇌 이식 (RAG 스튜디오 현황)</div>
                 <div style="font-size: 0.75rem; color: #cbd5e1; line-height: 1.45;">
-                    • 복제 봇 이름: <b>일원학원 수석 AI 멘토</b><br>
-                    • 주입된 지식: 수능국어 비문학 3원칙, 킬러문항 대응법, 일원학원 학사일정표<br>
+                    • 복제 봇 이름: <b>팰린 마스터 수석 AI 멘토</b><br>
+                    • 주입된 지식: 수능 킬러 대응 원칙, 취약유형 공략법, 연간 학사일정표<br>
                     • 24시간 상담 모드: <span style="color: #10b981; font-weight: 800;">신뢰 구축 및 사교육 과소비 방지 모드 가동 중</span>
                 </div>
             </div>
@@ -3147,7 +3147,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
                 <div style="font-size: 1.05rem; font-weight: 900; color: #34d399; display: flex; align-items: center; gap: 6px;">
                     <span class="material-symbols-rounded">analytics</span>
-                    <span>일원학원 9월 1주차 AI 심층 정기 리포트</span>
+                    <span>팰린 마스터 학원 9월 1주차 AI 심층 정기 리포트</span>
                 </div>
                 <button onclick="closeDemoParentReportModal()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.85rem; border: none; cursor: pointer;">&times;</button>
             </div>
@@ -3183,7 +3183,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
             <!-- 원장 코멘트 -->
             <div class="card" style="margin-bottom: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 12px;">
-                <div style="font-size: 0.82rem; font-weight: 800; color: #fbbf24; margin-bottom: 4px;">👨‍🏫 김철훈 원장 직강 총평</div>
+                <div style="font-size: 0.82rem; font-weight: 800; color: #fbbf24; margin-bottom: 4px;">👨‍🏫 대표 원장 직강 총평</div>
                 <div style="font-size: 0.78rem; color: #cbd5e1; line-height: 1.55;">
                     "김학생 학생은 9월 모의고사 비문학 고난도 킬러 지문에서 만점을 기록하며 독해 안정권에 진입했습니다. 현재 모의고사 지표로 볼 때 성균관대는 소신/위험권이나, 건국대는 매우 안정적이므로 수학 백분위를 2~3%만 더 끌어올리면 성균관대 진입이 유력합니다."
                 </div>
@@ -3219,7 +3219,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <button onclick="closeDemoSmsSimulationModal()" style="background: none; border: none; font-size: 1.1rem; font-weight: 900; cursor: pointer; color: #191919;">&times;</button>
             </div>
             <div style="background: #ffffff; border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                <div style="font-size: 0.75rem; color: #666; margin-bottom: 6px;">[일원학원 안심 알림톡]</div>
+                <div style="font-size: 0.75rem; color: #666; margin-bottom: 6px;">[팰린 마스터 학원 안심 알림톡]</div>
                 <div id="demo-sms-text-content" style="font-size: 0.82rem; color: #111; line-height: 1.5; font-weight: 600;">
                     어머님, 김학생 학생이 18:30 정규 수업에 정상 입실하였습니다. (오늘 누적 자습: 6시간 42분)
                 </div>
