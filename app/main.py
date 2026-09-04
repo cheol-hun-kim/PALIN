@@ -159,7 +159,7 @@ def register_student(payload: schemas.StudentCreate, db: Session = Depends(get_d
             b2c_subscription_tier="TIER_1_FREE",
             ai_level="B2C_FREE",
             has_unlimited_chat=False,
-            chat_tokens=10
+            chat_tokens=5
         )
         db.add(student)
         db.commit()
@@ -1058,7 +1058,7 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
     custom_prompt = None
     bot_name = "PALIN AI 멘토"
     is_active = True
-    remaining = 10
+    remaining = 5
     user_role = (payload.user_role or "STUDENT").upper().strip()
 
     try:
@@ -1072,7 +1072,8 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
                     elif getattr(student, 'b2c_subscription_tier', '') == "TIER_2_PARENT":
                         tier = 2
 
-                    if student.academy_code:
+                    is_academy_approved = bool(student.academy_code and getattr(student, 'academy_approval_status', 'NONE') == 'APPROVED')
+                    if is_academy_approved:
                         code = student.academy_code.upper().strip()
                         tenant = db.query(models.Tenant).filter(
                             (models.Tenant.code == code) | (models.Tenant.code == code.replace("-2027", "1"))
@@ -1092,19 +1093,21 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
                         is_unlimited = True
                     elif getattr(student, 'has_unlimited_chat', False):
                         is_unlimited = True
-                    elif student.academy_code and tier >= 3:
+                    elif getattr(student, 'b2c_subscription_tier', '') in ('TIER_2_PARENT', 'TIER_3_MASTER'):
+                        is_unlimited = True
+                    elif is_academy_approved and tier >= 3:
                         is_unlimited = True
 
                     if is_unlimited:
                         remaining = 999
                     else:
-                        current_toks = getattr(student, 'chat_tokens', 10)
+                        current_toks = getattr(student, 'chat_tokens', 5)
                         if current_toks is None:
-                            current_toks = 10
+                            current_toks = 5
                         if current_toks <= 0:
                             raise HTTPException(
                                 status_code=402,
-                                detail="보유하신 AI 질문 토큰이 모두 소진되었습니다. [질문권 50회 충전 (4,900원)]을 진행해 주세요."
+                                detail="오늘 제공된 무료 AI 대화 토큰(5회)이 모두 소진되었습니다. [대화권 50회 충전 (4,900원)]을 진행해 주세요."
                             )
                         student.chat_tokens = max(0, current_toks - 1)
                         db.commit()
