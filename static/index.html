@@ -287,13 +287,13 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <!-- 학생 로그인 -->
                         <form id="student-login-form" >
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                                <div style="font-size: 1.05rem; font-weight: 800; color: #a5b4fc;">🧑‍🎓 학생 로그인</div>
-                                <span style="font-size: 0.72rem; color: #c7d2fe; background: rgba(99,102,241,0.25); border: 1px solid #6366f1; padding: 2px 8px; border-radius: 12px; font-weight: 700;">STUDENT</span>
+                                <div style="font-size: 1.05rem; font-weight: 800; color: #c7d2fe;">🧑‍🎓 학생 로그인</div>
+                                <span style="font-size: 0.72rem; color: #ffffff; background: #4f46e5; border: 1px solid #818cf8; padding: 2px 8px; border-radius: 12px; font-weight: 800;">STUDENT</span>
                             </div>
                             <input type="text" id="st-login-email" class="auth-input" placeholder="학생 이메일 또는 마스터 ID" required>
                             <input type="password" id="st-login-password" class="auth-input" placeholder="비밀번호 (기존 회원 초기비번: 1010)" maxlength="12" required>
-                            <div id="dynamic-login-notice-student" style="font-size: 0.75rem; color: #a5b4fc; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.4; background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.3); border-radius: 8px; padding: 8px 12px; min-height: 52px; display: flex; align-items: center; box-sizing: border-box;">
-                                📢 <b>[보안 업데이트]</b> 기존 가입 회원의 초기 비밀번호는 <b>1010</b> 입니다. 로그인 후 마이페이지에서 변경하실 수 있습니다.
+                            <div id="dynamic-login-notice-student" style="font-size: 0.78rem; color: #ffffff; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.45; background: rgba(99,102,241,0.22); border: 1.5px solid #818cf8; border-radius: 8px; padding: 8px 12px; min-height: 52px; display: flex; align-items: center; box-sizing: border-box; font-weight: 600;">
+                                📢 <b style="color: #c7d2fe; font-weight: 800;">[보안 업데이트]</b> 기존 가입 회원의 초기 비밀번호는 <b style="color: #c7d2fe; font-weight: 800;">1010</b> 입니다. 로그인 후 마이페이지에서 변경하실 수 있습니다.
                             </div>
                             <button type="submit" class="auth-submit-btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; box-shadow: 0 4px 16px rgba(99,102,241,0.4);">
                                 학생 로그인
@@ -304,7 +304,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 </button>
                             </div>
                             <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
-                                <button type="button" onclick="openStudentBrochureModal()" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #a5b4fc; border-color: rgba(99,102,241,0.4); background: rgba(99,102,241,0.08); border-radius: 8px; min-height: 38px; display: flex; align-items: center; justify-content: center;">
+                                <button type="button" onclick="openStudentBrochureModal()" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #ffffff; border: 1.5px solid #818cf8; background: rgba(99,102,241,0.25); border-radius: 8px; min-height: 38px; display: flex; align-items: center; justify-content: center;">
                                     🎓 PALIN OS 수험생 소개 브로슈어 보기
                                 </button>
                             </div>
@@ -313,7 +313,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <!-- 학생 회원가입 -->
                         <form id="student-reg-form"  style="display: none;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                                <div style="font-size: 1.05rem; font-weight: 800; color: #a5b4fc;">📝 신규 학생 회원가입</div>
+                                <div style="font-size: 1.05rem; font-weight: 800; color: #c7d2fe;">📝 신규 학생 회원가입</div>
                                 <button type="button" onclick="toggleStudentRegisterForm()" style="background: rgba(255,255,255,0.1); border: none; color: #cbd5e1; font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; cursor: pointer;">← 로그인으로</button>
                             </div>
                             <input type="email" id="reg-email" class="auth-input" placeholder="이메일 주소" required>
@@ -383,13 +383,13 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <!-- 학부모 로그인 -->
                         <form id="parent-login-form" >
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                                <div style="font-size: 1.05rem; font-weight: 800; color: #34d399;">👨‍👩‍👧 학부모 로그인</div>
-                                <span style="font-size: 0.72rem; color: #a7f3d0; background: rgba(16,185,129,0.25); border: 1px solid #10b981; padding: 2px 8px; border-radius: 12px; font-weight: 700;">PARENT</span>
+                                <div style="font-size: 1.05rem; font-weight: 800; color: #a7f3d0;">👨‍👩‍👧 학부모 로그인</div>
+                                <span style="font-size: 0.72rem; color: #ffffff; background: #059669; border: 1px solid #34d399; padding: 2px 8px; border-radius: 12px; font-weight: 800;">PARENT</span>
                             </div>
                             <input type="text" id="parent-login-email" class="auth-input" placeholder="학부모 이메일 또는 휴대폰 번호" required>
                             <input type="password" id="parent-login-password" class="auth-input" placeholder="비밀번호" required>
-                            <div id="dynamic-login-notice-parent" style="font-size: 0.75rem; color: #34d399; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.4; background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 8px 12px; min-height: 52px; display: flex; align-items: center; box-sizing: border-box;">
-                                📢 <b>[학부모 안내]</b> 자녀 초대코드 또는 등록된 학부모 휴대폰 번호로 자녀의 학습 현황을 실시간 조회하실 수 있습니다.
+                            <div id="dynamic-login-notice-parent" style="font-size: 0.78rem; color: #ffffff; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.45; background: rgba(16,185,129,0.22); border: 1.5px solid #34d399; border-radius: 8px; padding: 8px 12px; min-height: 52px; display: flex; align-items: center; box-sizing: border-box; font-weight: 600;">
+                                📢 <b style="color: #a7f3d0; font-weight: 800;">[학부모 안내]</b> 자녀 초대코드 또는 등록된 학부모 휴대폰 번호로 자녀의 학습 현황을 실시간 조회하실 수 있습니다.
                             </div>
                             <button type="submit" class="auth-submit-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 4px 16px rgba(16,185,129,0.4);">
                                 학부모 로그인
@@ -400,7 +400,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 </button>
                             </div>
                             <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
-                                <button type="button" onclick="openParentBrochureModal()" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #34d399; border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.08); border-radius: 8px; min-height: 38px; display: flex; align-items: center; justify-content: center;">
+                                <button type="button" onclick="openParentBrochureModal()" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #ffffff; border: 1.5px solid #34d399; background: rgba(16,185,129,0.25); border-radius: 8px; min-height: 38px; display: flex; align-items: center; justify-content: center;">
                                     👨‍👩‍👧 학부모 안심 솔루션 브로슈어 보기
                                 </button>
                             </div>
@@ -409,14 +409,14 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <!-- 신규 학부모 등록 & 자녀 매핑 -->
                         <form id="parent-register-form"  style="display: none;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                                <div style="font-size: 1.05rem; font-weight: 800; color: #34d399;">👨‍👩‍👧 신규 학부모 등록</div>
+                                <div style="font-size: 1.05rem; font-weight: 800; color: #a7f3d0;">👨‍👩‍👧 신규 학부모 등록</div>
                                 <button type="button" onclick="toggleParentAuthMode()" style="background: rgba(255,255,255,0.1); border: none; color: #cbd5e1; font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; cursor: pointer;">← 로그인으로</button>
                             </div>
                             <input type="email" id="parent-reg-email" class="auth-input" placeholder="학부모 이메일 주소" required>
                             <input type="password" id="parent-reg-password" class="auth-input" placeholder="비밀번호 (4자리 이상)" required minlength="4">
                             <input type="text" id="parent-reg-name" class="auth-input" placeholder="학부모 성함" required>
                             <input type="tel" id="parent-reg-phone" class="auth-input" placeholder="학부모 휴대폰 번호" required>
-                            <div style="background: rgba(16,185,129,0.12); border: 1.5px dashed #10b981; padding: 12px; border-radius: 12px; margin-bottom: 12px;">
+                            <div style="background: rgba(16,185,129,0.18); border: 1.5px dashed #10b981; padding: 12px; border-radius: 12px; margin-bottom: 12px;">
                                 <label style="font-size: 0.75rem; color: #a7f3d0; font-weight: 800; display: block; margin-bottom: 4px;">자녀 고유 초대코드 (학생증 또는 마이페이지에 표시)</label>
                                 <input type="text" id="parent-reg-invite-code" class="auth-input" placeholder="예: P-0001-A9F2 또는 자녀 휴대폰번호" required style="font-weight: 800; text-transform: uppercase; margin-bottom: 0 !important;">
                             </div>
@@ -431,24 +431,24 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <div id="auth-pane-director" style="display: none;">
                         <form id="director-login-form" >
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                                <div style="font-size: 1.05rem; font-weight: 800; color: #fbbf24;">🏫 학원장 관제실 로그인</div>
-                                <span style="font-size: 0.72rem; color: #fde68a; background: rgba(245,158,11,0.25); border: 1px solid #f59e0b; padding: 2px 8px; border-radius: 12px; font-weight: 800;">DIRECTOR</span>
+                                <div style="font-size: 1.05rem; font-weight: 800; color: #fde68a;">🏫 학원장 관제실 로그인</div>
+                                <span style="font-size: 0.72rem; color: #000000; background: #f59e0b; border: 1px solid #fbbf24; padding: 2px 8px; border-radius: 12px; font-weight: 900;">DIRECTOR</span>
                             </div>
                             <input type="text" id="dir-login-email" class="auth-input" placeholder="원장 이메일 또는 가맹 학원 코드" required>
                             <input type="password" id="dir-login-password" class="auth-input" placeholder="관제실 보안 비밀번호 / PIN" required>
-                            <div id="dynamic-login-notice-director" style="font-size: 0.75rem; color: #fbbf24; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.4; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; padding: 8px 12px; min-height: 52px; display: flex; align-items: center; box-sizing: border-box;">
-                                📢 <b>[원장 관제실 안내]</b> 가맹 학원 원장님 전용 보안 로그인입니다. 원장 PIN 번호를 입력해 주세요.
+                            <div id="dynamic-login-notice-director" style="font-size: 0.78rem; color: #ffffff; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.45; background: rgba(245,158,11,0.22); border: 1.5px solid #fbbf24; border-radius: 8px; padding: 8px 12px; min-height: 52px; display: flex; align-items: center; box-sizing: border-box; font-weight: 600;">
+                                📢 <b style="color: #fef08a; font-weight: 800;">[원장 관제실 안내]</b> 가맹 학원 원장님 전용 보안 로그인입니다. 원장 PIN 번호를 입력해 주세요.
                             </div>
                             <button type="submit" class="auth-submit-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #000000; font-weight: 900; box-shadow: 0 4px 16px rgba(245,158,11,0.4);">
                                 🔐 학원장 관제실 접속
                             </button>
                             <div style="text-align: center; margin-top: 14px;">
-                                <button type="button" onclick="openDirectorDemoModal()" style="background: none; border: none; color: #fbbf24; font-size: 0.8rem; cursor: pointer; text-decoration: underline; white-space: nowrap;">
-                                    ✨ 관제실 둘러보기 <b>원장 체험 모드 (데모) →</b>
+                                <button type="button" onclick="openDirectorDemoModal()" style="background: none; border: none; color: #fde68a; font-size: 0.8rem; cursor: pointer; text-decoration: underline; white-space: nowrap;">
+                                    ✨ 관제실 둘러보기 <b style="color: #fbbf24;">원장 체험 모드 (데모) →</b>
                                 </button>
                             </div>
                             <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
-                                <button type="button" onclick="openB2BContactModal()" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #fbbf24; border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.08); border-radius: 8px; min-height: 38px; display: flex; align-items: center; justify-content: center;">
+                                <button type="button" onclick="openB2BContactModal()" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #ffffff; border: 1.5px solid #fbbf24; background: rgba(245,158,11,0.25); border-radius: 8px; min-height: 38px; display: flex; align-items: center; justify-content: center;">
                                     🏫 학원장 전용 가맹 솔루션 도입 문의
                                 </button>
                             </div>

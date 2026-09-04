@@ -5243,6 +5243,77 @@ function toggleParentAuthMode() {
 
 }
 
+function resetSessionState() {
+    isDemoMode = false;
+    
+    // 1. AI 챗봇 메시지 DOM 및 히스토리 완전 초기화
+    const chatContainer = document.getElementById("chat-messages");
+    if (chatContainer) {
+        chatContainer.innerHTML = `
+            <div class="message bot-message" style="line-height: 1.6;">
+                <span style="font-size: 1.1rem;">👋</span> <b>PALIN OS 인공지능 수시/정시 입시 컨설턴트</b>입니다.<br>
+                수험생 백서 및 전국 11,688개 대학/학과 입결 데이터베이스 기반으로 맞춤형 입시 전략을 안내해 드립니다.<br>
+                궁금한 입시 고민이나 학습 전략을 질문해 주세요.
+            </div>
+        `;
+    }
+    if (typeof chatHistory !== 'undefined') chatHistory = [];
+    
+    // 2. 정시 합격예측 폼 및 결과 컨테이너 완전 초기화 & 입력 잠금 해제
+    const gy = document.getElementById("pred-gyeyeol");
+    const mt = document.getElementById("pred-math-type");
+    const k = document.getElementById("pred-kor");
+    const m = document.getElementById("pred-math");
+    const e = document.getElementById("pred-eng");
+    const h = document.getElementById("pred-hist");
+    const t1 = document.getElementById("pred-tam1");
+    const t2 = document.getElementById("pred-tam2");
+    const targetUniv = document.getElementById("pred-target-univ");
+    
+    if (gy) { gy.value = "이과"; gy.disabled = false; }
+    if (mt) { mt.value = "미적"; mt.disabled = false; }
+    if (k) { k.value = ""; k.readOnly = false; }
+    if (m) { m.value = ""; m.readOnly = false; }
+    if (e) { e.value = ""; e.readOnly = false; }
+    if (h) { h.value = ""; h.readOnly = false; }
+    if (t1) { t1.value = ""; t1.readOnly = false; }
+    if (t2) { t2.value = ""; t2.readOnly = false; }
+    if (targetUniv) { targetUniv.value = ""; targetUniv.readOnly = false; }
+    
+    const predResult = document.getElementById("predict-result");
+    if (predResult) predResult.style.display = "none";
+    const predTargetResult = document.getElementById("pred-target-result");
+    if (predTargetResult) predTargetResult.style.display = "none";
+    const predList = document.getElementById("pred-results-list");
+    if (predList) predList.innerHTML = "";
+    if (typeof predictionResults !== 'undefined') predictionResults = null;
+    
+    // 3. 주간 계획표 그리드 잔상 즉시 소거 (Zero-Flash Clean Reset)
+    for (let dayIdx = 0; dayIdx < 7; dayIdx++) {
+        const col = document.getElementById(`col-day-${dayIdx}`);
+        if (col) {
+            let gridLinesHtml = '';
+            for (let hour = 0; hour < 18; hour++) {
+                gridLinesHtml += `<div class="grid-hour-line" style="position:absolute; top:${hour*30}px; left:0; right:0; height:30px; border-bottom:1px solid rgba(255,255,255,0.08); pointer-events:none; box-sizing:border-box;"></div>`;
+            }
+            col.innerHTML = gridLinesHtml;
+            col.onclick = (ev) => handleTimetableGridClick(dayIdx, ev);
+        }
+    }
+    if (typeof allPlannerBlocksCache !== 'undefined') allPlannerBlocksCache = [];
+    
+    // 4. 데모 모드 플로팅 바 및 시뮬레이션 모달 닫기
+    const floatBar = document.getElementById("demo-mode-floating-bar");
+    if (floatBar) floatBar.style.display = "none";
+    const dirCockpit = document.getElementById("demo-director-cockpit-modal");
+    if (dirCockpit) dirCockpit.style.display = "none";
+    const paReport = document.getElementById("demo-parent-report-modal");
+    if (paReport) paReport.style.display = "none";
+    const smsSim = document.getElementById("demo-sms-simulation-modal");
+    if (smsSim) smsSim.style.display = "none";
+}
+window.resetSessionState = resetSessionState;
+
 async function handleStudentLoginSubmit(e) {
 
     e.preventDefault();
@@ -5280,6 +5351,9 @@ async function handleStudentLoginSubmit(e) {
             return;
 
         }
+
+        // 🛡️ 데모 잔상 및 이전 세션 상태 완전 초기화
+        resetSessionState();
 
         // Check if Master Account logged in via student form
 
@@ -5445,6 +5519,9 @@ async function handleParentLogin(e) {
 
         }
 
+        // 🛡️ 데모 잔상 및 이전 세션 상태 완전 초기화
+        resetSessionState();
+
         localStorage.setItem('userRole', 'PARENT');
 
         localStorage.setItem('parentId', data.parent_id);
@@ -5568,6 +5645,9 @@ async function handleDirectorLogin(e) {
             return;
 
         }
+
+        // 🛡️ 데모 잔상 및 이전 세션 상태 완전 초기화
+        resetSessionState();
 
         localStorage.setItem('userRole', data.role);
 
@@ -14383,7 +14463,8 @@ window.switchDemoPersona = switchDemoPersona;
 function exitDemoExperience() {
     if (!confirm("모델하우스(체험 모드)를 종료하고 로그인 화면으로 돌아가시겠습니까?")) return;
 
-    isDemoMode = false;
+    // 🛡️ 데모 잔상 및 상태 완전 초기화
+    resetSessionState();
     currentDemoPersona = 'DIRECTOR';
 
     // 성적 입력 잠금 해제
