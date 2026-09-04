@@ -7680,43 +7680,41 @@ async function handleTimetableGridClick(dayIndex, event) {
     
 
     // 즉시 시간표 블록 추가
-
-    try {
-
-        const res = await fetch("/api/planner/block", {
-
-            method: "POST",
-
-            headers: { "Content-Type": "application/json" },
-
-            body: JSON.stringify({
-
-                student_id: currentStudent.id,
-
-                day_of_week: dayIndex,
-
-                start_time: startTimeStr,
-
-                end_time: endTimeStr,
-
-                title: titleStr
-
-            })
-
-        });
-
-        if (res.ok) {
-
-            await loadTimetable();
-
+    if (isDemoMode) {
+        const newBlock = {
+            id: Date.now(),
+            student_id: currentStudent ? currentStudent.id : 9999,
+            day_of_week: dayIndex,
+            start_time: startTimeStr,
+            end_time: endTimeStr,
+            title: titleStr
+        };
+        if (typeof demoPlannerBlocks === 'undefined' || !Array.isArray(demoPlannerBlocks)) {
+            demoPlannerBlocks = [];
         }
-
-    } catch (e) {
-
-        console.error("Grid click add block error:", e);
-
+        demoPlannerBlocks.push(newBlock);
+        await loadTimetable();
+        return;
     }
 
+    try {
+        const res = await fetch("/api/planner/block", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: currentStudent.id,
+                day_of_week: dayIndex,
+                start_time: startTimeStr,
+                end_time: endTimeStr,
+                title: titleStr
+            })
+        });
+        if (res.ok) {
+            await loadTimetable();
+        }
+    } catch (e) {
+        console.error("Grid click add block error:", e);
+    }
 }
 
 // === 📅 타이머 요일별 맞춤 할 일 필터 엔진 ===
@@ -7979,15 +7977,9 @@ async function loadTimetable() {
 
             
 
-            // 높이가 35px 미만인 얇은 블록은 과목명만 중앙에 깔끔하게 표시
-
-            const showTime = heightPx >= 35;
-
             blockEl.innerHTML = `
 
                 <div class="block-title">${cleanTitle}</div>
-
-                ${showTime ? `<div class="block-time">${block.start_time}~${block.end_time}</div>` : ''}
 
                 ${!isParent ? `<button class="btn-delete-block" title="계획 삭제" onclick="deletePlannerBlock(event, ${block.id})">&times;</button>` : ''}
 
@@ -9759,111 +9751,62 @@ function loadPage3Data() {
 // 신규: 대학 합격생 과외 선생님 승격 요청 API 통신
 
 async function upgradeStudentToTutor(e) {
-
     e.preventDefault();
-
     if (!currentStudent) return;
-
-    
+    if (isDemoMode || currentStudent.id === 9999) {
+        alert("🔒 [모델하우스 체험 모드]\n\n선배 과외 선생님 승격 신청은 정식 회원가입/로그인 후 이용하실 수 있습니다.");
+        return;
+    }
 
     const univ = document.getElementById("tutor-up-univ").value;
-
     const major = document.getElementById("tutor-up-major").value;
-
-    
-
     if (!univ || !major) {
-
         alert("합격 대학과 학과를 선택해 주세요.");
-
         return;
-
     }
-
     const payload = {
-
         student_id: currentStudent.id,
-
         university: univ,
-
         major: major,
-
         admission_year: parseInt(document.getElementById("tutor-up-year").value),
-
         high_school: (currentStudent && currentStudent.high_school) || "낙생고",
-
         bio: document.getElementById("tutor-up-bio").value.trim(),
-
         contact_link: document.getElementById("tutor-up-link").value.trim()
-
     };
-
     if (!payload.bio || !payload.contact_link) {
-
         alert("자기소개 글과 오픈카톡 링크를 입력해 주세요.");
-
         return;
-
     }
-
     try {
-
         const res = await fetch("/api/tutor/upgrade", {
-
             method: "POST",
-
             headers: { "Content-Type": "application/json" },
-
             body: JSON.stringify(payload)
-
         });
-
         if (res.ok) {
-
             const data = await res.json();
-
             alert(data.message || "🎉 과외선생님 신청이 원장님께 제출되었습니다. 원장님이 서류(합격증 및 성적표)를 별도 확인 후 최종 승인하면 프로필이 공개됩니다.");
-
-            
-
-            // 입력 초기화
-
             document.getElementById("tutor-up-bio").value = "";
-
             document.getElementById("tutor-up-link").value = "";
-
-            
-
-            // 팝업 닫기 (존재 시)
-
             const modal = document.getElementById("tutor-upgrade-modal");
-
             if (modal) modal.style.display = "none";
-
         } else {
-
             const err = await res.json();
-
             alert(err.detail || "승격 실패");
-
         }
-
     } catch (e) {
-
         console.error(e);
-
     }
-
 }
 
 // 신규: 과외 선생님 프로필 편집 API 통신
-
 async function handleUpdateTutorProfile(e) {
-
     e.preventDefault();
-
     if (!currentStudent || !currentStudent.tutor_profile) return;
-
+    if (isDemoMode || currentStudent.id === 9999) {
+        alert("🔒 [모델하우스 체험 모드]\n\n과외 프로필 편집은 정식 회원 계정에서 이용하실 수 있습니다.");
+        return;
+    }
     const bio = document.getElementById("edit-tutor-bio").value.trim();
 
     const contact = document.getElementById("edit-tutor-link").value.trim();
@@ -10098,6 +10041,22 @@ async function acceptQAComment(commentId) {
 
 async function createQAPost() {
 
+    if (!currentStudent) {
+
+        alert("로그인이 필요합니다.");
+
+        return;
+
+    }
+
+    if (isDemoMode || currentStudent.id === 9999) {
+
+        alert("🔒 [모델하우스 체험 모드]\n\n실제 Q&A 질문 등록 및 에스크로 포인트 사용은 정식 회원가입 후 이용하실 수 있습니다.");
+
+        return;
+
+    }
+
     const subject = document.getElementById("qa-post-subject").value;
 
     const title = document.getElementById("qa-post-title").value.trim();
@@ -10173,6 +10132,82 @@ async function createQAPost() {
             fetchStudentInfo(currentStudent.id);
 
             loadQAPosts();
+
+        }
+
+    } catch (e) {
+
+        console.error(e);
+
+    }
+
+}
+
+async function createTutorRequest() {
+
+    if (!currentStudent) {
+
+        alert("로그인이 필요합니다.");
+
+        return;
+
+    }
+
+    if (isDemoMode || currentStudent.id === 9999) {
+
+        alert("🔒 [모델하우스 체험 모드]\n\n과외 구하기 요청서 등록은 정식 회원가입 후 이용하실 수 있습니다.");
+
+        return;
+
+    }
+
+    const subject = document.getElementById("tr-subject").value;
+
+    const budget = document.getElementById("tr-budget").value.trim();
+
+    const details = document.getElementById("tr-details").value.trim();
+
+    
+
+    if (!budget || !details) {
+
+        alert("희망조건을 입력해 주세요.");
+
+        return;
+
+    }
+
+    try {
+
+        const res = await fetch("/api/tutoring/request", {
+
+            method: "POST",
+
+            headers: { "Content-Type": "application/json" },
+
+            body: JSON.stringify({
+
+                student_id: currentStudent.id,
+
+                subject,
+
+                budget,
+
+                details
+
+            })
+
+        });
+
+        if (res.ok) {
+
+            alert("과외 요청서가 등록되었습니다! 대학생 선배들이 이를 열람하고 제안서를 보낼 수 있습니다.");
+
+            document.getElementById("tr-budget").value = "";
+
+            document.getElementById("tr-details").value = "";
+
+            loadTutorRequests();
 
         }
 
@@ -11228,34 +11263,9 @@ async function loadExamMaterials() {
 
     if (!container) return;
 
-    // 🔒 1. 소속 학원 승인 재원생(B2B) 또는 프리미엄 구독자 여부 확인 (신규 가입자/미승인자 원천 잠금)
-    const isApprovedAcademy = currentStudent && currentStudent.academy_code && (currentStudent.academy_approval_status === "APPROVED" || currentStudent.enrollment_status === "ENROLLED" || currentStudent.enrollment_status === "APPROVED");
-    const isPremium = currentStudent && (currentStudent.b2c_subscription_tier === "TIER_2_PARENT" || currentStudent.b2c_subscription_tier === "TIER_3_MASTER" || currentStudent.ai_level === "B2B_PREMIUM");
-
-    if (!isDemoMode && !isApprovedAcademy && !isPremium) {
-        container.innerHTML = `
-            <div class="card" style="text-align: center; padding: 36px 18px; border: 1.5px dashed rgba(99,102,241,0.4); background: rgba(99,102,241,0.04); border-radius: 16px;">
-                <div style="font-size: 2.4rem; margin-bottom: 10px;">🔒</div>
-                <div style="font-size: 1.05rem; font-weight: 900; color: var(--text-primary); margin-bottom: 6px;">학원 전용 기출 & 수험자료실 잠금</div>
-                <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 18px; max-width: 380px; margin-left: auto; margin-right: auto;">
-                    원장님께서 업로드하신 실전 모의고사 및 고난도 분석 자료실은 <b>소속 학원 승인 재원생(B2B)</b> 또는 <b>PALIN 프리미엄 회원</b> 전용 서비스입니다.
-                </div>
-                <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-                    <button type="button" onclick="openMyPageModal()" class="btn btn-secondary" style="padding: 10px 18px; font-size: 0.82rem; font-weight: 800;">
-                        🏢 학원 코드 입력하기
-                    </button>
-                    <button type="button" onclick="openReferralModal()" class="btn btn-gold" style="padding: 10px 18px; font-size: 0.82rem; font-weight: 800;">
-                        👑 프리미엄 업그레이드
-                    </button>
-                </div>
-            </div>
-        `;
-        return;
-    }
-
     try {
 
-        let params = [];
+        let params = ["category=PUBLIC_EXAM"];
 
         if (currentExamSubject && currentExamSubject !== "전체") {
 
@@ -11269,13 +11279,13 @@ async function loadExamMaterials() {
 
         }
 
-        const url = params.length > 0 ? `/api/materials?${params.join("&")}` : "/api/materials";
+        const url = `/api/materials?${params.join("&")}`;
 
         let res = await fetch(url).catch(() => null);
 
         if (!res || !res.ok) {
 
-            const fallbackUrl = params.length > 0 ? `/api/exam/materials?${params.join("&")}` : "/api/exam/materials";
+            const fallbackUrl = `/api/exam/materials?${params.join("&")}`;
 
             res = await fetch(fallbackUrl).catch(() => null);
 
@@ -12485,9 +12495,11 @@ function openTermsModal(type) {
 // ==========================================
 
 async function requestTutorMatch(tutorId) {
-
     if (!currentStudent) return;
-
+    if (isDemoMode || currentStudent.id === 9999) {
+        alert("🔒 [모델하우스 체험 모드]\n\n실제 과외 매칭 신청은 정식 회원가입 후 이용하실 수 있습니다.");
+        return;
+    }
     if (!confirm("🎓 해당 과외선생님에게 1:1 매칭 요청서를 발송하시겠습니까?\n(필요 캐시: 29,000 PALIN 캐시 차감)")) return;
 
     try {
@@ -12932,11 +12944,18 @@ function updateAcademyGNBVisibility() {
         if (linkedContent) linkedContent.style.display = "block";
 
         const hubName = document.getElementById("hub-academy-name");
+        const hubLogo = document.getElementById("hub-academy-logo-img");
         const badge = document.getElementById("hub-enrollment-badge");
         const leaveNotice = document.getElementById("hub-leave-notice-card");
         const mainArea = document.getElementById("hub-main-content-area");
 
-        if (hubName) hubName.innerText = currentStudent.academy_code === "ILWON-2027" ? "일원학원" : currentStudent.academy_code;
+        if (isDemoMode || currentStudent.academy_code === "PALIN-2027" || currentStudent.id === 9999) {
+            if (hubName) hubName.innerText = "팰린 마스터 학원";
+            if (hubLogo) { hubLogo.src = "img/palin_master_logo.svg"; hubLogo.alt = "팰린 마스터 학원 로고"; }
+        } else {
+            if (hubName) hubName.innerText = currentStudent.academy_code === "ILWON-2027" ? "일원학원" : (currentStudent.academy_name || currentStudent.academy_code);
+            if (hubLogo) { hubLogo.src = "img/ilwon_logo.jpg"; hubLogo.alt = "일원학원 로고"; }
+        }
 
         if (badge) {
             if (currentStudent.enrollment_status === "ON_LEAVE") {
@@ -12970,214 +12989,152 @@ function updateAcademyGNBVisibility() {
                 if (unlinkedDesc) unlinkedDesc.innerHTML = `소속 학원(<b>${currentStudent.academy_code}</b>)으로 등록 요청이 전송되었습니다.<br>학원 관리자(원장님)의 승인 완료 후 학사 일정, VOD, OMR 채점이 활성화됩니다.`;
             } else {
                 if (unlinkedTitle) unlinkedTitle.innerText = "소속 학원(B2B) 연동";
-                if (unlinkedDesc) unlinkedDesc.innerHTML = "일원학원 등 소속 학원에서 발급받은 <b>학원 고유코드(예: ILWON-2027)</b>를 입력하시면 주차별 학사 일정, 복습 VOD(7일 락), OMR 자동채점 및 출결 관리가 즉시 활성화됩니다.";
+                if (unlinkedDesc) unlinkedDesc.innerHTML = "소속 학원에서 발급받은 <b>학원 고유코드</b>를 입력하시면 주차별 학사 일정, 복습 VOD(7일 락), OMR 자동채점 및 출결 관리가 즉시 활성화됩니다.";
             }
         }
         if (linkedContent) linkedContent.style.display = "none";
     }
-
 }
 
 async function handleLinkAcademyCodeDirect() {
-
     const input = document.getElementById("hub-input-academy-code");
-
     const code = (input?.value || "").trim().toUpperCase();
-
     if (!code) {
-
-        alert("학원 코드를 입력해 주세요 (예: ILWON-2027)");
-
+        alert("학원 코드를 입력해 주세요");
         return;
-
     }
-
     const studentId = (currentStudent && currentStudent.id) ? currentStudent.id : parseInt(localStorage.getItem("studentId") || "1", 10);
-
     try {
-
         const res = await fetch("/api/academy/link", {
-
             method: "POST",
-
             headers: { "Content-Type": "application/json" },
-
             body: JSON.stringify({ student_id: studentId, academy_code: code })
-
         });
-
         if (!res.ok) {
-
             const err = await res.json().catch(() => ({}));
-
             alert(err.detail || "학원 연동 실패");
-
             return;
-
         }
-
         const data = await res.json();
-
         alert(`🎉 [학원 연동 성공]\n\n${data.message}\n학원 관리의 모든 수강 기능이 활성화되었습니다!`);
-
         if (data.student) {
-
             currentStudent = data.student;
-
             syncStudentState(data.student);
-
         }
-
         updateAcademyGNBVisibility();
-
         loadAcademyHubView();
-
     } catch(e) {
-
         alert("학원 연동 요청 중 오류가 발생했습니다.");
-
     }
-
 }
 
 async function handleLinkAcademyCode() {
-
     const codeInput = document.getElementById("setting-academy-code") || document.getElementById("hub-input-academy-code");
-
     const code = (codeInput?.value || "").trim().toUpperCase();
-
     if (!code) {
-
-        alert("학원 고유코드를 입력해 주세요. (예: ILWON-2027)");
-
+        alert("학원 고유코드를 입력해 주세요.");
         return;
-
     }
-
     const studentId = (currentStudent && currentStudent.id) ? currentStudent.id : parseInt(localStorage.getItem("studentId") || "1", 10);
-
-    
-
     try {
-
         const res = await fetch("/api/academy/link", {
-
             method: "POST",
-
             headers: { "Content-Type": "application/json" },
-
             body: JSON.stringify({ student_id: studentId, academy_code: code })
-
         });
-
         if (!res.ok) {
-
             const err = await res.json().catch(() => ({}));
-
             alert(err.detail || "학원 연동 실패");
-
             return;
-
         }
-
         const data = await res.json();
-
         alert(`🎉 [학원 연동 성공]\n\n${data.message}\n학원 관리의 모든 수강 기능이 활성화되었습니다!`);
-
         if (data.student) {
-
             currentStudent = data.student;
-
             syncStudentState(data.student);
-
         }
-
         updateAcademyGNBVisibility();
-
         loadAcademyHubView();
-
     } catch(e) {
-
         alert("학원 연동 처리 중 오류가 발생했습니다.");
-
     }
-
 }
 
 async function loadAcademyHubView() {
-
     updateAcademyGNBVisibility();
-
     const aCode = (currentStudent && currentStudent.academy_code) ? currentStudent.academy_code : "";
-
     const container = document.getElementById("hub-curriculum-feed-list");
-
     if (!container) return;
 
-    if (!aCode) {
+    if (!aCode && !isDemoMode) {
         container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 18px;">학원 연동 후 학사 일정을 확인하실 수 있습니다.</div>';
         return;
     }
 
-    
+    if (isDemoMode || aCode === "PALIN-2027" || currentStudent?.id === 9999) {
+        container.innerHTML = `
+            <div style="background: rgba(239,68,68,0.1); border: 1px solid #ef4444; border-radius: 10px; padding: 12px; margin-bottom: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.68rem; font-weight: 800;">🚨 특별공지</span>
+                        <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-primary);">[수시/정시 원서전략 주간 안내]</span>
+                    </div>
+                    <span style="font-size: 0.72rem; color: var(--text-secondary);">2026-09-03</span>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-primary); line-height: 1.45;">2027학년도 대입 수시 원서 접수 최종 1:1 배치 상담이 진행 중입니다. 목표/안정 대학 라인을 확인해 주세요.</div>
+            </div>
+            <div style="background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.2); border-radius: 10px; padding: 12px; margin-bottom: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-primary);">[수능국어 1주차 정규 강의]</span>
+                    </div>
+                    <span style="font-size: 0.72rem; color: var(--text-secondary);">2026-09-01</span>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-primary); line-height: 1.45;">9월 평가원 비문학 고난도 인문철학 킬러 3개년 기출 구조독해법 & 취약문항 1:1 오답 클리닉 (VOD 7일 락 제공)</div>
+            </div>
+            <div style="background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.2); border-radius: 10px; padding: 12px; margin-bottom: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-primary);">[주간 모의고사 과제 공지]</span>
+                    </div>
+                    <span style="font-size: 0.72rem; color: var(--text-secondary);">2026-09-04</span>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-primary); line-height: 1.45;">EBS 수능특강 문학 고전시가 핵심 테마 총정리 워크북 배부 완료. 이번 주 일요일 자정까지 OMR 성적 제출을 완료해 주세요.</div>
+            </div>
+        `;
+        return;
+    }
 
     try {
-
         const res = await fetch(`/api/academy/feeds?academy_code=${encodeURIComponent(aCode)}`);
-
         if (res.ok) {
-
             const feeds = await res.json();
-
             if (!feeds || feeds.length === 0) {
-            container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 18px;">등록된 학사 일정 및 공지사항이 없습니다.</div>';
-            return;
-        }
-
-            
-
+                container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 18px;">등록된 학사 일정 및 공지사항이 없습니다.</div>';
+                return;
+            }
             container.innerHTML = feeds.map(f => {
-
                 const isSpecial = f.is_special_notice;
-
                 return `
-
                     <div style="background: ${isSpecial ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.04)'}; border: 1px solid ${isSpecial ? '#ef4444' : 'rgba(255,255,255,0.08)'}; border-radius: 10px; padding: 12px; margin-bottom: 8px;">
-
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-
                             <div style="display: flex; align-items: center; gap: 6px;">
-
                                 ${isSpecial ? '<span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.68rem; font-weight: 800;">🚨 특별공지</span>' : ''}
-
-                                <span style="font-weight: 800; font-size: 0.85rem; color: #ffffff;">[${f.curriculum_name} ${f.week_number}주차]</span>
-
+                                <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-primary);">[${f.curriculum_name} ${f.week_number}주차]</span>
                             </div>
-
                             <span style="font-size: 0.72rem; color: var(--text-secondary);">${f.feed_date}</span>
-
                         </div>
-
-                        <div style="font-size: 0.8rem; color: #e2e8f0; line-height: 1.45;">${f.content}</div>
-
+                        <div style="font-size: 0.8rem; color: var(--text-primary); line-height: 1.45;">${f.content}</div>
                     </div>
-
                 `;
-
             }).join('');
-
         }
-
     } catch(e) {
-
         console.error("loadAcademyHubView error:", e);
-
         if (container) {
             container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 18px;">등록된 학사 일정 및 공지사항이 없습니다.</div>';
         }
-
     }
-
 }
 
 function openRequestModal(reqType) {
@@ -13242,15 +13199,17 @@ async function handleSendAcademyRequest(e) {
 
     if (!currentStudent || !currentStudent.id) return;
 
-    
+    if (isDemoMode || currentStudent?.id === 9999) {
+        alert("✨ [체험 모드] 가상 행정 요청이 접수되었습니다. (체험 중에는 실제 서버 DB에 전송되지 않습니다)");
+        document.getElementById("academy-request-modal").style.display = "none";
+        return;
+    }
 
     const reqType = document.getElementById("req-type-input").value;
 
     const targetDate = document.getElementById("req-date-input").value;
 
     const details = document.getElementById("req-details-input").value.trim();
-
-    
 
     if (!details) {
 
@@ -13259,8 +13218,6 @@ async function handleSendAcademyRequest(e) {
         return;
 
     }
-
-    
 
     try {
 
@@ -13328,13 +13285,15 @@ async function handleSendAcademyLeave(e) {
 
     if (!currentStudent || !currentStudent.id) return;
 
-    
+    if (isDemoMode || currentStudent?.id === 9999) {
+        alert("✨ [체험 모드] 휴강 신청 시뮬레이션이 완료되었습니다. (체험 중에는 실제 서버 DB에 전송되지 않습니다)");
+        document.getElementById("academy-leave-modal").style.display = "none";
+        return;
+    }
 
     const reason = document.getElementById("leave-reason-select").value;
 
     const details = document.getElementById("leave-details-input").value.trim();
-
-    
 
     try {
 
@@ -13382,6 +13341,11 @@ function openWithdrawModal() {
 
 async function requestAcademyReturnNow() {
 
+    if (isDemoMode || currentStudent?.id === 9999) {
+        alert("✨ [체험 모드] 학원 복귀 신청이 시뮬레이션되었습니다.");
+        return;
+    }
+
     if (!confirm("학원 복귀를 신청하시겠습니까? 원장님 승인 후 수강 권한이 즉시 복구됩니다.")) return;
 
     try {
@@ -13411,6 +13375,11 @@ async function requestAcademyReturnNow() {
 async function checkInAttendanceNow() {
 
     if (!currentStudent || !currentStudent.id) return;
+
+    if (isDemoMode || currentStudent?.id === 9999) {
+        alert("✨ [체험 모드] 출석 체크인(입실)이 완료되었습니다! (출석 포인트 +10P)");
+        return;
+    }
 
     try {
 
@@ -13468,8 +13437,6 @@ function switchHubSubTab(subTab) {
 
     document.querySelectorAll(".subtab-btn-hub-2x2, .subtab-btn-hub").forEach(el => el.classList.remove("active"));
 
-    
-
     const targetView = document.getElementById(`hub-view-${subTab}`);
 
     const targetBtn = document.getElementById(`hub-tab-${subTab}`);
@@ -13478,286 +13445,376 @@ function switchHubSubTab(subTab) {
 
     if (targetBtn) targetBtn.classList.add("active");
 
-    
-
     if (subTab === "feed") loadAcademyHubView();
 
     else if (subTab === "vod") loadStudentVods();
+
+    else if (subTab === "material") loadAcademyMaterials();
 
     else if (subTab === "exam") loadStudentExamHistory();
 
 }
 
-async function loadStudentVods() {
-
-    const container = document.getElementById("hub-vod-list-container");
-
+async function loadAcademyMaterials() {
+    const container = document.getElementById("hub-academy-materials-list");
     if (!container) return;
 
-    let libraryHtml = '';
+    const activeFacility = (typeof currentActiveFacility !== 'undefined' && currentActiveFacility) ? currentActiveFacility : (currentStudent?.academy_code || "ILWON-2027");
 
+    if (isDemoMode || currentStudent?.id === 9999 || activeFacility === "PALIN-2027") {
+        container.innerHTML = `
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- 모의 워크북 1 -->
+                <div style="background: rgba(56,189,248,0.06); border: 1.5px solid rgba(56,189,248,0.3); border-radius: 14px; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                                <span style="font-size: 0.72rem; background: rgba(56,189,248,0.2); color: #0284c7; padding: 2px 8px; border-radius: 6px; font-weight: 800;">📖 국어 · 고3/N수</span>
+                                <span style="font-size: 0.72rem; color: var(--text-secondary); font-weight: 700;">3주차 주간 워크북</span>
+                            </div>
+                            <div style="font-size: 0.95rem; font-weight: 900; color: var(--text-primary); line-height: 1.35;">[주간 워크북] 3주차 수능완성 연계 킬러 문항 정복 N제</div>
+                            <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 4px;">평가원 고난도 비문학 독해 3단계 구조도 워크북 및 실전 20제 수록</div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;">
+                        <button type="button" onclick="alert('🔒 [체험 모드]\\n팰린 마스터 학원 3주차 문제지(PDF) 다운로드가 시뮬레이션되었습니다.');" class="btn" style="padding: 9px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #0284c7, #0369a1); color: white;">
+                            <span>📖 문제지 다운로드</span>
+                        </button>
+                        <button type="button" onclick="alert('🔒 [체험 모드]\\n팰린 마스터 학원 정답 및 해설지(PDF) 다운로드가 시뮬레이션되었습니다.');" class="btn btn-secondary" style="padding: 9px; font-size: 0.8rem; font-weight: 800; color: #0284c7 !important; border-color: #0284c7;">
+                            <span>📝 정답/해설지</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 모의 워크북 2 -->
+                <div style="background: rgba(99,102,241,0.06); border: 1.5px solid rgba(99,102,241,0.3); border-radius: 14px; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                                <span style="font-size: 0.72rem; background: rgba(99,102,241,0.2); color: #4338ca; padding: 2px 8px; border-radius: 6px; font-weight: 800;">📐 수학 · 고3/N수</span>
+                                <span style="font-size: 0.72rem; color: var(--text-secondary); font-weight: 700;">자체 실전 모의</span>
+                            </div>
+                            <div style="font-size: 0.95rem; font-weight: 900; color: var(--text-primary); line-height: 1.35;">[자체 모의고사] 팰린 파이널 현장 실전 모의고사 1회차 시험지</div>
+                            <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 4px;">공통(수I/수II) + 선택(미적분/기하/확통) 30문항 풀세트 및 현장 손글씨 해설</div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;">
+                        <button type="button" onclick="alert('🔒 [체험 모드]\\n파이널 1회차 모의고사 시험지(PDF) 다운로드가 시뮬레이션되었습니다.');" class="btn" style="padding: 9px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">
+                            <span>📖 시험지 다운로드</span>
+                        </button>
+                        <button type="button" onclick="alert('🔒 [체험 모드]\\n파이널 1회차 손글씨 정답/해설(PDF) 다운로드가 시뮬레이션되었습니다.');" class="btn btn-secondary" style="padding: 9px; font-size: 0.8rem; font-weight: 800; color: #6366f1 !important; border-color: #6366f1;">
+                            <span>📝 정답/해설지</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 모의 워크북 3 -->
+                <div style="background: rgba(16,185,129,0.06); border: 1.5px solid rgba(16,185,129,0.3); border-radius: 14px; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                                <span style="font-size: 0.72rem; background: rgba(16,185,129,0.2); color: #065f46; padding: 2px 8px; border-radius: 6px; font-weight: 800;">💡 특강 · 전학년</span>
+                                <span style="font-size: 0.72rem; color: var(--text-secondary); font-weight: 700;">비법 특강 분석집</span>
+                            </div>
+                            <div style="font-size: 0.95rem; font-weight: 900; color: var(--text-primary); line-height: 1.35;">[특강 심화 분석지] 수능 비문학 인문·철학 킬러 지문 구조도 총정리</div>
+                            <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 4px;">원장 직강 특강 필기 노트 및 문단별 논리 전개 공식 완벽 도식화</div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 10px;">
+                        <button type="button" onclick="alert('🔒 [체험 모드]\\n특강 분석지(PDF) 다운로드가 시뮬레이션되었습니다.');" class="btn" style="padding: 9px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white;">
+                            <span>📖 분석 자료집 다운로드</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    try {
+        const res = await fetch(`/api/academy/materials?academy_code=${encodeURIComponent(activeFacility)}`);
+        if (!res.ok) {
+            container.innerHTML = `<div style="text-align: center; color: var(--text-secondary); padding: 20px;">학원 자료를 불러오지 못했습니다.</div>`;
+            return;
+        }
+        const list = await res.json();
+        if (!list || list.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; color: var(--text-secondary); padding: 30px 10px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px dashed rgba(255,255,255,0.08);">
+                    <span class="material-symbols-rounded" style="font-size: 2rem; color: #64748b; margin-bottom: 6px;">folder_open</span>
+                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">등록된 학원 전용 학습자료가 없습니다.</div>
+                    <div style="font-size: 0.75rem; margin-top: 4px;">원장님이 주간 워크북, 과제집, 자체 모의고사를 등록하시면 실시간 노출됩니다.</div>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '<div style="display: flex; flex-direction: column; gap: 12px;">';
+        list.forEach(m => {
+            const hasAnswer = !!m.answer_file_url;
+            html += `
+                <div style="background: rgba(255,255,255,0.03); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                                <span style="font-size: 0.72rem; background: rgba(56,189,248,0.15); color: #38bdf8; padding: 2px 8px; border-radius: 6px; font-weight: 800;">${m.subject || '학습자료'}</span>
+                                ${m.target_grade && m.target_grade !== 'ALL' ? `<span style="font-size: 0.72rem; background: rgba(255,255,255,0.08); color: #cbd5e1; padding: 2px 8px; border-radius: 6px; font-weight: 700;">${m.target_grade}</span>` : ''}
+                            </div>
+                            <div style="font-size: 0.95rem; font-weight: 900; color: var(--text-primary); line-height: 1.35;">${m.title}</div>
+                            ${m.description ? `<div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 4px; line-height: 1.4;">${m.description}</div>` : ''}
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: ${hasAnswer ? '1fr 1fr' : '1fr'}; gap: 8px; margin-top: 10px;">
+                        <a href="/api/materials/${m.id}/download" target="_blank" download class="btn" style="padding: 10px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #0284c7, #0369a1); color: white !important; text-decoration: none; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            <span>📖</span> 문제지 다운로드
+                        </a>
+                        ${hasAnswer ? `
+                            <a href="/api/materials/${m.id}/download-answer" target="_blank" download class="btn btn-secondary" style="padding: 10px; font-size: 0.82rem; font-weight: 800; color: #38bdf8 !important; border: 1.5px solid #38bdf8; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none;">
+                                <span>📝</span> 정답/해설지
+                            </a>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    } catch(e) {
+        console.error("loadAcademyMaterials error:", e);
+        container.innerHTML = `<div style="text-align: center; color: var(--text-secondary); padding: 20px;">학원 자료를 불러오지 못했습니다.</div>`;
+    }
+}
+
+async function loadStudentVods() {
+    const container = document.getElementById("hub-vod-list-container");
+    if (!container) return;
+
+    if (isDemoMode || currentStudent?.id === 9999 || currentStudent?.academy_code === "PALIN-2027") {
+        container.innerHTML = `
+            <div style="margin-bottom: 18px;">
+                <div style="font-size: 0.88rem; font-weight: 800; color: #4338ca; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                    <span class="material-symbols-rounded" style="font-size: 1.1rem;">video_library</span>
+                    <span>📺 팰린 마스터 학원 공식 VOD 강좌 (7일 시청 락)</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="background: rgba(99,102,241,0.06); border: 1.5px solid rgba(99,102,241,0.3); border-radius: 12px; padding: 14px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px;">
+                            <div>
+                                <span style="font-size: 0.7rem; background: rgba(99,102,241,0.2); color: #4338ca; padding: 2px 8px; border-radius: 4px; font-weight: 800; margin-right: 4px;">수능국어</span>
+                                <span style="font-weight: 800; font-size: 0.92rem; color: var(--text-primary);">[1주차] 비문학 고난도 인문철학 킬러 3개년 구조독해법</span>
+                            </div>
+                            <span style="background: #10b981; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 800;">⏳ 남은 시간: 142시간</span>
+                        </div>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 10px;">수능 국어 1등급을 가르는 서양철학/인식론 고난도 킬러 지문 문단별 맵핑 실전 특강</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; background: rgba(0,0,0,0.1); padding: 8px 12px; border-radius: 8px;">
+                            <span style="font-size: 0.75rem; color: #10b981; font-weight: 800;">진도율 85% · 과제 제출 완료</span>
+                            <button onclick="alert('🎬 [체험 모드] VOD 스트리밍 플레이어 시연: 1080p 고화질 1.0배속 시청 및 7일 후 자동 만료 보안 기능이 정상 가동 중입니다.')" class="btn" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border-radius: 6px;">
+                                ▶️ VOD 시청하기 (샘플)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(16,185,129,0.06); border: 1.5px solid rgba(16,185,129,0.3); border-radius: 12px; padding: 14px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px;">
+                            <div>
+                                <span style="font-size: 0.7rem; background: rgba(16,185,129,0.2); color: #065f46; padding: 2px 8px; border-radius: 4px; font-weight: 800; margin-right: 4px;">EBS연계</span>
+                                <span style="font-weight: 800; font-size: 0.92rem; color: var(--text-primary);">[2주차] 9월 모의평가 연계 EBS 수능특강 고전시가 총정리</span>
+                            </div>
+                            <span style="background: #10b981; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 800;">⏳ 남은 시간: 164시간</span>
+                        </div>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 10px;">수능 출제 유력 고전시가 12선 필수 구절 및 주제별 핵심 어휘 총정리</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; background: rgba(0,0,0,0.1); padding: 8px 12px; border-radius: 8px;">
+                            <span style="font-size: 0.75rem; color: #f59e0b; font-weight: 800;">진도율 0% · 과제 미제출</span>
+                            <button onclick="alert('🎬 [체험 모드] VOD 스트리밍 플레이어 시연: 1080p 고화질 1.0배속 시청 및 7일 후 자동 만료 보안 기능이 정상 가동 중입니다.')" class="btn" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 6px;">
+                                ▶️ VOD 시청하기 (샘플)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(239,68,68,0.06); border: 1.5px solid rgba(239,68,68,0.3); border-radius: 12px; padding: 14px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px;">
+                            <div>
+                                <span style="font-size: 0.7rem; background: rgba(239,68,68,0.2); color: #991b1b; padding: 2px 8px; border-radius: 4px; font-weight: 800; margin-right: 4px;">수능특강</span>
+                                <span style="font-weight: 800; font-size: 0.92rem; color: var(--text-primary);">[기초특강] 확률과통계 4점 빈출 킬러 완전 정복</span>
+                            </div>
+                            <span style="background: #ef4444; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 800;">🔒 7일 기한 만료</span>
+                        </div>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 8px;">조건부확률 및 독립시행 고난도 기출 풀이</div>
+                        <div style="background: rgba(239,68,68,0.1); padding: 8px 12px; border-radius: 8px; text-align: center; font-size: 0.75rem; color: #ef4444; font-weight: 700;">
+                            🔒 7일 시청 기한이 종료되었습니다. 시청 연장은 [행정 신청] 탭에서 원장님께 신청하실 수 있습니다.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    let libraryHtml = '';
     let assignedHtml = '';
 
     // 1. 학원 VOD 라이브러리 로드
-
     try {
-
         const libRes = await fetch("/api/vod/library");
-
         if (libRes.ok) {
-
             const libList = await libRes.json();
-
             if (libList && libList.length > 0) {
-
                 libraryHtml = `
-
                     <div style="margin-bottom: 18px;">
-
-                        <div style="font-size: 0.88rem; font-weight: 800; color: #c084fc; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-
+                        <div style="font-size: 0.88rem; font-weight: 800; color: #4338ca; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
                             <span class="material-symbols-rounded" style="font-size: 1.1rem;">video_library</span>
-
                             <span>📺 학원 공식 VOD 강좌 / 복습 영상관</span>
-
                         </div>
-
                         <div style="display: flex; flex-direction: column; gap: 10px;">
-
                             ${libList.map(item => `
-
                                 <div style="background: rgba(168,85,247,0.06); border: 1.5px solid rgba(168,85,247,0.3); border-radius: 12px; padding: 14px;">
-
                                     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px;">
-
                                         <div>
-
-                                            <span style="font-size: 0.7rem; background: rgba(168,85,247,0.25); color: #c084fc; padding: 2px 8px; border-radius: 4px; font-weight: 800; margin-right: 4px;">${item.category || '특강'}</span>
-
-                                            <span style="font-weight: 800; font-size: 0.92rem; color: #ffffff;">${item.title}</span>
-
+                                            <span style="font-size: 0.7rem; background: rgba(168,85,247,0.25); color: #6b21a8; padding: 2px 8px; border-radius: 4px; font-weight: 800; margin-right: 4px;">${item.category || '특강'}</span>
+                                            <span style="font-weight: 800; font-size: 0.92rem; color: var(--text-primary);">${item.title}</span>
                                         </div>
-
                                     </div>
-
                                     ${item.description ? `<div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 10px;">${item.description}</div>` : ''}
-
-                                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 8px;">
-
+                                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; background: rgba(0,0,0,0.1); padding: 8px 12px; border-radius: 8px;">
                                         <div>
-
-                                            ${item.password ? `<span style="font-size: 0.75rem; color: #fbbf24; background: rgba(245,158,11,0.15); padding: 3px 8px; border-radius: 6px; font-weight: 800;">🔑 시청 비번: <b>${item.password}</b></span>` : '<span style="font-size: 0.75rem; color: #34d399; font-weight: 700;">🔓 전체 공개 영상</span>'}
-
+                                            ${item.password ? `<span style="font-size: 0.75rem; color: #b45309; background: rgba(245,158,11,0.15); padding: 3px 8px; border-radius: 6px; font-weight: 800;">🔑 시청 비번: <b>${item.password}</b></span>` : '<span style="font-size: 0.75rem; color: #10b981; font-weight: 700;">🔓 전체 공개 영상</span>'}
                                         </div>
-
                                         <a href="${item.video_url}" target="_blank" class="btn" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #a855f7, #7e22ce); color: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-
                                             ▶️ 영상 시청하기
-
                                         </a>
-
                                     </div>
-
                                 </div>
-
                             `).join('')}
-
                         </div>
-
                     </div>
-
                 `;
-
             }
-
         }
-
     } catch(e) { console.error("loadVodLibrary error:", e); }
 
     // 2. 1:1 맞춤 배정 VOD 로드
-
     if (currentStudent && currentStudent.id) {
-
         try {
-
             const res = await fetch(`/api/vod/list/${currentStudent.id}`);
-
             if (res.ok) {
-
                 const vods = await res.json();
-
                 if (vods && vods.length > 0) {
-
                     assignedHtml = `
-
                         <div style="margin-bottom: 14px;">
-
-                            <div style="font-size: 0.88rem; font-weight: 800; color: #818cf8; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-
+                            <div style="font-size: 0.88rem; font-weight: 800; color: #4338ca; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
                                 <span class="material-symbols-rounded" style="font-size: 1.1rem;">assignment</span>
-
                                 <span>🎬 나에게 배정된 1:1 맞춤 VOD (7일 락)</span>
-
                             </div>
-
                             <div style="display: flex; flex-direction: column; gap: 10px;">
-
                                 ${vods.map(v => {
-
                                     const isExpired = v.is_expired;
-
                                     return `
-
                                         <div style="background: rgba(255,255,255,0.04); border: 1px solid ${isExpired ? '#ef4444' : 'rgba(99,102,241,0.3)'}; border-radius: 12px; padding: 14px;">
-
                                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-
-                                                <div style="font-weight: 800; font-size: 0.9rem; color: #ffffff;">🎬 ${v.vod_title}</div>
-
+                                                <div style="font-weight: 800; font-size: 0.9rem; color: var(--text-primary);">🎬 ${v.vod_title}</div>
                                                 <span style="background: ${isExpired ? '#ef4444' : '#6366f1'}; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 800;">
-
                                                     ${isExpired ? '🔒 기한 만료' : `⏳ 남은 시간: ${v.remaining_hours}시간`}
-
                                                 </span>
-
                                             </div>
-
                                             ${!isExpired ? `
-
                                                 <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin-bottom: 10px; background: #000;">
-
                                                     <iframe src="https://player.vimeo.com/video/${v.vimeo_video_id}" style="position: absolute; top:0; left: 0; width: 100%; height: 100%;" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
-
                                                 </div>
-
                                             ` : `
-
                                                 <div style="background: rgba(239,68,68,0.1); padding: 12px; border-radius: 8px; text-align: center; font-size: 0.78rem; color: #f87171; margin-bottom: 10px;">
-
                                                     7일 시청 기한이 종료되었습니다. 시청 연장이 필요하신 경우 [행정 요청] 탭에서 연장을 신청하세요.
-
                                                 </div>
-
                                             `}
-
                                             <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.76rem; color: var(--text-secondary);">
-
                                                 <div>진도율: <strong style="color: #34d399;">${v.watch_progress_pct}%</strong> ${v.is_completed ? '✅ 수강 완료' : ''}</div>
-
                                                 <div>과제 상태: <strong style="color: ${v.is_homework_verified ? '#10b981' : '#f59e0b'};">${v.is_homework_verified ? '검수 완료' : (v.is_homework_submitted ? '제출 완료 (검수중)' : '미제출')}</strong></div>
-
                                             </div>
-
                                         </div>
-
                                     `;
-
                                 }).join('')}
-
                             </div>
-
                         </div>
-
                     `;
-
                 }
-
             }
-
         } catch(e) {}
-
     }
 
     if (!libraryHtml && !assignedHtml) {
-
         container.innerHTML = `
-
             <div style="background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15); border-radius: 12px; padding: 24px; text-align: center;">
-
                 <span class="material-symbols-rounded" style="font-size: 2rem; color: #818cf8; margin-bottom: 6px;">video_library</span>
-
-                <div style="font-size: 0.88rem; font-weight: 700; color: #ffffff;">현재 등록된 VOD 강좌가 없습니다.</div>
-
+                <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-primary);">현재 등록된 VOD 강좌가 없습니다.</div>
                 <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 4px;">원장님이 강의 영상을 업로드하거나 배정하면 이곳에서 시청하실 수 있습니다.</div>
-
             </div>
-
         `;
-
     } else {
-
         container.innerHTML = libraryHtml + assignedHtml;
-
     }
-
 }
 
 async function loadStudentExamHistory() {
-
     if (!currentStudent || !currentStudent.id) return;
-
     const container = document.getElementById("hub-exam-history-list");
-
     if (!container) return;
 
-    
+    if (isDemoMode || currentStudent?.id === 9999 || currentStudent?.academy_code === "PALIN-2027") {
+        container.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 14px; margin-bottom: 6px;">
+                <div>
+                    <div style="font-weight: 800; font-size: 0.88rem; color: var(--text-primary);">[국어] 1주차 주간 수능 실전 모의평가</div>
+                    <div style="font-size: 0.74rem; color: var(--text-secondary); margin-top: 2px;">
+                        원점수: <strong style="color: var(--text-primary);">88점</strong> · 성적 기준: <strong style="color: #10b981;">1등급</strong>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-weight: 800; font-size: 0.95rem; color: #10b981;">상위 3.2%</div>
+                    <div style="font-size: 0.72rem; font-weight: 700; color: #10b981;">🔺 최상위 유지</div>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 14px;">
+                <div>
+                    <div style="font-weight: 800; font-size: 0.88rem; color: var(--text-primary);">[국어] 2주차 9월 모평 대비 실전 파이널</div>
+                    <div style="font-size: 0.74rem; color: var(--text-secondary); margin-top: 2px;">
+                        원점수: <strong style="color: var(--text-primary);">92점</strong> · 성적 기준: <strong style="color: #10b981;">1등급</strong>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-weight: 800; font-size: 0.95rem; color: #10b981;">상위 1.8%</div>
+                    <div style="font-size: 0.72rem; font-weight: 700; color: #10b981;">🔺 상승세</div>
+                </div>
+            </div>
+        `;
+        return;
+    }
 
     try {
-
         const res = await fetch(`/api/exam/scores/${currentStudent.id}`);
-
         if (!res.ok) return;
-
         const scores = await res.json();
-
         if (scores.length === 0) {
-
             container.innerHTML = '<div style="color: var(--text-secondary); font-size: 0.8rem; text-align: center; padding: 10px;">아직 제출된 시험 성적이 없습니다.</div>';
-
             return;
-
         }
-
-        
-
         container.innerHTML = scores.map(s => {
-
             const trendIcon = s.trend_direction === 'UP' ? '🔺 상승' : (s.trend_direction === 'DOWN' ? '🔻 하락' : '➖ 유지');
-
             const trendColor = s.trend_direction === 'UP' ? '#10b981' : (s.trend_direction === 'DOWN' ? '#ef4444' : '#94a3b8');
-
             return `
-
                 <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 14px;">
-
                     <div>
-
-                        <div style="font-weight: 800; font-size: 0.88rem; color: #ffffff;">[${s.subject}] ${s.exam_week}주차 모의고사</div>
-
+                        <div style="font-weight: 800; font-size: 0.88rem; color: var(--text-primary);">[${s.subject}] ${s.exam_week}주차 모의고사</div>
                         <div style="font-size: 0.74rem; color: var(--text-secondary); margin-top: 2px;">
-
-                            원점수: <strong style="color: #ffffff;">${s.score}점</strong> · 사전 기준: <strong style="color: #818cf8;">${s.calculated_grade}등급</strong>
-
+                            원점수: <strong style="color: var(--text-primary);">${s.score}점</strong> · 사전 기준: <strong style="color: #818cf8;">${s.calculated_grade}등급</strong>
                         </div>
-
                     </div>
-
                     <div style="text-align: right;">
-
                         <div style="font-weight: 800; font-size: 0.95rem; color: #34d399;">상위 ${s.percentile_rank}%</div>
-
                         <div style="font-size: 0.72rem; font-weight: 700; color: ${trendColor};">${trendIcon}</div>
-
                     </div>
-
                 </div>
-
             `;
-
         }).join('');
-
     } catch(e) { console.error("loadStudentExamHistory error:", e); }
-
 }
 
 async function handleUploadExamScore(e) {
@@ -13766,15 +13823,18 @@ async function handleUploadExamScore(e) {
 
     if (!currentStudent || !currentStudent.id) return;
 
-    
+    if (isDemoMode || currentStudent?.id === 9999) {
+        alert("🎉 [체험 모드] 주차별 성적 제출 시뮬레이션이 완료되었습니다! (+50P 지급)\n이어서 1:1 맞춤 문진표가 팝업됩니다.");
+        document.getElementById("exam-score-raw").value = "";
+        document.getElementById("diagnostic-survey-modal").style.display = "flex";
+        return;
+    }
 
     const weekVal = parseInt(document.getElementById("exam-week-select").value, 10);
 
     const subjectVal = document.getElementById("exam-subject-select").value;
 
     const scoreVal = parseFloat(document.getElementById("exam-score-raw").value);
-
-    
 
     if (isNaN(scoreVal)) {
 
@@ -13783,8 +13843,6 @@ async function handleUploadExamScore(e) {
         return;
 
     }
-
-    
 
     try {
 
@@ -13818,8 +13876,6 @@ async function handleUploadExamScore(e) {
 
             loadStudentExamHistory();
 
-            
-
             // 시험 직후 맞춤 문진표 팝업 격발
 
             document.getElementById("diagnostic-survey-modal").style.display = "flex";
@@ -13836,11 +13892,13 @@ async function handleSendDiagnosticSurvey(e) {
 
     if (!currentStudent || !currentStudent.id) return;
 
-    
+    if (isDemoMode || currentStudent?.id === 9999) {
+        alert(`🩺 [체험 모드 - 초정밀 1:1 맞춤 입시 처방전 발급 완료]\n\n처방 내용: 국어 비문학 구조독해 3단계 훈련 및 일간 지문 분석 루틴을 추천합니다.\n(학부모 알림톡 발송 시뮬레이션 완료)`);
+        document.getElementById("diagnostic-survey-modal").style.display = "none";
+        return;
+    }
 
     const selectedQ1 = document.querySelector('input[name="diag-q1"]:checked')?.value || "비문학 시간 부족";
-
-    
 
     try {
 
@@ -13915,21 +13973,18 @@ document.addEventListener("DOMContentLoaded", () => {
 let currentActiveFacility = "ILWON-2027";
 
 function getEnrolledFacilities() {
-
+    if (isDemoMode || currentStudent?.id === 9999 || currentStudent?.academy_code === "PALIN-2027") {
+        return [
+            { code: "PALIN-2027", name: "팰린 마스터 학원", desc: "수능국어·입시전략", type: "가상학원" }
+        ];
+    }
     try {
-
         const saved = localStorage.getItem("palin_enrolled_facilities");
-
         if (saved) return JSON.parse(saved);
-
     } catch(e) {}
-
     return [
-
         { code: "ILWON-2027", name: "일원학원", desc: "수능국어", type: "단과학원" }
-
     ];
-
 }
 
 function saveEnrolledFacilities(list) {
@@ -14010,7 +14065,11 @@ async function handleAddNewFacility(e) {
 
     if (!code) return;
 
-    
+    if (isDemoMode || currentStudent?.id === 9999) {
+        alert("✨ [체험 모드] 가상 기관 등록이 시뮬레이션되었습니다.");
+        document.getElementById("add-facility-modal").style.display = "none";
+        return;
+    }
 
     try {
 

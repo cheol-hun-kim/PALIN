@@ -292,19 +292,19 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             </div>
                             <input type="text" id="st-login-email" class="auth-input" placeholder="학생 이메일 또는 마스터 ID" required>
                             <input type="password" id="st-login-password" class="auth-input" placeholder="비밀번호 (기존 회원 초기비번: 1010)" maxlength="12" required>
-                            <div id="dynamic-login-notice-student" style="font-size: 0.75rem; color: #a5b4fc; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.4; background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.3); border-radius: 8px; padding: 8px 12px;">
+                            <div id="dynamic-login-notice-student" style="font-size: 0.75rem; color: #a5b4fc; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.4; background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.3); border-radius: 8px; padding: 8px 12px; min-height: 52px; display: flex; align-items: center; box-sizing: border-box;">
                                 📢 <b>[보안 업데이트]</b> 기존 가입 회원의 초기 비밀번호는 <b>1010</b> 입니다. 로그인 후 마이페이지에서 변경하실 수 있습니다.
                             </div>
                             <button type="submit" class="auth-submit-btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; box-shadow: 0 4px 16px rgba(99,102,241,0.4);">
                                 학생 로그인
                             </button>
                             <div style="text-align: center; margin-top: 14px;">
-                                <button type="button" onclick="toggleStudentRegisterForm()" style="background: none; border: none; color: #cbd5e1; font-size: 0.82rem; cursor: pointer; text-decoration: underline;">
-                                    ✨ 처음이신가요? <b>신규 학생 회원가입 (100P 지급) →</b>
+                                <button type="button" onclick="toggleStudentRegisterForm()" style="background: none; border: none; color: #cbd5e1; font-size: 0.8rem; cursor: pointer; text-decoration: underline; white-space: nowrap;">
+                                    ✨ 처음이신가요? <b>신규 학생 회원가입 →</b>
                                 </button>
                             </div>
                             <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
-                                <button type="button" onclick="openStudentBrochureModal()" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #a5b4fc; border-color: rgba(99,102,241,0.4); background: rgba(99,102,241,0.08); border-radius: 8px;">
+                                <button type="button" onclick="openStudentBrochureModal()" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #a5b4fc; border-color: rgba(99,102,241,0.4); background: rgba(99,102,241,0.08); border-radius: 8px; min-height: 38px; display: flex; align-items: center; justify-content: center;">
                                     🎓 PALIN OS 수험생 소개 브로슈어 보기
                                 </button>
                             </div>
@@ -388,19 +388,19 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             </div>
                             <input type="text" id="parent-login-email" class="auth-input" placeholder="학부모 이메일 또는 휴대폰 번호" required>
                             <input type="password" id="parent-login-password" class="auth-input" placeholder="비밀번호" required>
-                            <div id="dynamic-login-notice-parent" style="font-size: 0.75rem; color: #34d399; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.4; background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 8px 12px;">
+                            <div id="dynamic-login-notice-parent" style="font-size: 0.75rem; color: #34d399; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.4; background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 8px 12px; min-height: 52px; display: flex; align-items: center; box-sizing: border-box;">
                                 📢 <b>[학부모 안내]</b> 자녀 초대코드 또는 등록된 학부모 휴대폰 번호로 자녀의 학습 현황을 실시간 조회하실 수 있습니다.
                             </div>
                             <button type="submit" class="auth-submit-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 4px 16px rgba(16,185,129,0.4);">
                                 학부모 로그인
                             </button>
                             <div style="text-align: center; margin-top: 14px;">
-                                <button type="button" onclick="toggleParentAuthMode()" style="background: none; border: none; color: #cbd5e1; font-size: 0.82rem; cursor: pointer; text-decoration: underline;">
-                                    ✨ 자녀와 처음 연결하시나요? <b>신규 학부모 등록 (자녀 1:1 매핑) →</b>
+                                <button type="button" onclick="toggleParentAuthMode()" style="background: none; border: none; color: #cbd5e1; font-size: 0.8rem; cursor: pointer; text-decoration: underline; white-space: nowrap;">
+                                    ✨ 자녀와 처음 연결? <b>학부모 등록(자녀 매핑) →</b>
                                 </button>
                             </div>
                             <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
-                                <button type="button" onclick="openParentBrochureModal()" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #34d399; border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.08); border-radius: 8px;">
+                                <button type="button" onclick="openParentBrochureModal()" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #34d399; border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.08); border-radius: 8px; min-height: 38px; display: flex; align-items: center; justify-content: center;">
                                     👨‍👩‍👧 학부모 안심 솔루션 브로슈어 보기
                                 </button>
                             </div>
@@ -436,19 +436,19 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             </div>
                             <input type="text" id="dir-login-email" class="auth-input" placeholder="원장 이메일 또는 가맹 학원 코드" required>
                             <input type="password" id="dir-login-password" class="auth-input" placeholder="관제실 보안 비밀번호 / PIN" required>
-                            <div id="dynamic-login-notice-director" style="font-size: 0.75rem; color: #fbbf24; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.4; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; padding: 8px 12px;">
+                            <div id="dynamic-login-notice-director" style="font-size: 0.75rem; color: #fbbf24; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.4; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; padding: 8px 12px; min-height: 52px; display: flex; align-items: center; box-sizing: border-box;">
                                 📢 <b>[원장 관제실 안내]</b> 가맹 학원 원장님 전용 보안 로그인입니다. 원장 PIN 번호를 입력해 주세요.
                             </div>
                             <button type="submit" class="auth-submit-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #000000; font-weight: 900; box-shadow: 0 4px 16px rgba(245,158,11,0.4);">
                                 🔐 학원장 관제실 접속
                             </button>
                             <div style="text-align: center; margin-top: 14px;">
-                                <button type="button" onclick="openDirectorDemoModal()" style="background: none; border: none; color: #fbbf24; font-size: 0.82rem; cursor: pointer; text-decoration: underline;">
-                                    ✨ 관제실 기능을 미리 둘러보고 싶으신가요? <b>원장 체험 모드 (데모) →</b>
+                                <button type="button" onclick="openDirectorDemoModal()" style="background: none; border: none; color: #fbbf24; font-size: 0.8rem; cursor: pointer; text-decoration: underline; white-space: nowrap;">
+                                    ✨ 관제실 둘러보기 <b>원장 체험 모드 (데모) →</b>
                                 </button>
                             </div>
                             <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
-                                <button type="button" onclick="openB2BContactModal()" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #fbbf24; border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.08); border-radius: 8px;">
+                                <button type="button" onclick="openB2BContactModal()" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #fbbf24; border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.08); border-radius: 8px; min-height: 38px; display: flex; align-items: center; justify-content: center;">
                                     🏫 학원장 전용 가맹 솔루션 도입 문의
                                 </button>
                             </div>
@@ -1431,9 +1431,9 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <div class="card">
                         <div class="card-title" style="color: #818cf8; margin-bottom: 4px;">
                             <span class="material-symbols-rounded" style="color: #6366f1">download</span>
-                            평가원/교육청 기출 & 수험자료실
+                            전국 공용 기출문제 & 모의고사 아카이브
                         </div>
-                        <div style="font-size:0.78rem; color:var(--text-secondary); margin-bottom: 12px;">원장님이 엄선한 연도별 평가원/교육청 공식 기출문제와 정답·해설지를 다운로드하세요.</div>
+                        <div style="font-size:0.78rem; color:var(--text-secondary); margin-bottom: 12px;">전국 수험생과 원장님이 함께 공유하는 연도별 수능/평가원/교육청 공식 기출문제와 정답·해설지 무료 다운로드 공간입니다. (모든 학생·원장 공용)</div>
                         
                         <!-- 1. 과목별 상단 탭 -->
                         <div style="margin-bottom: 8px;">
@@ -1769,7 +1769,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                             <div>
                                 <div style="display: flex; align-items: center; gap: 10px;">
-                                    <img src="img/ilwon_logo.jpg" alt="일원학원 로고" style="width: 38px; height: 38px; border-radius: 8px; object-fit: contain; background: #ffffff; padding: 2px; border: 1.5px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.06);">
+                                    <img id="hub-academy-logo-img" src="img/ilwon_logo.jpg" alt="학원 로고" style="width: 38px; height: 38px; border-radius: 8px; object-fit: contain; background: #ffffff; padding: 2px; border: 1.5px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.06);">
                                     <div>
                                         <div style="display: flex; align-items: center; gap: 6px;">
                                             <span style="font-size: 1.08rem; font-weight: 900; color: var(--text-primary);" id="hub-academy-name">일원학원</span>
@@ -1801,23 +1801,27 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </div>
                     </div>
 
-                    <!-- 🧭 학원 관리 4대 서브탭 (위 2개 / 아래 2개 균형 그리드) -->
-                    <div class="subtabs-container-2x2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;">
-                        <button class="subtab-btn-hub-2x2 active" onclick="switchHubSubTab('feed')" id="hub-tab-feed">
+                    <!-- 🧭 학원 관리 5대 서브탭 -->
+                    <div class="subtabs-container-hub" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 14px;">
+                        <button class="subtab-btn-hub-2x2 active" onclick="switchHubSubTab('feed')" id="hub-tab-feed" style="padding: 10px 4px;">
                             <span class="material-symbols-rounded" style="font-size: 1.25rem; color: #c084fc;">calendar_month</span>
-                            <span>학사일정</span>
+                            <span style="font-size: 0.76rem; font-weight: 800;">학사일정</span>
                         </button>
-                        <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('vod')" id="hub-tab-vod">
+                        <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('vod')" id="hub-tab-vod" style="padding: 10px 4px;">
                             <span class="material-symbols-rounded" style="font-size: 1.25rem; color: #818cf8;">play_circle</span>
-                            <span>복습 VOD</span>
+                            <span style="font-size: 0.76rem; font-weight: 800;">복습 VOD</span>
                         </button>
-                        <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('exam')" id="hub-tab-exam">
+                        <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('material')" id="hub-tab-material" style="padding: 10px 4px;">
+                            <span class="material-symbols-rounded" style="font-size: 1.25rem; color: #38bdf8;">folder_special</span>
+                            <span style="font-size: 0.76rem; font-weight: 800;">학원자료</span>
+                        </button>
+                        <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('exam')" id="hub-tab-exam" style="padding: 10px 4px;">
                             <span class="material-symbols-rounded" style="font-size: 1.25rem; color: #34d399;">document_scanner</span>
-                            <span>시험 · OMR</span>
+                            <span style="font-size: 0.76rem; font-weight: 800;">시험·OMR</span>
                         </button>
-                        <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('request')" id="hub-tab-request">
+                        <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('request')" id="hub-tab-request" style="padding: 10px 4px;">
                             <span class="material-symbols-rounded" style="font-size: 1.25rem; color: #fbbf24;">support_agent</span>
-                            <span>행정 신청</span>
+                            <span style="font-size: 0.76rem; font-weight: 800;">행정신청</span>
                         </button>
                     </div>
 
@@ -1856,7 +1860,26 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             </div>
                         </div>
 
-                        <!-- 서브탭 3: 📝 주차별 시험 & OMR 사진 제출 & 자동 채점 (문진표) -->
+                        <!-- 서브탭 3: 📁 학원 전용 학습자료실 (주간 워크북, 자체 모의고사, 과제집) -->
+                        <div id="hub-view-material" class="hub-subtab-view" style="display: none;">
+                            <div class="card" style="margin-bottom: 14px;">
+                                <div class="section-header" style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="font-weight: 800; font-size: 0.92rem; color: #38bdf8; display: flex; align-items: center; gap: 6px;">
+                                        <span class="material-symbols-rounded">folder_special</span>
+                                        <span>우리 학원 재원생 전용 학습자료실</span>
+                                    </div>
+                                    <span style="font-size: 0.72rem; color: var(--text-secondary);" id="hub-material-count">재원생 전용</span>
+                                </div>
+                                <div style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4;">
+                                    🔒 원장님께서 직접 배포하신 주간 워크북, 자체 제작 킬러 N제, 현장 모의고사 및 과제 분석 자료실입니다. (소속 학원 재원생 전용)
+                                </div>
+                                <div id="hub-academy-materials-list" style="display: flex; flex-direction: column; gap: 10px;">
+                                    <div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 12px;">학원 전용 자료를 불러오는 중...</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 서브탭 4: 📝 주차별 시험 & OMR 사진 제출 & 자동 채점 (문진표) -->
                         <div id="hub-view-exam" class="hub-subtab-view" style="display: none;">
                             <div class="card" style="margin-bottom: 12px; background: rgba(239, 68, 68, 0.06); border: 1.5px solid rgba(239, 68, 68, 0.3);">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">

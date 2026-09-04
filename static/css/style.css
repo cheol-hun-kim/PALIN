@@ -656,7 +656,7 @@ main::-webkit-scrollbar {
     left: 2px;
     right: 2px;
     border-radius: 6px;
-    padding: 2px 2px;
+    padding: 2px 4px;
     color: white;
     overflow: hidden;
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
@@ -679,15 +679,15 @@ main::-webkit-scrollbar {
 }
 
 .timetable-block .block-title {
-    font-size: 0.82rem;
+    font-size: 0.9rem;
     font-weight: 900;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.3px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
     text-align: center;
-    line-height: 1.1;
+    line-height: 1.2;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
@@ -2631,7 +2631,7 @@ body.role-parent .timetable-day-column {
     box-shadow: 0 4px 12px rgba(168, 85, 247, 0.45) !important;
 }
 
-/* ☀️ Day-Mode / Light Mode High-Contrast Rules for Modals & Demo Views */
+/* ☀️ Day-Mode / Light Mode High-Contrast Rules for Modals, Demo Views & VOD Board */
 body.day-mode #demo-director-cockpit-modal .modal-content,
 body.day-mode #demo-parent-weekly-report-modal .modal-content,
 body.day-mode #demo-sms-simulation-modal .modal-content,
@@ -2643,15 +2643,24 @@ body.day-mode #demo-director-modal .modal-content {
 }
 
 body.day-mode #demo-director-cockpit-modal .card,
-body.day-mode #demo-parent-weekly-report-modal .card {
+body.day-mode #demo-parent-weekly-report-modal .card,
+body.day-mode #demo-director-modal .card {
     background: #f8fafc !important;
-    border-color: #e2e8f0 !important;
+    border-color: #cbd5e1 !important;
     color: #0f172a !important;
 }
 
-body.day-mode #demo-director-cockpit-modal [style*="color: #cbd5e1"],
-body.day-mode #demo-parent-weekly-report-modal [style*="color: #cbd5e1"] {
-    color: #334155 !important;
+/* Modal Titles & Headers in Day Mode (High-Contrast) */
+body.day-mode #demo-director-cockpit-modal [style*="color: #fbbf24"],
+body.day-mode #demo-director-modal [style*="color: #fbbf24"] {
+    color: #92400e !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #demo-parent-weekly-report-modal [style*="color: #34d399"],
+body.day-mode #demo-parent-weekly-report-modal [style*="color: #10b981"] {
+    color: #065f46 !important;
+    font-weight: 900 !important;
 }
 
 body.day-mode #demo-director-cockpit-modal [style*="color: #fde68a"] {
@@ -2659,11 +2668,103 @@ body.day-mode #demo-director-cockpit-modal [style*="color: #fde68a"] {
 }
 
 body.day-mode #demo-director-cockpit-modal [style*="color: #a5b4fc"] {
-    color: #4338ca !important;
+    color: #3730a3 !important;
 }
 
 body.day-mode #demo-director-cockpit-modal [style*="color: #6ee7b7"] {
     color: #065f46 !important;
+}
+
+body.day-mode #demo-director-cockpit-modal [style*="color: #cbd5e1"],
+body.day-mode #demo-parent-weekly-report-modal [style*="color: #cbd5e1"],
+body.day-mode #demo-parent-weekly-report-modal [style*="color: #94a3b8"],
+body.day-mode #demo-director-modal [style*="color: #94a3b8"] {
+    color: #334155 !important;
+}
+
+body.day-mode #demo-parent-weekly-report-modal [style*="color: #ffffff"],
+body.day-mode #demo-director-cockpit-modal [style*="color: #ffffff"],
+body.day-mode #demo-director-modal [style*="color: #ffffff"] {
+    color: #0f172a !important;
+}
+
+/* Secondary Button Contrast in Day Mode */
+body.day-mode .btn-secondary[style*="color: #fbbf24"],
+body.day-mode button[style*="color: #fbbf24"].btn-secondary {
+    color: #92400e !important;
+    background: #fef3c7 !important;
+    border-color: #f59e0b !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode .btn-secondary[style*="color: #a5b4fc"],
+body.day-mode button[style*="color: #a5b4fc"].btn-secondary {
+    color: #3730a3 !important;
+    background: #e0e7ff !important;
+    border-color: #818cf8 !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode .btn-secondary[style*="color: #34d399"],
+body.day-mode button[style*="color: #34d399"].btn-secondary {
+    color: #065f46 !important;
+    background: #d1fae5 !important;
+    border-color: #34d399 !important;
+    font-weight: 800 !important;
+}
+
+/* 🎬 VOD Board & Academy Hub Day-Mode High-Contrast Fixes */
+body.day-mode #hub-view-feed .card,
+body.day-mode #hub-view-vod .card,
+body.day-mode #hub-view-exam .card,
+body.day-mode #hub-view-request .card {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+body.day-mode #hub-curriculum-feed-list > div,
+body.day-mode #hub-vod-list-container > div > div > div {
+    background: #f8fafc !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+body.day-mode #hub-vod-list-container [style*="color: #ffffff"],
+body.day-mode #hub-curriculum-feed-list [style*="color: #ffffff"] {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode #hub-vod-list-container [style*="color: #c084fc"] {
+    color: #6b21a8 !important;
+}
+
+body.day-mode #hub-vod-list-container [style*="background: rgba(168,85,247,0.25)"] {
+    background: #ede9fe !important;
+    border: 1px solid #c084fc !important;
+}
+
+body.day-mode #hub-vod-list-container [style*="background: rgba(0,0,0,0.3)"] {
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+body.day-mode #hub-vod-list-container [style*="color: #fbbf24"] {
+    color: #92400e !important;
+}
+
+body.day-mode #hub-vod-list-container [style*="background: rgba(245,158,11,0.15)"] {
+    background: #fef3c7 !important;
+    border: 1px solid #f59e0b !important;
+}
+
+body.day-mode #hub-view-feed [style*="color: #a78bfa"],
+body.day-mode #hub-view-vod [style*="color: #818cf8"],
+body.day-mode #hub-view-exam [style*="color: #a78bfa"],
+body.day-mode #hub-view-request [style*="color: #fbbf24"] {
+    color: #3730a3 !important;
+    font-weight: 900 !important;
 }
 
 body.day-mode #pred-target-univ-name,

@@ -636,17 +636,95 @@
                     </div>
                 </div>
 
-                                <!-- 📚 2. 수능/평가원/사관 기출문제 & 정답해설 PDF 업로드 & 문제은행 관리 -->
+                <!-- 📁 2. [우리 학원 재원생 전용] 학습자료 & 워크북/자체 모의고사 업로드 -->
+                <div class="kpi-card" style="border: 1.5px solid rgba(56, 189, 248, 0.4); margin-bottom: 16px;">
+                    <div class="section-title" style="color: #38bdf8; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span class="material-symbols-rounded">folder_special</span>
+                            <span>📁 [우리 학원 재원생 전용] 학습자료 & 워크북/자체 모의고사 업로드</span>
+                        </div>
+                        <button type="button" onclick="loadAdminPrivateMaterials()" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; color: #38bdf8; border-color: rgba(56,189,248,0.4); cursor: pointer; font-weight: 700;">🔄 갱신</button>
+                    </div>
+                    <div style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 12px; line-height: 1.4;">
+                        🔒 원장님만의 <b>주간 워크북, 킬러 N제, 자체 모의고사, 과제집</b>을 등록하세요. 오직 <b>우리 학원 승인 재원생(학원관리 탭)</b>에게만 안전하게 노출 및 다운로드가 제공됩니다.
+                    </div>
+                    
+                    <!-- 학원 전용 자료 등록 폼 -->
+                    <form onsubmit="handleUploadPrivateMaterial(event)" style="display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.25); padding: 14px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.2); margin-bottom: 14px;">
+                        <div style="display: grid; grid-template-columns: 130px 150px 1fr; gap: 8px;">
+                            <div>
+                                <label style="font-size: 0.75rem; color: #38bdf8; font-weight: 800; display: block; margin-bottom: 4px;">🎯 대상 학년</label>
+                                <select id="pmat-grade" class="form-input" style="font-weight: 700; height: 42px; width: 100%; box-sizing: border-box;">
+                                    <option value="고3/N수" selected>고3/N수</option>
+                                    <option value="고2">고2</option>
+                                    <option value="고1">고1</option>
+                                    <option value="전학년">전학년 공통</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; color: #38bdf8; font-weight: 800; display: block; margin-bottom: 4px;">📖 과목 영역</label>
+                                <select id="pmat-subject" class="form-input" style="font-weight: 700; height: 42px; width: 100%; box-sizing: border-box;">
+                                    <option value="국어">📖 국어</option>
+                                    <option value="수학">📐 수학</option>
+                                    <option value="영어">🔤 영어</option>
+                                    <option value="과탐">🔬 과탐</option>
+                                    <option value="사탐">🌏 사탐</option>
+                                    <option value="한국사">🇰🇷 한국사</option>
+                                    <option value="논술">✍️ 논술</option>
+                                    <option value="특강/기타">💡 특강/기타</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; color: #38bdf8; font-weight: 800; display: block; margin-bottom: 4px;">📝 자료명 / 워크북 제목</label>
+                                <input type="text" id="pmat-title" placeholder="예: [주간 워크북 3주차] 킬러 문항 집중 훈련 N제" required class="form-input" style="height: 42px; width: 100%; box-sizing: border-box;">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label style="font-size: 0.75rem; color: #38bdf8; font-weight: 800; display: block; margin-bottom: 4px;">💬 상세 설명 & 과제 안내</label>
+                            <input type="text" id="pmat-desc" placeholder="예: 수능완성 연계 비문학 3단계 구조도 워크북 및 실전 20제 수록" class="form-input" style="height: 40px; width: 100%; box-sizing: border-box;">
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <div style="background: rgba(0,0,0,0.3); padding: 10px 12px; border-radius: 8px; border: 1px dashed rgba(56,189,248,0.3);">
+                                <label style="font-size: 0.74rem; color: #38bdf8; font-weight: 800; display: block; margin-bottom: 4px;">📄 문제지 파일 (PDF/HWP 첨부 또는 다운로드 링크)</label>
+                                <input type="file" id="pmat-file" accept=".pdf,.hwp,.hwpx,application/pdf" style="font-size: 0.75rem; color: #cbd5e1; width: 100%; margin-bottom: 4px;">
+                                <input type="url" id="pmat-file-url" placeholder="또는 문제지 다운로드 웹링크 URL" class="form-input" style="height: 32px; font-size: 0.75rem; width: 100%; box-sizing: border-box;">
+                            </div>
+                            <div style="background: rgba(0,0,0,0.3); padding: 10px 12px; border-radius: 8px; border: 1px dashed rgba(56,189,248,0.3);">
+                                <label style="font-size: 0.74rem; color: #38bdf8; font-weight: 800; display: block; margin-bottom: 4px;">🔑 정답/해설지 파일 (PDF/HWP 첨부 또는 링크)</label>
+                                <input type="file" id="pmat-answer-file" accept=".pdf,.hwp,.hwpx,application/pdf" style="font-size: 0.75rem; color: #cbd5e1; width: 100%; margin-bottom: 4px;">
+                                <input type="url" id="pmat-answer-url" placeholder="또는 정답/해설 웹링크 URL" class="form-input" style="height: 32px; font-size: 0.75rem; width: 100%; box-sizing: border-box;">
+                            </div>
+                        </div>
+
+                        <button type="submit" id="pmat-upload-btn" class="btn" style="background: linear-gradient(135deg, #0284c7, #0369a1); font-weight: 800; padding: 12px; font-size: 0.92rem; color: white; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(2,132,199,0.35);">
+                            + 우리 학원 재원생 전용 자료 등록 배포
+                        </button>
+                    </form>
+
+                    <!-- 현재 등록된 학원 전용 자료 목록 -->
+                    <div style="font-size: 0.85rem; font-weight: 800; color: #f8fafc; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="display: flex; align-items: center; gap: 6px;">
+                            <span class="material-symbols-rounded" style="color: #38bdf8; font-size: 1.1rem;">folder_open</span>
+                            <span>📋 현재 등록된 우리 학원 전용 자료 목록</span>
+                        </span>
+                        <span id="admin-pmat-count-badge" style="font-size: 0.75rem; color: #38bdf8; font-weight: 700;"></span>
+                    </div>
+                    <div id="admin-private-materials-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; padding-right: 4px;"></div>
+                </div>
+
+                <!-- 🌐 3. [전국 공용] 수능/평가원/사관 기출문제 & 정답해설 PDF 업로드 & 공유 문제은행 -->
                 <div class="kpi-card" style="border: 1.5px solid rgba(16, 185, 129, 0.4); margin-bottom: 16px;">
                     <div class="section-title" style="color: #34d399; display: flex; justify-content: space-between; align-items: center;">
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <span class="material-symbols-rounded">menu_book</span>
-                            <span>📚 수능/평가원/사관 기출문제 & 정답해설 PDF 업로드 및 문제은행 관리</span>
+                            <span>🌐 [전국 공용] 수능/평가원/사관 기출문제 & 정답해설 등록 및 공유 문제은행</span>
                         </div>
                         <button type="button" onclick="loadAdminExamMaterials()" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; color: #34d399; border-color: rgba(16,185,129,0.4); cursor: pointer; font-weight: 700;">🔄 갱신</button>
                     </div>
                     <div style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 12px; line-height: 1.4;">
-                        💡 문제지와 정답/해설지(PDF 파일 또는 URL 링크)를 등록하시면 학생 화면 <b>[2페이지 > 기출자료실]</b>에 연도별/과목별로 즉시 노출 및 다운로드가 제공됩니다.
+                        💡 수능/평가원/교육청 공용 기출문제를 등록하시면 <b>전국 모든 학생/원장 [2페이지 > 기출자료실]</b>에 연도별/과목별로 즉시 공유 및 무료 다운로드가 제공됩니다.
                     </div>
                     
                     <!-- 기출문제 등록 폼 -->
@@ -711,7 +789,7 @@
                         </div>
 
                         <button type="submit" id="mat-upload-btn" class="btn" style="background: linear-gradient(135deg, #10b981, #059669); font-weight: 800; padding: 12px; font-size: 0.92rem; color: white; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(16,185,129,0.35);">
-                            + 기출문제 및 정답해설 등록 배포
+                            + 전국 공용 기출문제 및 정답해설 등록 배포
                         </button>
                     </form>
 
@@ -719,7 +797,7 @@
                     <div style="font-size: 0.85rem; font-weight: 800; color: #f8fafc; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
                         <span style="display: flex; align-items: center; gap: 6px;">
                             <span class="material-symbols-rounded" style="color: #34d399; font-size: 1.1rem;">folder_open</span>
-                            <span>📋 현재 등록된 기출문제 자료 목록</span>
+                            <span>📋 현재 등록된 전국 공용 기출문제 목록</span>
                         </span>
                         <span id="admin-exam-count-badge" style="font-size: 0.75rem; color: #34d399; font-weight: 700;"></span>
                     </div>
@@ -1101,6 +1179,7 @@
             }
             if (tabId === 'tab-curriculum') {
                 loadAdminVodLibrary();
+                loadAdminPrivateMaterials();
                 loadAdminExamMaterials();
                 loadAdminRequests();
                 loadAdminFeedsList();
@@ -2403,7 +2482,130 @@
             }
         }
 
-        // === 📚 기출문제 & 수험자료 관리 스크립트 ===
+        // === 📁 [우리 학원 재원생 전용] 학습자료 & 워크북 관리 스크립트 ===
+        let adminPrivateMaterialsCache = [];
+
+        async function loadAdminPrivateMaterials() {
+            const listContainer = document.getElementById("admin-private-materials-list");
+            const countBadge = document.getElementById("admin-pmat-count-badge");
+            if (!listContainer) return;
+
+            const tCode = currentTenantCode || 'ILWON-2027';
+            try {
+                const res = await fetch(`/api/academy/materials?academy_code=${encodeURIComponent(tCode)}`).catch(() => null);
+                if (res && res.ok) {
+                    adminPrivateMaterialsCache = await res.json() || [];
+                }
+            } catch(e) {
+                console.error("loadAdminPrivateMaterials error:", e);
+            }
+
+            if (countBadge) countBadge.innerText = `총 ${adminPrivateMaterialsCache.length}개 자료`;
+            renderAdminPrivateList();
+        }
+
+        function renderAdminPrivateList() {
+            const listContainer = document.getElementById("admin-private-materials-list");
+            if (!listContainer) return;
+
+            if (adminPrivateMaterialsCache.length === 0) {
+                listContainer.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.82rem; padding:20px; background:rgba(0,0,0,0.2); border-radius:10px;">등록된 우리 학원 전용 자료가 없습니다. (위 폼에서 워크북/자료를 등록하세요)</div>';
+                return;
+            }
+
+            listContainer.innerHTML = adminPrivateMaterialsCache.map(m => `
+                <div style="background: rgba(0,0,0,0.35); padding: 12px 14px; border-radius: 10px; border-left: 4px solid #38bdf8; border: 1px solid rgba(56,189,248,0.25); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div style="flex: 1; min-width: 220px;">
+                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                            <span style="font-size: 0.72rem; background: rgba(56,189,248,0.25); color: #38bdf8; padding: 2px 8px; border-radius: 4px; font-weight: 800;">${m.subject} · ${m.target_grade || '전학년'}</span>
+                            <span style="font-weight: 800; font-size: 0.92rem; color: #ffffff;">${m.title}</span>
+                        </div>
+                        <div style="font-size: 0.76rem; color: #cbd5e1; margin-bottom: 6px;">
+                            ${m.description || '상세 설명 없음'}
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="/api/materials/${m.id}/download" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(56,189,248,0.2); color: #38bdf8; border: 1px solid #38bdf8; border-radius: 6px; text-decoration: none; font-weight: 700;">📄 문제지</a>
+                            ${m.answer_file_url ? `<a href="/api/materials/${m.id}/download-answer" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid #f59e0b; border-radius: 6px; text-decoration: none; font-weight: 700;">🔑 정답/해설</a>` : ''}
+                        </div>
+                    </div>
+                    <div>
+                        <button onclick="handleDeletePrivateMaterial(${m.id})" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; color: #f87171; border-color: rgba(239,68,68,0.5); border-radius: 6px; cursor: pointer;">
+                            🗑️ 삭제
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function handleUploadPrivateMaterial(e) {
+            e.preventDefault();
+            const grade = document.getElementById("pmat-grade")?.value || "고3/N수";
+            const subject = document.getElementById("pmat-subject")?.value || "국어";
+            const title = document.getElementById("pmat-title")?.value.trim();
+            const desc = document.getElementById("pmat-desc")?.value.trim() || "";
+            const fileInput = document.getElementById("pmat-file");
+            const fileUrl = document.getElementById("pmat-file-url")?.value.trim() || "";
+            const answerFileInput = document.getElementById("pmat-answer-file");
+            const answerUrl = document.getElementById("pmat-answer-url")?.value.trim() || "";
+
+            if (!title) {
+                alert("자료명을 입력해주세요.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("category", "ACADEMY_PRIVATE");
+            formData.append("academy_code", currentTenantCode || "ILWON-2027");
+            formData.append("target_grade", grade);
+            formData.append("subject", subject);
+            formData.append("title", title);
+            formData.append("description", desc);
+            formData.append("year", 2027);
+            if (fileUrl) formData.append("external_url", fileUrl);
+            if (answerUrl) formData.append("answer_url", answerUrl);
+            if (fileInput?.files?.[0]) formData.append("file", fileInput.files[0]);
+            if (answerFileInput?.files?.[0]) formData.append("answer_file", answerFileInput.files[0]);
+
+            const btn = document.getElementById("pmat-upload-btn");
+            if (btn) btn.innerText = "업로드 중...";
+
+            try {
+                const res = await fetch("/api/admin/materials/upload", {
+                    method: "POST",
+                    body: formData
+                });
+                if (res.ok) {
+                    alert("✓ 우리 학원 재원생 전용 자료가 성공적으로 등록되었습니다!");
+                    document.getElementById("pmat-title").value = "";
+                    document.getElementById("pmat-desc").value = "";
+                    if (fileInput) fileInput.value = "";
+                    if (answerFileInput) answerFileInput.value = "";
+                    if (document.getElementById("pmat-file-url")) document.getElementById("pmat-file-url").value = "";
+                    if (document.getElementById("pmat-answer-url")) document.getElementById("pmat-answer-url").value = "";
+                    loadAdminPrivateMaterials();
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    alert(err.detail || "업로드 실패");
+                }
+            } catch(err) {
+                alert("자료 업로드 중 통신 오류가 발생했습니다.");
+            } finally {
+                if (btn) btn.innerText = "+ 우리 학원 재원생 전용 자료 등록 배포";
+            }
+        }
+
+        async function handleDeletePrivateMaterial(id) {
+            if (!confirm("해당 학원 전용 자료를 삭제하시겠습니까?")) return;
+            try {
+                const res = await fetch(`/api/admin/materials/${id}`, { method: "DELETE" });
+                if (res.ok) {
+                    alert("✓ 삭제되었습니다.");
+                    loadAdminPrivateMaterials();
+                }
+            } catch(e) { alert("삭제 실패"); }
+        }
+
+        // === 📚 전국 공용 기출문제 관리 스크립트 ===
         let adminExamMaterialsCache = [];
         let currentAdminExamFilter = '전체';
 
@@ -2414,9 +2616,9 @@
             if (!listContainer) return;
 
             try {
-                let res = await fetch("/api/exam/materials").catch(() => null);
+                let res = await fetch("/api/materials?category=PUBLIC_EXAM").catch(() => null);
                 if (!res || !res.ok) {
-                    res = await fetch("/api/materials").catch(() => null);
+                    res = await fetch("/api/exam/materials?category=PUBLIC_EXAM").catch(() => null);
                 }
                 if (res && res.ok) {
                     adminExamMaterialsCache = await res.json() || [];
@@ -2459,7 +2661,7 @@
             }
 
             if (list.length === 0) {
-                listContainer.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.82rem; padding:20px; background:rgba(0,0,0,0.2); border-radius:10px;">등록된 기출문제 자료가 없습니다.</div>';
+                listContainer.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.82rem; padding:20px; background:rgba(0,0,0,0.2); border-radius:10px;">등록된 전국 공용 기출문제 자료가 없습니다.</div>';
                 return;
             }
 
@@ -2488,8 +2690,8 @@
                                 ${m.description || '상세 설명 없음'}
                             </div>
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <a href="/api/exam/materials/${m.id}/download" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid #10b981; border-radius: 6px; text-decoration: none; font-weight: 700;">📄 문제지 PDF</a>
-                                <a href="/api/exam/materials/${m.id}/download-answer" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid #f59e0b; border-radius: 6px; text-decoration: none; font-weight: 700;">🔑 정답/해설 PDF</a>
+                                <a href="/api/materials/${m.id}/download" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid #10b981; border-radius: 6px; text-decoration: none; font-weight: 700;">📄 문제지 PDF</a>
+                                ${m.answer_file_url ? `<a href="/api/materials/${m.id}/download-answer" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid #f59e0b; border-radius: 6px; text-decoration: none; font-weight: 700;">🔑 정답/해설 PDF</a>` : ''}
                             </div>
                         </div>
                     </div>
@@ -2519,12 +2721,14 @@
             }
 
             const formData = new FormData();
+            formData.append("category", "PUBLIC_EXAM");
+            formData.append("academy_code", "");
             formData.append("year", year);
             formData.append("subject", subject);
             formData.append("title", title);
             formData.append("description", desc);
             formData.append("target_grade", "고3/N수");
-            if (fileUrl) formData.append("file_url", fileUrl);
+            if (fileUrl) formData.append("external_url", fileUrl);
             if (answerUrl) formData.append("answer_url", answerUrl);
             if (fileInput?.files?.[0]) formData.append("file", fileInput.files[0]);
             if (answerFileInput?.files?.[0]) formData.append("answer_file", answerFileInput.files[0]);
@@ -2533,12 +2737,12 @@
             if (btn) btn.innerText = "업로드 중...";
 
             try {
-                const res = await fetch("/api/exam/materials", {
+                const res = await fetch("/api/admin/materials/upload", {
                     method: "POST",
                     body: formData
                 });
                 if (res.ok) {
-                    alert("✓ 기출문제 및 정답해설이 성공적으로 등록되었습니다!");
+                    alert("✓ 전국 공용 기출문제 및 정답해설이 성공적으로 등록되었습니다!");
                     document.getElementById("mat-title").value = "";
                     document.getElementById("mat-desc").value = "";
                     if (fileInput) fileInput.value = "";
@@ -2553,14 +2757,14 @@
             } catch(err) {
                 alert("기출문제 업로드 중 통신 오류가 발생했습니다.");
             } finally {
-                if (btn) btn.innerText = "+ 기출문제 및 정답해설 등록 배포";
+                if (btn) btn.innerText = "+ 전국 공용 기출문제 및 정답해설 등록 배포";
             }
         }
 
         async function handleDeleteExamMaterial(id) {
             if (!confirm("해당 기출문제 자료를 삭제하시겠습니까?")) return;
             try {
-                const res = await fetch(`/api/exam/materials/${id}`, { method: "DELETE" });
+                const res = await fetch(`/api/admin/materials/${id}`, { method: "DELETE" });
                 if (res.ok) {
                     alert("✓ 삭제되었습니다.");
                     loadAdminExamMaterials();
