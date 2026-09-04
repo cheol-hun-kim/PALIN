@@ -614,14 +614,14 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <span id="theme-toggle-icon">🌓</span>
                 </button>
                 <!-- 🔥 듀오링고 연속 출석 불꽃 (명확한 연속일수 안내) -->
-                <div class="streak-badge" id="header-streak-badge" title="연속 학습 미션 성공 기록 (클릭하여 주간 현황 확인)" style="cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px;">
-                    <span>🔥</span>
-                    <span id="header-streak-count" style="font-weight: 800; font-size: 0.8rem;">연속 1일</span>
+                <div class="streak-badge" id="header-streak-badge" title="연속 학습 미션 성공 기록 (클릭하여 주간 현황 확인)" style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 0 10px; height: 34px; line-height: 1; border-radius: 20px; box-sizing: border-box; vertical-align: middle;">
+                    <span style="display: inline-flex; align-items: center; line-height: 1; font-size: 0.95rem;">🔥</span>
+                    <span id="header-streak-count" style="font-weight: 800; font-size: 0.8rem; line-height: 1; display: inline-flex; align-items: center;">연속 1일</span>
                 </div>
                 <!-- 👤 마이페이지 & 자산 관리 버튼 -->
-                <button id="header-mypage-btn" onclick="openMyPageModal()" class="header-user-btn" style="padding: 6px 12px; font-size: 0.82rem; display: flex; align-items: center; gap: 5px; border-radius: 20px; cursor: pointer;">
-                    <span class="material-symbols-rounded header-user-icon" style="font-size: 1.15rem;">account_circle</span>
-                    <span id="header-student-name" style="font-weight: 800; letter-spacing: -0.2px;">내 정보</span>
+                <button id="header-mypage-btn" onclick="openMyPageModal()" class="header-user-btn" style="padding: 0 12px; height: 34px; font-size: 0.82rem; display: inline-flex; align-items: center; justify-content: center; gap: 5px; border-radius: 20px; cursor: pointer; line-height: 1; box-sizing: border-box;">
+                    <span class="material-symbols-rounded header-user-icon" style="font-size: 1.15rem; line-height: 1;">account_circle</span>
+                    <span id="header-student-name" style="font-weight: 800; letter-spacing: -0.2px; line-height: 1;">내 정보</span>
                 </button>
             </div>
         </header>
@@ -1733,16 +1733,24 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             <div id="page4" class="page-view" style="display: none;">
                 <!-- 1. 미연동 시 노출되는 대형 학원코드 연동 카드 -->
                 <div id="hub-unlinked-card" class="card" style="display: none; text-align: center; padding: 28px 16px; margin-bottom: 14px; background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(168,85,247,0.08)); border: 1.5px solid rgba(99,102,241,0.35);">
-                    <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(99,102,241,0.2); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: #818cf8;">
-                        <span class="material-symbols-rounded" style="font-size: 2rem;">account_balance</span>
+                    <div id="hub-unlinked-icon-box" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(99,102,241,0.2); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: #818cf8;">
+                        <span class="material-symbols-rounded" id="hub-unlinked-icon" style="font-size: 2rem;">account_balance</span>
                     </div>
-                    <div style="font-size: 1.15rem; font-weight: 800; color: #ffffff; margin-bottom: 6px;">소속 학원(B2B) 연동</div>
-                    <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 18px; max-width: 340px; margin-left: auto; margin-right: auto;">
+                    <div id="hub-unlinked-title" style="font-size: 1.15rem; font-weight: 800; color: #ffffff; margin-bottom: 6px;">소속 학원(B2B) 연동</div>
+                    <div id="hub-unlinked-desc" style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 18px; max-width: 340px; margin-left: auto; margin-right: auto;">
                         일원학원 등 소속 학원에서 발급받은 <b>학원 고유코드(예: ILWON-2027)</b>를 입력하시면 주차별 학사 일정, 복습 VOD(7일 락), OMR 자동채점 및 출결 관리가 즉시 활성화됩니다.
                     </div>
-                    <div style="display: flex; gap: 8px; max-width: 340px; margin: 0 auto;">
+                    <div id="hub-unlinked-form-area" style="display: flex; gap: 8px; max-width: 340px; margin: 0 auto;">
                         <input type="text" id="hub-input-academy-code" class="form-input" placeholder="학원 코드 (예: ILWON-2027)" value="" style="flex: 1; text-align: center; text-transform: uppercase; font-weight: 800; font-size: 0.92rem; letter-spacing: 1px;">
                         <button onclick="handleLinkAcademyCodeDirect()" class="btn" style="padding: 10px 18px; font-size: 0.88rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); white-space: nowrap;">연동하기</button>
+                    </div>
+                    <div id="hub-unlinked-pending-area" style="display: none; flex-direction: column; align-items: center; gap: 10px; max-width: 340px; margin: 0 auto;">
+                        <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 8px; padding: 8px 14px; color: #fbbf24; font-size: 0.82rem; font-weight: 800; width: 100%; box-sizing: border-box;">
+                            ⏳ 원장님 가맹 승인 심사 진행 중
+                        </div>
+                        <button onclick="handleCancelAcademyApplication()" class="btn btn-secondary" style="padding: 9px 18px; font-size: 0.82rem; color: #f87171; border-color: rgba(239, 68, 68, 0.4); width: 100%; font-weight: 800; cursor: pointer;">
+                            ✕ 가맹 신청 취소
+                        </button>
                     </div>
                 </div>
 
@@ -1801,27 +1809,27 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </div>
                     </div>
 
-                    <!-- 🧭 학원 관리 5대 서브탭 -->
-                    <div class="subtabs-container-hub" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 14px;">
-                        <button class="subtab-btn-hub-2x2 active" onclick="switchHubSubTab('feed')" id="hub-tab-feed" style="padding: 10px 4px;">
-                            <span class="material-symbols-rounded" style="font-size: 1.25rem; color: #c084fc;">calendar_month</span>
-                            <span style="font-size: 0.76rem; font-weight: 800;">학사일정</span>
+                    <!-- 🧭 학원 관리 5대 서브탭 (2x2 + 1 와이드 그리드) -->
+                    <div class="subtabs-container-hub" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;">
+                        <button class="subtab-btn-hub-2x2 active" onclick="switchHubSubTab('feed')" id="hub-tab-feed" style="padding: 12px 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #c084fc;">calendar_month</span>
+                            <span style="font-size: 0.88rem; font-weight: 800;">학사일정</span>
                         </button>
-                        <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('vod')" id="hub-tab-vod" style="padding: 10px 4px;">
-                            <span class="material-symbols-rounded" style="font-size: 1.25rem; color: #818cf8;">play_circle</span>
-                            <span style="font-size: 0.76rem; font-weight: 800;">복습 VOD</span>
+                        <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('vod')" id="hub-tab-vod" style="padding: 12px 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #818cf8;">play_circle</span>
+                            <span style="font-size: 0.88rem; font-weight: 800;">복습 VOD</span>
                         </button>
-                        <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('material')" id="hub-tab-material" style="padding: 10px 4px;">
-                            <span class="material-symbols-rounded" style="font-size: 1.25rem; color: #38bdf8;">folder_special</span>
-                            <span style="font-size: 0.76rem; font-weight: 800;">학원자료</span>
+                        <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('material')" id="hub-tab-material" style="padding: 12px 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #38bdf8;">folder_special</span>
+                            <span style="font-size: 0.88rem; font-weight: 800;">학원자료</span>
                         </button>
-                        <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('exam')" id="hub-tab-exam" style="padding: 10px 4px;">
-                            <span class="material-symbols-rounded" style="font-size: 1.25rem; color: #34d399;">document_scanner</span>
-                            <span style="font-size: 0.76rem; font-weight: 800;">시험·OMR</span>
+                        <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('exam')" id="hub-tab-exam" style="padding: 12px 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #34d399;">document_scanner</span>
+                            <span style="font-size: 0.88rem; font-weight: 800;">시험·OMR</span>
                         </button>
-                        <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('request')" id="hub-tab-request" style="padding: 10px 4px;">
-                            <span class="material-symbols-rounded" style="font-size: 1.25rem; color: #fbbf24;">support_agent</span>
-                            <span style="font-size: 0.76rem; font-weight: 800;">행정신청</span>
+                        <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('request')" id="hub-tab-request" style="grid-column: 1 / -1; padding: 12px 14px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <span class="material-symbols-rounded" style="font-size: 1.35rem; color: #fbbf24;">support_agent</span>
+                            <span style="font-size: 0.9rem; font-weight: 800;">원장 직통 행정신청 (휴강/복귀/사물함)</span>
                         </button>
                     </div>
 
@@ -3346,7 +3354,46 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app.js?v=20260904.7"></script>
+    <!-- 💡 서비스 불편사항 & 아이디어 건의함 모달 -->
+    <div id="feedback-modal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; backdrop-filter: blur(4px);">
+        <div class="modal-content" style="background: var(--card-bg, #1e293b); border: 1.5px solid #6366f1; border-radius: 16px; width: 90%; max-width: 420px; padding: 20px; box-sizing: border-box; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                <div style="font-size: 1.05rem; font-weight: 900; color: #818cf8; display: flex; align-items: center; gap: 6px;">
+                    <span class="material-symbols-rounded" style="color: #6366f1;">rate_review</span>
+                    <span>서비스 불편사항 & 아이디어 제안</span>
+                </div>
+                <button type="button" onclick="closeFeedbackModal()" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 6px; cursor: pointer;">✕</button>
+            </div>
+            <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.45; margin-bottom: 14px;">
+                PALIN OS를 이용하시면서 불편하셨던 점이나 새로운 아이디어를 남겨주세요. 본사 운영팀에서 신속히 검토하여 반영하겠습니다.
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div>
+                    <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px; font-weight: 700;">분류</label>
+                    <select id="feedback-category" class="form-input" style="font-weight: 700; width: 100%; box-sizing: border-box;">
+                        <option value="불편사항">🐛 시스템 불편사항 / 오류 제보</option>
+                        <option value="아이디어">💡 새로운 기능 및 개선 아이디어</option>
+                        <option value="콘텐츠">📚 학습 콘텐츠 및 문제 건의</option>
+                        <option value="기타">📋 기타 의견</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px; font-weight: 700;">상세 내용</label>
+                    <textarea id="feedback-content" class="form-input" placeholder="불편하셨던 내용이나 아이디어를 구체적으로 작성해 주세요..." style="height: 90px; width: 100%; box-sizing: border-box; font-size: 0.82rem;" required></textarea>
+                </div>
+                <div>
+                    <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px; font-weight: 700;">회신받을 이메일 (선택)</label>
+                    <input type="email" id="feedback-email" class="form-input" placeholder="답변을 받아보실 이메일 주소" style="width: 100%; box-sizing: border-box; font-size: 0.82rem;">
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 6px;">
+                    <button type="button" onclick="closeFeedbackModal()" class="btn btn-secondary" style="flex: 1; padding: 10px; font-size: 0.85rem; font-weight: 700;">취소</button>
+                    <button type="button" onclick="submitStudentFeedback()" class="btn" style="flex: 2; padding: 10px; font-size: 0.88rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">제출하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js?v=20260904.8"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소

@@ -1153,19 +1153,29 @@ div[style*="grid-template-columns"] > * {
 
 /* === 연속 출석(Streak) 불꽃 배지 === */
 .streak-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
     background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(245, 158, 11, 0.15));
     border: 1px solid rgba(245, 158, 11, 0.4);
-    padding: 4px 8px;
-    border-radius: 20px;
-    font-size: 0.76rem;
-    font-weight: 800;
+    padding: 0 10px !important;
+    height: 34px !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
+    border-radius: 20px !important;
+    font-size: 0.78rem !important;
+    font-weight: 800 !important;
     color: #f59e0b;
     white-space: nowrap !important;
     flex-shrink: 0 !important;
+    vertical-align: middle !important;
     animation: streakGlow 2s infinite alternate;
+}
+.streak-badge > span {
+    display: inline-flex !important;
+    align-items: center !important;
+    line-height: 1 !important;
 }
 
 @keyframes streakGlow {
@@ -1635,19 +1645,31 @@ header {
 }
 
 .streak-badge {
-    padding: 5px 10px !important;
+    padding: 0 10px !important;
+    height: 34px !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
     font-size: 0.8rem !important;
     font-weight: 800 !important;
-    border-radius: 16px !important;
+    border-radius: 20px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
 }
 
 .header-user-btn {
-    padding: 6px 12px !important;
+    padding: 0 12px !important;
+    height: 34px !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
     font-size: 0.82rem !important;
     border-radius: 20px !important;
-    display: flex !important;
+    display: inline-flex !important;
     align-items: center !important;
+    justify-content: center !important;
     gap: 5px !important;
+    vertical-align: middle !important;
 }
 
 #header-student-name {
@@ -1657,6 +1679,7 @@ header {
     text-overflow: clip !important;
     display: inline !important;
     font-weight: 800 !important;
+    line-height: 1 !important;
 }
 
 @media (max-width: 390px) {
@@ -1668,12 +1691,14 @@ header {
         font-size: 1.05rem !important;
     }
     .streak-badge {
-        padding: 4px 8px !important;
-        font-size: 0.76rem !important;
+        padding: 0 8px !important;
+        height: 32px !important;
+        font-size: 0.74rem !important;
     }
     .header-user-btn {
-        padding: 5px 10px !important;
-        font-size: 0.78rem !important;
+        padding: 0 10px !important;
+        height: 32px !important;
+        font-size: 0.76rem !important;
     }
 }
 

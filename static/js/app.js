@@ -12952,6 +12952,7 @@ function updateAcademyGNBVisibility() {
 
     const isApproved = currentStudent && currentStudent.academy_code && (currentStudent.academy_approval_status === "APPROVED");
     const isPending = currentStudent && currentStudent.academy_code && (currentStudent.academy_approval_status === "PENDING");
+    const isRejected = currentStudent && (currentStudent.academy_approval_status === "REJECTED");
 
     if (isApproved) {
         if (unlinkedCard) unlinkedCard.style.display = "none";
@@ -12997,17 +12998,52 @@ function updateAcademyGNBVisibility() {
     } else {
         if (unlinkedCard) {
             unlinkedCard.style.display = "block";
-            const unlinkedTitle = unlinkedCard.querySelector('div[style*="font-size: 1.15rem"]');
-            const unlinkedDesc = unlinkedCard.querySelector('div[style*="font-size: 0.8rem"]');
+            const unlinkedTitle = document.getElementById("hub-unlinked-title") || unlinkedCard.querySelector('div[style*="font-size: 1.15rem"]');
+            const unlinkedDesc = document.getElementById("hub-unlinked-desc") || unlinkedCard.querySelector('div[style*="font-size: 0.8rem"]');
+            const formArea = document.getElementById("hub-unlinked-form-area");
+            const pendingArea = document.getElementById("hub-unlinked-pending-area");
             if (isPending) {
                 if (unlinkedTitle) unlinkedTitle.innerText = "⏳ 학원장 승인 대기 중";
                 if (unlinkedDesc) unlinkedDesc.innerHTML = `소속 학원(<b>${currentStudent.academy_code}</b>)으로 등록 요청이 전송되었습니다.<br>학원 관리자(원장님)의 승인 완료 후 학사 일정, VOD, OMR 채점이 활성화됩니다.`;
+                if (formArea) formArea.style.display = "none";
+                if (pendingArea) pendingArea.style.display = "flex";
+            } else if (isRejected) {
+                if (unlinkedTitle) unlinkedTitle.innerText = "❌ 가맹 등록 반려됨";
+                if (unlinkedDesc) unlinkedDesc.innerHTML = "학원 관리자에 의해 가맹 등록 요청이 반려되었습니다.<br>학원 코드를 다시 확인하시거나 원장님께 문의 후 다시 등록해 주세요.";
+                if (formArea) formArea.style.display = "flex";
+                if (pendingArea) pendingArea.style.display = "none";
             } else {
                 if (unlinkedTitle) unlinkedTitle.innerText = "소속 학원(B2B) 연동";
                 if (unlinkedDesc) unlinkedDesc.innerHTML = "소속 학원에서 발급받은 <b>학원 고유코드</b>를 입력하시면 주차별 학사 일정, 복습 VOD(7일 락), OMR 자동채점 및 출결 관리가 즉시 활성화됩니다.";
+                if (formArea) formArea.style.display = "flex";
+                if (pendingArea) pendingArea.style.display = "none";
             }
         }
         if (linkedContent) linkedContent.style.display = "none";
+    }
+}
+
+async function handleCancelAcademyApplication() {
+    if (!confirm("가맹 학원 등록 신청을 취소하시겠습니까?")) return;
+    const studentId = (currentStudent && currentStudent.id) ? currentStudent.id : parseInt(localStorage.getItem("studentId") || "1", 10);
+    try {
+        const res = await fetch("/api/student/cancel-academy-code", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: studentId })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(`✅ ${data.message || "가맹 신청이 취소되었습니다."}`);
+            if (typeof fetchStudentInfo === 'function') {
+                fetchStudentInfo(studentId);
+            }
+        } else {
+            alert(data.detail || "취소 처리에 실패했습니다.");
+        }
+    } catch(e) {
+        console.error("handleCancelAcademyApplication error:", e);
+        alert("가맹 신청 취소 중 오류가 발생했습니다.");
     }
 }
 

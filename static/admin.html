@@ -215,6 +215,23 @@
             grid-template-columns: 240px 1fr;
             gap: 10px;
         }
+        .grid-mat-form {
+            display: grid;
+            grid-template-columns: 130px 150px 1fr;
+            gap: 8px;
+            align-items: center;
+        }
+        .grid-mat-files {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .grid-feed-form {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 8px;
+            align-items: center;
+        }
 
         #god-mode-banner {
             background: linear-gradient(135deg, #dc2626, #991b1b);
@@ -311,7 +328,10 @@
             .grid-sched-form,
             .grid-vod-form,
             .grid-two-col,
-            .grid-sms-target {
+            .grid-sms-target,
+            .grid-mat-form,
+            .grid-mat-files,
+            .grid-feed-form {
                 grid-template-columns: 1fr;
                 gap: 8px;
             }
@@ -615,7 +635,7 @@
                         <span>📢 주차별 학사일정 & 특별 공지사항 등록</span>
                     </div>
                     <form onsubmit="handleCreateFeed(event)" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
-                        <div style="display: grid; grid-template-columns: 100px 1fr; gap: 8px;">
+                        <div class="grid-feed-form">
                             <input type="text" id="feed-week" placeholder="예: 3주차" value="3주차" required class="form-input" style="text-align: center; font-weight: 800;">
                             <input type="text" id="feed-title" placeholder="공지 제목" required class="form-input">
                         </div>
@@ -651,7 +671,7 @@
                     
                     <!-- 학원 전용 자료 등록 폼 -->
                     <form onsubmit="handleUploadPrivateMaterial(event)" style="display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.25); padding: 14px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.2); margin-bottom: 14px;">
-                        <div style="display: grid; grid-template-columns: 130px 150px 1fr; gap: 8px;">
+                        <div class="grid-mat-form">
                             <div>
                                 <label style="font-size: 0.75rem; color: #38bdf8; font-weight: 800; display: block; margin-bottom: 4px;">🎯 대상 학년</label>
                                 <select id="pmat-grade" class="form-input" style="font-weight: 700; height: 42px; width: 100%; box-sizing: border-box;">
@@ -685,7 +705,7 @@
                             <input type="text" id="pmat-desc" placeholder="예: 수능완성 연계 비문학 3단계 구조도 워크북 및 실전 20제 수록" class="form-input" style="height: 40px; width: 100%; box-sizing: border-box;">
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div class="grid-mat-files">
                             <div style="background: rgba(0,0,0,0.3); padding: 10px 12px; border-radius: 8px; border: 1px dashed rgba(56,189,248,0.3);">
                                 <label style="font-size: 0.74rem; color: #38bdf8; font-weight: 800; display: block; margin-bottom: 4px;">📄 문제지 파일 (PDF/HWP 첨부 또는 다운로드 링크)</label>
                                 <input type="file" id="pmat-file" accept=".pdf,.hwp,.hwpx,application/pdf" style="font-size: 0.75rem; color: #cbd5e1; width: 100%; margin-bottom: 4px;">
@@ -729,7 +749,7 @@
                     
                     <!-- 기출문제 등록 폼 -->
                     <form onsubmit="handleUploadExamMaterial(event)" style="display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.25); padding: 14px; border-radius: 12px; border: 1px solid rgba(16,185,129,0.2); margin-bottom: 14px;">
-                        <div style="display: grid; grid-template-columns: 130px 150px 1fr; gap: 8px;">
+                        <div class="grid-mat-form">
                             <div>
                                 <label style="font-size: 0.75rem; color: #34d399; font-weight: 800; display: block; margin-bottom: 4px;">📅 수험 학년도</label>
                                 <select id="mat-year" class="form-input" style="font-weight: 700; height: 42px; width: 100%; box-sizing: border-box;">
@@ -775,7 +795,7 @@
                             <input type="text" id="mat-desc" placeholder="예: 최고난도 22번, 30번 손글씨 킬러 분석 및 문항별 정답률 포함" class="form-input" style="height: 40px; width: 100%; box-sizing: border-box;">
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div class="grid-mat-files">
                             <div style="background: rgba(0,0,0,0.3); padding: 10px 12px; border-radius: 8px; border: 1px dashed rgba(52,211,153,0.3);">
                                 <label style="font-size: 0.74rem; color: #34d399; font-weight: 800; display: block; margin-bottom: 4px;">📄 문제지 파일 (PDF 첨부 또는 다운로드 링크)</label>
                                 <input type="file" id="mat-file" accept=".pdf,application/pdf" style="font-size: 0.75rem; color: #cbd5e1; width: 100%; margin-bottom: 4px;">
@@ -900,7 +920,7 @@
                         <span id="pending-students-count-badge" style="background: #f59e0b; color: #000; font-size: 0.72rem; font-weight: 900; padding: 2px 8px; border-radius: 10px;">0건</span>
                     </div>
                     <div style="font-size: 0.76rem; color: #94a3b8; margin-bottom: 10px;">
-                        학원 초대 코드를 입력하여 승인을 요청한 학생들입니다. 승인 시 Tier 3 마스터 AI 무료 혜택이 부여됩니다.
+                        학원 초대 코드를 입력하여 승인을 요청한 학생들입니다. 승인 시 원장님의 가맹 라이선스 티어(Tier 1/2/3)에 맞춘 AI 및 학원 관리 권한이 부여됩니다.
                     </div>
                     <div id="admin-pending-students-list" style="display: flex; flex-direction: column; gap: 8px;">
                         <div style="text-align: center; color: #64748b; font-size: 0.78rem; padding: 12px;">현재 승인 대기 중인 학생이 없습니다.</div>
@@ -1186,6 +1206,7 @@
             }
             if (tabId === 'tab-students') {
                 fetchDashboardData();
+                loadPendingStudents();
             }
             if (tabId === 'tab-tutors') {
                 loadAdminTutors();
