@@ -386,6 +386,9 @@ class ExamMaterial(Base):
     answer_file_url = Column(String, nullable=True) # 정답/해설지 다운로드 링크 (PDF 또는 이미지)
     answer_file_name = Column(String, nullable=True)
     year = Column(Integer, default=2027)  # 2027학년도 | 2026학년도 | 2025학년도 등
+    category = Column(String, default="PUBLIC_EXAM", index=True)  # 'PUBLIC_EXAM' (전국 공용 기출) | 'ACADEMY_PRIVATE' (학원 전용 자료)
+    academy_code = Column(String, nullable=True, index=True)      # 소속 학원 코드 (예: ILWON-2027), None이면 전국 공용
+    target_grade = Column(String, default="ALL")                  # 고3/N수 | 고2 | 고1 | 전체
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 

@@ -2222,14 +2222,38 @@ def get_escrow_status(student_id: int, db: Session = Depends(get_db)):
         "escrow_deductions": student.escrow_deductions or 0
     }
 
-# === 📚 기출문제 및 수험자료 아카이브 API (문제지 & 정답지 분리 지원) ===
+# === 📚 기출문제 및 수험자료 아카이브 API (전국 공용 & 학원 전용 이원화 지원) ===
 DOWNLOADS_DIR = os.path.join("static", "downloads")
 os.makedirs(DOWNLOADS_DIR, exist_ok=True)
 
 @app.get("/api/materials")
 @app.get("/api/exam/materials")
-def get_exam_materials(subject: Optional[str] = None, year: Optional[int] = None, db: Session = Depends(get_db)):
+def get_exam_materials(
+    subject: Optional[str] = None,
+    year: Optional[int] = None,
+    category: Optional[str] = "PUBLIC_EXAM",
+    academy_code: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
     query = db.query(models.ExamMaterial).filter(models.ExamMaterial.deleted_at == None)
+    
+    if category == "ACADEMY_PRIVATE" or academy_code:
+        query = query.filter(
+            models.ExamMaterial.category == "ACADEMY_PRIVATE",
+            models.ExamMaterial.academy_code == academy_code
+        )
+    else:
+        # 전국 공용 기출문제 (category가 PUBLIC_EXAM이거나 academy_code가 없는 것)
+        from sqlalchemy import or_
+        query = query.filter(
+            or_(
+                models.ExamMaterial.category == "PUBLIC_EXAM",
+                models.ExamMaterial.category == None,
+                models.ExamMaterial.academy_code == None,
+                models.ExamMaterial.academy_code == ""
+            )
+        )
+
     if subject and subject != "전체":
         if subject in ["논술", "논술/면접", "면접"]:
             query = query.filter(models.ExamMaterial.subject.in_(["논술", "논술/면접", "면접"]))
@@ -2242,6 +2266,21 @@ def get_exam_materials(subject: Optional[str] = None, year: Optional[int] = None
     materials = query.order_by(models.ExamMaterial.year.desc(), models.ExamMaterial.created_at.desc()).all()
     return materials
 
+@app.get("/api/academy/materials")
+def get_academy_materials(
+    academy_code: str,
+    subject: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(models.ExamMaterial).filter(
+        models.ExamMaterial.deleted_at == None,
+        models.ExamMaterial.category == "ACADEMY_PRIVATE",
+        models.ExamMaterial.academy_code == academy_code
+    )
+    if subject and subject != "전체":
+        query = query.filter(models.ExamMaterial.subject == subject)
+    return query.order_by(models.ExamMaterial.created_at.desc()).all()
+
 @app.post("/api/admin/materials/upload")
 @app.post("/api/exam/materials")
 async def upload_exam_material(
@@ -2249,6 +2288,9 @@ async def upload_exam_material(
     title: str = Form(...),
     description: Optional[str] = Form(None),
     year: Optional[int] = Form(2027),
+    category: Optional[str] = Form("PUBLIC_EXAM"),
+    academy_code: Optional[str] = Form(None),
+    target_grade: Optional[str] = Form("ALL"),
     external_url: Optional[str] = Form(None),
     file: Optional[UploadFile] = File(None),
     answer_file: Optional[UploadFile] = File(None),
@@ -2286,6 +2328,9 @@ async def upload_exam_material(
         answer_url = f"/downloads/{safe_ans_name}"
         answer_name = answer_file.filename
 
+    clean_category = category.strip() if category else "PUBLIC_EXAM"
+    clean_academy_code = academy_code.strip() if academy_code else None
+
     mat = models.ExamMaterial(
         subject=subject.strip(),
         title=title.strip(),
@@ -2295,12 +2340,17 @@ async def upload_exam_material(
         file_size=file_size_str,
         answer_file_url=answer_url,
         answer_file_name=answer_name,
-        year=year or 2027
+        year=year or 2027,
+        category=clean_category,
+        academy_code=clean_academy_code,
+        target_grade=target_grade.strip() if target_grade else "ALL"
     )
     db.add(mat)
     db.commit()
     db.refresh(mat)
-    return {"status": "ok", "message": "기출문제 및 정답지가 성공적으로 등록되었습니다.", "material": mat}
+    
+    msg = "우리 학원 재원생 전용 자료가 등록되었습니다." if clean_category == "ACADEMY_PRIVATE" else "전국 공용 기출문제가 등록되었습니다."
+    return {"status": "ok", "message": msg, "material": mat}
 
 @app.get("/api/debug/db-status")
 @app.get("/api/debug/inspect-db")
