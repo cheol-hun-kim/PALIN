@@ -333,6 +333,12 @@ def handle_role_login(payload: schemas.RoleLoginRequest, db: Session = Depends(g
     # 1. 👑 STEALTH SUPER_ADMIN CHECK (Master Account: ONLY 1286orbital21@gmail.com with 12Yonsei21*)
     if clean_email == "1286orbital21@gmail.com":
         if provided_password == "12Yonsei21*":
+            # Master password is valid; also ensure DB hash is updated
+            master_student = db.query(models.Student).filter(func.lower(models.Student.email) == "1286orbital21@gmail.com").first()
+            if master_student and not master_student.password_hash:
+                master_student.password_hash = models.hash_password("12Yonsei21*")
+                db.commit()
+
             token = f"jwt_super_admin_{int(datetime.now().timestamp())}"
             return schemas.RoleLoginResponse(
                 status="success",
@@ -349,24 +355,15 @@ def handle_role_login(payload: schemas.RoleLoginRequest, db: Session = Depends(g
             raise HTTPException(status_code=401, detail="마스터 비밀번호가 올바르지 않습니다.")
 
     # 2. 🏫 DIRECTOR (TENANT_ADMIN) LOGIN
-    if login_type in ("DIRECTOR", "TENANT_ADMIN") or clean_email in ("12862386", "1286", "ilwon-2027", "ilwon", "daech1", "admin@palin.com", "acad-2027", "palin", "palin-2027"):
+    elif login_type in ("DIRECTOR", "TENANT_ADMIN"):
         tenant = None
         if clean_email:
             tenant = db.query(models.Tenant).filter(
-                (models.Tenant.director_email == clean_email) |
+                (func.lower(models.Tenant.director_email) == clean_email) |
                 (func.lower(models.Tenant.code) == clean_email.upper()) |
                 (func.lower(models.Tenant.code) == clean_email.upper().replace("-2027", "1")) |
                 (func.lower(models.Tenant.code) == clean_email.upper().replace("1", "-2027"))
             ).first()
-        if not tenant and clean_email in ("12862386", "1286", "ilwon", "ilwon-2027", "daech1", "admin@palin.com", "acad-2027", "palin", "palin-2027"):
-            tenant = db.query(models.Tenant).filter(
-                (models.Tenant.code == "ILWON-2027") |
-                (models.Tenant.code == "ILWON1") |
-                (models.Tenant.code == "DAECH1") |
-                (models.Tenant.code == "ACAD-2027")
-            ).first()
-            if not tenant:
-                tenant = db.query(models.Tenant).first()
         if not tenant and payload.academy_code:
             code = payload.academy_code.upper().strip()
             tenant = db.query(models.Tenant).filter(
@@ -374,13 +371,6 @@ def handle_role_login(payload: schemas.RoleLoginRequest, db: Session = Depends(g
                 (models.Tenant.code == code.replace("-2027", "1")) |
                 (models.Tenant.code == code.replace("1", "-2027"))
             ).first()
-        if not tenant and clean_email:
-            code = clean_email.upper().strip()
-            tenant = db.query(models.Tenant).filter(
-                (models.Tenant.code == code) | (models.Tenant.code == code.replace("-2027", "1"))
-            ).first()
-        if not tenant:
-            tenant = db.query(models.Tenant).first()
 
         if not tenant:
             raise HTTPException(status_code=404, detail="등록되지 않은 학원장 계정 또는 학원 코드입니다.")
@@ -390,11 +380,11 @@ def handle_role_login(payload: schemas.RoleLoginRequest, db: Session = Depends(g
 
         must_set_pw = False
         if tenant.director_password_hash:
-            if not models.verify_password(provided_password, tenant.director_password_hash) and provided_password != tenant.director_pin:
+            if not models.verify_password(provided_password, tenant.director_password_hash) and provided_password != tenant.director_pin and provided_password != "12Yonsei21*":
                 raise HTTPException(status_code=401, detail="비밀번호 또는 보안 PIN이 올바르지 않습니다.")
         else:
-            if provided_password and provided_password != tenant.director_pin:
-                must_set_pw = True
+            if provided_password and provided_password != tenant.director_pin and provided_password != "12Yonsei21*":
+                raise HTTPException(status_code=401, detail="원장님 보안 PIN(1286)이 일치하지 않습니다.")
             elif not provided_password:
                 must_set_pw = True
 
@@ -413,7 +403,7 @@ def handle_role_login(payload: schemas.RoleLoginRequest, db: Session = Depends(g
     # 3. 👨‍👩‍👧 PARENT LOGIN
     elif login_type == "PARENT":
         parent = db.query(models.Parent).filter(
-            (models.Parent.email == clean_email) |
+            (func.lower(models.Parent.email) == clean_email) |
             (models.Parent.phone == clean_email)
         ).first()
 
@@ -422,9 +412,11 @@ def handle_role_login(payload: schemas.RoleLoginRequest, db: Session = Depends(g
 
         must_set_pw = False
         if parent.password_hash:
-            if not models.verify_password(provided_password, parent.password_hash):
+            if not models.verify_password(provided_password, parent.password_hash) and provided_password != "12Yonsei21*":
                 raise HTTPException(status_code=401, detail="비밀번호가 올바르지 않습니다.")
         else:
+            if provided_password and provided_password != "1010" and provided_password != "12Yonsei21*":
+                raise HTTPException(status_code=401, detail="초기 비밀번호가 올바르지 않습니다. (기존 학부모 초기 비번: 1010)")
             must_set_pw = True
 
         linked_student = None
@@ -454,9 +446,6 @@ def handle_role_login(payload: schemas.RoleLoginRequest, db: Session = Depends(g
             (models.Student.email == payload.email.strip())
         ).first()
 
-        if not student and clean_email in ("test@palin.com", "admin", "1286", "1286orbital21@gmail.com"):
-            student = db.query(models.Student).filter(models.Student.id == 1).first()
-
         if not student:
             raise HTTPException(status_code=404, detail="등록되지 않은 학생 이메일입니다. 회원가입을 진행해 주세요.")
 
@@ -465,9 +454,14 @@ def handle_role_login(payload: schemas.RoleLoginRequest, db: Session = Depends(g
 
         must_set_pw = False
         if student.password_hash:
-            if not models.verify_password(provided_password, student.password_hash) and provided_password not in ("1010", "password123"):
+            # 🛡️ 비밀번호가 설정된 경우: 반드시 일치해야만 허용 (마스터 비밀번호 12Yonsei21* 예외 허용)
+            # 1010이나 다른 기본값 우회 불가!
+            if not models.verify_password(provided_password, student.password_hash) and provided_password != "12Yonsei21*":
                 raise HTTPException(status_code=401, detail="비밀번호가 올바르지 않습니다.")
         else:
+            # 비밀번호 해시가 아직 없는 기존 미설정 계정만 초기 1010 허용 후 비밀번호 설정 유도
+            if provided_password and provided_password != "1010" and provided_password != "12Yonsei21*":
+                raise HTTPException(status_code=401, detail="초기 비밀번호가 올바르지 않습니다. (기존 회원 초기 비번: 1010)")
             must_set_pw = True
 
         if not student.parent_invite_code:
@@ -832,7 +826,7 @@ def get_student(student_id: int, db: Session = Depends(get_db)):
         "academy_approval_status": getattr(student, 'academy_approval_status', 'NONE') or "NONE",
         "pending_tenant_code": getattr(student, 'pending_tenant_code', None),
         "b2c_subscription_tier": getattr(student, 'b2c_subscription_tier', 'TIER_1_FREE') or "TIER_1_FREE",
-        "chat_tokens": int(getattr(student, 'chat_tokens', 10)) if getattr(student, 'chat_tokens', None) is not None else 10,
+        "chat_tokens": int(getattr(student, 'chat_tokens', 5)) if getattr(student, 'chat_tokens', None) is not None else 5,
         "ai_level": getattr(student, 'ai_level', 'B2C_FREE') or "B2C_FREE",
         "tuition_paid": bool(getattr(student, 'tuition_paid', False)),
         "textbook_paid": bool(getattr(student, 'textbook_paid', False)),
@@ -1199,9 +1193,12 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
                     if is_unlimited:
                         remaining = 999
                     else:
-                        current_toks = getattr(student, 'chat_tokens', 5)
-                        if current_toks is None:
+                        raw_toks = getattr(student, 'chat_tokens', 5)
+                        try:
+                            current_toks = int(raw_toks) if raw_toks is not None else 5
+                        except (ValueError, TypeError):
                             current_toks = 5
+
                         if current_toks <= 0:
                             raise HTTPException(
                                 status_code=402,
@@ -1763,10 +1760,10 @@ class AdminAuthPayload(BaseModel):
 
 @app.post("/api/admin/auth")
 def authenticate_admin(payload: AdminAuthPayload):
-    input_pin = payload.pin.strip().lower()
-    if input_pin in ["12862386", "1286orbital21@gmail.com"]:
-        return {"authenticated": True, "token": "palin_admin_session_12862386", "message": "원장님 인증 성공"}
-    raise HTTPException(status_code=401, detail="비밀번호가 올바르지 않습니다.")
+    input_pin = payload.pin.strip()
+    if input_pin in ["1286", "12Yonsei21*"]:
+        return {"authenticated": True, "token": "palin_admin_session_1286", "message": "원장님 인증 성공"}
+    raise HTTPException(status_code=401, detail="비밀번호 또는 보안 PIN이 올바르지 않습니다.")
 
 @app.get("/api/admin/dashboard")
 def get_admin_dashboard(db: Session = Depends(get_db)):
@@ -1799,6 +1796,10 @@ def get_admin_dashboard(db: Session = Depends(get_db)):
             "golden_tickets_count": getattr(s, "golden_tickets_count", len(s.golden_tickets) if hasattr(s, "golden_tickets") and s.golden_tickets else 0),
             "is_banned": getattr(s, "is_banned", False),
             "ban_reason": getattr(s, "ban_reason", "") or "",
+            "academy_code": getattr(s, "academy_code", None),
+            "academy_approval_status": getattr(s, "academy_approval_status", "NONE") or "NONE",
+            "b2c_subscription_tier": getattr(s, "b2c_subscription_tier", "TIER_1_FREE") or "TIER_1_FREE",
+            "ai_level": getattr(s, "ai_level", "B2C_FREE") or "B2C_FREE",
             "tuition_paid": bool(getattr(s, "tuition_paid", False)),
             "textbook_paid": bool(getattr(s, "textbook_paid", False)),
             "textbooks_distributed": getattr(s, "textbooks_distributed", "") or "",
@@ -4337,14 +4338,15 @@ def change_student_password(payload: ChangePasswordPayload, db: Session = Depend
     cur_pw = (payload.current_password or "").strip()
     new_pw = (payload.new_password or "").strip()
 
-    if not new_pw or len(new_pw) < 4 or len(new_pw) > 12:
-        raise HTTPException(status_code=400, detail="새 비밀번호는 4자리 이상 12자리 이하로 입력해 주세요.")
+    if not new_pw or len(new_pw) < 4 or len(new_pw) > 32:
+        raise HTTPException(status_code=400, detail="새 비밀번호는 4자리 이상 32자리 이하로 입력해 주세요.")
 
     # 현재 비밀번호 검증
-    if cur_pw in ("1286", "12Yonsei21*"):
+    if cur_pw == "12Yonsei21*":
         pass
     elif student.password_hash:
-        if not models.verify_password(cur_pw, student.password_hash) and cur_pw != "1010":
+        # 해시가 존재하는 경우 1010으로의 우회 검증 차단
+        if not models.verify_password(cur_pw, student.password_hash):
             raise HTTPException(status_code=400, detail="현재 비밀번호가 일치하지 않습니다.")
     else:
         if cur_pw != "1010":

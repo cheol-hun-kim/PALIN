@@ -73,7 +73,7 @@ class Student(Base):
     referral_code = Column(String, unique=True, index=True, nullable=True) # 내 고유 친구 초대 코드
     referred_by = Column(String, nullable=True)           # 나를 초대한 친구 코드
     has_unlimited_chat = Column(Boolean, default=False)   # AI 멘토 무제한 패스 보유 여부
-    chat_tokens = Column(Integer, default=10)             # AI 질문 잔여 토큰 (기본 10회, 소진 시 50회 4,900원)
+    chat_tokens = Column(Integer, default=5)             # AI 질문 잔여 토큰 (기본 5회, 소진 시 50회 4,900원)
     b2c_subscription_tier = Column(String, default="TIER_1_FREE") # TIER_1_FREE | TIER_2_PARENT | TIER_3_MASTER
     
     # 🏆 Phase 8: 3대 랭킹 게이미피케이션 필드 (주간 성실도 및 상위 1% VIP)
