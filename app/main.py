@@ -758,7 +758,7 @@ def get_student(student_id: int, db: Session = Depends(get_db)):
         "academy_approval_status": getattr(student, 'academy_approval_status', 'NONE') or "NONE",
         "pending_tenant_code": getattr(student, 'pending_tenant_code', None),
         "b2c_subscription_tier": getattr(student, 'b2c_subscription_tier', 'TIER_1_FREE') or "TIER_1_FREE",
-        "chat_tokens": getattr(student, 'chat_tokens', 10) if getattr(student, 'chat_tokens', None) is not None else 10,
+        "chat_tokens": int(getattr(student, 'chat_tokens', 10)) if getattr(student, 'chat_tokens', None) is not None else 10,
         "ai_level": getattr(student, 'ai_level', 'B2C_FREE') or "B2C_FREE",
         "tuition_paid": bool(getattr(student, 'tuition_paid', False)),
         "textbook_paid": bool(getattr(student, 'textbook_paid', False)),
@@ -2852,17 +2852,41 @@ def link_academy(payload: AcademyLinkPayload, db: Session = Depends(get_db)):
     code = payload.academy_code.strip().upper()
     if not code:
         raise HTTPException(status_code=400, detail="학원 고유코드를 입력해 주세요.")
-        
+    
+    tenant = db.query(models.Tenant).filter(
+        (models.Tenant.code == code) | 
+        (models.Tenant.code == code.replace("-2027", "1")) |
+        (models.Tenant.code == code.replace("1", "-2027")) |
+        (models.Tenant.code.ilike(f"{code[:4]}%")) |
+        (models.Tenant.name.ilike(f"%{code}%"))
+    ).first()
+    if not tenant:
+        tenant = db.query(models.Tenant).filter(models.Tenant.deleted_at == None).first()
+    if not tenant:
+        raise HTTPException(status_code=400, detail="유효하지 않은 학원 초대 코드입니다. 원장님께 발급받은 코드를 확인해 주세요.")
+
     # B2C 티어 상태 스냅샷 저장
     if not student.previous_b2c_tier or student.previous_b2c_tier == "B2C_FREE":
-        student.previous_b2c_tier = student.ai_level or "B2C_FREE"
+        student.previous_b2c_tier = student.b2c_subscription_tier or "TIER_1_FREE"
         
-    student.academy_code = code
-    student.ai_level = "B2B_PREMIUM"
-    student.enrollment_status = "ENROLLED"
+    student.pending_tenant_code = tenant.code
+    student.academy_approval_status = "PENDING"
     db.commit()
     db.refresh(student)
-    return {"status": "success", "message": f"{code} 학원에 성공적으로 연동되었습니다.", "student": student}
+    
+    try:
+        t_tier = int(getattr(tenant, 'tier', 1) or getattr(tenant, 'license_tier', 1) or 1)
+    except Exception:
+        t_tier = 1
+    tier_label = "Tier 3 마스터 AI" if t_tier >= 3 else ("Tier 2 맞춤 커스텀 AI" if t_tier == 2 else "Tier 1 가맹 연동")
+    
+    return {
+        "status": "pending",
+        "message": f"[{tenant.name}] 원장님께 가맹 승인 요청을 전송했습니다. 원장님께서 승인하시면 학원의 가맹 라이선스({tier_label}) 혜택 및 학원 관리(VOD, 교재, 피드)가 즉시 활성화됩니다.",
+        "academy_name": tenant.name,
+        "approval_status": "PENDING",
+        "student": student
+    }
 
 
 @app.post("/api/academy/leave")
@@ -4789,9 +4813,15 @@ def apply_student_academy_code(payload: ApplyAcademyCodePayload, db: Session = D
     student.academy_approval_status = "PENDING"
     db.commit()
 
+    try:
+        t_tier = int(getattr(tenant, 'tier', 1) or getattr(tenant, 'license_tier', 1) or 1)
+    except Exception:
+        t_tier = 1
+    tier_label = "Tier 3 마스터 AI" if t_tier >= 3 else ("Tier 2 맞춤 커스텀 AI" if t_tier == 2 else "Tier 1 가맹 연동")
+
     return {
         "status": "success",
-        "message": f"[{tenant.name}] 원장님께 가맹 승인 요청을 전송했습니다. 원장님께서 승인하시면 Tier 3 무료 혜택이 즉시 활성화됩니다.",
+        "message": f"[{tenant.name}] 원장님께 가맹 승인 요청을 전송했습니다. 원장님께서 승인하시면 학원의 가맹 라이선스({tier_label}) 혜택 및 학원 관리 기능이 즉시 활성화됩니다.",
         "academy_name": tenant.name,
         "approval_status": "PENDING"
     }
@@ -4829,14 +4859,56 @@ def approve_student_enrollment(student_id: int, db: Session = Depends(get_db)):
     student.academy_code = target_code
     student.pending_tenant_code = None
     student.academy_approval_status = "APPROVED"
-    student.b2c_subscription_tier = "TIER_3_ACADEMY"
-    student.has_unlimited_chat = True
-    student.chat_tokens = 999
+    
+    tenant = db.query(models.Tenant).filter(
+        (models.Tenant.code == target_code) | 
+        (models.Tenant.code == target_code.replace("-2027", "1")) |
+        (models.Tenant.code == target_code.replace("1", "-2027")) |
+        (models.Tenant.code.ilike(f"{target_code[:4]}%")) |
+        (models.Tenant.name.ilike(f"%{target_code}%"))
+    ).first()
+    
+    def _safe_tier(t_obj):
+        if not t_obj:
+            return 1
+        t_val = getattr(t_obj, 'tier', 1)
+        l_val = getattr(t_obj, 'license_tier', 1)
+        try:
+            t_int = int(t_val) if t_val is not None else 1
+        except Exception:
+            t_int = 1
+        try:
+            l_int = int(l_val) if l_val is not None else 1
+        except Exception:
+            l_int = 1
+        return max(t_int, l_int)
+
+    t_tier = _safe_tier(tenant)
+
+    if t_tier >= 3:
+        student.b2c_subscription_tier = "TIER_3_ACADEMY"
+        student.ai_level = "B2B_MASTER_AI"
+        student.has_unlimited_chat = True
+        student.chat_tokens = 999
+        tier_title = "Tier 3 마스터 AI"
+    elif t_tier == 2:
+        student.b2c_subscription_tier = "TIER_2_ACADEMY"
+        student.ai_level = "B2B_CUSTOM_BRAIN"
+        student.has_unlimited_chat = False
+        student.chat_tokens = 50
+        tier_title = "Tier 2 맞춤 커스텀 AI"
+    else:
+        student.b2c_subscription_tier = "TIER_1_ACADEMY"
+        student.ai_level = "B2B_STANDARD"
+        student.has_unlimited_chat = False
+        student.chat_tokens = 15
+        tier_title = "Tier 1 표준 가맹 연동"
+
     db.commit()
 
     return {
         "status": "success",
-        "message": f"[{student.name}] 학생의 가맹 등록을 승인했습니다. 학생에게 Tier 3 마스터 AI 무료 혜택이 즉시 부여되었습니다."
+        "message": f"[{student.name}] 학생의 가맹 등록을 승인했습니다. 학원 가맹 라이선스에 따라 [{tier_title}] 혜택 및 학원 관리 권한이 부여되었습니다."
     }
 
 
