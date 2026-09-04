@@ -291,7 +291,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 <span style="font-size: 0.72rem; color: #ffffff; background: #4f46e5; border: 1px solid #818cf8; padding: 2px 8px; border-radius: 12px; font-weight: 800;">STUDENT</span>
                             </div>
                             <input type="text" id="st-login-email" class="auth-input" placeholder="학생 이메일 또는 마스터 ID" required>
-                            <input type="password" id="st-login-password" class="auth-input" placeholder="비밀번호 (기존 회원 초기비번: 1010)" maxlength="12" required>
+                            <input type="password" id="st-login-password" class="auth-input" placeholder="비밀번호 (기존 회원 초기비번: 1010)" maxlength="32" required>
                             <div id="dynamic-login-notice-student" style="font-size: 0.78rem; color: #ffffff; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.5; background: rgba(99,102,241,0.18); border: 1.5px solid #818cf8; border-radius: 10px; padding: 10px 14px; box-sizing: border-box; font-weight: 500; display: block;">
                                 📢 <b style="color: #c7d2fe; font-weight: 800;">[보안 업데이트]</b> 기존 가입 회원의 초기 비밀번호는 <b style="color: #c7d2fe; font-weight: 800;">1010</b> 입니다. 로그인 후 마이페이지에서 변경하실 수 있습니다.
                             </div>
@@ -2057,7 +2057,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <div id="mypage-tier-free-badge" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; gap: 6px;">
                         <div>
                             <span style="font-size: 0.78rem; font-weight: 800; color: #94a3b8;">Tier 1 기본 AI (무료 체험)</span>
-                            <div style="font-size: 0.68rem; color: #64748b; margin-top: 1px;">일반 학습 코칭 · 잔여 토큰 10회</div>
+                            <div style="font-size: 0.68rem; color: #64748b; margin-top: 1px;">일반 학습 코칭 · 잔여 토큰 <span id="mypage-token-count">5</span>회</div>
                         </div>
                         <button type="button" onclick="openB2CMembershipModal()" class="btn" style="padding: 5px 10px; font-size: 0.72rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border-radius: 6px; white-space: nowrap;">
                             멤버십 요금제 보기
@@ -2239,12 +2239,12 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <!-- 🔐 비밀번호 변경 섹션 (최대 12자리) -->
                     <div style="margin-top: 14px; padding: 14px 12px; background: rgba(0,0,0,0.25); border: 1px solid rgba(167,139,250,0.3); border-radius: 12px;">
                         <div style="font-size: 0.82rem; font-weight: 800; color: #a78bfa; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">
-                            <span>🔐</span> 로그인 비밀번호 변경 (최대 12자리)
+                            <span>🔐</span> 로그인 비밀번호 변경 (4~32자리)
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px;">
-                            <input type="password" id="mypage-current-password" class="form-input" placeholder="현재 비밀번호 (기존 회원 초기 비번: 1010)" maxlength="12" style="font-size: 0.8rem;">
-                            <input type="password" id="mypage-new-password" class="form-input" placeholder="새 비밀번호 (4~12자리)" maxlength="12" style="font-size: 0.8rem;">
-                            <input type="password" id="mypage-new-password-confirm" class="form-input" placeholder="새 비밀번호 확인 (최대 12자리)" maxlength="12" style="font-size: 0.8rem;">
+                            <input type="password" id="mypage-current-password" class="form-input" placeholder="현재 비밀번호 (기존 회원 초기 비번: 1010)" maxlength="32" style="font-size: 0.8rem;">
+                            <input type="password" id="mypage-new-password" class="form-input" placeholder="새 비밀번호 (4~32자리)" maxlength="32" style="font-size: 0.8rem;">
+                            <input type="password" id="mypage-new-password-confirm" class="form-input" placeholder="새 비밀번호 확인 (최대 32자리)" maxlength="32" style="font-size: 0.8rem;">
                         </div>
                         <button type="button" onclick="changeStudentPassword()" class="btn btn-secondary" style="width: 100%; padding: 8px 0; font-size: 0.8rem; font-weight: 700; border-color: #6366f1; color: #a5b4fc;">
                             ✓ 비밀번호 변경하기

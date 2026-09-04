@@ -2005,10 +2005,14 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
 
                 // Tier filter
                 if (tierFilter !== "ALL") {
+                    const isApprovedAcademy = (s.academy_approval_status === "APPROVED" || (s.academy_code && s.academy_approval_status !== "REJECTED" && s.academy_approval_status !== "PENDING"));
                     const tierStr = (s.b2c_subscription_tier || "").toUpperCase();
-                    if (tierFilter === "TIER_3" && !tierStr.includes("TIER_3")) return false;
-                    if (tierFilter === "TIER_2" && !tierStr.includes("TIER_2")) return false;
-                    if (tierFilter === "TIER_1" && !tierStr.includes("TIER_1") && !tierStr.includes("FREE") && tierStr !== "") return false;
+                    const isTier3 = isApprovedAcademy || tierStr.includes("TIER_3");
+                    const isTier2 = !isTier3 && tierStr.includes("TIER_2");
+                    const isTier1 = !isTier3 && !isTier2;
+                    if (tierFilter === "TIER_3" && !isTier3) return false;
+                    if (tierFilter === "TIER_2" && !isTier2) return false;
+                    if (tierFilter === "TIER_1" && !isTier1) return false;
                 }
 
                 // Status filter
@@ -2054,11 +2058,13 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
             }
 
             tbody.innerHTML = students.map(s => {
-                // Tier Badge
-                let tierBadge = '<span style="display: inline-flex; align-items: center; justify-content: center; background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); font-size: 0.74rem; padding: 4px 8px; border-radius: 6px; font-weight: 800; white-space: nowrap;">Tier 1 (기본)</span>';
+                // Tier Badge (학원 승인 회원은 학원 스폰서십으로 Tier 3 전액 지원 적용)
+                const isApprovedAcademy = (s.academy_approval_status === "APPROVED" || (s.academy_code && s.academy_approval_status !== "REJECTED" && s.academy_approval_status !== "PENDING"));
                 const tierStr = (s.b2c_subscription_tier || "").toUpperCase();
-                if (tierStr.includes("TIER_3")) {
-                    tierBadge = '<span style="display: inline-flex; align-items: center; justify-content: center; background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid #f59e0b; font-size: 0.74rem; padding: 4px 8px; border-radius: 6px; font-weight: 900; white-space: nowrap;">👑 Tier 3 (VIP)</span>';
+                let tierBadge = '<span style="display: inline-flex; align-items: center; justify-content: center; background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); font-size: 0.74rem; padding: 4px 8px; border-radius: 6px; font-weight: 800; white-space: nowrap;">Tier 1 (기본)</span>';
+
+                if (isApprovedAcademy || tierStr.includes("TIER_3")) {
+                    tierBadge = '<span style="display: inline-flex; align-items: center; justify-content: center; background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid #10b981; font-size: 0.74rem; padding: 4px 8px; border-radius: 6px; font-weight: 900; white-space: nowrap;">👑 Tier 3 (학원생)</span>';
                 } else if (tierStr.includes("TIER_2")) {
                     tierBadge = '<span style="display: inline-flex; align-items: center; justify-content: center; background: rgba(99,102,241,0.2); color: #a5b4fc; border: 1px solid #6366f1; font-size: 0.74rem; padding: 4px 8px; border-radius: 6px; font-weight: 800; white-space: nowrap;">🧠 Tier 2 (맞춤)</span>';
                 }

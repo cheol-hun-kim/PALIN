@@ -6183,6 +6183,32 @@ function updateHeaderUI() {
 
     if (sleepLabel) sleepLabel.innerText = `취침 미션 (${currentStudent.sleep_target_time || "23:30"})`;
 
+    // 🤖 AI 챗봇 대화 잔여 토큰 실시간 렌더링
+    const chatLim = document.getElementById("chat-limit-label");
+    const mypageTok = document.getElementById("mypage-token-count");
+    const isApprovedAcademy = (currentStudent.academy_approval_status === "APPROVED" || (currentStudent.academy_code && currentStudent.academy_approval_status !== "REJECTED" && currentStudent.academy_approval_status !== "PENDING"));
+    const isUnlimited = isApprovedAcademy ||
+                        Boolean(currentStudent.has_unlimited_chat) ||
+                        (currentStudent.parent && currentStudent.parent.is_premium_subscribed) ||
+                        ['TIER_2_PARENT', 'TIER_3_MASTER', 'TIER_2_ACADEMY', 'TIER_3_ACADEMY'].includes(currentStudent.b2c_subscription_tier);
+
+    if (chatLim) {
+        if (isUnlimited) {
+            chatLim.innerText = "⚡ 무제한 마스터 AI 대화 패스 활성화 중";
+            chatLim.style.color = "#34d399";
+            chatLim.style.fontWeight = "700";
+        } else {
+            const toks = (currentStudent.chat_tokens !== undefined && currentStudent.chat_tokens !== null) ? currentStudent.chat_tokens : 5;
+            chatLim.innerText = `오늘 남은 무료 대화: ${toks}회`;
+            chatLim.style.color = "var(--text-secondary)";
+            chatLim.style.fontWeight = "normal";
+        }
+    }
+    if (mypageTok) {
+        const toks = (currentStudent.chat_tokens !== undefined && currentStudent.chat_tokens !== null) ? currentStudent.chat_tokens : 5;
+        mypageTok.innerText = toks;
+    }
+
     const premiumBtn = document.getElementById("premium-toggle-btn");
 
     if (premiumBtn) {
@@ -8656,13 +8682,25 @@ async function sendChatMessage() {
         // 대화 기록에 봇 응답 추가
         chatHistory.push({ role: "bot", content: data.reply });
 
+        if (currentStudent && data.remaining_chats !== undefined) {
+            currentStudent.chat_tokens = data.remaining_chats;
+        }
+
         const limitLabel = document.getElementById("chat-limit-label");
+        const mypageTok = document.getElementById("mypage-token-count");
         if (limitLabel) {
             if (data.remaining_chats >= 900) {
                 limitLabel.innerText = "⚡ 무제한 마스터 AI 대화 패스 활성화 중";
+                limitLabel.style.color = "#34d399";
+                limitLabel.style.fontWeight = "700";
             } else {
                 limitLabel.innerText = `오늘 남은 무료 대화: ${data.remaining_chats}회`;
+                limitLabel.style.color = "var(--text-secondary)";
+                limitLabel.style.fontWeight = "normal";
             }
+        }
+        if (mypageTok && data.remaining_chats < 900) {
+            mypageTok.innerText = data.remaining_chats;
         }
 
     } catch (e) {
@@ -14206,9 +14244,9 @@ async function changeStudentPassword() {
 
     }
 
-    if (!newPw || newPw.length < 4 || newPw.length > 12) {
+    if (!newPw || newPw.length < 4 || newPw.length > 32) {
 
-        alert("새 비밀번호는 4자리 이상 12자리 이하로 입력해 주세요.");
+        alert("새 비밀번호는 4자리 이상 32자리 이하로 입력해 주세요.");
 
         return;
 
