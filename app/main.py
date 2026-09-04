@@ -1079,7 +1079,7 @@ def delete_planner_block(block_id: int, db: Session = Depends(get_db)):
 def update_student_streak(student: models.Student, db: Session):
     today = datetime.now().date()
     if not student.last_streak_date:
-        student.streak_days = max(1, student.streak_days or 7)
+        student.streak_days = max(1, student.streak_days or 1)
         student.last_streak_date = today
     else:
         last_date = student.last_streak_date
@@ -1087,13 +1087,12 @@ def update_student_streak(student: models.Student, db: Session):
             last_date = last_date.date()
         diff = (today - last_date).days
         if diff == 0:
-            if not student.streak_days or student.streak_days <= 0:
-                student.streak_days = 7
+            pass
         elif diff == 1:
-            student.streak_days = (student.streak_days or 7) + 1
+            student.streak_days = (student.streak_days or 0) + 1
             student.last_streak_date = today
         elif diff > 1:
-            student.streak_days = max(1, student.streak_days or 7)
+            student.streak_days = 1
             student.last_streak_date = today
 
     if (student.streak_days or 0) > (student.max_streak_days or 0):
@@ -1121,13 +1120,16 @@ def manage_session(payload: schemas.StudySessionRequest, db: Session = Depends(g
         session.is_distracted = payload.is_distracted
         if payload.is_distracted:
             if student.parent:
-                send_mock_sms(student.parent.phone, f"\uc790\ub140({student.name})\uac00 \uacf5\ubd80 \uc911 \ub534\uc9d3\uc744 \ud588\uc2b5\ub2c8\ub2e4.")
+                send_mock_sms(student.parent.phone, f"자녀({student.name})가 공부 중 딴짓을 했습니다.")
         else:
-            earned = int((session.duration_sec / 60) * (student.point_multiplier or 1.0))
+            duration_mins = max(1, int(session.duration_sec / 60))
+            earned = int(duration_mins * (student.point_multiplier or 1.0))
             student.current_points = (student.current_points or 0) + earned
-            # 성실도 점수 적립 (1분당 1점)
-            student.diligence_score = (student.diligence_score or 0) + int(session.duration_sec / 60)
-            db.add(models.PointHistory(student_id=student.id, amount=earned, description="\uacf5\ubd80 \uc9d1\uc911 \ubcf4\uc0c1"))
+            # 성실도 점수 및 주간 랭킹 포인트 적립
+            student.diligence_score = (student.diligence_score or 0) + duration_mins
+            student.weekly_diligence_points = (student.weekly_diligence_points or 0) + duration_mins
+            update_student_streak(student, db)
+            db.add(models.PointHistory(student_id=student.id, amount=earned, description="공부 집중 보상"))
         db.commit()
         db.refresh(session)
         return session
@@ -4422,7 +4424,7 @@ def get_master_all_students(include_deleted: bool = True, db: Session = Depends(
         total_mins = 0
         try:
             sessions = s.study_sessions
-            total_mins = sum(getattr(sess, 'duration_min', 0) or ((getattr(sess, 'duration_seconds', 0) or 0)//60) for sess in sessions)
+            total_mins = sum((sess.duration_sec or 0) // 60 for sess in sessions)
         except Exception:
             total_mins = 0
 
@@ -4450,7 +4452,6 @@ def get_master_all_students(include_deleted: bool = True, db: Session = Depends(
             "current_points": s.current_points or 0,
             "paid_cash": s.paid_cash or 0,
             "free_report_tickets": s.free_report_tickets or 0,
-            "golden_tickets_count": getattr(s, 'golden_tickets_count', 0) or getattr(s, 'golden_tickets', 0) or 0,
             "diligence_score": s.diligence_score or 0,
             "streak_days": s.streak_days or 0,
             "total_study_minutes": total_mins,
@@ -5158,12 +5159,14 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
     if not student:
         raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
 
-    today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    today_sessions = db.query(models.StudySession).filter(
+    now = datetime.now()
+    week_start = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    week_sessions = db.query(models.StudySession).filter(
         models.StudySession.student_id == student.id,
-        models.StudySession.created_at >= today_start
+        models.StudySession.created_at >= week_start
     ).all()
-    my_seconds = sum(getattr(s, 'duration_seconds', 0) or 0 for s in today_sessions)
+    my_seconds = sum((s.duration_sec or 0) for s in week_sessions)
     my_mins = my_seconds // 60
     my_hours = my_mins // 60
     my_rem_mins = my_mins % 60
@@ -5182,9 +5185,9 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
     for st in region_students:
         st_sess = db.query(models.StudySession).filter(
             models.StudySession.student_id == st.id,
-            models.StudySession.created_at >= today_start
+            models.StudySession.created_at >= week_start
         ).all()
-        sec = sum(getattr(s, 'duration_seconds', 0) or 0 for s in st_sess)
+        sec = sum((s.duration_sec or 0) for s in st_sess)
         region_scores.append((st.id, sec))
     region_scores.sort(key=lambda x: x[1], reverse=True)
 
@@ -5198,9 +5201,9 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
     for st in school_students:
         st_sess = db.query(models.StudySession).filter(
             models.StudySession.student_id == st.id,
-            models.StudySession.created_at >= today_start
+            models.StudySession.created_at >= week_start
         ).all()
-        sec = sum(getattr(s, 'duration_seconds', 0) or 0 for s in st_sess)
+        sec = sum((s.duration_sec or 0) for s in st_sess)
         school_scores.append((st.id, sec))
     school_scores.sort(key=lambda x: x[1], reverse=True)
 
@@ -5237,9 +5240,9 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
     for p in peer_students:
         p_sessions = db.query(models.StudySession).filter(
             models.StudySession.student_id == p.id,
-            models.StudySession.created_at >= today_start
+            models.StudySession.created_at >= week_start
         ).all()
-        p_sec = sum(getattr(s, 'duration_seconds', 0) or 0 for s in p_sessions)
+        p_sec = sum((s.duration_sec or 0) for s in p_sessions)
         p_m = p_sec // 60
         p_h = p_m // 60
         p_rm = p_m % 60

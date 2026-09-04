@@ -137,4 +137,39 @@ def auto_seed_database(db: Session, engine):
         except Exception:
             db.rollback()
 
+    # STEP C: Ensure Study Sessions exist for students
+    try:
+        from datetime import timedelta
+        import random
+        now = datetime.now()
+        for st in db.query(models.Student).all():
+            if db.query(models.StudySession).filter(models.StudySession.student_id == st.id).count() == 0:
+                total_sec = 0
+                for _ in range(random.randint(6, 15)):
+                    days_ago = random.randint(0, 7)
+                    hours_ago = random.randint(1, 12)
+                    start_dt = (now - timedelta(days=days_ago, hours=hours_ago)).replace(minute=random.randint(0, 50), second=0)
+                    dur_sec = random.randint(45, 150) * 60
+                    end_dt = start_dt + timedelta(seconds=dur_sec)
+                    total_sec += dur_sec
+                    db.add(models.StudySession(
+                        student_id=st.id,
+                        start_time=start_dt,
+                        end_time=end_dt,
+                        duration_sec=dur_sec,
+                        is_distracted=False,
+                        created_at=start_dt,
+                        deleted_at=None
+                    ))
+                total_mins = total_sec // 60
+                st.diligence_score = (st.diligence_score or 0) + total_mins
+                st.weekly_diligence_points = (st.weekly_diligence_points or 0) + total_mins
+                if not st.streak_days:
+                    st.streak_days = random.randint(3, 10)
+                st.last_streak_date = now.date()
+        db.commit()
+    except Exception as se_err:
+        db.rollback()
+        print(f"[AUTO_SEED] Study session seed warning: {se_err}")
+
     print("[AUTO_SEED] Seeding completed.")
