@@ -443,6 +443,11 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 🔐 학원장 관제실 접속
                             </button>
                         </form>
+                        <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06);">
+                            <button type="button" onclick="openDirectorDemoModal()" style="background: none; border: none; font-size: 0.78rem; font-weight: 700; color: #fbbf24; cursor: pointer; text-decoration: none;">
+                                ✨ 관제실 기능을 미리 둘러보고 싶으신가요? <u style="text-underline-offset: 3px;">원장 체험 모드 (데모) →</u>
+                            </button>
+                        </div>
                         <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
                             <button type="button" onclick="openB2BContactModal()" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #fbbf24; border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.08); border-radius: 8px;">
                                 🏫 학원장 전용 가맹 솔루션 도입 문의
@@ -3010,7 +3015,222 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app.js?v=20260904.1"></script>
+    <!-- 🏛️ 6. 학원장 관제실 모델하우스(체험 모드) 안내 모달 -->
+    <div class="modal" id="director-demo-modal" style="display: none; align-items: center; justify-content: center; z-index: 10003; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);">
+        <div class="modal-content" style="max-width: 440px; width: 92%; background: #0f172a; border: 1.5px solid #fbbf24; border-radius: 20px; padding: 22px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
+                <div style="font-size: 1.05rem; font-weight: 900; color: #fbbf24; display: flex; align-items: center; gap: 6px;">
+                    <span class="material-symbols-rounded">visibility</span>
+                    <span>학원장 관제실 모델하우스 (체험 모드)</span>
+                </div>
+                <button onclick="closeDirectorDemoModal()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.85rem; border: none; cursor: pointer;">&times;</button>
+            </div>
+            
+            <p style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 14px;">
+                가맹 전, <b>원장님 관제실 · 학생 앱 · 학부모 안심 앱</b>의 모든 유기적 통제 기능을 60초 만에 직접 둘러보실 수 있는 통합 체험 모드입니다.
+            </p>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(245,158,11,0.25); border-radius: 10px; padding: 10px;">
+                    <div style="font-size: 0.82rem; font-weight: 800; color: #fbbf24;">🏫 학원장 관제실</div>
+                    <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">8명 가상 원생 실시간 레이더, 1-클릭 레드카드, AI 뇌 이식(RAG), 8:1:1 정산표</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(99,102,241,0.3); border-radius: 10px; padding: 10px;">
+                    <div style="font-size: 0.82rem; font-weight: 800; color: #a5b4fc;">🎓 학생 앱 (김학생 - 고3 문과 인문계열 지망)</div>
+                    <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">30분 단위 주간 시간표 빌더, 11,688개 대학 합격예측, 7일 락 VOD & OMR 채점</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; padding: 10px;">
+                    <div style="font-size: 0.82rem; font-weight: 800; color: #6ee7b7;">👨‍👩‍👧 학부모 안심 앱 (학생 모)</div>
+                    <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">실시간 자습 모니터링, 주간 AI 심층 리포트 샘플, 사교육 과소비 방지 상담 AI</div>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <button type="button" onclick="startDirectorDemoExperience()" class="btn btn-gold" style="width: 100%; padding: 12px; font-size: 0.88rem; font-weight: 900; box-shadow: 0 4px 16px rgba(245,158,11,0.4);">
+                    🏛️ 3-Way 통합 모델하우스 바로 시작하기
+                </button>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" onclick="openB2BContactModal(); closeDirectorDemoModal();" class="btn btn-secondary" style="flex: 1; padding: 8px; font-size: 0.78rem; font-weight: 800; color: #fbbf24; border-color: rgba(245,158,11,0.4);">
+                        🏢 공식 가맹/도입 문의
+                    </button>
+                    <button type="button" onclick="closeDirectorDemoModal()" class="btn btn-secondary" style="padding: 8px 14px; font-size: 0.78rem; font-weight: 800;">
+                        닫기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🌐 [DEMO] 상단 3-Way 롤 스위처 플로팅 바 -->
+    <div id="demo-mode-floating-bar" style="display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 10006; background: rgba(15, 23, 42, 0.96); backdrop-filter: blur(14px); border-bottom: 2px solid #fbbf24; padding: 8px 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.7); align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="background: #fbbf24; color: #000; font-size: 0.72rem; font-weight: 900; padding: 2px 8px; border-radius: 6px; letter-spacing: 0.5px;">DEMO</span>
+            <span style="font-size: 0.84rem; font-weight: 800; color: #ffffff;">일원학원 모델하우스 체험 중</span>
+            <span style="font-size: 0.72rem; color: #94a3b8; display: none;" id="demo-db-notice">(휘발성 샌드박스)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+            <button type="button" onclick="switchDemoPersona('DIRECTOR')" id="demo-btn-dir" class="btn btn-sm btn-gold" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 800;">
+                🏫 원장 관제실
+            </button>
+            <button type="button" onclick="switchDemoPersona('STUDENT')" id="demo-btn-stu" class="btn btn-sm btn-secondary" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 800;">
+                🎓 학생 (김학생)
+            </button>
+            <button type="button" onclick="switchDemoPersona('PARENT')" id="demo-btn-pa" class="btn btn-sm btn-secondary" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 800;">
+                👨‍👩‍👧 학부모 (학생 모)
+            </button>
+            <button type="button" onclick="openB2BContactModal()" class="btn btn-sm" style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 6px 12px; font-size: 0.78rem; font-weight: 800;">
+                🚀 가맹 문의
+            </button>
+            <button type="button" onclick="exitDemoExperience()" class="btn btn-sm btn-secondary" style="padding: 6px 10px; font-size: 0.78rem; font-weight: 800; color: #f87171; border-color: rgba(239,68,68,0.4);">
+                ✕ 종료
+            </button>
+        </div>
+    </div>
+
+    <!-- 🏫 [DEMO] 원장 관제실 인라인 뷰 모달 -->
+    <div class="modal" id="demo-director-cockpit-modal" style="display: none; align-items: center; justify-content: center; z-index: 10004; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);">
+        <div class="modal-content" style="max-width: 580px; width: 95%; max-height: 88vh; overflow-y: auto; background: #0b0f19; border: 2px solid #fbbf24; border-radius: 20px; padding: 20px; box-shadow: 0 25px 60px rgba(0,0,0,0.9); text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
+                <div style="font-size: 1.1rem; font-weight: 900; color: #fbbf24; display: flex; align-items: center; gap: 6px;">
+                    <span class="material-symbols-rounded">admin_panel_settings</span>
+                    <span>일원학원 마스터 관제실 (체험용 데모)</span>
+                </div>
+                <button onclick="closeDemoDirectorCockpit()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.85rem; border: none; cursor: pointer;">&times;</button>
+            </div>
+
+            <!-- 관제실 1: 실시간 8인 재원생 레이더 & 레드카드 -->
+            <div class="card" style="margin-bottom: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(245,158,11,0.3); padding: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <div style="font-size: 0.85rem; font-weight: 800; color: #fde68a;">📡 실시간 재원생 레이더 (총 8명 관리 중)</div>
+                    <span style="font-size: 0.7rem; color: #10b981; font-weight: 800;">● 정상 자습 7명 / 이탈 1명</span>
+                </div>
+                <div id="demo-director-student-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto;">
+                    <!-- JS로 8명 가상 학생 렌더링 -->
+                </div>
+            </div>
+
+            <!-- 관제실 2: AI 뇌 이식(RAG) 프롬프트 & 봇 상태 -->
+            <div class="card" style="margin-bottom: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(99,102,241,0.3); padding: 12px;">
+                <div style="font-size: 0.85rem; font-weight: 800; color: #a5b4fc; margin-bottom: 6px;">🧠 원장 AI 뇌 이식 (RAG 스튜디오 현황)</div>
+                <div style="font-size: 0.75rem; color: #cbd5e1; line-height: 1.45;">
+                    • 복제 봇 이름: <b>일원학원 수석 AI 멘토</b><br>
+                    • 주입된 지식: 수능국어 비문학 3원칙, 킬러문항 대응법, 일원학원 학사일정표<br>
+                    • 24시간 상담 모드: <span style="color: #10b981; font-weight: 800;">신뢰 구축 및 사교육 과소비 방지 모드 가동 중</span>
+                </div>
+            </div>
+
+            <!-- 관제실 3: 튜터 과외 8:1:1 정산 현황 -->
+            <div class="card" style="margin-bottom: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(16,185,129,0.3); padding: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-size: 0.85rem; font-weight: 800; color: #6ee7b7;">💰 이달의 졸업생 튜터 매칭 정산액</div>
+                        <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">재원생 과외 수수료 10% 자동 적립</div>
+                    </div>
+                    <div style="font-size: 1.15rem; font-weight: 900; color: #34d399;">+128,000원</div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+                <button type="button" onclick="switchDemoPersona('STUDENT')" class="btn btn-secondary" style="flex: 1; padding: 10px; font-size: 0.82rem; font-weight: 800; border-color: #6366f1; color: #a5b4fc;">
+                    🎓 학생 화면에서 어떻게 보이는지 보기 →
+                </button>
+                <button type="button" onclick="openB2BContactModal()" class="btn btn-gold" style="padding: 10px 16px; font-size: 0.82rem; font-weight: 800;">
+                    🚀 가맹 문의
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 👨‍👩‍👧 [DEMO] 학부모 주간 심층 입시/학습 리포트 샘플 모달 -->
+    <div class="modal" id="demo-parent-weekly-report-modal" style="display: none; align-items: center; justify-content: center; z-index: 10004; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);">
+        <div class="modal-content" style="max-width: 520px; width: 94%; max-height: 88vh; overflow-y: auto; background: #0f172a; border: 2px solid #10b981; border-radius: 20px; padding: 22px; box-shadow: 0 25px 60px rgba(0,0,0,0.9); text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
+                <div style="font-size: 1.05rem; font-weight: 900; color: #34d399; display: flex; align-items: center; gap: 6px;">
+                    <span class="material-symbols-rounded">analytics</span>
+                    <span>일원학원 9월 1주차 AI 심층 정기 리포트</span>
+                </div>
+                <button onclick="closeDemoParentReportModal()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.85rem; border: none; cursor: pointer;">&times;</button>
+            </div>
+
+            <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-size: 0.95rem; font-weight: 800; color: #ffffff;">김학생 (고3 수험생)</div>
+                        <div style="font-size: 0.72rem; color: #a7f3d0; margin-top: 2px;">목표: 성균관대학교 인문과학계열 · 마지노선: 건국대학교 자유전공학부(문과대학)</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.72rem; color: #94a3b8;">주간 성실도</div>
+                        <div style="font-size: 1.15rem; font-weight: 900; color: #34d399;">상위 3.8%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 학습 통계 요약 -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; text-align: center;">
+                <div style="background: rgba(255,255,255,0.04); border-radius: 10px; padding: 8px;">
+                    <div style="font-size: 0.68rem; color: #94a3b8;">순수 자습 시간</div>
+                    <div style="font-size: 0.95rem; font-weight: 800; color: #60a5fa; margin-top: 2px;">48시간 15분</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.04); border-radius: 10px; padding: 8px;">
+                    <div style="font-size: 0.68rem; color: #94a3b8;">미션 달성률</div>
+                    <div style="font-size: 0.95rem; font-weight: 800; color: #34d399; margin-top: 2px;">100% (7/7일)</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.04); border-radius: 10px; padding: 8px;">
+                    <div style="font-size: 0.68rem; color: #94a3b8;">학원 출석률</div>
+                    <div style="font-size: 0.95rem; font-weight: 800; color: #fbbf24; margin-top: 2px;">100% (지각 0)</div>
+                </div>
+            </div>
+
+            <!-- 원장 코멘트 -->
+            <div class="card" style="margin-bottom: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 12px;">
+                <div style="font-size: 0.82rem; font-weight: 800; color: #fbbf24; margin-bottom: 4px;">👨‍🏫 김철훈 원장 직강 총평</div>
+                <div style="font-size: 0.78rem; color: #cbd5e1; line-height: 1.55;">
+                    "김학생 학생은 9월 모의고사 비문학 고난도 킬러 지문에서 만점을 기록하며 독해 안정권에 진입했습니다. 현재 모의고사 지표로 볼 때 성균관대는 소신/위험권이나, 건국대는 매우 안정적이므로 수학 백분위를 2~3%만 더 끌어올리면 성균관대 진입이 유력합니다."
+                </div>
+            </div>
+
+            <!-- 안심 컨설팅 코멘트 -->
+            <div class="card" style="margin-bottom: 14px; background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.25); padding: 12px;">
+                <div style="font-size: 0.82rem; font-weight: 800; color: #34d399; margin-bottom: 4px;">🛡️ 사교육 과소비 방지 안심 가이드</div>
+                <div style="font-size: 0.78rem; color: #cbd5e1; line-height: 1.55;">
+                    "어머님, 지금 시점에 불안감으로 무리한 단기 파이널 특강을 추가하시면 오히려 자습 밸런스가 무너집니다. 지금은 학원 수업과 자습 복습의 황금 비율을 지키는 것이 수능 대박의 열쇠입니다."
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+                <button type="button" onclick="closeDemoParentReportModal()" class="btn btn-secondary" style="flex: 1; padding: 10px; font-size: 0.82rem; font-weight: 800;">
+                    닫기
+                </button>
+                <button type="button" onclick="openB2BContactModal()" class="btn btn-gold" style="flex: 1; padding: 10px; font-size: 0.82rem; font-weight: 800;">
+                    🏢 우리 학원 도입 문의
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📱 [DEMO] 학부모 알림톡 / SMS 실시간 발송 시뮬레이션 모달 -->
+    <div class="modal" id="demo-sms-simulation-modal" style="display: none; align-items: center; justify-content: center; z-index: 10007; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);">
+        <div class="modal-content" style="max-width: 380px; width: 90%; background: #fee500; color: #191919; border-radius: 20px; padding: 18px; box-shadow: 0 25px 60px rgba(0,0,0,0.9); text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 8px;">
+                <div style="font-size: 0.88rem; font-weight: 900; color: #191919; display: flex; align-items: center; gap: 4px;">
+                    <span class="material-symbols-rounded" style="font-size: 1.1rem;">chat_bubble</span>
+                    <span>카카오 알림톡 실시간 발송 시뮬레이션</span>
+                </div>
+                <button onclick="closeDemoSmsSimulationModal()" style="background: none; border: none; font-size: 1.1rem; font-weight: 900; cursor: pointer; color: #191919;">&times;</button>
+            </div>
+            <div style="background: #ffffff; border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                <div style="font-size: 0.75rem; color: #666; margin-bottom: 6px;">[일원학원 안심 알림톡]</div>
+                <div id="demo-sms-text-content" style="font-size: 0.82rem; color: #111; line-height: 1.5; font-weight: 600;">
+                    어머님, 김학생 학생이 18:30 정규 수업에 정상 입실하였습니다. (오늘 누적 자습: 6시간 42분)
+                </div>
+            </div>
+            <button onclick="closeDemoSmsSimulationModal()" style="width: 100%; background: #191919; color: #ffffff; border: none; padding: 10px; border-radius: 10px; font-weight: 800; font-size: 0.82rem; cursor: pointer;">
+                확인
+            </button>
+        </div>
+    </div>
+
+    <script src="js/app.js?v=20260904.4"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소
