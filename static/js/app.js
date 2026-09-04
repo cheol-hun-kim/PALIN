@@ -4759,6 +4759,9 @@ function updateStudentUnivSelectors() {
 // --- 사용자 세션/인증 확인 ---
 
 function checkAuth() {
+    if (typeof isDemoMode !== 'undefined' && isDemoMode) {
+        return;
+    }
 
     const previewRole = localStorage.getItem("palin_role_preview");
 
@@ -14341,15 +14344,39 @@ function startDirectorDemoExperience() {
     closeDirectorDemoModal();
     backupStudentBeforeDemo = currentStudent;
     isDemoMode = true;
+    currentStudent = { ...DEMO_STUDENT };
 
     // 1. 오버레이 숨기고 플로팅 바 표시
     const regOverlay = document.getElementById("register-overlay");
-    if (regOverlay) regOverlay.style.display = "none";
+    if (regOverlay) {
+        regOverlay.style.display = "none";
+        regOverlay.style.setProperty("display", "none", "important");
+    }
+    hideOverlay("register-overlay");
 
     const floatBar = document.getElementById("demo-mode-floating-bar");
-    if (floatBar) floatBar.style.display = "flex";
+    if (floatBar) {
+        floatBar.style.display = "flex";
+        floatBar.style.setProperty("display", "flex", "important");
+    }
 
-    // 2. 초기 페르소나는 원장 관제실로 시작
+    // 2. 학생 UI 및 생활관리 1페이지 즉각 렌더링
+    if (typeof showStudentView === 'function') showStudentView();
+    if (typeof updateAcademyGNBVisibility === 'function') updateAcademyGNBVisibility();
+    if (typeof updateHeaderUI === 'function') updateHeaderUI();
+    if (typeof updateTargetBanner === 'function') updateTargetBanner();
+
+    // 3. 1페이지(생활관리) 및 시간표 아코디언 즉시 펼치기
+    switchTab('page1');
+    const ttBody = document.getElementById("timetable-accordion-body");
+    const ttIcon = document.getElementById("timetable-accordion-icon");
+    if (ttBody) ttBody.style.display = "block";
+    if (ttIcon) ttIcon.style.transform = "rotate(180deg)";
+    loadTimetable();
+    loadPage1Data();
+    loadPage2Data();
+
+    // 4. 원장 관제실 팝업도 함께 안내
     switchDemoPersona('DIRECTOR');
 }
 window.startDirectorDemoExperience = startDirectorDemoExperience;
