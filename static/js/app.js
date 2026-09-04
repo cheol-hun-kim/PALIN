@@ -483,8 +483,8 @@ const UNIVERSITY_REGION_MAP = {"가천대학교":"경기도","가톨릭관동대
 // --- 전역 상태 관리 ---
 
 let currentStudent = null;
-isDemoMode = false;
-currentActiveFacility = "ILWON-2027";
+var isDemoMode = false;
+var currentActiveFacility = "ILWON-2027";
 
 let activeTab = "page1"; // page1: 생활, page2: 학습, page3: 매칭
 
@@ -13965,7 +13965,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // ============================================================================
 
-let currentActiveFacility = "ILWON-2027";
+currentActiveFacility = "ILWON-2027";
 
 function getEnrolledFacilities() {
     if (isDemoMode || currentStudent?.id === 9999 || (currentStudent?.academy_code === "PALIN-2027" && isDemoMode)) {
@@ -14272,7 +14272,7 @@ function logoutUser() {
 // 🏛️ [DEMO SANDBOX] 3-Way 인터랙티브 모델하우스 (원장 ↔ 학생 ↔ 학부모) 엔진
 // ============================================================================
 
-let isDemoMode = false;
+isDemoMode = false;
 let currentDemoPersona = 'DIRECTOR';
 let backupStudentBeforeDemo = null;
 
