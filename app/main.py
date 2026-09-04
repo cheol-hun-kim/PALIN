@@ -3826,16 +3826,29 @@ class B2BSupportTicketAnswerPayload(BaseModel):
 
 @app.get("/api/master/macro-stats")
 def get_master_macro_stats(db: Session = Depends(get_db)):
-    tenants = db.query(models.Tenant).all()
-    students_count = db.query(models.Student).count()
+    tenants = db.query(models.Tenant).filter(models.Tenant.deleted_at == None).all()
+    students = db.query(models.Student).filter(models.Student.deleted_at == None).all()
+    students_count = len(students)
     escrow_total = db.query(func.sum(models.Student.escrow_deductions)).scalar() or 0
     paid_cash_total = db.query(func.sum(models.Student.paid_cash)).scalar() or 0
+    
+    # 📈 실시간 전체 회원 데이터 기반 학습 성장률 동적 산출 (기준 성실도 대비 평균 상승폭)
+    if students:
+        avg_diligence = sum(s.diligence_score or 0 for s in students) / len(students)
+        if avg_diligence >= 50.0:
+            growth_pct = round(((avg_diligence - 50.0) / 50.0) * 100, 1)
+            growth_str = f"+{growth_pct}%"
+        else:
+            growth_pct = round(((50.0 - avg_diligence) / 50.0) * 100, 1)
+            growth_str = f"-{growth_pct}%"
+    else:
+        growth_str = "+0.0%"
     
     total_royalty = 0
     tier1_cnt = 0
     tier2_cnt = 0
     for t in tenants:
-        if t.tier == 2:
+        if t.tier == 2 or t.tier == 3:
             tier2_cnt += 1
         else:
             tier1_cnt += 1
@@ -3848,9 +3861,9 @@ def get_master_macro_stats(db: Session = Depends(get_db)):
 
     return {
         "status": "success",
-        "total_tenants": max(len(tenants), 4),
-        "total_students": max(students_count, 1),
-        "avg_study_growth": "+34.2%",
+        "total_tenants": len(tenants),
+        "total_students": students_count,
+        "avg_study_growth": growth_str,
         "total_escrow_deductions": escrow_total,
         "total_paid_cash": paid_cash_total,
         "total_monthly_royalty": total_royalty,
