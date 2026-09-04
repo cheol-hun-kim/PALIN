@@ -4405,6 +4405,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setupEventListeners();
     setupDistractionDetection();
     document.getElementById("header-streak-badge")?.addEventListener("click", openStreakModal);
+    loadTimetable();
 
     // 3. 비동기 대용량 데이터 로딩 (UI 렌더링 블로킹 방지)
     Promise.all([
@@ -4585,29 +4586,20 @@ window.onSidoChange = onSidoChange;
 window.populateSidoOptions = populateSidoOptions;
 
 function toggleAccordion(bodyId, iconId) {
-
     const body = document.getElementById(bodyId);
-
     const icon = document.getElementById(iconId);
-
     if (!body) return;
 
-    
-
     if (body.style.display === "none" || !body.style.display) {
-
         body.style.display = "block";
-
         if (icon) icon.style.transform = "rotate(180deg)";
-
+        if (bodyId === "timetable-accordion-body") {
+            loadTimetable();
+        }
     } else {
-
         body.style.display = "none";
-
         if (icon) icon.style.transform = "rotate(0deg)";
-
     }
-
 }
 
 // PALIN OS 타임라인 기반 자동 테마 전환 엔진 (06시~21시: 데이 모드, 21시~06시: 딥 블랙 야간 모드)
@@ -7286,71 +7278,70 @@ function setupEventListeners() {
 // ==========================================
 
 async function loadPage1Data() {
+    if (isDemoMode) {
+        if (!currentStudent) {
+            currentStudent = (typeof DEMO_STUDENT !== 'undefined') ? { ...DEMO_STUDENT } : { id: 9999, name: "김태완(체험)" };
+        }
+        const hoursEl = document.getElementById("report-study-hours");
+        const rateEl = document.getElementById("report-mission-rate");
+        const sessionsEl = document.getElementById("report-total-sessions");
+        if (hoursEl) hoursEl.innerText = "48시간 15분";
+        if (rateEl) rateEl.innerText = "100%";
+        if (sessionsEl) sessionsEl.innerText = "14회";
+
+        const listContainer = document.getElementById("recent-mission-logs");
+        if (listContainer) {
+            listContainer.innerHTML = `
+                <div class="mission-row" style="font-size: 0.82rem; padding: 6px 0;">
+                    <span style="font-weight:600;">[기상]</span>
+                    <span style="color: var(--text-secondary);">오전 06:30</span>
+                    <span style="color: var(--color-success); font-weight:700;">성공</span>
+                </div>
+                <div class="mission-row" style="font-size: 0.82rem; padding: 6px 0;">
+                    <span style="font-weight:600;">[취침]</span>
+                    <span style="color: var(--text-secondary);">오후 11:30</span>
+                    <span style="color: var(--color-success); font-weight:700;">성공</span>
+                </div>
+            `;
+        }
+        await loadTimetable();
+        return;
+    }
 
     if (!currentStudent) return;
 
     try {
-
         const res = await fetch(`/api/study/report/${currentStudent.id}`);
-
         const report = await res.json();
-
         document.getElementById("report-study-hours").innerText = `${report.total_study_hours}시간`;
-
         document.getElementById("report-mission-rate").innerText = `${report.mission_success_rate}%`;
-
         document.getElementById("report-total-sessions").innerText = `${report.total_sessions}회`;
 
         const mRes = await fetch(`/api/mission/logs/${currentStudent.id}`);
-
         const logs = await mRes.json();
-
         const listContainer = document.getElementById("recent-mission-logs");
-
         listContainer.innerHTML = "";
-
         
-
         if (logs.length === 0) {
-
             listContainer.innerHTML = "<div style='color: var(--text-secondary); font-size: 0.82rem;'>최근 수행된 미션이 없습니다.</div>";
-
         } else {
-
             logs.forEach(log => {
-
                 const dateStr = new Date(log.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
                 const statusColor = log.status === "SUCCESS" ? "var(--color-success)" : "var(--color-danger)";
-
                 listContainer.innerHTML += `
-
                     <div class="mission-row" style="font-size: 0.82rem; padding: 6px 0;">
-
                         <span style="font-weight:600;">[${log.mission_type === "WAKEUP" ? "기상" : "취침"}]</span>
-
                         <span style="color: var(--text-secondary);">${dateStr}</span>
-
                         <span style="color: ${statusColor}; font-weight:700;">${log.status === "SUCCESS" ? "성공" : "실패(경고발송)"}</span>
-
                     </div>
-
                 `;
-
             });
-
         }
-
         loadTimetable();
-
         await updateDailyMissionUI();
-
     } catch (e) {
-
         console.error(e);
-
     }
-
 }
 
 async function updateDailyMissionUI() {
@@ -7846,11 +7837,36 @@ function populateTimerSelect() {
 }
 
 async function loadTimetable() {
+    const dayColumns = [
+        document.getElementById("col-day-0"),
+        document.getElementById("col-day-1"),
+        document.getElementById("col-day-2"),
+        document.getElementById("col-day-3"),
+        document.getElementById("col-day-4"),
+        document.getElementById("col-day-5"),
+        document.getElementById("col-day-6")
+    ];
+
+    dayColumns.forEach((col, dayIdx) => {
+        if (col) {
+            // 06:00 ~ 24:00 (18시간) 전체를 덮는 18개 명시적 격자 라인 생성 (총 540px)
+            let gridLinesHtml = '';
+            for (let h = 0; h < 18; h++) {
+                gridLinesHtml += `<div class="grid-hour-line" style="position:absolute; top:${h*30}px; left:0; right:0; height:30px; border-bottom:1px solid rgba(255,255,255,0.08); pointer-events:none; box-sizing:border-box;"></div>`;
+            }
+            col.innerHTML = gridLinesHtml;
+            // 원터치 터치/클릭 이벤트 등록
+            col.onclick = (e) => handleTimetableGridClick(dayIdx, e);
+        }
+    });
+
+    if (isDemoMode && !currentStudent) {
+        currentStudent = (typeof DEMO_STUDENT !== 'undefined') ? { ...DEMO_STUDENT } : { id: 9999, name: "김태완(체험)" };
+    }
 
     if (!currentStudent) return;
 
     try {
-
         let blocks = [];
         if (isDemoMode) {
             blocks = (typeof demoPlannerBlocks !== 'undefined' && Array.isArray(demoPlannerBlocks)) ? demoPlannerBlocks : [];
@@ -7861,140 +7877,51 @@ async function loadTimetable() {
 
         allPlannerBlocksCache = blocks || [];
 
-        
-
-        const dayColumns = [
-
-            document.getElementById("col-day-0"),
-
-            document.getElementById("col-day-1"),
-
-            document.getElementById("col-day-2"),
-
-            document.getElementById("col-day-3"),
-
-            document.getElementById("col-day-4"),
-
-            document.getElementById("col-day-5"),
-
-            document.getElementById("col-day-6")
-
-        ];
-
-        
-
-        dayColumns.forEach((col, dayIdx) => {
-
-            if (col) {
-
-                // 06:00 ~ 24:00 (18시간) 전체를 덮는 18개 명시적 격자 라인 생성 (총 540px)
-
-                let gridLinesHtml = '';
-
-                for (let h = 0; h < 18; h++) {
-
-                    gridLinesHtml += `<div class="grid-hour-line" style="position:absolute; top:${h*30}px; left:0; right:0; height:30px; border-bottom:1px solid rgba(255,255,255,0.08); pointer-events:none; box-sizing:border-box;"></div>`;
-
-                }
-
-                col.innerHTML = gridLinesHtml;
-
-                // 원터치 터치/클릭 이벤트 등록
-
-                col.onclick = (e) => handleTimetableGridClick(dayIdx, e);
-
-            }
-
-        });
-
         // 오늘 요일 기본 탭 활성화 및 타이머 셀렉트 채우기
-
         const todayIdx = getTodayDayIndex();
-
         const tabs = document.querySelectorAll(".timer-day-btn");
-
         if (tabs && tabs.length > todayIdx && currentTimerSelectedDay === null) {
-
             tabs[todayIdx].classList.add("active");
-
             tabs[todayIdx].style.background = "#6366f1";
-
             tabs[todayIdx].style.color = "#ffffff";
-
         }
-
         populateTimerSelect();
 
         blocks.forEach((block, index) => {
-
             const col = dayColumns[block.day_of_week];
-
             if (!col) return;
 
             const startParts = block.start_time.split(":");
-
             const endParts = block.end_time.split(":");
-
-            
-
             let startHour = parseInt(startParts[0], 10) + (parseInt(startParts[1], 10) || 0)/60;
-
             let endHour = parseInt(endParts[0], 10) + (parseInt(endParts[1], 10) || 0)/60;
 
-            
-
             // 06:00 ~ 24:00 범위 보정 (시간표 이탈 방지)
-
             if (startHour < 6) startHour = 6;
-
             if (endHour > 24) endHour = 24;
-
             if (endHour <= startHour) endHour = startHour + 1;
 
-            
-
             const topPx = Math.max(0, Math.min(510, (startHour - 6) * 30));
-
             const heightPx = Math.max(22, Math.min(540 - topPx, (endHour - startHour) * 30));
 
-            
-
             const colorClass = `color-${index % 7}`;
-
             const cleanTitle = formatCleanSubjectTitle(block.title);
-
             const blockEl = document.createElement("div");
-
             blockEl.className = `timetable-block ${colorClass}`;
-
             blockEl.style.top = `${topPx}px`;
-
             blockEl.style.height = `${heightPx}px`;
-
             blockEl.title = `${block.title} (${block.start_time}~${block.end_time})`;
 
             const isParent = localStorage.getItem('userRole') === 'PARENT';
-
-            
-
             blockEl.innerHTML = `
-
                 <div class="block-title">${cleanTitle}</div>
-
                 ${!isParent ? `<button class="btn-delete-block" title="계획 삭제" onclick="deletePlannerBlock(event, ${block.id})">&times;</button>` : ''}
-
             `;
-
             col.appendChild(blockEl);
-
         });
-
     } catch (e) {
-
-        console.error("시간표 로드 오류:", e);
-
+        console.error("loadTimetable error:", e);
     }
-
 }
 
 async function addPlannerBlock(e) {
@@ -14394,16 +14321,21 @@ function switchDemoPersona(role) {
         
         // 학생 UI 렌더링
         if (typeof showStudentView === 'function') showStudentView();
-        if (typeof renderTimetableGrid === 'function') renderTimetableGrid();
         if (typeof updateAcademyGNBVisibility === 'function') updateAcademyGNBVisibility();
         if (typeof loadPage2Data === 'function') loadPage2Data();
 
         // 1페이지 생활관리로 전환
-        if (typeof switchPage === 'function') switchPage(1);
+        switchTab('page1');
 
-        renderDemoTimetable();
+        // 주간 시간표 아코디언 펼치기 & 로드
+        const ttBody = document.getElementById("timetable-accordion-body");
+        const ttIcon = document.getElementById("timetable-accordion-icon");
+        if (ttBody) ttBody.style.display = "block";
+        if (ttIcon) ttIcon.style.transform = "rotate(180deg)";
 
-        // 🏫 정시 합격예측기 폼에 현실적인 문과 모평 성적(국 90, 수 88, 영 82, 한 42, 탐1 92, 탐2 85) 사전 주입 & 잠금
+        loadTimetable();
+
+        // 🏫 정시 합격예측기 폼에 현실적인 문과 모평 성적 사전 주입 & 잠금
         setTimeout(() => {
             const gy = document.getElementById("pred-gyeyeol");
             const mt = document.getElementById("pred-math-type");
@@ -14431,7 +14363,7 @@ function switchDemoPersona(role) {
         currentStudent = { ...DEMO_STUDENT };
 
         if (typeof showParentView === 'function') showParentView();
-        if (typeof switchPage === 'function') switchPage(1);
+        switchTab('page1');
 
         // 학부모 리포트 팝업 바로 열람 유도
         demoOpenWeeklyReport();

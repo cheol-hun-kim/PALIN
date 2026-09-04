@@ -2652,6 +2652,8 @@ body.day-mode #demo-director-modal .card {
 
 /* Modal Titles & Headers in Day Mode (High-Contrast) */
 body.day-mode #demo-director-cockpit-modal [style*="color: #fbbf24"],
+body.day-mode #demo-parent-weekly-report-modal [style*="color: #fbbf24"],
+body.day-mode #demo-parent-weekly-report-modal [style*="color: #f59e0b"],
 body.day-mode #demo-director-modal [style*="color: #fbbf24"] {
     color: #92400e !important;
     font-weight: 900 !important;
@@ -2660,6 +2662,17 @@ body.day-mode #demo-director-modal [style*="color: #fbbf24"] {
 body.day-mode #demo-parent-weekly-report-modal [style*="color: #34d399"],
 body.day-mode #demo-parent-weekly-report-modal [style*="color: #10b981"] {
     color: #065f46 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #demo-parent-weekly-report-modal [style*="color: #a7f3d0"] {
+    color: #047857 !important;
+    font-weight: 700 !important;
+}
+
+body.day-mode #demo-parent-weekly-report-modal [style*="color: #60a5fa"],
+body.day-mode #demo-parent-weekly-report-modal [style*="color: #3b82f6"] {
+    color: #1d4ed8 !important;
     font-weight: 900 !important;
 }
 
@@ -2686,6 +2699,31 @@ body.day-mode #demo-parent-weekly-report-modal [style*="color: #ffffff"],
 body.day-mode #demo-director-cockpit-modal [style*="color: #ffffff"],
 body.day-mode #demo-director-modal [style*="color: #ffffff"] {
     color: #0f172a !important;
+}
+
+/* High Contrast Stat Cards & Callout Containers inside Parent Weekly Report Modal */
+body.day-mode #demo-parent-weekly-report-modal [style*="background: rgba(16,185,129,0.08)"],
+body.day-mode #demo-parent-weekly-report-modal [style*="background: rgba(16, 185, 129, 0.08)"] {
+    background: #ecfdf5 !important;
+    border: 1.5px solid #6ee7b7 !important;
+}
+
+body.day-mode #demo-parent-weekly-report-modal [style*="background: rgba(16,185,129,0.06)"],
+body.day-mode #demo-parent-weekly-report-modal [style*="background: rgba(16, 185, 129, 0.06)"] {
+    background: #ecfdf5 !important;
+    border: 1.5px solid #a7f3d0 !important;
+}
+
+body.day-mode #demo-parent-weekly-report-modal [style*="background: rgba(255,255,255,0.04)"],
+body.day-mode #demo-parent-weekly-report-modal [style*="background: rgba(255, 255, 255, 0.04)"] {
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+body.day-mode #demo-parent-weekly-report-modal [style*="background: rgba(255,255,255,0.03)"],
+body.day-mode #demo-parent-weekly-report-modal [style*="background: rgba(255, 255, 255, 0.03)"] {
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
 }
 
 /* Secondary Button Contrast in Day Mode */
@@ -2775,3 +2813,206 @@ body.day-mode #banner-target-univ {
     color: #0f172a !important;
 }
 
+
+
+/* ☀️ High-Contrast Day-Mode for MyPage & Settings Modal */
+body.day-mode #mypage-modal .trigger-content {
+    background: #ffffff !important;
+    border: 2px solid #818cf8 !important;
+    color: #0f172a !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15) !important;
+}
+
+body.day-mode #mypage-modal .trigger-content > div:first-child [style*="color: #a78bfa"] {
+    color: #3730a3 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #mypage-modal [style*="background: rgba(255,255,255,0.04)"],
+body.day-mode #mypage-modal [style*="background: rgba(255, 255, 255, 0.04)"] {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+body.day-mode #mypage-modal #mypage-student-fullname {
+    color: #0f172a !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #mypage-modal #mypage-student-sub {
+    color: #334155 !important;
+    font-weight: 600 !important;
+}
+
+/* Tier Badges in Day Mode */
+body.day-mode #mypage-tier-free-badge {
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+}
+body.day-mode #mypage-tier-free-badge span {
+    color: #334155 !important;
+}
+body.day-mode #mypage-tier-free-badge div {
+    color: #64748b !important;
+}
+
+body.day-mode #mypage-tier-active-badge {
+    background: #ecfdf5 !important;
+    border: 1.5px solid #059669 !important;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15) !important;
+}
+
+body.day-mode #mypage-tier-active-badge #mypage-tier-title {
+    color: #065f46 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #mypage-tier-active-badge #mypage-academy-sponsor-text {
+    color: #92400e !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode #mypage-tier-pending-badge {
+    background: #fef3c7 !important;
+    border: 1.5px solid #f59e0b !important;
+    color: #92400e !important;
+    font-weight: 900 !important;
+}
+
+/* MyPage Assets Dashboard Card in Day Mode */
+body.day-mode #mypage-modal [style*="linear-gradient(135deg, rgba(30, 41, 59, 0.7)"] {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06) !important;
+}
+
+body.day-mode #mypage-modal [style*="color: #a5b4fc"] {
+    color: #1e1b4b !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #mypage-modal [style*="background: rgba(245, 158, 11, 0.08)"] {
+    background: #fffbeb !important;
+    border: 1px solid #fcd34d !important;
+}
+
+body.day-mode #mypage-modal [style*="color: #fcd34d"] {
+    color: #92400e !important;
+}
+
+body.day-mode #mypage-modal #mypage-points {
+    color: #b45309 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #mypage-modal [style*="background: rgba(59, 130, 246, 0.08)"] {
+    background: #eff6ff !important;
+    border: 1px solid #bfdbfe !important;
+}
+
+body.day-mode #mypage-modal [style*="color: #93c5fd"] {
+    color: #1d4ed8 !important;
+}
+
+body.day-mode #mypage-modal #mypage-cash {
+    color: #1e40af !important;
+    font-weight: 900 !important;
+}
+
+/* Accordion Edit Section */
+body.day-mode #mypage-modal [style*="background: rgba(99, 102, 241, 0.08)"] {
+    background: #f8fafc !important;
+    border: 1.5px solid #cbd5e1 !important;
+}
+
+body.day-mode #mypage-modal [style*="color: #a78bfa"] {
+    color: #3730a3 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #mypage-modal #mypage-edit-toggle-status {
+    color: #475569 !important;
+}
+
+body.day-mode #mypage-modal #mypage-edit-toggle-icon {
+    color: #3730a3 !important;
+}
+
+/* ☀️ High-Contrast Day-Mode for Academy Administrative Request Modals */
+body.day-mode #academy-request-modal .trigger-content,
+body.day-mode #academy-leave-modal .trigger-content,
+body.day-mode #academy-withdraw-modal .trigger-content {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15) !important;
+}
+
+body.day-mode #academy-request-modal #req-modal-title {
+    color: #3730a3 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #academy-request-modal [style*="color: #a5b4fc"] {
+    color: #3730a3 !important;
+}
+
+body.day-mode #academy-request-modal [style*="background: rgba(99,102,241,0.08)"] {
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+body.day-mode #academy-leave-modal #leave-auto-ment-box {
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #334155 !important;
+}
+
+body.day-mode #academy-withdraw-modal [style*="background: rgba(245,158,11,0.08)"] {
+    background: #fffbeb !important;
+    border: 1.5px solid #fcd34d !important;
+}
+
+body.day-mode #academy-withdraw-modal [style*="color: #fbbf24"] {
+    color: #92400e !important;
+}
+
+body.day-mode #academy-withdraw-modal [style*="color: #cbd5e1"] {
+    color: #334155 !important;
+}
+
+/* Hub Request Center (hub-view-request) Day-Mode High-Contrast */
+body.day-mode #hub-view-request .section-header span {
+    color: #92400e !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #hub-view-request .btn-secondary {
+    background: #ffffff !important;
+    border: 1.5px solid #e2e8f0 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.day-mode #hub-view-request .btn-secondary:hover {
+    background: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+}
+
+body.day-mode #hub-view-request [style*="color: #818cf8"] {
+    color: #3730a3 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #hub-view-request [style*="color: #34d399"] {
+    color: #065f46 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #hub-view-request [style*="color: #fbbf24"] {
+    color: #92400e !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #hub-view-request [style*="color: #f87171"] {
+    color: #b91c1c !important;
+    font-weight: 900 !important;
+}
