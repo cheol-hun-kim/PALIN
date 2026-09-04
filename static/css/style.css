@@ -3382,15 +3382,12 @@ body.day-mode .quick-dur-btn.active {
 /* ========================================================================== */
 .bottom-nav .nav-icon-director,
 .bottom-nav .nav-text-director,
-.bottom-nav #nav-tab-admin span {
-    color: #fbbf24 !important;
-    font-weight: 800 !important;
-}
+.bottom-nav #nav-tab-admin span,
 body.day-mode .bottom-nav .nav-icon-director,
 body.day-mode .bottom-nav .nav-text-director,
 body.day-mode .bottom-nav #nav-tab-admin span {
-    color: #b45309 !important;
-    font-weight: 900 !important;
+    color: #fbbf24 !important;
+    font-weight: 800 !important;
 }
 
 /* ========================================================================== */
@@ -3416,3 +3413,90 @@ body.day-mode .vod-password-badge b {
 }
 
 
+
+/* ========================================================================== */
+/* 🛡️ Login Overlay Role Notice & Brochure Button Fixed Dark Theme Aesthetics */
+/* ========================================================================== */
+#register-overlay .brochure-btn-student,
+body.day-mode #register-overlay .brochure-btn-student {
+    background: rgba(99, 102, 241, 0.18) !important;
+    border: 1.5px solid #818cf8 !important;
+    color: #c7d2fe !important;
+    font-weight: 800 !important;
+}
+#register-overlay .brochure-btn-student:hover,
+body.day-mode #register-overlay .brochure-btn-student:hover {
+    background: rgba(99, 102, 241, 0.35) !important;
+    color: #ffffff !important;
+}
+
+#register-overlay .brochure-btn-parent,
+body.day-mode #register-overlay .brochure-btn-parent {
+    background: rgba(16, 185, 129, 0.18) !important;
+    border: 1.5px solid #34d399 !important;
+    color: #a7f3d0 !important;
+    font-weight: 800 !important;
+}
+#register-overlay .brochure-btn-parent:hover,
+body.day-mode #register-overlay .brochure-btn-parent:hover {
+    background: rgba(16, 185, 129, 0.35) !important;
+    color: #ffffff !important;
+}
+
+#register-overlay .brochure-btn-director,
+body.day-mode #register-overlay .brochure-btn-director {
+    background: rgba(245, 158, 11, 0.18) !important;
+    border: 1.5px solid #fbbf24 !important;
+    color: #fde68a !important;
+    font-weight: 800 !important;
+}
+#register-overlay .brochure-btn-director:hover,
+body.day-mode #register-overlay .brochure-btn-director:hover {
+    background: rgba(245, 158, 11, 0.35) !important;
+    color: #ffffff !important;
+}
+
+#register-overlay #dynamic-login-notice-student,
+body.day-mode #register-overlay #dynamic-login-notice-student {
+    background: rgba(99, 102, 241, 0.18) !important;
+    border: 1.5px solid #818cf8 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+#register-overlay #dynamic-login-notice-student b,
+#register-overlay #dynamic-login-notice-student strong,
+body.day-mode #register-overlay #dynamic-login-notice-student b,
+body.day-mode #register-overlay #dynamic-login-notice-student strong {
+    color: #c7d2fe !important;
+    font-weight: 800 !important;
+}
+
+#register-overlay #dynamic-login-notice-parent,
+body.day-mode #register-overlay #dynamic-login-notice-parent {
+    background: rgba(16, 185, 129, 0.18) !important;
+    border: 1.5px solid #34d399 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+#register-overlay #dynamic-login-notice-parent b,
+#register-overlay #dynamic-login-notice-parent strong,
+body.day-mode #register-overlay #dynamic-login-notice-parent b,
+body.day-mode #register-overlay #dynamic-login-notice-parent strong {
+    color: #a7f3d0 !important;
+    font-weight: 800 !important;
+}
+
+#register-overlay #dynamic-login-notice-director,
+body.day-mode #register-overlay #dynamic-login-notice-director {
+    background: rgba(245, 158, 11, 0.18) !important;
+    border: 1.5px solid #fbbf24 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+#register-overlay #dynamic-login-notice-director b,
+#register-overlay #dynamic-login-notice-director strong,
+body.day-mode #register-overlay #dynamic-login-notice-director b,
+body.day-mode #register-overlay #dynamic-login-notice-director strong {
+    color: #fef08a !important;
+    font-weight: 800 !important;
+}

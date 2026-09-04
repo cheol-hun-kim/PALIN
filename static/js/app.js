@@ -5252,7 +5252,15 @@ function resetSessionState() {
     isDemoMode = false;
     currentActiveFacility = currentStudent?.academy_code || "ILWON-2027";
     
-    // 1. AI 챗봇 메시지 DOM 및 히스토리 완전 초기화
+    // 1. AI 챗봇 메시지 DOM 및 히스토리 완전 초기화 (chat-box & chat-messages 양방향 초기화)
+    const chatBox = document.getElementById("chat-box");
+    if (chatBox) {
+        chatBox.innerHTML = `
+            <div class="chat-bubble bot">
+                안녕하세요! 저는 대입 수능 및 입시 상담을 도와주는 AI 멘토 "패스봇"입니다. 수능 대비 과목 공부법, 내신 수시전략, 생활습관 설정 등에 대해 언제든 편하게 물어보세요!
+            </div>
+        `;
+    }
     const chatContainer = document.getElementById("chat-messages");
     if (chatContainer) {
         chatContainer.innerHTML = `
@@ -5264,6 +5272,10 @@ function resetSessionState() {
         `;
     }
     if (typeof chatHistory !== 'undefined') chatHistory = [];
+    const chatInp = document.getElementById("chat-input");
+    if (chatInp) chatInp.value = "";
+    const chatLim = document.getElementById("chat-limit-label");
+    if (chatLim) chatLim.innerText = "오늘 남은 무료 대화: 5회";
     
     // 2. 정시 합격예측 폼 및 결과 컨테이너 완전 초기화 & 입력 잠금 해제
     const gy = document.getElementById("pred-gyeyeol");

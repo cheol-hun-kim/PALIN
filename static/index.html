@@ -292,15 +292,15 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             </div>
                             <input type="text" id="st-login-email" class="auth-input" placeholder="학생 이메일 또는 마스터 ID" required>
                             <input type="password" id="st-login-password" class="auth-input" placeholder="비밀번호 (기존 회원 초기비번: 1010)" maxlength="12" required>
-                            <div id="dynamic-login-notice-student" style="font-size: 0.78rem; color: #ffffff; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.45; background: rgba(99,102,241,0.22); border: 1.5px solid #818cf8; border-radius: 8px; padding: 8px 12px; min-height: 52px; display: flex; align-items: center; box-sizing: border-box; font-weight: 600;">
+                            <div id="dynamic-login-notice-student" style="font-size: 0.78rem; color: #ffffff; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.5; background: rgba(99,102,241,0.18); border: 1.5px solid #818cf8; border-radius: 10px; padding: 10px 14px; box-sizing: border-box; font-weight: 500; display: block;">
                                 📢 <b style="color: #c7d2fe; font-weight: 800;">[보안 업데이트]</b> 기존 가입 회원의 초기 비밀번호는 <b style="color: #c7d2fe; font-weight: 800;">1010</b> 입니다. 로그인 후 마이페이지에서 변경하실 수 있습니다.
                             </div>
                             <button type="submit" class="auth-submit-btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; box-shadow: 0 4px 16px rgba(99,102,241,0.4);">
                                 학생 로그인
                             </button>
                             <div style="text-align: center; margin-top: 14px;">
-                                <button type="button" onclick="toggleStudentRegisterForm()" style="background: none; border: none; color: #cbd5e1; font-size: 0.8rem; cursor: pointer; text-decoration: underline; white-space: nowrap;">
-                                    ✨ 처음이신가요? <b>신규 학생 회원가입 →</b>
+                                <button type="button" onclick="toggleStudentRegisterForm()" style="background: none; border: none; color: #c7d2fe; font-size: 0.8rem; cursor: pointer; text-decoration: underline; white-space: nowrap;">
+                                    ✨ 처음이신가요? <b style="color: #818cf8;">신규 학생 회원가입 →</b>
                                 </button>
                             </div>
                             <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
@@ -314,7 +314,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <form id="student-reg-form"  style="display: none;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                                 <div style="font-size: 1.05rem; font-weight: 800; color: #c7d2fe;">📝 신규 학생 회원가입</div>
-                                <button type="button" onclick="toggleStudentRegisterForm()" style="background: rgba(255,255,255,0.1); border: none; color: #cbd5e1; font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; cursor: pointer;">← 로그인으로</button>
+                                <button type="button" onclick="toggleStudentRegisterForm()" style="background: rgba(99, 102, 241, 0.2); border: 1px solid #818cf8; color: #c7d2fe; font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; cursor: pointer;">← 로그인으로</button>
                             </div>
                             <input type="email" id="reg-email" class="auth-input" placeholder="이메일 주소" required>
                             <input type="password" id="reg-password" class="auth-input" placeholder="비밀번호 (4자리 이상)" required minlength="4">
@@ -388,15 +388,15 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             </div>
                             <input type="text" id="parent-login-email" class="auth-input" placeholder="학부모 이메일 또는 휴대폰 번호" required>
                             <input type="password" id="parent-login-password" class="auth-input" placeholder="비밀번호" required>
-                            <div id="dynamic-login-notice-parent" style="font-size: 0.78rem; color: #ffffff; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.45; background: rgba(16,185,129,0.22); border: 1.5px solid #34d399; border-radius: 8px; padding: 8px 12px; min-height: 52px; display: flex; align-items: center; box-sizing: border-box; font-weight: 600;">
+                            <div id="dynamic-login-notice-parent" style="font-size: 0.78rem; color: #ffffff; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.5; background: rgba(16,185,129,0.18); border: 1.5px solid #34d399; border-radius: 10px; padding: 10px 14px; box-sizing: border-box; font-weight: 500; display: block;">
                                 📢 <b style="color: #a7f3d0; font-weight: 800;">[학부모 안내]</b> 자녀 초대코드 또는 등록된 학부모 휴대폰 번호로 자녀의 학습 현황을 실시간 조회하실 수 있습니다.
                             </div>
                             <button type="submit" class="auth-submit-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 4px 16px rgba(16,185,129,0.4);">
                                 학부모 로그인
                             </button>
                             <div style="text-align: center; margin-top: 14px;">
-                                <button type="button" onclick="toggleParentAuthMode()" style="background: none; border: none; color: #cbd5e1; font-size: 0.8rem; cursor: pointer; text-decoration: underline; white-space: nowrap;">
-                                    ✨ 자녀와 처음 연결? <b>학부모 등록(자녀 매핑) →</b>
+                                <button type="button" onclick="toggleParentAuthMode()" style="background: none; border: none; color: #a7f3d0; font-size: 0.8rem; cursor: pointer; text-decoration: underline; white-space: nowrap;">
+                                    ✨ 자녀와 처음 연결? <b style="color: #34d399;">학부모 등록(자녀 매핑) →</b>
                                 </button>
                             </div>
                             <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
@@ -410,7 +410,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <form id="parent-register-form"  style="display: none;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                                 <div style="font-size: 1.05rem; font-weight: 800; color: #a7f3d0;">👨‍👩‍👧 신규 학부모 등록</div>
-                                <button type="button" onclick="toggleParentAuthMode()" style="background: rgba(255,255,255,0.1); border: none; color: #cbd5e1; font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; cursor: pointer;">← 로그인으로</button>
+                                <button type="button" onclick="toggleParentAuthMode()" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #34d399; color: #a7f3d0; font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; cursor: pointer;">← 로그인으로</button>
                             </div>
                             <input type="email" id="parent-reg-email" class="auth-input" placeholder="학부모 이메일 주소" required>
                             <input type="password" id="parent-reg-password" class="auth-input" placeholder="비밀번호 (4자리 이상)" required minlength="4">
@@ -436,7 +436,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             </div>
                             <input type="text" id="dir-login-email" class="auth-input" placeholder="원장 이메일 또는 가맹 학원 코드" required>
                             <input type="password" id="dir-login-password" class="auth-input" placeholder="관제실 보안 비밀번호 / PIN" required>
-                            <div id="dynamic-login-notice-director" style="font-size: 0.78rem; color: #ffffff; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.45; background: rgba(245,158,11,0.22); border: 1.5px solid #fbbf24; border-radius: 8px; padding: 8px 12px; min-height: 52px; display: flex; align-items: center; box-sizing: border-box; font-weight: 600;">
+                            <div id="dynamic-login-notice-director" style="font-size: 0.78rem; color: #ffffff; margin-top: -4px; margin-bottom: 12px; text-align: left; line-height: 1.5; background: rgba(245,158,11,0.18); border: 1.5px solid #fbbf24; border-radius: 10px; padding: 10px 14px; box-sizing: border-box; font-weight: 500; display: block;">
                                 📢 <b style="color: #fef08a; font-weight: 800;">[원장 관제실 안내]</b> 가맹 학원 원장님 전용 보안 로그인입니다. 원장 PIN 번호를 입력해 주세요.
                             </div>
                             <button type="submit" class="auth-submit-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #000000; font-weight: 900; box-shadow: 0 4px 16px rgba(245,158,11,0.4);">
@@ -3374,50 +3374,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
 
 
-<script>
-async function loadDynamicLoginNotices() {
-    try {
-        const res = await fetch("/api/public/role-login-notices");
-        if (res.ok) {
-            const data = await res.json();
-            
-            // 1. Student Notice
-            const stBox = document.getElementById("dynamic-login-notice-student");
-            if (stBox) {
-                if (data.student && data.student.is_active && data.student.message) {
-                    stBox.innerHTML = data.student.message;
-                    stBox.style.display = "block";
-                } else {
-                    stBox.style.display = "none";
-                }
-            }
-
-            // 2. Parent Notice
-            const paBox = document.getElementById("dynamic-login-notice-parent");
-            if (paBox) {
-                if (data.parent && data.parent.is_active && data.parent.message) {
-                    paBox.innerHTML = data.parent.message;
-                    paBox.style.display = "block";
-                } else {
-                    paBox.style.display = "none";
-                }
-            }
-
-            // 3. Director Notice
-            const dirBox = document.getElementById("dynamic-login-notice-director");
-            if (dirBox) {
-                if (data.director && data.director.is_active && data.director.message) {
-                    dirBox.innerHTML = data.director.message;
-                    dirBox.style.display = "block";
-                } else {
-                    dirBox.style.display = "none";
-                }
-            }
-        }
-    } catch(e) {}
-}
-document.addEventListener("DOMContentLoaded", loadDynamicLoginNotices);
-</script>
+<!-- Dynamic notices handled seamlessly by syncRoleNoticesUI -->
 
 </body>
 </html>
