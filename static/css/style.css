@@ -3016,3 +3016,169 @@ body.day-mode #hub-view-request [style*="color: #f87171"] {
     color: #b91c1c !important;
     font-weight: 900 !important;
 }
+
+
+/* ==========================================================================
+   ☀️ UNIVERSAL DAY-MODE / LIGHT-MODE WCAG AA+ HIGH-CONTRAST ENGINE
+   ========================================================================== */
+
+/* 1. Global text & card container defaults */
+body.day-mode {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+}
+
+body.day-mode .card,
+body.day-mode .modal-content,
+body.day-mode .trigger-content {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 2. Universal Yellow / Amber / Gold -> Deep Amber Brown (#92400e / #78350f / #b45309) */
+body.day-mode [style*="color: #fbbf24"],
+body.day-mode [style*="color: #f59e0b"],
+body.day-mode [style*="color: #fde68a"],
+body.day-mode [style*="color: #fcd34d"],
+body.day-mode [style*="color: #eab308"],
+body.day-mode [style*="color: #d97706"],
+body.day-mode [style*="color: var(--color-warning)"],
+body.day-mode .text-warning,
+body.day-mode .gold-text {
+    color: #92400e !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode [style*="background: rgba(234, 179, 8"],
+body.day-mode [style*="background: rgba(234,179,8"],
+body.day-mode [style*="background: rgba(245, 158, 11"],
+body.day-mode [style*="background: rgba(245,158,11"],
+body.day-mode [style*="background: rgba(251, 191, 36"],
+body.day-mode [style*="background: rgba(251,191,36"] {
+    background: #fef3c7 !important;
+    border: 1px solid #f59e0b !important;
+}
+
+/* 3. Universal Purple / Lavender / Indigo -> Deep Rich Indigo (#3730a3 / #312e81 / #1e1b4b) */
+body.day-mode [style*="color: #a78bfa"],
+body.day-mode [style*="color: #a5b4fc"],
+body.day-mode [style*="color: #818cf8"],
+body.day-mode [style*="color: #c084fc"],
+body.day-mode [style*="color: #c7d2fe"],
+body.day-mode [style*="color: #ddd6fe"],
+body.day-mode [style*="color: #c4b5fd"],
+body.day-mode [style*="color: var(--color-accent)"] {
+    color: #3730a3 !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode [style*="background: rgba(99, 102, 241"],
+body.day-mode [style*="background: rgba(99,102,241"],
+body.day-mode [style*="background: rgba(168, 85, 247"],
+body.day-mode [style*="background: rgba(168,85,247"],
+body.day-mode [style*="background: rgba(129, 140, 248"],
+body.day-mode [style*="background: rgba(129,140,248"] {
+    background: #e0e7ff !important;
+    border: 1px solid #818cf8 !important;
+}
+
+/* 4. Universal Green / Mint / Emerald -> Deep Forest Emerald (#065f46 / #047857) */
+body.day-mode [style*="color: #34d399"],
+body.day-mode [style*="color: #10b981"],
+body.day-mode [style*="color: #6ee7b7"],
+body.day-mode [style*="color: #a7f3d0"],
+body.day-mode [style*="color: #4ade80"],
+body.day-mode [style*="color: #86efac"],
+body.day-mode [style*="color: var(--color-success)"] {
+    color: #065f46 !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode [style*="background: rgba(16, 185, 129"],
+body.day-mode [style*="background: rgba(16,185,129"],
+body.day-mode [style*="background: rgba(52, 211, 153"],
+body.day-mode [style*="background: rgba(52,211,153"] {
+    background: #ecfdf5 !important;
+    border: 1px solid #10b981 !important;
+}
+
+/* 5. Universal Blue / Sky / Cyan -> Deep Royal Blue (#1d4ed8 / #1e40af) */
+body.day-mode [style*="color: #60a5fa"],
+body.day-mode [style*="color: #38bdf8"],
+body.day-mode [style*="color: #93c5fd"],
+body.day-mode [style*="color: #7dd3fc"],
+body.day-mode [style*="color: #0284c7"] {
+    color: #1d4ed8 !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode [style*="background: rgba(59, 130, 246"],
+body.day-mode [style*="background: rgba(59,130,246"],
+body.day-mode [style*="background: rgba(56, 189, 248"],
+body.day-mode [style*="background: rgba(56,189,248"] {
+    background: #eff6ff !important;
+    border: 1px solid #3b82f6 !important;
+}
+
+/* 6. Universal Light Grays & White Text on Light Background -> Dark Slate (#334155 / #0f172a) */
+body.day-mode [style*="color: #cbd5e1"],
+body.day-mode [style*="color: #94a3b8"],
+body.day-mode [style*="color: #e2e8f0"],
+body.day-mode [style*="color: var(--text-secondary)"] {
+    color: #475569 !important;
+}
+
+body.day-mode .card [style*="color: #ffffff"]:not(.btn *):not(.badge *):not([style*="background"]),
+body.day-mode .modal-content [style*="color: #ffffff"]:not(.btn *):not(.badge *):not([style*="background"]),
+body.day-mode .trigger-content [style*="color: #ffffff"]:not(.btn *):not(.badge *):not([style*="background"]) {
+    color: #0f172a !important;
+}
+
+/* 7. Inner nested stat boxes & banner cards in Day-Mode */
+body.day-mode [style*="background: rgba(0,0,0,0.3)"],
+body.day-mode [style*="background: rgba(0, 0, 0, 0.3)"],
+body.day-mode [style*="background: rgba(0,0,0,0.2)"],
+body.day-mode [style*="background: rgba(0, 0, 0, 0.2)"],
+body.day-mode [style*="background: rgba(255,255,255,0.04)"],
+body.day-mode [style*="background: rgba(255, 255, 255, 0.04)"],
+body.day-mode [style*="background: rgba(255,255,255,0.03)"],
+body.day-mode [style*="background: rgba(255, 255, 255, 0.03)"] {
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+body.day-mode .ranking-stat-box {
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+body.day-mode .ranking-divider {
+    background: #cbd5e1 !important;
+}
+body.day-mode .ranking-label {
+    color: #475569 !important;
+    font-weight: 700 !important;
+}
+
+/* 8. Micro Ranking Component (#p3-ranking) High Contrast */
+body.day-mode #p3-ranking .card {
+    background: #ffffff !important;
+    border: 1.5px solid #e2e8f0 !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05) !important;
+}
+body.day-mode #p3-ranking [style*="color: #fbbf24"] {
+    color: #92400e !important;
+    font-weight: 900 !important;
+}
+body.day-mode #p3-ranking [style*="background: rgba(234, 179, 8, 0.2)"] {
+    background: #fef3c7 !important;
+    border: 1px solid #f59e0b !important;
+    color: #92400e !important;
+}
+body.day-mode #p3-ranking #my-ranking-region-pos {
+    color: #b45309 !important;
+}
+body.day-mode #p3-ranking #my-ranking-school-pos {
+    color: #0369a1 !important;
+}

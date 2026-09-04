@@ -8517,14 +8517,23 @@ async function sendChatMessage() {
 
     }
 
+    // 🔒 [체험 모드 / 데모 챗봇 보호] 백서 지식 유출 원천 차단 및 PALIN OS 표준 소개 답변 반환
+    if (isDemoMode || currentStudent?.id === 9999) {
+        setTimeout(() => {
+            const demoIntroResponse = `👋 안녕하세요! **PALIN OS AI 학습 멘토**입니다.\n현재 **[체험 모드(모델하우스)]**로 접속 중이십니다.\n\n🏛️ **PALIN OS 핵심 기능 안내:**\n• **168시간 밀착 행동 통제**: 기상/취침 미션, 초정밀 자습 타이머, 주간 루틴 관리\n• **정시 합격예측 엔진**: 전국 11,688개 대학/학과 1초 컷오프 판정\n• **학부모 안심 알림톡 연동**: 실시간 출결 및 주간 심층 AI 리포트 자동 발송\n\n✨ 정식 가입 또는 가맹 학원 원장님의 승인을 받으시면 원장님의 교육 철학과 13년 수험생 멘토링 노하우가 탑재된 **[Tier 3 마스터 AI]**의 초개인화 무제한 1:1 코칭을 이용하실 수 있습니다!\n\n도입 문의는 상단의 **[🏢 우리 학원 도입 문의]**를 이용해 주세요!`;
+            
+            if (loadingBubble) {
+                loadingBubble.innerHTML = demoIntroResponse.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+                loadingBubble.style.opacity = "1";
+            } else {
+                appendChatBubble("bot", demoIntroResponse);
+            }
+        }, 500);
+        return;
+    }
+
     try {
-
-        // 최근 20개 대화 기록만 전송
-
         const recentHistory = chatHistory.slice(-21, -1);
-
-        
-
         const res = await fetch("/api/ai/chat", {
 
             method: "POST",
