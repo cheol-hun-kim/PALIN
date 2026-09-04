@@ -2701,7 +2701,7 @@ def load_registered_academy_codes():
                 return json.load(f)
         except Exception:
             pass
-    return {"ILWON-2027": {"name": "일원학원", "subject": "수능 국어 · 대입 전략", "director": "김철훈 원장"}}
+    return {"ILWON-2027": {"name": "일원학원", "subject": "수능 국어 · 대입 전략", "director": "대표 원장"}}
 
 def save_registered_academy_codes(codes_dict):
     try:
@@ -2727,7 +2727,7 @@ def get_academy_codes(db: Session = Depends(get_db)):
         stats[code] = {
             "name": info.get("name", "학원"),
             "subject": info.get("subject", "수능 국어"),
-            "director": info.get("director", "김철훈 원장"),
+            "director": info.get("director", "대표 원장"),
             "enrolled_count": count
         }
     return {"academy_codes": stats, "primary_code": "ILWON-2027"}
@@ -2766,7 +2766,7 @@ def register_or_update_academy_code(payload: AcademyCodePayload):
     codes[clean_code] = {
         "name": payload.academy_name.strip(),
         "subject": payload.subject_desc.strip(),
-        "director": "김철훈 원장"
+        "director": "대표 원장"
     }
     save_registered_academy_codes(codes)
     return {"status": "success", "message": f"학원 고유코드 [{clean_code}]가 안전하게 저장되었습니다."}
@@ -2818,7 +2818,7 @@ def request_academy_leave(payload: AcademyLeavePayload, db: Session = Depends(ge
     db.refresh(student)
     return {
         "status": "success",
-        "message": "장기 휴강 신청이 접수되었습니다. 앱 내 자동 처리는 불가하며, 김철훈 원장과의 최종 상담을 통해서만 확정됩니다.",
+        "message": "장기 휴강 신청이 접수되었습니다. 앱 내 자동 처리는 불가하며, 대표 원장과의 최종 상담을 통해서만 확정됩니다.",
         "student": student
     }
 
