@@ -2870,6 +2870,7 @@ def link_academy(payload: AcademyLinkPayload, db: Session = Depends(get_db)):
         student.previous_b2c_tier = student.b2c_subscription_tier or "TIER_1_FREE"
         
     student.pending_tenant_code = tenant.code
+    student.academy_code = tenant.code
     student.academy_approval_status = "PENDING"
     db.commit()
     db.refresh(student)
@@ -4810,6 +4811,7 @@ def apply_student_academy_code(payload: ApplyAcademyCodePayload, db: Session = D
         raise HTTPException(status_code=400, detail="유효하지 않은 학원 초대 코드입니다. 원장님께 발급받은 코드를 확인해 주세요.")
 
     student.pending_tenant_code = tenant.code
+    student.academy_code = tenant.code
     student.academy_approval_status = "PENDING"
     db.commit()
 
@@ -4825,6 +4827,22 @@ def apply_student_academy_code(payload: ApplyAcademyCodePayload, db: Session = D
         "academy_name": tenant.name,
         "approval_status": "PENDING"
     }
+
+
+class CancelAcademyCodePayload(BaseModel):
+    student_id: int
+
+@app.post("/api/student/cancel-academy-code")
+def cancel_student_academy_code(payload: CancelAcademyCodePayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생 계정을 찾을 수 없습니다.")
+    student.pending_tenant_code = None
+    student.academy_code = None
+    student.academy_approval_status = "NONE"
+    student.b2c_subscription_tier = student.previous_b2c_tier or "TIER_1_FREE"
+    db.commit()
+    return {"status": "success", "message": "가맹 학원 등록 신청이 취소되었습니다."}
 
 
 @app.get("/api/admin/pending-students")

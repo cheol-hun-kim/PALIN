@@ -29,6 +29,37 @@ def auto_seed_database(db: Session, engine):
         db.rollback()
         print(f"[AUTO_SEED] Column migration warning: {e}")
 
+    # 1.5 Ensure Default Tenants Exist & Synchronize Pilot Tier 3
+    try:
+        default_tenants = [
+            {"code": "ILWON-2027", "name": "일원학원", "director_name": "일원 원장", "director_pin": "1286", "tier": 3, "license_tier": 3},
+            {"code": "PALIN-2027", "name": "팰린 마스터 학원", "director_name": "팰린 총괄", "director_pin": "1286", "tier": 3, "license_tier": 3},
+            {"code": "DAECH1", "name": "팰린 대치본원", "director_name": "대치 원장", "director_pin": "1286", "tier": 3, "license_tier": 3},
+            {"code": "ACAD-2027", "name": "대치 미래탐구", "director_name": "미탐 원장", "director_pin": "1286", "tier": 3, "license_tier": 3}
+        ]
+        for dt in default_tenants:
+            t_exist = db.query(models.Tenant).filter(models.Tenant.code == dt["code"]).first()
+            if not t_exist:
+                db.add(models.Tenant(
+                    code=dt["code"],
+                    name=dt["name"],
+                    director_name=dt["director_name"],
+                    director_pin=dt["director_pin"],
+                    tier=dt["tier"],
+                    license_tier=dt["license_tier"],
+                    is_active=True,
+                    deleted_at=None
+                ))
+                db.commit()
+            else:
+                if t_exist.tier != dt["tier"] or t_exist.license_tier != dt["license_tier"]:
+                    t_exist.tier = dt["tier"]
+                    t_exist.license_tier = dt["license_tier"]
+                    db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"[AUTO_SEED] Tenant seed warning: {e}")
+
     # 2. Check student count
     student_count = 0
     try:
