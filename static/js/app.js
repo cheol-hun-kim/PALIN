@@ -5458,33 +5458,22 @@ async function handleStudentRegisterSubmit(e) {
     const schoolName = document.getElementById("reg-school")?.value || "낙생고등학교";
 
     const pname = document.getElementById("reg-pname").value.trim();
-
     const pphone = document.getElementById("reg-pphone").value.trim();
-
     const referredBy = (document.getElementById("reg-referred-by")?.value || "").trim().toUpperCase() || null;
+    const academyCode = (document.getElementById("reg-academy-code")?.value || "").trim().toUpperCase() || null;
 
     try {
-
         const res = await fetch("/api/auth/register/student", {
-
             method: "POST",
-
             headers: { "Content-Type": "application/json" },
-
             body: JSON.stringify({
-
                 email: email, password: password, name: name, phone: phone, grade: grade,
-
                 region: fullRegion, high_school: schoolName,
-
                 target_univ: `${targetUniv} ${targetDept}`,
-
                 baseline_univ: `${baselineUniv} ${baselineDept}`,
-
-                parent_name: pname, parent_phone: pphone, referred_by: referredBy
-
+                parent_name: pname, parent_phone: pphone, referred_by: referredBy,
+                academy_code: academyCode
             })
-
         });
 
         const data = await res.json();
@@ -5946,33 +5935,22 @@ async function handleRegister(e) {
     const schoolName = document.getElementById("reg-school")?.value || "낙생고등학교";
 
     const pname = document.getElementById("reg-pname").value.trim();
-
     const pphone = document.getElementById("reg-pphone").value.trim();
-
     const referredBy = (document.getElementById("reg-referred-by")?.value || "").trim().toUpperCase() || null;
+    const academyCode = (document.getElementById("reg-academy-code")?.value || "").trim().toUpperCase() || null;
 
     try {
-
         const res = await fetch("/api/auth/register/student", {
-
             method: "POST",
-
             headers: { "Content-Type": "application/json" },
-
             body: JSON.stringify({
-
                 email: email, password: password, name: name, phone: phone, grade: grade,
-
                 region: fullRegion, high_school: schoolName,
-
                 target_univ: `${targetUniv} ${targetDept}`,
-
                 baseline_univ: `${baselineUniv} ${baselineDept}`,
-
-                parent_name: pname, parent_phone: pphone, referred_by: referredBy
-
+                parent_name: pname, parent_phone: pphone, referred_by: referredBy,
+                academy_code: academyCode
             })
-
         });
 
         const data = await res.json();

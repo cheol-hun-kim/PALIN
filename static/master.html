@@ -457,7 +457,7 @@
                 </div>
             </div>
 
-            <!-- 🧭 6대 마스터 탭 네비게이션 -->
+            <!-- 🧭 7대 마스터 탭 네비게이션 -->
             <div class="master-tab-nav">
                 <button class="master-tab-btn active" onclick="switchMasterTab('tab-tenants')">
                     <span class="material-symbols-rounded">domain</span>
@@ -482,6 +482,10 @@
                 <button class="master-tab-btn" onclick="switchMasterTab('tab-b2b-helpdesk')">
                     <span class="material-symbols-rounded">contact_support</span>
                     <span>💬 6. 헬프데스크 & VOC</span>
+                </button>
+                <button class="master-tab-btn" onclick="switchMasterTab('tab-all-members')">
+                    <span class="material-symbols-rounded">badge</span>
+                    <span>👥 7. 전 회원 통합 관리</span>
                 </button>
             </div>
 
@@ -875,6 +879,92 @@
                 </div>
             </div>
 
+            <!-- TAB 7: 👥 7. 전 회원 통합 관리 (All Members Control Center) -->
+            <div id="tab-all-members" class="master-tab-view">
+                <!-- KPI 현황 카드 -->
+                <div class="kpi-grid" style="margin-bottom: 16px;">
+                    <div class="kpi-card">
+                        <div class="kpi-title"><span class="material-symbols-rounded" style="font-size: 1rem; color: #818cf8;">groups</span> 총 가입 수험생</div>
+                        <div class="kpi-value" id="stat-m-total-students" style="color: #818cf8;">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title"><span class="material-symbols-rounded" style="font-size: 1rem; color: #34d399;">domain_verification</span> 학원 가맹 승인생</div>
+                        <div class="kpi-value" id="stat-m-approved-students" style="color: #34d399;">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title"><span class="material-symbols-rounded" style="font-size: 1rem; color: #60a5fa;">public</span> B2C 독립 수험생</div>
+                        <div class="kpi-value" id="stat-m-b2c-students" style="color: #60a5fa;">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title"><span class="material-symbols-rounded" style="font-size: 1rem; color: #fbbf24;">hourglass_top</span> 가맹 승인 대기자</div>
+                        <div class="kpi-value" id="stat-m-pending-students" style="color: #fbbf24;">-</div>
+                    </div>
+                </div>
+
+                <!-- 검색 / 필터 / 통제 바 -->
+                <div class="section-box" style="margin-bottom: 16px;">
+                    <div class="section-header" style="color: #fbbf24;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-rounded">manage_accounts</span>
+                            <span>전 플랫폼 수험생 회원 데이터베이스 & 갓모드 통제소</span>
+                        </div>
+                        <span style="font-size: 0.75rem; color: #94a3b8;" id="master-student-count-badge">0명 조회됨</span>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto auto; gap: 8px; align-items: center; margin-bottom: 12px;" class="grid-two-col">
+                        <input type="text" id="master-student-search" placeholder="🔍 이름, 이메일, 전화번호, 학교, 소속학원 검색..." class="form-input" oninput="filterMasterStudents()">
+                        <select id="master-filter-academy" class="form-input" onchange="filterMasterStudents()" style="font-weight: 700;">
+                            <option value="ALL">🏢 전체 학원 필터</option>
+                        </select>
+                        <select id="master-filter-tier" class="form-input" onchange="filterMasterStudents()" style="font-weight: 700;">
+                            <option value="ALL">⭐ 전체 AI 티어</option>
+                            <option value="TIER_3">Tier 3 (플래그십)</option>
+                            <option value="TIER_2">Tier 2 (맞춤뇌)</option>
+                            <option value="TIER_1">Tier 1 (기본)</option>
+                        </select>
+                        <select id="master-filter-status" class="form-input" onchange="filterMasterStudents()" style="font-weight: 700;">
+                            <option value="ALL">📋 전체 가맹상태</option>
+                            <option value="APPROVED">🟢 승인완료 (APPROVED)</option>
+                            <option value="PENDING">🟡 승인대기 (PENDING)</option>
+                            <option value="REJECTED">🔴 가맹반려 (REJECTED)</option>
+                            <option value="NONE">⚪ 미연동 (NONE)</option>
+                        </select>
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: #94a3b8; cursor: pointer; white-space: nowrap;">
+                            <input type="checkbox" id="master-include-deleted" onchange="loadMasterStudents()"> 삭제계정 포함
+                        </label>
+                        <button onclick="loadMasterStudents()" class="btn btn-gold" style="padding: 10px 14px; font-weight: 800; white-space: nowrap;">
+                            🔄 갱신
+                        </button>
+                    </div>
+
+                    <!-- 수험생 테이블 -->
+                    <div class="table-responsive">
+                        <table class="data-table" id="master-students-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">ID</th>
+                                    <th>학생 정보</th>
+                                    <th>학교 / 학년</th>
+                                    <th>학부모 정보</th>
+                                    <th>소속 학원 (가맹코드)</th>
+                                    <th>가맹 상태</th>
+                                    <th>AI 티어</th>
+                                    <th>포인트 / 티켓</th>
+                                    <th>누적 자습</th>
+                                    <th>가입일</th>
+                                    <th style="text-align: center; min-width: 200px;">갓모드 통제 액션</th>
+                                </tr>
+                            </thead>
+                            <tbody id="master-students-tbody">
+                                <tr>
+                                    <td colspan="11" style="text-align: center; color: #64748b; padding: 24px;">회원 데이터를 불러오는 중...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -907,6 +997,7 @@
             if (tabId === 'tab-admission-reports') loadMasterReports();
             if (tabId === 'tab-consulting') loadMasterConsultingRequests();
             if (tabId === 'tab-b2b-helpdesk') { loadB2BTickets(); loadMasterFeedbacks(); }
+            if (tabId === 'tab-all-members') loadMasterStudents();
         }
 
         function handleMasterLogin() {
@@ -1831,6 +1922,299 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
             }
         }
 
+        // =========================================================================
+        // 👥 Tab 7: 전 회원 통합 관리 (All Members Control Center)
+        // =========================================================================
+        let allMasterStudentsCache = [];
+
+        async function loadMasterStudents() {
+            const tbody = document.getElementById("master-students-tbody");
+            const includeDeleted = document.getElementById("master-include-deleted")?.checked || false;
+            if (tbody) {
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: #64748b; padding: 24px;">회원 데이터를 불러오는 중...</td></tr>';
+            }
+            try {
+                const res = await fetch(`/api/master/students?include_deleted=${includeDeleted}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    allMasterStudentsCache = data.students || [];
+                    populateMasterAcademyFilter(allMasterStudentsCache);
+                    renderMasterStudents(allMasterStudentsCache);
+                } else {
+                    if (tbody) tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: #ef4444; padding: 24px;">회원 목록 로드 실패</td></tr>';
+                }
+            } catch (e) {
+                console.error("loadMasterStudents error:", e);
+                if (tbody) tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: #ef4444; padding: 24px;">통신 오류가 발생했습니다.</td></tr>';
+            }
+        }
+
+        function populateMasterAcademyFilter(students) {
+            const select = document.getElementById("master-filter-academy");
+            if (!select) return;
+            const currentVal = select.value;
+            const academySet = new Set();
+            students.forEach(s => {
+                if (s.academy_code && s.academy_code !== "-" && s.academy_code !== "NONE") {
+                    academySet.add(s.academy_code);
+                }
+                if (s.pending_tenant_code && s.pending_tenant_code !== "-") {
+                    academySet.add(s.pending_tenant_code);
+                }
+            });
+
+            select.innerHTML = '<option value="ALL">🏢 전체 학원 필터</option><option value="NONE">🌐 B2C 무소속</option>';
+            Array.from(academySet).sort().forEach(code => {
+                select.innerHTML += `<option value="${code}">${code}</option>`;
+            });
+            if (currentVal) select.value = currentVal;
+        }
+
+        function filterMasterStudents() {
+            const query = (document.getElementById("master-student-search")?.value || "").trim().toLowerCase();
+            const academyFilter = document.getElementById("master-filter-academy")?.value || "ALL";
+            const tierFilter = document.getElementById("master-filter-tier")?.value || "ALL";
+            const statusFilter = document.getElementById("master-filter-status")?.value || "ALL";
+
+            const filtered = allMasterStudentsCache.filter(s => {
+                // Search query match
+                if (query) {
+                    const matchName = (s.name || "").toLowerCase().includes(query);
+                    const matchEmail = (s.email || "").toLowerCase().includes(query);
+                    const matchPhone = (s.phone || "").toLowerCase().includes(query);
+                    const matchSchool = (s.high_school || "").toLowerCase().includes(query);
+                    const matchAcademy = (s.academy_code || "").toLowerCase().includes(query) || (s.pending_tenant_code || "").toLowerCase().includes(query);
+                    const matchParent = (s.parent_name || "").toLowerCase().includes(query) || (s.parent_phone || "").toLowerCase().includes(query);
+                    if (!matchName && !matchEmail && !matchPhone && !matchSchool && !matchAcademy && !matchParent) {
+                        return false;
+                    }
+                }
+
+                // Academy filter
+                if (academyFilter !== "ALL") {
+                    if (academyFilter === "NONE") {
+                        if ((s.academy_code && s.academy_code !== "-" && s.academy_code !== "NONE") || (s.pending_tenant_code && s.pending_tenant_code !== "-")) {
+                            return false;
+                        }
+                    } else {
+                        if (s.academy_code !== academyFilter && s.pending_tenant_code !== academyFilter) {
+                            return false;
+                        }
+                    }
+                }
+
+                // Tier filter
+                if (tierFilter !== "ALL") {
+                    const tierStr = (s.b2c_subscription_tier || "").toUpperCase();
+                    if (tierFilter === "TIER_3" && !tierStr.includes("TIER_3")) return false;
+                    if (tierFilter === "TIER_2" && !tierStr.includes("TIER_2")) return false;
+                    if (tierFilter === "TIER_1" && !tierStr.includes("TIER_1") && !tierStr.includes("FREE") && tierStr !== "") return false;
+                }
+
+                // Status filter
+                if (statusFilter !== "ALL") {
+                    const status = (s.academy_approval_status || "NONE").toUpperCase();
+                    if (status !== statusFilter) return false;
+                }
+
+                return true;
+            });
+
+            renderMasterStudents(filtered, false);
+        }
+
+        function renderMasterStudents(students, updateKPI = true) {
+            const tbody = document.getElementById("master-students-tbody");
+            const countBadge = document.getElementById("master-student-count-badge");
+            if (!tbody) return;
+
+            if (countBadge) countBadge.innerText = `${students.length}명 조회됨`;
+
+            // Update KPI cards from full cache
+            if (updateKPI && allMasterStudentsCache.length > 0) {
+                const total = allMasterStudentsCache.length;
+                const approved = allMasterStudentsCache.filter(s => s.academy_approval_status === "APPROVED").length;
+                const pending = allMasterStudentsCache.filter(s => s.academy_approval_status === "PENDING").length;
+                const b2c = allMasterStudentsCache.filter(s => s.academy_approval_status === "NONE" || !s.academy_approval_status).length;
+
+                const totalEl = document.getElementById("stat-m-total-students");
+                const approvedEl = document.getElementById("stat-m-approved-students");
+                const b2cEl = document.getElementById("stat-m-b2c-students");
+                const pendingEl = document.getElementById("stat-m-pending-students");
+
+                if (totalEl) totalEl.innerText = `${total}명`;
+                if (approvedEl) approvedEl.innerText = `${approved}명`;
+                if (b2cEl) b2cEl.innerText = `${b2c}명`;
+                if (pendingEl) pendingEl.innerText = `${pending}명`;
+            }
+
+            if (students.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: #64748b; padding: 24px;">조건에 일치하는 회원 데이터가 없습니다.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = students.map(s => {
+                // Tier Badge
+                let tierBadge = '<span style="background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); font-size: 0.72rem; padding: 2px 7px; border-radius: 4px; font-weight: 800;">Tier 1 (기본)</span>';
+                const tierStr = (s.b2c_subscription_tier || "").toUpperCase();
+                if (tierStr.includes("TIER_3")) {
+                    tierBadge = '<span style="background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid #f59e0b; font-size: 0.72rem; padding: 2px 7px; border-radius: 4px; font-weight: 900;">👑 Tier 3 (VIP)</span>';
+                } else if (tierStr.includes("TIER_2")) {
+                    tierBadge = '<span style="background: rgba(99,102,241,0.2); color: #a5b4fc; border: 1px solid #6366f1; font-size: 0.72rem; padding: 2px 7px; border-radius: 4px; font-weight: 800;">🧠 Tier 2 (맞춤)</span>';
+                }
+
+                // Approval Status Badge
+                let statusBadge = '<span style="background: rgba(148,163,184,0.15); color: #94a3b8; font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; font-weight: 700;">미연동</span>';
+                const status = (s.academy_approval_status || "NONE").toUpperCase();
+                if (status === "APPROVED") {
+                    statusBadge = '<span style="background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid #10b981; font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; font-weight: 800;">🟢 승인완료</span>';
+                } else if (status === "PENDING") {
+                    statusBadge = '<span style="background: rgba(245,158,11,0.25); color: #fbbf24; border: 1px solid #f59e0b; font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; font-weight: 900; animation: pulse 2s infinite;">⏳ 승인대기</span>';
+                } else if (status === "REJECTED") {
+                    statusBadge = '<span style="background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid #ef4444; font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; font-weight: 800;">🔴 반려</span>';
+                }
+
+                // Academy Code Text
+                let academyText = '<span style="color: #64748b;">- (B2C)</span>';
+                if (status === "PENDING" && s.pending_tenant_code && s.pending_tenant_code !== "-") {
+                    academyText = `<span style="color: #fbbf24; font-weight: 800;">${s.pending_tenant_code}</span> <span style="font-size: 0.7rem; color: #94a3b8;">(신청)</span>`;
+                } else if (s.academy_code && s.academy_code !== "-" && s.academy_code !== "NONE") {
+                    academyText = `<span style="color: #34d399; font-weight: 800;">${s.academy_code}</span>`;
+                }
+
+                // Study hours
+                const studyHours = (s.total_study_minutes / 60).toFixed(1);
+
+                // Deleted row styling
+                const rowStyle = s.is_deleted ? 'style="opacity: 0.45; text-decoration: line-through; background: rgba(239,68,68,0.05);"' : '';
+
+                // Action Buttons
+                let approveBtn = '';
+                if (status === "PENDING" || (s.pending_tenant_code && s.pending_tenant_code !== "-")) {
+                    approveBtn = `<button onclick="forceApproveMasterStudent(${s.id}, '${escapeHtml(s.name)}', '${s.pending_tenant_code || s.academy_code}')" class="btn btn-gold" style="padding: 4px 8px; font-size: 0.72rem; font-weight: 900; margin-right: 4px;">⚡ 강제승인</button>`;
+                }
+
+                const tierBtn = `<button onclick="changeMasterStudentTier(${s.id}, '${s.b2c_subscription_tier}', '${escapeHtml(s.name)}')" class="btn btn-secondary" style="padding: 4px 7px; font-size: 0.72rem; margin-right: 4px;">티어</button>`;
+                const pointBtn = `<button onclick="grantMasterStudentPoints(${s.id}, '${escapeHtml(s.name)}')" class="btn btn-secondary" style="padding: 4px 7px; font-size: 0.72rem; margin-right: 4px;">+P</button>`;
+                const ticketBtn = `<button onclick="grantMasterStudentTickets(${s.id}, '${escapeHtml(s.name)}')" class="btn btn-secondary" style="padding: 4px 7px; font-size: 0.72rem; margin-right: 4px;">+🎫</button>`;
+                const delBtn = s.is_deleted
+                    ? `<button onclick="toggleDeleteMasterStudent(${s.id}, '${escapeHtml(s.name)}', true)" class="btn" style="background: #10b981; color: white; padding: 4px 7px; font-size: 0.72rem; font-weight: 800;">복구</button>`
+                    : `<button onclick="toggleDeleteMasterStudent(${s.id}, '${escapeHtml(s.name)}', false)" class="btn" style="background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.4); padding: 4px 7px; font-size: 0.72rem;">삭제</button>`;
+
+                return `
+                    <tr ${rowStyle}>
+                        <td style="font-weight: 800; color: #94a3b8;">${s.id}</td>
+                        <td>
+                            <div style="font-weight: 900; color: #ffffff; font-size: 0.88rem;">${s.name}</div>
+                            <div style="font-size: 0.73rem; color: #94a3b8;">${s.email}</div>
+                            <div style="font-size: 0.73rem; color: #64748b;">${s.phone}</div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 700; color: #cbd5e1;">${s.high_school}</div>
+                            <div style="font-size: 0.74rem; color: #94a3b8;">고${s.grade || 3} · ${s.region || '-'}</div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 700; color: #cbd5e1;">${s.parent_name}</div>
+                            <div style="font-size: 0.73rem; color: #64748b;">${s.parent_phone}</div>
+                        </td>
+                        <td>${academyText}</td>
+                        <td>${statusBadge}</td>
+                        <td>${tierBadge}</td>
+                        <td>
+                            <div style="font-weight: 800; color: #fbbf24; font-size: 0.78rem;">💎 ${(s.current_points || 0).toLocaleString()}P</div>
+                            <div style="font-size: 0.72rem; color: #c7d2fe;">🎫 황금 ${s.golden_tickets_count || 0}장</div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 800; color: #34d399;">${studyHours}h</div>
+                            <div style="font-size: 0.7rem; color: #64748b;">(${s.total_study_minutes || 0}분)</div>
+                        </td>
+                        <td style="font-size: 0.74rem; color: #64748b; white-space: nowrap;">${s.created_at}</td>
+                        <td style="text-align: center; white-space: nowrap;">
+                            ${approveBtn}${tierBtn}${pointBtn}${ticketBtn}${delBtn}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+
+        async function executeMasterStudentAction(studentId, action, value = null) {
+            try {
+                const res = await fetch(`/api/master/students/${studentId}/action`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: action, value: value ? String(value) : null })
+                });
+                const data = await res.json();
+                if (res.ok && data.status === "success") {
+                    alert(`✓ ${data.message}`);
+                    loadMasterStudents();
+                } else {
+                    alert(`⚠️ 액션 실패: ${data.detail || data.message || "오류가 발생했습니다."}`);
+                }
+            } catch (e) {
+                console.error("executeMasterStudentAction error:", e);
+                alert("통신 오류가 발생했습니다.");
+            }
+        }
+
+        function forceApproveMasterStudent(studentId, studentName, code) {
+            if (confirm(`[${studentName}] 학생의 학원 가맹(${code || '기본'}) 승인을 갓모드 권한으로 즉시 강제 승인(Tier 3 활성화)하시겠습니까?`)) {
+                executeMasterStudentAction(studentId, "FORCE_APPROVE");
+            }
+        }
+
+        function changeMasterStudentTier(studentId, currentTier, studentName) {
+            const promptMsg = `[${studentName}] 학생의 변경할 AI 티어를 선택하세요:\n1: Tier 1 (기본 AI - B2C 무료)\n2: Tier 2 (맞춤뇌 - 문진표 탑재)\n3: Tier 3 (플래그십 - 백서 RAG/무제한 AI)`;
+            const choice = prompt(promptMsg, currentTier.includes("3") ? "3" : (currentTier.includes("2") ? "2" : "1"));
+            if (!choice) return;
+
+            let targetTier = "TIER_1_FREE";
+            if (choice === "3" || choice.toLowerCase() === "tier3" || choice.toLowerCase() === "tier_3") {
+                targetTier = "TIER_3_ACADEMY";
+            } else if (choice === "2" || choice.toLowerCase() === "tier2" || choice.toLowerCase() === "tier_2") {
+                targetTier = "TIER_2_ACADEMY";
+            }
+            executeMasterStudentAction(studentId, "SET_TIER", targetTier);
+        }
+
+        function grantMasterStudentPoints(studentId, studentName) {
+            const amountStr = prompt(`[${studentName}] 학생에게 지급할 포인트를 입력하세요:`, "500");
+            if (!amountStr) return;
+            const amount = parseInt(amountStr);
+            if (isNaN(amount) || amount <= 0) {
+                alert("올바른 포인트를 입력해 주세요.");
+                return;
+            }
+            executeMasterStudentAction(studentId, "ADD_POINTS", amount);
+        }
+
+        function grantMasterStudentTickets(studentId, studentName) {
+            const amountStr = prompt(`[${studentName}] 학생에게 지급할 황금 질문권(티켓) 수량을 입력하세요:`, "3");
+            if (!amountStr) return;
+            const amount = parseInt(amountStr);
+            if (isNaN(amount) || amount <= 0) {
+                alert("올바른 수량을 입력해 주세요.");
+                return;
+            }
+            executeMasterStudentAction(studentId, "ADD_TICKETS", amount);
+        }
+
+        function toggleDeleteMasterStudent(studentId, studentName, isDeleted) {
+            if (isDeleted) {
+                if (confirm(`[${studentName}] 학생 계정을 정상 복구하시겠습니까?`)) {
+                    executeMasterStudentAction(studentId, "RESTORE");
+                }
+            } else {
+                if (confirm(`[${studentName}] 학생 계정을 소프트 삭제 처리하시겠습니까?\n(언제든 복구 가능합니다)`)) {
+                    executeMasterStudentAction(studentId, "DELETE");
+                }
+            }
+        }
 </script>
 </body>
 </html>

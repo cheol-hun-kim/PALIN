@@ -2896,6 +2896,8 @@
                     const badgeEl = document.getElementById("tenant-license-badge");
                     if (badgeEl) badgeEl.innerText = `Tier ${tier} 라이선스 활성화`;
                 } else {
+                    alert(data.detail || "라이선스 변경 실패");
+                }
             } catch(e) {
                 alert("라이선스 변경 처리 중 오류가 발생했습니다.");
             }

@@ -370,7 +370,13 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 <input type="text" id="reg-pname" class="auth-input" placeholder="학부모 성함" required>
                                 <input type="tel" id="reg-pphone" class="auth-input" placeholder="학부모 연락처 (010-XXXX-XXXX)" required>
                             </div>
-                            <input type="text" id="reg-referred-by" class="auth-input" placeholder="친구 추천인 코드 (선택)">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 4px;">
+                                <input type="text" id="reg-referred-by" class="auth-input" placeholder="친구 추천인 코드 (선택)" style="margin-bottom: 0;">
+                                <input type="text" id="reg-academy-code" class="auth-input" placeholder="소속 학원 코드 (선택)" style="text-transform: uppercase; font-weight: 700; margin-bottom: 0;">
+                            </div>
+                            <div style="font-size: 0.72rem; color: #a5b4fc; line-height: 1.35; margin-bottom: 10px; text-align: left; padding: 2px 4px;">
+                                💡 가맹 학원생은 학원 코드(예: <b>ILWON-2027</b>)를 입력하시면 원장님 승인 시 <b>전액 무료(Tier 3 AI)</b>로 즉시 연동됩니다.
+                            </div>
 
                             <button type="submit" class="auth-submit-btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; box-shadow: 0 4px 16px rgba(99,102,241,0.4);">
                                 회원가입 완료 (100P 지급)
@@ -2925,13 +2931,10 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     </div>
                 </div>
 
-                <!-- 역바이럴 박스 -->
-                <div style="background: rgba(99, 102, 241, 0.1); border: 1px dashed #818cf8; border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 0.76rem; font-weight: 800; color: #a5b4fc; margin-bottom: 2px;">🎁 혹시 가맹 학원에 다니고 계신가요?</div>
-                    <div style="font-size: 0.7rem; color: #cbd5e1; margin-bottom: 8px;">우리 학원이 가맹 학원이면 원장님 전액 지원으로 100% 무료입니다!</div>
-                    <button type="button" onclick="closeStudentBrochureModal(); openMyPageModal();" class="btn" style="padding: 6px 14px; font-size: 0.74rem; background: #6366f1; color: white; font-weight: 800; border-radius: 6px;">
-                        🔑 학원 초대 코드 등록하러 가기
-                    </button>
+                <!-- 가맹 학원생 전액 지원 안내 -->
+                <div style="background: rgba(99, 102, 241, 0.1); border: 1px dashed #818cf8; border-radius: 12px; padding: 12px 14px; text-align: center;">
+                    <div style="font-size: 0.8rem; font-weight: 800; color: #a5b4fc; margin-bottom: 3px;">🎁 가맹 학원 재원생 전액 무료 지원</div>
+                    <div style="font-size: 0.74rem; color: #cbd5e1; line-height: 1.45;">소속 학원이 가맹 학원인 경우, 원장님 지원으로 <b>Tier 3 마스터 AI</b> 및 학원 관리 기능이 100% 무료로 제공됩니다.</div>
                 </div>
             </div>
 
