@@ -14144,3 +14144,277 @@ function handleLogout() {
 function logoutUser() {
     logoutStudent();
 }
+
+// ============================================================================
+// 🏛️ [DEMO SANDBOX] 3-Way 인터랙티브 모델하우스 (원장 ↔ 학생 ↔ 학부모) 엔진
+// ============================================================================
+
+let isDemoMode = false;
+let currentDemoPersona = 'DIRECTOR';
+let backupStudentBeforeDemo = null;
+
+const DEMO_STUDENT = {
+    id: 9999,
+    name: "이서준",
+    email: "seojun_demo@ilwon.edu",
+    phone: "010-9999-1286",
+    grade: 3,
+    region: "경기 성남시 분당구",
+    high_school: "낙생고",
+    target_univ: "연세대학교 의예과",
+    baseline_univ: "서울대학교 화학생물공학부",
+    current_points: 1540,
+    streak_days: 7,
+    diligence_score: 96,
+    academy_code: "ILWON-2027",
+    academy_approval_status: "APPROVED",
+    b2c_subscription_tier: "TIER_3_MASTER",
+    ai_level: "B2B_PREMIUM",
+    league_tier: "DIAMOND",
+    point_multiplier: 1.5,
+    golden_tickets_count: 5,
+    paid_cash: 250000,
+    medical_symbol: "MED",
+    enrollment_status: "ENROLLED",
+    chat_tokens: 999,
+    parent: {
+        id: 99991,
+        name: "서준 모",
+        phone: "010-8888-1286",
+        is_premium_subscribed: true
+    }
+};
+
+let demoDirectorStudents = [
+    { id: 1, name: "이서준", school: "낙생고 3", target: "연세대 의예", status: "자습 중 (6.7h)", statusType: "study", redCards: 0 },
+    { id: 2, name: "김민지", school: "서현고 2", target: "서울대 경영", status: "딴짓 감지 (유튜브)", statusType: "warning", redCards: 1 },
+    { id: 3, name: "박도현", school: "분당고 3", target: "고려대 컴공", status: "VOD 미시청 (3일째)", statusType: "danger", redCards: 0 },
+    { id: 4, name: "최유진", school: "늘푸른고 1", target: "성균관대 약학", status: "자습 중 (4.2h)", statusType: "study", redCards: 0 },
+    { id: 5, name: "정태양", school: "대진고 N수", target: "카톨릭대 의예", status: "자습 중 (8.1h)", statusType: "study", redCards: 0 },
+    { id: 6, name: "한가은", school: "보평고 2", target: "한양대 기계", status: "학원 입실 (18:30)", statusType: "success", redCards: 0 },
+    { id: 7, name: "윤지호", school: "이매고 3", target: "중앙대 전자", status: "자습 중 (5.5h)", statusType: "study", redCards: 0 },
+    { id: 8, name: "강현우", school: "중앙고 3", target: "서강대 경영", status: "자습 중 (6.0h)", statusType: "study", redCards: 0 }
+];
+
+let demoTimetablePlans = [
+    { id: "demo_p1", day: "월", start: "07:00", end: "08:30", text: "수능국어 킬러 비문학 3지문 독해 & 오답 분석", tag: "국어" },
+    { id: "demo_p2", day: "월", start: "09:00", end: "12:00", text: "미적분 킬러 30번 테마 심층 유형 정복", tag: "수학" },
+    { id: "demo_p3", day: "월", start: "14:00", end: "17:30", text: "과탐(생명과학) 유전 고난도 실전 모의고사 풀이", tag: "탐구" },
+    { id: "demo_p4", day: "월", start: "19:00", end: "22:00", text: "일원학원 수능국어 정규 직강 수강 & VOD 복습", tag: "학원" }
+];
+
+function startDirectorDemoExperience() {
+    closeDirectorDemoModal();
+    backupStudentBeforeDemo = currentStudent;
+    isDemoMode = true;
+
+    // 1. 오버레이 숨기고 플로팅 바 표시
+    const regOverlay = document.getElementById("register-overlay");
+    if (regOverlay) regOverlay.style.display = "none";
+
+    const floatBar = document.getElementById("demo-mode-floating-bar");
+    if (floatBar) floatBar.style.display = "flex";
+
+    // 2. 초기 페르소나는 원장 관제실로 시작
+    switchDemoPersona('DIRECTOR');
+}
+window.startDirectorDemoExperience = startDirectorDemoExperience;
+
+function switchDemoPersona(role) {
+    currentDemoPersona = role;
+
+    // 플로팅 바 버튼 스타일 동기화
+    const btnDir = document.getElementById("demo-btn-dir");
+    const btnStu = document.getElementById("demo-btn-stu");
+    const btnPa = document.getElementById("demo-btn-pa");
+
+    if (btnDir) btnDir.className = role === 'DIRECTOR' ? "btn btn-sm btn-gold" : "btn btn-sm btn-secondary";
+    if (btnStu) btnStu.className = role === 'STUDENT' ? "btn btn-sm" : "btn btn-sm btn-secondary";
+    if (btnStu && role === 'STUDENT') {
+        btnStu.style.background = "linear-gradient(135deg, #6366f1, #4f46e5)";
+        btnStu.style.color = "#ffffff";
+    }
+    if (btnPa) btnPa.className = role === 'PARENT' ? "btn btn-sm" : "btn btn-sm btn-secondary";
+    if (btnPa && role === 'PARENT') {
+        btnPa.style.background = "linear-gradient(135deg, #10b981, #059669)";
+        btnPa.style.color = "#ffffff";
+    }
+
+    if (role === 'DIRECTOR') {
+        // 원장 관제실 뷰 활성화
+        closeDemoParentReportModal();
+        openDemoDirectorCockpit();
+    } else if (role === 'STUDENT') {
+        // 학생 뷰 활성화
+        closeDemoDirectorCockpit();
+        closeDemoParentReportModal();
+        currentStudent = { ...DEMO_STUDENT };
+        
+        // 학생 UI 렌더링
+        if (typeof showStudentView === 'function') showStudentView();
+        if (typeof renderTimetableGrid === 'function') renderTimetableGrid();
+        if (typeof updateAcademyGNBVisibility === 'function') updateAcademyGNBVisibility();
+        if (typeof loadPage2Data === 'function') loadPage2Data();
+
+        // 1페이지 생활관리로 전환
+        if (typeof switchPage === 'function') switchPage(1);
+
+        renderDemoTimetable();
+    } else if (role === 'PARENT') {
+        // 학부모 뷰 활성화
+        closeDemoDirectorCockpit();
+        currentStudent = { ...DEMO_STUDENT };
+
+        if (typeof showParentView === 'function') showParentView();
+        if (typeof switchPage === 'function') switchPage(1);
+
+        // 학부모 리포트 팝업 바로 열람 유도
+        demoOpenWeeklyReport();
+    }
+}
+window.switchDemoPersona = switchDemoPersona;
+
+function exitDemoExperience() {
+    if (!confirm("모델하우스(체험 모드)를 종료하고 로그인 화면으로 돌아가시겠습니까?")) return;
+
+    isDemoMode = false;
+    currentDemoPersona = 'DIRECTOR';
+
+    // 데모 UI 전체 숨김
+    const floatBar = document.getElementById("demo-mode-floating-bar");
+    if (floatBar) floatBar.style.display = "none";
+    closeDemoDirectorCockpit();
+    closeDemoParentReportModal();
+    closeDemoSmsSimulationModal();
+
+    // 원래 학생 복구 또는 로그인 오버레이 표시
+    if (backupStudentBeforeDemo && backupStudentBeforeDemo.id) {
+        currentStudent = backupStudentBeforeDemo;
+        if (typeof fetchStudentInfo === 'function') fetchStudentInfo(currentStudent.id);
+    } else {
+        currentStudent = null;
+        const regOverlay = document.getElementById("register-overlay");
+        if (regOverlay) regOverlay.style.display = "flex";
+        if (typeof setAuthRoleUI === 'function') setAuthRoleUI('DIRECTOR');
+    }
+}
+window.exitDemoExperience = exitDemoExperience;
+
+function openDemoDirectorCockpit() {
+    const modal = document.getElementById("demo-director-cockpit-modal");
+    if (modal) modal.style.display = "flex";
+    renderDemoDirectorStudents();
+}
+window.openDemoDirectorCockpit = openDemoDirectorCockpit;
+
+function closeDemoDirectorCockpit() {
+    const modal = document.getElementById("demo-director-cockpit-modal");
+    if (modal) modal.style.display = "none";
+}
+window.closeDemoDirectorCockpit = closeDemoDirectorCockpit;
+
+function renderDemoDirectorStudents() {
+    const container = document.getElementById("demo-director-student-list");
+    if (!container) return;
+
+    container.innerHTML = "";
+    demoDirectorStudents.forEach(st => {
+        let statusBadge = "";
+        if (st.statusType === "study") {
+            statusBadge = `<span style="background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; font-weight: 800;">${st.status}</span>`;
+        } else if (st.statusType === "warning") {
+            statusBadge = `<span style="background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; font-weight: 800;">⚠️ ${st.status}</span>`;
+        } else if (st.statusType === "danger") {
+            statusBadge = `<span style="background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; font-weight: 800;">🔒 ${st.status}</span>`;
+        } else {
+            statusBadge = `<span style="background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; font-weight: 800;">${st.status}</span>`;
+        }
+
+        const redCardBtn = `
+            <button onclick="demoIssueRedCard(${st.id}, '${st.name}')" class="btn" style="padding: 4px 8px; font-size: 0.72rem; font-weight: 800; background: #dc2626; color: white; border-radius: 6px; white-space: nowrap;">
+                🟥 레드카드
+            </button>
+        `;
+
+        container.innerHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 8px 10px;">
+                <div style="flex: 1; min-width: 0;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-weight: 800; font-size: 0.84rem; color: #ffffff;">${st.name}</span>
+                        <span style="font-size: 0.72rem; color: #94a3b8;">${st.school} (${st.target})</span>
+                        ${st.redCards > 0 ? `<span style="background: #991b1b; color: white; font-size: 0.65rem; padding: 1px 4px; border-radius: 4px; font-weight: 800;">벌점 ${st.redCards}</span>` : ''}
+                    </div>
+                    <div style="margin-top: 2px;">${statusBadge}</div>
+                </div>
+                <div style="display: flex; gap: 4px; align-items: center; margin-left: 8px;">
+                    ${redCardBtn}
+                </div>
+            </div>
+        `;
+    });
+}
+
+function demoIssueRedCard(studentId, studentName) {
+    const student = demoDirectorStudents.find(s => s.id === studentId);
+    if (student) {
+        student.redCards += 1;
+        student.status = "원장실 지도 (벌점 부과됨)";
+        student.statusType = "warning";
+        renderDemoDirectorStudents();
+    }
+
+    const smsContent = `[일원학원 안심 지도] 어머님, ${studentName} 학생이 자습 규율 위반(무단 외출/딴짓)으로 원장실 즉각 지도 및 벌점 1점이 부과되었습니다. (현재 누적 벌점: ${student ? student.redCards : 1}점)`;
+    openDemoSmsSimulationModal(smsContent);
+}
+window.demoIssueRedCard = demoIssueRedCard;
+
+function demoOpenWeeklyReport() {
+    const modal = document.getElementById("demo-parent-weekly-report-modal");
+    if (modal) modal.style.display = "flex";
+}
+window.demoOpenWeeklyReport = demoOpenWeeklyReport;
+
+function closeDemoParentReportModal() {
+    const modal = document.getElementById("demo-parent-weekly-report-modal");
+    if (modal) modal.style.display = "none";
+}
+window.closeDemoParentReportModal = closeDemoParentReportModal;
+
+function openDemoSmsSimulationModal(content) {
+    const modal = document.getElementById("demo-sms-simulation-modal");
+    const textEl = document.getElementById("demo-sms-text-content");
+    if (textEl && content) textEl.innerText = content;
+    if (modal) modal.style.display = "flex";
+}
+window.openDemoSmsSimulationModal = openDemoSmsSimulationModal;
+
+function closeDemoSmsSimulationModal() {
+    const modal = document.getElementById("demo-sms-simulation-modal");
+    if (modal) modal.style.display = "none";
+}
+window.closeDemoSmsSimulationModal = closeDemoSmsSimulationModal;
+
+function renderDemoTimetable() {
+    const container = document.getElementById("timetable-plans-list");
+    if (!container) return;
+
+    container.innerHTML = "";
+    demoTimetablePlans.forEach(p => {
+        container.innerHTML += `
+            <div class="timetable-card" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; margin-bottom: 6px; background: rgba(99,102,241,0.08); border-left: 4px solid #6366f1; border-radius: 8px;">
+                <div>
+                    <div style="font-size: 0.75rem; color: #a5b4fc; font-weight: 700;">[${p.day}] ${p.start} ~ ${p.end} (${p.tag})</div>
+                    <div style="font-size: 0.85rem; font-weight: 800; color: #ffffff; margin-top: 2px;">${p.text}</div>
+                </div>
+                <button onclick="demoDeleteTimetablePlan('${p.id}')" style="background: none; border: none; color: #94a3b8; font-size: 1.1rem; cursor: pointer; padding: 4px 8px;">&times;</button>
+            </div>
+        `;
+    });
+}
+
+function demoDeleteTimetablePlan(planId) {
+    demoTimetablePlans = demoTimetablePlans.filter(p => p.id !== planId);
+    renderDemoTimetable();
+}
+window.demoDeleteTimetablePlan = demoDeleteTimetablePlan;
+
