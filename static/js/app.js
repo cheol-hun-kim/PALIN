@@ -14148,6 +14148,8 @@ function logoutUser() {
 // ============================================================================
 // 🏛️ [DEMO SANDBOX] 3-Way 인터랙티브 모델하우스 (원장 ↔ 학생 ↔ 학부모) 엔진
 // ============================================================================
+// 🏛️ [DEMO SANDBOX] 3-Way 인터랙티브 모델하우스 (원장 ↔ 학생 ↔ 학부모) 엔진
+// ============================================================================
 
 let isDemoMode = false;
 let currentDemoPersona = 'DIRECTOR';
@@ -14155,14 +14157,14 @@ let backupStudentBeforeDemo = null;
 
 const DEMO_STUDENT = {
     id: 9999,
-    name: "이서준",
-    email: "seojun_demo@ilwon.edu",
+    name: "김학생",
+    email: "student_demo@ilwon.edu",
     phone: "010-9999-1286",
     grade: 3,
     region: "경기 성남시 분당구",
-    high_school: "낙생고",
-    target_univ: "연세대학교 의예과",
-    baseline_univ: "서울대학교 화학생물공학부",
+    high_school: "서현고",
+    target_univ: "성균관대학교 인문과학계열",
+    baseline_univ: "건국대학교 자유전공학부(문과대학)",
     current_points: 1540,
     streak_days: 7,
     diligence_score: 96,
@@ -14174,32 +14176,32 @@ const DEMO_STUDENT = {
     point_multiplier: 1.5,
     golden_tickets_count: 5,
     paid_cash: 250000,
-    medical_symbol: "MED",
+    medical_symbol: "GENERAL",
     enrollment_status: "ENROLLED",
     chat_tokens: 999,
     parent: {
         id: 99991,
-        name: "서준 모",
+        name: "학생 모",
         phone: "010-8888-1286",
         is_premium_subscribed: true
     }
 };
 
 let demoDirectorStudents = [
-    { id: 1, name: "이서준", school: "낙생고 3", target: "연세대 의예", status: "자습 중 (6.7h)", statusType: "study", redCards: 0 },
-    { id: 2, name: "김민지", school: "서현고 2", target: "서울대 경영", status: "딴짓 감지 (유튜브)", statusType: "warning", redCards: 1 },
-    { id: 3, name: "박도현", school: "분당고 3", target: "고려대 컴공", status: "VOD 미시청 (3일째)", statusType: "danger", redCards: 0 },
-    { id: 4, name: "최유진", school: "늘푸른고 1", target: "성균관대 약학", status: "자습 중 (4.2h)", statusType: "study", redCards: 0 },
-    { id: 5, name: "정태양", school: "대진고 N수", target: "카톨릭대 의예", status: "자습 중 (8.1h)", statusType: "study", redCards: 0 },
-    { id: 6, name: "한가은", school: "보평고 2", target: "한양대 기계", status: "학원 입실 (18:30)", statusType: "success", redCards: 0 },
-    { id: 7, name: "윤지호", school: "이매고 3", target: "중앙대 전자", status: "자습 중 (5.5h)", statusType: "study", redCards: 0 },
-    { id: 8, name: "강현우", school: "중앙고 3", target: "서강대 경영", status: "자습 중 (6.0h)", statusType: "study", redCards: 0 }
+    { id: 1, name: "김학생", school: "서현고 3", target: "성균관대 인문", status: "자습 중 (6.7h)", statusType: "study", redCards: 0 },
+    { id: 2, name: "이학생", school: "분당고 2", target: "건국대 자유전공", status: "딴짓 감지 (유튜브)", statusType: "warning", redCards: 1 },
+    { id: 3, name: "박학생", school: "낙생고 3", target: "중앙대 경영", status: "VOD 미시청 (3일째)", statusType: "danger", redCards: 0 },
+    { id: 4, name: "최학생", school: "늘푸른고 1", target: "경희대 자율전공", status: "자습 중 (4.2h)", statusType: "study", redCards: 0 },
+    { id: 5, name: "정학생", school: "대진고 N수", target: "성균관대 사회과학", status: "자습 중 (8.1h)", statusType: "study", redCards: 0 },
+    { id: 6, name: "한학생", school: "보평고 2", target: "한국외대 어문", status: "학원 입실 (18:30)", statusType: "success", redCards: 0 },
+    { id: 7, name: "윤학생", school: "이매고 3", target: "동국대 경영", status: "자습 중 (5.5h)", statusType: "study", redCards: 0 },
+    { id: 8, name: "강학생", school: "중앙고 3", target: "건국대 경영", status: "자습 중 (6.0h)", statusType: "study", redCards: 0 }
 ];
 
 let demoTimetablePlans = [
-    { id: "demo_p1", day: "월", start: "07:00", end: "08:30", text: "수능국어 킬러 비문학 3지문 독해 & 오답 분석", tag: "국어" },
-    { id: "demo_p2", day: "월", start: "09:00", end: "12:00", text: "미적분 킬러 30번 테마 심층 유형 정복", tag: "수학" },
-    { id: "demo_p3", day: "월", start: "14:00", end: "17:30", text: "과탐(생명과학) 유전 고난도 실전 모의고사 풀이", tag: "탐구" },
+    { id: "demo_p1", day: "월", start: "07:00", end: "08:30", text: "수능국어 비문학 킬러 3지문 독해 & 오답 분석", tag: "국어" },
+    { id: "demo_p2", day: "월", start: "09:00", end: "12:00", text: "확률과통계 4점 킬러 기출 유형 분석", tag: "수학" },
+    { id: "demo_p3", day: "월", start: "14:00", end: "17:30", text: "사회탐구(생윤/사문) 고난도 실전 모의고사 풀이", tag: "탐구" },
     { id: "demo_p4", day: "월", start: "19:00", end: "22:00", text: "일원학원 수능국어 정규 직강 수강 & VOD 복습", tag: "학원" }
 ];
 
@@ -14260,6 +14262,29 @@ function switchDemoPersona(role) {
         if (typeof switchPage === 'function') switchPage(1);
 
         renderDemoTimetable();
+
+        // 🏫 정시 합격예측기 폼에 현실적인 문과 모평 성적(국 90, 수 88, 영 82, 한 42, 탐1 92, 탐2 85) 사전 주입
+        setTimeout(() => {
+            const gy = document.getElementById("pred-gyeyeol");
+            const mt = document.getElementById("pred-math-type");
+            const k = document.getElementById("pred-kor");
+            const m = document.getElementById("pred-math");
+            const e = document.getElementById("pred-eng");
+            const h = document.getElementById("pred-hist");
+            const t1 = document.getElementById("pred-tam1");
+            const t2 = document.getElementById("pred-tam2");
+            const targetUniv = document.getElementById("pred-target-univ");
+
+            if (gy) gy.value = "문과";
+            if (mt) mt.value = "확통";
+            if (k) k.value = "90";
+            if (m) m.value = "88";
+            if (e) e.value = "82";
+            if (h) h.value = "42";
+            if (t1) t1.value = "92";
+            if (t2) t2.value = "85";
+            if (targetUniv) targetUniv.value = "성균관대학교";
+        }, 100);
     } else if (role === 'PARENT') {
         // 학부모 뷰 활성화
         closeDemoDirectorCockpit();
