@@ -938,26 +938,26 @@
                     </div>
 
                     <!-- 수험생 테이블 -->
-                    <div class="table-responsive">
-                        <table class="data-table" id="master-students-table">
+                    <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
+                        <table class="data-table" id="master-students-table" style="min-width: 1250px; width: 100%; border-collapse: separate; border-spacing: 0;">
                             <thead>
-                                <tr>
-                                    <th style="width: 50px;">ID</th>
-                                    <th>학생 정보</th>
-                                    <th>학교 / 학년</th>
-                                    <th>학부모 정보</th>
-                                    <th>소속 학원 (가맹코드)</th>
-                                    <th>가맹 상태</th>
-                                    <th>AI 티어</th>
-                                    <th>포인트 / 티켓</th>
-                                    <th>누적 자습</th>
-                                    <th>가입일</th>
-                                    <th style="text-align: center; min-width: 200px;">갓모드 통제 액션</th>
+                                <tr style="background: rgba(255,255,255,0.03);">
+                                    <th style="width: 60px; text-align: center; white-space: nowrap;">ID</th>
+                                    <th style="min-width: 160px; white-space: nowrap;">학생 정보</th>
+                                    <th style="min-width: 150px; white-space: nowrap;">학교 / 학년</th>
+                                    <th style="min-width: 150px; white-space: nowrap;">학부모 정보</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">소속 학원</th>
+                                    <th style="min-width: 110px; text-align: center; white-space: nowrap;">가맹 상태</th>
+                                    <th style="min-width: 110px; text-align: center; white-space: nowrap;">AI 티어</th>
+                                    <th style="min-width: 100px; text-align: center; white-space: nowrap;">보유 포인트</th>
+                                    <th style="min-width: 110px; text-align: center; white-space: nowrap;">누적 자습</th>
+                                    <th style="min-width: 130px; text-align: center; white-space: nowrap;">가입일시</th>
+                                    <th style="min-width: 180px; text-align: center; white-space: nowrap;">갓모드 통제 액션</th>
                                 </tr>
                             </thead>
                             <tbody id="master-students-tbody">
                                 <tr>
-                                    <td colspan="11" style="text-align: center; color: #64748b; padding: 24px;">회원 데이터를 불러오는 중...</td>
+                                    <td colspan="11" style="text-align: center; color: #64748b; padding: 28px;">회원 데이터를 불러오는 중...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -2055,31 +2055,31 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
 
             tbody.innerHTML = students.map(s => {
                 // Tier Badge
-                let tierBadge = '<span style="background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); font-size: 0.72rem; padding: 2px 7px; border-radius: 4px; font-weight: 800;">Tier 1 (기본)</span>';
+                let tierBadge = '<span style="display: inline-flex; align-items: center; justify-content: center; background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); font-size: 0.74rem; padding: 4px 8px; border-radius: 6px; font-weight: 800; white-space: nowrap;">Tier 1 (기본)</span>';
                 const tierStr = (s.b2c_subscription_tier || "").toUpperCase();
                 if (tierStr.includes("TIER_3")) {
-                    tierBadge = '<span style="background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid #f59e0b; font-size: 0.72rem; padding: 2px 7px; border-radius: 4px; font-weight: 900;">👑 Tier 3 (VIP)</span>';
+                    tierBadge = '<span style="display: inline-flex; align-items: center; justify-content: center; background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid #f59e0b; font-size: 0.74rem; padding: 4px 8px; border-radius: 6px; font-weight: 900; white-space: nowrap;">👑 Tier 3 (VIP)</span>';
                 } else if (tierStr.includes("TIER_2")) {
-                    tierBadge = '<span style="background: rgba(99,102,241,0.2); color: #a5b4fc; border: 1px solid #6366f1; font-size: 0.72rem; padding: 2px 7px; border-radius: 4px; font-weight: 800;">🧠 Tier 2 (맞춤)</span>';
+                    tierBadge = '<span style="display: inline-flex; align-items: center; justify-content: center; background: rgba(99,102,241,0.2); color: #a5b4fc; border: 1px solid #6366f1; font-size: 0.74rem; padding: 4px 8px; border-radius: 6px; font-weight: 800; white-space: nowrap;">🧠 Tier 2 (맞춤)</span>';
                 }
 
                 // Approval Status Badge
-                let statusBadge = '<span style="background: rgba(148,163,184,0.15); color: #94a3b8; font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; font-weight: 700;">미연동</span>';
+                let statusBadge = '<span style="display: inline-flex; align-items: center; justify-content: center; background: rgba(148,163,184,0.15); color: #94a3b8; font-size: 0.74rem; padding: 4px 8px; border-radius: 6px; font-weight: 700; white-space: nowrap;">미연동</span>';
                 const status = (s.academy_approval_status || "NONE").toUpperCase();
                 if (status === "APPROVED") {
-                    statusBadge = '<span style="background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid #10b981; font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; font-weight: 800;">🟢 승인완료</span>';
+                    statusBadge = '<span style="display: inline-flex; align-items: center; justify-content: center; background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid #10b981; font-size: 0.74rem; padding: 4px 8px; border-radius: 6px; font-weight: 800; white-space: nowrap;">🟢 승인완료</span>';
                 } else if (status === "PENDING") {
-                    statusBadge = '<span style="background: rgba(245,158,11,0.25); color: #fbbf24; border: 1px solid #f59e0b; font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; font-weight: 900; animation: pulse 2s infinite;">⏳ 승인대기</span>';
+                    statusBadge = '<span style="display: inline-flex; align-items: center; justify-content: center; background: rgba(245,158,11,0.25); color: #fbbf24; border: 1px solid #f59e0b; font-size: 0.74rem; padding: 4px 8px; border-radius: 6px; font-weight: 900; white-space: nowrap;">⏳ 승인대기</span>';
                 } else if (status === "REJECTED") {
-                    statusBadge = '<span style="background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid #ef4444; font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; font-weight: 800;">🔴 반려</span>';
+                    statusBadge = '<span style="display: inline-flex; align-items: center; justify-content: center; background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid #ef4444; font-size: 0.74rem; padding: 4px 8px; border-radius: 6px; font-weight: 800; white-space: nowrap;">🔴 반려</span>';
                 }
 
                 // Academy Code Text
-                let academyText = '<span style="color: #64748b;">- (B2C)</span>';
+                let academyText = '<span style="color: #64748b; white-space: nowrap;">- (B2C)</span>';
                 if (status === "PENDING" && s.pending_tenant_code && s.pending_tenant_code !== "-") {
-                    academyText = `<span style="color: #fbbf24; font-weight: 800;">${s.pending_tenant_code}</span> <span style="font-size: 0.7rem; color: #94a3b8;">(신청)</span>`;
+                    academyText = `<span style="color: #fbbf24; font-weight: 800; white-space: nowrap;">${s.pending_tenant_code}</span> <span style="font-size: 0.7rem; color: #94a3b8;">(신청)</span>`;
                 } else if (s.academy_code && s.academy_code !== "-" && s.academy_code !== "NONE") {
-                    academyText = `<span style="color: #34d399; font-weight: 800;">${s.academy_code}</span>`;
+                    academyText = `<span style="color: #34d399; font-weight: 800; white-space: nowrap;">${s.academy_code}</span>`;
                 }
 
                 // Study hours
@@ -2091,46 +2091,46 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
                 // Action Buttons
                 let approveBtn = '';
                 if (status === "PENDING" || (s.pending_tenant_code && s.pending_tenant_code !== "-")) {
-                    approveBtn = `<button onclick="forceApproveMasterStudent(${s.id}, '${escapeHtml(s.name)}', '${s.pending_tenant_code || s.academy_code}')" class="btn btn-gold" style="padding: 4px 8px; font-size: 0.72rem; font-weight: 900; margin-right: 4px;">⚡ 강제승인</button>`;
+                    approveBtn = `<button onclick="forceApproveMasterStudent(${s.id}, '${escapeHtml(s.name)}', '${s.pending_tenant_code || s.academy_code}')" class="btn btn-gold" style="padding: 5px 9px; font-size: 0.72rem; font-weight: 900; white-space: nowrap;">⚡ 강제승인</button>`;
                 }
 
-                const tierBtn = `<button onclick="changeMasterStudentTier(${s.id}, '${s.b2c_subscription_tier}', '${escapeHtml(s.name)}')" class="btn btn-secondary" style="padding: 4px 7px; font-size: 0.72rem; margin-right: 4px;">티어</button>`;
-                const pointBtn = `<button onclick="grantMasterStudentPoints(${s.id}, '${escapeHtml(s.name)}')" class="btn btn-secondary" style="padding: 4px 7px; font-size: 0.72rem; margin-right: 4px;">+P</button>`;
-                const ticketBtn = `<button onclick="grantMasterStudentTickets(${s.id}, '${escapeHtml(s.name)}')" class="btn btn-secondary" style="padding: 4px 7px; font-size: 0.72rem; margin-right: 4px;">+🎫</button>`;
+                const tierBtn = `<button onclick="changeMasterStudentTier(${s.id}, '${s.b2c_subscription_tier}', '${escapeHtml(s.name)}')" class="btn btn-secondary" style="padding: 5px 8px; font-size: 0.72rem; white-space: nowrap;">티어</button>`;
+                const pointBtn = `<button onclick="grantMasterStudentPoints(${s.id}, '${escapeHtml(s.name)}')" class="btn btn-secondary" style="padding: 5px 8px; font-size: 0.72rem; white-space: nowrap;">+P</button>`;
                 const delBtn = s.is_deleted
-                    ? `<button onclick="toggleDeleteMasterStudent(${s.id}, '${escapeHtml(s.name)}', true)" class="btn" style="background: #10b981; color: white; padding: 4px 7px; font-size: 0.72rem; font-weight: 800;">복구</button>`
-                    : `<button onclick="toggleDeleteMasterStudent(${s.id}, '${escapeHtml(s.name)}', false)" class="btn" style="background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.4); padding: 4px 7px; font-size: 0.72rem;">삭제</button>`;
+                    ? `<button onclick="toggleDeleteMasterStudent(${s.id}, '${escapeHtml(s.name)}', true)" class="btn" style="background: #10b981; color: white; padding: 5px 8px; font-size: 0.72rem; font-weight: 800; white-space: nowrap;">복구</button>`
+                    : `<button onclick="toggleDeleteMasterStudent(${s.id}, '${escapeHtml(s.name)}', false)" class="btn" style="background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.4); padding: 5px 8px; font-size: 0.72rem; white-space: nowrap;">삭제</button>`;
 
                 return `
                     <tr ${rowStyle}>
-                        <td style="font-weight: 800; color: #94a3b8;">${s.id}</td>
+                        <td style="font-weight: 800; color: #94a3b8; text-align: center; white-space: nowrap;">${s.id}</td>
                         <td>
-                            <div style="font-weight: 900; color: #ffffff; font-size: 0.88rem;">${s.name}</div>
-                            <div style="font-size: 0.73rem; color: #94a3b8;">${s.email}</div>
-                            <div style="font-size: 0.73rem; color: #64748b;">${s.phone}</div>
+                            <div style="font-weight: 900; color: #ffffff; font-size: 0.88rem; white-space: nowrap;">${s.name}</div>
+                            <div style="font-size: 0.73rem; color: #94a3b8; white-space: nowrap;">${s.email}</div>
+                            <div style="font-size: 0.73rem; color: #64748b; white-space: nowrap;">${s.phone}</div>
                         </td>
                         <td>
-                            <div style="font-weight: 700; color: #cbd5e1;">${s.high_school}</div>
-                            <div style="font-size: 0.74rem; color: #94a3b8;">고${s.grade || 3} · ${s.region || '-'}</div>
+                            <div style="font-weight: 700; color: #cbd5e1; white-space: nowrap;">${s.high_school}</div>
+                            <div style="font-size: 0.74rem; color: #94a3b8; white-space: nowrap;">고${s.grade || 3} · ${s.region || '-'}</div>
                         </td>
                         <td>
-                            <div style="font-weight: 700; color: #cbd5e1;">${s.parent_name}</div>
-                            <div style="font-size: 0.73rem; color: #64748b;">${s.parent_phone}</div>
+                            <div style="font-weight: 700; color: #cbd5e1; white-space: nowrap;">${s.parent_name}</div>
+                            <div style="font-size: 0.73rem; color: #64748b; white-space: nowrap;">${s.parent_phone}</div>
                         </td>
-                        <td>${academyText}</td>
-                        <td>${statusBadge}</td>
-                        <td>${tierBadge}</td>
-                        <td>
-                            <div style="font-weight: 800; color: #fbbf24; font-size: 0.78rem;">💎 ${(s.current_points || 0).toLocaleString()}P</div>
-                            <div style="font-size: 0.72rem; color: #c7d2fe;">🎫 황금 ${s.golden_tickets_count || 0}장</div>
-                        </td>
-                        <td>
-                            <div style="font-weight: 800; color: #34d399;">${studyHours}h</div>
-                            <div style="font-size: 0.7rem; color: #64748b;">(${s.total_study_minutes || 0}분)</div>
-                        </td>
-                        <td style="font-size: 0.74rem; color: #64748b; white-space: nowrap;">${s.created_at}</td>
+                        <td style="white-space: nowrap;">${academyText}</td>
+                        <td style="text-align: center; white-space: nowrap;">${statusBadge}</td>
+                        <td style="text-align: center; white-space: nowrap;">${tierBadge}</td>
                         <td style="text-align: center; white-space: nowrap;">
-                            ${approveBtn}${tierBtn}${pointBtn}${ticketBtn}${delBtn}
+                            <div style="font-weight: 800; color: #fbbf24; font-size: 0.82rem;">💎 ${(s.current_points || 0).toLocaleString()}P</div>
+                        </td>
+                        <td style="text-align: center; white-space: nowrap;">
+                            <span style="font-weight: 800; color: #34d399; font-size: 0.85rem;">${studyHours}h</span>
+                            <span style="font-size: 0.72rem; color: #64748b; margin-left: 2px;">(${s.total_study_minutes || 0}분)</span>
+                        </td>
+                        <td style="font-size: 0.74rem; color: #64748b; text-align: center; white-space: nowrap;">${s.created_at}</td>
+                        <td style="text-align: center; white-space: nowrap;">
+                            <div style="display: inline-flex; gap: 4px; align-items: center; justify-content: center;">
+                                ${approveBtn}${tierBtn}${pointBtn}${delBtn}
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -2191,17 +2191,6 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
                 return;
             }
             executeMasterStudentAction(studentId, "ADD_POINTS", amount);
-        }
-
-        function grantMasterStudentTickets(studentId, studentName) {
-            const amountStr = prompt(`[${studentName}] 학생에게 지급할 황금 질문권(티켓) 수량을 입력하세요:`, "3");
-            if (!amountStr) return;
-            const amount = parseInt(amountStr);
-            if (isNaN(amount) || amount <= 0) {
-                alert("올바른 수량을 입력해 주세요.");
-                return;
-            }
-            executeMasterStudentAction(studentId, "ADD_TICKETS", amount);
         }
 
         function toggleDeleteMasterStudent(studentId, studentName, isDeleted) {
