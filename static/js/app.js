@@ -6223,7 +6223,7 @@ async function fetchLeagueStatus(studentId) {
 
                     badge.className = `league-badge league-${data.league_tier.toLowerCase()}`;
 
-                    badge.innerText = `${data.league_tier} (${data.point_multiplier}x)`;
+                    badge.innerText = data.league_tier;
 
                 }
 
@@ -6233,7 +6233,7 @@ async function fetchLeagueStatus(studentId) {
 
             if (ticketCountEl) {
 
-                ticketCountEl.innerText = `${data.golden_tickets_count}장`;
+                ticketCountEl.innerText = `${data.golden_tickets_count || 0}장`;
 
             }
 
