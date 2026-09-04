@@ -7018,14 +7018,22 @@ function openMyPageModal() {
         const b2cTier = currentStudent.b2c_subscription_tier || "TIER_1_FREE";
 
         if (acadCode && approvalStatus === "APPROVED") {
-            // Case 1: 가맹 학원 원장님 전액 지원 승인 완료 학생 (Tier 3 무료)
+            // Case 1: 가맹 학원 원장님 전액 지원 승인 완료 학생 (학원 가맹 Tier 맞춤 적용)
             if (pendingBadge) pendingBadge.style.display = "none";
             if (freeBadge) freeBadge.style.display = "none";
             if (activeBadge) {
                 activeBadge.style.display = "flex";
-                if (tierTitle) tierTitle.innerText = "Tier 3 마스터 AI 활성화";
                 const acadName = (acadCode.includes("ILWON") || acadCode.includes("일원")) ? "일원학원" : (currentStudent.academy_name || acadCode);
-                if (sponsorText) sponsorText.innerText = `${acadName} 원장님 전액 지원 (월 99,000원 혜택)`;
+                if (b2cTier === "TIER_3_ACADEMY" || b2cTier === "TIER_3_MASTER") {
+                    if (tierTitle) tierTitle.innerText = "Tier 3 마스터 AI 활성화";
+                    if (sponsorText) sponsorText.innerText = `${acadName} 원장님 전액 지원 (월 99,000원 마스터 플랜)`;
+                } else if (b2cTier === "TIER_2_ACADEMY" || b2cTier === "TIER_2_PARENT") {
+                    if (tierTitle) tierTitle.innerText = "Tier 2 맞춤 커스텀 AI 활성화";
+                    if (sponsorText) sponsorText.innerText = `${acadName} 원장님 전액 지원 (월 59,000원 커스텀 플랜)`;
+                } else {
+                    if (tierTitle) tierTitle.innerText = "Tier 1 가맹 학원 연동 활성화";
+                    if (sponsorText) sponsorText.innerText = `${acadName} 원장님 지원 (가맹 학원 전용 혜택)`;
+                }
             }
         } else if (approvalStatus === "PENDING") {
             // Case 2: 학원 초대코드 입력 후 원장님 승인 대기 중
@@ -13023,20 +13031,17 @@ async function handleLinkAcademyCodeDirect() {
             return;
         }
         const data = await res.json();
-        alert(`🎉 [학원 연동 성공]\n\n${data.message}\n학원 관리의 모든 수강 기능이 활성화되었습니다!`);
-        if (data.student) {
-            currentStudent = data.student;
-            syncStudentState(data.student);
+        alert(`⏳ [원장님 승인 요청 완료]\n\n${data.message}`);
+        if (typeof fetchStudentInfo === 'function') {
+            fetchStudentInfo(studentId);
         }
-        updateAcademyGNBVisibility();
-        loadAcademyHubView();
     } catch(e) {
         alert("학원 연동 요청 중 오류가 발생했습니다.");
     }
 }
 
 async function handleLinkAcademyCode() {
-    const codeInput = document.getElementById("setting-academy-code") || document.getElementById("hub-input-academy-code");
+    const codeInput = document.getElementById("setting-academy-code") || document.getElementById("hub-input-academy-code") || document.getElementById("mypage-academy-code-input");
     const code = (codeInput?.value || "").trim().toUpperCase();
     if (!code) {
         alert("학원 고유코드를 입력해 주세요.");
@@ -13055,13 +13060,10 @@ async function handleLinkAcademyCode() {
             return;
         }
         const data = await res.json();
-        alert(`🎉 [학원 연동 성공]\n\n${data.message}\n학원 관리의 모든 수강 기능이 활성화되었습니다!`);
-        if (data.student) {
-            currentStudent = data.student;
-            syncStudentState(data.student);
+        alert(`⏳ [원장님 승인 요청 완료]\n\n${data.message}`);
+        if (typeof fetchStudentInfo === 'function') {
+            fetchStudentInfo(studentId);
         }
-        updateAcademyGNBVisibility();
-        loadAcademyHubView();
     } catch(e) {
         alert("학원 연동 처리 중 오류가 발생했습니다.");
     }
