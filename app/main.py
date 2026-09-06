@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, F
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
 import json
@@ -723,6 +723,42 @@ def pay_from_sponsor_wallet(payload: schemas.ParentSponsorPayRequest, db: Sessio
     }
 
 
+def update_student_streak(student: models.Student, db: Session):
+    try:
+        today = datetime.now().date()
+        if not student.last_streak_date:
+            student.streak_days = max(1, student.streak_days or 1)
+            student.last_streak_date = today
+        else:
+            last_date = student.last_streak_date
+            if isinstance(last_date, str):
+                try:
+                    last_date = datetime.strptime(last_date.split()[0], "%Y-%m-%d").date()
+                except Exception:
+                    last_date = today
+            elif isinstance(last_date, datetime):
+                last_date = last_date.date()
+            elif isinstance(last_date, date):
+                pass
+            else:
+                last_date = today
+
+            diff = (today - last_date).days
+            if diff == 0:
+                pass
+            elif diff == 1:
+                student.streak_days = (student.streak_days or 0) + 1
+                student.last_streak_date = today
+            elif diff > 1:
+                student.streak_days = 1
+                student.last_streak_date = today
+
+        if (student.streak_days or 0) > (student.max_streak_days or 0):
+            student.max_streak_days = student.streak_days
+    except Exception as e:
+        print("update_student_streak error:", e)
+
+
 @app.post("/api/login")
 def login_student(payload: LoginPayload, db: Session = Depends(get_db)):
     try:
@@ -740,6 +776,11 @@ def login_student(payload: LoginPayload, db: Session = Depends(get_db)):
         if student.is_banned:
             raise HTTPException(status_code=403, detail=f"원장님에 의해 이용이 정지/퇴거된 계정입니다. (사유: {student.ban_reason or '학원 규칙 위반'})")
             
+        # 연속 접속(Streak) 자동 갱신 및 커밋
+        update_student_streak(student, db)
+        db.commit()
+        db.refresh(student)
+
         return {
             "id": student.id,
             "email": student.email,
@@ -792,6 +833,12 @@ def get_student(student_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
     if student.is_banned:
         raise HTTPException(status_code=403, detail=f"원장님에 의해 이용이 정지/퇴거된 계정입니다. (사유: {student.ban_reason or '학원 규칙 위반'})")
+    
+    # 연속 접속(Streak) 자동 갱신 및 커밋
+    update_student_streak(student, db)
+    db.commit()
+    db.refresh(student)
+
     return {
         "id": student.id,
         "email": student.email,
@@ -1069,28 +1116,6 @@ def delete_planner_block(block_id: int, db: Session = Depends(get_db)):
     block.deleted_at = datetime.now()
     db.commit()
     return {"status": "ok"}
-
-def update_student_streak(student: models.Student, db: Session):
-    today = datetime.now().date()
-    if not student.last_streak_date:
-        student.streak_days = max(1, student.streak_days or 1)
-        student.last_streak_date = today
-    else:
-        last_date = student.last_streak_date
-        if isinstance(last_date, datetime):
-            last_date = last_date.date()
-        diff = (today - last_date).days
-        if diff == 0:
-            pass
-        elif diff == 1:
-            student.streak_days = (student.streak_days or 0) + 1
-            student.last_streak_date = today
-        elif diff > 1:
-            student.streak_days = 1
-            student.last_streak_date = today
-
-    if (student.streak_days or 0) > (student.max_streak_days or 0):
-        student.max_streak_days = student.streak_days
 
 
 @app.post("/api/study/session")
@@ -1672,6 +1697,71 @@ def accept_comment(comment_id: int, student_id: int, db: Session = Depends(get_d
         c.student.current_points += c.post.reward_points
     db.commit()
     return {"status": "ok"}
+
+
+class QAPostUpdatePayload(BaseModel):
+    student_id: int
+    title: Optional[str] = None
+    content: Optional[str] = None
+    subject: Optional[str] = None
+    is_anonymous: Optional[bool] = None
+
+
+@app.put("/api/qa/post/{post_id}")
+def update_qa_post(post_id: int, payload: QAPostUpdatePayload, db: Session = Depends(get_db)):
+    post = db.query(models.QAPost).filter(models.QAPost.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="질문 글을 찾을 수 없습니다.")
+    
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    is_admin_or_director = bool(student and (
+        student.email in ["1286orbital21@gmail.com", "director@test.com"] or 
+        getattr(student, "league_tier", "") == "ADMIN"
+    ))
+    
+    if post.student_id != payload.student_id and not is_admin_or_director:
+        raise HTTPException(status_code=403, detail="작성자 본인 또는 학원장/관리자만 수정할 수 있습니다.")
+        
+    if payload.title is not None:
+        post.title = payload.title.strip()
+    if payload.content is not None:
+        post.content = payload.content.strip()
+    if payload.subject is not None:
+        post.subject = payload.subject.strip()
+    if payload.is_anonymous is not None:
+        post.is_anonymous = payload.is_anonymous
+        
+    db.commit()
+    db.refresh(post)
+    return {"status": "success", "message": "질문이 수정되었습니다.", "post_id": post.id}
+
+
+@app.delete("/api/qa/post/{post_id}")
+def delete_qa_post(post_id: int, student_id: int, db: Session = Depends(get_db)):
+    post = db.query(models.QAPost).filter(models.QAPost.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="질문 글을 찾을 수 없습니다.")
+    
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    is_admin_or_director = bool(student and (
+        student.email in ["1286orbital21@gmail.com", "director@test.com"] or 
+        getattr(student, "league_tier", "") == "ADMIN"
+    ))
+    
+    if post.student_id != student_id and not is_admin_or_director:
+        raise HTTPException(status_code=403, detail="작성자 본인 또는 학원장/관리자만 삭제할 수 있습니다.")
+        
+    # 미채택 상태이고 보상 포인트가 걸려있었다면 작성자에게 포인트 환불
+    if not post.is_resolved and (post.reward_points or 0) > 0 and post.student:
+        post.student.current_points = (post.student.current_points or 0) + post.reward_points
+        
+    # 종속된 댓글들 삭제
+    db.query(models.QAComment).filter(models.QAComment.post_id == post_id).delete()
+    
+    # 게시글 삭제
+    db.delete(post)
+    db.commit()
+    return {"status": "success", "message": "질문이 안전하게 삭제되었습니다."}
 
 @app.get("/api/tutor/list", response_model=List[schemas.TutorProfileResponse])
 def get_tutor_list(db: Session = Depends(get_db)):
@@ -3629,6 +3719,8 @@ def check_in_attendance(payload: AttendanceCheckInPayload, request: Request, db:
         sms_sent=sms_needed
     )
     db.add(log)
+    if status_result in ["PRESENT", "LATE"]:
+        update_student_streak(student, db)
     db.commit()
     
     if sms_needed and student.parent and student.parent.phone:
