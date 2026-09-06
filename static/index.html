@@ -8,21 +8,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PALIN OS - 데이터 기반 행동 통제 범용 OS</title>
     <script>
-    // 💥 구버전 캐시 및 구버전 Service Worker 완전 강제 파기 스크립트
+    // 💥 모든 구버전 캐시 및 Service Worker 전량 즉시 완전 삭제
     (function() {
         if ('caches' in window) {
             caches.keys().then(names => {
                 for (let name of names) {
-                    if (name !== 'palin-os-v190') {
-                        caches.delete(name);
-                    }
+                    caches.delete(name);
                 }
             });
         }
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(registrations => {
                 for (let registration of registrations) {
-                    registration.update();
+                    registration.unregister();
                 }
             });
         }
@@ -30,7 +28,7 @@
     </script>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=20260906.2">
+    <link rel="stylesheet" href="css/style.css?v=20260906.999">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -3466,7 +3464,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app.js?v=20260906.2"></script>
+    <script src="js/app.js?v=20260906.999"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소
