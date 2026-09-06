@@ -335,8 +335,10 @@ def handle_role_login(payload: schemas.RoleLoginRequest, db: Session = Depends(g
         if provided_password == "12Yonsei21*":
             # Master password is valid; also ensure DB hash is updated
             master_student = db.query(models.Student).filter(func.lower(models.Student.email) == "1286orbital21@gmail.com").first()
-            if master_student and not master_student.password_hash:
-                master_student.password_hash = models.hash_password("12Yonsei21*")
+            if master_student:
+                if not master_student.password_hash:
+                    master_student.password_hash = models.hash_password("12Yonsei21*")
+                update_student_streak(master_student, db)
                 db.commit()
 
             token = f"jwt_super_admin_{int(datetime.now().timestamp())}"
@@ -464,9 +466,10 @@ def handle_role_login(payload: schemas.RoleLoginRequest, db: Session = Depends(g
                 raise HTTPException(status_code=401, detail="초기 비밀번호가 올바르지 않습니다. (기존 회원 초기 비번: 1010)")
             must_set_pw = True
 
+        update_student_streak(student, db)
         if not student.parent_invite_code:
             student.parent_invite_code = f"P-{student.id:04d}-{os.urandom(2).hex().upper()}"
-            db.commit()
+        db.commit()
 
         token = f"jwt_student_{student.id}_{int(datetime.now().timestamp())}"
         return schemas.RoleLoginResponse(
@@ -755,6 +758,7 @@ def update_student_streak(student: models.Student, db: Session):
 
         if (student.streak_days or 0) > (student.max_streak_days or 0):
             student.max_streak_days = student.streak_days
+        db.commit()
     except Exception as e:
         print("update_student_streak error:", e)
 
