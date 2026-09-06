@@ -6438,16 +6438,21 @@ function renderRankingSubTab(tab) {
         let html = `<div style="display:flex; flex-direction:column; gap:6px;">`;
         schools.forEach((s, idx) => {
             const champBadge = s.is_champion ? '<span style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; font-weight:900; padding:2px 6px; border-radius:4px; font-size:0.68rem; margin-left:4px;">🏆 1위</span>' : '';
-            const bg = idx === 0 ? 'background:rgba(245, 158, 11, 0.15); border:1px solid rgba(245, 158, 11, 0.3);' : (idx < 3 ? 'background:rgba(99, 102, 241, 0.1);' : 'background:rgba(255,255,255,0.03);');
+            const isDay = document.body.classList.contains('day-mode');
+            const bg = idx === 0 ? (isDay ? 'background:#fef3c7; border:1px solid #f59e0b;' : 'background:rgba(245, 158, 11, 0.15); border:1px solid rgba(245, 158, 11, 0.3);') : (idx < 3 ? (isDay ? 'background:#ede9fe; border:1px solid #c7d2fe;' : 'background:rgba(99, 102, 241, 0.1); border:1px solid rgba(99, 102, 241, 0.2);') : (isDay ? 'background:#ffffff; border:1px solid #e2e8f0;' : 'background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);'));
+            const rankColor = idx === 0 ? (isDay ? '#b45309' : '#fbbf24') : (idx < 3 ? (isDay ? '#4f46e5' : '#a5b4fc') : (isDay ? '#64748b' : '#cbd5e1'));
+            const schoolColor = isDay ? '#0f172a' : '#f8fafc';
+            const pointsColor = isDay ? '#4338ca' : '#818cf8';
+            const subColor = isDay ? '#64748b' : '#94a3b8';
             html += `
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-radius:8px; ${bg}">
                     <div style="display:flex; align-items:center; gap:6px;">
-                        <span style="font-weight:800; font-size:0.85rem; color:${idx === 0 ? '#fbbf24' : '#ffffff'};">${idx + 1}위</span>
-                        <span style="font-weight:700; font-size:0.82rem; color:#f8fafc;">${s.school}</span>
+                        <span style="font-weight:800; font-size:0.85rem; color:${rankColor};">${idx + 1}위</span>
+                        <span style="font-weight:700; font-size:0.82rem; color:${schoolColor};">${s.school}</span>
                         ${champBadge}
                     </div>
-                    <div style="font-weight:800; font-size:0.82rem; color:#818cf8;">
-                        +${s.total_points.toLocaleString()}P <span style="font-size:0.68rem; color:#94a3b8; font-weight:500;">(${s.student_count}명)</span>
+                    <div style="font-weight:800; font-size:0.82rem; color:${pointsColor};">
+                        +${s.total_points.toLocaleString()}P <span style="font-size:0.68rem; color:${subColor}; font-weight:500;">(${s.student_count}명)</span>
                     </div>
                 </div>
             `;
@@ -6458,15 +6463,20 @@ function renderRankingSubTab(tab) {
         const thrones = cachedRankingMatrix.local_thrones || [];
         let html = `<div style="display:flex; flex-direction:column; gap:6px;">`;
         thrones.forEach(t => {
+            const isDay = document.body.classList.contains('day-mode');
+            const bg = isDay ? 'background:#fef3c7; border:1px solid #fcd34d;' : 'background:rgba(245, 158, 11, 0.08); border:1px solid rgba(245, 158, 11, 0.2);';
+            const titleColor = isDay ? '#b45309' : '#fbbf24';
+            const leaderColor = isDay ? '#0f172a' : '#cbd5e1';
+            const pointColor = isDay ? '#0f172a' : '#ffffff';
             html += `
-                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-radius:8px; background:rgba(245, 158, 11, 0.08); border:1px solid rgba(245, 158, 11, 0.2);">
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-radius:8px; ${bg}">
                     <div>
-                        <div style="font-weight:800; font-size:0.82rem; color:#fbbf24;">👑 ${t.region} 제왕</div>
-                        <div style="font-size:0.75rem; color:#cbd5e1; margin-top:2px;">${t.leader_school} ${t.leader_name}</div>
+                        <div style="font-weight:800; font-size:0.82rem; color:${titleColor};">👑 ${t.region} 제왕</div>
+                        <div style="font-size:0.75rem; color:${leaderColor}; margin-top:2px;">${t.leader_school} ${t.leader_name}</div>
                     </div>
                     <div style="text-align:right;">
-                        <div style="font-weight:900; font-size:0.85rem; color:#ffffff;">+${t.points.toLocaleString()}P</div>
-                        <span style="font-size:0.68rem; color:#a5b4fc; font-weight:700;">실시간 1위</span>
+                        <div style="font-weight:900; font-size:0.85rem; color:${pointColor};">+${t.points.toLocaleString()}P</div>
+                        <span style="font-size:0.68rem; color:${isDay ? '#4338ca' : '#a5b4fc'}; font-weight:700;">실시간 1위</span>
                     </div>
                 </div>
             `;
@@ -9889,185 +9899,213 @@ async function handleUpdateTutorProfile(e) {
 // Q&A 게시판 관련
 
 async function loadQAPosts() {
-
     try {
-
         const res = await fetch("/api/qa/posts");
-
         const posts = await res.json();
-
+        window.qaPostsCache = posts;
         const container = document.getElementById("qa-list-container");
-
+        if (!container) return;
         container.innerHTML = "";
-
         
-
         posts.forEach(post => {
-
             const resolvedText = post.is_resolved ? "[채택완료]" : "[질문중]";
-
             const resolvedColor = post.is_resolved ? "var(--color-success)" : "var(--color-warning)";
-
             
+            const canModify = Boolean(
+                (currentStudent && currentStudent.id === post.student_id) ||
+                (currentStudent && currentStudent.email === "1286orbital21@gmail.com") ||
+                (currentStudent && currentStudent.email === "director@test.com") ||
+                (currentStudent && currentStudent.league_tier === "ADMIN")
+            );
 
+            const actionBtns = canModify ? `
+                <div style="display: flex; gap: 4px; align-items: center; margin-left: auto;">
+                    <button class="btn btn-secondary" style="padding: 2px 7px; font-size: 0.7rem; border-radius: 6px; cursor: pointer;" onclick="openEditQAModal(${post.id})">✏️ 수정</button>
+                    <button class="btn btn-secondary" style="padding: 2px 7px; font-size: 0.7rem; border-radius: 6px; color: #ef4444; border-color: rgba(239, 68, 68, 0.4); cursor: pointer;" onclick="deleteQAPost(${post.id})">🗑️ 삭제</button>
+                </div>
+            ` : '';
+            
             let commentsHtml = "";
-
             post.comments.forEach(c => {
-
-                const acceptBtn = (!post.is_resolved && post.student_id === currentStudent.id) 
-
+                const acceptBtn = (!post.is_resolved && post.student_id === currentStudent?.id) 
                     ? `<button class="btn" style="padding: 2px 6px; font-size: 0.65rem;" onclick="acceptQAComment(${c.id})">채택하기</button>` 
-
                     : (c.is_accepted ? `<span style="color:var(--color-success); font-weight:700;">[채택됨]</span>` : '');
-
                 
-
                 commentsHtml += `
-
                     <div style="background: rgba(255,255,255,0.03); border:1px solid var(--glass-border); padding: 8px; border-radius:6px; margin-top:6px; font-size:0.8rem; display:flex; justify-content:space-between; align-items:center;">
-
                         <div>
-
                             <span style="font-weight:600; color:#a78bfa;">${c.student_name}:</span>
-
                             <span>${c.content}</span>
-
                         </div>
-
                         <div>${acceptBtn}</div>
-
                     </div>
-
                 `;
-
             });
 
             container.innerHTML += `
-
-                <div class="forum-item" style="cursor: default;">
-
-                    <div class="forum-header">
-
-                        <span>${post.student_name} (${post.subject})</span>
-
-                        <span style="color: ${resolvedColor}">${resolvedText}</span>
-
-                    </div>
-
-                    <div class="forum-title" style="font-size:0.95rem;">${post.title}</div>
-
-                    <div style="font-size:0.82rem; color:var(--text-secondary); margin-top:4px;">${post.content}</div>
-
-                    <div class="forum-footer">
-
-                        <span>보상 포인트: <span class="reward-tag">${post.reward_points}P</span></span>
-
-                        <span style="color: var(--text-secondary); font-size: 0.75rem;">답변 ${post.comments.length}개</span>
-
-                    </div>
-
-                    <div style="margin-top: 10px; border-top: 1px dashed rgba(255,255,255,0.05); padding-top: 8px;">
-
-                        <div style="font-size:0.75rem; font-weight:600; color:var(--text-secondary);">답변 피드</div>
-
-                        ${commentsHtml}
-
-                        <div style="display:flex; gap:6px; margin-top:8px;">
-
-                            <input type="text" id="comment-input-${post.id}" class="form-input" style="padding: 6px 10px; font-size:0.75rem;" placeholder="답변을 작성해주세요..">
-
-                            <button class="btn" style="padding: 6px 12px; font-size:0.75rem;" onclick="submitComment(${post.id})">답변</button>
-
+                <div class="forum-item" style="cursor: default; margin-bottom: 12px;">
+                    <div class="forum-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="font-weight: 700;">${post.student_name}</span>
+                            <span style="font-size: 0.75rem; color: var(--text-secondary);">(${post.subject})</span>
+                            <span style="color: ${resolvedColor}; font-weight: 700; font-size: 0.78rem;">${resolvedText}</span>
                         </div>
-
+                        ${actionBtns}
                     </div>
-
+                    <div class="forum-title" style="font-size:0.95rem; font-weight: 800; margin-top: 4px;">${post.title}</div>
+                    <div style="font-size:0.82rem; color:var(--text-secondary); margin-top:4px; line-height: 1.45;">${post.content}</div>
+                    <div class="forum-footer" style="margin-top: 8px;">
+                        <span>보상 포인트: <span class="reward-tag">${post.reward_points}P</span></span>
+                        <span style="color: var(--text-secondary); font-size: 0.75rem;">답변 ${post.comments.length}개</span>
+                    </div>
+                    <div style="margin-top: 10px; border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 8px;">
+                        <div style="font-size:0.75rem; font-weight:600; color:var(--text-secondary);">답변 피드</div>
+                        ${commentsHtml}
+                        <div style="display:flex; gap:6px; margin-top:8px;">
+                            <input type="text" id="comment-input-${post.id}" class="form-input" style="padding: 6px 10px; font-size:0.75rem;" placeholder="답변을 작성해주세요..">
+                            <button class="btn" style="padding: 6px 12px; font-size:0.75rem;" onclick="submitComment(${post.id})">답변</button>
+                        </div>
+                    </div>
                 </div>
-
             `;
-
         });
-
     } catch (e) {
-
         console.error(e);
-
     }
-
 }
 
-async function submitComment(postId) {
-
-    const input = document.getElementById(`comment-input-${postId}`);
-
-    const content = input.value.trim();
-
-    if (!content) return;
-
-    
-
-    try {
-
-        const res = await fetch(`/api/qa/post/${postId}/comment`, {
-
-            method: "POST",
-
-            headers: { "Content-Type": "application/json" },
-
-            body: JSON.stringify({
-
-                student_id: currentStudent.id,
-
-                content: content
-
-            })
-
-        });
-
-        if (res.ok) {
-
-            input.value = "";
-
-            loadQAPosts();
-
-        }
-
-    } catch (e) {
-
-        console.error(e);
-
+function openEditQAModal(postId) {
+    const post = (window.qaPostsCache || []).find(p => p.id === postId);
+    if (!post) {
+        alert("수정할 질문 정보를 찾을 수 없습니다.");
+        return;
     }
+    const modal = document.getElementById("edit-qa-modal");
+    if (!modal) return;
+    
+    document.getElementById("edit-qa-post-id").value = post.id;
+    document.getElementById("edit-qa-subject").value = post.subject || "국어";
+    document.getElementById("edit-qa-title").value = post.title || "";
+    document.getElementById("edit-qa-content").value = post.content || "";
+    
+    modal.style.display = "flex";
+}
 
+function closeEditQAModal() {
+    const modal = document.getElementById("edit-qa-modal");
+    if (modal) modal.style.display = "none";
+}
+
+async function submitEditQAPost() {
+    const postId = document.getElementById("edit-qa-post-id").value;
+    const subject = document.getElementById("edit-qa-subject").value;
+    const title = document.getElementById("edit-qa-title").value.trim();
+    const content = document.getElementById("edit-qa-content").value.trim();
+    
+    if (!title || !content) {
+        alert("질문 제목과 상세 내용을 모두 입력해 주세요.");
+        return;
+    }
+    
+    try {
+        const res = await fetch(`/api/qa/post/${postId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: currentStudent?.id || 1,
+                subject: subject,
+                title: title,
+                content: content
+            })
+        });
+        
+        if (!res.ok) {
+            const err = await res.json();
+            alert(err.detail || "질문 수정에 실패했습니다.");
+            return;
+        }
+        
+        alert("✨ 질문이 성공적으로 수정되었습니다.");
+        closeEditQAModal();
+        loadQAPosts();
+    } catch(e) {
+        console.error(e);
+        alert("질문 수정 중 통신 오류가 발생했습니다.");
+    }
+}
+
+async function deleteQAPost(postId) {
+    if (!confirm("정말 이 질문 글을 삭제하시겠습니까?\n미해결 상태의 질문인 경우 걸어두셨던 보상 포인트는 즉시 반환(환불)됩니다.")) {
+        return;
+    }
+    
+    try {
+        const sid = currentStudent?.id || 1;
+        const res = await fetch(`/api/qa/post/${postId}?student_id=${sid}`, {
+            method: "DELETE"
+        });
+        
+        if (!res.ok) {
+            const err = await res.json();
+            alert(err.detail || "질문 삭제에 실패했습니다.");
+            return;
+        }
+        
+        alert("🗑️ 질문이 안전하게 삭제되었습니다.");
+        if (currentStudent && typeof fetchStudentInfo === 'function') {
+            fetchStudentInfo(currentStudent.id);
+        }
+        loadQAPosts();
+    } catch(e) {
+        console.error(e);
+        alert("질문 삭제 중 통신 오류가 발생했습니다.");
+    }
+}
+
+window.openEditQAModal = openEditQAModal;
+window.closeEditQAModal = closeEditQAModal;
+window.submitEditQAPost = submitEditQAPost;
+window.deleteQAPost = deleteQAPost;
+
+async function submitComment(postId) {
+    const input = document.getElementById(`comment-input-${postId}`);
+    const content = input.value.trim();
+    if (!content) return;
+    
+    try {
+        const res = await fetch(`/api/qa/post/${postId}/comment`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: currentStudent?.id || 1,
+                content: content
+            })
+        });
+        if (res.ok) {
+            input.value = "";
+            loadQAPosts();
+        }
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 async function acceptQAComment(commentId) {
-
     try {
-
-        const res = await fetch(`/api/qa/comment/${commentId}/accept?student_id=${currentStudent.id}`, { method: "POST" });
-
+        const res = await fetch(`/api/qa/comment/${commentId}/accept?student_id=${currentStudent?.id || 1}`, { method: "POST" });
         if (res.ok) {
-
             alert("답변이 채택되었습니다! 설정된 보상 포인트가 답변 작성자에게 전송되었습니다.");
-
-            fetchStudentInfo(currentStudent.id);
-
+            if (currentStudent && typeof fetchStudentInfo === 'function') {
+                fetchStudentInfo(currentStudent.id);
+            }
             loadQAPosts();
-
         } else {
-
             const err = await res.json();
-
-            alert(err.detail);
-
+            alert(err.detail || "채택 처리 실패");
         }
-
     } catch (e) {
-
         console.error(e);
-
     }
-
 }
 
 async function createQAPost() {
@@ -12665,16 +12703,21 @@ async function loadMicroRankings() {
                 } else {
                     guildListEl.innerHTML = schools.map((s, idx) => {
                         const champBadge = s.is_champion ? '<span style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; font-weight:900; padding:2px 6px; border-radius:4px; font-size:0.68rem; margin-left:4px;">🏆 1위 챔피언</span>' : '';
-                        const bg = idx === 0 ? 'background:rgba(245, 158, 11, 0.15); border:1px solid rgba(245, 158, 11, 0.3);' : (idx < 3 ? 'background:rgba(99, 102, 241, 0.1);' : 'background:rgba(255,255,255,0.03);');
+                        const isDay = document.body.classList.contains('day-mode');
+                        const bg = idx === 0 ? (isDay ? 'background:#fef3c7; border:1.5px solid #f59e0b;' : 'background:rgba(245, 158, 11, 0.15); border:1.5px solid rgba(245, 158, 11, 0.3);') : (idx < 3 ? (isDay ? 'background:#ede9fe; border:1px solid #c7d2fe;' : 'background:rgba(99, 102, 241, 0.12); border:1px solid rgba(99, 102, 241, 0.25);') : (isDay ? 'background:#ffffff; border:1px solid #e2e8f0;' : 'background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);'));
+                        const rankColor = idx === 0 ? (isDay ? '#b45309' : '#fbbf24') : (idx < 3 ? (isDay ? '#4f46e5' : '#a5b4fc') : (isDay ? '#64748b' : '#cbd5e1'));
+                        const schoolColor = isDay ? '#0f172a' : '#f8fafc';
+                        const pointsColor = isDay ? '#4338ca' : '#818cf8';
+                        const subColor = isDay ? '#64748b' : '#94a3b8';
                         return `
-                            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-radius:8px; ${bg}">
+                            <div class="school-guild-row" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-radius:8px; ${bg}">
                                 <div style="display:flex; align-items:center; gap:8px;">
-                                    <span style="font-weight:900; font-size:0.95rem; color:${idx === 0 ? '#fbbf24' : '#ffffff'};">${idx + 1}위</span>
-                                    <span style="font-weight:700; font-size:0.85rem; color:#f8fafc;">${s.school}</span>
+                                    <span style="font-weight:900; font-size:0.95rem; color:${rankColor};">${idx + 1}위</span>
+                                    <span style="font-weight:700; font-size:0.85rem; color:${schoolColor};">${s.school}</span>
                                     ${champBadge}
                                 </div>
-                                <div style="font-weight:800; font-size:0.85rem; color:#818cf8;">
-                                    +${s.total_points.toLocaleString()}P <span style="font-size:0.7rem; color:#94a3b8; font-weight:500;">(${s.student_count}명)</span>
+                                <div style="font-weight:800; font-size:0.85rem; color:${pointsColor};">
+                                    +${s.total_points.toLocaleString()}P <span style="font-size:0.7rem; color:${subColor}; font-weight:500;">(${s.student_count}명)</span>
                                 </div>
                             </div>
                         `;
@@ -14101,18 +14144,22 @@ function onFacilitySelected(code) {
 }
 
 function openAddFacilityModal() {
-
     const modal = document.getElementById("add-facility-modal");
-
     if (modal) {
-
-        document.getElementById("add-facility-code-input").value = "";
-
+        const input = document.getElementById("add-facility-code-input");
+        if (input) input.value = "";
         modal.style.display = "flex";
-
     }
-
 }
+
+function closeAddFacilityModal() {
+    const modal = document.getElementById("add-facility-modal");
+    if (modal) {
+        modal.style.display = "none";
+    }
+}
+window.openAddFacilityModal = openAddFacilityModal;
+window.closeAddFacilityModal = closeAddFacilityModal;
 
 async function handleAddNewFacility(e) {
 

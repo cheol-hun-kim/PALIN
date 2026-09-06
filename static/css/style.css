@@ -3208,6 +3208,51 @@ body.day-mode #p3-ranking #my-ranking-school-pos {
     color: #0369a1 !important;
 }
 
+/* 🏫 School Guild & Ranking High Contrast Day-Mode Rules */
+body.day-mode #p3-school-guild-list .school-guild-row,
+body.day-mode #p3-school-guild-list > div {
+    color: #0f172a !important;
+}
+
+body.day-mode #p3-school-guild-list [style*="color:#f8fafc"],
+body.day-mode #p3-school-guild-list [style*="color: #f8fafc"],
+body.day-mode #p3-school-guild-list [style*="color:#ffffff"],
+body.day-mode #p3-school-guild-list [style*="color: #ffffff"] {
+    color: #0f172a !important;
+}
+
+body.day-mode #p3-school-guild-list [style*="color:#818cf8"],
+body.day-mode #p3-school-guild-list [style*="color: #818cf8"] {
+    color: #4338ca !important;
+}
+
+body.day-mode #p3-school-guild-list [style*="color:#94a3b8"],
+body.day-mode #p3-school-guild-list [style*="color: #94a3b8"] {
+    color: #64748b !important;
+}
+
+body.day-mode #p3-rank-guild-view [style*="color: #a5b4fc"] {
+    color: #4338ca !important;
+}
+
+/* 🏢 & ✏️ Modals Day Mode High Contrast */
+body.day-mode #add-facility-modal .modal-content,
+body.day-mode #edit-qa-modal .modal-content,
+body.day-mode #feedback-modal .modal-content {
+    background: #ffffff !important;
+    border: 1.5px solid #6366f1 !important;
+    color: #0f172a !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+body.day-mode #add-facility-modal .form-input,
+body.day-mode #edit-qa-modal .form-input,
+body.day-mode #feedback-modal .form-input {
+    background: #f8fafc !important;
+    color: #0f172a !important;
+    border: 1.5px solid #cbd5e1 !important;
+}
+
 /* ========================================================================== */
 /* 🛡️ Login & Role Notice Ultra-High Contrast Rules (Dark & Day-Mode Protection) */
 /* ========================================================================== */
