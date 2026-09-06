@@ -104,7 +104,7 @@ except Exception as _sms_err:
         return {}
 
 def send_mock_sms(to_phone: str, message: str):
-    send_sms(to_phone=to_phone, message=message, title="[PALIN OS 행동통제 알림]")
+    send_sms(to_phone=to_phone, message=message, title="[PALIN OS 안심 케어 알림]")
 
 # --- 1. User & Auth ---
 
@@ -1155,11 +1155,19 @@ def manage_session(payload: schemas.StudySessionRequest, db: Session = Depends(g
                 send_mock_sms(student.parent.phone, f"자녀({student.name})가 공부 중 딴짓을 했습니다.")
         else:
             duration_mins = max(1, int(session.duration_sec / 60))
-            earned = int(duration_mins * (student.point_multiplier or 1.0))
-            student.current_points = (student.current_points or 0) + earned
+            earned = int(duration_mins * (float(student.point_multiplier or 1.0)))
+            student.current_points = int(student.current_points or 0) + earned
             # 성실도 점수 및 주간 랭킹 포인트 적립
-            student.diligence_score = (student.diligence_score or 0) + duration_mins
-            student.weekly_diligence_points = (student.weekly_diligence_points or 0) + duration_mins
+            try:
+                curr_ds = int(student.diligence_score or 0)
+            except Exception:
+                curr_ds = 0
+            try:
+                curr_wdp = int(student.weekly_diligence_points or 0)
+            except Exception:
+                curr_wdp = 0
+            student.diligence_score = curr_ds + duration_mins
+            student.weekly_diligence_points = curr_wdp + duration_mins
             update_student_streak(student, db)
             db.add(models.PointHistory(student_id=student.id, amount=earned, description="공부 집중 보상"))
         db.commit()
@@ -1176,7 +1184,7 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
 현재 [체험 모드(모델하우스)]로 접속 중이십니다.
 
 🏛️ PALIN OS 핵심 기능 안내:
-• 168시간 밀착 행동 통제: 기상/취침 미션, 초정밀 자습 타이머, 주간 루틴 관리
+• 168시간 밀착 자기주도 몰입 케어: 기상/취침 미션, 초정밀 자습 타이머, 주간 루틴 관리
 • 정시 합격예측 엔진: 전국 11,688개 대학/학과 1초 컷오프 판정
 • 학부모 안심 알림톡 연동: 실시간 출결 및 주간 심층 AI 리포트 자동 발송
 
@@ -2318,7 +2326,7 @@ def get_admin_feedbacks_all(status_filter: Optional[str] = None, db: Session = D
         "created_at": fb.created_at.strftime("%Y-%m-%d %H:%M") if fb.created_at else ""
     } for fb in feedbacks]
 
-# === 🎯 9대 락인: 마이크로 서약 & n8n/Make Webhook & VIP 블랙 라운지 & 에스크로 API ===
+# === 🎯 9대 락인: 마이크로 서약 & n8n/Make Webhook & VIP 블랙 라운지 & 약정보증금 API ===
 
 class PledgePayload(BaseModel):
     student_id: int
@@ -2348,7 +2356,7 @@ def trigger_distraction_webhook(payload: WebhookPayload, db: Session = Depends(g
     if not student:
         raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
         
-    # 🔒 금융 인질 에스크로 자동 차감 (ACID 트랜잭션 무결성 보장 & 장학금 풀 이관)
+    # 🔒 열정 페이스메이커 약정 보증금 자동 차감 (ACID 트랜잭션 무결성 보장 & 장학금 풀 이관)
     try:
         if student.escrow_deposit and student.escrow_deposit >= 1000:
             student.escrow_deposit -= 1000
@@ -2364,16 +2372,16 @@ def trigger_distraction_webhook(payload: WebhookPayload, db: Session = Depends(g
             db.commit()
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"에스크로 차감 트랜잭션 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"약정보증금 차감 트랜잭션 오류: {str(e)}")
 
     # 학부모에게 긴급 경고 SMS 자동 발송
     parent_phone = student.parent.phone if student.parent else student.phone
-    alert_msg = f"[PALIN 경고] {student.name} 학생이 순공 타이머 도중 화면을 이탈하여 딴짓이 감지되었습니다. 성실 보증금 1,000원이 차감되었습니다."
-    sms.send_sms(parent_phone, alert_msg, "[PALIN 긴급감시]")
+    alert_msg = f"[PALIN 안심 케어] {student.name} 학생이 순공 타이머 도중 화면을 이탈하여 딴짓이 감지되었습니다. 약정 보증금 1,000원이 차감되어 장학풀로 이관되었습니다."
+    sms.send_sms(parent_phone, alert_msg, "[PALIN 안심 케어]")
 
     return {
         "status": "ok",
-        "message": "딴짓 감지 이벤트가 감시망 파이프라인에 전송되었습니다.",
+        "message": "딴짓 감지 이벤트가 안심 케어 파이프라인에 전송되었습니다.",
         "remaining_deposit": student.escrow_deposit,
         "total_deductions": student.escrow_deductions
     }
@@ -2805,7 +2813,7 @@ def export_b2b_marketing_report(db: Session = Depends(get_db)):
         kpi_headers = ["지표 항목", "도입 전 (기존)", "도입 후 (PALIN OS)", "개선 효과 (증감율)", "학원 운영 관점 가치"]
         kpi_data = [
             ["일평균 순수 자습 시간", "4.2 시간 / 일", "5.8 시간 / 일", "+38.1% 증가", "학생 성적 향상 및 학부모 만족도 극대화"],
-            ["공부 중 딴짓(이탈) 발생", "주당 12.4 회", "주당 2.7 회", "-78.2% 감소", "금융 인질 에스크로 & 딴짓 경고에 의한 통제"],
+            ["공부 중 딴짓(이탈) 발생", "주당 12.4 회", "주당 2.7 회", "-78.2% 감소", "열정 페이스메이커 보증금 & 딴짓 알림에 의한 몰입 케어"],
             ["기상/취침 미션 달성률", "54.0 %", "91.5 %", "+37.5%p 상승", "아침 자습 및 규칙적 생활 리듬 강제 안착"],
             ["질의응답 AI 즉시 해결율", "20.0 % (조교대기)", "94.8 % (실시간)", "+74.8%p 개선", "학원 조교 인건비 및 업무 피로도 65% 절감"],
             ["주간 연속 출석(Streak) 유지율", "42.0 %", "87.4 %", "+45.4%p 상승", "듀오링고식 연속 달성 심리로 중도 이탈률 0%"]
@@ -2906,7 +2914,7 @@ def export_b2b_marketing_report(db: Session = Depends(get_db)):
         writer.writerow(["[1. 핵심 성과 지표 요약]"])
         writer.writerow(["지표 항목", "도입 전", "도입 후", "개선 효과", "학원 운영 가치"])
         writer.writerow(["일평균 순수 자습 시간", "4.2시간/일", "5.8시간/일", "+38.1% 증가", "학생 성적 향상"])
-        writer.writerow(["공부 중 딴짓(이탈) 발생", "주당 12.4회", "주당 2.7회", "-78.2% 감소", "금융 인질 에스크로 통제"])
+        writer.writerow(["공부 중 딴짓(이탈) 발생", "주당 12.4회", "주당 2.7회", "-78.2% 감소", "열정 페이스메이커 보증금 몰입 케어"])
         writer.writerow(["질의응답 AI 즉시 해결율", "20.0%", "94.8%", "+74.8%p 개선", "조교 인건비 65% 절감"])
         writer.writerow([])
         writer.writerow(["[2. 학생별 상세 실적 데이터]"])
