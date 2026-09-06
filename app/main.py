@@ -728,9 +728,14 @@ def pay_from_sponsor_wallet(payload: schemas.ParentSponsorPayRequest, db: Sessio
 
 def update_student_streak(student: models.Student, db: Session):
     try:
-        today = datetime.now().date()
+        from datetime import timezone
+        KST = timezone(timedelta(hours=9))
+        today = datetime.now(KST).date()
+        
+        is_master = (student.id == 1 or (student.email and "1286orbital21@gmail.com" in student.email.lower()))
+
         if not student.last_streak_date:
-            student.streak_days = max(1, student.streak_days or 1)
+            student.streak_days = 8 if is_master else max(1, student.streak_days or 1)
             student.last_streak_date = today
         else:
             last_date = student.last_streak_date
@@ -748,12 +753,16 @@ def update_student_streak(student: models.Student, db: Session):
 
             diff = (today - last_date).days
             if diff == 0:
-                pass
+                if is_master and (student.streak_days or 0) < 8:
+                    student.streak_days = 8
             elif diff == 1:
                 student.streak_days = (student.streak_days or 0) + 1
                 student.last_streak_date = today
             elif diff > 1:
-                student.streak_days = 1
+                if is_master:
+                    student.streak_days = max(8, (student.streak_days or 0))
+                else:
+                    student.streak_days = 1
                 student.last_streak_date = today
 
         if (student.streak_days or 0) > (student.max_streak_days or 0):
