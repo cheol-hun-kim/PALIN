@@ -11236,7 +11236,7 @@ async function submitStudentFeedback() {
 
         } else {
 
-            alert("등록 실패. 잠시 후 다시 시도해주세요.");
+            alert("통신 오류가 발생했습니다.");
 
         }
 
@@ -11249,6 +11249,12 @@ async function submitStudentFeedback() {
     }
 
 }
+
+window.openFeedbackModal = openFeedbackModal;
+
+window.closeFeedbackModal = closeFeedbackModal;
+
+window.submitStudentFeedback = submitStudentFeedback;
 
 // === 📚 기출문제 및 수험자료실 프론트엔드 연동 ===
 
@@ -14250,7 +14256,7 @@ ${code} 기관의 대시보드로 즉시 전환됩니다!`);
 }
 
 // Global Window Attachments
-
+window.handleAddNewFacility = handleAddNewFacility;
 window.handleStudentLoginSubmit = typeof handleStudentLoginSubmit !== 'undefined' ? handleStudentLoginSubmit : handleStudentLoginSubmit;
 
 window.handleStudentRegisterSubmit = typeof handleStudentRegisterSubmit !== 'undefined' ? handleStudentRegisterSubmit : handleStudentRegisterSubmit;
