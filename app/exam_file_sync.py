@@ -126,22 +126,12 @@ def scan_and_sync_downloads(db: Session, base_dir: str = "static/downloads") -> 
             ans_full_path = os.path.join(root, matched_a) if matched_a else None
             ans_rel_path = os.path.relpath(ans_full_path, "static").replace("\\", "/") if ans_full_path else None
             
-            # Read Base64
             try:
-                with open(q_full_path, "rb") as f:
-                    q_b64 = base64.b64encode(f.read()).decode("utf-8")
                 q_size_kb = round(os.path.getsize(q_full_path) / 1024)
             except Exception:
-                q_b64 = None
                 q_size_kb = 0
-
+            q_b64 = None
             ans_b64 = None
-            if ans_full_path and os.path.exists(ans_full_path):
-                try:
-                    with open(ans_full_path, "rb") as f:
-                        ans_b64 = base64.b64encode(f.read()).decode("utf-8")
-                except Exception:
-                    ans_b64 = None
 
             display_title = clean_display_title(q, year_val, grade_str, subject_detail)
             
