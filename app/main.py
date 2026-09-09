@@ -1465,30 +1465,10 @@ class CashChargePayload(BaseModel):
 
 @app.post("/api/cash/charge")
 def charge_cash(payload: CashChargePayload, db: Session = Depends(get_db)):
-    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
-    if not student:
-        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
-    
-    bonus = 0
-    if payload.amount >= 50000:
-        bonus = int(payload.amount * 0.2)  # 20% 보너스
-    elif payload.amount >= 30000:
-        bonus = int(payload.amount * 0.1)  # 10% 보너스
-        
-    total_granted = payload.amount + bonus
-    student.paid_cash = (student.paid_cash or 0) + total_granted
-    db.add(models.PointHistory(
-        student_id=student.id,
-        amount=0,
-        description=f"💎 PALIN 캐시 {payload.amount:,}원 충전 완료 (+보너스 {bonus:,} 캐시)"
-    ))
-    db.commit()
-    db.refresh(student)
-    return {
-        "status": "ok",
-        "paid_cash": student.paid_cash,
-        "message": f"💎 {total_granted:,} PALIN 캐시가 성공적으로 충전되었습니다!"
-    }
+    raise HTTPException(
+        status_code=400,
+        detail="현재 금융사 PG 실결제 연동 심사가 진행 중입니다. 정식 런칭 후 실제 결제 승인을 통해 캐시 충전이 가능합니다."
+    )
 
 class DeepReportPayload(BaseModel):
     student_id: int
@@ -2703,6 +2683,8 @@ def get_exam_materials(
 def get_academy_materials(
     academy_code: str,
     subject: Optional[str] = None,
+    grade: Optional[str] = None,
+    target_grade: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
     query = db.query(models.ExamMaterial).filter(
@@ -2712,7 +2694,14 @@ def get_academy_materials(
     )
     if subject and subject != "전체":
         query = query.filter(models.ExamMaterial.subject == subject)
+    grade_filter = target_grade or grade
+    if grade_filter and grade_filter != "전체":
+        if grade_filter in ["고3", "고3/N수"]:
+            query = query.filter(models.ExamMaterial.target_grade.in_(["고3", "고3/N수", "ALL"]))
+        else:
+            query = query.filter(models.ExamMaterial.target_grade.in_([grade_filter, "ALL"]))
     return query.order_by(models.ExamMaterial.created_at.desc()).all()
+
 
 @app.post("/api/admin/materials/sync-folder")
 def sync_materials_from_folder(db: Session = Depends(get_db)):

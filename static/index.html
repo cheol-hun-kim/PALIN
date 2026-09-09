@@ -28,7 +28,7 @@
     </script>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=20260907.100">
+    <link rel="stylesheet" href="css/style.css?v=20260910.cash_grade_v1">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -1476,12 +1476,15 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </div>
 
                         <!-- 1.5 대상 학년 선택 탭 (고3, 고2, 고1, 전체) -->
-                        <div style="margin-bottom: 10px;">
+                        <div style="margin-bottom: 12px;">
+                            <div style="font-size: 0.76rem; color: #38bdf8; font-weight: 800; margin-bottom: 5px; display: flex; align-items: center; gap: 4px;">
+                                <span>🎯 대상 학년 선택:</span>
+                            </div>
                             <div style="display: flex; gap: 6px;" id="exam-grade-tabs">
-                                <button type="button" class="btn exam-grade-btn active" onclick="switchExamGrade('고3', this)" style="flex: 1; padding: 7px 4px; font-size: 0.8rem; font-weight: 800; border-radius: 8px;">고3 / N수</button>
-                                <button type="button" class="btn btn-secondary exam-grade-btn" onclick="switchExamGrade('고2', this)" style="flex: 1; padding: 7px 4px; font-size: 0.8rem; font-weight: 800; border-radius: 8px;">고2</button>
-                                <button type="button" class="btn btn-secondary exam-grade-btn" onclick="switchExamGrade('고1', this)" style="flex: 1; padding: 7px 4px; font-size: 0.8rem; font-weight: 800; border-radius: 8px;">고1</button>
-                                <button type="button" class="btn btn-secondary exam-grade-btn" onclick="switchExamGrade('전체', this)" style="flex: 1; padding: 7px 4px; font-size: 0.8rem; font-weight: 800; border-radius: 8px;">전체 학년</button>
+                                <button type="button" class="btn exam-grade-btn active" onclick="switchExamGrade('고3', this)" style="flex: 1; padding: 8px 4px; font-size: 0.82rem; font-weight: 800; border-radius: 8px;">🎓 고3 / N수</button>
+                                <button type="button" class="btn btn-secondary exam-grade-btn" onclick="switchExamGrade('고2', this)" style="flex: 1; padding: 8px 4px; font-size: 0.82rem; font-weight: 800; border-radius: 8px;">📘 고2</button>
+                                <button type="button" class="btn btn-secondary exam-grade-btn" onclick="switchExamGrade('고1', this)" style="flex: 1; padding: 8px 4px; font-size: 0.82rem; font-weight: 800; border-radius: 8px;">📗 고1</button>
+                                <button type="button" class="btn btn-secondary exam-grade-btn" onclick="switchExamGrade('전체', this)" style="flex: 1; padding: 8px 4px; font-size: 0.82rem; font-weight: 800; border-radius: 8px;">🌐 전체 학년</button>
                             </div>
                         </div>
 
@@ -2812,7 +2815,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <!-- 💎 5. PALIN 캐시 충전 모달 -->
+    <!-- 💎 5. PALIN 캐시 충전소 모달 -->
     <div id="cash-modal" class="trigger-modal" style="display: none;">
         <div class="trigger-content" style="max-width: 440px; border-color: #3b82f6; background: #0f172a !important; color: #ffffff !important; padding: 22px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 10px;">
@@ -2835,7 +2838,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <div style="font-weight: 800; color: #38bdf8; font-size: 0.95rem;">💎 10,000 캐시</div>
                         <div style="font-size: 0.72rem; color: #cbd5e1;">기본 패키지</div>
                     </div>
-                    <button onclick="chargeCash(10000)" class="btn" style="padding: 8px 16px; font-size: 0.82rem; background: #0284c7; font-weight: 800; border-radius: 8px;">10,000원 결제</button>
+                    <button onclick="openPgCheckoutModal(10000, '10,000 캐시 기본 패키지', 10000)" class="btn" style="padding: 8px 16px; font-size: 0.82rem; background: #0284c7; font-weight: 800; border-radius: 8px;">10,000원 결제</button>
                 </div>
 
                 <!-- 33,000 -->
@@ -2844,7 +2847,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <div style="font-weight: 800; color: #60a5fa; font-size: 0.95rem;">💎 33,000 캐시 <span style="font-size: 0.68rem; background: #ec4899; color: white; padding: 2px 6px; border-radius: 8px; font-weight: 800;">+10% 보너스</span></div>
                         <div style="font-size: 0.72rem; color: #cbd5e1;">과외 매칭(29,000원) 추천 팩</div>
                     </div>
-                    <button onclick="chargeCash(30000)" class="btn" style="padding: 8px 16px; font-size: 0.82rem; background: linear-gradient(135deg, #2563eb, #4f46e5); font-weight: 800; border-radius: 8px;">30,000원 결제</button>
+                    <button onclick="openPgCheckoutModal(30000, '33,000 캐시 추천 팩 (+10% 보너스)', 30000)" class="btn" style="padding: 8px 16px; font-size: 0.82rem; background: linear-gradient(135deg, #2563eb, #4f46e5); font-weight: 800; border-radius: 8px;">30,000원 결제</button>
                 </div>
 
                 <!-- 60,000 -->
@@ -2853,10 +2856,83 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <div style="font-weight: 800; color: #c084fc; font-size: 0.95rem;">💎 60,000 캐시 <span style="font-size: 0.68rem; background: #f59e0b; color: #1e1b4b; padding: 2px 6px; border-radius: 8px; font-weight: 800;">+20% 보너스</span></div>
                         <div style="font-size: 0.72rem; color: #cbd5e1;">과외 2회 + 심층리포트 풀세트</div>
                     </div>
-                    <button onclick="chargeCash(50000)" class="btn" style="padding: 8px 16px; font-size: 0.82rem; background: linear-gradient(135deg, #7c3aed, #9333ea); font-weight: 800; border-radius: 8px;">50,000원 결제</button>
+                    <button onclick="openPgCheckoutModal(50000, '60,000 캐시 풀세트 (+20% 보너스)', 50000)" class="btn" style="padding: 8px 16px; font-size: 0.82rem; background: linear-gradient(135deg, #7c3aed, #9333ea); font-weight: 800; border-radius: 8px;">50,000원 결제</button>
                 </div>
             </div>
-            <div style="font-size: 0.72rem; color: #94a3b8; line-height: 1.4; text-align: center;">결제 즉시 캐시가 자동 적립되며, 영수증 및 환불은 고객센터로 문의 바랍니다.</div>
+            <div style="font-size: 0.72rem; color: #94a3b8; line-height: 1.4; text-align: center;">결제 전 전자상거래 표준 이용약관에 동의하는 것으로 간주됩니다.</div>
+        </div>
+    </div>
+
+    <!-- 💳 5.1 PG 전자결제 주문/결제창 모달 -->
+    <div id="pg-checkout-modal" class="trigger-modal" style="display: none;">
+        <div class="trigger-content" style="max-width: 460px; border-color: #38bdf8; background: #0b1329 !important; color: #ffffff !important; padding: 24px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.7);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.3rem;">💳</span>
+                    <div>
+                        <div style="font-size: 1.15rem; font-weight: 900; color: #38bdf8;">PALIN 전자결제 주문서</div>
+                        <div style="font-size: 0.72rem; color: #94a3b8;">TossPayments & 금융사 안심 결제</div>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('pg-checkout-modal').style.display='none'" class="modal-close-btn" title="닫기" style="background: rgba(255, 255, 255, 0.15) !important; color: #ffffff !important; border: 1px solid rgba(255, 255, 255, 0.3) !important; width: 32px; height: 32px; border-radius: 50%; font-size: 1.2rem; cursor: pointer;">&times;</button>
+            </div>
+
+            <!-- 주문 상품 정보 -->
+            <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 14px; margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.82rem; color: #94a3b8;">
+                    <span>주문 상품</span>
+                    <span id="pg-item-name" style="color: #f8fafc; font-weight: 700;">10,000 캐시</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: baseline; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px;">
+                    <span style="font-size: 0.85rem; color: #cbd5e1; font-weight: 700;">최종 결제 금액</span>
+                    <span style="font-size: 1.35rem; font-weight: 900; color: #38bdf8;"><span id="pg-item-price">10,000</span>원</span>
+                </div>
+            </div>
+
+            <!-- 결제 수단 선택 -->
+            <div style="margin-bottom: 18px;">
+                <div style="font-size: 0.78rem; font-weight: 800; color: #94a3b8; margin-bottom: 8px;">결제 수단 선택</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <label style="display: flex; align-items: center; gap: 6px; padding: 10px 12px; background: rgba(56, 189, 248, 0.1); border: 1.5px solid #38bdf8; border-radius: 8px; cursor: pointer; font-size: 0.82rem; font-weight: 700; color: #f8fafc;">
+                        <input type="radio" name="pg-method" value="CARD" checked style="accent-color: #38bdf8;"> 💳 신용/체크카드
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; padding: 10px 12px; background: rgba(255, 255, 255, 0.04); border: 1.5px solid rgba(255, 255, 255, 0.15); border-radius: 8px; cursor: pointer; font-size: 0.82rem; font-weight: 700; color: #f8fafc;">
+                        <input type="radio" name="pg-method" value="KAKAOPAY" style="accent-color: #fee500;"> 🟡 카카오페이
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; padding: 10px 12px; background: rgba(255, 255, 255, 0.04); border: 1.5px solid rgba(255, 255, 255, 0.15); border-radius: 8px; cursor: pointer; font-size: 0.82rem; font-weight: 700; color: #f8fafc;">
+                        <input type="radio" name="pg-method" value="TOSSPAY" style="accent-color: #0064ff;"> 🔵 토스페이
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; padding: 10px 12px; background: rgba(255, 255, 255, 0.04); border: 1.5px solid rgba(255, 255, 255, 0.15); border-radius: 8px; cursor: pointer; font-size: 0.82rem; font-weight: 700; color: #f8fafc;">
+                        <input type="radio" name="pg-method" value="NAVERPAY" style="accent-color: #03c75a;"> 🟢 네이버페이
+                    </label>
+                </div>
+            </div>
+
+            <!-- 결제 버튼 -->
+            <button onclick="submitPgPayment()" class="btn" style="width: 100%; padding: 13px; font-size: 0.95rem; font-weight: 900; background: linear-gradient(135deg, #0284c7, #2563eb); border-radius: 10px; color: #ffffff !important; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);">
+                🔒 <span id="pg-submit-price">10,000</span>원 안전 결제하기
+            </button>
+            <div style="font-size: 0.7rem; color: #64748b; text-align: center; margin-top: 10px;">256-bit SSL 암호화 안전 결제 프로토콜이 적용되어 있습니다.</div>
+        </div>
+    </div>
+
+    <!-- ⚠️ 5.2 금융사 연동 심사 준비중 안내 팝업 -->
+    <div id="pg-prep-modal" class="trigger-modal" style="display: none;">
+        <div class="trigger-content" style="max-width: 420px; border-color: #f59e0b; background: #0f172a !important; color: #ffffff !important; padding: 24px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); text-align: center;">
+            <div style="width: 56px; height: 56px; background: rgba(245, 158, 11, 0.15); border: 2px solid #f59e0b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 14px auto;">
+                ⏳
+            </div>
+            <div style="font-size: 1.15rem; font-weight: 900; color: #fcd34d; margin-bottom: 8px;">
+                금융사 결제 모듈 연동 준비 중
+            </div>
+            <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 18px; text-align: left; background: rgba(255,255,255,0.03); padding: 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
+                • 현재 전자금융거래법에 따른 <strong>PG사(토스페이먼츠 / 카드사) 실결제 모듈 가맹점 심사</strong>가 진행 중입니다.<br>
+                • 심사 승인 완료 후 실제 결제 승인 및 캐시 충전 기능이 정식 오픈됩니다.<br>
+                • <strong>베타 서비스 기간 동안은 결제 금액이 청구되지 않으며, 캐시 충전이 진행되지 않습니다.</strong>
+            </div>
+            <button onclick="document.getElementById('pg-prep-modal').style.display='none'" class="btn" style="width: 100%; padding: 11px; font-size: 0.88rem; font-weight: 800; background: #f59e0b; color: #0f172a !important; border-radius: 8px;">
+                확인 (닫기)
+            </button>
         </div>
     </div>
 
@@ -3704,7 +3780,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app.js?v=20260907.omr_ultimate_v3"></script>
+    <script src="js/app.js?v=20260910.cash_grade_v1"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소

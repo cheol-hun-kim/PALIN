@@ -12780,48 +12780,35 @@ function openCashModal() {
 
 }
 
+let currentCheckoutOrder = { amount: 10000, itemName: '10,000 캐시', price: 10000 };
+
+function openPgCheckoutModal(amount, itemName, price) {
+    currentCheckoutOrder = { amount, itemName, price };
+    const nameEl = document.getElementById("pg-item-name");
+    const priceEl = document.getElementById("pg-item-price");
+    const submitPriceEl = document.getElementById("pg-submit-price");
+    
+    if (nameEl) nameEl.innerText = itemName;
+    if (priceEl) priceEl.innerText = price.toLocaleString();
+    if (submitPriceEl) submitPriceEl.innerText = price.toLocaleString();
+    
+    const cashModal = document.getElementById("cash-modal");
+    if (cashModal) cashModal.style.display = "none";
+    
+    const checkoutModal = document.getElementById("pg-checkout-modal");
+    if (checkoutModal) checkoutModal.style.display = "flex";
+}
+
+function submitPgPayment() {
+    const checkoutModal = document.getElementById("pg-checkout-modal");
+    if (checkoutModal) checkoutModal.style.display = "none";
+    
+    const prepModal = document.getElementById("pg-prep-modal");
+    if (prepModal) prepModal.style.display = "flex";
+}
+
 async function chargeCash(amount) {
-
-    if (!currentStudent) return;
-
-    if (!confirm(`💎 ${amount.toLocaleString()}원 상당의 PALIN 캐시를 충전하시겠습니까?`)) return;
-
-    try {
-
-        const res = await fetch("/api/cash/charge", {
-
-            method: "POST",
-
-            headers: { "Content-Type": "application/json" },
-
-            body: JSON.stringify({ student_id: currentStudent.id, amount: amount })
-
-        });
-
-        const data = await res.json();
-
-        if (data.status === "ok") {
-
-            currentStudent.paid_cash = data.paid_cash;
-
-            updateHeaderUI();
-
-            alert(data.message);
-
-        } else {
-
-            alert(data.detail || "충전 실패");
-
-        }
-
-    } catch (e) {
-
-        console.error(e);
-
-        alert("충전 서버 연결 오류");
-
-    }
-
+    openPgCheckoutModal(amount, `${amount.toLocaleString()} 캐시`, amount);
 }
 
 // ==========================================
@@ -14748,7 +14735,7 @@ const DEMO_STUDENT = {
     league_tier: "DIAMOND",
     point_multiplier: 1.5,
     golden_tickets_count: 5,
-    paid_cash: 250000,
+    paid_cash: 0,
     medical_symbol: "GENERAL",
     enrollment_status: "ENROLLED",
     chat_tokens: 999,

@@ -6,7 +6,7 @@
     <title>PALIN OS - B2B 학원장 통합 관제실 (Director Cockpit)</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=20260904.1">
+    <link rel="stylesheet" href="css/style.css?v=20260910.cash_grade_v1">
     <style>
         :root {
             --bg-color: #08090d;
@@ -763,7 +763,7 @@
                     
                     <!-- 기출문제 등록 폼 -->
                     <form onsubmit="handleUploadExamMaterial(event)" style="display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.25); padding: 14px; border-radius: 12px; border: 1px solid rgba(16,185,129,0.2); margin-bottom: 14px;">
-                        <div class="grid-mat-form">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 2fr; gap: 8px;" class="grid-mat-form">
                             <div>
                                 <label style="font-size: 0.75rem; color: #34d399; font-weight: 800; display: block; margin-bottom: 4px;">📅 수험 학년도</label>
                                 <select id="mat-year" class="form-input" style="font-weight: 700; height: 42px; width: 100%; box-sizing: border-box;">
@@ -782,6 +782,15 @@
                                     <option value="2015">2015학년도</option>
                                     <option value="2014">2014학년도</option>
                                     <option value="2013">2013학년도</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; color: #34d399; font-weight: 800; display: block; margin-bottom: 4px;">🎯 대상 학년</label>
+                                <select id="mat-grade" class="form-input" style="font-weight: 700; height: 42px; width: 100%; box-sizing: border-box;">
+                                    <option value="고3" selected>🎓 고3 / N수</option>
+                                    <option value="고2">📘 고2</option>
+                                    <option value="고1">📗 고1</option>
+                                    <option value="ALL">🌐 전체 학년 공용</option>
                                 </select>
                             </div>
                             <div>
@@ -3161,6 +3170,7 @@
         // === 📚 전국 공용 기출문제 관리 스크립트 ===
         let adminExamMaterialsCache = [];
         let currentAdminExamFilter = '전체';
+        let currentAdminExamGradeFilter = '전체';
 
         async function loadAdminExamMaterials() {
             const listContainer = document.getElementById("admin-exam-materials-list");
@@ -3183,8 +3193,10 @@
             if (countBadge) countBadge.innerText = `총 ${adminExamMaterialsCache.length}개 자료`;
 
             const subjects = ['전체', '국어', '수학', '영어', '과탐', '사탐', '한국사', '사관/경찰', '논술', '기타'];
+            const grades = ['전체', '고3', '고2', '고1'];
+
             if (filterBar) {
-                filterBar.innerHTML = subjects.map(sub => {
+                let subjButtons = subjects.map(sub => {
                     const count = sub === '전체' ? adminExamMaterialsCache.length : adminExamMaterialsCache.filter(m => m.subject === sub).length;
                     const isActive = currentAdminExamFilter === sub ? 'active' : '';
                     return `
@@ -3194,6 +3206,28 @@
                         </button>
                     `;
                 }).join('');
+
+                let gradeButtons = grades.map(g => {
+                    const count = g === '전체' ? adminExamMaterialsCache.length : adminExamMaterialsCache.filter(m => (m.target_grade || '').includes(g) || (g === '전체')).length;
+                    const isActive = currentAdminExamGradeFilter === g ? 'active' : '';
+                    const label = g === '고3' ? '🎓 고3/N수' : g === '고2' ? '📘 고2' : g === '고1' ? '📗 고1' : '🌐 전체 학년';
+                    return `
+                        <button type="button" onclick="filterAdminExamGrade('${g}')" class="btn-vod-filter ${isActive}" style="border-color: #38bdf8;">
+                            <span>${label}</span>
+                        </button>
+                    `;
+                }).join('');
+
+                filterBar.innerHTML = `
+                    <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                        <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px;">
+                            ${gradeButtons}
+                        </div>
+                        <div style="display: flex; gap: 6px; overflow-x: auto;">
+                            ${subjButtons}
+                        </div>
+                    </div>
+                `;
             }
 
             renderAdminExamList();
@@ -3201,6 +3235,11 @@
 
         function filterAdminExamMaterials(sub) {
             currentAdminExamFilter = sub;
+            loadAdminExamMaterials();
+        }
+
+        function filterAdminExamGrade(g) {
+            currentAdminExamGradeFilter = g;
             loadAdminExamMaterials();
         }
 
@@ -3212,9 +3251,12 @@
             if (currentAdminExamFilter !== '전체') {
                 list = list.filter(m => m.subject === currentAdminExamFilter);
             }
+            if (currentAdminExamGradeFilter !== '전체') {
+                list = list.filter(m => (m.target_grade || '고3').includes(currentAdminExamGradeFilter) || (m.target_grade === 'ALL'));
+            }
 
             if (list.length === 0) {
-                listContainer.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.82rem; padding:20px; background:rgba(0,0,0,0.2); border-radius:10px;">등록된 전국 공용 기출문제 자료가 없습니다.</div>';
+                listContainer.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.82rem; padding:20px; background:rgba(0,0,0,0.2); border-radius:10px;">선택한 조건에 맞는 전국 공용 기출문제 자료가 없습니다.</div>';
                 return;
             }
 
@@ -3222,7 +3264,7 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(16,185,129,0.15); padding:10px 14px; border-radius:10px; margin-bottom:12px; border:1px solid rgba(16,185,129,0.3);">
                     <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.82rem; font-weight:700; color:#e2e8f0;">
                         <input type="checkbox" id="mat-select-all" onchange="toggleSelectAllMats(this.checked)" style="transform:scale(1.2); cursor:pointer;">
-                        <span>기출문제 전체 선택</span>
+                        <span>기출문제 전체 선택 (${list.length}개)</span>
                     </label>
                     <button onclick="handleBatchDeleteExamMaterials()" class="btn" style="padding:6px 14px; font-size:0.75rem; font-weight:800; background:linear-gradient(135deg,#ef4444,#dc2626); color:white; border-radius:6px; cursor:pointer;">
                         🗑️ 선택 기출문제 일괄 삭제
@@ -3235,12 +3277,13 @@
                     <div style="display:flex; align-items:flex-start; gap:10px; flex: 1; min-width: 220px;">
                         <input type="checkbox" class="mat-item-checkbox" value="${m.id}" style="margin-top:4px; transform:scale(1.2); cursor:pointer;">
                         <div>
-                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px; flex-wrap: wrap;">
+                                <span style="font-size: 0.72rem; background: rgba(56,189,248,0.25); color: #38bdf8; padding: 2px 8px; border-radius: 4px; font-weight: 800;">${m.target_grade || '고3'}</span>
                                 <span style="font-size: 0.72rem; background: rgba(16,185,129,0.25); color: #34d399; padding: 2px 8px; border-radius: 4px; font-weight: 800;">${m.year}학년도 ${m.subject}</span>
                                 <span style="font-weight: 800; font-size: 0.92rem; color: #ffffff;">${m.title}</span>
                             </div>
                             <div style="font-size: 0.76rem; color: #cbd5e1; margin-bottom: 6px;">
-                                ${m.description || '상세 설명 없음'}
+                                ${m.description || '상세 설명 없음'} · <span style="color:#94a3b8;">${m.file_size || ''}</span>
                             </div>
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                                 <a href="/api/materials/${m.id}/download" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid #10b981; border-radius: 6px; text-decoration: none; font-weight: 700;">📄 문제지 PDF</a>
@@ -3260,6 +3303,7 @@
         async function handleUploadExamMaterial(e) {
             e.preventDefault();
             const year = document.getElementById("mat-year")?.value || 2027;
+            const grade = document.getElementById("mat-grade")?.value || "고3";
             const subject = document.getElementById("mat-subject")?.value || "국어";
             const title = document.getElementById("mat-title")?.value.trim();
             const desc = document.getElementById("mat-desc")?.value.trim() || "";
@@ -3277,10 +3321,10 @@
             formData.append("category", "PUBLIC_EXAM");
             formData.append("academy_code", "");
             formData.append("year", year);
+            formData.append("target_grade", grade);
             formData.append("subject", subject);
             formData.append("title", title);
             formData.append("description", desc);
-            formData.append("target_grade", "고3/N수");
             if (fileUrl) formData.append("external_url", fileUrl);
             if (answerUrl) formData.append("answer_url", answerUrl);
             if (fileInput?.files?.[0]) formData.append("file", fileInput.files[0]);
