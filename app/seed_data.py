@@ -29,13 +29,20 @@ def auto_seed_database(db: Session, engine):
         db.rollback()
         print(f"[AUTO_SEED] Column migration warning: {e}")
 
-    # 1.1 Reset all students' cash balances to 0 for beta phase
+    # 1.1 One-time migration: Zero out test cash for beta phase (Runs ONLY ONCE and never overwrites future real purchases)
     try:
-        db.query(models.Student).filter(models.Student.paid_cash > 0).update({models.Student.paid_cash: 0})
+        db.execute(text("CREATE TABLE IF NOT EXISTS system_migrations (migration_key VARCHAR(100) PRIMARY KEY, applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"))
         db.commit()
+        
+        mig = db.execute(text("SELECT migration_key FROM system_migrations WHERE migration_key = 'beta_cash_zero_20260910'")).fetchone()
+        if not mig:
+            db.query(models.Student).filter(models.Student.paid_cash > 0).update({models.Student.paid_cash: 0})
+            db.execute(text("INSERT INTO system_migrations (migration_key) VALUES ('beta_cash_zero_20260910')"))
+            db.commit()
+            print("[AUTO_SEED] One-time beta cash reset applied successfully.")
     except Exception as e:
         db.rollback()
-        print(f"[AUTO_SEED] Cash reset notice: {e}")
+        print(f"[AUTO_SEED] One-time migration note: {e}")
 
     # 1.5 Ensure Default Real Active Tenant Exists & Synchronize Pilot Tier 3
     try:
