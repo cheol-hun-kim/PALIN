@@ -2626,6 +2626,22 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOWNLOADS_DIR = os.path.join(BASE_DIR, "static", "downloads")
 os.makedirs(DOWNLOADS_DIR, exist_ok=True)
 
+def sort_exam_materials_list(materials: list, sort_order: str = "desc") -> list:
+    def get_month_weight(mat):
+        text = f"{mat.title or ''} {mat.file_name or ''}".lower()
+        if "수능" in text or "대학수학능력" in text or "대수능" in text:
+            return 12
+        for m in [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]:
+            if f"{m}월" in text:
+                return m
+        return 0
+
+    reverse = (sort_order.lower() != "asc")
+    if reverse:
+        return sorted(materials, key=lambda m: (m.year or 0, get_month_weight(m), m.id or 0), reverse=True)
+    else:
+        return sorted(materials, key=lambda m: (-(m.year or 0), get_month_weight(m), m.id or 0))
+
 @app.get("/api/materials")
 @app.get("/api/exam/materials")
 def get_exam_materials(
@@ -2633,6 +2649,7 @@ def get_exam_materials(
     year: Optional[int] = None,
     grade: Optional[str] = None,
     target_grade: Optional[str] = None,
+    sort_order: Optional[str] = "desc",
     category: Optional[str] = "PUBLIC_EXAM",
     academy_code: Optional[str] = None,
     db: Session = Depends(get_db)
@@ -2676,8 +2693,8 @@ def get_exam_materials(
         else:
             query = query.filter(models.ExamMaterial.target_grade.in_([grade_filter, "ALL"]))
             
-    materials = query.order_by(models.ExamMaterial.year.desc(), models.ExamMaterial.created_at.desc()).all()
-    return materials
+    raw_materials = query.all()
+    return sort_exam_materials_list(raw_materials, sort_order=sort_order or "desc")
 
 @app.get("/api/academy/materials")
 def get_academy_materials(
@@ -2685,6 +2702,7 @@ def get_academy_materials(
     subject: Optional[str] = None,
     grade: Optional[str] = None,
     target_grade: Optional[str] = None,
+    sort_order: Optional[str] = "desc",
     db: Session = Depends(get_db)
 ):
     query = db.query(models.ExamMaterial).filter(
@@ -2700,7 +2718,15 @@ def get_academy_materials(
             query = query.filter(models.ExamMaterial.target_grade.in_(["고3", "고3/N수", "ALL"]))
         else:
             query = query.filter(models.ExamMaterial.target_grade.in_([grade_filter, "ALL"]))
-    return query.order_by(models.ExamMaterial.created_at.desc()).all()
+    raw_materials = query.all()
+    return sort_exam_materials_list(raw_materials, sort_order=sort_order or "desc")
+
+@app.post("/api/admin/reset-all-cash")
+def reset_all_cash_admin(db: Session = Depends(get_db)):
+    count = db.query(models.Student).filter(models.Student.paid_cash > 0).count()
+    db.query(models.Student).filter(models.Student.paid_cash > 0).update({models.Student.paid_cash: 0})
+    db.commit()
+    return {"status": "ok", "message": f"{count}명의 회원 보유 캐시가 0으로 초기화되었습니다."}
 
 
 @app.post("/api/admin/materials/sync-folder")

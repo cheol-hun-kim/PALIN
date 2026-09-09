@@ -3243,6 +3243,15 @@
             loadAdminExamMaterials();
         }
 
+        function getAdminExamMonthWeight(title) {
+            const text = (title || "").toLowerCase();
+            if (text.includes("수능") || text.includes("대학수학능력") || text.includes("대수능")) return 12;
+            for (let m = 12; m >= 1; m--) {
+                if (text.includes(`${m}월`)) return m;
+            }
+            return 0;
+        }
+
         function renderAdminExamList() {
             const listContainer = document.getElementById("admin-exam-materials-list");
             if (!listContainer) return;
@@ -3254,6 +3263,16 @@
             if (currentAdminExamGradeFilter !== '전체') {
                 list = list.filter(m => (m.target_grade || '고3').includes(currentAdminExamGradeFilter) || (m.target_grade === 'ALL'));
             }
+
+            list.sort((a, b) => {
+                const yA = a.year || 0;
+                const yB = b.year || 0;
+                const wA = getAdminExamMonthWeight(a.title);
+                const wB = getAdminExamMonthWeight(b.title);
+                if (yB !== yA) return yB - yA;
+                if (wB !== wA) return wB - wA;
+                return (b.id || 0) - (a.id || 0);
+            });
 
             if (list.length === 0) {
                 listContainer.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.82rem; padding:20px; background:rgba(0,0,0,0.2); border-radius:10px;">선택한 조건에 맞는 전국 공용 기출문제 자료가 없습니다.</div>';

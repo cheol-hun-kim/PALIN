@@ -29,6 +29,14 @@ def auto_seed_database(db: Session, engine):
         db.rollback()
         print(f"[AUTO_SEED] Column migration warning: {e}")
 
+    # 1.1 Reset all students' cash balances to 0 for beta phase
+    try:
+        db.query(models.Student).filter(models.Student.paid_cash > 0).update({models.Student.paid_cash: 0})
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"[AUTO_SEED] Cash reset notice: {e}")
+
     # 1.5 Ensure Default Real Active Tenant Exists & Synchronize Pilot Tier 3
     try:
         default_tenants = [

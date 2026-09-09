@@ -11625,6 +11625,34 @@ async function filterExamMaterials(subject, btnEl) {
     switchExamSubject(subject, btnEl);
 }
 
+let currentExamSortOrder = "desc";
+
+function switchExamSortOrder(order, btnEl) {
+    currentExamSortOrder = order;
+    document.querySelectorAll(".exam-sort-btn").forEach(b => {
+        b.classList.remove("active");
+        b.classList.add("btn-secondary");
+        b.style.background = "";
+        b.style.color = "";
+    });
+    if (btnEl) {
+        btnEl.classList.add("active");
+        btnEl.classList.remove("btn-secondary");
+        btnEl.style.background = "linear-gradient(135deg, #6366f1, #4f46e5)";
+        btnEl.style.color = "#fff";
+    }
+    loadExamMaterials();
+}
+
+function getExamMonthSortWeight(title) {
+    const text = (title || "").toLowerCase();
+    if (text.includes("수능") || text.includes("대학수학능력") || text.includes("대수능")) return 12;
+    for (let m = 12; m >= 1; m--) {
+        if (text.includes(`${m}월`)) return m;
+    }
+    return 0;
+}
+
 async function loadExamMaterials() {
     const container = document.getElementById("exam-materials-container");
     if (!container) return;
@@ -11639,6 +11667,9 @@ async function loadExamMaterials() {
         }
         if (currentExamGrade && currentExamGrade !== "전체") {
             params.push(`grade=${encodeURIComponent(currentExamGrade)}`);
+        }
+        if (currentExamSortOrder) {
+            params.push(`sort_order=${currentExamSortOrder}`);
         }
 
         const url = `/api/materials?${params.join("&")}`;
@@ -11663,6 +11694,11 @@ async function loadExamMaterials() {
 
         const materials = await res.json();
 
+        const countEl = document.getElementById("exam-materials-count");
+        if (countEl) {
+            countEl.innerText = `${materials.length}개 자료`;
+        }
+
         if (materials.length === 0) {
 
             container.innerHTML = `
@@ -11682,6 +11718,23 @@ async function loadExamMaterials() {
             return;
 
         }
+
+        // Client-side robust month/year sorting
+        materials.sort((a, b) => {
+            const yA = a.year || 0;
+            const yB = b.year || 0;
+            const wA = getExamMonthSortWeight(a.title);
+            const wB = getExamMonthSortWeight(b.title);
+            if (currentExamSortOrder === "desc") {
+                if (yB !== yA) return yB - yA;
+                if (wB !== wA) return wB - wA;
+                return (b.id || 0) - (a.id || 0);
+            } else {
+                if (yB !== yA) return yB - yA;
+                if (wA !== wB) return wA - wB;
+                return (a.id || 0) - (b.id || 0);
+            }
+        });
 
         container.innerHTML = "";
 

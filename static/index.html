@@ -1510,6 +1510,18 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             </select>
                         </div>
 
+                        <!-- 2.5 정렬 순서 선택 (최신순 / 연간순) -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 4px 2px; flex-wrap: wrap; gap: 8px;">
+                            <div style="font-size: 0.78rem; color: #cbd5e1; font-weight: 700; display: flex; align-items: center; gap: 5px;">
+                                <span>📚 기출 자료 목록</span>
+                                <span id="exam-materials-count" style="font-size: 0.72rem; color: #38bdf8; background: rgba(56,189,248,0.15); padding: 2px 7px; border-radius: 6px; font-weight: 800;">-</span>
+                            </div>
+                            <div style="display: flex; gap: 5px;" id="exam-sort-tabs">
+                                <button type="button" class="btn exam-sort-btn active" onclick="switchExamSortOrder('desc', this)" style="padding: 6px 10px; font-size: 0.75rem; font-weight: 800; border-radius: 7px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff;">⬇️ 최신순 (수능→3월)</button>
+                                <button type="button" class="btn btn-secondary exam-sort-btn" onclick="switchExamSortOrder('asc', this)" style="padding: 6px 10px; font-size: 0.75rem; font-weight: 800; border-radius: 7px;">⬆️ 연간순 (3월→수능)</button>
+                            </div>
+                        </div>
+
                         <!-- 기출문제 목록 컨테이너 -->
                         <div class="list-container" id="exam-materials-container" style="display: flex; flex-direction: column; gap: 8px;">
                             <div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 20px;">수험 학년도(년도)를 선택하시면 해당 학년도의 기출문제 및 정답지 목록이 표시됩니다.</div>
@@ -3780,7 +3792,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app.js?v=20260910.cash_grade_v1"></script>
+    <script src="js/app.js?v=20260910.order_cash_v3"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소
