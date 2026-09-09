@@ -73,7 +73,7 @@ class Student(Base):
     referral_code = Column(String, unique=True, index=True, nullable=True) # 내 고유 친구 초대 코드
     referred_by = Column(String, nullable=True)           # 나를 초대한 친구 코드
     has_unlimited_chat = Column(Boolean, default=False)   # AI 멘토 무제한 패스 보유 여부
-    chat_tokens = Column(Integer, default=10)             # AI 질문 잔여 토큰 (기본 10회, 소진 시 50회 4,900원)
+    chat_tokens = Column(Integer, default=5)             # AI 질문 잔여 토큰 (기본 5회, 소진 시 50회 4,900원)
     b2c_subscription_tier = Column(String, default="TIER_1_FREE") # TIER_1_FREE | TIER_2_PARENT | TIER_3_MASTER
     
     # 🏆 Phase 8: 3대 랭킹 게이미피케이션 필드 (주간 성실도 및 상위 1% VIP)
@@ -386,6 +386,11 @@ class ExamMaterial(Base):
     answer_file_url = Column(String, nullable=True) # 정답/해설지 다운로드 링크 (PDF 또는 이미지)
     answer_file_name = Column(String, nullable=True)
     year = Column(Integer, default=2027)  # 2027학년도 | 2026학년도 | 2025학년도 등
+    category = Column(String, default="PUBLIC_EXAM", index=True)  # 'PUBLIC_EXAM' (전국 공용 기출) | 'ACADEMY_PRIVATE' (학원 전용 자료)
+    academy_code = Column(String, nullable=True, index=True)      # 소속 학원 코드 (예: ILWON-2027), None이면 전국 공용
+    target_grade = Column(String, default="ALL")                  # 고3/N수 | 고2 | 고1 | 전체
+    file_base64 = Column(Text, nullable=True)                     # 문제지 원본 바이너리 Base64 영구 보관 (클라우드 휘발 방지)
+    answer_base64 = Column(Text, nullable=True)                   # 정답/해설지 원본 바이너리 Base64 영구 보관 (클라우드 휘발 방지)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
@@ -742,5 +747,130 @@ class B2BFranchiseInquiry(Base):
     status = Column(String, default="PENDING")      # PENDING(접수 대기) | APPROVED(승인/테넌트 개설완료) | CONTACTED(상담 완료)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     deleted_at = Column(DateTime(timezone=True), nullable=True)
+
+
+# === 📝 11. 주차별 실전 모의고사 & 디지털 OMR & 원장 등급컷 매트릭스 모델 ===
+
+class ExamPaperMaster(Base):
+    """주차별 시험지 마스터 (학원별 커스텀 시험지 & 정답/등급컷 기준)"""
+    __tablename__ = "exam_paper_masters"
+
+    id = Column(Integer, primary_key=True, index=True)
+    academy_code = Column(String, default="ILWON-2027", index=True) # 소속 학원 코드
+    subject = Column(String, nullable=False)                         # 국어 | 수학 | 영어 | 과탐 | 사탐
+    title = Column(String, nullable=False)                           # 예: 3주차 팰린 파이널 실전 모의고사
+    exam_week = Column(Integer, default=3)                          # 주차 (1~16주차)
+    total_questions = Column(Integer, default=30)                    # 총 문항수 (10~50)
+    time_limit_minutes = Column(Integer, default=60)                # 시험 제한시간 (분)
+    file_url = Column(String, nullable=True)                        # 문제지 PDF 링크
+    answer_file_url = Column(String, nullable=True)                 # 정답/해설지 PDF 링크
+    is_active = Column(Boolean, default=True)                       # 학생 응시 활성화 여부
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True)     # Soft Delete
+
+    answer_keys = relationship("ExamAnswerKey", back_populates="exam_paper", cascade="all, delete-orphan")
+    grade_cut = relationship("ExamGradeCut", back_populates="exam_paper", uselist=False, cascade="all, delete-orphan")
+    submissions = relationship("ExamOMRSubmission", back_populates="exam_paper")
+
+
+class ExamAnswerKey(Base):
+    """문항별 정답, 배점 및 취약 단원 태그 매트릭스"""
+    __tablename__ = "exam_answer_keys"
+
+    id = Column(Integer, primary_key=True, index=True)
+    exam_id = Column(Integer, ForeignKey("exam_paper_masters.id"), nullable=False, index=True)
+    question_num = Column(Integer, nullable=False)                  # 문항 번호 (1, 2, 3...)
+    correct_answer = Column(String, nullable=False)                 # 정답 ("1"~"5" or 단답형 정답)
+    score_points = Column(Float, default=2.0)                       # 배점 (2.0, 3.0, 4.0 등)
+    topic_tag = Column(String, default="기본개념")                   # 세부 단원/유형 태그 (예: 독서-인문철학, 미적분-도함수활용)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
+
+    exam_paper = relationship("ExamPaperMaster", back_populates="answer_keys")
+
+
+class ExamGradeCut(Base):
+    """원장 커스텀 1~4등급컷 산정 기준 (원점수 or 틀린개수 듀얼 모드)"""
+    __tablename__ = "exam_grade_cuts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    exam_id = Column(Integer, ForeignKey("exam_paper_masters.id"), unique=True, nullable=False, index=True)
+    grade_mode = Column(String, default="RAW_SCORE")                # 'RAW_SCORE'(원점수 기준) | 'WRONG_COUNT'(틀린개수 기준)
+    cut_1 = Column(Float, default=90.0)                             # 1등급 컷 (원점수 90점 이상 or 오답 1개 이하)
+    cut_2 = Column(Float, default=80.0)                             # 2등급 컷 (원점수 80점 이상 or 오답 3개 이하)
+    cut_3 = Column(Float, default=70.0)                             # 3등급 컷 (원점수 70점 이상 or 오답 6개 이하)
+    cut_4 = Column(Float, default=60.0)                             # 4등급 컷 (원점수 60점 이상 or 오답 10개 이하)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
+
+    exam_paper = relationship("ExamPaperMaster", back_populates="grade_cut")
+
+
+class ExamOMRSubmission(Base):
+    """학생 디지털 OMR 마킹 제출 답안 & 자동 채점 & 원장/AI 진단 처방전"""
+    __tablename__ = "exam_omr_submissions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    exam_id = Column(Integer, ForeignKey("exam_paper_masters.id"), nullable=True, index=True)
+    student_id = Column(Integer, ForeignKey("students.id"), nullable=False, index=True)
+    exam_week = Column(Integer, default=3)
+    subject = Column(String, nullable=False)                         # 국어 | 수학 | 영어 ...
+    marked_answers = Column(Text, nullable=False)                   # JSON 문자열: {"1": "3", "2": "5", ...}
+    raw_score = Column(Float, default=0.0)                          # 총 획득 원점수
+    wrong_questions = Column(Text, default="[]")                    # JSON 배열: [4, 12, 28] (틀린 문항 번호 목록)
+    wrong_count = Column(Integer, default=0)                        # 총 틀린 문항 수
+    calculated_grade = Column(Integer, default=1)                   # 산출 등급 (1~9등급)
+    director_diagnosis = Column(Text, nullable=True)                # 원장 직필 / AI 오답 진단 및 처방 소견
+    is_report_sent = Column(Boolean, default=False)                 # 학부모 카카오 알림톡/리포트 발송 여부
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
+
+    exam_paper = relationship("ExamPaperMaster", back_populates="submissions")
+    student = relationship("Student")
+
+
+# === 💳 12. 토스페이먼츠(Toss Payments) & 정기결제(빌링키) 모델 ===
+
+class TossPaymentLog(Base):
+    """토스페이먼츠 실결제 / 빌링키 정기구독 결제 이력"""
+    __tablename__ = "toss_payment_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    payment_key = Column(String, unique=True, index=True, nullable=False) # 토스 고유 paymentKey
+    order_id = Column(String, unique=True, index=True, nullable=False)    # 주문 고유번호
+    order_name = Column(String, nullable=False)                          # 결제 상품명
+    amount = Column(Integer, nullable=False)                             # 실 결제 금액 (원)
+    payment_type = Column(String, default="B2B_LICENSE")                 # 'B2B_LICENSE' | 'B2C_POINT' | 'ESCROW_DEPOSIT'
+    status = Column(String, default="CONFIRMED")                         # 'READY' | 'CONFIRMED' | 'CANCELLED' | 'FAILED'
+    method = Column(String, default="카드")                               # 카드 | 간편결제 | 가상계좌 | 계좌이체
+    billing_key = Column(String, nullable=True, index=True)              # 원장 정기결제 빌링키
+    customer_email = Column(String, nullable=True)
+    customer_name = Column(String, nullable=True)
+    tenant_code = Column(String, nullable=True)
+    student_id = Column(Integer, nullable=True)
+    receipt_url = Column(String, nullable=True)                          # 토스 공식 영수증 링크
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
+
+
+# === 💬 13. 카카오 비즈메시지 알림톡 공식 연동 로그 모델 ===
+
+class KakaoAlimtalkLog(Base):
+    """카카오 공식 알림톡 발송 및 SMS 대체 발송 이력"""
+    __tablename__ = "kakao_alimtalk_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    recipient_phone = Column(String, nullable=False, index=True)         # 수신자 번호
+    template_code = Column(String, nullable=False)                       # 카카오 승인 템플릿 코드 (예: EXAM_REPORT_V1)
+    title = Column(String, nullable=False)                               # 알림톡 제목
+    message_body = Column(Text, nullable=False)                          # 알림 본문
+    button_url = Column(String, nullable=True)                           # 알림톡 버튼 링크 URL
+    status = Column(String, default="SUCCESS")                           # 'SUCCESS' | 'FALLBACK_SMS' | 'FAILED'
+    kakao_mid = Column(String, nullable=True)                            # 카카오 메시지 고유 ID
+    cost_krw = Column(Float, default=8.0)                                # 발송 단가 (알림톡 8.0원 / SMS 30.0원)
+    error_detail = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
+
 
 

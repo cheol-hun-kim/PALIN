@@ -37,6 +37,7 @@ class StudentCreate(BaseModel):
     parent_name: str
     parent_phone: str
     referred_by: Optional[str] = None # 추천인 코드
+    academy_code: Optional[str] = None # 소속 학원 초대 코드
 
 class StudentResponse(BaseModel):
     id: int
@@ -416,3 +417,23 @@ class ParentSponsorPayRequest(BaseModel):
     item_type: str  # "TUTOR" | "VOD" | "REPORT"
     amount: int
     item_title: str
+
+class EmailOtpSendPayload(BaseModel):
+    email: EmailStr
+
+class EmailOtpVerifyPayload(BaseModel):
+    email: EmailStr
+    code: str
+
+class AdminStudentActionPayload(BaseModel):
+    action: str  # SUSPEND | UNSUSPEND | DISENROLL | GRADUATE | DELETE | RESTORE
+    reason: Optional[str] = None
+    academy_code: Optional[str] = "ILWON-2027"
+
+class BatchStudentActionPayload(BaseModel):
+    action: str  # BATCH_GRADUATE | BATCH_SUSPEND | BATCH_DISENROLL | BATCH_DELETE
+    student_ids: List[int]
+    reason: Optional[str] = None
+    academy_code: Optional[str] = "ILWON-2027"
+
+

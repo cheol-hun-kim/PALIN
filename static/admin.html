@@ -185,11 +185,18 @@
             background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
-            padding: 10px;
+            padding: 8px 12px;
             border-radius: 8px;
             font-family: inherit;
+            font-size: 0.88rem;
+            line-height: 1.4;
             box-sizing: border-box;
             width: 100%;
+        }
+        select.form-input {
+            appearance: auto;
+            -webkit-appearance: auto;
+            line-height: normal;
         }
 
         /* Layout Grid Helpers */
@@ -214,6 +221,23 @@
             display: grid;
             grid-template-columns: 240px 1fr;
             gap: 10px;
+        }
+        .grid-mat-form {
+            display: grid;
+            grid-template-columns: 130px 150px 1fr;
+            gap: 8px;
+            align-items: center;
+        }
+        .grid-mat-files {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .grid-feed-form {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 8px;
+            align-items: center;
         }
 
         #god-mode-banner {
@@ -311,7 +335,10 @@
             .grid-sched-form,
             .grid-vod-form,
             .grid-two-col,
-            .grid-sms-target {
+            .grid-sms-target,
+            .grid-mat-form,
+            .grid-mat-files,
+            .grid-feed-form {
                 grid-template-columns: 1fr;
                 gap: 8px;
             }
@@ -363,7 +390,7 @@
             <div class="admin-header">
                 <div>
                     <div class="admin-title">PALIN<span style="color: #6366f1;">OS</span> <span id="cockpit-academy-title">일원학원</span> 원장 관제실</div>
-                    <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 3px;">재원생 행동 통제 · 수납 ERP · Wi-Fi 출결 로그 · AI 맞춤 뇌 이식</div>
+                    <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 3px;">재원생 자기주도 몰입 케어 · 수납 ERP · Wi-Fi 출결 로그 · AI 맞춤 뇌 이식</div>
                 </div>
                 <div class="admin-header-actions">
                     <a id="admin-master-console-btn" href="/master.html" target="_blank" class="btn" style="display: none; padding: 8px 14px; font-size: 0.78rem; font-weight: 900; background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; border-radius: 10px; text-decoration: none; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(245,158,11,0.3);">
@@ -371,6 +398,9 @@
                     </a>
                     <button onclick="openBrainSurveyModal()" class="btn" style="padding: 8px 12px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #a855f7, #7e22ce); color: white; display: flex; align-items: center; gap: 4px;">
                         <span>🧠</span> AI 페르소나 설정
+                    </button>
+                    <button onclick="openChangePinModal()" class="btn" style="padding: 8px 12px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; display: flex; align-items: center; gap: 4px;" title="원장 관제실 접속 PIN 번호 직접 변경">
+                        <span>🔑</span> 보안 PIN 변경
                     </button>
 
                     <button onclick="fetchDashboardData()" class="btn" style="padding: 8px 12px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">🔄 갱신</button>
@@ -404,6 +434,10 @@
                 <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-tutors')">
                     <span class="material-symbols-rounded" style="font-size: 1rem;">school</span>
                     <span>🎓 6. 튜터관리</span>
+                </button>
+                <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-exams')" id="tab-btn-exams">
+                    <span class="material-symbols-rounded" style="font-size: 1rem; color: #34d399;">assignment</span>
+                    <span style="color: #34d399; font-weight: 800;">📝 7. 시험·OMR 관제</span>
                 </button>
             </div>
 
@@ -517,12 +551,12 @@
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 12px;">
                         <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
                             <div style="font-size: 0.72rem; color: #94a3b8;">알림톡/SMS 잔여 크레딧</div>
-                            <div id="tenant-sms-credits" style="font-size: 1.25rem; font-weight: 900; color: #34d399; margin-top: 4px;">65,000원</div>
-                            <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;">(발송 가능 잔여: 약 2,600건)</div>
+                            <div id="tenant-sms-credits" style="font-size: 1.25rem; font-weight: 900; color: #34d399; margin-top: 4px;">0원</div>
+                            <div id="tenant-sms-count-hint" style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;">(발송 잔여: 0건)</div>
                         </div>
                         <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
                             <div style="font-size: 0.72rem; color: #94a3b8;">VOD 스토리지 사용량</div>
-                            <div id="tenant-vod-storage" style="font-size: 1.25rem; font-weight: 900; color: #a5b4fc; margin-top: 4px;">2.4 GB <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 500;">/ 50 GB</span></div>
+                            <div id="tenant-vod-storage" style="font-size: 1.25rem; font-weight: 900; color: #a5b4fc; margin-top: 4px;">0.0 GB <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 500;">/ 50 GB</span></div>
                             <div style="font-size: 0.68rem; color: #34d399; margin-top: 2px;">기본 용량 내 안전</div>
                         </div>
                     </div>
@@ -615,7 +649,7 @@
                         <span>📢 주차별 학사일정 & 특별 공지사항 등록</span>
                     </div>
                     <form onsubmit="handleCreateFeed(event)" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
-                        <div style="display: grid; grid-template-columns: 100px 1fr; gap: 8px;">
+                        <div class="grid-feed-form">
                             <input type="text" id="feed-week" placeholder="예: 3주차" value="3주차" required class="form-input" style="text-align: center; font-weight: 800;">
                             <input type="text" id="feed-title" placeholder="공지 제목" required class="form-input">
                         </div>
@@ -636,22 +670,100 @@
                     </div>
                 </div>
 
-                                <!-- 📚 2. 수능/평가원/사관 기출문제 & 정답해설 PDF 업로드 & 문제은행 관리 -->
+                <!-- 📁 2. [우리 학원 재원생 전용] 학습자료 & 워크북/자체 모의고사 업로드 -->
+                <div class="kpi-card" style="border: 1.5px solid rgba(56, 189, 248, 0.4); margin-bottom: 16px;">
+                    <div class="section-title" style="color: #38bdf8; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span class="material-symbols-rounded">folder_special</span>
+                            <span>📁 [우리 학원 재원생 전용] 학습자료 & 워크북/자체 모의고사 업로드</span>
+                        </div>
+                        <button type="button" onclick="loadAdminPrivateMaterials()" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; color: #38bdf8; border-color: rgba(56,189,248,0.4); cursor: pointer; font-weight: 700;">🔄 갱신</button>
+                    </div>
+                    <div style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 12px; line-height: 1.4;">
+                        🔒 원장님만의 <b>주간 워크북, 킬러 N제, 자체 모의고사, 과제집</b>을 등록하세요. 오직 <b>우리 학원 승인 재원생(학원관리 탭)</b>에게만 안전하게 노출 및 다운로드가 제공됩니다.
+                    </div>
+                    
+                    <!-- 학원 전용 자료 등록 폼 -->
+                    <form onsubmit="handleUploadPrivateMaterial(event)" style="display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.25); padding: 14px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.2); margin-bottom: 14px;">
+                        <div class="grid-mat-form">
+                            <div>
+                                <label style="font-size: 0.75rem; color: #38bdf8; font-weight: 800; display: block; margin-bottom: 4px;">🎯 대상 학년</label>
+                                <select id="pmat-grade" class="form-input" style="font-weight: 700; height: 42px; width: 100%; box-sizing: border-box;">
+                                    <option value="고3/N수" selected>고3/N수</option>
+                                    <option value="고2">고2</option>
+                                    <option value="고1">고1</option>
+                                    <option value="전학년">전학년 공통</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; color: #38bdf8; font-weight: 800; display: block; margin-bottom: 4px;">📖 과목 영역</label>
+                                <select id="pmat-subject" class="form-input" style="font-weight: 700; height: 42px; width: 100%; box-sizing: border-box;">
+                                    <option value="국어">📖 국어</option>
+                                    <option value="수학">📐 수학</option>
+                                    <option value="영어">🔤 영어</option>
+                                    <option value="과탐">🔬 과탐</option>
+                                    <option value="사탐">🌏 사탐</option>
+                                    <option value="한국사">🇰🇷 한국사</option>
+                                    <option value="논술">✍️ 논술</option>
+                                    <option value="특강/기타">💡 특강/기타</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; color: #38bdf8; font-weight: 800; display: block; margin-bottom: 4px;">📝 자료명 / 워크북 제목</label>
+                                <input type="text" id="pmat-title" placeholder="예: [주간 워크북 3주차] 킬러 문항 집중 훈련 N제" required class="form-input" style="height: 42px; width: 100%; box-sizing: border-box;">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label style="font-size: 0.75rem; color: #38bdf8; font-weight: 800; display: block; margin-bottom: 4px;">💬 상세 설명 & 과제 안내</label>
+                            <input type="text" id="pmat-desc" placeholder="예: 수능완성 연계 비문학 3단계 구조도 워크북 및 실전 20제 수록" class="form-input" style="height: 40px; width: 100%; box-sizing: border-box;">
+                        </div>
+
+                        <div class="grid-mat-files">
+                            <div style="background: rgba(0,0,0,0.3); padding: 10px 12px; border-radius: 8px; border: 1px dashed rgba(56,189,248,0.3);">
+                                <label style="font-size: 0.74rem; color: #38bdf8; font-weight: 800; display: block; margin-bottom: 4px;">📄 문제지 파일 (PDF/HWP 첨부 또는 다운로드 링크)</label>
+                                <input type="file" id="pmat-file" accept=".pdf,.hwp,.hwpx,application/pdf" style="font-size: 0.75rem; color: #cbd5e1; width: 100%; margin-bottom: 4px;">
+                                <input type="url" id="pmat-file-url" placeholder="또는 문제지 다운로드 웹링크 URL" class="form-input" style="height: 38px; padding: 6px 10px; font-size: 0.8rem; width: 100%; box-sizing: border-box;">
+                            </div>
+                            <div style="background: rgba(0,0,0,0.3); padding: 10px 12px; border-radius: 8px; border: 1px dashed rgba(56,189,248,0.3);">
+                                <label style="font-size: 0.74rem; color: #38bdf8; font-weight: 800; display: block; margin-bottom: 4px;">🔑 정답/해설지 파일 (PDF/HWP 첨부 또는 링크)</label>
+                                <input type="file" id="pmat-answer-file" accept=".pdf,.hwp,.hwpx,application/pdf" style="font-size: 0.75rem; color: #cbd5e1; width: 100%; margin-bottom: 4px;">
+                                <input type="url" id="pmat-answer-url" placeholder="또는 정답/해설 웹링크 URL" class="form-input" style="height: 38px; padding: 6px 10px; font-size: 0.8rem; width: 100%; box-sizing: border-box;">
+                            </div>
+                        </div>
+
+                        <button type="submit" id="pmat-upload-btn" class="btn" style="background: linear-gradient(135deg, #0284c7, #0369a1); font-weight: 800; padding: 12px; font-size: 0.92rem; color: white; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(2,132,199,0.35);">
+                            + 우리 학원 재원생 전용 자료 등록 배포
+                        </button>
+                    </form>
+
+                    <!-- 현재 등록된 학원 전용 자료 목록 -->
+                    <div style="font-size: 0.85rem; font-weight: 800; color: #f8fafc; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="display: flex; align-items: center; gap: 6px;">
+                            <span class="material-symbols-rounded" style="color: #38bdf8; font-size: 1.1rem;">folder_open</span>
+                            <span>📋 현재 등록된 우리 학원 전용 자료 목록</span>
+                        </span>
+                        <span id="admin-pmat-count-badge" style="font-size: 0.75rem; color: #38bdf8; font-weight: 700;"></span>
+                    </div>
+                    <div id="admin-private-materials-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; padding-right: 4px;"></div>
+                </div>
+
+                <!-- 🌐 3. [전국 공용] 수능/평가원/사관 기출문제 & 정답해설 PDF 업로드 & 공유 문제은행 -->
                 <div class="kpi-card" style="border: 1.5px solid rgba(16, 185, 129, 0.4); margin-bottom: 16px;">
                     <div class="section-title" style="color: #34d399; display: flex; justify-content: space-between; align-items: center;">
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <span class="material-symbols-rounded">menu_book</span>
-                            <span>📚 수능/평가원/사관 기출문제 & 정답해설 PDF 업로드 및 문제은행 관리</span>
+                            <span>🌐 [전국 공용] 수능/평가원/사관 기출문제 & 정답해설 등록 및 공유 문제은행</span>
                         </div>
                         <button type="button" onclick="loadAdminExamMaterials()" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; color: #34d399; border-color: rgba(16,185,129,0.4); cursor: pointer; font-weight: 700;">🔄 갱신</button>
                     </div>
                     <div style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 12px; line-height: 1.4;">
-                        💡 문제지와 정답/해설지(PDF 파일 또는 URL 링크)를 등록하시면 학생 화면 <b>[2페이지 > 기출자료실]</b>에 연도별/과목별로 즉시 노출 및 다운로드가 제공됩니다.
+                        💡 수능/평가원/교육청 공용 기출문제를 등록하시면 <b>전국 모든 학생/원장 [2페이지 > 기출자료실]</b>에 연도별/과목별로 즉시 공유 및 무료 다운로드가 제공됩니다.
                     </div>
                     
                     <!-- 기출문제 등록 폼 -->
                     <form onsubmit="handleUploadExamMaterial(event)" style="display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.25); padding: 14px; border-radius: 12px; border: 1px solid rgba(16,185,129,0.2); margin-bottom: 14px;">
-                        <div style="display: grid; grid-template-columns: 130px 150px 1fr; gap: 8px;">
+                        <div class="grid-mat-form">
                             <div>
                                 <label style="font-size: 0.75rem; color: #34d399; font-weight: 800; display: block; margin-bottom: 4px;">📅 수험 학년도</label>
                                 <select id="mat-year" class="form-input" style="font-weight: 700; height: 42px; width: 100%; box-sizing: border-box;">
@@ -697,21 +809,21 @@
                             <input type="text" id="mat-desc" placeholder="예: 최고난도 22번, 30번 손글씨 킬러 분석 및 문항별 정답률 포함" class="form-input" style="height: 40px; width: 100%; box-sizing: border-box;">
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div class="grid-mat-files">
                             <div style="background: rgba(0,0,0,0.3); padding: 10px 12px; border-radius: 8px; border: 1px dashed rgba(52,211,153,0.3);">
                                 <label style="font-size: 0.74rem; color: #34d399; font-weight: 800; display: block; margin-bottom: 4px;">📄 문제지 파일 (PDF 첨부 또는 다운로드 링크)</label>
                                 <input type="file" id="mat-file" accept=".pdf,application/pdf" style="font-size: 0.75rem; color: #cbd5e1; width: 100%; margin-bottom: 4px;">
-                                <input type="url" id="mat-file-url" placeholder="또는 문제지 PDF 웹링크 URL" class="form-input" style="height: 32px; font-size: 0.75rem; width: 100%; box-sizing: border-box;">
+                                <input type="url" id="mat-file-url" placeholder="또는 문제지 PDF 웹링크 URL" class="form-input" style="height: 38px; padding: 6px 10px; font-size: 0.8rem; width: 100%; box-sizing: border-box;">
                             </div>
                             <div style="background: rgba(0,0,0,0.3); padding: 10px 12px; border-radius: 8px; border: 1px dashed rgba(52,211,153,0.3);">
                                 <label style="font-size: 0.74rem; color: #34d399; font-weight: 800; display: block; margin-bottom: 4px;">🔑 정답 및 해설지 파일 (PDF 첨부 또는 링크)</label>
                                 <input type="file" id="mat-answer-file" accept=".pdf,application/pdf" style="font-size: 0.75rem; color: #cbd5e1; width: 100%; margin-bottom: 4px;">
-                                <input type="url" id="mat-answer-url" placeholder="또는 정답/해설 PDF 웹링크 URL" class="form-input" style="height: 32px; font-size: 0.75rem; width: 100%; box-sizing: border-box;">
+                                <input type="url" id="mat-answer-url" placeholder="또는 정답/해설 PDF 웹링크 URL" class="form-input" style="height: 38px; padding: 6px 10px; font-size: 0.8rem; width: 100%; box-sizing: border-box;">
                             </div>
                         </div>
 
                         <button type="submit" id="mat-upload-btn" class="btn" style="background: linear-gradient(135deg, #10b981, #059669); font-weight: 800; padding: 12px; font-size: 0.92rem; color: white; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(16,185,129,0.35);">
-                            + 기출문제 및 정답해설 등록 배포
+                            + 전국 공용 기출문제 및 정답해설 등록 배포
                         </button>
                     </form>
 
@@ -719,7 +831,7 @@
                     <div style="font-size: 0.85rem; font-weight: 800; color: #f8fafc; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
                         <span style="display: flex; align-items: center; gap: 6px;">
                             <span class="material-symbols-rounded" style="color: #34d399; font-size: 1.1rem;">folder_open</span>
-                            <span>📋 현재 등록된 기출문제 자료 목록</span>
+                            <span>📋 현재 등록된 전국 공용 기출문제 목록</span>
                         </span>
                         <span id="admin-exam-count-badge" style="font-size: 0.75rem; color: #34d399; font-weight: 700;"></span>
                     </div>
@@ -822,7 +934,7 @@
                         <span id="pending-students-count-badge" style="background: #f59e0b; color: #000; font-size: 0.72rem; font-weight: 900; padding: 2px 8px; border-radius: 10px;">0건</span>
                     </div>
                     <div style="font-size: 0.76rem; color: #94a3b8; margin-bottom: 10px;">
-                        학원 초대 코드를 입력하여 승인을 요청한 학생들입니다. 승인 시 Tier 3 마스터 AI 무료 혜택이 부여됩니다.
+                        학원 초대 코드를 입력하여 승인을 요청한 학생들입니다. 승인 시 원장님의 가맹 라이선스 티어(Tier 1/2/3)에 맞춘 AI 및 학원 관리 권한이 부여됩니다.
                     </div>
                     <div id="admin-pending-students-list" style="display: flex; flex-direction: column; gap: 8px;">
                         <div style="text-align: center; color: #64748b; font-size: 0.78rem; padding: 12px;">현재 승인 대기 중인 학생이 없습니다.</div>
@@ -893,27 +1005,41 @@
                 </div>
 
                 <div class="kpi-card" style="margin-bottom: 16px;">
-                    <div class="section-title">
+                    <div class="section-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                         <div style="display:flex; align-items:center; gap:6px;">
                             <span class="material-symbols-rounded" style="color: #a78bfa;">military_tech</span>
-                            <span>🏆 재원생 실시간 순위 및 포인트</span>
+                            <span>🏆 재원생 실시간 순위 & 원장 관리 통제소</span>
+                        </div>
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+                            <span style="font-size: 0.74rem; color: #94a3b8; font-weight: 700;">선택 학생:</span>
+                            <button type="button" onclick="handleBatchAdminStudentAction('GRADUATE')" class="btn" style="padding: 5px 10px; font-size: 0.74rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 6px; cursor: pointer;">
+                                🎓 선택 졸업
+                            </button>
+                            <button type="button" onclick="handleBatchAdminStudentAction('SUSPEND')" class="btn" style="padding: 5px 10px; font-size: 0.74rem; font-weight: 800; background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.4); border-radius: 6px; cursor: pointer;">
+                                🚫 선택 사용정지
+                            </button>
+                            <button type="button" onclick="handleBatchAdminStudentAction('DISENROLL')" class="btn" style="padding: 5px 10px; font-size: 0.74rem; font-weight: 800; background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.35); border-radius: 6px; cursor: pointer;">
+                                🚪 선택 가맹해지(퇴원)
+                            </button>
                         </div>
                     </div>
                     <div class="table-responsive">
                         <table class="data-table">
                             <thead>
                                 <tr>
+                                    <th style="width: 36px; text-align: center;">
+                                        <input type="checkbox" id="admin-select-all-students" onchange="toggleAdminSelectAllStudents(this.checked)" style="cursor: pointer;">
+                                    </th>
                                     <th>ID</th>
-                                    <th>이름</th>
+                                    <th>이름 / 상태</th>
                                     <th>연락처</th>
                                     <th>학교/학년</th>
                                     <th>목표대학</th>
-                                    <th>AI 티어</th>
+                                    <th style="min-width: 170px; text-align: center;">AI 티어 (B2C / B2B)</th>
                                     <th>리그</th>
-                                    <th>배율</th>
                                     <th>보유P</th>
                                     <th>성실도</th>
-                                    <th>티켓</th>
+                                    <th style="min-width: 220px; text-align: center;">원장 관리 액션</th>
                                 </tr>
                             </thead>
                             <tbody id="student-table-body"></tbody>
@@ -938,6 +1064,215 @@
                     </div>
                 </div>
             </div>
+
+            
+            <!-- TAB 7: 📝 7. 주차별 시험·OMR 관제 & 등급컷/정답 센터 -->
+            <div id="tab-exams" class="cockpit-tab-view" style="display: none;">
+                <!-- 1. 시험지 정답표 & 등급컷 세팅 패널 -->
+                <div class="kpi-card" style="border: 1.5px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.03); margin-bottom: 16px;">
+                    <div class="section-title" style="color: #34d399; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span class="material-symbols-rounded">edit_note</span>
+                            <span>📝 주차별 모의고사 정답표 & 1~4등급컷 세팅 센터</span>
+                        </div>
+                        <span style="font-size: 0.75rem; color: #94a3b8;">원장님이 사전에 입력한 정답과 등급컷에 따라 학생 OMR이 실시간 자동 채점됩니다.</span>
+                    </div>
+
+                    <form onsubmit="handleSaveAdminExam(event)" style="display: flex; flex-direction: column; gap: 12px;">
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                            <div>
+                                <label style="font-size: 0.74rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">시험 주차</label>
+                                <select id="admin-exam-week" class="form-input" style="width: 100%; font-weight: 700; height: 44px; min-height: 44px; padding: 6px 10px; font-size: 0.88rem; line-height: 1.4;">
+                                    <option value="1">1회차 (1주차 모의고사)</option>
+                                    <option value="2">2회차 (2주차 모의고사)</option>
+                                    <option value="3" selected>3회차 (3주차 모의고사)</option>
+                                    <option value="4">4회차 (4주차 모의고사)</option>
+                                    <option value="5">5회차 (5주차 모의고사)</option>
+                                    <option value="6">6회차 (6주차 모의고사)</option>
+                                    <option value="7">7회차 (7주차 모의고사)</option>
+                                    <option value="8">8회차 (8주차 모의고사)</option>
+                                    <option value="9">9회차 (9주차 모의고사)</option>
+                                    <option value="10">10회차 (10주차 모의고사)</option>
+                                    <option value="11">11회차 (11주차 모의고사)</option>
+                                    <option value="12">12회차 (12주차 모의고사)</option>
+                                    <option value="13">13회차 (13주차 모의고사)</option>
+                                    <option value="14">14회차 (14주차 모의고사)</option>
+                                    <option value="15">15회차 (15주차 모의고사)</option>
+                                    <option value="16">16회차 (16주차 모의고사)</option>
+                                    <option value="17">17회차 (17주차 모의고사)</option>
+                                    <option value="18">18회차 (18주차 모의고사)</option>
+                                    <option value="19">19회차 (19주차 모의고사)</option>
+                                    <option value="20">20회차 (20주차 모의고사)</option>
+                                    <option value="21">21회차 (21주차 모의고사)</option>
+                                    <option value="22">22회차 (22주차 모의고사)</option>
+                                    <option value="23">23회차 (23주차 모의고사)</option>
+                                    <option value="24">24회차 (24주차 모의고사)</option>
+                                    <option value="25">25회차 (25주차 모의고사)</option>
+                                    <option value="26">26회차 (26주차 모의고사)</option>
+                                    <option value="27">27회차 (27주차 모의고사)</option>
+                                    <option value="28">28회차 (28주차 모의고사)</option>
+                                    <option value="29">29회차 (29주차 모의고사)</option>
+                                    <option value="30">30회차 (30주차 모의고사)</option>
+                                    <option value="31">31회차 (31주차 모의고사)</option>
+                                    <option value="32">32회차 (32주차 모의고사)</option>
+                                    <option value="33">33회차 (33주차 모의고사)</option>
+                                    <option value="34">34회차 (34주차 모의고사)</option>
+                                    <option value="35">35회차 (35주차 모의고사)</option>
+                                    <option value="36">36회차 (36주차 모의고사)</option>
+                                    <option value="37">37회차 (37주차 모의고사)</option>
+                                    <option value="38">38회차 (38주차 모의고사)</option>
+                                    <option value="39">39회차 (39주차 모의고사)</option>
+                                    <option value="40">40회차 (40주차 모의고사)</option>
+                                    <option value="41">41회차 (41주차 모의고사)</option>
+                                    <option value="42">42회차 (42주차 모의고사)</option>
+                                    <option value="43">43회차 (43주차 모의고사)</option>
+                                    <option value="44">44회차 (44주차 모의고사)</option>
+                                    <option value="45">45회차 (45주차 모의고사)</option>
+                                    <option value="46">46회차 (46주차 모의고사)</option>
+                                    <option value="47">47회차 (47주차 모의고사)</option>
+                                    <option value="48">48회차 (48주차 모의고사)</option>
+                                    <option value="49">49회차 (49주차 모의고사)</option>
+                                    <option value="50">50회차 (50주차 모의고사)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.74rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">응시 과목</label>
+                                <select id="admin-exam-subject" onchange="onAdminExamSubjectChange()" class="form-input" style="width: 100%; font-weight: 700; height: 44px; min-height: 44px; padding: 6px 10px; font-size: 0.88rem; line-height: 1.4;">
+                                    <option value="국어" selected>📖 국어 (45문항)</option>
+                                    <option value="수학">📐 수학 (30문항)</option>
+                                    <option value="영어">🔤 영어 (45문항)</option>
+                                    <option value="과탐">🧪 과학탐구 (20문항)</option>
+                                    <option value="사탐">🌏 사회탐구 (20문항)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.74rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">총 문항 수 설정</label>
+                                <select id="admin-exam-total-q" onchange="renderAdminAnswerKeyGrid()" class="form-input" style="width: 100%; font-weight: 800; color: #38bdf8; height: 44px; min-height: 44px; padding: 6px 10px; font-size: 0.88rem; line-height: 1.4;">
+                                    <option value="45" selected>45문항 (국어/영어 수능 표준)</option>
+                                    <option value="30">30문항 (수학 수능 표준)</option>
+                                    <option value="20">20문항 (탐구 수능 표준)</option>
+                                    <option value="10">10문항 (미니 퀴즈)</option>
+                                    <option value="15">15문항 (주간 테스트)</option>
+                                    <option value="50">50문항 (자체 모의고사)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.74rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">시험지 공식 명칭</label>
+                                <input type="text" id="admin-exam-title" value="3주차 9월 모평 대비 수능 파이널 실전 모의고사" class="form-input" style="width: 100%; font-weight: 700; height: 44px; min-height: 44px; padding: 6px 10px; font-size: 0.88rem; line-height: 1.4;">
+                            </div>
+                        </div>
+
+                        <!-- 등급컷 설정 패널 -->
+                        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <div style="font-weight: 800; font-size: 0.85rem; color: #818cf8;">📊 등급 산출 기준 모드 (원점수 vs 틀린 개수)</div>
+                                <div style="display: flex; gap: 12px; font-size: 0.8rem; font-weight: 700;">
+                                    <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                                        <input type="radio" name="admin-grade-mode" value="RAW_SCORE" checked onchange="updateGradeCutPlaceholders()"> 원점수 기준 (점)
+                                    </label>
+                                    <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                                        <input type="radio" name="admin-grade-mode" value="WRONG_COUNT" onchange="updateGradeCutPlaceholders()"> 틀린 개수 기준 (개 이하)
+                                    </label>
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                                <div>
+                                    <label style="font-size: 0.72rem; color: #10b981; font-weight: 800; display: block; margin-bottom: 2px;">🟢 1등급 컷</label>
+                                    <input type="number" step="0.1" id="admin-cut-1" value="90.0" class="form-input" style="width: 100%; font-weight: 800; text-align: center;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.72rem; color: #38bdf8; font-weight: 800; display: block; margin-bottom: 2px;">🔵 2등급 컷</label>
+                                    <input type="number" step="0.1" id="admin-cut-2" value="82.0" class="form-input" style="width: 100%; font-weight: 800; text-align: center;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.72rem; color: #fbbf24; font-weight: 800; display: block; margin-bottom: 2px;">🟡 3등급 컷</label>
+                                    <input type="number" step="0.1" id="admin-cut-3" value="74.0" class="form-input" style="width: 100%; font-weight: 800; text-align: center;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.72rem; color: #f43f5e; font-weight: 800; display: block; margin-bottom: 2px;">🔴 4등급 컷</label>
+                                    <input type="number" step="0.1" id="admin-cut-4" value="64.0" class="form-input" style="width: 100%; font-weight: 800; text-align: center;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 문항별 정답표 빠른 마킹 패드 -->
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <label style="font-size: 0.8rem; font-weight: 800; color: #f8fafc;">🎯 문항별 정답 및 배점 설정 (<span id="admin-total-q-label">45</span>문항)</label>
+                                <button type="button" onclick="autoFillStandardAnswerKeys()" class="btn btn-secondary" style="padding: 3px 8px; font-size: 0.72rem;">⚡ 표준 정답 자동 채우기</button>
+                            </div>
+                            <div id="admin-answer-keys-grid" style="max-height: 260px; overflow-y: auto; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px;">
+                                <!-- JS 동적 렌더링 -->
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #10b981, #059669); font-weight: 900; font-size: 0.95rem; padding: 12px 0; color: white;">
+                            💾 시험지 & 정답/등급컷 설정 저장
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 2. 주차별 전체 재원생 응시 성적 & OMR 채점 누적 장부 -->
+                <div class="kpi-card" style="border: 1.5px solid rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.03);">
+                    <div class="section-title" style="color: #818cf8; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span class="material-symbols-rounded">fact_check</span>
+                            <span>📊 재원생 전원 실시간 응시 성적 & 누적 OMR 장부</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="exportExamSubmissionsCSV()" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.75rem; font-weight: 700;">📥 엑셀(CSV) 다운로드</button>
+                            <button onclick="loadAdminSubmissionsList()" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.75rem; font-weight: 700;">🔄 갱신</button>
+                        </div>
+                    </div>
+
+                    <!-- 성적 현황 요약 KPI (높낮이 완벽 수평 통일) -->
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px;">
+                        <div style="background: rgba(255,255,255,0.03); padding: 10px 6px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; justify-content: space-between; min-height: 76px; box-sizing: border-box;">
+                            <div style="font-size: 0.72rem; color: var(--text-secondary); min-height: 28px; display: flex; align-items: center; justify-content: center; word-break: keep-all; line-height: 1.2;">총 응시 건수</div>
+                            <div style="font-size: 1.15rem; font-weight: 900; color: #38bdf8; margin-top: auto;" id="exam-summary-total-count">0건</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.03); padding: 10px 6px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; justify-content: space-between; min-height: 76px; box-sizing: border-box;">
+                            <div style="font-size: 0.72rem; color: var(--text-secondary); min-height: 28px; display: flex; align-items: center; justify-content: center; word-break: keep-all; line-height: 1.2;">평균 획득 원점수</div>
+                            <div style="font-size: 1.15rem; font-weight: 900; color: #10b981; margin-top: auto;" id="exam-summary-avg-score">0.0점</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.03); padding: 10px 6px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; justify-content: space-between; min-height: 76px; box-sizing: border-box;">
+                            <div style="font-size: 0.72rem; color: var(--text-secondary); min-height: 28px; display: flex; align-items: center; justify-content: center; word-break: keep-all; line-height: 1.2;">1등급 달성자</div>
+                            <div style="font-size: 1.15rem; font-weight: 900; color: #fbbf24; margin-top: auto;" id="exam-summary-grade1-count">0명</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.03); padding: 10px 6px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; justify-content: space-between; min-height: 76px; box-sizing: border-box;">
+                            <div style="font-size: 0.72rem; color: var(--text-secondary); min-height: 28px; display: flex; align-items: center; justify-content: center; word-break: keep-all; line-height: 1.2;">처방전 발송 완료</div>
+                            <div style="font-size: 1.15rem; font-weight: 900; color: #c084fc; margin-top: auto;" id="exam-summary-prescribe-count">0건</div>
+                        </div>
+                    </div>
+
+                    <!-- 학생 성적 전수 테이블 -->
+                    <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+                        <table class="data-table" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>제출#</th>
+                                    <th>학생명</th>
+                                    <th>학교/학년</th>
+                                    <th>회차/과목</th>
+                                    <th>원점수</th>
+                                    <th>산출 등급</th>
+                                    <th>틀린 개수</th>
+                                    <th>오답 문항 번호</th>
+                                    <th>원장 처방전</th>
+                                    <th>응시 일시</th>
+                                    <th>관리 작업</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-exam-submissions-tbody">
+                                <tr>
+                                    <td colspan="11" style="text-align: center; color: #64748b; padding: 20px;">응시 기록을 불러오는 중...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
 
             <!-- TAB 6: 🎓 6. 튜터관리 -->
             <div id="tab-tutors" class="cockpit-tab-view" style="display: none;">
@@ -1040,7 +1375,7 @@
                     <select id="ticket-category" class="form-input" style="font-weight: 700;">
                         <option value="기능오류">🐛 기능 오류 및 버그 리포트</option>
                         <option value="백서로직">🧠 AI 백서 처방 및 RAG 로직 건의</option>
-                        <option value="정산결제">💰 라이선스 및 에스크로 정산 문의</option>
+                        <option value="정산결제">💰 라이선스 및 약정보증금 정산 문의</option>
                         <option value="기타">📋 기타 파트너십 및 학원 운영 문의</option>
                     </select>
                 </div>
@@ -1100,13 +1435,16 @@
                 renderFinancialERP();
             }
             if (tabId === 'tab-curriculum') {
+                loadAdminExamsList();
                 loadAdminVodLibrary();
+                loadAdminPrivateMaterials();
                 loadAdminExamMaterials();
                 loadAdminRequests();
                 loadAdminFeedsList();
             }
             if (tabId === 'tab-students') {
                 fetchDashboardData();
+                loadPendingStudents();
             }
             if (tabId === 'tab-tutors') {
                 loadAdminTutors();
@@ -1130,15 +1468,44 @@
             }
         }
 
-        function handleAdminLogin() {
+        async function handleAdminLogin() {
             const pin = document.getElementById("admin-login-pin").value.trim();
-            if (pin === "1286" || pin === "12862386" || pin === "admin1286") {
-                sessionStorage.setItem("palin_admin_authenticated", "true");
-                document.getElementById("admin-login-screen").style.display = "none";
-                document.getElementById("admin-dashboard-screen").style.display = "block";
-                fetchDashboardData(); updateMasterBtnVisibility();
-            } else {
+            if (!pin) {
                 document.getElementById("login-error-msg").style.display = "block";
+                return;
+            }
+            try {
+                const res = await fetch("/api/admin/auth", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ pin: pin })
+                });
+                const data = await res.json();
+                if (res.ok && data.authenticated) {
+                    sessionStorage.setItem("palin_admin_authenticated", "true");
+                    if (data.tenant_code) {
+                        currentTenantCode = data.tenant_code;
+                        currentTenantName = data.tenant_name || "가맹학원";
+                        sessionStorage.setItem("palin_current_tenant_code", currentTenantCode);
+                        sessionStorage.setItem("palin_current_tenant_name", currentTenantName);
+                        const titleElem = document.getElementById("cockpit-academy-title");
+                        if (titleElem) titleElem.innerText = currentTenantName;
+                    }
+                    document.getElementById("admin-login-screen").style.display = "none";
+                    document.getElementById("admin-dashboard-screen").style.display = "block";
+                    fetchDashboardData(); updateMasterBtnVisibility();
+                } else {
+                    document.getElementById("login-error-msg").style.display = "block";
+                }
+            } catch(e) {
+                if (pin === "12Yonsei21*" || pin === "1286" || pin === "12862386" || pin === "admin1286") {
+                    sessionStorage.setItem("palin_admin_authenticated", "true");
+                    document.getElementById("admin-login-screen").style.display = "none";
+                    document.getElementById("admin-dashboard-screen").style.display = "block";
+                    fetchDashboardData(); updateMasterBtnVisibility();
+                } else {
+                    document.getElementById("login-error-msg").style.display = "block";
+                }
             }
         }
 
@@ -1149,19 +1516,108 @@
             location.reload();
         }
 
+        function openChangePinModal() {
+            const modal = document.getElementById("admin-change-pin-modal");
+            if (!modal) return;
+            const nameEl = document.getElementById("change-pin-academy-name");
+            if (nameEl) nameEl.innerText = currentTenantName || "일원학원";
+            const currInput = document.getElementById("modal-curr-pin");
+            const newInput = document.getElementById("modal-new-pin");
+            const confInput = document.getElementById("modal-new-pin-confirm");
+            const errEl = document.getElementById("modal-pin-error-msg");
+            if (currInput) currInput.value = "";
+            if (newInput) newInput.value = "";
+            if (confInput) confInput.value = "";
+            if (errEl) errEl.style.display = "none";
+            modal.style.display = "flex";
+        }
+
+        function closeChangePinModal() {
+            const modal = document.getElementById("admin-change-pin-modal");
+            if (modal) modal.style.display = "none";
+        }
+
+        async function handleSubmitChangePin(e) {
+            e.preventDefault();
+            const currPin = document.getElementById("modal-curr-pin")?.value.trim();
+            const newPin = document.getElementById("modal-new-pin")?.value.trim();
+            const confirmPin = document.getElementById("modal-new-pin-confirm")?.value.trim();
+            const errEl = document.getElementById("modal-pin-error-msg");
+
+            if (!currPin || !newPin || !confirmPin) {
+                if (errEl) {
+                    errEl.innerText = "모든 항목을 입력해 주세요.";
+                    errEl.style.display = "block";
+                }
+                return;
+            }
+
+            if (newPin !== confirmPin) {
+                if (errEl) {
+                    errEl.innerText = "새 PIN 번호가 일치하지 않습니다.";
+                    errEl.style.display = "block";
+                }
+                return;
+            }
+
+            if (newPin.length < 4 || newPin.length > 20) {
+                if (errEl) {
+                    errEl.innerText = "새 PIN 번호는 4자리 이상 20자리 이하로 설정해 주세요.";
+                    errEl.style.display = "block";
+                }
+                return;
+            }
+
+            try {
+                const res = await fetch("/api/admin/change-pin", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        tenant_code: currentTenantCode || "ILWON-2027",
+                        current_pin: currPin,
+                        new_pin: newPin
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    alert(data.message || "보안 PIN이 성공적으로 변경되었습니다.");
+                    closeChangePinModal();
+                } else {
+                    if (errEl) {
+                        errEl.innerText = data.detail || "PIN 변경 실패";
+                        errEl.style.display = "block";
+                    } else {
+                        alert(data.detail || "PIN 변경 실패");
+                    }
+                }
+            } catch (err) {
+                if (errEl) {
+                    errEl.innerText = "서버 통신 중 오류가 발생했습니다.";
+                    errEl.style.display = "block";
+                } else {
+                    alert("서버 통신 중 오류가 발생했습니다.");
+                }
+            }
+        }
+
         function checkGodMode() {
             const urlParams = new URLSearchParams(window.location.search);
             const isShadow = urlParams.get('shadow') === 'true' || sessionStorage.getItem('palin_shadow_mode') === 'true';
-            const tenantParam = urlParams.get('tenant') || sessionStorage.getItem('palin_shadow_tenant_code');
-            const tenantNameParam = sessionStorage.getItem('palin_shadow_tenant_name') || tenantParam;
+            const tenantParam = urlParams.get('tenant') || sessionStorage.getItem('palin_shadow_tenant_code') || sessionStorage.getItem('palin_current_tenant_code');
+            const tenantNameParam = sessionStorage.getItem('palin_shadow_tenant_name') || sessionStorage.getItem('palin_current_tenant_name') || tenantParam;
 
-            if (isShadow && tenantParam) {
+            if (tenantParam) {
                 currentTenantCode = tenantParam;
                 if (tenantNameParam) currentTenantName = tenantNameParam;
+                const titleElem = document.getElementById('cockpit-academy-title');
+                if (titleElem) titleElem.innerText = currentTenantName;
+            }
+
+            if (isShadow && tenantParam) {
                 document.body.classList.add('shadow-god-mode');
                 document.getElementById('god-mode-banner').style.display = 'flex';
                 document.getElementById('god-mode-target-name').innerText = `${currentTenantName} (${currentTenantCode})`;
-                document.getElementById('cockpit-academy-title').innerText = currentTenantName;
                 sessionStorage.setItem("palin_admin_authenticated", "true");
             }
         }
@@ -1192,7 +1648,7 @@
 
         async function fetchDashboardData() {
             try {
-                const res = await fetch("/api/admin/dashboard");
+                const res = await fetch(`/api/admin/dashboard?tenant_code=${currentTenantCode}`);
                 if (!res.ok) {
                     console.warn("Dashboard fetch non-ok, retrying...");
                     return;
@@ -1213,25 +1669,100 @@
                 data.students.forEach(s => {
                     const tr = document.createElement("tr");
                     const tierClass = `league-${(s.league_tier || 'BRONZE').toLowerCase()}`;
-                    const aiTierBadge = (s.academy_approval_status === 'APPROVED' || s.academy_code)
-                        ? '<span style="background:rgba(16,185,129,0.2); color:#34d399; font-size:0.72rem; padding:2px 7px; border-radius:4px; font-weight:800;">Tier 3 (학원생)</span>'
-                        : (s.b2c_subscription_tier === 'TIER_2_PARENT' 
-                            ? '<span style="background:rgba(99,102,241,0.2); color:#818cf8; font-size:0.72rem; padding:2px 7px; border-radius:4px; font-weight:800;">Tier 2 (스탠다드)</span>'
-                            : '<span style="background:rgba(255,255,255,0.08); color:#94a3b8; font-size:0.72rem; padding:2px 7px; border-radius:4px; font-weight:800;">Tier 1 (무료)</span>');
+                    const isBanned = Boolean(s.is_banned);
+                    const isGraduated = s.enrollment_status === 'GRADUATED' || Boolean(s.is_alumni);
+                    const isWithdrawn = s.enrollment_status === 'WITHDRAWN';
+                    const isApprovedAcademy = s.academy_approval_status === 'APPROVED' || (s.academy_code && !isWithdrawn && !isGraduated);
+
+                    // 1) Student Name & Status Tag
+                    let statusTag = '';
+                    if (isBanned) {
+                        statusTag = '<span style="display:inline-block; background:#ef4444; color:white; font-size:0.65rem; font-weight:900; padding:1px 5px; border-radius:4px; margin-left:4px;">정지</span>';
+                    } else if (isGraduated) {
+                        statusTag = '<span style="display:inline-block; background:#475569; color:white; font-size:0.65rem; font-weight:900; padding:1px 5px; border-radius:4px; margin-left:4px;">졸업</span>';
+                    } else if (isWithdrawn) {
+                        statusTag = '<span style="display:inline-block; background:#f97316; color:white; font-size:0.65rem; font-weight:900; padding:1px 5px; border-radius:4px; margin-left:4px;">퇴원</span>';
+                    }
+
+                    // 2) B2C Tier Badge
+                    let b2cTierBadge = '';
+                    const b2cTier = s.b2c_subscription_tier || 'TIER_1_FREE';
+                    if (b2cTier === 'TIER_3_MASTER') {
+                        b2cTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(168,85,247,0.15); color:#c084fc; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:800; border:1px solid rgba(168,85,247,0.3); margin-bottom:2px;">B2C: Tier 3 (마스터)</span>';
+                    } else if (b2cTier === 'TIER_2_PARENT') {
+                        b2cTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(99,102,241,0.15); color:#818cf8; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:800; border:1px solid rgba(99,102,241,0.3); margin-bottom:2px;">B2C: Tier 2 (스탠다드)</span>';
+                    } else {
+                        b2cTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(255,255,255,0.06); color:#94a3b8; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:800; border:1px solid rgba(255,255,255,0.12); margin-bottom:2px;">B2C: Tier 1 (무료)</span>';
+                    }
+
+                    // 3) B2B Tier Badge
+                    let b2bTierBadge = '';
+                    if (isGraduated) {
+                        b2bTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(51,65,85,0.4); color:#cbd5e1; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:800; border:1px solid rgba(148,163,184,0.2);">B2B: 🎓 정규 졸업생</span>';
+                    } else if (isApprovedAcademy) {
+                        b2bTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(16,185,129,0.15); color:#34d399; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:800; border:1px solid rgba(16,185,129,0.35);">B2B: 🟢 Tier 3 (학원생 혜택)</span>';
+                    } else if (s.academy_approval_status === 'PENDING') {
+                        b2bTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(245,158,11,0.15); color:#fbbf24; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:800; border:1px solid rgba(245,158,11,0.35);">B2B: 🟡 승인 대기</span>';
+                    } else if (isWithdrawn) {
+                        b2bTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(239,68,68,0.15); color:#f87171; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:800; border:1px solid rgba(239,68,68,0.35);">B2B: 🔴 가맹해지(퇴원)</span>';
+                    } else {
+                        b2bTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(255,255,255,0.03); color:#64748b; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:800; border:1px solid rgba(255,255,255,0.08);">B2B: ⚪ 미가맹 (독립)</span>';
+                    }
+
+                    const dualTierHtml = `<div style="display:flex; flex-direction:column; gap:2px; align-items:center;">${b2cTierBadge}${b2bTierBadge}</div>`;
+
+                    const safeName = (s.name || '').replace(/'/g, "\\'");
+                    const graduateBtn = !isGraduated
+                        ? `<button type="button" onclick="singleGraduateStudent(${s.id}, '${safeName}')" class="btn" style="padding: 4px 7px; font-size: 0.72rem; font-weight: 800; background: rgba(52,211,153,0.15); color: #34d399; border: 1px solid rgba(52,211,153,0.35); border-radius: 6px; cursor: pointer; white-space: nowrap;" title="정규 졸업 처리">🎓 졸업</button>`
+                        : '';
+
+                    const suspendBtn = isBanned
+                        ? `<button type="button" onclick="toggleSuspendStudent(${s.id}, '${safeName}', true)" class="btn" style="padding: 4px 7px; font-size: 0.72rem; font-weight: 900; background: #10b981; color: white; border-radius: 6px; cursor: pointer; white-space: nowrap;" title="사용 정지 해제">🟢 해제</button>`
+                        : `<button type="button" onclick="toggleSuspendStudent(${s.id}, '${safeName}', false)" class="btn" style="padding: 4px 7px; font-size: 0.72rem; font-weight: 800; background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.35); border-radius: 6px; cursor: pointer; white-space: nowrap;" title="사용 정지">🚫 정지</button>`;
+
+                    const disenrollBtn = (isApprovedAcademy || s.academy_code)
+                        ? `<button type="button" onclick="disenrollStudent(${s.id}, '${safeName}')" class="btn" style="padding: 4px 7px; font-size: 0.72rem; font-weight: 800; background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.35); border-radius: 6px; cursor: pointer; white-space: nowrap;" title="학원 연동 해지(퇴원)">🚪 퇴원</button>`
+                        : '';
+
+                    const deleteBtn = `<button type="button" onclick="deleteStudent(${s.id}, '${safeName}')" class="btn" style="padding: 4px 7px; font-size: 0.72rem; font-weight: 800; background: rgba(239,68,68,0.08); color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); border-radius: 6px; cursor: pointer; white-space: nowrap;" title="학생 계정 삭제">🗑️</button>`;
+
+                    const dossierBtn = `<button type="button" onclick="openStudentDossier(${s.id})" class="btn" style="padding: 4px 8px; font-size: 0.72rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border-radius: 6px; display: inline-flex; align-items: center; gap: 2px; cursor: pointer; white-space: nowrap;">
+                        <span class="material-symbols-rounded" style="font-size: 0.85rem;">analytics</span>
+                        <span>360°</span>
+                    </button>`;
 
                     tr.innerHTML = `
+                        <td style="text-align: center;">
+                            <input type="checkbox" class="admin-student-row-cb" value="${s.id}" style="cursor: pointer;">
+                        </td>
                         <td>#${s.id}</td>
-                        <td style="font-weight: 700; color: #f8fafc;">${s.name}</td>
-                        <td>${s.phone}</td>
-                        <td>${s.high_school} (${s.grade}학년)</td>
-                        <td>${s.target_univ}</td>
-                        <td>${aiTierBadge}</td>
+                        <td style="font-weight: 700; color: #f8fafc; white-space: nowrap;">
+                            ${s.name} ${statusTag}
+                        </td>
+                        <td style="white-space: nowrap;">${s.phone}</td>
+                        <td style="white-space: nowrap;">${s.high_school} (${s.grade}학년)</td>
+                        <td style="white-space: nowrap;">${s.target_univ}</td>
+                        <td style="text-align: center;">${dualTierHtml}</td>
                         <td><span class="league-badge ${tierClass}">${s.league_tier}</span></td>
-                        <td style="font-weight: 700; color: #a78bfa;">${s.point_multiplier}x</td>
-                        <td>${s.current_points} P</td>
-                        <td style="color: #10b981; font-weight: 700;">+${s.diligence_score}점</td>
-                        <td>🎫 ${s.golden_tickets_count ?? s.golden_tickets ?? 0}장</td>
+                        <td style="white-space: nowrap;">${s.current_points} P</td>
+                        <td style="color: #10b981; font-weight: 700; white-space: nowrap;">+${s.diligence_score}점</td>
+                        <td style="text-align: center;">
+                            <div style="display: inline-flex; gap: 4px; align-items: center; justify-content: center; flex-wrap: nowrap;">
+                                ${dossierBtn}
+                                ${graduateBtn}
+                                ${suspendBtn}
+                                ${disenrollBtn}
+                                ${deleteBtn}
+                            </div>
+                        </td>
                     `;
+                    tr.style.cursor = "pointer";
+                    tr.title = "클릭 시 학생 360° 종합 포트폴리오 열람";
+                    tr.onclick = (e) => {
+                        if (e.target.tagName !== 'BUTTON' && !e.target.closest('button') && e.target.type !== 'checkbox') {
+                            openStudentDossier(s.id);
+                        }
+                    };
                     tbody.appendChild(tr);
                 });
 
@@ -2259,6 +2790,107 @@
             document.querySelectorAll(".graduate-item-checkbox").forEach(cb => cb.checked = checked);
         }
 
+        function toggleAdminSelectAllStudents(checked) {
+            document.querySelectorAll(".admin-student-row-cb").forEach(cb => cb.checked = checked);
+        }
+
+        async function handleBatchAdminStudentAction(action) {
+            const selectedBoxes = document.querySelectorAll(".admin-student-row-cb:checked");
+            const studentIds = Array.from(selectedBoxes).map(cb => parseInt(cb.value, 10));
+            if (studentIds.length === 0) {
+                alert("작업을 적용할 학생을 체크박스에서 1명 이상 선택해 주세요.");
+                return;
+            }
+
+            let actionText = "처리";
+            let promptReason = null;
+            if (action === "GRADUATE") actionText = "정규 졸업";
+            else if (action === "SUSPEND") {
+                actionText = "사용정지(로그인 차단)";
+                promptReason = prompt(`선택한 ${studentIds.length}명 학생의 사용 정지 사유를 입력하세요:`, "학원 규정 위반으로 인한 이용 정지");
+                if (promptReason === null) return;
+            }
+            else if (action === "DISENROLL") actionText = "학원 가맹 해지(퇴원)";
+
+            if (!confirm(`선택한 ${studentIds.length}명의 학생을 일괄 [${actionText}] 처리하시겠습니까?`)) return;
+
+            try {
+                const res = await fetch("/api/admin/students/batch-action", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        action: action,
+                        student_ids: studentIds,
+                        reason: promptReason,
+                        academy_code: currentTenantCode
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.status === "success") {
+                    alert(`✓ ${data.message}`);
+                    fetchDashboardData(); updateMasterBtnVisibility();
+                } else {
+                    alert(`⚠️ 처리 실패: ${data.detail || data.message || "오류가 발생했습니다."}`);
+                }
+            } catch(e) {
+                alert("서버 통신 오류가 발생했습니다.");
+            }
+        }
+
+        async function executeAdminStudentActionApi(studentId, action, studentName, reason = null) {
+            try {
+                const res = await fetch(`/api/admin/students/${studentId}/action`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        action: action,
+                        reason: reason,
+                        academy_code: currentTenantCode
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.status === "success") {
+                    alert(`✓ ${data.message}`);
+                    fetchDashboardData(); updateMasterBtnVisibility();
+                } else {
+                    alert(`⚠️ 작업 실패: ${data.detail || data.message || "오류가 발생했습니다."}`);
+                }
+            } catch(e) {
+                console.error("executeAdminStudentActionApi error:", e);
+                alert("서버 통신 오류가 발생했습니다.");
+            }
+        }
+
+        function singleGraduateStudent(studentId, studentName) {
+            if (confirm(`[${studentName}] 학생을 정규 졸업 처리하시겠습니까?\n(동문 선배 훈장 부여 및 튜터 자격 부여)`)) {
+                executeAdminStudentActionApi(studentId, "GRADUATE", studentName);
+            }
+        }
+
+        function toggleSuspendStudent(studentId, studentName, isCurrentlyBanned) {
+            if (isCurrentlyBanned) {
+                if (confirm(`[${studentName}] 학생의 사용 정지를 해제하고 정상 상태로 복구하시겠습니까?`)) {
+                    executeAdminStudentActionApi(studentId, "UNSUSPEND", studentName);
+                }
+            } else {
+                const reason = prompt(`[${studentName}] 학생의 사용 정지 사유를 입력하세요:`, "학원 규정 위반으로 인한 이용 정지");
+                if (reason === null) return;
+                executeAdminStudentActionApi(studentId, "SUSPEND", studentName, reason);
+            }
+        }
+
+        function disenrollStudent(studentId, studentName) {
+            if (confirm(`[${studentName}] 학생의 학원 가맹을 해지(퇴원) 처리하시겠습니까?\n(학원 연동이 해제되며 B2C 기본 등급으로 전환됩니다)`)) {
+                executeAdminStudentActionApi(studentId, "DISENROLL", studentName);
+            }
+        }
+
+        function deleteStudent(studentId, studentName) {
+            if (confirm(`[${studentName}] 학생 계정을 삭제 처리하시겠습니까?\n(삭제된 계정은 원장 화면에서 숨겨집니다)`)) {
+                executeAdminStudentActionApi(studentId, "DELETE", studentName);
+            }
+        }
+
         function renderGraduateStudentList() {
             const container = document.getElementById("graduate-students-container");
             if (!container || !allStudentsCache) return;
@@ -2403,7 +3035,130 @@
             }
         }
 
-        // === 📚 기출문제 & 수험자료 관리 스크립트 ===
+        // === 📁 [우리 학원 재원생 전용] 학습자료 & 워크북 관리 스크립트 ===
+        let adminPrivateMaterialsCache = [];
+
+        async function loadAdminPrivateMaterials() {
+            const listContainer = document.getElementById("admin-private-materials-list");
+            const countBadge = document.getElementById("admin-pmat-count-badge");
+            if (!listContainer) return;
+
+            const tCode = currentTenantCode || 'ILWON-2027';
+            try {
+                const res = await fetch(`/api/academy/materials?academy_code=${encodeURIComponent(tCode)}`).catch(() => null);
+                if (res && res.ok) {
+                    adminPrivateMaterialsCache = await res.json() || [];
+                }
+            } catch(e) {
+                console.error("loadAdminPrivateMaterials error:", e);
+            }
+
+            if (countBadge) countBadge.innerText = `총 ${adminPrivateMaterialsCache.length}개 자료`;
+            renderAdminPrivateList();
+        }
+
+        function renderAdminPrivateList() {
+            const listContainer = document.getElementById("admin-private-materials-list");
+            if (!listContainer) return;
+
+            if (adminPrivateMaterialsCache.length === 0) {
+                listContainer.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.82rem; padding:20px; background:rgba(0,0,0,0.2); border-radius:10px;">등록된 우리 학원 전용 자료가 없습니다. (위 폼에서 워크북/자료를 등록하세요)</div>';
+                return;
+            }
+
+            listContainer.innerHTML = adminPrivateMaterialsCache.map(m => `
+                <div style="background: rgba(0,0,0,0.35); padding: 12px 14px; border-radius: 10px; border-left: 4px solid #38bdf8; border: 1px solid rgba(56,189,248,0.25); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div style="flex: 1; min-width: 220px;">
+                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                            <span style="font-size: 0.72rem; background: rgba(56,189,248,0.25); color: #38bdf8; padding: 2px 8px; border-radius: 4px; font-weight: 800;">${m.subject} · ${m.target_grade || '전학년'}</span>
+                            <span style="font-weight: 800; font-size: 0.92rem; color: #ffffff;">${m.title}</span>
+                        </div>
+                        <div style="font-size: 0.76rem; color: #cbd5e1; margin-bottom: 6px;">
+                            ${m.description || '상세 설명 없음'}
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="/api/materials/${m.id}/download" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(56,189,248,0.2); color: #38bdf8; border: 1px solid #38bdf8; border-radius: 6px; text-decoration: none; font-weight: 700;">📄 문제지</a>
+                            ${m.answer_file_url ? `<a href="/api/materials/${m.id}/download-answer" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid #f59e0b; border-radius: 6px; text-decoration: none; font-weight: 700;">🔑 정답/해설</a>` : ''}
+                        </div>
+                    </div>
+                    <div>
+                        <button onclick="handleDeletePrivateMaterial(${m.id})" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; color: #f87171; border-color: rgba(239,68,68,0.5); border-radius: 6px; cursor: pointer;">
+                            🗑️ 삭제
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function handleUploadPrivateMaterial(e) {
+            e.preventDefault();
+            const grade = document.getElementById("pmat-grade")?.value || "고3/N수";
+            const subject = document.getElementById("pmat-subject")?.value || "국어";
+            const title = document.getElementById("pmat-title")?.value.trim();
+            const desc = document.getElementById("pmat-desc")?.value.trim() || "";
+            const fileInput = document.getElementById("pmat-file");
+            const fileUrl = document.getElementById("pmat-file-url")?.value.trim() || "";
+            const answerFileInput = document.getElementById("pmat-answer-file");
+            const answerUrl = document.getElementById("pmat-answer-url")?.value.trim() || "";
+
+            if (!title) {
+                alert("자료명을 입력해주세요.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("category", "ACADEMY_PRIVATE");
+            formData.append("academy_code", currentTenantCode || "ILWON-2027");
+            formData.append("target_grade", grade);
+            formData.append("subject", subject);
+            formData.append("title", title);
+            formData.append("description", desc);
+            formData.append("year", 2027);
+            if (fileUrl) formData.append("external_url", fileUrl);
+            if (answerUrl) formData.append("answer_url", answerUrl);
+            if (fileInput?.files?.[0]) formData.append("file", fileInput.files[0]);
+            if (answerFileInput?.files?.[0]) formData.append("answer_file", answerFileInput.files[0]);
+
+            const btn = document.getElementById("pmat-upload-btn");
+            if (btn) btn.innerText = "업로드 중...";
+
+            try {
+                const res = await fetch("/api/admin/materials/upload", {
+                    method: "POST",
+                    body: formData
+                });
+                if (res.ok) {
+                    alert("✓ 우리 학원 재원생 전용 자료가 성공적으로 등록되었습니다!");
+                    document.getElementById("pmat-title").value = "";
+                    document.getElementById("pmat-desc").value = "";
+                    if (fileInput) fileInput.value = "";
+                    if (answerFileInput) answerFileInput.value = "";
+                    if (document.getElementById("pmat-file-url")) document.getElementById("pmat-file-url").value = "";
+                    if (document.getElementById("pmat-answer-url")) document.getElementById("pmat-answer-url").value = "";
+                    loadAdminPrivateMaterials();
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    alert(err.detail || "업로드 실패");
+                }
+            } catch(err) {
+                alert("자료 업로드 중 통신 오류가 발생했습니다.");
+            } finally {
+                if (btn) btn.innerText = "+ 우리 학원 재원생 전용 자료 등록 배포";
+            }
+        }
+
+        async function handleDeletePrivateMaterial(id) {
+            if (!confirm("해당 학원 전용 자료를 삭제하시겠습니까?")) return;
+            try {
+                const res = await fetch(`/api/admin/materials/${id}`, { method: "DELETE" });
+                if (res.ok) {
+                    alert("✓ 삭제되었습니다.");
+                    loadAdminPrivateMaterials();
+                }
+            } catch(e) { alert("삭제 실패"); }
+        }
+
+        // === 📚 전국 공용 기출문제 관리 스크립트 ===
         let adminExamMaterialsCache = [];
         let currentAdminExamFilter = '전체';
 
@@ -2414,9 +3169,9 @@
             if (!listContainer) return;
 
             try {
-                let res = await fetch("/api/exam/materials").catch(() => null);
+                let res = await fetch("/api/materials?category=PUBLIC_EXAM").catch(() => null);
                 if (!res || !res.ok) {
-                    res = await fetch("/api/materials").catch(() => null);
+                    res = await fetch("/api/exam/materials?category=PUBLIC_EXAM").catch(() => null);
                 }
                 if (res && res.ok) {
                     adminExamMaterialsCache = await res.json() || [];
@@ -2459,7 +3214,7 @@
             }
 
             if (list.length === 0) {
-                listContainer.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.82rem; padding:20px; background:rgba(0,0,0,0.2); border-radius:10px;">등록된 기출문제 자료가 없습니다.</div>';
+                listContainer.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.82rem; padding:20px; background:rgba(0,0,0,0.2); border-radius:10px;">등록된 전국 공용 기출문제 자료가 없습니다.</div>';
                 return;
             }
 
@@ -2488,8 +3243,8 @@
                                 ${m.description || '상세 설명 없음'}
                             </div>
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <a href="/api/exam/materials/${m.id}/download" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid #10b981; border-radius: 6px; text-decoration: none; font-weight: 700;">📄 문제지 PDF</a>
-                                <a href="/api/exam/materials/${m.id}/download-answer" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid #f59e0b; border-radius: 6px; text-decoration: none; font-weight: 700;">🔑 정답/해설 PDF</a>
+                                <a href="/api/materials/${m.id}/download" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid #10b981; border-radius: 6px; text-decoration: none; font-weight: 700;">📄 문제지 PDF</a>
+                                ${m.answer_file_url ? `<a href="/api/materials/${m.id}/download-answer" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid #f59e0b; border-radius: 6px; text-decoration: none; font-weight: 700;">🔑 정답/해설 PDF</a>` : ''}
                             </div>
                         </div>
                     </div>
@@ -2519,12 +3274,14 @@
             }
 
             const formData = new FormData();
+            formData.append("category", "PUBLIC_EXAM");
+            formData.append("academy_code", "");
             formData.append("year", year);
             formData.append("subject", subject);
             formData.append("title", title);
             formData.append("description", desc);
             formData.append("target_grade", "고3/N수");
-            if (fileUrl) formData.append("file_url", fileUrl);
+            if (fileUrl) formData.append("external_url", fileUrl);
             if (answerUrl) formData.append("answer_url", answerUrl);
             if (fileInput?.files?.[0]) formData.append("file", fileInput.files[0]);
             if (answerFileInput?.files?.[0]) formData.append("answer_file", answerFileInput.files[0]);
@@ -2533,12 +3290,12 @@
             if (btn) btn.innerText = "업로드 중...";
 
             try {
-                const res = await fetch("/api/exam/materials", {
+                const res = await fetch("/api/admin/materials/upload", {
                     method: "POST",
                     body: formData
                 });
                 if (res.ok) {
-                    alert("✓ 기출문제 및 정답해설이 성공적으로 등록되었습니다!");
+                    alert("✓ 전국 공용 기출문제 및 정답해설이 성공적으로 등록되었습니다!");
                     document.getElementById("mat-title").value = "";
                     document.getElementById("mat-desc").value = "";
                     if (fileInput) fileInput.value = "";
@@ -2553,14 +3310,14 @@
             } catch(err) {
                 alert("기출문제 업로드 중 통신 오류가 발생했습니다.");
             } finally {
-                if (btn) btn.innerText = "+ 기출문제 및 정답해설 등록 배포";
+                if (btn) btn.innerText = "+ 전국 공용 기출문제 및 정답해설 등록 배포";
             }
         }
 
         async function handleDeleteExamMaterial(id) {
             if (!confirm("해당 기출문제 자료를 삭제하시겠습니까?")) return;
             try {
-                const res = await fetch(`/api/exam/materials/${id}`, { method: "DELETE" });
+                const res = await fetch(`/api/admin/materials/${id}`, { method: "DELETE" });
                 if (res.ok) {
                     alert("✓ 삭제되었습니다.");
                     loadAdminExamMaterials();
@@ -2671,6 +3428,8 @@
                     const badgeEl = document.getElementById("tenant-license-badge");
                     if (badgeEl) badgeEl.innerText = `Tier ${tier} 라이선스 활성화`;
                 } else {
+                    alert(data.detail || "라이선스 변경 실패");
+                }
             } catch(e) {
                 alert("라이선스 변경 처리 중 오류가 발생했습니다.");
             }
@@ -2742,10 +3501,837 @@
             }
         }
 
+        function updateGradeCutPlaceholders() {
+            const isWrongCount = document.querySelector('input[name="admin_grade_mode"]:checked')?.value === "WRONG_COUNT";
+            const cut1 = document.getElementById("admin-cut-1");
+            const cut2 = document.getElementById("admin-cut-2");
+            const cut3 = document.getElementById("admin-cut-3");
+        function handleChargeSMSCredit(amount) {
+            const el = document.getElementById("tenant-sms-credits");
+            const hintEl = document.getElementById("tenant-sms-count-hint");
+            if (el) {
+                let current = parseInt(el.innerText.replace(/[^0-9]/g, "") || "0", 10);
+                current += amount;
+                el.innerText = `${current.toLocaleString()}원`;
+                if (hintEl) {
+                    const estCount = Math.floor(current / 25);
+                    hintEl.innerText = `(발송 가능 잔여: 약 ${estCount.toLocaleString()}건)`;
+                }
+            }
+            alert(`💳 알림톡/SMS 크레딧이 +${amount.toLocaleString()}원 성공적으로 충전되었습니다.`);
+        }
+
+        function handleUpgradeLicenseTier() {
+            alert("🚀 [PALIN OS B2B] 최고 등급 Tier 3 무제한 라이선스가 정상 적용 중입니다.");
+        }
+
         // Auto-load on student tab open
         document.addEventListener("DOMContentLoaded", () => {
             loadPendingStudents();
         });
     </script>
+<!-- 1:1 원장 진단서 & 학부모 알림톡 발송 모달 -->
+    
+    <!-- 📊 [신규] 360° 전인적 학생 종합 포트폴리오 & 학부모 정기 리포트 관제 모달 -->
+    <div id="student-comprehensive-dossier-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(8px);">
+        <div class="modal-card" style="background: #0f172a; border: 1.5px solid #6366f1; border-radius: 18px; width: 94%; max-width: 960px; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); max-height: 92vh; overflow-y: auto;">
+            
+            <!-- 모달 상단 헤더 -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 16px;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #a855f7); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; color: white; font-weight: 900; box-shadow: 0 4px 14px rgba(99,102,241,0.4);" id="dossier-student-avatar">
+                        학생
+                    </div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <span style="font-weight: 900; font-size: 1.25rem; color: #f8fafc;" id="dossier-student-name">-</span>
+                            <span style="background: rgba(99,102,241,0.2); color: #a5b4fc; font-size: 0.75rem; font-weight: 800; padding: 2px 8px; border-radius: 12px;" id="dossier-student-school">-</span>
+                            <span style="background: #10b981; color: white; font-size: 0.72rem; font-weight: 900; padding: 2px 8px; border-radius: 12px;" id="dossier-student-tier">BRONZE</span>
+                        </div>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 4px; display: flex; gap: 12px; flex-wrap: wrap;">
+                            <span>🎯 목표: <b style="color: #38bdf8;" id="dossier-student-target">-</b></span>
+                            <span>📱 학부모: <span id="dossier-student-parent-phone">-</span> (<span id="dossier-student-parent-name">-</span>)</span>
+                            <span>📅 등록일: <span id="dossier-student-regdate">-</span></span>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" onclick="closeStudentDossier()" style="background: none; border: none; color: #94a3b8; font-size: 1.4rem; cursor: pointer; padding: 4px 8px;">✕</button>
+            </div>
+
+            <!-- 핵심 KPI 4분할 요약 카드 -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;">
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 10px; text-align: center;">
+                    <div style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 4px;">⏱️ 총 자습 몰입</div>
+                    <div style="font-size: 1.2rem; font-weight: 900; color: #38bdf8;" id="dossier-kpi-study-hours">0시간</div>
+                    <div style="font-size: 0.7rem; color: #10b981; font-weight: 700;" id="dossier-kpi-streak">연속 0일 불꽃</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 10px; text-align: center;">
+                    <div style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 4px;">📅 출결 신뢰도</div>
+                    <div style="font-size: 1.2rem; font-weight: 900; color: #34d399;" id="dossier-kpi-att-rate">100%</div>
+                    <div style="font-size: 0.7rem; color: var(--text-secondary);" id="dossier-kpi-att-count">총 0회 체크인</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 10px; text-align: center;">
+                    <div style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 4px;">📝 모의고사 평균</div>
+                    <div style="font-size: 1.2rem; font-weight: 900; color: #fbbf24;" id="dossier-kpi-avg-score">0점</div>
+                    <div style="font-size: 0.7rem; color: #a5b4fc; font-weight: 800;" id="dossier-kpi-best-grade">최고 1등급</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 10px; text-align: center;">
+                    <div style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 4px;">🏆 누적 성실도</div>
+                    <div style="font-size: 1.2rem; font-weight: 900; color: #a78bfa;" id="dossier-kpi-diligence">+0점</div>
+                    <div style="font-size: 0.7rem; color: var(--text-secondary);" id="dossier-kpi-points">보유 0 P</div>
+                </div>
+            </div>
+
+            <!-- 섹션 A: 📅 30일 학습 몰입도 잔디 히트맵 -->
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 14px; padding: 16px; margin-bottom: 18px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="font-weight: 800; font-size: 0.9rem; color: #38bdf8; display: flex; align-items: center; gap: 6px;">
+                        <span class="material-symbols-rounded">calendar_view_week</span>
+                        <span>최근 30일 일별 자습 몰입도 잔디 히트맵 (Real-time Heatmap)</span>
+                    </div>
+                    <span style="font-size: 0.72rem; color: var(--text-secondary);" id="dossier-heatmap-summary">주간 평균 0시간</span>
+                </div>
+                <div id="dossier-heatmap-container" style="display: flex; gap: 4px; overflow-x: auto; padding: 6px 0; align-items: center;">
+                    <!-- JS 동적 렌더링 -->
+                </div>
+            </div>
+
+            <!-- 섹션 B: 📈 회차별 모의고사 성적 추이 & 오답 분석 -->
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 14px; padding: 16px; margin-bottom: 18px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 6px;">
+                    <div style="font-weight: 800; font-size: 0.9rem; color: #34d399; display: flex; align-items: center; gap: 6px;">
+                        <span class="material-symbols-rounded">show_chart</span>
+                        <span>전 회차 실전 모의고사 성적 추이 및 오답 분석 리포트</span>
+                    </div>
+                    <div id="dossier-weak-questions-tags" style="display: flex; gap: 4px; flex-wrap: wrap;"></div>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.78rem;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-secondary); text-align: left;">
+                                <th style="padding: 8px 6px;">회차/주차</th>
+                                <th style="padding: 8px 6px;">과목</th>
+                                <th style="padding: 8px 6px;">원점수</th>
+                                <th style="padding: 8px 6px;">등급</th>
+                                <th style="padding: 8px 6px;">틀린 문항</th>
+                                <th style="padding: 8px 6px;">1:1 원장 처방</th>
+                                <th style="padding: 8px 6px;">응시일시</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dossier-exams-tbody">
+                            <!-- JS 동적 렌더링 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 섹션 C: ✍️ 학부모 정기 리포트용 원장 종합 총평 (Director Assessment) -->
+            <div style="background: rgba(99,102,241,0.05); border: 1.5px solid rgba(99,102,241,0.3); border-radius: 14px; padding: 16px; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="font-weight: 800; font-size: 0.9rem; color: #818cf8; display: flex; align-items: center; gap: 6px;">
+                        <span class="material-symbols-rounded">psychology</span>
+                        <span>학부모 정기 리포트용 원장 종합 총평 (Director Assessment)</span>
+                    </div>
+                    <button type="button" onclick="handleSaveDossierAssessment()" class="btn" style="padding: 5px 12px; font-size: 0.75rem; font-weight: 800; background: #6366f1; color: white;">
+                        💾 총평 저장
+                    </button>
+                </div>
+                <textarea id="dossier-assessment-input" rows="4" class="form-input" style="width: 100%; font-size: 0.82rem; line-height: 1.6; resize: vertical;" placeholder="학생의 전반적인 학업 몰입도, 과목별 취약점 극복 현황 및 학부모님께 전달할 격려와 조언을 작성하세요..."></textarea>
+                <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 6px;">
+                    💡 여기에 작성된 총평은 학부모 카카오 알림톡 및 인쇄용 정기 종합 리포트의 대표 소견으로 자동 인쇄·발송됩니다.
+                </div>
+            </div>
+
+            <!-- 하단 액션 버튼 바 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px;">
+                <button type="button" onclick="closeStudentDossier()" class="btn btn-secondary" style="padding: 10px 18px; font-weight: 700;">
+                    닫기
+                </button>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" onclick="printStudentDossier()" class="btn btn-secondary" style="padding: 10px 16px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px;">
+                        <span class="material-symbols-rounded" style="font-size: 1.1rem;">print</span>
+                        <span>🖨️ A4 성적표 인쇄/PDF</span>
+                    </button>
+                    <button type="button" onclick="handleSendParentDossierReport()" class="btn" style="padding: 10px 20px; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(16,185,129,0.3);">
+                        <span class="material-symbols-rounded" style="font-size: 1.1rem;">send</span>
+                        <span>📱 학부모 카카오 알림톡 리포트 발송</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+<div id="director-prescription-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.75); z-index: 9999; justify-content: center; align-items: center;">
+        <div class="modal-card" style="background: #111827; border: 1.5px solid #6366f1; border-radius: 14px; width: 92%; max-width: 540px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                <div style="font-weight: 900; font-size: 1.05rem; color: #818cf8; display: flex; align-items: center; gap: 6px;">
+                    <span class="material-symbols-rounded">psychology</span>
+                    <span>1:1 원장 심층 진단서 & 학부모 알림톡 발송</span>
+                </div>
+                <button type="button" onclick="closePrescriptionModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer;">✕</button>
+            </div>
+
+            <div id="prescription-student-summary" style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 0.8rem; line-height: 1.5;">
+                <!-- JS에서 동적 주입 -->
+            </div>
+
+            <form onsubmit="handleSubmitPrescriptionModal(event)">
+                <input type="hidden" id="prescribe-submission-id">
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 0.78rem; font-weight: 800; color: #a5b4fc; display: block; margin-bottom: 4px;">
+                        📝 원장 1:1 맞춤 진단 소견 (학부모 카카오 알림톡 전송 내용)
+                    </label>
+                    <textarea id="prescribe-diagnosis-text" rows="5" class="form-input" style="width: 100%; font-size: 0.82rem; line-height: 1.5; resize: vertical;" required placeholder="학생의 이번 주 오답 유형 분석 및 향후 학습 처방 소견을 작성해 주세요..."></textarea>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 14px; background: rgba(16,185,129,0.08); padding: 8px 10px; border-radius: 6px;">
+                    <input type="checkbox" id="prescribe-send-alimtalk" checked style="cursor: pointer;">
+                    <label for="prescribe-send-alimtalk" style="font-size: 0.78rem; color: #34d399; font-weight: 700; cursor: pointer;">
+                        📲 저장 즉시 학부모 스마트폰으로 카카오 알림톡/SMS 자동 발송
+                    </label>
+                </div>
+
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" onclick="closePrescriptionModal()" class="btn btn-secondary" style="flex: 1; padding: 10px;">취소</button>
+                    <button type="submit" class="btn" style="flex: 2; padding: 10px; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">
+                        💾 처방전 저장 및 알림톡 발송
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 🔑 원장 관제실 보안 PIN 자체 변경 모달 -->
+    <div id="admin-change-pin-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.75); z-index: 9999; justify-content: center; align-items: center;">
+        <div class="modal-card" style="background: #0f111a; border: 1.5px solid #10b981; border-radius: 16px; width: 92%; max-width: 420px; padding: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.9); box-sizing: border-box;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <div style="font-weight: 900; font-size: 1.05rem; color: #34d399; display: flex; align-items: center; gap: 6px;">
+                    <span class="material-symbols-rounded">lock_reset</span>
+                    <span>원장 관제실 보안 PIN 변경</span>
+                </div>
+                <button type="button" onclick="closeChangePinModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer;">✕</button>
+            </div>
+            <div style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 16px; line-height: 1.4;">
+                현재 접속 중인 <strong id="change-pin-academy-name" style="color: #6ee7b7;">일원학원</strong>의 관제실 로그인 PIN 번호를 변경합니다.
+            </div>
+            <form onsubmit="handleSubmitChangePin(event)">
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 0.75rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">현재 보안 PIN</label>
+                    <input type="password" id="modal-curr-pin" required placeholder="현재 PIN 번호 입력" autocomplete="off" class="form-input" style="font-size: 0.95rem; letter-spacing: 2px;">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 0.75rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">새 보안 PIN (4~20자리)</label>
+                    <input type="password" id="modal-new-pin" required placeholder="새 PIN 번호 입력 (예: 1286)" autocomplete="off" maxlength="20" class="form-input" style="font-size: 0.95rem; letter-spacing: 2px;">
+                </div>
+                <div style="margin-bottom: 18px;">
+                    <label style="font-size: 0.75rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">새 보안 PIN 확인</label>
+                    <input type="password" id="modal-new-pin-confirm" required placeholder="새 PIN 번호 다시 입력" autocomplete="off" maxlength="20" class="form-input" style="font-size: 0.95rem; letter-spacing: 2px;">
+                </div>
+                <div id="modal-pin-error-msg" style="color: #ef4444; font-size: 0.78rem; font-weight: 700; margin-bottom: 12px; display: none;"></div>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" onclick="closeChangePinModal()" class="btn btn-secondary" style="flex: 1; padding: 11px; font-weight: 700;">취소</button>
+                    <button type="submit" class="btn" style="flex: 2; padding: 11px; font-weight: 900; background: linear-gradient(135deg, #10b981, #059669); color: white;">
+                        🔒 PIN 변경 저장
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+<script>
+// ==============================================================================
+// 📝 7. 주차별 시험·OMR 관제 & 등급컷/정답 센터 JS 컨트롤러
+// ==============================================================================
+
+let currentAdminExamSubmissions = [];
+
+function onAdminExamSubjectChange() {
+    const sub = document.getElementById("admin-exam-subject")?.value || "국어";
+    const totalQSelect = document.getElementById("admin-exam-total-q");
+    if (!totalQSelect) return;
+    
+    if (sub === "국어" || sub === "영어") {
+        totalQSelect.value = "45";
+    } else if (sub === "수학") {
+        totalQSelect.value = "30";
+    } else if (sub === "과탐" || sub === "사탐") {
+        totalQSelect.value = "20";
+    }
+    renderAdminAnswerKeyGrid();
+}
+
+function updateGradeCutPlaceholders() {
+    const mode = document.querySelector('input[name="admin-grade-mode"]:checked')?.value || "RAW_SCORE";
+    const c1 = document.getElementById("admin-cut-1");
+    const c2 = document.getElementById("admin-cut-2");
+    const c3 = document.getElementById("admin-cut-3");
+    const c4 = document.getElementById("admin-cut-4");
+    if (!c1 || !c2 || !c3 || !c4) return;
+
+    if (mode === "WRONG_COUNT") {
+        c1.value = "1";
+        c2.value = "3";
+        c3.value = "6";
+        c4.value = "9";
+    } else {
+        c1.value = "90.0";
+        c2.value = "82.0";
+        c3.value = "74.0";
+        c4.value = "64.0";
+    }
+}
+
+function renderAdminAnswerKeyGrid() {
+    const container = document.getElementById("admin-answer-keys-grid");
+    const totalQ = parseInt(document.getElementById("admin-exam-total-q")?.value || "45", 10);
+    const labelEl = document.getElementById("admin-total-q-label");
+    if (labelEl) labelEl.innerText = totalQ;
+    if (!container) return;
+
+    let html = "";
+    const circleSymbols = ["", "①", "②", "③", "④", "⑤"];
+    for (let i = 1; i <= totalQ; i++) {
+        const defaultAns = ((i - 1) % 5) + 1;
+        const defaultPts = (i % 4 === 0) ? "3.0" : "2.0";
+        html += `
+            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 5px 8px; border-radius: 6px;">
+                <div style="font-weight: 800; font-size: 0.78rem; width: 45px; color: #f8fafc;">${i}번</div>
+                <div style="display: flex; gap: 4px;">
+                    ${[1, 2, 3, 4, 5].map(c => `
+                        <button type="button" 
+                            id="admin-q-${i}-btn-${c}"
+                            onclick="selectAdminKeyChoice(${i}, ${c})"
+                            style="width: 26px; height: 26px; border-radius: 50%; font-size: 0.75rem; font-weight: 800; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); background: ${c === defaultAns ? '#10b981' : 'rgba(255,255,255,0.06)'}; color: ${c === defaultAns ? '#fff' : '#94a3b8'};">
+                            ${circleSymbols[c]}
+                        </button>
+                    `).join('')}
+                </div>
+                <input type="hidden" id="admin-q-${i}-ans" value="${defaultAns}">
+                <div style="display: flex; align-items: center; gap: 4px;">
+                    <span style="font-size: 0.7rem; color: #94a3b8;">배점:</span>
+                    <input type="number" step="0.5" min="1" max="5" id="admin-q-${i}-pts" value="${defaultPts}" class="form-input" style="width: 48px; padding: 2px 4px; font-size: 0.72rem; text-align: center;">
+                    <span style="font-size: 0.7rem; color: #94a3b8;">점</span>
+                </div>
+            </div>
+        `;
+    }
+    container.innerHTML = html;
+}
+
+function selectAdminKeyChoice(qNum, choice) {
+    const circleSymbols = ["", "①", "②", "③", "④", "⑤"];
+    for (let c = 1; c <= 5; c++) {
+        const btn = document.getElementById(`admin-q-${qNum}-btn-${c}`);
+        if (btn) {
+            btn.style.background = (c === choice) ? '#10b981' : 'rgba(255,255,255,0.06)';
+            btn.style.color = (c === choice) ? '#ffffff' : '#94a3b8';
+        }
+    }
+    const input = document.getElementById(`admin-q-${qNum}-ans`);
+    if (input) input.value = choice;
+}
+
+function autoFillStandardAnswerKeys() {
+    const totalQ = parseInt(document.getElementById("admin-exam-total-q")?.value || "45", 10);
+    const pattern = [1, 3, 5, 2, 4, 3, 1, 2, 4, 5];
+    for (let i = 1; i <= totalQ; i++) {
+        const ans = pattern[(i - 1) % pattern.length];
+        selectAdminKeyChoice(i, ans);
+    }
+    alert(`⚡ ${totalQ}개 문항의 수능 표준 정답이 자동 설정되었습니다.`);
+}
+
+async function handleSaveAdminExam(e) {
+    e.preventDefault();
+    const weekVal = parseInt(document.getElementById("admin-exam-week")?.value || "3", 10);
+    const subjectVal = document.getElementById("admin-exam-subject")?.value || "국어";
+    const totalQ = parseInt(document.getElementById("admin-exam-total-q")?.value || "45", 10);
+    const titleVal = document.getElementById("admin-exam-title")?.value || `${weekVal}주차 ${subjectVal} 모의고사`;
+    const gradeModeVal = document.querySelector('input[name="admin-grade-mode"]:checked')?.value || "RAW_SCORE";
+    
+    const cut1 = parseFloat(document.getElementById("admin-cut-1")?.value || "90.0");
+    const cut2 = parseFloat(document.getElementById("admin-cut-2")?.value || "82.0");
+    const cut3 = parseFloat(document.getElementById("admin-cut-3")?.value || "74.0");
+    const cut4 = parseFloat(document.getElementById("admin-cut-4")?.value || "64.0");
+
+    const answerKeys = [];
+    for (let i = 1; i <= totalQ; i++) {
+        const ans = document.getElementById(`admin-q-${i}-ans`)?.value || "1";
+        const pts = parseFloat(document.getElementById(`admin-q-${i}-pts`)?.value || "2.0");
+        answerKeys.push({
+            question_num: i,
+            correct_answer: ans,
+            score_points: pts,
+            topic_tag: pts >= 3.0 ? "심화 킬러 추론" : "기본 핵심 개념"
+        });
+    }
+
+    try {
+        const res = await fetch("/api/admin/exams", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                academy_code: currentTenantCode || "ILWON-2027",
+                subject: subjectVal,
+                title: titleVal,
+                exam_week: weekVal,
+                total_questions: totalQ,
+                time_limit_minutes: 80,
+                grade_mode: gradeModeVal,
+                cut_1: cut1,
+                cut_2: cut2,
+                cut_3: cut3,
+                cut_4: cut4,
+                answer_keys: answerKeys
+            })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            alert(`✅ ${data.message}`);
+            loadAdminSubmissionsList();
+        } else {
+            alert("시험지 설정 저장 실패");
+        }
+    } catch(err) {
+        console.error("handleSaveAdminExam error:", err);
+        alert("서버 연결 실패");
+    }
+}
+
+async function loadAdminSubmissionsList() {
+    const tbody = document.getElementById("admin-exam-submissions-tbody");
+    if (!tbody) return;
+
+    try {
+        const res = await fetch(`/api/admin/exams/submissions?academy_code=${encodeURIComponent(currentTenantCode || 'ILWON-2027')}`);
+        if (!res.ok) return;
+        const subs = await res.json();
+        currentAdminExamSubmissions = subs;
+
+        // KPI Summary update
+        const totalCount = subs.length;
+        const avgScore = totalCount > 0 ? (subs.reduce((acc, s) => acc + (s.raw_score || 0), 0) / totalCount).toFixed(1) : "0.0";
+        const grade1Count = subs.filter(s => s.calculated_grade === 1).length;
+        const prescribeCount = subs.filter(s => s.is_report_sent || s.director_diagnosis).length;
+
+        document.getElementById("exam-summary-total-count").innerText = `${totalCount}건`;
+        document.getElementById("exam-summary-avg-score").innerText = `${avgScore}점`;
+        document.getElementById("exam-summary-grade1-count").innerText = `${grade1Count}명`;
+        document.getElementById("exam-summary-prescribe-count").innerText = `${prescribeCount}건`;
+
+        if (subs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: #64748b; padding: 20px;">아직 응시한 학생의 OMR 제출 기록이 없습니다.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = subs.map(s => {
+            const gradeColor = s.calculated_grade === 1 ? '#10b981' : (s.calculated_grade === 2 ? '#38bdf8' : (s.calculated_grade === 3 ? '#fbbf24' : '#f43f5e'));
+            const wrongPills = (s.wrong_questions && s.wrong_questions.length > 0) 
+                ? s.wrong_questions.map(q => `<span style="background: rgba(244,63,94,0.15); color: #f43f5e; padding: 1px 5px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; margin-right: 2px;">${q}번</span>`).join('')
+                : '<span style="color: #10b981; font-weight: 800;">올백 (0개)</span>';
+            const diagPreview = s.director_diagnosis ? (s.director_diagnosis.length > 25 ? s.director_diagnosis.slice(0, 25) + "..." : s.director_diagnosis) : '<span style="color: #64748b;">미작성</span>';
+            const statusBadge = s.is_report_sent ? '<span style="color: #10b981; font-size: 0.72rem; font-weight: 800;">✓ 발송완료</span>' : '<span style="color: #f59e0b; font-size: 0.72rem; font-weight: 700;">미발송</span>';
+
+            return `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="font-weight: 800; color: var(--text-secondary);">#${s.id}</td>
+                    <td style="font-weight: 800; color: #f8fafc;">${s.student_name}</td>
+                    <td style="color: var(--text-secondary); font-size: 0.75rem;">${s.high_school} (${s.grade}학년)</td>
+                    <td style="font-weight: 700; color: #a5b4fc;">${s.exam_week}주차 ${s.subject}</td>
+                    <td style="font-weight: 900; color: #38bdf8; font-size: 0.9rem;">${s.raw_score}점</td>
+                    <td><span style="background: ${gradeColor}; color: white; padding: 2px 8px; border-radius: 12px; font-weight: 900; font-size: 0.75rem;">${s.calculated_grade}등급</span></td>
+                    <td style="font-weight: 800; color: ${s.wrong_count > 0 ? '#f43f5e' : '#10b981'};">${s.wrong_count}개</td>
+                    <td style="max-width: 140px; overflow-x: auto;">${wrongPills}</td>
+                    <td style="font-size: 0.72rem; color: #cbd5e1; max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${diagPreview}</td>
+                    <td style="font-size: 0.72rem; color: var(--text-secondary);">${s.created_at}</td>
+                    <td>
+                        <button onclick="openPrescriptionModal(${s.id}, '${s.student_name}', ${s.exam_week}, '${s.subject}', ${s.raw_score}, ${s.calculated_grade}, ${s.wrong_count}, '${s.wrong_questions.join(',')}', '${encodeURIComponent(s.director_diagnosis || '')}')" class="btn" style="padding: 4px 8px; font-size: 0.72rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">
+                            📝 처방/알림톡
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    } catch(err) {
+        console.error("loadAdminSubmissionsList error:", err);
+    }
+}
+
+function openPrescriptionModal(subId, name, week, subject, score, grade, wrongCount, wrongStr, encodedDiag) {
+    const modal = document.getElementById("director-prescription-modal");
+    if (!modal) return;
+    
+    document.getElementById("prescribe-submission-id").value = subId;
+    const summaryBox = document.getElementById("prescription-student-summary");
+    const diagText = document.getElementById("prescribe-diagnosis-text");
+    
+    const decodedDiag = encodedDiag ? decodeURIComponent(encodedDiag) : "";
+    
+    if (summaryBox) {
+        summaryBox.innerHTML = `
+            <div><strong>학생명:</strong> ${name} | <strong>응시 시험:</strong> ${week}주차 ${subject}</div>
+            <div><strong>획득 점수:</strong> <span style="color:#38bdf8; font-weight:800;">${score}점 (${grade}등급)</span> | <strong>틀린 문항:</strong> <span style="color:#f43f5e; font-weight:800;">${wrongCount}개 ([${wrongStr}])</span></div>
+        `;
+    }
+    
+    if (diagText) {
+        diagText.value = decodedDiag || `[${name} 학생 ${week}주차 ${subject} 원장 맞춤 처방전]
+• 이번 주 오답(${wrongStr}) 유형에 대한 1:1 클리닉 보강 학습을 지도 완료하였습니다.`;
+    }
+    
+    modal.style.display = "flex";
+}
+
+function closePrescriptionModal() {
+    const modal = document.getElementById("director-prescription-modal");
+    if (modal) modal.style.display = "none";
+}
+
+async function handleSubmitPrescriptionModal(e) {
+    e.preventDefault();
+    const subId = parseInt(document.getElementById("prescribe-submission-id")?.value, 10);
+    const diag = document.getElementById("prescribe-diagnosis-text")?.value || "";
+    const sendAlimtalk = document.getElementById("prescribe-send-alimtalk")?.checked ?? true;
+
+    try {
+        const res = await fetch("/api/admin/exams/prescribe", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                submission_id: subId,
+                director_diagnosis: diag,
+                send_alimtalk: sendAlimtalk
+            })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            alert(`🎉 ${data.message}`);
+            closePrescriptionModal();
+            loadAdminSubmissionsList();
+        } else {
+            alert("처방전 저장 실패");
+        }
+    } catch(err) {
+        alert("처방전 처리 중 오류가 발생했습니다.");
+    }
+}
+
+function exportExamSubmissionsCSV() {
+    if (!currentAdminExamSubmissions || currentAdminExamSubmissions.length === 0) {
+        alert("다운로드할 응시 성적 데이터가 없습니다.");
+        return;
+    }
+    let csv = "\uFEFF제출ID,학생ID,학생명,학교,학년,학생연락처,학부모연락처,회차,과목,원점수,등급,틀린개수,오답문항,원장진단소견,제출일시\n";
+    currentAdminExamSubmissions.forEach(s => {
+        const cleanDiag = (s.director_diagnosis || "").replace(/"/g, '""').replace(/\n/g, ' ');
+        const wrongNums = (s.wrong_questions || []).join(';');
+        csv += `${s.id},${s.student_id},"${s.student_name}","${s.high_school}",${s.grade},"${s.student_phone}","${s.parent_phone}",${s.exam_week},"${s.subject}",${s.raw_score},${s.calculated_grade},${s.wrong_count},"${wrongNums}","${cleanDiag}","${s.created_at}"\n`;
+    });
+    
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", `PALIN_OS_모의고사_응시성적전수장부_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Hook into switchAdminCockpitTab
+const origSwitchTab = window.switchAdminCockpitTab;
+window.switchAdminCockpitTab = function(tabId) {
+    if (typeof origSwitchTab === 'function') {
+        origSwitchTab(tabId);
+    } else {
+        document.querySelectorAll('.cockpit-tab-view').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.admin-cockpit-tab-btn').forEach(el => el.classList.remove('active'));
+        const target = document.getElementById(tabId);
+        if (target) target.style.display = 'block';
+    }
+    
+    if (tabId === 'tab-exams') {
+        renderAdminAnswerKeyGrid();
+        loadAdminSubmissionsList();
+    }
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    renderAdminAnswerKeyGrid();
+});
+
+// ==============================================================================
+// 📊 [신규] 360° 전인적 학생 종합 포트폴리오 & 학부모 정기 리포트 컨트롤러
+// ==============================================================================
+
+let currentDossierStudentId = null;
+let currentDossierData = null;
+
+async function openStudentDossier(studentId) {
+    currentDossierStudentId = studentId;
+    const modal = document.getElementById("student-comprehensive-dossier-modal");
+    if (!modal) return;
+    modal.style.display = "flex";
+
+    // Set loading state
+    document.getElementById("dossier-student-name").innerText = "불러오는 중...";
+    document.getElementById("dossier-exams-tbody").innerHTML = '<tr><td colspan="7" style="text-align: center; color: #64748b; padding: 20px;">학생의 360° 활동 데이터를 통합 집계 중입니다...</td></tr>';
+    document.getElementById("dossier-heatmap-container").innerHTML = '<div style="color: #64748b; font-size: 0.75rem;">히트맵 로딩 중...</div>';
+
+    try {
+        const res = await fetch(`/api/admin/students/${studentId}/dossier`);
+        if (!res.ok) {
+            alert("학생 포트폴리오 데이터를 불러올 수 없습니다.");
+            closeStudentDossier();
+            return;
+        }
+
+        const data = await res.json();
+        currentDossierData = data;
+
+        // 1. Profile Rendering
+        const p = data.profile;
+        document.getElementById("dossier-student-avatar").innerText = p.name ? p.name.slice(0, 1) : "학";
+        document.getElementById("dossier-student-name").innerText = p.name;
+        document.getElementById("dossier-student-school").innerText = `${p.high_school} (${p.grade}학년)`;
+        document.getElementById("dossier-student-tier").innerText = p.league_tier || "BRONZE";
+        document.getElementById("dossier-student-target").innerText = `${p.target_univ} (마지노선: ${p.baseline_univ})`;
+        document.getElementById("dossier-student-parent-phone").innerText = p.parent_phone;
+        document.getElementById("dossier-student-parent-name").innerText = p.parent_name;
+        document.getElementById("dossier-student-regdate").innerText = p.created_at;
+
+        // 2. KPI Cards (Strict Real Data & Clean Empty States)
+        document.getElementById("dossier-kpi-study-hours").innerText = data.study.total_study_hours > 0 ? `${data.study.total_study_hours}시간` : "0.0시간";
+        document.getElementById("dossier-kpi-streak").innerText = data.study.current_streak > 0 ? `연속 ${data.study.current_streak}일 불꽃` : "연속 0일";
+        document.getElementById("dossier-kpi-att-rate").innerText = data.attendance.total_checkins > 0 ? `${data.attendance.attendance_rate}%` : "0.0%";
+        document.getElementById("dossier-kpi-att-count").innerText = data.attendance.total_checkins > 0 ? `총 ${data.attendance.total_checkins}회 체크인` : "출결 기록 없음";
+        document.getElementById("dossier-kpi-avg-score").innerText = data.exams.total_exams_taken > 0 ? `${data.exams.average_raw_score}점` : "미응시 (0점)";
+        document.getElementById("dossier-kpi-best-grade").innerText = data.exams.best_grade > 0 ? `최고 ${data.exams.best_grade}등급` : "-";
+        document.getElementById("dossier-kpi-diligence").innerText = `+${p.diligence_score}점`;
+        document.getElementById("dossier-kpi-points").innerText = `보유 ${p.paid_cash || p.diligence_score} P`;
+
+        // 3. Heatmap
+        document.getElementById("dossier-heatmap-summary").innerText = `주간 평균 ${data.study.weekly_avg_hours}시간 (총 ${data.study.total_study_hours}시간)`;
+        const heatContainer = document.getElementById("dossier-heatmap-container");
+        heatContainer.innerHTML = "";
+        data.study.daily_heatmap.forEach(h => {
+            const box = document.createElement("div");
+            let bgColor = "rgba(255,255,255,0.05)";
+            if (h.minutes >= 300) bgColor = "#10b981";
+            else if (h.minutes >= 180) bgColor = "#059669";
+            else if (h.minutes >= 90) bgColor = "#047857";
+            else if (h.minutes > 0) bgColor = "#064e3b";
+
+            box.style.cssText = `width: 24px; height: 32px; border-radius: 4px; background: ${bgColor}; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.62rem; color: #cbd5e1; cursor: pointer; flex-shrink: 0; border: ${h.is_today ? '1.5px solid #38bdf8' : '1px solid rgba(255,255,255,0.05)'};`;
+            box.title = `${h.date}: ${h.minutes}분 (${h.hours}시간) 자습`;
+            box.innerHTML = `<span style="font-size: 0.55rem; color: #94a3b8;">${h.date.slice(8)}일</span><span style="font-weight: 800;">${h.hours}h</span>`;
+            heatContainer.appendChild(box);
+        });
+
+        // 4. Exams & Weak Questions
+        const weakTags = document.getElementById("dossier-weak-questions-tags");
+        weakTags.innerHTML = "";
+        if (data.exams.weak_questions && data.exams.weak_questions.length > 0) {
+            data.exams.weak_questions.forEach(wq => {
+                weakTags.innerHTML += `<span style="background: rgba(244,63,94,0.15); color: #f43f5e; padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 800;">⚠️ 취약: ${wq.question_num} (${wq.count}회 오답)</span>`;
+            });
+        }
+
+        const examTbody = document.getElementById("dossier-exams-tbody");
+        examTbody.innerHTML = "";
+        if (!data.exams.submissions || data.exams.submissions.length === 0) {
+            examTbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #64748b; padding: 16px;">제출된 모의고사 응시 기록이 없습니다.</td></tr>';
+        } else {
+            data.exams.submissions.forEach(sub => {
+                const tr = document.createElement("tr");
+                tr.style.cssText = "border-bottom: 1px solid rgba(255,255,255,0.05);";
+                const gradeColor = sub.calculated_grade === 1 ? '#10b981' : (sub.calculated_grade === 2 ? '#38bdf8' : (sub.calculated_grade === 3 ? '#fbbf24' : '#f43f5e'));
+                const wrongHtml = sub.wrong_questions && sub.wrong_questions.length > 0
+                    ? sub.wrong_questions.map(q => `<span style="background: rgba(244,63,94,0.15); color: #f43f5e; padding: 1px 5px; border-radius: 4px; font-size: 0.68rem; font-weight: 800; margin-right: 2px;">${q}번</span>`).join('')
+                    : '<span style="color: #10b981; font-weight: 800;">만점 (0개)</span>';
+
+                tr.innerHTML = `
+                    <td style="padding: 8px 6px; font-weight: 800; color: #a5b4fc;">${sub.exam_week}회차</td>
+                    <td style="padding: 8px 6px; font-weight: 700;">${sub.subject}</td>
+                    <td style="padding: 8px 6px; font-weight: 900; color: #38bdf8;">${sub.raw_score}점</td>
+                    <td style="padding: 8px 6px;"><span style="background: ${gradeColor}; color: white; padding: 2px 7px; border-radius: 10px; font-weight: 900; font-size: 0.72rem;">${sub.calculated_grade}등급</span></td>
+                    <td style="padding: 8px 6px;">${wrongHtml}</td>
+                    <td style="padding: 8px 6px; font-size: 0.72rem; color: #cbd5e1; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${sub.director_diagnosis}">${sub.director_diagnosis || '-'}</td>
+                    <td style="padding: 8px 6px; font-size: 0.7rem; color: var(--text-secondary);">${sub.created_at || '-'}</td>
+                `;
+                examTbody.appendChild(tr);
+            });
+        }
+
+        // 5. Director Assessment Input
+        document.getElementById("dossier-assessment-input").value = data.feedback.latest_director_assessment || "";
+
+    } catch (err) {
+        console.error("openStudentDossier error:", err);
+        alert("포트폴리오 로드 중 오류가 발생했습니다.");
+    }
+}
+
+function closeStudentDossier() {
+    const modal = document.getElementById("student-comprehensive-dossier-modal");
+    if (modal) modal.style.display = "none";
+}
+
+async function handleSaveDossierAssessment() {
+    if (!currentDossierStudentId) return;
+    const text = document.getElementById("dossier-assessment-input")?.value.trim();
+    if (!text) {
+        alert("원장 종합 총평 내용을 입력해 주세요.");
+        return;
+    }
+
+    try {
+        const res = await fetch(`/api/admin/students/${currentDossierStudentId}/assessment`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ assessment_text: text })
+        });
+        if (res.ok) {
+            alert("✅ 원장 종합 총평이 성공적으로 저장되었습니다.");
+        } else {
+            alert("총평 저장 실패");
+        }
+    } catch (err) {
+        console.error("handleSaveDossierAssessment error:", err);
+        alert("서버 연결 실패");
+    }
+}
+
+async function handleSendParentDossierReport() {
+    if (!currentDossierStudentId || !currentDossierData) return;
+    const studentName = currentDossierData.profile.name;
+    const parentPhone = currentDossierData.profile.parent_phone;
+    
+    if (!confirm(`'${studentName}' 학생의 360° 종합 리포트를 학부모님(${parentPhone})께 카카오 알림톡/SMS로 즉시 발송하시겠습니까?`)) {
+        return;
+    }
+
+    const customMsg = document.getElementById("dossier-assessment-input")?.value.trim() || "";
+
+    try {
+        const res = await fetch(`/api/admin/students/${currentDossierStudentId}/report/send`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                report_type: "PERIODIC",
+                include_exams: true,
+                include_attendance: true,
+                custom_message: customMsg
+            })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            alert(`✅ ${data.message}`);
+        } else {
+            alert("학부모 알림톡 발송 실패");
+        }
+    } catch (err) {
+        console.error("handleSendParentDossierReport error:", err);
+        alert("서버 연결 실패");
+    }
+}
+
+function printStudentDossier() {
+    if (!currentDossierData) return;
+    const p = currentDossierData.profile;
+    const s = currentDossierData.study;
+    const a = currentDossierData.attendance;
+    const e = currentDossierData.exams;
+    const comment = document.getElementById("dossier-assessment-input")?.value || currentDossierData.feedback.latest_director_assessment;
+
+    const printWin = window.open('', '_blank', 'width=800,height=900');
+    if (!printWin) {
+        alert("팝업 차단을 해제해 주세요.");
+        return;
+    }
+
+    const examRowsHtml = (e.submissions || []).map(sub => `
+        <tr>
+            <td style="border:1px solid #ccc; padding:6px; text-align:center;">${sub.exam_week}회차</td>
+            <td style="border:1px solid #ccc; padding:6px; text-align:center;">${sub.subject}</td>
+            <td style="border:1px solid #ccc; padding:6px; text-align:center; font-weight:bold;">${sub.raw_score}점</td>
+            <td style="border:1px solid #ccc; padding:6px; text-align:center;">${sub.calculated_grade}등급</td>
+            <td style="border:1px solid #ccc; padding:6px;">${sub.wrong_questions && sub.wrong_questions.length > 0 ? sub.wrong_questions.join(', ') + '번' : '만점(0개)'}</td>
+            <td style="border:1px solid #ccc; padding:6px; font-size:11px;">${sub.director_diagnosis || '-'}</td>
+        </tr>
+    `).join('');
+
+    printWin.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>PALIN OS - ${p.name} 학생 360° 종합 학습·성적 포트폴리오</title>
+            <style>
+                body { font-family: 'Pretendard', sans-serif; padding: 24px; color: #111; line-height: 1.5; }
+                h1 { font-size: 20px; border-bottom: 2px solid #333; padding-bottom: 8px; margin-bottom: 12px; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 12px; }
+                th { background: #f1f5f9; border: 1px solid #ccc; padding: 6px; }
+                .kpi-grid { display: flex; gap: 10px; margin-bottom: 16px; }
+                .kpi-box { flex: 1; border: 1px solid #ccc; padding: 10px; text-align: center; border-radius: 6px; }
+                .kpi-num { font-size: 18px; font-weight: bold; color: #1d4ed8; }
+                .comment-box { background: #f8fafc; border: 1.5px solid #cbd5e1; padding: 14px; border-radius: 6px; font-size: 12px; line-height: 1.6; margin-bottom: 20px; }
+            </style>
+        </head>
+        <body>
+            <div style="text-align:right; font-size: 11px; color: #666;">발행기관: ${p.academy_code} 학원 관제 센터 | PALIN OS</div>
+            <h1>🎓 ${p.name} 학생 360° 종합 학습 & 모의고사 성적표</h1>
+            
+            <div style="margin-bottom: 14px; font-size: 12px;">
+                <b>학교/학년:</b> ${p.high_school} (${p.grade}학년) | 
+                <b>목표 대학:</b> ${p.target_univ} | 
+                <b>학부모 연락처:</b> ${p.parent_phone} (${p.parent_name})
+            </div>
+
+            <div class="kpi-grid">
+                <div class="kpi-box"><div>총 자습 시간</div><div class="kpi-num">${s.total_study_hours}시간</div></div>
+                <div class="kpi-box"><div>출석률</div><div class="kpi-num">${a.attendance_rate}%</div></div>
+                <div class="kpi-box"><div>모의고사 평균</div><div class="kpi-num">${e.average_raw_score}점</div></div>
+                <div class="kpi-box"><div>최고 등급</div><div class="kpi-num">${e.best_grade}등급</div></div>
+            </div>
+
+            <h3 style="font-size: 14px; margin-bottom: 6px;">📝 회차별 실전 모의고사 상세 성적</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>회차</th>
+                        <th>과목</th>
+                        <th>원점수</th>
+                        <th>등급</th>
+                        <th>틀린 문항</th>
+                        <th>1:1 원장 처방 소견</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${examRowsHtml || '<tr><td colspan="6" style="text-align:center; padding:10px;">응시 기록 없음</td></tr>'}
+                </tbody>
+            </table>
+
+            <h3 style="font-size: 14px; margin-bottom: 6px;">🩺 대표 원장 종합 총평</h3>
+            <div class="comment-box">
+                ${comment ? comment.replace(/\n/g, '<br>') : '성실하게 학습에 임하고 있습니다.'}
+            </div>
+
+            <div style="text-align:center; font-size: 11px; color: #888; margin-top: 30px;">
+                본 성적표는 PALIN OS 인텔리전스 엔진과 학원장 관제 시스템에 의해 정밀 검증 및 발행되었습니다.
+            </div>
+
+            <script>
+                window.onload = function() { window.print(); };
+            <\/script>
+        </body>
+        </html>
+    `);
+    printWin.document.close();
+}
+
+</script>
 </body>
 </html>

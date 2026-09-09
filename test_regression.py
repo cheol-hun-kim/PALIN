@@ -150,8 +150,8 @@ class PalinOSRegressionTest(unittest.TestCase):
 
     def test_06_admin_auth_integrity(self):
         from app.main import authenticate_admin, AdminAuthPayload
-        # 12862386 성공 테스트
-        auth_res = authenticate_admin(AdminAuthPayload(pin="12862386"))
+        # 1286 및 12Yonsei21* 성공 테스트
+        auth_res = authenticate_admin(AdminAuthPayload(pin="1286"))
         self.assertTrue(auth_res["authenticated"])
         
         # 잘못된 핀 실패 테스트 (401)

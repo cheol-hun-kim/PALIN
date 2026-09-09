@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PALIN CORP: The Human Life OS 12-Product Full Universe</title>
+    <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;800;900&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background: #07090e;
+            color: #f8fafc;
+            margin: 0;
+            padding: 0;
+        }
+        .brand-font {
+            font-family: 'Outfit', sans-serif;
+        }
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+        }
+        .phone-mockup {
+            width: 380px;
+            height: 720px;
+            background: #0f172a;
+            border-radius: 40px;
+            border: 6px solid #1e293b;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 40px rgba(99, 102, 241, 0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .cockpit-mockup {
+            flex: 1;
+            min-height: 720px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .product-badge {
+            transition: all 0.2s ease;
+        }
+        .product-badge:hover {
+            transform: translateY(-2px);
+        }
+        .active-product {
+            border-color: #6366f1 !important;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.35), rgba(79, 70, 229, 0.2)) !important;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.45);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 custom-scroll">
+
+    <!-- Top Master Header -->
+    <div class="max-w-7xl mx-auto mb-8">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-6">
+            <div>
+                <div class="flex items-center gap-3">
+                    <span class="text-3xl font-black brand-font tracking-tight text-white">PALIN <span class="text-indigo-500">CORP</span></span>
+                    <span class="text-xs font-extrabold px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">The Human Life OS Ecosystem (12 Products)</span>
+                    <span class="text-xs font-extrabold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Single PALIN ID SSO</span>
+                </div>
+                <p class="text-slate-400 text-sm mt-1">인간의 탄생(0세)부터 입시, 취업, 피트니스, 의료, 사업, 자산, 은퇴, 사후(100세+)까지 전 생애 12개 영역 통합 관제 생태계</p>
+            </div>
+            
+            <!-- Global Mode Switcher -->
+            <div class="flex items-center gap-2 bg-slate-900/90 border border-slate-700 p-2 rounded-xl">
+                <button onclick="switchViewMode('products')" id="btn-mode-products" class="text-xs font-extrabold px-3 py-1.5 rounded-lg bg-indigo-600 text-white transition">
+                    📱 12대 제품 실시간 탐색
+                </button>
+                <button onclick="switchViewMode('matrix')" id="btn-mode-matrix" class="text-xs font-extrabold px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">
+                    🔗 12대 데이터 상호 연동 맵
+                </button>
+                <button onclick="simulateGraduation()" class="text-xs font-black bg-gradient-to-r from-amber-500 to-emerald-500 text-black px-3 py-1.5 rounded-lg shadow hover:opacity-90 transition">
+                    🎓 생애 자동 전환 시뮬레이션
+                </button>
+            </div>
+        </div>
+
+        <!-- 12-Product Interactive Timeline Navigation -->
+        <div class="mt-6" id="timeline-nav-section">
+            <div class="flex justify-between items-center mb-3">
+                <div class="text-xs font-black text-slate-400 uppercase tracking-wider">인간 생애 연대기순 12대 제품군 (12개 전 제품 완비 · 클릭 시 즉시 렌더링)</div>
+                <span class="text-[11px] text-indigo-400 font-bold">총 12개 도메인 B2C 앱 & B2B 관제실 100% 매핑 완료</span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5" id="product-nav-container">
+                <!-- Javascript will render 12 product buttons -->
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW 1: Main Dynamic Showcase View (2-Column: B2C Mobile App vs B2B Specialist Cockpit) -->
+    <div id="view-products" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left Column: Product Info & B2C User Mobile App -->
+        <div class="lg:col-span-5 flex flex-col items-center">
+            <div class="w-full mb-4 flex justify-between items-end">
+                <div>
+                    <span id="p-age-badge" class="text-xs font-extrabold px-2.5 py-0.5 rounded bg-slate-800 text-indigo-400 border border-slate-700">연령대: 8세~19세</span>
+                    <h2 id="p-title" class="text-2xl font-black text-white mt-1">PASS-MATE</h2>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs text-slate-400">B2C 고객 모바일 앱</span>
+                    <div id="p-subname" class="text-xs font-bold text-emerald-400">초·중·고 학업 & 대입 관제 OS</div>
+                </div>
+            </div>
+
+            <!-- Mobile Phone Frame -->
+            <div class="phone-mockup">
+                <!-- Phone Top Bar -->
+                <div class="px-6 pt-3 pb-2 flex justify-between items-center text-xs text-slate-400">
+                    <span id="phone-clock" class="font-bold">12:30</span>
+                    <div class="w-16 h-4 bg-black rounded-full mx-auto"></div>
+                    <span class="font-bold">5G 100%</span>
+                </div>
+
+                <!-- Phone Header -->
+                <div class="px-5 py-3 border-b border-slate-800 flex justify-between items-center bg-slate-900/60">
+                    <div class="flex items-center gap-2">
+                        <span id="p-logo-icon" class="text-xl">🎓</span>
+                        <div>
+                            <div id="p-header-brand" class="font-black text-sm tracking-tight text-white">PASS<span class="text-emerald-400">-MATE</span></div>
+                            <div class="text-[10px] text-slate-400">PALIN Single ID Verified ✅</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5 bg-slate-800 px-2.5 py-1 rounded-full text-xs font-bold text-slate-300">
+                        <span id="p-user-name">김철수 (고3)</span>
+                    </div>
+                </div>
+
+                <!-- Dynamic Phone Content -->
+                <div id="phone-content" class="flex-1 p-4 overflow-y-auto custom-scroll space-y-3">
+                    <!-- Injected by JS -->
+                </div>
+
+                <!-- Phone Bottom Navigation Bar -->
+                <div id="phone-bottom-nav" class="px-4 py-3 bg-slate-900 border-t border-slate-800 flex justify-around items-center text-xs font-bold text-slate-400">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: B2B Specialist Cockpit & Ecosystem Architecture -->
+        <div class="lg:col-span-7 flex flex-col">
+            <div class="w-full mb-4 flex justify-between items-end">
+                <div>
+                    <span class="text-xs font-extrabold px-2.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">B2B 전문가 SaaS</span>
+                    <h2 id="b2b-title" class="text-2xl font-black text-white mt-1">PALIN ACADEMY OS</h2>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs text-slate-400">현업 전문가용 관제 허브</span>
+                    <div id="b2b-role" class="text-xs font-bold text-amber-400">학원장 & 강사용 실시간 통합 관제실</div>
+                </div>
+            </div>
+
+            <!-- Cockpit Frame -->
+            <div class="cockpit-mockup p-6">
+                <!-- Cockpit Top Bar -->
+                <div class="flex flex-wrap justify-between items-center pb-4 border-b border-slate-800 gap-3">
+                    <div class="flex items-center gap-3">
+                        <div id="b2b-icon-box" class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl">
+                            🏫
+                        </div>
+                        <div>
+                            <div id="b2b-header-name" class="font-extrabold text-white text-base">일원학원 대치 본원 관제실</div>
+                            <div class="text-xs text-slate-400">김철훈 원장 · 라이선스 Tier 3 Enterprise</div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 font-bold flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> 실시간 관제 중
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Cockpit Core KPIs -->
+                <div class="grid grid-cols-4 gap-3 my-4" id="b2b-kpis">
+                    <!-- Injected by JS -->
+                </div>
+
+                <!-- Cockpit Main Workspace Panels -->
+                <div id="b2b-workspace" class="flex-1 space-y-4">
+                    <!-- Injected by JS -->
+                </div>
+
+                <!-- Domain Master Secret / Proprietary IP Box -->
+                <div class="mt-4 p-4 rounded-xl bg-amber-950/30 border border-amber-500/40 flex items-start gap-3">
+                    <span class="text-amber-400 font-black text-lg">👑</span>
+                    <div class="text-xs text-slate-300 leading-relaxed">
+                        <b class="text-amber-300 font-bold" id="master-ip-title">최상위 1% 마스터 고유 비공개 IP:</b>
+                        <span id="master-ip-desc">대치동 일원학원의 11,688개 대학 누백 변환 수식과 '실패의 원리' 킬러 오답 처방 알고리즘을 시스템 엔진화하여 경쟁사 복제 불가능한 독점적 합격률을 달성합니다.</span>
+                    </div>
+                </div>
+
+                <!-- Lifecycle Integration Strategy Footnote -->
+                <div class="mt-3 p-4 rounded-xl bg-indigo-950/40 border border-indigo-500/30 flex items-start gap-3">
+                    <span class="text-indigo-400 font-black text-lg">🔗</span>
+                    <div class="text-xs text-slate-300 leading-relaxed">
+                        <b class="text-indigo-300 font-bold" id="synergy-title">생애주기 데이터 연동 시너지:</b>
+                        <span id="synergy-desc">수험생 시절 축적된 3년간의 집중력·성적 데이터는 대학 진학 시 CAREER-MATE와 FIT-MATE로 자동 승계됩니다.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- VIEW 2: 12-Product Inter-Service Data Cross-Linking Matrix -->
+    <div id="view-matrix" class="max-w-7xl mx-auto" style="display: none;">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl">
+            <div class="mb-6">
+                <h3 class="text-2xl font-black text-white flex items-center gap-2">
+                    <span>🌐</span> PALIN CORP: 12대 제품군 상호 데이터 교환 매트릭스 (Life Data Graph)
+                </h3>
+                <p class="text-xs text-slate-400 mt-1">12개의 서비스는 독립된 앱이 아니라, 단일 PALIN ID를 통해 평생 동안 서로의 데이터를 주고받으며 가치가 기하급수적으로 커지는 단일 두뇌입니다.</p>
+            </div>
+
+            <!-- Inter-linking Network Table -->
+            <div class="overflow-x-auto custom-scroll">
+                <table class="w-full text-xs text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-800 text-slate-300 border-b border-slate-700">
+                            <th class="p-3.5 font-extrabold">출발 제품 (Source)</th>
+                            <th class="p-3.5 font-extrabold">전송되는 핵심 데이터 자산</th>
+                            <th class="p-3.5 font-extrabold">연동 도착 제품 (Target)</th>
+                            <th class="p-3.5 font-extrabold">창출되는 고객 가치 및 락인 효과</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/60 font-medium">
+                        <tr class="hover:bg-slate-800/30">
+                            <td class="p-3 font-bold text-pink-400">👶 BABY-MATE (영유아)</td>
+                            <td class="p-3 text-slate-300">신체 발달 곡선, 알레르기 및 만성 질환 이력</td>
+                            <td class="p-3 font-bold text-blue-400">🏥 MEDI-MATE + 🎓 PASS-MATE</td>
+                            <td class="p-3 text-slate-400">학창 시절 알레르기 급식 필터링 및 평생 소아 청소년 병력 완벽 보존</td>
+                        </tr>
+                        <tr class="hover:bg-slate-800/30">
+                            <td class="p-3 font-bold text-emerald-400">🎓 PASS-MATE (입시)</td>
+                            <td class="p-3 text-slate-300">합격 대학/전공, 3년 누적 자습 2,800h 집중력 지표</td>
+                            <td class="p-3 font-bold text-indigo-400">💼 CAREER-MATE</td>
+                            <td class="p-3 text-slate-400">대학 입학 즉시 4개년 학점 로드맵 수립 및 대기업 직무 적합도 AI 자동 산출</td>
+                        </tr>
+                        <tr class="hover:bg-slate-800/30">
+                            <td class="p-3 font-bold text-indigo-400">💼 CAREER-MATE (취업)</td>
+                            <td class="p-3 text-slate-300">직무, 연봉 계약서, 소득 및 경력 인증</td>
+                            <td class="p-3 font-bold text-amber-400">💰 MONEY-MATE + 💍 MARRY-MATE</td>
+                            <td class="p-3 text-slate-400">사회초년생 월급 최적 절세/청약 포트폴리오 및 검증된 가치관 매칭 제공</td>
+                        </tr>
+                        <tr class="hover:bg-slate-800/30">
+                            <td class="p-3 font-bold text-rose-400">💪 FIT-MATE (피트니스)</td>
+                            <td class="p-3 text-slate-300">체지방률, 골격근량, 일일 칼로리/영양 섭취량</td>
+                            <td class="p-3 font-bold text-blue-400">🏥 MEDI-MATE + 🧠 MIND-MATE</td>
+                            <td class="p-3 text-slate-400">대사증후군 조기 예측 및 수면/스트레스 상관관계 정밀 분석</td>
+                        </tr>
+                        <tr class="hover:bg-slate-800/30">
+                            <td class="p-3 font-bold text-amber-400">🏢 BIZ-MATE (사업자)</td>
+                            <td class="p-3 text-slate-300">사업장 실시간 매출, 부가세/종소세 납부액</td>
+                            <td class="p-3 font-bold text-teal-400">💰 MONEY-MATE + 🕊️ LEGACY-MATE</td>
+                            <td class="p-3 text-slate-400">개인/법인 잉여 자금 법인세 절세 투자 및 가업 승계/상속세 사전 시뮬레이션</td>
+                        </tr>
+                        <tr class="hover:bg-slate-800/30">
+                            <td class="p-3 font-bold text-cyan-400">🏖️ SILVER-MATE (은퇴)</td>
+                            <td class="p-3 text-slate-300">연금 수령액, 보유 부동산/현금 자산, 건강 상태</td>
+                            <td class="p-3 font-bold text-purple-400">🕊️ LEGACY-MATE</td>
+                            <td class="p-3 text-slate-400">자녀 유류분 사전 조율, 블록체인 AI 유언장 공증 및 분쟁 0% 상속 완료</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transition Success Modal (Simulated) -->
+    <div id="transition-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" style="display: none;">
+        <div class="bg-slate-900 border-2 border-indigo-500 rounded-3xl max-w-lg w-full p-6 shadow-2xl text-center">
+            <div class="text-5xl mb-3">🎉🎓🚀</div>
+            <h3 class="text-2xl font-black text-white mb-2">수능 & 입시 종료 축하합니다!</h3>
+            <p class="text-sm text-slate-300 leading-relaxed mb-4">
+                김철수 학생의 <b class="text-indigo-400">연세대학교 화학생물공학부</b> 정시 최종 합격이 확인되었습니다.<br>
+                단일 PALIN ID를 통해 다음 생애주기 제품으로 데이터가 자동 이관되었습니다.
+            </p>
+            <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700 text-left mb-5 space-y-2 text-xs">
+                <div class="flex justify-between items-center text-emerald-400 font-bold">
+                    <span>✅ PASS-MATE 3년 누적 자습 2,840시간</span>
+                    <span>CAREER-MATE 학점 관리로 승계</span>
+                </div>
+                <div class="flex justify-between items-center text-blue-400 font-bold">
+                    <span>✅ 보유 포인트 4,850P</span>
+                    <span>FIT-MATE 대학생 헬스장 바우처 전환</span>
+                </div>
+                <div class="flex justify-between items-center text-amber-400 font-bold">
+                    <span>✅ 학부모 안심망 연동 해제</span>
+                    <span>성인 독립 계정으로 권한 승격</span>
+                </div>
+            </div>
+            <button onclick="closeTransitionModal()" class="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-emerald-500 font-black text-white rounded-xl shadow-lg hover:opacity-90 transition text-sm">
+                💼 CAREER-MATE (대학/취업 관제 OS) 즉시 시작하기 →
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const ALL_12_PRODUCTS = [
+            {
+                id: "baby",
+                name: "BABY-MATE",
+                icon: "👶",
+                color: "pink",
+                age: "0세~7세 (영유아)",
+                subtitle: "영유아 & 육아 관제 OS",
+                b2bName: "PALIN DAYCARE OS",
+                b2bRole: "어린이집·유치원 원아 출결/투약의뢰 관제실",
+                masterIpTitle: "소아과 전문의 & 영유아 발달 1% 원장 노하우",
+                masterIpDesc: "소아과 전문의의 K-DST 발달 지표와 강남 대형 유치원장의 투약 사고 0% 검증 프로토콜을 시스템화했습니다.",
+                synergy: "영유아기 신체 발달과 알레르기 데이터는 학창시절 PASS-MATE 건강 관리 및 집중력 설계의 뿌리가 됩니다.",
+                phoneContent: `
+                    <div class="bg-pink-950/40 border border-pink-500/30 rounded-2xl p-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-bold text-pink-400">💉 국가 필수 예방접종 D-Day</span>
+                            <span class="text-xs px-2 py-0.5 rounded bg-pink-500/20 text-pink-300 font-extrabold">생후 180일</span>
+                        </div>
+                        <div class="text-xl font-black text-white">B형간염 3차 · DTaP 3차 (D-3)</div>
+                    </div>
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4">
+                        <div class="text-xs font-bold text-slate-300 mb-2">🍼 오늘 수유 & 이유식 영양 차트</div>
+                        <div class="text-xs text-slate-300">소고기 오이 미음 80g 완료 · 계란 알레르기 반응 없음(안전)</div>
+                    </div>
+                `,
+                phoneNav: `<span class="text-pink-400 font-black">성장/접종</span><span>이유식</span><span>어린이집</span><span>수면일지</span><span>MY</span>`,
+                b2bKpis: `
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">원아수</div><div class="text-lg font-black text-white">64명</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">출석률</div><div class="text-lg font-black text-pink-400">100%</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">투약 의뢰서</div><div class="text-lg font-black text-indigo-400">6건</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">알림장 발송</div><div class="text-lg font-black text-emerald-400">완료</div></div>
+                `,
+                b2bWorkspace: `
+                    <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/80">
+                        <div class="text-xs font-bold text-slate-300 mb-2">📋 원아 전자 알림장 & 투약 사고 0% 방지 시스템</div>
+                        <div class="text-xs text-slate-400">학부모 모바일 투약의뢰서에 따라 복약 시 교사 바코드 확인 후 사진 전송.</div>
+                    </div>
+                `
+            },
+            {
+                id: "pass",
+                name: "PASS-MATE",
+                icon: "🎓",
+                color: "emerald",
+                age: "8세~19세 (초·중·고/N수)",
+                subtitle: "초·중·고 학업 & 대입 관제 OS",
+                b2bName: "PALIN ACADEMY OS",
+                b2bRole: "학원장 & 강사용 실시간 재원생 관제실",
+                masterIpTitle: "대치동 입시 1타 원장의 11,688개 대학 누백 & 실패의 원리",
+                masterIpDesc: "대치동 일원학원 김철훈 원장의 11,688개 정시 누백 환산 알고리즘과 1:1 오답 처방전 IP가 엔진화되어 있습니다.",
+                synergy: "수험생 시절 축적된 학습 지구력 및 과목별 취약 패턴 데이터는 향후 취업 시 직무 적성 AI 매칭의 핵심 기초 데이터가 됩니다.",
+                phoneContent: `
+                    <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-2xl p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-emerald-400">⏱️ 오늘 실시간 자습시간</span>
+                            <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-extrabold">대치동 상위 3%</span>
+                        </div>
+                        <div class="text-3xl font-black text-white">06시간 42분 <span class="text-xs font-normal text-slate-400">(목표: 8h)</span></div>
+                    </div>
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-slate-300">📝 3주차 파이널 모의고사 OMR</span>
+                            <span class="text-xs font-extrabold text-indigo-400">1초 자동채점</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-slate-900 p-3 rounded-xl">
+                            <div><div class="text-xs text-slate-400">국어 45문항</div><div class="text-lg font-black text-white">96점 (1등급)</div></div>
+                            <div><div class="text-xs text-slate-400">수학 30문항</div><div class="text-lg font-black text-white">92점 (1등급)</div></div>
+                            <div><div class="text-xs text-slate-400">영어</div><div class="text-lg font-black text-emerald-400">1등급</div></div>
+                        </div>
+                    </div>
+                `,
+                phoneNav: `<span class="text-emerald-400 font-black">타이머</span><span>OMR</span><span>정시예측</span><span>학원허브</span><span>MY</span>`,
+                b2bKpis: `
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">재원생 전원</div><div class="text-lg font-black text-white">146명</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">오늘 출석률</div><div class="text-lg font-black text-emerald-400">98.6%</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">주차 OMR 제출</div><div class="text-lg font-black text-indigo-400">142건</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">학부모 알림톡</div><div class="text-lg font-black text-amber-400">100% 발송</div></div>
+                `,
+                b2bWorkspace: `
+                    <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/80">
+                        <div class="text-xs font-bold text-slate-300 mb-2">📊 주차별 시험지 & 1~4등급컷 일괄 세팅 센터</div>
+                        <div class="grid grid-cols-4 gap-2 text-xs font-bold text-center">
+                            <div class="bg-emerald-500/20 text-emerald-300 p-2 rounded">1등급컷: 90점</div>
+                            <div class="bg-blue-500/20 text-blue-300 p-2 rounded">2등급컷: 82점</div>
+                            <div class="bg-amber-500/20 text-amber-300 p-2 rounded">3등급컷: 74점</div>
+                            <div class="bg-rose-500/20 text-rose-300 p-2 rounded">4등급컷: 64점</div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: "career",
+                name: "CAREER-MATE",
+                icon: "💼",
+                color: "indigo",
+                age: "20세~29세 (대학생/취준생)",
+                subtitle: "대학·취업·이직 커리어 관제 OS",
+                b2bName: "PALIN HR OS",
+                b2bRole: "대기업·스타트업 인사팀 채용 관제실",
+                masterIpTitle: "국내 10대 대기업 전직 인사총괄(CHRO) 서류/면접 합격 공식",
+                masterIpDesc: "블라인드 채용 평가위원들의 채점 기준표와 5만 개 합격 자소서 키워드 임베딩 벡터가 AI 면접 엔진에 탑재되어 있습니다.",
+                synergy: "PASS-MATE의 전공 및 학업 데이터가 대학 4개년 학점 관리(GPA)와 직무 맞춤 포트폴리오로 승계됩니다.",
+                phoneContent: `
+                    <div class="bg-indigo-950/40 border border-indigo-500/30 rounded-2xl p-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-bold text-indigo-400">🎯 목표 기업: 삼성전자 DS부문</span>
+                            <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-extrabold">합격 확률 88%</span>
+                        </div>
+                        <div class="text-xl font-black text-white">학점 4.12 / 어학 TOEIC 940 / 기사 자격증 2개</div>
+                    </div>
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-bold text-slate-300">🤖 AI 실전 화상 면접 시뮬레이션</span>
+                            <span class="text-xs font-extrabold text-indigo-400">직무 꼬리질문 5/5</span>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">"반도체 공정 수율 저하 시 대처 방안에 대한 답변의 논리성이 우수합니다. (시선 처리 94점)"</p>
+                    </div>
+                `,
+                phoneNav: `<span class="text-indigo-400 font-black">학점/스펙</span><span>AI자소서</span><span>화상면접</span><span>공채매칭</span><span>MY</span>`,
+                b2bKpis: `
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">지원자 풀</div><div class="text-lg font-black text-white">1,420명</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">AI 적합도 90%+</div><div class="text-lg font-black text-emerald-400">148명</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">서류 검토 단축</div><div class="text-lg font-black text-indigo-400">-85%</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">면접 합격률</div><div class="text-lg font-black text-amber-400">92%</div></div>
+                `,
+                b2bWorkspace: `
+                    <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/80">
+                        <div class="text-xs font-bold text-slate-300 mb-2">👔 직무별 1초 AI 이력서 스크리닝 & 숏리스트 선별 센터</div>
+                        <div class="text-xs text-slate-400">수험생 시절부터 검증된 실질 학습력과 전공 이수 데이터를 기반으로 허위 스펙을 100% 필터링합니다.</div>
+                    </div>
+                `
+            },
+            {
+                id: "marry",
+                name: "MARRY-MATE",
+                icon: "💍",
+                color: "purple",
+                age: "25세~39세 (미혼/예비부부)",
+                subtitle: "연애·결혼·신혼 관제 OS",
+                b2bName: "PALIN WEDDING OS",
+                b2bRole: "웨딩홀 & 스드메 & 신혼가전 플래너 관제실",
+                masterIpTitle: "15년 차 수석 웨딩 디렉터의 바가지 없는 원가 투명 견적표",
+                masterIpDesc: "웨딩 업계의 불투명한 추가금(드레스 피팅비, 헬퍼비 등)을 완전 투명화한 표준 원가 데이터베이스를 제공합니다.",
+                synergy: "CAREER-MATE의 소득 인증과 MONEY-MATE의 자산 데이터가 연동되어 신혼부부 주택 청약 및 디딤돌 대출 플랜을 1초 설계합니다.",
+                phoneContent: `
+                    <div class="bg-purple-950/40 border border-purple-500/30 rounded-2xl p-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-bold text-purple-400">💒 웨딩 D-Day 타임라인</span>
+                            <span class="text-xs px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-extrabold">D-128</span>
+                        </div>
+                        <div class="text-xl font-black text-white">예식장 계약 완료 · 본식 스드메 견적 -340만원 절감</div>
+                    </div>
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4">
+                        <div class="text-xs font-bold text-slate-300 mb-2">🏠 신혼부부 디딤돌 대출 & 청약 점수</div>
+                        <div class="text-xs text-slate-300">부부 합산 소득 8,200만원 · 금리 2.15% 한도 4억원 승인 가능</div>
+                    </div>
+                `,
+                phoneNav: `<span class="text-purple-400 font-black">웨딩D-Day</span><span>스드메원가</span><span>신혼청약</span><span>부부재정</span><span>MY</span>`,
+                b2bKpis: `
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">상담 예비부부</div><div class="text-lg font-black text-white">82쌍</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">계약 체결률</div><div class="text-lg font-black text-purple-400">76%</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">평균 절감액</div><div class="text-lg font-black text-emerald-400">420만</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">일정 만족도</div><div class="text-lg font-black text-amber-400">99%</div></div>
+                `,
+                b2bWorkspace: `
+                    <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/80">
+                        <div class="text-xs font-bold text-slate-300 mb-2">💐 웨딩 파트너사 실시간 견적 입찰 & 추가금 0원 보증 센터</div>
+                        <div class="text-xs text-slate-400">스튜디오, 드레스, 메이크업 제휴사의 실시간 잔여 타임을 할인 특가로 매칭합니다.</div>
+                    </div>
+                `
+            },
+            {
+                id: "fit",
+                name: "FIT-MATE",
+                icon: "💪",
+                color: "rose",
+                age: "18세~65세",
+                subtitle: "헬스·PT·체형·식단 관제 OS",
+                b2bName: "PALIN GYM OS",
+                b2bRole: "피트니스 센터 & PT 강사용 회원 관제실",
+                masterIpTitle: "국가대표 보디빌딩 & 올림픽 재활 트레이너의 점진적 과부하 루틴",
+                masterIpDesc: "관절 부상을 방지하면서 근비대를 2배 가속화하는 바이오메카닉 역학 기반 세트 분할 노하우가 탑재되어 있습니다.",
+                synergy: "MEDI-MATE의 건강검진 수치(혈압, 체지방)와 연동되어 무리한 고중량 부상을 방지하고 맞춤형 재활 루틴을 제안합니다.",
+                phoneContent: `
+                    <div class="bg-rose-950/40 border border-rose-500/30 rounded-2xl p-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-bold text-rose-400">🏋️ 3대 중량 & 인바디</span>
+                            <span class="text-xs px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-extrabold">골격근량 37.4kg</span>
+                        </div>
+                        <div class="text-2xl font-black text-white">3대 425kg <span class="text-xs font-normal text-slate-400">(S:150 B:105 D:170)</span></div>
+                    </div>
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4">
+                        <div class="text-xs font-bold text-slate-300 mb-2">🥗 오늘 식단 AI 분석 (탄·단·지)</div>
+                        <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                            <div class="bg-slate-900 p-2 rounded"><div class="text-slate-400">탄수화물</div><div class="font-bold text-amber-400">220g (80%)</div></div>
+                            <div class="bg-slate-900 p-2 rounded"><div class="text-slate-400">단백질</div><div class="font-bold text-emerald-400">145g (100%)</div></div>
+                            <div class="bg-slate-900 p-2 rounded"><div class="text-slate-400">지방</div><div class="font-bold text-blue-400">45g (적정)</div></div>
+                        </div>
+                    </div>
+                `,
+                phoneNav: `<span class="text-rose-400 font-black">루틴일지</span><span>식단AI</span><span>PT예약</span><span>인바디</span><span>MY</span>`,
+                b2bKpis: `
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">유효 회원수</div><div class="text-lg font-black text-white">380명</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">오늘 출석수</div><div class="text-lg font-black text-rose-400">194명</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">PT 세션 가동</div><div class="text-lg font-black text-indigo-400">28회</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">재등록률</div><div class="text-lg font-black text-emerald-400">84.2%</div></div>
+                `,
+                b2bWorkspace: `
+                    <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/80">
+                        <div class="text-xs font-bold text-slate-300 mb-2">🏷️ 락커·회원권 만료 D-7 자동 알림 및 재등록 유도 센터</div>
+                        <div class="text-xs text-slate-400">만료 임박 회원 14명에게 원클릭 카카오 알림톡 재등록 할인 쿠폰 발송 완료.</div>
+                    </div>
+                `
+            },
+            {
+                id: "medi",
+                name: "MEDI-MATE",
+                icon: "🏥",
+                color: "blue",
+                age: "전 연령 (신생아~고령층)",
+                subtitle: "병원·의료·복약·검진 통합 관제 OS",
+                b2bName: "PALIN CLINIC OS",
+                b2bRole: "병의원 EMR & 환자 실시간 사전 접수/케어실",
+                masterIpTitle: "대학병원 감염내과 & 약학정보원 DUR 1% 처방 안전망",
+                masterIpDesc: "전국 2만 개 약물 간 충돌/부작용(DUR)과 대학병원 교수진의 만성질환 혈압/혈당 케어 알고리즘이 연동되어 있습니다.",
+                synergy: "영유아 BABY-MATE의 접종 이력부터 MEDI-MATE의 평생 처방전이 연결되어 약물 오남용 및 의료사고를 100% 방지합니다.",
+                phoneContent: `
+                    <div class="bg-blue-950/40 border border-blue-500/30 rounded-2xl p-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-bold text-blue-400">🏥 내 다니는 병원 관리</span>
+                            <span class="text-xs px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-extrabold">3개원 등록</span>
+                        </div>
+                        <div class="text-lg font-black text-white">연세이비인후과 · 강남밝은안과 · 서울내과</div>
+                    </div>
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-slate-300">💊 오늘 복약 알림 & 처방전</span>
+                            <span class="text-xs font-extrabold text-emerald-400">D-2 복약중</span>
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded-xl text-xs space-y-1">
+                            <div class="font-black text-white">식후 30분 비염/소염 항생제 3정</div>
+                            <div class="text-slate-400">아침(08:30 완료 ✅) · 점심(12:40 예정 ⏳) · 저녁</div>
+                        </div>
+                    </div>
+                `,
+                phoneNav: `<span class="text-blue-400 font-black">진료/병원</span><span>복약알림</span><span>검진수치</span><span>보험청구</span><span>MY</span>`,
+                b2bKpis: `
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">금일 예약 환자</div><div class="text-lg font-black text-white">48명</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">사전 문진 완료</div><div class="text-lg font-black text-emerald-400">92%</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">대기 시간 단축</div><div class="text-lg font-black text-blue-400">-18분</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">복약 알림톡</div><div class="text-lg font-black text-amber-400">자동 발송</div></div>
+                `,
+                b2bWorkspace: `
+                    <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/80">
+                        <div class="text-xs font-bold text-slate-300 mb-2">📋 실시간 대기 환자 모니터 & EMR 연동 창</div>
+                        <div class="space-y-1.5 text-xs">
+                            <div class="flex justify-between bg-slate-900/60 p-2.5 rounded border border-slate-800">
+                                <span>1번 진료실 (박원장) : <b>김철수 환자 (알레르기 비염 재진)</b></span>
+                                <span class="text-emerald-400 font-bold">진료중 (04:12)</span>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: "biz",
+                name: "BIZ-MATE",
+                icon: "🏢",
+                color: "amber",
+                age: "25세~65세",
+                subtitle: "소상공인·자영업·스타트업 경영 OS",
+                b2bName: "PALIN BIZ OS",
+                b2bRole: "세무사·노무사·경영 자문 연동 통합 관제실",
+                masterIpTitle: "국세청 출신 수석 세무사의 합법적 절세 30대 비기",
+                masterIpDesc: "소상공인의 의제매입세액공제, 고용증대세액공제 등 놓치기 쉬운 정부 절세 지원금을 1원도 빠짐없이 자동 반영합니다.",
+                synergy: "사업자의 매출/지출 장부가 MONEY-MATE 자산 관리와 직결되어 사업 소득과 개인 자산의 절세 시너지를 극대화합니다.",
+                phoneContent: `
+                    <div class="bg-amber-950/40 border border-amber-500/30 rounded-2xl p-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-bold text-amber-400">💳 오늘 실시간 매출 합계</span>
+                            <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-extrabold">+18.4% WoW</span>
+                        </div>
+                        <div class="text-3xl font-black text-white">2,840,000원 <span class="text-xs font-normal text-slate-400">(카드 82건)</span></div>
+                    </div>
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-slate-300">📊 당월 예상 부가세 & 알바 인건비</span>
+                            <span class="text-xs font-extrabold text-amber-400">자동 계산</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="bg-slate-900 p-2.5 rounded"><div class="text-slate-400">예상 부가세 적립</div><div class="font-black text-white">1,420,000원</div></div>
+                            <div class="bg-slate-900 p-2.5 rounded"><div class="text-slate-400">알바 3명 주휴/시급</div><div class="font-black text-white">3,120,000원</div></div>
+                        </div>
+                    </div>
+                `,
+                phoneNav: `<span class="text-amber-400 font-black">매출장부</span><span>세무계산</span><span>알바노무</span><span>배민정산</span><span>MY</span>`,
+                b2bKpis: `
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">관리 매장수</div><div class="text-lg font-black text-white">3개점</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">월 총매출</div><div class="text-lg font-black text-emerald-400">8,420만</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">정산 누락 방지</div><div class="text-lg font-black text-amber-400">0건 (안전)</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">절세 세액</div><div class="text-lg font-black text-indigo-400">480만원</div></div>
+                `,
+                b2bWorkspace: `
+                    <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/80">
+                        <div class="text-xs font-bold text-slate-300 mb-2">🧾 홈택스 & 배달앱(배민/쿠팡) 매출 누락 실시간 모니터링</div>
+                        <div class="text-xs text-slate-400">카드사 승인액과 실제 입금 정산액을 1원 단위로 대조하여 입금 지연을 방지합니다.</div>
+                    </div>
+                `
+            },
+            {
+                id: "money",
+                name: "MONEY-MATE",
+                icon: "💰",
+                color: "teal",
+                age: "25세~70세",
+                subtitle: "자산·절세·투자·연금 관제 OS",
+                b2bName: "PALIN WEALTH OS",
+                b2bRole: "PB 센터 & 공인재무설계사(CFP) 자산 관제실",
+                masterIpTitle: "상위 0.1% 패밀리오피스 수석 PB의 자산 배분 모델",
+                masterIpDesc: "시장 폭락장에서도 원금을 방어하며 연 8~12% 복리 수익을 내는 올웨더 글로벌 자산배분 알고리즘이 적용됩니다.",
+                synergy: "BIZ-MATE 사업 소득과 CAREER-MATE 근로 소득이 합산되어 은퇴 시점까지의 연금 인출 계획(SILVER-MATE)을 완성합니다.",
+                phoneContent: `
+                    <div class="bg-teal-950/40 border border-teal-500/30 rounded-2xl p-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-bold text-teal-400">💎 내 순자산 현황</span>
+                            <span class="text-xs px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 font-extrabold">+14.2% YTD</span>
+                        </div>
+                        <div class="text-3xl font-black text-white">3억 8,400만원 <span class="text-xs font-normal text-slate-400">(부동산+금융)</span></div>
+                    </div>
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4">
+                        <div class="text-xs font-bold text-slate-300 mb-1">📊 연말정산 절세 세액공제 한도 달성률</div>
+                        <div class="text-xs text-emerald-400 font-bold">ISA 2,000만원 납입 완료 · IRP 900만원(100% 세액공제 148만원 환급)</div>
+                    </div>
+                `,
+                phoneNav: `<span class="text-teal-400 font-black">자산현황</span><span>절세계산</span><span>포트폴리오</span><span>연금설계</span><span>MY</span>`,
+                b2bKpis: `
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">관리 자산(AUM)</div><div class="text-lg font-black text-white">480억</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">고객 수익률</div><div class="text-lg font-black text-teal-400">+11.8%</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">환급 세액 합계</div><div class="text-lg font-black text-emerald-400">1.8억원</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">포트 재조정</div><div class="text-lg font-black text-amber-400">자동 실행</div></div>
+                `,
+                b2bWorkspace: `
+                    <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/80">
+                        <div class="text-xs font-bold text-slate-300 mb-2">📈 실시간 글로벌 매크로 자산 리밸런싱 관제 센터</div>
+                        <div class="text-xs text-slate-400">금리 인하 및 환율 변동 시 고객 포트폴리오의 채권/달러 비중을 1초 자동 리밸런싱합니다.</div>
+                    </div>
+                `
+            },
+            {
+                id: "mind",
+                name: "MIND-MATE",
+                icon: "🧠",
+                color: "fuchsia",
+                age: "전 연령",
+                subtitle: "수면·습관·멘탈케어 관제 OS",
+                b2bName: "PALIN COUNSEL OS",
+                b2bRole: "정신건강의학과 & 심리상담 센터 관제실",
+                masterIpTitle: "하버드 의대 수면의학 & 임상심리 전문가의 인지행동치료(CBT)",
+                masterIpDesc: "불면증과 공황/불안을 약물 없이 완화하는 검증된 CBT 인지재구조화 대화 프로토콜이 AI에 탑재되어 있습니다.",
+                synergy: "PASS-MATE 시험 불안 및 BIZ-MATE 사업 스트레스 지수를 실시간 완화하여 최상의 뇌 컨디션을 유지합니다.",
+                phoneContent: `
+                    <div class="bg-fuchsia-950/40 border border-fuchsia-500/30 rounded-2xl p-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-bold text-fuchsia-400">🌙 어젯밤 수면 질 & 뇌 회복 점수</span>
+                            <span class="text-xs px-2 py-0.5 rounded bg-fuchsia-500/20 text-fuchsia-300 font-extrabold">최상 92점</span>
+                        </div>
+                        <div class="text-2xl font-black text-white">7시간 15분 <span class="text-xs font-normal text-slate-400">(깊은 수면 2h 10m)</span></div>
+                    </div>
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4">
+                        <div class="text-xs font-bold text-slate-300 mb-1">🧠 AI 인지행동치료(CBT) 감정 일기</div>
+                        <p class="text-xs text-slate-300 leading-relaxed">"오늘 발표 스트레스 지수 68점 감지. 3분 박스 호흡 가이드를 시작합니다."</p>
+                    </div>
+                `,
+                phoneNav: `<span class="text-fuchsia-400 font-black">수면점수</span><span>CBT일기</span><span>도파민디톡스</span><span>전문상담</span><span>MY</span>`,
+                b2bKpis: `
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">상담 내담자</div><div class="text-lg font-black text-white">96명</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">수면 개선율</div><div class="text-lg font-black text-fuchsia-400">+42%</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">위험군 조기감지</div><div class="text-lg font-black text-rose-400">100%</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">처방 연계</div><div class="text-lg font-black text-emerald-400">완료</div></div>
+                `,
+                b2bWorkspace: `
+                    <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/80">
+                        <div class="text-xs font-bold text-slate-300 mb-2">🧘 뇌파 & 심박변이도(HRV) 실시간 스트레스 모니터링</div>
+                        <div class="text-xs text-slate-400">수험생/직장인의 급성 번아웃을 사전에 감지하여 1:1 전문 상담사 즉시 연결.</div>
+                    </div>
+                `
+            },
+            {
+                id: "pet",
+                name: "PET-MATE",
+                icon: "🐾",
+                color: "yellow",
+                age: "반려인 전 연령",
+                subtitle: "반려동물 토탈 라이프케어 OS",
+                b2bName: "PALIN VET OS",
+                b2bRole: "동물병원 & 펫 헬스케어 센터 관제실",
+                masterIpTitle: "서울대 수의대 출신 20년 차 원장의 질환 조기 감지표",
+                masterIpDesc: "강아지/고양이의 미세한 걸음걸이와 음수량 변화로 슬개골 탈구 및 신부전을 조기 발견하는 알고리즘이 내장되어 있습니다.",
+                synergy: "가족 구성원의 단일 PALIN ID에 반려동물 건강 프로필이 묶여 동물병원 진료비 1초 펫보험 청구를 지원합니다.",
+                phoneContent: `
+                    <div class="bg-yellow-950/40 border border-yellow-500/30 rounded-2xl p-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-bold text-yellow-400">🐶 뽀삐 (말티푸 3세)</span>
+                            <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-extrabold">건강지수 98점</span>
+                        </div>
+                        <div class="text-xl font-black text-white">심장사상충 예방 D-2 · 슬개골 1기 관리중</div>
+                    </div>
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4">
+                        <div class="text-xs font-bold text-slate-300 mb-1">🥩 사료 영양 & 유해 성분 AI 스캔</div>
+                        <div class="text-xs text-emerald-400 font-bold">방부제/인공색소 0% 안전 확인 · 단백질 28% 적정</div>
+                    </div>
+                `,
+                phoneNav: `<span class="text-yellow-400 font-black">접종/건강</span><span>사료스캔</span><span>동물병원</span><span>산책일지</span><span>MY</span>`,
+                b2bKpis: `
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">등록 반려견/묘</div><div class="text-lg font-black text-white">620두</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">정기 접종률</div><div class="text-lg font-black text-yellow-400">96.8%</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">보험 청구 건</div><div class="text-lg font-black text-indigo-400">142건</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">재방문 주기</div><div class="text-lg font-black text-emerald-400">1.2개월</div></div>
+                `,
+                b2bWorkspace: `
+                    <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/80">
+                        <div class="text-xs font-bold text-slate-300 mb-2">🏥 동물병원 전자 차트 & 접종 주기 자동 알림 시스템</div>
+                        <div class="text-xs text-slate-400">광견병/혼합예방주사 D-7 시점에 보호자 카카오 알림톡 자동 발송.</div>
+                    </div>
+                `
+            },
+            {
+                id: "silver",
+                name: "SILVER-MATE",
+                icon: "🏖️",
+                color: "cyan",
+                age: "55세~75세 (액티브 시니어)",
+                subtitle: "시니어·은퇴·여가 관제 OS",
+                b2bName: "PALIN SENIOR OS",
+                b2bRole: "시니어 케어 센터 & 주간보호 & 실버타운 관제실",
+                masterIpTitle: "국민연금공단 30년 연구위원의 3층 연금 실수령 극대화 공식",
+                masterIpDesc: "국민연금 연기연금 신청 시점과 퇴직연금/개인연금 절세 인출 순서를 최적화해 월 수령액을 28% 늘리는 공식입니다.",
+                synergy: "MONEY-MATE의 자산 데이터가 안정적인 은퇴 현금흐름으로 전환되며, MEDI-MATE와 연계되어 노인성 질환을 집중 방어합니다.",
+                phoneContent: `
+                    <div class="bg-cyan-950/40 border border-cyan-500/30 rounded-2xl p-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-bold text-cyan-400">🏖️ 3층 연금 월 예상 실수령액</span>
+                            <span class="text-xs px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-extrabold">안정 100세 플랜</span>
+                        </div>
+                        <div class="text-3xl font-black text-white">월 345만원 <span class="text-xs font-normal text-slate-400">(국민145+퇴직120+개인80)</span></div>
+                    </div>
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4">
+                        <div class="text-xs font-bold text-slate-300 mb-1">⛳ 이번 주 시니어 여가 & 소모임</div>
+                        <div class="text-xs text-cyan-300 font-bold">수요일 분당 파크골프 번개 · 토요일 남한산성 힐링 걷기 예약 완료</div>
+                    </div>
+                `,
+                phoneNav: `<span class="text-cyan-400 font-black">연금수령</span><span>시니어여가</span><span>재취업</span><span>건강케어</span><span>MY</span>`,
+                b2bKpis: `
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">회원 어르신</div><div class="text-lg font-black text-white">210명</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">여가 참여율</div><div class="text-lg font-black text-cyan-400">94%</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">장기요양 연계</div><div class="text-lg font-black text-indigo-400">100%</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">가족 안심지수</div><div class="text-lg font-black text-emerald-400">99점</div></div>
+                `,
+                b2bWorkspace: `
+                    <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/80">
+                        <div class="text-xs font-bold text-slate-300 mb-2">👵 주간보호 센터 승하차 & 인지활동 실시간 알림 센터</div>
+                        <div class="text-xs text-slate-400">자녀의 모바일 앱으로 부모님의 일일 활동 사진 및 식사/투약 상태 자동 전송.</div>
+                    </div>
+                `
+            },
+            {
+                id: "legacy",
+                name: "LEGACY-MATE",
+                icon: "🕊️",
+                color: "indigo",
+                age: "65세~죽음 & 사후",
+                subtitle: "상속·유언·디지털 엔딩 관제 OS",
+                b2bName: "PALIN MEMORIAL OS",
+                b2bRole: "상속 전문 세무사·변호사·추모관 관제실",
+                masterIpTitle: "대형 로펌 상속 전담 파트너 변호사의 유류분 분쟁 0% 설계",
+                masterIpDesc: "사후 가족 간 법적 소송을 원천 차단하는 사전 유류분 분할 공증 및 상속세 절세 5단계 프레임워크가 적용되어 있습니다.",
+                synergy: "한 사람의 평생 100년 치 데이터(학습, 자산, 의료, 건강)가 최종 정리되어 자녀에게 분쟁 없는 유산과 영원한 디지털 추모관으로 계승됩니다.",
+                phoneContent: `
+                    <div class="bg-indigo-950/40 border border-indigo-500/30 rounded-2xl p-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-bold text-indigo-400">📜 AI 법적 효력 유언장 공증</span>
+                            <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-extrabold">블록체인 등록됨</span>
+                        </div>
+                        <div class="text-lg font-black text-white">상속세 4,200만원 절세 플랜 적용 완료</div>
+                    </div>
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4">
+                        <div class="text-xs font-bold text-slate-300 mb-2">🕯️ 디지털 유산 승계 & 가족 메모리얼</div>
+                        <div class="text-xs text-slate-300">사후 금융 계좌 처리 의향서 및 자녀들에게 남기는 평생 사진/음성 아카이브 암호화 보관 중.</div>
+                    </div>
+                `,
+                phoneNav: `<span class="text-indigo-400 font-black">유언/상속</span><span>절세플랜</span><span>디지털엔딩</span><span>추모관</span><span>MY</span>`,
+                b2bKpis: `
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">수임 고객</div><div class="text-lg font-black text-white">128건</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">분쟁 방지율</div><div class="text-lg font-black text-indigo-400">100%</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">평균 절세율</div><div class="text-lg font-black text-emerald-400">32.8%</div></div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700 text-center"><div class="text-[10px] text-slate-400">디지털 공증</div><div class="text-lg font-black text-amber-400">완료</div></div>
+                `,
+                b2bWorkspace: `
+                    <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/80">
+                        <div class="text-xs font-bold text-slate-300 mb-2">⚖️ 법무법인 & 세무법인 상속·유류분 사전 분쟁 시뮬레이션</div>
+                        <div class="text-xs text-slate-400">부동산, 주식, 금융 자산의 상속 비율을 사전 조율하여 사후 가족 간 법적 분쟁을 원천 차단합니다.</div>
+                    </div>
+                `
+            }
+        ];
+
+        let currentSelectedIdx = 1; // Default to PASS-MATE
+
+        function initShowcase() {
+            const container = document.getElementById("product-nav-container");
+            container.innerHTML = "";
+            ALL_12_PRODUCTS.forEach((p, idx) => {
+                const btn = document.createElement("button");
+                btn.className = `product-badge p-2.5 rounded-xl border text-left flex items-center gap-2.5 cursor-pointer ${idx === currentSelectedIdx ? 'active-product border-indigo-500 bg-indigo-950/40' : 'border-slate-800 bg-slate-900/60 text-slate-400'}`;
+                btn.onclick = () => selectProduct(idx);
+                btn.innerHTML = `
+                    <span class="text-xl">${p.icon}</span>
+                    <div class="min-w-0">
+                        <div class="text-xs font-extrabold text-white truncate">${p.name}</div>
+                        <div class="text-[10px] text-slate-400 truncate">${p.subtitle.split(' ')[0]}</div>
+                    </div>
+                `;
+                container.appendChild(btn);
+            });
+            renderActiveProduct();
+        }
+
+        function selectProduct(idx) {
+            currentSelectedIdx = idx;
+            switchViewMode('products');
+            initShowcase();
+        }
+
+        function switchViewMode(mode) {
+            const vProducts = document.getElementById("view-products");
+            const vMatrix = document.getElementById("view-matrix");
+            const btnProd = document.getElementById("btn-mode-products");
+            const btnMat = document.getElementById("btn-mode-matrix");
+
+            if (mode === 'products') {
+                vProducts.style.display = "grid";
+                vMatrix.style.display = "none";
+                btnProd.className = "text-xs font-extrabold px-3 py-1.5 rounded-lg bg-indigo-600 text-white transition";
+                btnMat.className = "text-xs font-extrabold px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+            } else {
+                vProducts.style.display = "none";
+                vMatrix.style.display = "block";
+                btnProd.className = "text-xs font-extrabold px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+                btnMat.className = "text-xs font-extrabold px-3 py-1.5 rounded-lg bg-indigo-600 text-white transition";
+            }
+        }
+
+        function renderActiveProduct() {
+            const p = ALL_12_PRODUCTS[currentSelectedIdx];
+            document.getElementById("p-age-badge").innerText = `연령대: ${p.age}`;
+            document.getElementById("p-title").innerText = p.name;
+            document.getElementById("p-subname").innerText = p.subtitle;
+            document.getElementById("p-logo-icon").innerText = p.icon;
+            document.getElementById("p-header-brand").innerHTML = `${p.name.split('-')[0]}<span class="text-${p.color}-400">-${p.name.split('-')[1]}</span>`;
+            document.getElementById("phone-content").innerHTML = p.phoneContent;
+            document.getElementById("phone-bottom-nav").innerHTML = p.phoneNav;
+
+            document.getElementById("b2b-title").innerText = p.b2bName;
+            document.getElementById("b2b-role").innerText = p.b2bRole;
+            document.getElementById("b2b-icon-box").innerText = p.icon;
+            document.getElementById("b2b-kpis").innerHTML = p.b2bKpis;
+            document.getElementById("b2b-workspace").innerHTML = p.b2bWorkspace;
+            
+            document.getElementById("master-ip-title").innerText = `${p.masterIpTitle}:`;
+            document.getElementById("master-ip-desc").innerText = p.masterIpDesc;
+            document.getElementById("synergy-desc").innerText = p.synergy;
+        }
+
+        function simulateGraduation() {
+            document.getElementById("transition-modal").style.display = "flex";
+        }
+
+        function closeTransitionModal() {
+            document.getElementById("transition-modal").style.display = "none";
+            selectProduct(2); // Auto switch to CAREER-MATE
+            alert("✨ 축하합니다! 단일 PALIN ID를 통해 PASS-MATE 졸업 후 대학/취업 관제 OS(CAREER-MATE)로 생애 전환이 완료되었습니다.");
+        }
+
+        // Live Clock
+        setInterval(() => {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+            const clockEl = document.getElementById("phone-clock");
+            if (clockEl) clockEl.innerText = timeStr;
+        }, 1000);
+
+        initShowcase();
+    </script>
+</body>
+</html>

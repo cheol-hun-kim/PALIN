@@ -29,6 +29,51 @@ def auto_seed_database(db: Session, engine):
         db.rollback()
         print(f"[AUTO_SEED] Column migration warning: {e}")
 
+    # 1.5 Ensure Default Real Active Tenant Exists & Synchronize Pilot Tier 3
+    try:
+        default_tenants = [
+            {"code": "ILWON-2027", "name": "일원학원", "director_name": "김철훈 원장", "director_email": "1286orbital21@gmail.com", "director_pin": "12Yonsei21*", "tier": 3, "license_tier": 3}
+        ]
+        for dt in default_tenants:
+            t_exist = db.query(models.Tenant).filter(models.Tenant.code == dt["code"]).first()
+            if not t_exist:
+                db.add(models.Tenant(
+                    code=dt["code"],
+                    name=dt["name"],
+                    director_name=dt["director_name"],
+                    director_email=dt["director_email"],
+                    director_phone="010-1286-2386",
+                    director_pin=dt["director_pin"],
+                    tier=dt["tier"],
+                    license_tier=dt["license_tier"],
+                    max_students=99999,
+                    royalty_rate=15.0,
+                    monthly_revenue=0,
+                    subject_desc="수능국어, 대치동 직강",
+                    is_active=True,
+                    deleted_at=None
+                ))
+                db.commit()
+            else:
+                t_exist.tier = dt["tier"]
+                t_exist.license_tier = dt["license_tier"]
+                t_exist.name = dt["name"]
+                t_exist.director_name = dt["director_name"]
+                t_exist.director_pin = dt["director_pin"]
+                t_exist.director_email = dt["director_email"]
+                db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"[AUTO_SEED] Tenant seed warning: {e}")
+
+    # 1.6 Scan and synchronize authentic exam materials from static/downloads folder structure
+    try:
+        from app.exam_file_sync import scan_and_sync_downloads
+        scan_and_sync_downloads(db)
+    except Exception as em_err:
+        db.rollback()
+        print(f"[AUTO_SEED] Exam folder sync note: {em_err}")
+
     # 2. Check student count
     student_count = 0
     try:
@@ -105,5 +150,40 @@ def auto_seed_database(db: Session, engine):
                 db.commit()
         except Exception:
             db.rollback()
+
+    # STEP C: Ensure Study Sessions exist for students
+    try:
+        from datetime import timedelta
+        import random
+        now = datetime.now()
+        for st in db.query(models.Student).all():
+            if db.query(models.StudySession).filter(models.StudySession.student_id == st.id).count() == 0:
+                total_sec = 0
+                for _ in range(random.randint(6, 15)):
+                    days_ago = random.randint(0, 7)
+                    hours_ago = random.randint(1, 12)
+                    start_dt = (now - timedelta(days=days_ago, hours=hours_ago)).replace(minute=random.randint(0, 50), second=0)
+                    dur_sec = random.randint(45, 150) * 60
+                    end_dt = start_dt + timedelta(seconds=dur_sec)
+                    total_sec += dur_sec
+                    db.add(models.StudySession(
+                        student_id=st.id,
+                        start_time=start_dt,
+                        end_time=end_dt,
+                        duration_sec=dur_sec,
+                        is_distracted=False,
+                        created_at=start_dt,
+                        deleted_at=None
+                    ))
+                total_mins = total_sec // 60
+                st.diligence_score = (st.diligence_score or 0) + total_mins
+                st.weekly_diligence_points = (st.weekly_diligence_points or 0) + total_mins
+                if not st.streak_days:
+                    st.streak_days = random.randint(3, 10)
+                st.last_streak_date = now.date()
+        db.commit()
+    except Exception as se_err:
+        db.rollback()
+        print(f"[AUTO_SEED] Study session seed warning: {se_err}")
 
     print("[AUTO_SEED] Seeding completed.")

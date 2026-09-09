@@ -3,3 +3,10 @@ __pycache__/
 *.pyc
 venv/
 .env
+cloudflared.exe
+*.xlsb
+*.xlsx
+gemini_key.txt
+_*.py
+backups/
+tmp/

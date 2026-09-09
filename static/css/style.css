@@ -656,7 +656,7 @@ main::-webkit-scrollbar {
     left: 2px;
     right: 2px;
     border-radius: 6px;
-    padding: 2px 2px;
+    padding: 2px 4px;
     color: white;
     overflow: hidden;
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
@@ -679,15 +679,15 @@ main::-webkit-scrollbar {
 }
 
 .timetable-block .block-title {
-    font-size: 0.82rem;
+    font-size: 0.9rem;
     font-weight: 900;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.3px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
     text-align: center;
-    line-height: 1.1;
+    line-height: 1.2;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
@@ -1153,19 +1153,29 @@ div[style*="grid-template-columns"] > * {
 
 /* === 연속 출석(Streak) 불꽃 배지 === */
 .streak-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
     background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(245, 158, 11, 0.15));
     border: 1px solid rgba(245, 158, 11, 0.4);
-    padding: 4px 8px;
-    border-radius: 20px;
-    font-size: 0.76rem;
-    font-weight: 800;
+    padding: 0 10px !important;
+    height: 34px !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
+    border-radius: 20px !important;
+    font-size: 0.78rem !important;
+    font-weight: 800 !important;
     color: #f59e0b;
     white-space: nowrap !important;
     flex-shrink: 0 !important;
+    vertical-align: middle !important;
     animation: streakGlow 2s infinite alternate;
+}
+.streak-badge > span {
+    display: inline-flex !important;
+    align-items: center !important;
+    line-height: 1 !important;
 }
 
 @keyframes streakGlow {
@@ -1635,19 +1645,31 @@ header {
 }
 
 .streak-badge {
-    padding: 5px 10px !important;
+    padding: 0 10px !important;
+    height: 34px !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
     font-size: 0.8rem !important;
     font-weight: 800 !important;
-    border-radius: 16px !important;
+    border-radius: 20px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
 }
 
 .header-user-btn {
-    padding: 6px 12px !important;
+    padding: 0 12px !important;
+    height: 34px !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
     font-size: 0.82rem !important;
     border-radius: 20px !important;
-    display: flex !important;
+    display: inline-flex !important;
     align-items: center !important;
+    justify-content: center !important;
     gap: 5px !important;
+    vertical-align: middle !important;
 }
 
 #header-student-name {
@@ -1657,6 +1679,7 @@ header {
     text-overflow: clip !important;
     display: inline !important;
     font-weight: 800 !important;
+    line-height: 1 !important;
 }
 
 @media (max-width: 390px) {
@@ -1668,12 +1691,14 @@ header {
         font-size: 1.05rem !important;
     }
     .streak-badge {
-        padding: 4px 8px !important;
-        font-size: 0.76rem !important;
+        padding: 0 8px !important;
+        height: 32px !important;
+        font-size: 0.74rem !important;
     }
     .header-user-btn {
-        padding: 5px 10px !important;
-        font-size: 0.78rem !important;
+        padding: 0 10px !important;
+        height: 32px !important;
+        font-size: 0.76rem !important;
     }
 }
 
@@ -2629,4 +2654,919 @@ body.role-parent .timetable-day-column {
     color: #ffffff !important;
     border-color: #c084fc !important;
     box-shadow: 0 4px 12px rgba(168, 85, 247, 0.45) !important;
+}
+
+/* ☀️ Day-Mode / Light Mode High-Contrast Rules for Modals, Demo Views & VOD Board */
+body.day-mode #demo-director-cockpit-modal .modal-content,
+body.day-mode #demo-parent-weekly-report-modal .modal-content,
+body.day-mode #demo-sms-simulation-modal .modal-content,
+body.day-mode #demo-director-modal .modal-content {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15) !important;
+}
+
+body.day-mode #demo-director-cockpit-modal .card,
+body.day-mode #demo-parent-weekly-report-modal .card,
+body.day-mode #demo-director-modal .card {
+    background: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+/* Modal Titles & Headers in Day Mode (High-Contrast) */
+body.day-mode #demo-director-cockpit-modal [style*="color: #fbbf24"],
+body.day-mode #demo-parent-weekly-report-modal [style*="color: #fbbf24"],
+body.day-mode #demo-parent-weekly-report-modal [style*="color: #f59e0b"],
+body.day-mode #demo-director-modal [style*="color: #fbbf24"] {
+    color: #92400e !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #demo-parent-weekly-report-modal [style*="color: #34d399"],
+body.day-mode #demo-parent-weekly-report-modal [style*="color: #10b981"] {
+    color: #065f46 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #demo-parent-weekly-report-modal [style*="color: #a7f3d0"] {
+    color: #047857 !important;
+    font-weight: 700 !important;
+}
+
+body.day-mode #demo-parent-weekly-report-modal [style*="color: #60a5fa"],
+body.day-mode #demo-parent-weekly-report-modal [style*="color: #3b82f6"] {
+    color: #1d4ed8 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #demo-director-cockpit-modal [style*="color: #fde68a"] {
+    color: #b45309 !important;
+}
+
+body.day-mode #demo-director-cockpit-modal [style*="color: #a5b4fc"] {
+    color: #3730a3 !important;
+}
+
+body.day-mode #demo-director-cockpit-modal [style*="color: #6ee7b7"] {
+    color: #065f46 !important;
+}
+
+body.day-mode #demo-director-cockpit-modal [style*="color: #cbd5e1"],
+body.day-mode #demo-parent-weekly-report-modal [style*="color: #cbd5e1"],
+body.day-mode #demo-parent-weekly-report-modal [style*="color: #94a3b8"],
+body.day-mode #demo-director-modal [style*="color: #94a3b8"] {
+    color: #334155 !important;
+}
+
+body.day-mode #demo-parent-weekly-report-modal [style*="color: #ffffff"],
+body.day-mode #demo-director-cockpit-modal [style*="color: #ffffff"],
+body.day-mode #demo-director-modal [style*="color: #ffffff"] {
+    color: #0f172a !important;
+}
+
+/* High Contrast Stat Cards & Callout Containers inside Parent Weekly Report Modal */
+body.day-mode #demo-parent-weekly-report-modal [style*="background: rgba(16,185,129,0.08)"],
+body.day-mode #demo-parent-weekly-report-modal [style*="background: rgba(16, 185, 129, 0.08)"] {
+    background: #ecfdf5 !important;
+    border: 1.5px solid #6ee7b7 !important;
+}
+
+body.day-mode #demo-parent-weekly-report-modal [style*="background: rgba(16,185,129,0.06)"],
+body.day-mode #demo-parent-weekly-report-modal [style*="background: rgba(16, 185, 129, 0.06)"] {
+    background: #ecfdf5 !important;
+    border: 1.5px solid #a7f3d0 !important;
+}
+
+body.day-mode #demo-parent-weekly-report-modal [style*="background: rgba(255,255,255,0.04)"],
+body.day-mode #demo-parent-weekly-report-modal [style*="background: rgba(255, 255, 255, 0.04)"] {
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+body.day-mode #demo-parent-weekly-report-modal [style*="background: rgba(255,255,255,0.03)"],
+body.day-mode #demo-parent-weekly-report-modal [style*="background: rgba(255, 255, 255, 0.03)"] {
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+/* Secondary Button Contrast in Day Mode */
+body.day-mode .btn-secondary[style*="color: #fbbf24"],
+body.day-mode button[style*="color: #fbbf24"].btn-secondary {
+    color: #92400e !important;
+    background: #fef3c7 !important;
+    border-color: #f59e0b !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode .btn-secondary[style*="color: #a5b4fc"],
+body.day-mode button[style*="color: #a5b4fc"].btn-secondary {
+    color: #3730a3 !important;
+    background: #e0e7ff !important;
+    border-color: #818cf8 !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode .btn-secondary[style*="color: #34d399"],
+body.day-mode button[style*="color: #34d399"].btn-secondary {
+    color: #065f46 !important;
+    background: #d1fae5 !important;
+    border-color: #34d399 !important;
+    font-weight: 800 !important;
+}
+
+/* 🎬 VOD Board & Academy Hub Day-Mode High-Contrast Fixes */
+body.day-mode #hub-view-feed .card,
+body.day-mode #hub-view-vod .card,
+body.day-mode #hub-view-exam .card,
+body.day-mode #hub-view-request .card {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+body.day-mode #hub-curriculum-feed-list > div,
+body.day-mode #hub-vod-list-container > div > div > div {
+    background: #f8fafc !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+body.day-mode #hub-vod-list-container [style*="color: #ffffff"],
+body.day-mode #hub-curriculum-feed-list [style*="color: #ffffff"] {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode #hub-vod-list-container [style*="color: #c084fc"] {
+    color: #6b21a8 !important;
+}
+
+body.day-mode #hub-vod-list-container [style*="background: rgba(168,85,247,0.25)"] {
+    background: #ede9fe !important;
+    border: 1px solid #c084fc !important;
+}
+
+body.day-mode #hub-vod-list-container [style*="background: rgba(0,0,0,0.3)"] {
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+body.day-mode #hub-vod-list-container [style*="color: #fbbf24"] {
+    color: #92400e !important;
+}
+
+body.day-mode #hub-vod-list-container [style*="background: rgba(245,158,11,0.15)"] {
+    background: #fef3c7 !important;
+    border: 1px solid #f59e0b !important;
+}
+
+body.day-mode #hub-view-feed [style*="color: #a78bfa"],
+body.day-mode #hub-view-vod [style*="color: #818cf8"],
+body.day-mode #hub-view-exam [style*="color: #a78bfa"],
+body.day-mode #hub-view-request [style*="color: #fbbf24"] {
+    color: #3730a3 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #pred-target-univ-name,
+body.day-mode #pred-baseline-univ-name,
+body.day-mode #disp-target-univ,
+body.day-mode #disp-baseline-univ,
+body.day-mode #banner-target-univ {
+    color: #0f172a !important;
+}
+
+
+
+/* ☀️ High-Contrast Day-Mode for MyPage & Settings Modal */
+body.day-mode #mypage-modal .trigger-content {
+    background: #ffffff !important;
+    border: 2px solid #818cf8 !important;
+    color: #0f172a !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15) !important;
+}
+
+body.day-mode #mypage-modal .trigger-content > div:first-child [style*="color: #a78bfa"] {
+    color: #3730a3 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #mypage-modal [style*="background: rgba(255,255,255,0.04)"],
+body.day-mode #mypage-modal [style*="background: rgba(255, 255, 255, 0.04)"] {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+body.day-mode #mypage-modal #mypage-student-fullname {
+    color: #0f172a !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #mypage-modal #mypage-student-sub {
+    color: #334155 !important;
+    font-weight: 600 !important;
+}
+
+/* Tier Badges in Day Mode */
+body.day-mode #mypage-tier-free-badge {
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+}
+body.day-mode #mypage-tier-free-badge span {
+    color: #334155 !important;
+}
+body.day-mode #mypage-tier-free-badge div {
+    color: #64748b !important;
+}
+
+body.day-mode #mypage-tier-active-badge {
+    background: #ecfdf5 !important;
+    border: 1.5px solid #059669 !important;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15) !important;
+}
+
+body.day-mode #mypage-tier-active-badge #mypage-tier-title {
+    color: #065f46 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #mypage-tier-active-badge #mypage-academy-sponsor-text {
+    color: #92400e !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode #mypage-tier-pending-badge {
+    background: #fef3c7 !important;
+    border: 1.5px solid #f59e0b !important;
+    color: #92400e !important;
+    font-weight: 900 !important;
+}
+
+/* MyPage Assets Dashboard Card in Day Mode */
+body.day-mode #mypage-modal [style*="linear-gradient(135deg, rgba(30, 41, 59, 0.7)"] {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06) !important;
+}
+
+body.day-mode #mypage-modal [style*="color: #a5b4fc"] {
+    color: #1e1b4b !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #mypage-modal [style*="background: rgba(245, 158, 11, 0.08)"] {
+    background: #fffbeb !important;
+    border: 1px solid #fcd34d !important;
+}
+
+body.day-mode #mypage-modal [style*="color: #fcd34d"] {
+    color: #92400e !important;
+}
+
+body.day-mode #mypage-modal #mypage-points {
+    color: #b45309 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #mypage-modal [style*="background: rgba(59, 130, 246, 0.08)"] {
+    background: #eff6ff !important;
+    border: 1px solid #bfdbfe !important;
+}
+
+body.day-mode #mypage-modal [style*="color: #93c5fd"] {
+    color: #1d4ed8 !important;
+}
+
+body.day-mode #mypage-modal #mypage-cash {
+    color: #1e40af !important;
+    font-weight: 900 !important;
+}
+
+/* Accordion Edit Section */
+body.day-mode #mypage-modal [style*="background: rgba(99, 102, 241, 0.08)"] {
+    background: #f8fafc !important;
+    border: 1.5px solid #cbd5e1 !important;
+}
+
+body.day-mode #mypage-modal [style*="color: #a78bfa"] {
+    color: #3730a3 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #mypage-modal #mypage-edit-toggle-status {
+    color: #475569 !important;
+}
+
+body.day-mode #mypage-modal #mypage-edit-toggle-icon {
+    color: #3730a3 !important;
+}
+
+/* ☀️ High-Contrast Day-Mode for Academy Administrative Request Modals */
+body.day-mode #academy-request-modal .trigger-content,
+body.day-mode #academy-leave-modal .trigger-content,
+body.day-mode #academy-withdraw-modal .trigger-content {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15) !important;
+}
+
+body.day-mode #academy-request-modal #req-modal-title {
+    color: #3730a3 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #academy-request-modal [style*="color: #a5b4fc"] {
+    color: #3730a3 !important;
+}
+
+body.day-mode #academy-request-modal [style*="background: rgba(99,102,241,0.08)"] {
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+body.day-mode #academy-leave-modal #leave-auto-ment-box {
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #334155 !important;
+}
+
+body.day-mode #academy-withdraw-modal [style*="background: rgba(245,158,11,0.08)"] {
+    background: #fffbeb !important;
+    border: 1.5px solid #fcd34d !important;
+}
+
+body.day-mode #academy-withdraw-modal [style*="color: #fbbf24"] {
+    color: #92400e !important;
+}
+
+body.day-mode #academy-withdraw-modal [style*="color: #cbd5e1"] {
+    color: #334155 !important;
+}
+
+/* Hub Request Center (hub-view-request) Day-Mode High-Contrast */
+body.day-mode #hub-view-request .section-header span {
+    color: #92400e !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #hub-view-request .btn-secondary {
+    background: #ffffff !important;
+    border: 1.5px solid #e2e8f0 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.day-mode #hub-view-request .btn-secondary:hover {
+    background: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+}
+
+body.day-mode #hub-view-request [style*="color: #818cf8"] {
+    color: #3730a3 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #hub-view-request [style*="color: #34d399"] {
+    color: #065f46 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #hub-view-request [style*="color: #fbbf24"] {
+    color: #92400e !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #hub-view-request [style*="color: #f87171"] {
+    color: #b91c1c !important;
+    font-weight: 900 !important;
+}
+
+
+/* ==========================================================================
+   ☀️ UNIVERSAL DAY-MODE / LIGHT-MODE WCAG AA+ HIGH-CONTRAST ENGINE
+   ========================================================================== */
+
+/* 1. Global text & card container defaults */
+body.day-mode {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+}
+
+body.day-mode .card,
+body.day-mode .modal-content,
+body.day-mode .trigger-content {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 2. Universal Yellow / Amber / Gold -> Deep Amber Brown (#92400e / #78350f / #b45309) */
+body.day-mode [style*="color: #fbbf24"],
+body.day-mode [style*="color: #f59e0b"],
+body.day-mode [style*="color: #fde68a"],
+body.day-mode [style*="color: #fcd34d"],
+body.day-mode [style*="color: #eab308"],
+body.day-mode [style*="color: #d97706"],
+body.day-mode [style*="color: var(--color-warning)"],
+body.day-mode .text-warning,
+body.day-mode .gold-text {
+    color: #92400e !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode [style*="background: rgba(234, 179, 8"],
+body.day-mode [style*="background: rgba(234,179,8"],
+body.day-mode [style*="background: rgba(245, 158, 11"],
+body.day-mode [style*="background: rgba(245,158,11"],
+body.day-mode [style*="background: rgba(251, 191, 36"],
+body.day-mode [style*="background: rgba(251,191,36"] {
+    background: #fef3c7 !important;
+    border: 1px solid #f59e0b !important;
+}
+
+/* 3. Universal Purple / Lavender / Indigo -> Deep Rich Indigo (#3730a3 / #312e81 / #1e1b4b) */
+body.day-mode [style*="color: #a78bfa"],
+body.day-mode [style*="color: #a5b4fc"],
+body.day-mode [style*="color: #818cf8"],
+body.day-mode [style*="color: #c084fc"],
+body.day-mode [style*="color: #c7d2fe"],
+body.day-mode [style*="color: #ddd6fe"],
+body.day-mode [style*="color: #c4b5fd"],
+body.day-mode [style*="color: var(--color-accent)"] {
+    color: #3730a3 !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode [style*="background: rgba(99, 102, 241"],
+body.day-mode [style*="background: rgba(99,102,241"],
+body.day-mode [style*="background: rgba(168, 85, 247"],
+body.day-mode [style*="background: rgba(168,85,247"],
+body.day-mode [style*="background: rgba(129, 140, 248"],
+body.day-mode [style*="background: rgba(129,140,248"] {
+    background: #e0e7ff !important;
+    border: 1px solid #818cf8 !important;
+}
+
+/* 4. Universal Green / Mint / Emerald -> Deep Forest Emerald (#065f46 / #047857) */
+body.day-mode [style*="color: #34d399"],
+body.day-mode [style*="color: #10b981"],
+body.day-mode [style*="color: #6ee7b7"],
+body.day-mode [style*="color: #a7f3d0"],
+body.day-mode [style*="color: #4ade80"],
+body.day-mode [style*="color: #86efac"],
+body.day-mode [style*="color: var(--color-success)"] {
+    color: #065f46 !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode [style*="background: rgba(16, 185, 129"],
+body.day-mode [style*="background: rgba(16,185,129"],
+body.day-mode [style*="background: rgba(52, 211, 153"],
+body.day-mode [style*="background: rgba(52,211,153"] {
+    background: #ecfdf5 !important;
+    border: 1px solid #10b981 !important;
+}
+
+/* 5. Universal Blue / Sky / Cyan -> Deep Royal Blue (#1d4ed8 / #1e40af) */
+body.day-mode [style*="color: #60a5fa"],
+body.day-mode [style*="color: #38bdf8"],
+body.day-mode [style*="color: #93c5fd"],
+body.day-mode [style*="color: #7dd3fc"],
+body.day-mode [style*="color: #0284c7"] {
+    color: #1d4ed8 !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode [style*="background: rgba(59, 130, 246"],
+body.day-mode [style*="background: rgba(59,130,246"],
+body.day-mode [style*="background: rgba(56, 189, 248"],
+body.day-mode [style*="background: rgba(56,189,248"] {
+    background: #eff6ff !important;
+    border: 1px solid #3b82f6 !important;
+}
+
+/* 6. Universal Light Grays & White Text on Light Background -> Dark Slate (#334155 / #0f172a) */
+body.day-mode [style*="color: #cbd5e1"],
+body.day-mode [style*="color: #94a3b8"],
+body.day-mode [style*="color: #e2e8f0"],
+body.day-mode [style*="color: var(--text-secondary)"] {
+    color: #475569 !important;
+}
+
+body.day-mode .card [style*="color: #ffffff"]:not(.btn *):not(.badge *):not([style*="background"]),
+body.day-mode .modal-content [style*="color: #ffffff"]:not(.btn *):not(.badge *):not([style*="background"]),
+body.day-mode .trigger-content [style*="color: #ffffff"]:not(.btn *):not(.badge *):not([style*="background"]) {
+    color: #0f172a !important;
+}
+
+/* 7. Inner nested stat boxes & banner cards in Day-Mode */
+body.day-mode [style*="background: rgba(0,0,0,0.3)"],
+body.day-mode [style*="background: rgba(0, 0, 0, 0.3)"],
+body.day-mode [style*="background: rgba(0,0,0,0.2)"],
+body.day-mode [style*="background: rgba(0, 0, 0, 0.2)"],
+body.day-mode [style*="background: rgba(255,255,255,0.04)"],
+body.day-mode [style*="background: rgba(255, 255, 255, 0.04)"],
+body.day-mode [style*="background: rgba(255,255,255,0.03)"],
+body.day-mode [style*="background: rgba(255, 255, 255, 0.03)"] {
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+body.day-mode .ranking-stat-box {
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+body.day-mode .ranking-divider {
+    background: #cbd5e1 !important;
+}
+body.day-mode .ranking-label {
+    color: #475569 !important;
+    font-weight: 700 !important;
+}
+
+/* 8. Micro Ranking Component (#p3-ranking) High Contrast */
+body.day-mode #p3-ranking .card {
+    background: #ffffff !important;
+    border: 1.5px solid #e2e8f0 !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05) !important;
+}
+body.day-mode #p3-ranking [style*="color: #fbbf24"] {
+    color: #92400e !important;
+    font-weight: 900 !important;
+}
+body.day-mode #p3-ranking [style*="background: rgba(234, 179, 8, 0.2)"] {
+    background: #fef3c7 !important;
+    border: 1px solid #f59e0b !important;
+    color: #92400e !important;
+}
+body.day-mode #p3-ranking #my-ranking-region-pos {
+    color: #b45309 !important;
+}
+body.day-mode #p3-ranking #my-ranking-school-pos {
+    color: #0369a1 !important;
+}
+
+/* 🏫 School Guild & Ranking High Contrast Day-Mode Rules */
+body.day-mode #p3-school-guild-list .school-guild-row,
+body.day-mode #p3-school-guild-list > div {
+    color: #0f172a !important;
+}
+
+body.day-mode #p3-school-guild-list [style*="color:#f8fafc"],
+body.day-mode #p3-school-guild-list [style*="color: #f8fafc"],
+body.day-mode #p3-school-guild-list [style*="color:#ffffff"],
+body.day-mode #p3-school-guild-list [style*="color: #ffffff"] {
+    color: #0f172a !important;
+}
+
+body.day-mode #p3-school-guild-list [style*="color:#818cf8"],
+body.day-mode #p3-school-guild-list [style*="color: #818cf8"] {
+    color: #4338ca !important;
+}
+
+body.day-mode #p3-school-guild-list [style*="color:#94a3b8"],
+body.day-mode #p3-school-guild-list [style*="color: #94a3b8"] {
+    color: #64748b !important;
+}
+
+body.day-mode #p3-rank-guild-view [style*="color: #a5b4fc"] {
+    color: #4338ca !important;
+}
+
+/* 🏢 & ✏️ Modals Day Mode High Contrast */
+body.day-mode #add-facility-modal .modal-content,
+body.day-mode #edit-qa-modal .modal-content,
+body.day-mode #feedback-modal .modal-content {
+    background: #ffffff !important;
+    border: 1.5px solid #6366f1 !important;
+    color: #0f172a !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+body.day-mode #add-facility-modal .form-input,
+body.day-mode #edit-qa-modal .form-input,
+body.day-mode #feedback-modal .form-input {
+    background: #f8fafc !important;
+    color: #0f172a !important;
+    border: 1.5px solid #cbd5e1 !important;
+}
+
+/* ========================================================================== */
+/* 🛡️ Login & Role Notice Ultra-High Contrast Rules (Dark & Day-Mode Protection) */
+/* ========================================================================== */
+#dynamic-login-notice-student {
+    background: rgba(99, 102, 241, 0.22) !important;
+    border: 1.5px solid #818cf8 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+#dynamic-login-notice-student b,
+#dynamic-login-notice-student strong {
+    color: #c7d2fe !important;
+    font-weight: 800 !important;
+}
+
+#dynamic-login-notice-parent {
+    background: rgba(16, 185, 129, 0.22) !important;
+    border: 1.5px solid #34d399 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+#dynamic-login-notice-parent b,
+#dynamic-login-notice-parent strong {
+    color: #a7f3d0 !important;
+    font-weight: 800 !important;
+}
+
+#dynamic-login-notice-director {
+    background: rgba(245, 158, 11, 0.22) !important;
+    border: 1.5px solid #fbbf24 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+#dynamic-login-notice-director b,
+#dynamic-login-notice-director strong {
+    color: #fef08a !important;
+    font-weight: 800 !important;
+}
+
+/* Light / Day-Mode Overrides for Dynamic Notices (Deep Rich High Contrast Tones) */
+body.day-mode #dynamic-login-notice-student {
+    background: #e0e7ff !important;
+    border: 1.5px solid #4f46e5 !important;
+    color: #1e1b4b !important;
+    font-weight: 700 !important;
+}
+body.day-mode #dynamic-login-notice-student b,
+body.day-mode #dynamic-login-notice-student strong {
+    color: #0f172a !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #dynamic-login-notice-parent {
+    background: #ecfdf5 !important;
+    border: 1.5px solid #059669 !important;
+    color: #064e3b !important;
+    font-weight: 700 !important;
+}
+body.day-mode #dynamic-login-notice-parent b,
+body.day-mode #dynamic-login-notice-parent strong {
+    color: #022c22 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #dynamic-login-notice-director {
+    background: #fef3c7 !important;
+    border: 1.5px solid #d97706 !important;
+    color: #78350f !important;
+    font-weight: 700 !important;
+}
+body.day-mode #dynamic-login-notice-director b,
+body.day-mode #dynamic-login-notice-director strong {
+    color: #451a03 !important;
+    font-weight: 900 !important;
+}
+
+/* ========================================================================== */
+/* 🎓 Brochure Buttons High-Contrast Rules (Never White-on-White)            */
+/* ========================================================================== */
+.brochure-btn-student {
+    background: rgba(99, 102, 241, 0.22) !important;
+    border: 1.5px solid #818cf8 !important;
+    color: #c7d2fe !important;
+    font-weight: 800 !important;
+}
+.brochure-btn-student:hover {
+    background: rgba(99, 102, 241, 0.4) !important;
+    color: #ffffff !important;
+}
+body.day-mode .brochure-btn-student {
+    background: #e0e7ff !important;
+    border: 1.5px solid #4f46e5 !important;
+    color: #312e81 !important;
+    font-weight: 800 !important;
+}
+
+.brochure-btn-parent {
+    background: rgba(16, 185, 129, 0.22) !important;
+    border: 1.5px solid #34d399 !important;
+    color: #a7f3d0 !important;
+    font-weight: 800 !important;
+}
+.brochure-btn-parent:hover {
+    background: rgba(16, 185, 129, 0.4) !important;
+    color: #ffffff !important;
+}
+body.day-mode .brochure-btn-parent {
+    background: #ecfdf5 !important;
+    border: 1.5px solid #059669 !important;
+    color: #064e3b !important;
+    font-weight: 800 !important;
+}
+
+.brochure-btn-director {
+    background: rgba(245, 158, 11, 0.22) !important;
+    border: 1.5px solid #fbbf24 !important;
+    color: #fde68a !important;
+    font-weight: 800 !important;
+}
+.brochure-btn-director:hover {
+    background: rgba(245, 158, 11, 0.4) !important;
+    color: #ffffff !important;
+}
+body.day-mode .brochure-btn-director {
+    background: #fef3c7 !important;
+    border: 1.5px solid #d97706 !important;
+    color: #78350f !important;
+    font-weight: 800 !important;
+}
+
+/* ========================================================================== */
+/* 📅 Timetable Quick Subject & Duration Buttons High-Contrast Rules          */
+/* ========================================================================== */
+.quick-sub-btn {
+    padding: 5px 12px !important;
+    font-size: 0.78rem !important;
+    font-weight: 800 !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    background: #1e293b !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+.quick-sub-btn:hover {
+    background: #334155 !important;
+    color: #ffffff !important;
+}
+.quick-sub-btn.active {
+    background: #6366f1 !important;
+    color: #ffffff !important;
+    border-color: #818cf8 !important;
+    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4) !important;
+}
+
+body.day-mode .quick-sub-btn {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border: 1.5px solid #cbd5e1 !important;
+}
+body.day-mode .quick-sub-btn.active {
+    background: #4f46e5 !important;
+    color: #ffffff !important;
+    border-color: #4338ca !important;
+}
+
+.quick-dur-btn {
+    padding: 4px 10px !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    background: #1e293b !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+.quick-dur-btn.active {
+    background: #6366f1 !important;
+    color: #ffffff !important;
+    border-color: #818cf8 !important;
+    font-weight: 800 !important;
+}
+body.day-mode .quick-dur-btn {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border: 1.5px solid #cbd5e1 !important;
+}
+body.day-mode .quick-dur-btn.active {
+    background: #4f46e5 !important;
+    color: #ffffff !important;
+    border-color: #4338ca !important;
+}
+
+/* ========================================================================== */
+/* 🛡️ Bottom GNB Director Icon & Text High-Contrast (Bright Gold Protection)  */
+/* ========================================================================== */
+.bottom-nav .nav-icon-director,
+.bottom-nav .nav-text-director,
+.bottom-nav #nav-tab-admin span,
+body.day-mode .bottom-nav .nav-icon-director,
+body.day-mode .bottom-nav .nav-text-director,
+body.day-mode .bottom-nav #nav-tab-admin span {
+    color: #fbbf24 !important;
+    font-weight: 800 !important;
+}
+
+/* ========================================================================== */
+/* 🔑 VOD Password Badge High-Contrast Protection                             */
+/* ========================================================================== */
+.vod-password-badge {
+    color: #fde047 !important;
+    background: rgba(245, 158, 11, 0.25) !important;
+    border: 1.5px solid #f59e0b !important;
+    font-weight: 800 !important;
+}
+.vod-password-badge b {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+}
+body.day-mode .vod-password-badge {
+    color: #78350f !important;
+    background: #fef3c7 !important;
+    border: 1.5px solid #d97706 !important;
+}
+body.day-mode .vod-password-badge b {
+    color: #451a03 !important;
+}
+
+
+
+/* ========================================================================== */
+/* 🛡️ Login Overlay Role Notice & Brochure Button Fixed Dark Theme Aesthetics */
+/* ========================================================================== */
+#register-overlay .brochure-btn-student,
+body.day-mode #register-overlay .brochure-btn-student {
+    background: rgba(99, 102, 241, 0.18) !important;
+    border: 1.5px solid #818cf8 !important;
+    color: #c7d2fe !important;
+    font-weight: 800 !important;
+}
+#register-overlay .brochure-btn-student:hover,
+body.day-mode #register-overlay .brochure-btn-student:hover {
+    background: rgba(99, 102, 241, 0.35) !important;
+    color: #ffffff !important;
+}
+
+#register-overlay .brochure-btn-parent,
+body.day-mode #register-overlay .brochure-btn-parent {
+    background: rgba(16, 185, 129, 0.18) !important;
+    border: 1.5px solid #34d399 !important;
+    color: #a7f3d0 !important;
+    font-weight: 800 !important;
+}
+#register-overlay .brochure-btn-parent:hover,
+body.day-mode #register-overlay .brochure-btn-parent:hover {
+    background: rgba(16, 185, 129, 0.35) !important;
+    color: #ffffff !important;
+}
+
+#register-overlay .brochure-btn-director,
+body.day-mode #register-overlay .brochure-btn-director {
+    background: rgba(245, 158, 11, 0.18) !important;
+    border: 1.5px solid #fbbf24 !important;
+    color: #fde68a !important;
+    font-weight: 800 !important;
+}
+#register-overlay .brochure-btn-director:hover,
+body.day-mode #register-overlay .brochure-btn-director:hover {
+    background: rgba(245, 158, 11, 0.35) !important;
+    color: #ffffff !important;
+}
+
+#register-overlay #dynamic-login-notice-student,
+body.day-mode #register-overlay #dynamic-login-notice-student {
+    background: rgba(99, 102, 241, 0.18) !important;
+    border: 1.5px solid #818cf8 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+#register-overlay #dynamic-login-notice-student b,
+#register-overlay #dynamic-login-notice-student strong,
+body.day-mode #register-overlay #dynamic-login-notice-student b,
+body.day-mode #register-overlay #dynamic-login-notice-student strong {
+    color: #c7d2fe !important;
+    font-weight: 800 !important;
+}
+
+#register-overlay #dynamic-login-notice-parent,
+body.day-mode #register-overlay #dynamic-login-notice-parent {
+    background: rgba(16, 185, 129, 0.18) !important;
+    border: 1.5px solid #34d399 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+#register-overlay #dynamic-login-notice-parent b,
+#register-overlay #dynamic-login-notice-parent strong,
+body.day-mode #register-overlay #dynamic-login-notice-parent b,
+body.day-mode #register-overlay #dynamic-login-notice-parent strong {
+    color: #a7f3d0 !important;
+    font-weight: 800 !important;
+}
+
+#register-overlay #dynamic-login-notice-director,
+body.day-mode #register-overlay #dynamic-login-notice-director {
+    background: rgba(245, 158, 11, 0.18) !important;
+    border: 1.5px solid #fbbf24 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+#register-overlay #dynamic-login-notice-director b,
+#register-overlay #dynamic-login-notice-director strong,
+body.day-mode #register-overlay #dynamic-login-notice-director b,
+body.day-mode #register-overlay #dynamic-login-notice-director strong {
+    color: #fef08a !important;
+    font-weight: 800 !important;
 }
