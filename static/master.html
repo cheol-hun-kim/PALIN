@@ -2531,9 +2531,9 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
 
                 // Tier filter
                 if (tierFilter !== "ALL") {
-                    const isApprovedAcademy = (s.academy_approval_status === "APPROVED" || (s.academy_code && s.academy_approval_status !== "REJECTED" && s.academy_approval_status !== "PENDING"));
+                    const isApprovedAcademy = (s.academy_approval_status === "APPROVED" && s.academy_code && s.academy_code !== "-" && s.academy_code !== "NONE");
                     const tierStr = (s.b2c_subscription_tier || "").toUpperCase();
-                    const isTier4 = tierStr.includes("TIER_4");
+                    const isTier4 = tierStr.includes("TIER_4") || (s.academy_code || '').toUpperCase().includes('ILWON');
                     const isTier3 = !isTier4 && (isApprovedAcademy || tierStr.includes("TIER_3"));
                     const isTier2 = !isTier4 && !isTier3 && tierStr.includes("TIER_2");
                     const isTier1 = !isTier4 && !isTier3 && !isTier2;
@@ -2565,9 +2565,9 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
             // Update KPI cards from full cache
             if (updateKPI && allMasterStudentsCache.length > 0) {
                 const total = allMasterStudentsCache.length;
-                const approved = allMasterStudentsCache.filter(s => s.academy_approval_status === "APPROVED").length;
+                const approved = allMasterStudentsCache.filter(s => s.academy_approval_status === "APPROVED" && s.academy_code && s.academy_code !== "-" && s.academy_code !== "NONE").length;
                 const pending = allMasterStudentsCache.filter(s => s.academy_approval_status === "PENDING").length;
-                const b2c = allMasterStudentsCache.filter(s => s.academy_approval_status === "NONE" || !s.academy_approval_status).length;
+                const b2c = allMasterStudentsCache.filter(s => s.academy_approval_status === "NONE" || !s.academy_approval_status || !s.academy_code || s.academy_code === "-" || s.academy_code === "NONE").length;
 
                 const totalEl = document.getElementById("stat-m-total-students");
                 const approvedEl = document.getElementById("stat-m-approved-students");
@@ -2589,7 +2589,7 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
                 const isBanned = Boolean(s.is_banned);
                 const isGraduated = s.enrollment_status === "GRADUATED" || Boolean(s.is_alumni);
                 const isWithdrawn = s.enrollment_status === "WITHDRAWN";
-                const isApprovedAcademy = (s.academy_approval_status === "APPROVED" || (s.academy_code && s.academy_approval_status !== "REJECTED" && s.academy_approval_status !== "PENDING" && !isWithdrawn && !isGraduated));
+                const isApprovedAcademy = (s.academy_approval_status === "APPROVED" && s.academy_code && s.academy_code !== "-" && s.academy_code !== "NONE" && !isWithdrawn && !isGraduated);
                 const status = (s.academy_approval_status || "NONE").toUpperCase();
 
                 // 1) Student Name & Status Tag
