@@ -1726,24 +1726,35 @@
             } catch(e) {}
         }
 
+        function launchDirectorSimulator(bizType, targetCode) {
+            const defaults = {
+                'HIGH_ACADEMY': { code: targetCode || 'ILWON-2027', name: '일원 대입전문학원' },
+                'MID_ACADEMY': { code: targetCode || 'MID-TOP01', name: '대치 탑클래스 중등학원' },
+                'ELEM_ACADEMY': { code: targetCode || 'ELEM-PET01', name: '아이꿈 초등 보습·어학원' },
+                'STUDY_CAFE': { code: targetCode || 'CAFE-STUDY01', name: '일원 프리미엄 스터디카페' }
+            };
+            const target = defaults[bizType] || defaults['HIGH_ACADEMY'];
+            sessionStorage.setItem("palin_admin_authenticated", "true");
+            sessionStorage.setItem("palin_super_admin", "true");
+            sessionStorage.setItem("palin_shadow_mode", "true");
+            sessionStorage.setItem("palin_shadow_tenant_code", target.code);
+            sessionStorage.setItem("palin_shadow_tenant_name", target.name);
+            sessionStorage.setItem("palin_business_type", bizType || "HIGH_ACADEMY");
+            window.open(`/admin.html?tenant=${target.code}&shadow=true&simulator=true&business_type=${bizType}&name=${encodeURIComponent(target.name)}`, '_blank');
+        }
+
+        function openIndustrySimulator(businessType) {
+            launchDirectorSimulator(businessType);
+        }
+
         function impersonateTenant(code, name, businessType) {
             sessionStorage.setItem("palin_admin_authenticated", "true");
+            sessionStorage.setItem("palin_super_admin", "true");
             sessionStorage.setItem("palin_shadow_mode", "true");
             sessionStorage.setItem("palin_shadow_tenant_code", code);
             sessionStorage.setItem("palin_shadow_tenant_name", name);
             sessionStorage.setItem("palin_business_type", businessType || "HIGH_ACADEMY");
             window.open(`/admin.html?tenant=${code}&shadow=true&business_type=${businessType || 'HIGH_ACADEMY'}&name=${encodeURIComponent(name)}`, '_blank');
-        }
-
-        function openIndustrySimulator(businessType) {
-            const defaults = {
-                'HIGH_ACADEMY': { code: 'ILWON-2027', name: '일원학원 (고등 대입)' },
-                'MID_ACADEMY': { code: 'MID-TOP01', name: '탑클래스 중등내신사관' },
-                'ELEM_ACADEMY': { code: 'ELEM-PET01', name: '자라다 초등보습어학원' },
-                'STUDY_CAFE': { code: 'CAFE-STUDY01', name: '몰입 24시 스터디카페' }
-            };
-            const target = defaults[businessType] || defaults['HIGH_ACADEMY'];
-            impersonateTenant(target.code, target.name, businessType);
         }
 
         async function loadBrainRequests() {

@@ -359,8 +359,8 @@
 <body>
     <!-- 🚨 갓 모드 섀도잉 경고 배너 -->
 
-    <!-- 🏢 4대 업종별 관제실 시뮬레이터 바 (슈퍼마스터 & 데모 프리뷰 지원) -->
-    <div id="industry-simulator-bar" style="width: 100%; box-sizing: border-box; background: rgba(15, 23, 42, 0.95); border-bottom: 1.5px solid #4f46e5; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; z-index: 999; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+    <!-- 🏢 4대 업종별 관제실 시뮬레이터 바 (슈퍼마스터 & 데모 프리뷰 전용) -->
+    <div id="industry-simulator-bar" style="display: none; width: 100%; box-sizing: border-box; background: rgba(15, 23, 42, 0.95); border-bottom: 1.5px solid #4f46e5; padding: 10px 20px; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; z-index: 999; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
             <div style="display: flex; align-items: center; gap: 6px;">
                 <span class="material-symbols-rounded" style="font-size: 1.2rem; color: #fbbf24;">storefront</span>
@@ -2200,6 +2200,14 @@
             }).join('');
         }
 
+        function toggleSelectAllElemStudents() {
+            const mainCb = document.getElementById("elem-select-all-cb");
+            const cbs = document.querySelectorAll(".elem-student-cb");
+            const targetState = mainCb ? mainCb.checked : (cbs.length > 0 && !cbs[0].checked);
+            if (mainCb && !mainCb.checked && targetState) mainCb.checked = true;
+            cbs.forEach(cb => cb.checked = targetState);
+        }
+
         async function handleBatchAwardElemStickers() {
             const checked = Array.from(document.querySelectorAll('.elem-student-cb:checked')).map(cb => parseInt(cb.value));
             if (checked.length === 0) {
@@ -2428,9 +2436,13 @@
         function checkGodMode() {
             const urlParams = new URLSearchParams(window.location.search);
             const isShadow = urlParams.get('shadow') === 'true' || sessionStorage.getItem('palin_shadow_mode') === 'true';
+            const isSim = urlParams.get('simulator') === 'true';
+            const isMaster = (sessionStorage.getItem('palin_super_admin') === 'true') || 
+                             (localStorage.getItem('userRole') === 'SUPER_ADMIN') || 
+                             (urlParams.get('master') === 'true');
             const tenantParam = urlParams.get('tenant') || sessionStorage.getItem('palin_shadow_tenant_code') || sessionStorage.getItem('palin_current_tenant_code');
             const tenantNameParam = sessionStorage.getItem('palin_shadow_tenant_name') || sessionStorage.getItem('palin_current_tenant_name') || tenantParam;
-            const bizTypeParam = urlParams.get('business_type') || urlParams.get('simulator') || sessionStorage.getItem('palin_business_type');
+            const bizTypeParam = urlParams.get('business_type') || sessionStorage.getItem('palin_business_type');
 
             if (tenantParam) {
                 currentTenantCode = tenantParam;
@@ -2443,10 +2455,24 @@
                 switchIndustryConsoleMode(bizTypeParam.toUpperCase());
             }
 
+            // 👑 ONLY Master God-Mode / Simulator Demo users see the 4-way switcher bar!
+            const simBar = document.getElementById('industry-simulator-bar');
+            if (simBar) {
+                if (isMaster || isShadow || isSim) {
+                    simBar.style.display = 'flex';
+                } else {
+                    simBar.style.display = 'none';
+                }
+            }
+
             if (isShadow && tenantParam) {
                 document.body.classList.add('shadow-god-mode');
-                document.getElementById('god-mode-banner').style.display = 'flex';
-                document.getElementById('god-mode-target-name').innerText = `${currentTenantName} (${currentTenantCode})`;
+                const godBanner = document.getElementById('god-mode-banner');
+                if (godBanner) {
+                    godBanner.style.display = 'flex';
+                    const targetEl = document.getElementById('god-mode-target-name');
+                    if (targetEl) targetEl.innerText = `${currentTenantName} (${currentTenantCode})`;
+                }
                 sessionStorage.setItem("palin_admin_authenticated", "true");
             }
         }
@@ -2455,6 +2481,7 @@
             sessionStorage.removeItem("palin_shadow_mode");
             sessionStorage.removeItem("palin_shadow_tenant_code");
             sessionStorage.removeItem("palin_shadow_tenant_name");
+            sessionStorage.removeItem("palin_business_type");
             window.close();
         }
 
@@ -2485,6 +2512,13 @@
                 const data = await res.json();
                 if (!data || !data.summary) return;
                 allStudentsCache = data.students || [];
+
+                // Update tenant name if present
+                if (data.summary.tenant_name || data.summary.name) {
+                    currentTenantName = data.summary.tenant_name || data.summary.name;
+                    const titleElem = document.getElementById('cockpit-academy-title');
+                    if (titleElem) titleElem.innerText = currentTenantName;
+                }
 
                 // Auto apply tenant business type if not in manual simulator mode
                 const urlParams = new URLSearchParams(window.location.search);

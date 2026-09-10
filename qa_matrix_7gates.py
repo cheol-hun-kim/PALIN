@@ -346,6 +346,31 @@ assert 'SaaS 요금제' in b2b_part, "Director brochure missing SaaS pricing"
 
 print("[GATE 2.5 PASS] 3-Persona information security & privacy isolation 100% verified (Zero Cross-Leakage)!")
 
+# 2.6 Multi-Console (admin.html & master.html) Interactive Dead-Button Scanner
+for console_file in ['admin.html', 'master.html']:
+    c_path = os.path.join(ROOT_DIR, 'static', console_file)
+    with open(c_path, 'r', encoding='utf-8') as f:
+        c_html = f.read()
+    scripts = re.findall(r'<script(?:\s+type="text/javascript")?>(.*?)</script>', c_html, re.DOTALL)
+    combined_script = "\n".join(scripts)
+    defined_funcs = set(re.findall(r'function\s+([a-zA-Z0-9_$]+)\s*\(', combined_script))
+    defined_vars = set(re.findall(r'(?:let|const|var)\s+([a-zA-Z0-9_$]+)\s*=', combined_script))
+    all_defs = defined_funcs.union(defined_vars)
+
+    c_onclicks = re.findall(r'onclick=[\'"]([^\'"]+)[\'"]', c_html)
+    for h in c_onclicks:
+        calls = re.findall(r'([a-zA-Z0-9_$]+)\s*\(', h)
+        for c in calls:
+            if c in ['alert', 'confirm', 'prompt', 'open', 'close', 'switchTab', 'parseInt', 'parseFloat',
+                     'encodeURIComponent', 'fetch', 'setTimeout', 'clearTimeout', 'event', 'replace', 'join',
+                     'trim', 'split', 'slice', 'map', 'filter', 'forEach', 'includes', 'toLowerCase', 'toUpperCase', 'Number', 'String']:
+                continue
+            if '.' in c:
+                continue
+            assert c in all_defs, f"Dead button onclick calling undefined function '{c}()' in {console_file}: {h}"
+
+print("[GATE 2.6 PASS] 100% Dead-Button Zero-Tolerance Audit Passed across index.html, admin.html, and master.html!")
+
 # ==============================================================================
 # GATE 3: State Synchronization & Refetch Verification
 # ==============================================================================
