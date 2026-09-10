@@ -49,6 +49,14 @@ def auto_seed_database(db: Session, engine):
             db.execute(text("INSERT INTO system_migrations (migration_key) VALUES ('beta_cash_zero_20260910')"))
             db.commit()
             print("[AUTO_SEED] One-time beta cash reset applied successfully.")
+
+        mig_b2c = db.execute(text("SELECT migration_key FROM system_migrations WHERE migration_key = 'b2c_tier1_global_reset_20260910'")).fetchone()
+        if not mig_b2c:
+            db.query(models.Student).filter(models.Student.id != 1).update({models.Student.b2c_subscription_tier: "TIER_1_FREE"})
+            db.query(models.Student).filter(models.Student.id == 1).update({models.Student.b2c_subscription_tier: "TIER_4_ILWON"})
+            db.execute(text("INSERT INTO system_migrations (migration_key) VALUES ('b2c_tier1_global_reset_20260910')"))
+            db.commit()
+            print("[AUTO_SEED] Global B2C tier normalization applied successfully.")
     except Exception as e:
         db.rollback()
         print(f"[AUTO_SEED] One-time migration note: {e}")
