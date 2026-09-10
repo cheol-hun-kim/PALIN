@@ -875,8 +875,8 @@ tenants_list = master_tenants_res.json()
 assert len(tenants_list) >= 1, f"Expected at least 1 tenant in master list, got {len(tenants_list)}"
 ilwon_t = next((t for t in tenants_list if t["code"] == "ILWON-2027"), None)
 assert ilwon_t is not None, "Flagship tenant ILWON-2027 must exist in master tenants list"
-assert ilwon_t["tier"] == 3 or ilwon_t["tier"] == "3", "ILWON-2027 must be Tier 3 flagship"
-print("[GATE 7.12 PASS] Master God-Mode Flagship Academy (ILWON-2027) & Multi-Tenant B2B Integrity 100% Verified!")
+assert ilwon_t["tier"] == 4 or ilwon_t["tier"] == "4", "ILWON-2027 must be Tier 4 flagship"
+print("[GATE 7.12 PASS] Master God-Mode Flagship Academy (ILWON-2027 Tier 4) & Multi-Tenant B2B Integrity 100% Verified!")
 
 # --- GATE 7.13: Live Real File Upload, Exact Byte-for-Byte SHA-256 Persistence & Honest 404 Rejection ---
 import hashlib, io

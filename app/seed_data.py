@@ -116,8 +116,8 @@ def auto_seed_database(db: Session, engine):
                 "director_name": "김철훈 원장",
                 "director_email": "1286orbital21@gmail.com",
                 "director_pin": "12862386",
-                "tier": 3,
-                "license_tier": 3,
+                "tier": 4,
+                "license_tier": 4,
                 "business_type": "HIGH_ACADEMY",
                 "subject_desc": "수능국어, 대치동 대입직강, 모의고사 OMR 처방",
                 "seats": "[]"

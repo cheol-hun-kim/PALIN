@@ -1545,10 +1545,10 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
                             except Exception:
                                 l_tier = 1
 
-                            if t_tier >= 4 or l_tier >= 4 or code in ("ILWON-2027", "ILWON1", "ILWON"):
-                                tier = 4  # 일원학원 직영 및 Tier 4 가맹학원
+                            if code in ("ILWON-2027", "ILWON1", "ILWON"):
+                                tier = 4  # 👑 일원학원 직영 및 수강생 전용 비매품 Tier 4 (원장 철학 & 8주 방법론)
                             elif t_tier >= 3 or l_tier >= 3:
-                                tier = max(tier, 3)  # B2B Tier 3 auto-sponsors student to Master AI
+                                tier = min(3, max(tier, 3))  # 타 가맹학원은 최대 Tier 3 (Tier 4 접근 불가)
                             elif t_tier == 2 and tier < 2:
                                 tier = 2
                             custom_prompt = tenant.custom_system_prompt
@@ -1602,7 +1602,8 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
                 if content_str and str(content_str).strip():
                     history_dicts.append({"role": clean_role, "content": str(content_str)})
 
-        school_level = getattr(student, 'school_level', 'HIGH') if student else 'HIGH'
+        # 3. Resolve school_level (payload priority, then student DB, fallback 'HIGH')
+        school_level = (payload.school_level or (getattr(student, 'school_level', None) if student else None) or 'HIGH').upper().strip()
 
         reply = ai.ask_ai_chatbot(
             payload.message,
@@ -5611,8 +5612,8 @@ def get_master_tenants(db: Session = Depends(get_db)):
                 director_phone="010-1286-2386", 
                 director_email="1286orbital21@gmail.com",
                 director_pin="12862386", 
-                tier=3, 
-                license_tier=3, 
+                tier=4, 
+                license_tier=4, 
                 max_students=99999, 
                 is_active=True, 
                 brand_color="#6366f1", 
@@ -6139,12 +6140,14 @@ def execute_master_student_action(student_id: int, payload: MasterStudentActionP
         student.academy_code = target_code
         student.pending_tenant_code = None
         student.academy_approval_status = "APPROVED"
-        student.b2c_subscription_tier = "TIER_3_ACADEMY"
-        student.ai_level = "B2B_MASTER_AI"
+        is_ilwon = str(target_code).upper().startswith("ILWON")
+        student.b2c_subscription_tier = "TIER_4_ILWON" if is_ilwon else "TIER_3_ACADEMY"
+        student.ai_level = "TIER_4_ILWON" if is_ilwon else "B2B_MASTER_AI"
         student.has_unlimited_chat = True
         student.chat_tokens = 999
         db.commit()
-        return {"status": "success", "message": f"[{student.name}] 학생의 가맹 등록을 갓모드 권한으로 즉시 강제 승인(Tier 3 활성화)했습니다."}
+        tier_label = "Tier 4 (일원학원 전용)" if is_ilwon else "Tier 3"
+        return {"status": "success", "message": f"[{student.name}] 학생의 가맹 등록을 갓모드 권한으로 즉시 강제 승인({tier_label} 활성화)했습니다."}
 
     elif action == "REJECT":
         student.pending_tenant_code = None
@@ -6155,7 +6158,14 @@ def execute_master_student_action(student_id: int, payload: MasterStudentActionP
     elif action == "SET_TIER":
         target_tier = val or "TIER_1_FREE"
         student.b2c_subscription_tier = target_tier
-        if target_tier in ["TIER_3_MASTER", "TIER_3_ACADEMY"]:
+        if target_tier in ["TIER_4_ILWON", "TIER_4_MASTER", "TIER_4_ACADEMY"]:
+            student.academy_approval_status = "APPROVED"
+            student.academy_code = student.academy_code or "ILWON-2027"
+            student.enrollment_status = "ENROLLED"
+            student.ai_level = "TIER_4_ILWON"
+            student.has_unlimited_chat = True
+            student.chat_tokens = 999
+        elif target_tier in ["TIER_3_MASTER", "TIER_3_ACADEMY"]:
             if target_tier == "TIER_3_ACADEMY":
                 student.academy_approval_status = "APPROVED"
                 student.academy_code = student.academy_code or "ILWON-2027"
@@ -6813,8 +6823,15 @@ def approve_student_enrollment(student_id: int, db: Session = Depends(get_db)):
         return max(t_int, l_int)
 
     t_tier = _safe_tier(tenant)
+    is_ilwon = str(target_code).upper().startswith("ILWON")
 
-    if t_tier >= 3:
+    if is_ilwon or t_tier >= 4:
+        student.b2c_subscription_tier = "TIER_4_ILWON"
+        student.ai_level = "TIER_4_ILWON"
+        student.has_unlimited_chat = True
+        student.chat_tokens = 999
+        tier_title = "Tier 4 일원직영 비매품 AI"
+    elif t_tier >= 3:
         student.b2c_subscription_tier = "TIER_3_ACADEMY"
         student.ai_level = "B2B_MASTER_AI"
         student.has_unlimited_chat = True

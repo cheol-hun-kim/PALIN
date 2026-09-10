@@ -2620,7 +2620,12 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
                 if (isGraduated) {
                     b2bTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(51,65,85,0.4); color:#cbd5e1; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:800; border:1px solid rgba(148,163,184,0.2);">B2B: 🎓 정규 졸업생</span>';
                 } else if (isApprovedAcademy) {
-                    b2bTierBadge = `<span style="display:block; white-space:nowrap; background:rgba(16,185,129,0.2); color:#34d399; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:900; border:1px solid #10b981;">B2B: 🟢 Tier 3 (${s.academy_code || '학원'})</span>`;
+                    const isIlwon = (s.academy_code || '').toUpperCase().includes('ILWON');
+                    if (isIlwon) {
+                        b2bTierBadge = `<span style="display:block; white-space:nowrap; background:rgba(245,158,11,0.25); color:#fbbf24; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:900; border:1px solid #f59e0b;">B2B: 👑 Tier 4 (${s.academy_code || '일원학원'})</span>`;
+                    } else {
+                        b2bTierBadge = `<span style="display:block; white-space:nowrap; background:rgba(16,185,129,0.2); color:#34d399; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:900; border:1px solid #10b981;">B2B: 🟢 Tier 3 (${s.academy_code || '학원'})</span>`;
+                    }
                 } else if (status === "PENDING") {
                     b2bTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(245,158,11,0.25); color:#fbbf24; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:900; border:1px solid #f59e0b;">B2B: ⏳ 승인대기</span>';
                 } else if (status === "REJECTED") {

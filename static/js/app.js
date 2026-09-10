@@ -8944,7 +8944,9 @@ async function sendChatMessage() {
 
                 history: recentHistory.length > 0 ? recentHistory : null,
 
-                user_role: localStorage.getItem('userRole') || 'STUDENT'
+                user_role: localStorage.getItem('userRole') || 'STUDENT',
+
+                school_level: (typeof currentSchoolLevel !== 'undefined' && currentSchoolLevel) ? currentSchoolLevel : ((currentStudent && currentStudent.school_level) ? currentStudent.school_level : 'HIGH')
 
             })
 
@@ -16159,6 +16161,7 @@ async function sendMiddleAICoachChat() {
             body: JSON.stringify({
                 student_id: studentId,
                 message: msg,
+                user_role: 'STUDENT',
                 school_level: 'MIDDLE'
             })
         });
@@ -16342,6 +16345,7 @@ async function sendElemPeroChat() {
             body: JSON.stringify({
                 student_id: studentId,
                 message: msg,
+                user_role: 'STUDENT',
                 school_level: 'ELEMENTARY'
             })
         });

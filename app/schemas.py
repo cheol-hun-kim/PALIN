@@ -294,6 +294,7 @@ class AIChatRequest(BaseModel):
     student_id: Optional[int] = None
     parent_id: Optional[int] = None
     user_role: Optional[str] = "STUDENT"
+    school_level: Optional[str] = None # ELEMENTARY | MIDDLE | HIGH
     message: str
     history: Optional[List[Any]] = None
 
