@@ -705,6 +705,19 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             </div>
         </header>
 
+        <!-- 👑 제작자/관리자 전용 학교급 실시간 3단 뷰어 스위처 바 -->
+        <div id="master-school-level-bar" style="background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); border-bottom: 1.5px solid #818cf8; padding: 7px 12px; display: flex; align-items: center; justify-content: space-between; gap: 6px; box-sizing: border-box; z-index: 100;">
+            <div style="display: flex; align-items: center; gap: 4px; font-size: 0.74rem; font-weight: 800; color: #cbd5e1; white-space: nowrap;">
+                <span style="font-size: 0.85rem;">👑</span>
+                <span>제작자 관제 모드:</span>
+            </div>
+            <div style="display: flex; gap: 4px; overflow-x: auto;" id="master-level-switcher-btns">
+                <button type="button" class="btn" id="m-btn-elem" onclick="switchMasterSchoolView('ELEMENTARY')" style="padding: 5px 9px; font-size: 0.72rem; font-weight: 800; border-radius: 6px; background: rgba(245,158,11,0.15); border: 1px solid #f59e0b; color: #fed7aa; white-space: nowrap;">🐣 초등 모드</button>
+                <button type="button" class="btn" id="m-btn-mid" onclick="switchMasterSchoolView('MIDDLE')" style="padding: 5px 9px; font-size: 0.72rem; font-weight: 800; border-radius: 6px; background: rgba(59,130,246,0.15); border: 1px solid #3b82f6; color: #93c5fd; white-space: nowrap;">🧭 중등 모드</button>
+                <button type="button" class="btn active" id="m-btn-high" onclick="switchMasterSchoolView('HIGH')" style="padding: 5px 9px; font-size: 0.72rem; font-weight: 800; border-radius: 6px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff; white-space: nowrap;">🎯 고등 모드</button>
+            </div>
+        </div>
+
         <!-- 3. 메인 뷰포트 (페이지 변경) -->
         <main>
             
@@ -2869,6 +2882,31 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <div id="mypage-tier-pending-badge" style="display: none; background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; border-radius: 8px; padding: 6px 10px; font-size: 0.76rem; font-weight: 800; color: #fbbf24;">
                         ⏳ <span id="mypage-pending-academy-name">학원</span> 가맹 승인 대기 중 (원장님 승인 대기)
                     </div>
+                </div>
+            </div>
+
+            <!-- 👑 학교급 화면 실시간 전환 (제작자/관리자 전용) -->
+            <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(30, 27, 75, 0.4)); border: 1.5px solid #818cf8; border-radius: 16px; padding: 14px; margin-bottom: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <div style="font-size: 0.85rem; font-weight: 800; color: #c7d2fe; display: flex; align-items: center; gap: 6px;">
+                        <span>👑</span>
+                        <span>학교급 화면 모드 실시간 전환 (제작자 전용)</span>
+                    </div>
+                    <span style="font-size: 0.68rem; color: #a5b4fc; background: rgba(99,102,241,0.25); border: 1px solid #818cf8; padding: 2px 6px; border-radius: 6px; font-weight: 700;">MASTER VIEW</span>
+                </div>
+                <div style="font-size: 0.73rem; color: #94a3b8; margin-bottom: 10px; line-height: 1.4;">
+                    초등·중등·고등 전 연령대 화면을 즉시 전환하여 각 학교급별 UI와 특화 기능을 직접 테스트 및 관제할 수 있습니다.
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;" id="mypage-school-switcher-btns">
+                    <button type="button" class="btn" id="mypage-btn-elem" onclick="switchMasterSchoolView('ELEMENTARY'); closeMyPageModal();" style="padding: 9px 4px; font-size: 0.74rem; font-weight: 800; border-radius: 8px; background: rgba(245,158,11,0.15); border: 1px solid #f59e0b; color: #fed7aa; cursor: pointer;">
+                        🐣 초등 모드
+                    </button>
+                    <button type="button" class="btn" id="mypage-btn-mid" onclick="switchMasterSchoolView('MIDDLE'); closeMyPageModal();" style="padding: 9px 4px; font-size: 0.74rem; font-weight: 800; border-radius: 8px; background: rgba(59,130,246,0.15); border: 1px solid #3b82f6; color: #93c5fd; cursor: pointer;">
+                        🧭 중등 모드
+                    </button>
+                    <button type="button" class="btn active" id="mypage-btn-high" onclick="switchMasterSchoolView('HIGH'); closeMyPageModal();" style="padding: 9px 4px; font-size: 0.74rem; font-weight: 800; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff; cursor: pointer;">
+                        🎯 고등 모드
+                    </button>
                 </div>
             </div>
 

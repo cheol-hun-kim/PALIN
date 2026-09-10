@@ -5061,7 +5061,18 @@ async function fetchStudentInfo(studentId) {
 
         try { updateStudentUnivSelectors(); } catch(e) { console.warn("updateStudentUnivSelectors error:", e); }
 
-        try { renderAppForSchoolLevel(currentStudent); } catch(e) { console.warn("renderAppForSchoolLevel error:", e); }
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const previewLevel = urlParams.get("preview_level") || localStorage.getItem("palin_master_school_level");
+            if (previewLevel) {
+                currentStudent.school_level = previewLevel.toUpperCase();
+            }
+            if (typeof switchMasterSchoolView === "function") {
+                switchMasterSchoolView(currentStudent.school_level || "HIGH");
+            } else {
+                renderAppForSchoolLevel(currentStudent);
+            }
+        } catch(e) { console.warn("renderAppForSchoolLevel error:", e); }
 
         // 부가 데이터는 병렬 비동기(Promise.allSettled)로 즉각 백그라운드 로드
 
@@ -15839,6 +15850,69 @@ function renderAppForSchoolLevel(student) {
     }
 }
 window.renderAppForSchoolLevel = renderAppForSchoolLevel;
+
+function switchMasterSchoolView(level) {
+    level = (level || 'HIGH').toUpperCase();
+    console.log('[Master] Switching school level view to:', level);
+
+    if (!currentStudent) {
+        currentStudent = {
+            id: 1,
+            name: "제작자(테스트)",
+            email: "admin@palin.kr",
+            school_level: level,
+            school_name: level === 'ELEMENTARY' ? '서울대치초등학교' : (level === 'MIDDLE' ? '대치중학교' : '낙생고등학교'),
+            target_high_school: '외대부고 자연계열',
+            baseline_high_school: '지역 일반고',
+            pet_type: 'pero',
+            pet_level: 1,
+            pet_exp: 0,
+            dream_job: '의사',
+            grade: level === 'ELEMENTARY' ? 5 : (level === 'MIDDLE' ? 2 : 2)
+        };
+    } else {
+        currentStudent.school_level = level;
+    }
+
+    localStorage.setItem('palin_master_school_level', level);
+
+    // Update buttons in top master bar
+    const btnElem = document.getElementById('m-btn-elem');
+    const btnMid = document.getElementById('m-btn-mid');
+    const btnHigh = document.getElementById('m-btn-high');
+
+    if (btnElem && btnMid && btnHigh) {
+        btnElem.style.background = level === 'ELEMENTARY' ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'rgba(245,158,11,0.15)';
+        btnElem.style.color = level === 'ELEMENTARY' ? '#000000' : '#fed7aa';
+        btnElem.style.fontWeight = level === 'ELEMENTARY' ? '900' : '800';
+
+        btnMid.style.background = level === 'MIDDLE' ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)' : 'rgba(59,130,246,0.15)';
+        btnMid.style.color = level === 'MIDDLE' ? '#ffffff' : '#93c5fd';
+        btnMid.style.fontWeight = level === 'MIDDLE' ? '900' : '800';
+
+        btnHigh.style.background = level === 'HIGH' ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : 'rgba(99,102,241,0.15)';
+        btnHigh.style.color = level === 'HIGH' ? '#ffffff' : '#c7d2fe';
+        btnHigh.style.fontWeight = level === 'HIGH' ? '900' : '800';
+    }
+
+    // Update buttons in mypage modal if present
+    const mpElem = document.getElementById('mypage-btn-elem');
+    const mpMid = document.getElementById('mypage-btn-mid');
+    const mpHigh = document.getElementById('mypage-btn-high');
+    if (mpElem && mpMid && mpHigh) {
+        mpElem.style.background = level === 'ELEMENTARY' ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'rgba(245,158,11,0.15)';
+        mpElem.style.color = level === 'ELEMENTARY' ? '#000000' : '#fed7aa';
+
+        mpMid.style.background = level === 'MIDDLE' ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)' : 'rgba(59,130,246,0.15)';
+        mpMid.style.color = level === 'MIDDLE' ? '#ffffff' : '#93c5fd';
+
+        mpHigh.style.background = level === 'HIGH' ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : 'rgba(99,102,241,0.15)';
+        mpHigh.style.color = level === 'HIGH' ? '#ffffff' : '#c7d2fe';
+    }
+
+    renderAppForSchoolLevel(currentStudent);
+}
+window.switchMasterSchoolView = switchMasterSchoolView;
 
 // --- [중등] 나침반 & 전용 기능 ---
 function refreshMiddleUI(student) {
