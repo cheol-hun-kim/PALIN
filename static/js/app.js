@@ -16379,10 +16379,160 @@ function checkElemQuiz(optionIndex) {
 window.checkElemQuiz = checkElemQuiz;
 
 // --- [내신 기출 출처 정밀 추적기] ---
+let currentTracerImageBase64 = null;
+
+function handleTracerSchoolSelect(val) {
+    const customInp = document.getElementById('tracer-school');
+    const hint = document.getElementById('tracer-school-region-hint');
+    if (val === 'CUSTOM') {
+        if (customInp) {
+            customInp.style.display = 'block';
+            customInp.value = '';
+            customInp.focus();
+        }
+        if (hint) hint.innerText = '📋 목록에서 선택';
+    } else if (val === 'AUTO_MY_SCHOOL') {
+        if (customInp) {
+            customInp.style.display = 'none';
+            customInp.value = (typeof currentStudent !== 'undefined' && currentStudent) ? (currentStudent.high_school || currentStudent.school_name || '') : '';
+        }
+        if (hint) hint.innerText = '✏️ 학교명 직접 입력';
+    } else {
+        if (customInp) {
+            customInp.style.display = 'none';
+            customInp.value = val;
+        }
+        if (hint) hint.innerText = '✏️ 학교명 직접 입력';
+    }
+}
+window.handleTracerSchoolSelect = handleTracerSchoolSelect;
+
+function toggleTracerCustomSchool() {
+    const sel = document.getElementById('tracer-school-select');
+    const customInp = document.getElementById('tracer-school');
+    const hint = document.getElementById('tracer-school-region-hint');
+    if (!sel || !customInp) return;
+    if (customInp.style.display === 'none' || customInp.style.display === '') {
+        customInp.style.display = 'block';
+        sel.value = 'CUSTOM';
+        customInp.focus();
+        if (hint) hint.innerText = '📋 목록에서 선택';
+    } else {
+        customInp.style.display = 'none';
+        sel.value = 'AUTO_MY_SCHOOL';
+        customInp.value = (typeof currentStudent !== 'undefined' && currentStudent) ? (currentStudent.high_school || currentStudent.school_name || '') : '';
+        if (hint) hint.innerText = '✏️ 학교명 직접 입력';
+    }
+}
+window.toggleTracerCustomSchool = toggleTracerCustomSchool;
+
+function getEffectiveTracerSchool() {
+    const sel = document.getElementById('tracer-school-select');
+    const customInp = document.getElementById('tracer-school');
+    if (sel && sel.value !== 'CUSTOM' && sel.value !== 'AUTO_MY_SCHOOL') {
+        return sel.value;
+    }
+    if (customInp && customInp.value.trim()) {
+        return customInp.value.trim();
+    }
+    return (typeof currentStudent !== 'undefined' && currentStudent) ? (currentStudent.high_school || currentStudent.school_name || '') : '';
+}
+window.getEffectiveTracerSchool = getEffectiveTracerSchool;
+
+async function handleTracerImageUpload(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    const previewArea = document.getElementById('tracer-image-preview-area');
+    const previewImg = document.getElementById('tracer-image-preview');
+    const ocrStatus = document.getElementById('tracer-ocr-status');
+    const queryTextarea = document.getElementById('tracer-query');
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        currentTracerImageBase64 = e.target.result;
+        if (previewImg) previewImg.src = currentTracerImageBase64;
+        if (previewArea) previewArea.style.display = 'block';
+        if (ocrStatus) {
+            ocrStatus.innerHTML = '<span style="color: #818cf8;">🤖 Gemini AI Vision이 문제 지문과 수식을 실시간 텍스트로 추출 중입니다...</span>';
+        }
+
+        try {
+            const subject = document.getElementById('tracer-subject')?.value || '국어';
+            const schoolName = getEffectiveTracerSchool();
+            const examType = document.getElementById('tracer-exam-type')?.value || '1학기 중간';
+
+            const res = await fetch('/api/exam-sources/ocr-trace', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    image_base64: currentTracerImageBase64,
+                    subject: subject,
+                    school_name: schoolName,
+                    exam_type: examType,
+                    mime_type: file.type || 'image/jpeg'
+                })
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                if (ocrStatus) ocrStatus.innerHTML = `<span style="color: #f43f5e;">OCR 인식 실패: ${err.detail || '사진 분석 중 오류가 발생했습니다.'}</span>`;
+                return;
+            }
+
+            const data = await res.json();
+            if (ocrStatus) {
+                ocrStatus.innerHTML = '<span style="color: #10b981;">✅ AI 지문 추출 및 출처 매칭 완료!</span>';
+            }
+
+            if (data.extracted_text && queryTextarea) {
+                queryTextarea.value = data.extracted_text;
+                const charCount = document.getElementById('tracer-char-count');
+                if (charCount) charCount.innerText = data.extracted_text.length + '자';
+            }
+
+            const resultBox = document.getElementById('tracer-result-box');
+            const itemsList = document.getElementById('tracer-items-list');
+            const countBadge = document.getElementById('tracer-match-count');
+            const trendBox = document.getElementById('tracer-school-trend');
+
+            if (resultBox) resultBox.style.display = 'block';
+            if (countBadge) countBadge.innerText = `${data.total_matches || (data.matched_sources ? data.matched_sources.length : 0)}개 매칭`;
+            
+            if (data.school_trend && trendBox) {
+                trendBox.style.display = 'block';
+                trendBox.innerHTML = `<b>📊 ${data.school_trend.school_name} 출제 경향 분석:</b><br>${data.school_trend.trend_summary}<br><span style="font-size:0.72rem; color:#a5b4fc;">EBS 연계율: ${data.school_trend.ebs_ratio}% · 평가원 변형: ${data.school_trend.past_exam_ratio}% · 시중교재: ${data.school_trend.commercial_book_ratio}%</span>`;
+            }
+
+            if (itemsList && typeof renderExamSourceTracerResults === 'function') {
+                renderExamSourceTracerResults(data, itemsList);
+            }
+        } catch(err) {
+            console.error('OCR Trace Error:', err);
+            if (ocrStatus) ocrStatus.innerHTML = '<span style="color: #f43f5e;">사진 추출 중 통신 오류가 발생했습니다.</span>';
+        }
+    };
+    reader.readAsDataURL(file);
+}
+window.handleTracerImageUpload = handleTracerImageUpload;
+
+function clearTracerImage() {
+    currentTracerImageBase64 = null;
+    const previewArea = document.getElementById('tracer-image-preview-area');
+    const previewImg = document.getElementById('tracer-image-preview');
+    const fileInput = document.getElementById('tracer-image-input');
+    const ocrStatus = document.getElementById('tracer-ocr-status');
+    if (previewArea) previewArea.style.display = 'none';
+    if (previewImg) previewImg.src = '';
+    if (fileInput) fileInput.value = '';
+    if (ocrStatus) ocrStatus.innerHTML = '';
+}
+window.clearTracerImage = clearTracerImage;
+
 async function runExamSourceTrace() {
     const subject = document.getElementById('tracer-subject')?.value || '국어';
     const examType = document.getElementById('tracer-exam-type')?.value || '1학기 중간';
-    const schoolName = document.getElementById('tracer-school')?.value.trim() || currentStudent?.high_school || currentStudent?.school_name || '';
+    const schoolName = getEffectiveTracerSchool();
     const query = document.getElementById('tracer-query')?.value.trim();
     const resultBox = document.getElementById('tracer-result-box');
     const itemsList = document.getElementById('tracer-items-list');
@@ -16419,7 +16569,7 @@ async function runExamSourceTrace() {
         }
 
         const data = await res.json();
-        if (countBadge) countBadge.innerText = `${data.total_matches || 0}개 매칭`;
+        if (countBadge) countBadge.innerText = `${data.total_matches || (data.matched_sources ? data.matched_sources.length : 0)}개 매칭`;
 
         if (data.school_trend && trendBox) {
             trendBox.style.display = 'block';

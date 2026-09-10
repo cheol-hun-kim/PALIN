@@ -2455,10 +2455,10 @@
                 switchIndustryConsoleMode(bizTypeParam.toUpperCase());
             }
 
-            // 👑 ONLY Master God-Mode / Simulator Demo users see the 4-way switcher bar!
+            // 👑 ONLY when explicitly launched as Simulator Demo (?simulator=true) does the 4-way switcher bar display!
             const simBar = document.getElementById('industry-simulator-bar');
             if (simBar) {
-                if (isMaster || isShadow || isSim) {
+                if (isSim) {
                     simBar.style.display = 'flex';
                 } else {
                     simBar.style.display = 'none';

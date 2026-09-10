@@ -131,6 +131,13 @@ class ExamSourceTraceRequest(BaseModel):
     subject: Optional[str] = None
     query_text: str # 검색할 문항 텍스트나 키워드
 
+class ExamOcrTraceRequest(BaseModel):
+    image_base64: str
+    subject: Optional[str] = "국어"
+    school_name: Optional[str] = ""
+    exam_type: Optional[str] = "1학기 중간"
+    mime_type: Optional[str] = "image/jpeg"
+
 class ExamSourceTagCreate(BaseModel):
     item_id: Optional[int] = None
     student_id: Optional[int] = 1

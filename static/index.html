@@ -1668,27 +1668,128 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
                         <div style="margin-bottom: 10px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                <label class="input-label" style="font-size: 0.76rem; color: #c7d2fe; margin-bottom: 0;">학교명 선택 (내 지역 기반 드롭다운)</label>
-                                <span style="font-size: 0.7rem; color: #94a3b8;" id="tracer-school-region-hint">지역 학교 자동 추천</span>
+                                <label class="input-label" style="font-size: 0.78rem; color: #c7d2fe; font-weight: 700; margin-bottom: 0;">🏫 대상 학교 선택</label>
+                                <span style="font-size: 0.72rem; color: #a5b4fc; cursor: pointer;" id="tracer-school-region-hint" onclick="toggleTracerCustomSchool()">✏️ 학교명 직접 입력</span>
                             </div>
-                            <input type="text" id="tracer-school" class="form-input" placeholder="학교명 선택 또는 직접 입력 (예: 낙생고등학교/대치중학교)" list="tracer-school-datalist" style="height: 40px; font-size: 0.84rem; font-weight: 700;">
-                            <datalist id="tracer-school-datalist"></datalist>
+                            <select id="tracer-school-select" class="form-input" style="height: 42px; font-size: 0.84rem; font-weight: 700; background: #1e1e2f; color: white;" onchange="handleTracerSchoolSelect(this.value)">
+                                <option value="AUTO_MY_SCHOOL" selected>⭐ 내 등록 학교 (자동 연동)</option>
+                                <optgroup label="📍 강남·서초구 주요 고교">
+                                    <option value="낙생고등학교">낙생고등학교</option>
+                                    <option value="휘문고등학교">휘문고등학교</option>
+                                    <option value="중동고등학교">중동고등학교</option>
+                                    <option value="단대부속고등학교">단대부속고등학교</option>
+                                    <option value="중산고등학교">중산고등학교</option>
+                                    <option value="경기고등학교">경기고등학교</option>
+                                    <option value="서울고등학교">서울고등학교</option>
+                                    <option value="세화고등학교">세화고등학교</option>
+                                    <option value="세화여자고등학교">세화여자고등학교</option>
+                                    <option value="숙명여자고등학교">숙명여자고등학교</option>
+                                    <option value="은광여자고등학교">은광여자고등학교</option>
+                                    <option value="진선여자고등학교">진선여자고등학교</option>
+                                    <option value="경기여자고등학교">경기여자고등학교</option>
+                                    <option value="서문여자고등학교">서문여자고등학교</option>
+                                    <option value="영동고등학교">영동고등학교</option>
+                                    <option value="개포고등학교">개포고등학교</option>
+                                    <option value="양재고등학교">양재고등학교</option>
+                                    <option value="반포고등학교">반포고등학교</option>
+                                    <option value="서초고등학교">서초고등학교</option>
+                                    <option value="현대고등학교">현대고등학교</option>
+                                    <option value="압구정고등학교">압구정고등학교</option>
+                                    <option value="청담고등학교">청담고등학교</option>
+                                </optgroup>
+                                <optgroup label="📍 분당·판교·용인 주요 고교">
+                                    <option value="분당대진고등학교">분당대진고등학교</option>
+                                    <option value="서현고등학교">서현고등학교</option>
+                                    <option value="수내고등학교">수내고등학교</option>
+                                    <option value="분당고등학교">분당고등학교</option>
+                                    <option value="늘푸른고등학교">늘푸른고등학교</option>
+                                    <option value="야탑고등학교">야탑고등학교</option>
+                                    <option value="이매고등학교">이매고등학교</option>
+                                    <option value="보평고등학교">보평고등학교</option>
+                                    <option value="판교고등학교">판교고등학교</option>
+                                    <option value="운중고등학교">운중고등학교</option>
+                                    <option value="태원고등학교">태원고등학교</option>
+                                    <option value="송림고등학교">송림고등학교</option>
+                                    <option value="한솔고등학교">한솔고등학교</option>
+                                    <option value="불곡고등학교">불곡고등학교</option>
+                                    <option value="수지고등학교">수지고등학교</option>
+                                    <option value="풍덕고등학교">풍덕고등학교</option>
+                                    <option value="홍천고등학교">홍천고등학교</option>
+                                </optgroup>
+                                <optgroup label="📍 송파·강동·목동 주요 고교">
+                                    <option value="보인고등학교">보인고등학교</option>
+                                    <option value="배재고등학교">배재고등학교</option>
+                                    <option value="한영고등학교">한영고등학교</option>
+                                    <option value="명일여자고등학교">명일여자고등학교</option>
+                                    <option value="강서고등학교">강서고등학교</option>
+                                    <option value="양정고등학교">양정고등학교</option>
+                                    <option value="목동고등학교">목동고등학교</option>
+                                    <option value="신목고등학교">신목고등학교</option>
+                                </optgroup>
+                                <optgroup label="📍 전국단위 자사고 / 특목·외고">
+                                    <option value="용인외대부고">용인외대부고 (외대부고)</option>
+                                    <option value="하나고등학교">하나고등학교</option>
+                                    <option value="상산고등학교">상산고등학교</option>
+                                    <option value="민족사관고등학교">민족사관고등학교 (민사고)</option>
+                                    <option value="포항제철고등학교">포항제철고등학교</option>
+                                    <option value="대원외국어고등학교">대원외국어고등학교</option>
+                                    <option value="한영외국어고등학교">한영외국어고등학교</option>
+                                    <option value="명덕외국어고등학교">명덕외국어고등학교</option>
+                                </optgroup>
+                                <optgroup label="📍 주요 중학교">
+                                    <option value="대치중학교">대치중학교</option>
+                                    <option value="역삼중학교">역삼중학교</option>
+                                    <option value="도곡중학교">도곡중학교</option>
+                                    <option value="대청중학교">대청중학교</option>
+                                    <option value="구룡중학교">구룡중학교</option>
+                                    <option value="개원중학교">개원중학교</option>
+                                    <option value="휘문중학교">휘문중학교</option>
+                                    <option value="단대부중학교">단대부중학교</option>
+                                    <option value="중동중학교">중동중학교</option>
+                                    <option value="내정중학교">내정중학교</option>
+                                    <option value="수내중학교">수내중학교</option>
+                                    <option value="백현중학교">백현중학교</option>
+                                    <option value="보평중학교">보평중학교</option>
+                                    <option value="월촌중학교">월촌중학교</option>
+                                    <option value="목동중학교">목동중학교</option>
+                                    <option value="신목중학교">신목중학교</option>
+                                </optgroup>
+                                <option value="CUSTOM">✏️ 직접 입력 (목록에 없는 학교)</option>
+                            </select>
+                            <input type="text" id="tracer-school" class="form-input" placeholder="학교명 직접 입력 (예: 낙생고등학교/대치중학교)" style="height: 40px; font-size: 0.84rem; font-weight: 700; display: none; margin-top: 6px;">
+                        </div>
+
+                        <!-- 📷 문제 사진 촬영 / 이미지 업로드 AI OCR 검색 -->
+                        <div style="margin-bottom: 12px; background: rgba(99, 102, 241, 0.08); border: 1.5px dashed rgba(99, 102, 241, 0.4); border-radius: 12px; padding: 12px 14px; text-align: center;">
+                            <div id="tracer-image-preview-area" style="display: none; margin-bottom: 10px; position: relative;">
+                                <img id="tracer-image-preview" src="" style="max-height: 180px; max-width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); object-fit: contain;">
+                                <button type="button" onclick="clearTracerImage()" style="position: absolute; top: 4px; right: 4px; background: rgba(239,68,68,0.9); color: white; border: none; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; font-weight: 900; font-size: 1rem; line-height: 1;">×</button>
+                                <div id="tracer-ocr-status" style="font-size: 0.76rem; color: #818cf8; font-weight: 700; margin-top: 6px;"></div>
+                            </div>
+                            <input type="file" id="tracer-image-input" accept="image/*" capture="environment" style="display: none;" onchange="handleTracerImageUpload(event)">
+                            <button type="button" onclick="document.getElementById('tracer-image-input').click()" class="btn" style="width: 100%; padding: 11px 14px; font-size: 0.85rem; font-weight: 800; background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <span class="material-symbols-rounded" style="font-size: 1.2rem;">photo_camera</span>
+                                <span>📷 문제 사진 촬영 / 이미지 업로드 (AI OCR 자동분석)</span>
+                            </button>
+                            <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 6px;">
+                                시험지나 문제집 사진을 올리면 <b>Gemini AI Vision</b>이 지문·수식·선지를 자동 추출하여 출처를 검색합니다.
+                            </div>
                         </div>
 
                         <div style="margin-bottom: 12px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                <label class="input-label" style="font-size: 0.76rem; color: #c7d2fe; margin-bottom: 0;">문제 본문/지문/발문/선지 입력</label>
-                                <span style="font-size: 0.7rem; color: var(--text-secondary);" id="tracer-char-count">0자</span>
+                                <label class="input-label" style="font-size: 0.78rem; color: #c7d2fe; font-weight: 700; margin-bottom: 0;">문제 본문 / 지문 / 발문 / 선지 텍스트</label>
+                                <span style="font-size: 0.72rem; color: var(--text-secondary);" id="tracer-char-count">0자</span>
                             </div>
-                            <textarea id="tracer-query" class="form-input" placeholder="시험 문제의 핵심 지문, 보기, 선지, 조건식 등을 15자 이상 복사하여 붙여넣으세요...&#10;예: (가) 나 하늘로 돌아가리라 아름다운 이 세상 소풍 끝내는 날...&#10;예: 삼차함수 f(x)가 다음 조건을 만족시킬 때 f(3)의 값을 구하시오." rows="4" style="resize: vertical; min-height: 90px; line-height: 1.45; font-size: 0.84rem; border-radius: 10px;" oninput="document.getElementById('tracer-char-count').innerText=this.value.length+'자'"></textarea>
+                            <textarea id="tracer-query" class="form-input" placeholder="시험 문제의 핵심 지문, 보기, 선지, 조건식 등을 복사하여 붙여넣으세요.&#10;&#10;예: (가) 나 하늘로 돌아가리라 아름다운 이 세상 소풍 끝내는 날 가서, 아름다웠더라고 말하리라...&#10;예: 최고차항의 계수가 1인 삼차함수 f(x)가 다음 조건을 만족시킨다. (가) f(0)=0 (나) 모든 실수 x에 대하여 f'(x) ≥ 0..." rows="6" style="resize: vertical; min-height: 140px; line-height: 1.5; font-size: 0.86rem; border-radius: 10px; padding: 12px;" oninput="document.getElementById('tracer-char-count').innerText=this.value.length+'자'"></textarea>
                         </div>
 
                         <div style="display: flex; gap: 8px; margin-bottom: 14px;">
-                            <button type="button" class="btn" onclick="runExamSourceTrace()" style="flex: 2; padding: 12px; font-weight: 800; font-size: 0.92rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                                <span class="material-symbols-rounded" style="font-size: 1.1rem;">search_check</span>
+                            <button type="button" class="btn" onclick="runExamSourceTrace()" style="flex: 2; padding: 13px; font-weight: 900; font-size: 0.95rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <span class="material-symbols-rounded" style="font-size: 1.15rem;">search_check</span>
                                 <span>출처 정밀 추적 실행</span>
                             </button>
-                            <button type="button" class="btn btn-secondary" onclick="openExamTagModal()" style="flex: 1; padding: 12px 6px; font-size: 0.8rem; font-weight: 800; border-radius: 10px; border: 1px dashed #818cf8; color: #c7d2fe;" title="직접 출처 제보하고 500 캐시 받기">
+                            <button type="button" class="btn btn-secondary" onclick="openExamTagModal()" style="flex: 1; padding: 13px 6px; font-size: 0.82rem; font-weight: 800; border-radius: 10px; border: 1px dashed #818cf8; color: #c7d2fe;" title="직접 출처 제보하고 500 캐시 받기">
                                 🏷️ 출처 제보
                             </button>
                         </div>
