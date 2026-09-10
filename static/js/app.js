@@ -14053,32 +14053,26 @@ async function checkInAttendanceNow() {
 let currentHubSubTab = "feed";
 
 function switchHubSubTab(subTab) {
-
     currentHubSubTab = subTab;
-
     document.querySelectorAll(".hub-subtab-view").forEach(el => el.style.display = "none");
-
     document.querySelectorAll(".subtab-btn-hub-2x2, .subtab-btn-hub").forEach(el => el.classList.remove("active"));
 
     const targetView = document.getElementById(`hub-view-${subTab}`);
-
     const targetBtn = document.getElementById(`hub-tab-${subTab}`);
 
     if (targetView) targetView.style.display = "block";
-
     if (targetBtn) targetBtn.classList.add("active");
 
     if (subTab === "feed") loadAcademyHubView();
-
     else if (subTab === "vod") loadStudentVods();
-
     else if (subTab === "material") loadAcademyMaterials();
-
     else if (subTab === "exam") {
         loadStudentExamHistory();
         renderDigitalOmrPad();
     }
-
+    else if (subTab === "seat") {
+        loadStudentAcademySeats();
+    }
 }
 
 async function loadAcademyMaterials() {

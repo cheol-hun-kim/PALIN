@@ -2237,10 +2237,6 @@
             }).catch(() => alert('수여 실패'));
         }
 
-        let currentTenantCode = "ILWON-2027";
-        let currentTenantName = "일원학원";
-        let currentFinanceFilter = "ALL";
-
         function switchAdminCockpitTab(tabId) {
             document.querySelectorAll('.cockpit-tab-view').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.admin-cockpit-tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -4397,6 +4393,11 @@
             const cut1 = document.getElementById("admin-cut-1");
             const cut2 = document.getElementById("admin-cut-2");
             const cut3 = document.getElementById("admin-cut-3");
+            if (cut1) cut1.placeholder = isWrongCount ? "예: -3" : "예: 92";
+            if (cut2) cut2.placeholder = isWrongCount ? "예: -6" : "예: 84";
+            if (cut3) cut3.placeholder = isWrongCount ? "예: -10" : "예: 76";
+        }
+
         function handleChargeSMSCredit(amount) {
             const el = document.getElementById("tenant-sms-credits");
             const hintEl = document.getElementById("tenant-sms-count-hint");

@@ -2047,51 +2047,6 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </div>
                     </div>
 
-                    <!-- 🪑 실시간 2D 좌석 매트릭스 & 좌석 선택/예약 카드 -->
-                    <div class="card" id="student-academy-seat-card" style="margin-bottom: 14px; border: 1.5px solid rgba(124, 58, 237, 0.35); background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(99, 102, 241, 0.04));">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-                            <div style="display: flex; align-items: center; gap: 6px;">
-                                <span class="material-symbols-rounded" style="color: #a78bfa; font-size: 1.3rem;">chair</span>
-                                <span style="font-size: 0.98rem; font-weight: 800; color: var(--text-primary);">🪑 실시간 좌석 현황 & 내 좌석</span>
-                            </div>
-                            <div id="student-seat-mode-badge" style="font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
-                                🟢 자유선택/선착순제
-                            </div>
-                        </div>
-
-                        <!-- 내 현재 배정/입실 좌석 상태 바 -->
-                        <div id="student-my-seat-banner" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                            <div>
-                                <div style="font-size: 0.74rem; color: var(--text-secondary);">내 현재 좌석 상태</div>
-                                <div style="font-size: 0.92rem; font-weight: 900; color: #ffffff;" id="student-my-seat-text">
-                                    미배정 (빈 좌석을 터치하여 입실하세요)
-                                </div>
-                            </div>
-                            <div id="student-my-seat-action-btn-area">
-                                <!-- 퇴실/좌석반납 버튼 (입실 중일 때 노출) -->
-                            </div>
-                        </div>
-
-                        <!-- 운영 방식별 안내 문구 (지정좌석제 시 잠금 안내) -->
-                        <div id="student-seat-lock-notice" style="display: none; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 0.78rem; color: #fbbf24; line-height: 1.45;">
-                            🔒 본 기관은 원장 전담 <strong>[지정좌석제]</strong>로 운영 중입니다. 좌석 변경 및 신규 배정은 원장실에 문의해 주세요.
-                        </div>
-
-                        <!-- 2D 좌석 매트릭스 그리드 -->
-                        <div id="student-seat-matrix-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; max-height: 280px; overflow-y: auto; padding: 4px;">
-                            <!-- JS에서 좌석 미니 카드 동적 렌더링 -->
-                        </div>
-
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 0.72rem; color: var(--text-secondary); border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
-                            <span id="student-seat-stats-text">잔여 18석 / 총 24석</span>
-                            <button type="button" onclick="loadStudentAcademySeats()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.72rem; display: flex; align-items: center; gap: 2px;">
-                                <span class="material-symbols-rounded" style="font-size: 0.85rem;">refresh</span>
-                                <span>새로고침</span>
-                            </button>
-                        </div>
-                    </div>
-
-
                     <!-- 휴강생 전용 복귀 신청 배너 -->
                     <div id="hub-leave-notice-card" class="card" style="display: none; margin-bottom: 12px; border-color: #ef4444; background: rgba(239, 68, 68, 0.08);">
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
@@ -2103,7 +2058,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </div>
                     </div>
 
-                    <!-- 🧭 학원 관리 5대 서브탭 (2x2 + 1 와이드 그리드) -->
+                    <!-- 🧭 학원/독서실 관리 6대 서브탭 (2x3 균형 그리드) -->
                     <div class="subtabs-container-hub" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;">
                         <button class="subtab-btn-hub-2x2 active" onclick="switchHubSubTab('feed')" id="hub-tab-feed" style="padding: 12px 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
                             <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #c084fc;">calendar_month</span>
@@ -2121,9 +2076,13 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #34d399;">document_scanner</span>
                             <span style="font-size: 0.88rem; font-weight: 800;">시험·OMR</span>
                         </button>
-                        <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('request')" id="hub-tab-request" style="grid-column: 1 / -1; padding: 12px 14px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                            <span class="material-symbols-rounded" style="font-size: 1.35rem; color: #fbbf24;">support_agent</span>
-                            <span style="font-size: 0.9rem; font-weight: 800;">원장 직통 행정신청 (휴강/복귀/사물함)</span>
+                        <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('seat')" id="hub-tab-seat" style="padding: 12px 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #a78bfa;">chair</span>
+                            <span style="font-size: 0.88rem; font-weight: 800;">좌석선택</span>
+                        </button>
+                        <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('request')" id="hub-tab-request" style="padding: 12px 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #fbbf24;">support_agent</span>
+                            <span style="font-size: 0.88rem; font-weight: 800;">행정신청</span>
                         </button>
                     </div>
 
@@ -2459,6 +2418,53 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </div>
 
                         <!-- 서브탭 4: 📋 행정 요청 센터 (VOD, 결석보강, 반변경, 휴강/퇴원) -->
+                        
+                        <!-- 서브탭 5: 🪑 실시간 2D 좌석 매트릭스 & 좌석 선택/예약 -->
+                        <div id="hub-view-seat" class="hub-subtab-view" style="display: none;">
+                            <div class="card" id="student-academy-seat-card" style="margin-bottom: 14px; border: 1.5px solid rgba(124, 58, 237, 0.35); background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(99, 102, 241, 0.04));">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span class="material-symbols-rounded" style="color: #a78bfa; font-size: 1.3rem;">chair</span>
+                                        <span style="font-size: 0.98rem; font-weight: 800; color: var(--text-primary);">🪑 실시간 좌석 현황 & 내 좌석</span>
+                                    </div>
+                                    <div id="student-seat-mode-badge" style="font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
+                                        🟢 자유선택/선착순제
+                                    </div>
+                                </div>
+
+                                <!-- 내 현재 배정/입실 좌석 상태 바 -->
+                                <div id="student-my-seat-banner" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                    <div>
+                                        <div style="font-size: 0.74rem; color: var(--text-secondary);">내 현재 좌석 상태</div>
+                                        <div style="font-size: 0.92rem; font-weight: 900; color: #ffffff;" id="student-my-seat-text">
+                                            미배정 (빈 좌석을 터치하여 입실하세요)
+                                        </div>
+                                    </div>
+                                    <div id="student-my-seat-action-btn-area">
+                                        <!-- 퇴실/좌석반납 버튼 (입실 중일 때 노출) -->
+                                    </div>
+                                </div>
+
+                                <!-- 운영 방식별 안내 문구 (지정좌석제 시 잠금 안내) -->
+                                <div id="student-seat-lock-notice" style="display: none; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 0.78rem; color: #fbbf24; line-height: 1.45;">
+                                    🔒 본 기관은 원장 전담 <strong>[지정좌석제]</strong>로 운영 중입니다. 좌석 변경 및 신규 배정은 원장실에 문의해 주세요.
+                                </div>
+
+                                <!-- 2D 좌석 매트릭스 그리드 -->
+                                <div id="student-seat-matrix-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; max-height: 320px; overflow-y: auto; padding: 4px;">
+                                    <!-- JS에서 좌석 미니 카드 동적 렌더링 -->
+                                </div>
+
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 0.72rem; color: var(--text-secondary); border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
+                                    <span id="student-seat-stats-text">잔여 18석 / 총 24석</span>
+                                    <button type="button" onclick="loadStudentAcademySeats()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.72rem; display: flex; align-items: center; gap: 2px;">
+                                        <span class="material-symbols-rounded" style="font-size: 0.85rem;">refresh</span>
+                                        <span>새로고침</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                         <div id="hub-view-request" class="hub-subtab-view" style="display: none;">
                             <div class="card" style="margin-bottom: 14px;">
                                 <div class="section-header" style="margin-bottom: 12px; font-weight: 800; font-size: 0.92rem; color: #fbbf24; display: flex; align-items: center; gap: 6px;">

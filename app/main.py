@@ -2457,18 +2457,28 @@ def authenticate_admin(payload: AdminAuthPayload, db: Session = Depends(get_db))
             "message": "👑 총괄 마스터 인증 성공"
         }
     
-    # 2. Academy-Specific Director PIN from DB
-    tenant = db.query(models.Tenant).filter(
-        models.Tenant.director_pin == input_pin,
-        models.Tenant.deleted_at == None
-    ).first()
-    
-    # Default fallback for Ilwon Academy
-    if not tenant and input_pin in ["1286", "12862386", "admin1286"]:
+    # 2. Flagship Ilwon Academy default PINs (1286, 12862386, admin1286)
+    if input_pin in ["1286", "12862386", "admin1286"]:
         tenant = db.query(models.Tenant).filter(
             models.Tenant.code == "ILWON-2027",
             models.Tenant.deleted_at == None
         ).first()
+        if tenant:
+            return {
+                "authenticated": True,
+                "tenant_code": tenant.code,
+                "tenant_name": tenant.name,
+                "director_name": tenant.director_name or "원장",
+                "is_master": False,
+                "token": f"palin_admin_session_{tenant.code}",
+                "message": f"🏫 [{tenant.name}] {tenant.director_name or '원장'}님 인증 성공"
+            }
+
+    # 3. Academy-Specific Director PIN from DB
+    tenant = db.query(models.Tenant).filter(
+        models.Tenant.director_pin == input_pin,
+        models.Tenant.deleted_at == None
+    ).first()
         
     if tenant:
         return {
