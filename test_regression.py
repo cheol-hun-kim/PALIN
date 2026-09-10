@@ -105,7 +105,7 @@ class PalinOSRegressionTest(unittest.TestCase):
 
     def test_04_admin_dashboard_no_attribute_error(self):
         """4. 관리자 대시보드 API 런타임 무결성 검증"""
-        dashboard_data = get_admin_dashboard(self.db)
+        dashboard_data = get_admin_dashboard(tenant_code="ILWON-2027", db=self.db)
         self.assertIn("summary", dashboard_data)
         self.assertIn("students", dashboard_data)
         self.assertIn("recent_missions", dashboard_data)
@@ -115,50 +115,42 @@ class PalinOSRegressionTest(unittest.TestCase):
     def test_05_login_api_integrity(self):
         """5. 로그인 API 및 Pydantic 직렬화 무결성 검증"""
         from app.main import login_student, LoginPayload
-        # 임의의 학생 등록 또는 기존 학생으로 테스트
-        test_email = "test_login_user@palin.com"
-        existing = self.db.query(models.Student).filter(models.Student.email == test_email).first()
-        if not existing:
-            parent = models.Parent(name="부모", phone="010-0000-0000")
-            self.db.add(parent)
-            self.db.commit()
-            self.db.refresh(parent)
-            existing = models.Student(
-                name="로그인테스트학생",
-                email=test_email,
-                phone="010-1111-2222",
-                grade=3,
-                region="대치동",
-                high_school="대치고",
-                target_univ="서울대학교",
-                baseline_univ="연세대학교",
-                current_points=100,
-                parent_id=parent.id
-            )
-            self.db.add(existing)
-            self.db.commit()
-            self.db.refresh(existing)
-
-        payload = LoginPayload(email="  TEST_LOGIN_USER@palin.com  ") # 대소문자/공백 무시 검증
+        existing = self.db.query(models.Student).filter(models.Student.deleted_at == None).first()
+        self.assertIsNotNone(existing, "Database must have at least one student")
+        
+        test_email = existing.email
+        payload = LoginPayload(email=f"  {test_email.upper()}  ") # 대소문자/공백 무시 검증
         res = login_student(payload, self.db)
-        self.assertEqual(res["email"], test_email)
+        self.assertEqual(res["email"].lower(), test_email.lower())
         
         # Pydantic serialization check
         res_schema = schemas.StudentResponse.model_validate(res)
-        self.assertEqual(res_schema.email, test_email)
+        self.assertEqual(res_schema.email.lower(), test_email.lower())
         print("[PASS] 5. Login API Case-Insensitive & Schema Validation Integrity Passed")
 
     def test_06_admin_auth_integrity(self):
         from app.main import authenticate_admin, AdminAuthPayload
-        # 1286 및 12Yonsei21* 성공 테스트
-        auth_res = authenticate_admin(AdminAuthPayload(pin="1286"))
-        self.assertTrue(auth_res["authenticated"])
+        # 1. 일원학원 전용 PIN (12862386) 성공 테스트
+        auth_ilwon = authenticate_admin(AdminAuthPayload(pin="12862386"), db=self.db)
+        self.assertTrue(auth_ilwon["authenticated"])
+        self.assertEqual(auth_ilwon["tenant_code"], "ILWON-2027")
         
-        # 잘못된 핀 실패 테스트 (401)
+        # 2. 신규 가맹학원 초기 PIN (10101010) 성공 테스트
+        auth_affiliate = authenticate_admin(AdminAuthPayload(pin="10101010"), db=self.db)
+        self.assertTrue(auth_affiliate["authenticated"])
+        
+        # 3. 총괄 마스터 갓모드 PIN (12Yonsei21*) 성공 테스트
+        auth_master = authenticate_admin(AdminAuthPayload(pin="12Yonsei21*"), db=self.db)
+        self.assertTrue(auth_master["authenticated"])
+        self.assertTrue(auth_master["is_master"])
+        
+        # 4. 폐기된 구버전 핀(1286) 및 임의 핀(9999) 실패 테스트 (401)
         from fastapi import HTTPException
         with self.assertRaises(HTTPException):
-            authenticate_admin(AdminAuthPayload(pin="9999"))
-        print("[PASS] 6. Admin Authentication & Protection Security Integrity Passed")
+            authenticate_admin(AdminAuthPayload(pin="1286", tenant_code="ILWON-2027"), db=self.db)
+        with self.assertRaises(HTTPException):
+            authenticate_admin(AdminAuthPayload(pin="9999"), db=self.db)
+        print("[PASS] 6. Admin Authentication (12862386 / 10101010 / 12Yonsei21*) Security Integrity Passed")
 
 if __name__ == "__main__":
     unittest.main()

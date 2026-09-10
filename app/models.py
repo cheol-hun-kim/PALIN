@@ -672,7 +672,7 @@ class Tenant(Base):
     director_email = Column(String, unique=True, index=True, nullable=True)
     director_password_hash = Column(String, nullable=True)
     role = Column(String, default="TENANT_ADMIN")                # 원장 연락처
-    director_pin = Column(String, default="1286")                 # 관제실 접속 PIN
+    director_pin = Column(String, default="10101010")             # 관제실 접속 초기 PIN (10101010)
     tier = Column(Integer, default=1)                             # Tier 1(기본), Tier 2(맞춤 커스텀 뇌), Tier 3(수험 전략 백서 RAG 풀탑재)
     license_tier = Column(Integer, default=1)                     # 1: 29.9만, 2: 59.9만, 3: 99.9만
     sms_credits = Column(Integer, default=5000)                   # 알림톡/SMS 선불 크레딧 잔액 (원)

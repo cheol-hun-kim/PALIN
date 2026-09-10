@@ -532,7 +532,7 @@ def handle_role_login(payload: schemas.RoleLoginRequest, db: Session = Depends(g
                 raise HTTPException(status_code=401, detail="비밀번호 또는 보안 PIN이 올바르지 않습니다.")
         else:
             if provided_password and provided_password != tenant.director_pin and provided_password != "12Yonsei21*":
-                raise HTTPException(status_code=401, detail="원장님 보안 PIN(1286)이 일치하지 않습니다.")
+                raise HTTPException(status_code=401, detail="원장님 보안 PIN이 일치하지 않습니다.")
             elif not provided_password:
                 must_set_pw = True
 
@@ -936,7 +936,7 @@ def handle_director_register_auth(payload: schemas.DirectorRegisterRequest, db: 
         director_email=clean_email,
         director_phone=clean_phone,
         director_password_hash=pw_hash,
-        director_pin="1286",
+        director_pin="10101010",
         business_type=biz_type,
         seat_layout_json=seat_layout,
         tier=2,
@@ -2440,25 +2440,67 @@ def create_feedback(payload: FeedbackCreatePayload, db: Session = Depends(get_db
 
 class AdminAuthPayload(BaseModel):
     pin: str
+    tenant_code: Optional[str] = None
 
 @app.post("/api/admin/auth")
 def authenticate_admin(payload: AdminAuthPayload, db: Session = Depends(get_db)):
     input_pin = payload.pin.strip()
+    target_code = payload.tenant_code.strip().upper() if payload.tenant_code else None
     
     # 1. Super Master God-Mode PIN (Global Override)
     if input_pin == "12Yonsei21*":
+        target_tenant = None
+        if target_code:
+            target_tenant = db.query(models.Tenant).filter(models.Tenant.code == target_code, models.Tenant.deleted_at == None).first()
+        t_code = target_tenant.code if target_tenant else "ILWON-2027"
+        t_name = target_tenant.name if target_tenant else "일원학원 (마스터 모드)"
         return {
             "authenticated": True,
-            "tenant_code": "ILWON-2027",
-            "tenant_name": "일원학원 (마스터 모드)",
+            "tenant_code": t_code,
+            "tenant_name": t_name,
             "director_name": "총괄 마스터",
             "is_master": True,
-            "token": "palin_master_token_12Yonsei21*",
-            "message": "👑 총괄 마스터 인증 성공"
+            "token": f"palin_master_token_12Yonsei21*_{t_code}",
+            "message": f"👑 총괄 마스터 [{t_name}] 관제실 원격 인증 성공"
         }
     
-    # 2. Flagship Ilwon Academy default PINs (1286, 12862386, admin1286)
-    if input_pin in ["1286", "12862386", "admin1286"]:
+    # 2. If specific tenant_code was requested
+    if target_code:
+        tenant = db.query(models.Tenant).filter(
+            models.Tenant.code == target_code,
+            models.Tenant.deleted_at == None
+        ).first()
+        if not tenant:
+            raise HTTPException(status_code=404, detail="가맹 학원을 찾을 수 없습니다.")
+            
+        if target_code == "ILWON-2027":
+            if input_pin == "12862386" or input_pin == tenant.director_pin:
+                return {
+                    "authenticated": True,
+                    "tenant_code": tenant.code,
+                    "tenant_name": tenant.name,
+                    "director_name": tenant.director_name or "원장",
+                    "is_master": False,
+                    "token": f"palin_admin_session_{tenant.code}",
+                    "message": f"🏫 [{tenant.name}] {tenant.director_name or '원장'}님 인증 성공"
+                }
+            raise HTTPException(status_code=401, detail="일원학원 원장 전용 보안 PIN(12862386)이 올바르지 않습니다.")
+        else:
+            expected_pin = tenant.director_pin or "10101010"
+            if input_pin == expected_pin or input_pin == "10101010":
+                return {
+                    "authenticated": True,
+                    "tenant_code": tenant.code,
+                    "tenant_name": tenant.name,
+                    "director_name": tenant.director_name or "원장",
+                    "is_master": False,
+                    "token": f"palin_admin_session_{tenant.code}",
+                    "message": f"🏫 [{tenant.name}] {tenant.director_name or '원장'}님 인증 성공"
+                }
+            raise HTTPException(status_code=401, detail="가맹 학원 원장 전용 보안 PIN이 올바르지 않습니다.")
+
+    # 3. Flagship Ilwon Academy dedicated PIN (12862386)
+    if input_pin == "12862386":
         tenant = db.query(models.Tenant).filter(
             models.Tenant.code == "ILWON-2027",
             models.Tenant.deleted_at == None
@@ -2474,7 +2516,25 @@ def authenticate_admin(payload: AdminAuthPayload, db: Session = Depends(get_db))
                 "message": f"🏫 [{tenant.name}] {tenant.director_name or '원장'}님 인증 성공"
             }
 
-    # 3. Academy-Specific Director PIN from DB
+    # 4. Default Initial PIN for New Affiliate Academies (10101010)
+    if input_pin == "10101010":
+        tenant = db.query(models.Tenant).filter(
+            models.Tenant.code != "ILWON-2027",
+            (models.Tenant.director_pin == "10101010") | (models.Tenant.director_pin == None),
+            models.Tenant.deleted_at == None
+        ).first()
+        if tenant:
+            return {
+                "authenticated": True,
+                "tenant_code": tenant.code,
+                "tenant_name": tenant.name,
+                "director_name": tenant.director_name or "원장",
+                "is_master": False,
+                "token": f"palin_admin_session_{tenant.code}",
+                "message": f"🏫 [{tenant.name}] {tenant.director_name or '원장'}님 인증 성공 (초기 PIN: 10101010)"
+            }
+
+    # 5. Academy-Specific Custom Director PIN from DB
     tenant = db.query(models.Tenant).filter(
         models.Tenant.director_pin == input_pin,
         models.Tenant.deleted_at == None
@@ -2517,8 +2577,12 @@ def change_director_pin(payload: DirectorChangePinPayload, db: Session = Depends
         
     # Verify current PIN (or Master PIN override)
     if curr_pin != "12Yonsei21*" and tenant.director_pin != curr_pin:
-        if not (curr_pin in ["1286", "12862386", "admin1286"] and (not tenant.director_pin or tenant.director_pin in ["1286", "12862386", "admin1286"])):
-            raise HTTPException(status_code=400, detail="현재 보안 PIN 번호가 일치하지 않습니다.")
+        if t_code == "ILWON-2027":
+            if not (curr_pin == "12862386" and (not tenant.director_pin or tenant.director_pin == "12862386")):
+                raise HTTPException(status_code=400, detail="현재 보안 PIN 번호가 일치하지 않습니다.")
+        else:
+            if not (curr_pin == "10101010" and (not tenant.director_pin or tenant.director_pin == "10101010")):
+                raise HTTPException(status_code=400, detail="현재 보안 PIN 번호가 일치하지 않습니다.")
             
     tenant.director_pin = new_pin
     db.commit()
@@ -5325,7 +5389,7 @@ class TenantCreatePayload(BaseModel):
     code: Optional[str] = None
     director_name: Optional[str] = "원장"
     director_phone: Optional[str] = ""
-    director_pin: Optional[str] = "1286"
+    director_pin: Optional[str] = "10101010"
     tier: Optional[int] = 1
     max_students: Optional[int] = 100
     logo_url: Optional[str] = ""
@@ -5437,7 +5501,7 @@ def get_master_tenants(db: Session = Depends(get_db)):
                 director_name="김철훈 원장", 
                 director_phone="010-1286-2386", 
                 director_email="1286orbital21@gmail.com",
-                director_pin="12Yonsei21*", 
+                director_pin="12862386", 
                 tier=3, 
                 license_tier=3, 
                 max_students=99999, 
@@ -5467,7 +5531,7 @@ def get_master_tenants(db: Session = Depends(get_db)):
             "name": t.name,
             "director_name": t.director_name or "김철훈 원장",
             "director_phone": t.director_phone or "010-1286-2386",
-            "director_pin": t.director_pin or "12Yonsei21*",
+            "director_pin": t.director_pin or ("12862386" if t.code == "ILWON-2027" else "10101010"),
             "tier": t.tier,
             "license_tier": t.license_tier or t.tier,
             "business_type": getattr(t, "business_type", "HIGH_ACADEMY") or "HIGH_ACADEMY",
@@ -5525,7 +5589,7 @@ def create_master_tenant(payload: TenantCreatePayload, db: Session = Depends(get
         name=payload.name,
         director_name=payload.director_name or "원장",
         director_phone=payload.director_phone or "",
-        director_pin=payload.director_pin or "1286",
+        director_pin=payload.director_pin or "10101010",
         tier=payload.tier or 1,
         max_students=payload.max_students or 100,
         business_type=biz_type,

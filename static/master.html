@@ -1456,7 +1456,7 @@
 
         function handleMasterLogin() {
             const pin = document.getElementById("master-login-pin").value.trim();
-            if (pin === "12Yonsei21*" || pin === "1286" || pin === "12862386" || pin === "admin1286") {
+            if (pin === "12Yonsei21*") {
                 sessionStorage.setItem("palin_super_admin", "true");
                 document.getElementById("master-login-screen").style.display = "none";
                 document.getElementById("master-dashboard-screen").style.display = "block";
@@ -1604,8 +1604,8 @@
                             </div>
                             <div style="font-size:0.72rem; color:#94a3b8; display:flex; align-items:center; gap:4px; margin-top:2px; flex-wrap:wrap;">
                                 <span>${t.director_name}</span> · 
-                                <span style="background:rgba(245,158,11,0.15); color:#fbbf24; padding:1px 6px; border-radius:4px; font-weight:900; font-family:monospace; border:1px solid rgba(245,158,11,0.3);">PIN: ${t.director_pin || '1286'}</span>
-                                <button onclick="editTenantPin(${t.id}, '${(t.name||'').replace(/'/g, "\\'")}', '${t.director_pin || '1286'}')" class="btn" style="padding:2px 6px; font-size:0.68rem; background:rgba(99,102,241,0.2); color:#a5b4fc; border:1px solid #6366f1; border-radius:4px; cursor:pointer;" title="원장 접속 PIN 변경">✏️ PIN 변경</button>
+                                <span style="background:rgba(245,158,11,0.15); color:#fbbf24; padding:1px 6px; border-radius:4px; font-weight:900; font-family:monospace; border:1px solid rgba(245,158,11,0.3);">PIN: ${t.director_pin || (t.code === 'ILWON-2027' ? '12862386' : '10101010')}</span>
+                                <button onclick="editTenantPin(${t.id}, '${(t.name||'').replace(/'/g, "\\'")}', '${t.director_pin || (t.code === 'ILWON-2027' ? '12862386' : '10101010')}')" class="btn" style="padding:2px 6px; font-size:0.68rem; background:rgba(99,102,241,0.2); color:#a5b4fc; border:1px solid #6366f1; border-radius:4px; cursor:pointer;" title="원장 접속 PIN 변경">✏️ PIN 변경</button>
                             </div>
                         </td>
                         <td>${t.director_phone || '-'}</td>

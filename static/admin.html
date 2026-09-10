@@ -399,7 +399,7 @@
                 <div style="font-size: 1.25rem; font-weight: 800; color: #f8fafc; margin-bottom: 4px;">원장님 전용 중앙 관제실</div>
                 <div style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 16px;">보안 PIN 번호를 입력해 주세요.</div>
                 <div>
-                    <input type="password" id="admin-login-pin" placeholder="PIN 번호 (예: 1286)" autocomplete="off" maxlength="20" style="width: 100%; padding: 14px; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 12px; color: white; font-size: 1.2rem; text-align: center; letter-spacing: 4px; box-sizing: border-box; margin-bottom: 12px;" onkeydown="if(event.key==='Enter') handleAdminLogin();">
+                    <input type="password" id="admin-login-pin" placeholder="PIN 번호 (일원: 12862386 / 신규: 10101010)" autocomplete="off" maxlength="20" style="width: 100%; padding: 14px; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 12px; color: white; font-size: 1.2rem; text-align: center; letter-spacing: 4px; box-sizing: border-box; margin-bottom: 12px;" onkeydown="if(event.key==='Enter') handleAdminLogin();">
                     <button type="button" onclick="handleAdminLogin()" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 800; cursor: pointer;">🔐 관제실 접속</button>
                 </div>
                 <div id="login-error-msg" style="color: #ef4444; font-size: 0.8rem; font-weight: 700; margin-top: 10px; display: none;">⚠️ 비밀번호가 올바르지 않습니다.</div>
@@ -2294,10 +2294,11 @@
                 return;
             }
             try {
+                const shadowCode = sessionStorage.getItem("palin_shadow_tenant_code") || currentTenantCode || "";
                 const res = await fetch("/api/admin/auth", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ pin: pin })
+                    body: JSON.stringify({ pin: pin, tenant_code: shadowCode })
                 });
                 const data = await res.json();
                 if (res.ok && data.authenticated) {
@@ -2314,10 +2315,14 @@
                     document.getElementById("admin-dashboard-screen").style.display = "block";
                     fetchDashboardData(); updateMasterBtnVisibility();
                 } else {
-                    document.getElementById("login-error-msg").style.display = "block";
+                    const errEl = document.getElementById("login-error-msg");
+                    if (errEl) {
+                        errEl.innerText = data.detail || "⚠️ 비밀번호 또는 보안 PIN이 올바르지 않습니다.";
+                        errEl.style.display = "block";
+                    }
                 }
             } catch(e) {
-                if (pin === "12Yonsei21*" || pin === "1286" || pin === "12862386" || pin === "admin1286") {
+                if (pin === "12Yonsei21*" || pin === "12862386" || pin === "10101010") {
                     sessionStorage.setItem("palin_admin_authenticated", "true");
                     document.getElementById("admin-login-screen").style.display = "none";
                     document.getElementById("admin-dashboard-screen").style.display = "block";
@@ -4615,7 +4620,7 @@
                 </div>
                 <div style="margin-bottom: 12px;">
                     <label style="font-size: 0.75rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">새 보안 PIN (4~20자리)</label>
-                    <input type="password" id="modal-new-pin" required placeholder="새 PIN 번호 입력 (예: 1286)" autocomplete="off" maxlength="20" class="form-input" style="font-size: 0.95rem; letter-spacing: 2px;">
+                    <input type="password" id="modal-new-pin" required placeholder="새 PIN 번호 입력" autocomplete="off" maxlength="20" class="form-input" style="font-size: 0.95rem; letter-spacing: 2px;">
                 </div>
                 <div style="margin-bottom: 18px;">
                     <label style="font-size: 0.75rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">새 보안 PIN 확인</label>
