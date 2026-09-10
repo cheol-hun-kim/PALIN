@@ -376,6 +376,8 @@ def ask_ai_chatbot(
                     manifesto = f"\n\n{KOREAN_CSAT_TRUTH_MANIFESTO}\n"
                 elif tenant_tier >= 3:
                     knowledge = get_expert_knowledge()[:30000]
+                elif tenant_tier == 2:
+                    knowledge = get_expert_knowledge()[:15000]
 
                 system_prompt = (
                     "You are a Veteran Admissions Strategist and Master Admissions Consultant for High School Parents. Respond ONLY in Korean.\n\n"
