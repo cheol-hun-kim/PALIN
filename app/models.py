@@ -66,6 +66,18 @@ class Student(Base):
     max_streak_days = Column(Integer, default=0)     # 최고 연속 기록
     last_streak_date = Column(Date, nullable=True)           # 마지막 연속 달성 일자
     medical_symbol = Column(String, default="GENERAL") # 메디컬/전공 엠블럼 심볼
+
+    # 🏫 초등/중등/고등 독립 플랫폼 및 게이미피케이션 필드
+    school_level = Column(String, default="HIGH") # 'ELEMENTARY' | 'MIDDLE' | 'HIGH'
+    school_name = Column(String, nullable=True)   # 학교명 통합 (초/중/고)
+    target_high_school = Column(String, nullable=True) # 목표 고등학교 (중등용: 예: 외대부고, 하나고, 상산고)
+    target_high_school_type = Column(String, nullable=True) # 목표 고교 유형 ('전국자사고', '과학고', '영재학교', '외국어고', '국제고', '일반고')
+    baseline_high_school = Column(String, nullable=True) # 마지노선 고등학교 (중등용)
+    dream_job = Column(String, nullable=True) # 초등용 장래희망 / 관심사
+    pet_type = Column(String, default="cat")  # 초등 펫 종류 ('cat', 'dog', 'rabbit', 'bear', 'dragon')
+    pet_level = Column(Integer, default=1)   # 초등 펫 레벨
+    pet_exp = Column(Integer, default=0)     # 초등 펫 경험치
+    elem_routine_status = Column(Text, default="{}") # 초등 루틴 완료 상태 (JSON String)
  
     # 💎 B2C 유료 캐시 & 친구 초대 바이럴 루프 필드
     paid_cash = Column(Integer, default=0)                # 유료 결제 PALIN 캐시 (1캐시=1원)
@@ -875,6 +887,48 @@ class KakaoAlimtalkLog(Base):
     error_detail = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     deleted_at = Column(DateTime(timezone=True), nullable=True)
+
+
+# === 🔍 14. 내신 기출 출처 추적기 (Exam Source Tracer) 및 크라우드소싱 모델 ===
+
+class ExamSourceTracerItem(Base):
+    """학교별/과목별 실제 내신 출제 문항 및 공공기출/EBS/시중교재 팩트 매칭 데이터"""
+    __tablename__ = "exam_source_tracer_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    school_name = Column(String, index=True, nullable=False) # 예: 낙생고등학교, 대치중학교
+    grade = Column(Integer, default=1)                      # 학년 (1~3)
+    year = Column(Integer, default=2025)                     # 출제 년도
+    semester = Column(String, default="1학기 중간")          # 1학기 중간 | 1학기 기말 | 2학기 중간 | 2학기 기말
+    subject = Column(String, index=True, nullable=False)     # 국어 | 수학 | 영어 | 과학 | 사회
+    question_num = Column(Integer, default=1)                # 문항 번호
+    question_text = Column(Text, nullable=True)              # 문항 발문 또는 핵심 지문 요약
+    matched_source = Column(Text, nullable=False)            # 팩트 검증된 출처 (예: 2025 수능 34번 평가원 기출)
+    ebs_reference = Column(Text, nullable=True)              # EBS 연계 교재명 및 페이지
+    problem_book_source = Column(Text, nullable=True)        # 시중 문제집 출처 (예: 블랙라벨 수학II 14p 4번)
+    adaptation_type = Column(String, nullable=True)          # 변형 형태 (숫자변형 / 조건추가 / 보기변형 / 서술형전환 등)
+    verified_count = Column(Integer, default=1)              # 튜터/학생 교차 검증 수
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
+
+
+class ExamSourceTag(Base):
+    """학생/선배 튜터의 3단계 크라우드소싱 집단지성 출처 제보 및 보상 내역"""
+    __tablename__ = "exam_source_tags"
+
+    id = Column(Integer, primary_key=True, index=True)
+    item_id = Column(Integer, ForeignKey("exam_source_tracer_items.id"), nullable=True)
+    school_name = Column(String, nullable=False)
+    subject = Column(String, nullable=False)
+    question_num = Column(Integer, default=1)
+    user_id = Column(Integer, ForeignKey("students.id"), nullable=True)
+    user_name = Column(String, default="선배 튜터")
+    is_tutor = Column(Boolean, default=False)
+    tag_source_detail = Column(Text, nullable=False)        # 제보 출처 상세
+    reward_points = Column(Integer, default=100)            # 지급된 보상 포인트
+    is_approved = Column(Boolean, default=True)             # 검증 승인 여부
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
 
 
 

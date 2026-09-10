@@ -5061,6 +5061,8 @@ async function fetchStudentInfo(studentId) {
 
         try { updateStudentUnivSelectors(); } catch(e) { console.warn("updateStudentUnivSelectors error:", e); }
 
+        try { renderAppForSchoolLevel(currentStudent); } catch(e) { console.warn("renderAppForSchoolLevel error:", e); }
+
         // 부가 데이터는 병렬 비동기(Promise.allSettled)로 즉각 백그라운드 로드
 
         Promise.allSettled([
@@ -5613,8 +5615,13 @@ async function handleStudentRegisterSubmit(e) {
     const sigunguVal = document.getElementById("reg-sigungu")?.value || "성남시 분당구";
     const fullRegion = `${sidoVal} ${sigunguVal}`.trim();
     const schoolName = document.getElementById("reg-school")?.value || "낙생고등학교";
-    const pname = document.getElementById("reg-pname").value.trim();
-    const pphone = document.getElementById("reg-pphone").value.trim();
+    const schoolLevelVal = document.getElementById("reg-school-level-val")?.value || "HIGH";
+    const targetHighSchool = document.getElementById("reg-target-high-school")?.value || "";
+    const baselineHighSchool = document.getElementById("reg-baseline-high-school")?.value || "";
+    const elemDream = document.getElementById("reg-elem-dream")?.value || "";
+    const elemPet = document.getElementById("reg-elem-pet")?.value || "PERO";
+    const pname = document.getElementById("reg-pname")?.value.trim() || "";
+    const pphone = document.getElementById("reg-pphone")?.value.trim() || "";
     const referredBy = (document.getElementById("reg-referred-by")?.value || "").trim().toUpperCase() || null;
     const academyCode = (document.getElementById("reg-academy-code")?.value || "").trim().toUpperCase() || null;
 
@@ -5624,7 +5631,12 @@ async function handleStudentRegisterSubmit(e) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 email: email, password: password, name: name, phone: phone, grade: grade,
-                region: fullRegion, high_school: schoolName,
+                region: fullRegion, high_school: schoolName, school_name: schoolName,
+                school_level: schoolLevelVal,
+                target_high_school: targetHighSchool,
+                baseline_high_school: baselineHighSchool,
+                dream_job: elemDream,
+                pet_type: elemPet,
                 target_univ: `${targetUniv} ${targetDept}`,
                 baseline_univ: `${baselineUniv} ${baselineDept}`,
                 parent_name: pname, parent_phone: pphone, referred_by: referredBy,
@@ -7409,6 +7421,8 @@ function switchSubTabPage2(subTab) {
     } else if (subTab === "predict") {
         if (typeof loadPage2Data === 'function') loadPage2Data();
         if (typeof loadUniversityList === 'function') loadUniversityList();
+    } else if (subTab === "tracer") {
+        if (typeof loadExamTagsFeed === 'function') loadExamTagsFeed();
     }
 }
 window.switchSubTabPage2 = switchSubTabPage2;
@@ -15661,4 +15675,724 @@ window.loadAdminExamsList = loadAdminExamsList;
 window.switchExamGrade = switchExamGrade;
 window.switchExamSubject = switchExamSubject;
 window.switchExamYearSelect = switchExamYearSelect;
+
+// ============================================================================
+// ✨ Phase 8: 초등 / 중등 / 고등 학교급별 독립 라우팅 & 전용 기능 모듈
+// ============================================================================
+
+function setSchoolLevelSignup(level) {
+    const hiddenInput = document.getElementById('reg-school-level-val');
+    if (hiddenInput) hiddenInput.value = level;
+
+    const btnElem = document.getElementById('reg-lvl-elem');
+    const btnMid = document.getElementById('reg-lvl-middle');
+    const btnHigh = document.getElementById('reg-lvl-high');
+
+    if (btnElem && btnMid && btnHigh) {
+        btnElem.className = 'btn btn-secondary';
+        btnElem.style.background = '';
+        btnElem.style.color = '';
+        btnMid.className = 'btn btn-secondary';
+        btnMid.style.background = '';
+        btnMid.style.color = '';
+        btnHigh.className = 'btn btn-secondary';
+        btnHigh.style.background = '';
+        btnHigh.style.color = '';
+
+        if (level === 'ELEMENTARY') {
+            btnElem.className = 'btn';
+            btnElem.style.background = 'linear-gradient(135deg, #f59e0b, #ec4899)';
+            btnElem.style.color = '#ffffff';
+        } else if (level === 'MIDDLE') {
+            btnMid.className = 'btn';
+            btnMid.style.background = 'linear-gradient(135deg, #3b82f6, #6366f1)';
+            btnMid.style.color = '#ffffff';
+        } else {
+            btnHigh.className = 'btn';
+            btnHigh.style.background = 'linear-gradient(135deg, #6366f1, #4f46e5)';
+            btnHigh.style.color = '#ffffff';
+        }
+    }
+
+    const gradeSelect = document.getElementById('reg-grade');
+    if (gradeSelect) {
+        if (level === 'ELEMENTARY') {
+            gradeSelect.innerHTML = `
+                <option value="1">초등학교 1학년</option>
+                <option value="2">초등학교 2학년</option>
+                <option value="3">초등학교 3학년</option>
+                <option value="4">초등학교 4학년</option>
+                <option value="5">초등학교 5학년</option>
+                <option value="6" selected>초등학교 6학년</option>
+            `;
+        } else if (level === 'MIDDLE') {
+            gradeSelect.innerHTML = `
+                <option value="1">중학교 1학년 (자유학년/학기)</option>
+                <option value="2">중학교 2학년</option>
+                <option value="3" selected>중학교 3학년 (고입 수험생)</option>
+            `;
+        } else {
+            gradeSelect.innerHTML = `
+                <option value="1">고등학교 1학년</option>
+                <option value="2">고등학교 2학년</option>
+                <option value="3" selected>고등학교 3학년 (수험생)</option>
+                <option value="4">N수생 (재수/반수 이상)</option>
+            `;
+        }
+    }
+
+    const schoolInput = document.getElementById('reg-school');
+    if (schoolInput) {
+        if (level === 'ELEMENTARY') schoolInput.placeholder = '초등학교 검색 (클릭 시 선택지 또는 직접 입력)';
+        else if (level === 'MIDDLE') schoolInput.placeholder = '중학교 검색 (클릭 시 선택지 또는 직접 입력)';
+        else schoolInput.placeholder = '고등학교 검색 (클릭 시 선택지 또는 직접 입력)';
+    }
+
+    const highBoxes = document.getElementById('reg-high-univ-boxes');
+    const midBoxes = document.getElementById('reg-middle-boxes');
+    const elemBoxes = document.getElementById('reg-elem-boxes');
+
+    if (highBoxes) highBoxes.style.display = level === 'HIGH' ? 'block' : 'none';
+    if (midBoxes) midBoxes.style.display = level === 'MIDDLE' ? 'block' : 'none';
+    if (elemBoxes) elemBoxes.style.display = level === 'ELEMENTARY' ? 'block' : 'none';
+
+    refreshSchoolsBySelectedLevel();
+}
+window.setSchoolLevelSignup = setSchoolLevelSignup;
+
+async function refreshSchoolsBySelectedLevel() {
+    const level = document.getElementById('reg-school-level-val')?.value || 'HIGH';
+    const sido = document.getElementById('reg-sido')?.value || '';
+    const sigungu = document.getElementById('reg-sigungu')?.value || '';
+    const datalist = document.getElementById('school-datalist');
+    if (!datalist) return;
+
+    try {
+        const url = `/api/schools/search?level=${level}&sido=${encodeURIComponent(sido)}&sigungu=${encodeURIComponent(sigungu)}`;
+        const res = await fetch(url);
+        if (res.ok) {
+            const list = await res.json();
+            datalist.innerHTML = list.map(s => `<option value="${s}">`).join('');
+        }
+    } catch(e) {
+        console.warn('refreshSchoolsBySelectedLevel fetch error:', e);
+    }
+
+    if (level === 'MIDDLE') {
+        const specialDatalist = document.getElementById('special-high-datalist');
+        if (specialDatalist && specialDatalist.children.length === 0) {
+            try {
+                const sres = await fetch('/api/middle/special-high-schools');
+                if (sres.ok) {
+                    const slist = await sres.json();
+                    specialDatalist.innerHTML = slist.map(s => `<option value="${s.school_name}">[${s.school_type}] ${s.school_name}</option>`).join('');
+                }
+            } catch(e) {}
+        }
+    }
+}
+window.refreshSchoolsBySelectedLevel = refreshSchoolsBySelectedLevel;
+
+function renderAppForSchoolLevel(student) {
+    if (!student) return;
+    const level = (student.school_level || 'HIGH').toUpperCase();
+    console.log('[SchoolLevel] Rendering view for:', level);
+
+    const highView = document.getElementById('high-app-view');
+    const midView = document.getElementById('middle-app-view');
+    const elemView = document.getElementById('elem-app-view');
+
+    const highNav = document.getElementById('bottom-nav-high');
+    const midNav = document.getElementById('bottom-nav-middle');
+    const elemNav = document.getElementById('bottom-nav-elem');
+
+    if (level === 'ELEMENTARY') {
+        if (highView) highView.style.display = 'none';
+        if (midView) midView.style.display = 'none';
+        if (elemView) elemView.style.display = 'block';
+
+        if (highNav) highNav.style.display = 'none';
+        if (midNav) midNav.style.display = 'none';
+        if (elemNav) elemNav.style.display = 'flex';
+
+        refreshElemPetUI(student);
+        switchElemTab('elem-page1');
+    } else if (level === 'MIDDLE') {
+        if (highView) highView.style.display = 'none';
+        if (midView) midView.style.display = 'block';
+        if (elemView) elemView.style.display = 'none';
+
+        if (highNav) highNav.style.display = 'none';
+        if (midNav) midNav.style.display = 'flex';
+        if (elemNav) elemNav.style.display = 'none';
+
+        refreshMiddleUI(student);
+        switchMidTab('mid-page1');
+    } else { // HIGH
+        if (highView) highView.style.display = 'block';
+        if (midView) midView.style.display = 'none';
+        if (elemView) elemView.style.display = 'none';
+
+        if (highNav) highNav.style.display = 'flex';
+        if (midNav) midNav.style.display = 'none';
+        if (elemNav) elemNav.style.display = 'none';
+    }
+}
+window.renderAppForSchoolLevel = renderAppForSchoolLevel;
+
+// --- [중등] 나침반 & 전용 기능 ---
+function refreshMiddleUI(student) {
+    if (!student) return;
+    const targetHighEl = document.getElementById('mid-banner-target-high');
+    const baseHighEl = document.getElementById('mid-banner-base-high');
+    if (targetHighEl) targetHighEl.innerText = student.target_high_school || '외대부고 자연계열';
+    if (baseHighEl) baseHighEl.innerText = student.baseline_high_school || '지역 일반고';
+    loadSpecialHighSchools();
+}
+window.refreshMiddleUI = refreshMiddleUI;
+
+function switchMidTab(tabId) {
+    document.querySelectorAll('.mid-subtab-view').forEach(v => v.style.display = 'none');
+    document.querySelectorAll('#mid-main-tabs .tab-btn').forEach(b => {
+        if (b.getAttribute('data-midtab') === tabId) b.classList.add('active');
+        else b.classList.remove('active');
+    });
+    document.querySelectorAll('#bottom-nav-middle .nav-item').forEach(b => {
+        if (b.getAttribute('data-midtab') === tabId) b.classList.add('active');
+        else b.classList.remove('active');
+    });
+
+    const target = document.getElementById(tabId);
+    if (target) target.style.display = 'block';
+    if (tabId === 'mid-page2') loadSpecialHighSchools();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+window.switchMidTab = switchMidTab;
+
+let specialHighSchoolsData = [];
+async function loadSpecialHighSchools() {
+    const container = document.getElementById('special-high-schools-container');
+    if (!container) return;
+    try {
+        if (specialHighSchoolsData.length === 0) {
+            const res = await fetch('/api/middle/special-high-schools');
+            if (res.ok) {
+                specialHighSchoolsData = await res.json();
+            }
+        }
+        renderSpecialHighSchoolCards(specialHighSchoolsData);
+    } catch(e) {
+        console.warn('loadSpecialHighSchools error:', e);
+    }
+}
+window.loadSpecialHighSchools = loadSpecialHighSchools;
+
+function filterSpecialHighSchools(type, btn) {
+    if (btn) {
+        document.querySelectorAll('#mid-school-filter-bar .btn').forEach(b => b.className = 'btn btn-secondary');
+        btn.className = 'btn active';
+    }
+    if (type === 'ALL') {
+        renderSpecialHighSchoolCards(specialHighSchoolsData);
+    } else {
+        const filtered = specialHighSchoolsData.filter(s => {
+            const st = s.school_type || s.type || '';
+            if (type.includes('과학고') || type.includes('영재')) return st.includes('과학') || st.includes('영재');
+            if (type.includes('외고') || type.includes('국제')) return st.includes('외고') || st.includes('외국어') || st.includes('국제');
+            if (type.includes('자사고')) return st.includes('자사고');
+            return st.includes(type);
+        });
+        renderSpecialHighSchoolCards(filtered);
+    }
+}
+window.filterSpecialHighSchools = filterSpecialHighSchools;
+
+function renderSpecialHighSchoolCards(list) {
+    const container = document.getElementById('special-high-schools-container');
+    if (!container) return;
+    if (!list || list.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-secondary); font-size: 0.8rem;">검색 결과가 없습니다.</div>';
+        return;
+    }
+
+    container.innerHTML = list.map(s => {
+        const name = s.school_name || s.name || '';
+        const type = s.school_type || s.type || '특목·자사고';
+        const region = s.region || s.location || `${s.sido || ''} ${s.sigungu || ''}`.trim() || '전국';
+        const gpa = s.gpa_weight || s.gpa_requirement || '전 과목 성취도 A';
+        const interview = s.interview_focus || s.interview_tip || '자기주도학습과정 및 인성 면접';
+        const comp = s.competition_rate || '2.1:1';
+        const quota = s.quota || '정원 내 선발';
+
+        return `
+            <div class="card" style="padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                    <div>
+                        <span style="font-size: 0.68rem; background: rgba(99,102,241,0.2); color: #a5b4fc; padding: 2px 6px; border-radius: 6px; font-weight: 800; border: 1px solid rgba(99,102,241,0.4);">${type}</span>
+                        <h4 style="margin: 4px 0 0 0; font-size: 0.95rem; font-weight: 800; color: #ffffff;">${name}</h4>
+                    </div>
+                    <div style="font-size: 0.72rem; color: #cbd5e1; background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 8px;">${region}</div>
+                </div>
+                <div style="font-size: 0.74rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 8px;">
+                    <b>내신 반영:</b> ${gpa}<br>
+                    <b>면접 포인트:</b> ${interview}<br>
+                    <b>경쟁률:</b> <span style="color: #f59e0b; font-weight: 700;">${comp}</span> · <b>선발:</b> ${quota}
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="askMiddleAIAboutSchool('${name}')" style="width: 100%; padding: 6px 0; font-size: 0.74rem; font-weight: 700; border-radius: 6px;">
+                    🤖 ${name} AI 입시 질문하기
+                </button>
+            </div>
+        `;
+    }).join('');
+}
+window.renderSpecialHighSchoolCards = renderSpecialHighSchoolCards;
+
+function askMiddleAIAboutSchool(schoolName) {
+    switchMidTab('mid-page4');
+    const input = document.getElementById('mid-chat-input');
+    if (input) {
+        input.value = `${schoolName} 전형 일정과 자기소개서 작성 팁, 면접 질문 예시 알려줘!`;
+        sendMiddleAICoachChat();
+    }
+}
+window.askMiddleAIAboutSchool = askMiddleAIAboutSchool;
+
+async function sendMiddleAICoachChat() {
+    const input = document.getElementById('mid-chat-input');
+    const chatBox = document.getElementById('mid-chat-box');
+    if (!input || !chatBox) return;
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    chatBox.innerHTML += `
+        <div class="chat-bubble user" style="background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; padding: 10px 14px; border-radius: 12px; font-size: 0.84rem; margin-left: auto; max-width: 85%; margin-bottom: 8px; text-align: right;">
+            ${msg}
+        </div>
+    `;
+    input.value = '';
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    const botLoadingId = 'mid-bot-' + Date.now();
+    chatBox.innerHTML += `
+        <div id="${botLoadingId}" class="chat-bubble bot" style="background: rgba(99, 102, 241, 0.18); border: 1px solid rgba(99,102,241,0.3); color: #ffffff; padding: 10px 14px; border-radius: 12px; font-size: 0.84rem; margin-bottom: 8px; line-height: 1.5;">
+            답변을 작성 중입니다... ⏳
+        </div>
+    `;
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    try {
+        const studentId = currentStudent ? currentStudent.id : 1;
+        const res = await fetch('/api/ai/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                student_id: studentId,
+                message: msg,
+                school_level: 'MIDDLE'
+            })
+        });
+        const botEl = document.getElementById(botLoadingId);
+        if (res.ok) {
+            const data = await res.json();
+            if (botEl) botEl.innerHTML = (data.response || data.reply || '').replace(/\n/g, '<br>');
+        } else {
+            if (botEl) botEl.innerText = '일시적인 오류가 발생했습니다. 잠시 후 다시 질문해 주세요.';
+        }
+    } catch(e) {
+        const botEl = document.getElementById(botLoadingId);
+        if (botEl) botEl.innerText = '서버 연결에 실패했습니다.';
+    }
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+window.sendMiddleAICoachChat = sendMiddleAICoachChat;
+
+async function runMiddleSourceTrace() {
+    const query = document.getElementById('mid-tracer-query')?.value.trim();
+    const resBox = document.getElementById('mid-tracer-results');
+    if (!query) {
+        alert('문제 본문 또는 지문을 입력해 주세요.');
+        return;
+    }
+    if (resBox) {
+        resBox.style.display = 'block';
+        resBox.innerHTML = '<div style="text-align:center; padding: 14px; color: var(--text-secondary);">출처 데이터베이스 매칭 중... 🔍</div>';
+    }
+
+    try {
+        const res = await fetch('/api/exam-sources/trace', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                query_text: query,
+                subject: '수학',
+                school_level: 'MIDDLE',
+                school_name: currentStudent?.school_name || ''
+            })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            renderExamSourceTracerResults(data, resBox);
+        } else {
+            if (resBox) resBox.innerHTML = '<div style="color: #f43f5e; padding: 10px;">출처 검색 실패</div>';
+        }
+    } catch(e) {
+        if (resBox) resBox.innerHTML = '<div style="color: #f43f5e; padding: 10px;">서버 연결 오류</div>';
+    }
+}
+window.runMiddleSourceTrace = runMiddleSourceTrace;
+
+// --- [초등] 페로 펫 & 3대 루틴 ---
+function refreshElemPetUI(student) {
+    if (!student) return;
+    const petLevel = student.pet_level || 3;
+    const petExp = student.pet_exp || 45;
+    const petType = student.pet_type || 'PERO';
+
+    const lvlBadge = document.getElementById('elem-pet-level-badge');
+    const expBar = document.getElementById('elem-pet-exp-bar');
+    const expText = document.getElementById('elem-pet-exp-text');
+
+    if (lvlBadge) lvlBadge.innerText = `Lv. ${petLevel}`;
+    if (expBar) expBar.style.width = `${Math.min(100, petExp)}%`;
+    if (expText) expText.innerText = `${petExp} / 100`;
+
+    // Routine statuses
+    try {
+        const routines = typeof student.elem_routine_status === 'string' ? JSON.parse(student.elem_routine_status || '{}') : (student.elem_routine_status || {});
+        ['reading', 'math', 'sleep'].forEach(k => {
+            const isDone = !!routines[k];
+            const badge = document.getElementById(`elem-check-${k}`);
+            const card = document.getElementById(`elem-routine-${k}`);
+            if (badge) {
+                badge.style.background = isDone ? '#10b981' : '#334155';
+                badge.innerText = isDone ? '✓' : '';
+            }
+            if (card) {
+                card.style.borderColor = isDone ? '#10b981' : 'rgba(255,255,255,0.1)';
+                card.style.background = isDone ? 'rgba(16, 185, 129, 0.12)' : 'rgba(255,255,255,0.04)';
+            }
+        });
+    } catch(e) {}
+}
+window.refreshElemPetUI = refreshElemPetUI;
+
+function switchElemTab(tabId) {
+    document.querySelectorAll('.elem-subtab-view').forEach(v => v.style.display = 'none');
+    document.querySelectorAll('#elem-main-tabs .tab-btn').forEach(b => {
+        if (b.getAttribute('data-elemtab') === tabId) b.classList.add('active');
+        else b.classList.remove('active');
+    });
+    document.querySelectorAll('#bottom-nav-elem .nav-item').forEach(b => {
+        if (b.getAttribute('data-elemtab') === tabId) b.classList.add('active');
+        else b.classList.remove('active');
+    });
+
+    const target = document.getElementById(tabId);
+    if (target) target.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+window.switchElemTab = switchElemTab;
+
+async function toggleElemRoutine(routineKey) {
+    const studentId = currentStudent ? currentStudent.id : 1;
+    try {
+        const res = await fetch('/api/elem/routine/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                student_id: studentId,
+                routine_key: routineKey
+            })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            if (currentStudent) {
+                currentStudent.pet_level = data.pet_level;
+                currentStudent.pet_exp = data.pet_exp;
+                currentStudent.elem_routine_status = JSON.stringify(data.routines);
+            }
+            refreshElemPetUI(currentStudent);
+            if (data.is_completed) {
+                alert(`🌟 [${data.routine_title}] 완료! +${data.gained_exp} EXP 획득!`);
+            }
+        }
+    } catch(e) {
+        console.warn('toggleElemRoutine error:', e);
+    }
+}
+window.toggleElemRoutine = toggleElemRoutine;
+
+async function feedElemPet(actionType) {
+    if (!currentStudent) return;
+    const gained = actionType === 'apple' ? 15 : 10;
+    currentStudent.pet_exp = (currentStudent.pet_exp || 0) + gained;
+    if (currentStudent.pet_exp >= 100) {
+        currentStudent.pet_level = (currentStudent.pet_level || 1) + 1;
+        currentStudent.pet_exp = currentStudent.pet_exp % 100;
+        alert(`🎉 축하합니다! 페로가 Lv. ${currentStudent.pet_level}(으)로 레벨업했습니다! 🐣✨`);
+    } else {
+        const talk = document.getElementById('elem-pet-talk');
+        if (talk) {
+            talk.innerText = actionType === 'apple' ? '"냠냠! 사과가 정말 달콤하고 맛있어요! 🍎❤️"' : '"헤헤~ 칭찬해주셔서 고마워요! 더 열심히 할게요! 🥰"';
+        }
+    }
+    refreshElemPetUI(currentStudent);
+}
+window.feedElemPet = feedElemPet;
+
+async function sendElemPeroChat() {
+    const input = document.getElementById('elem-chat-input');
+    const chatBox = document.getElementById('elem-chat-box');
+    if (!input || !chatBox) return;
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    chatBox.innerHTML += `
+        <div class="chat-bubble user" style="background: linear-gradient(135deg, #ec4899, #f59e0b); color: white; padding: 10px 14px; border-radius: 12px; font-size: 0.84rem; margin-left: auto; max-width: 85%; margin-bottom: 8px; text-align: right;">
+            ${msg}
+        </div>
+    `;
+    input.value = '';
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    const botLoadingId = 'elem-bot-' + Date.now();
+    chatBox.innerHTML += `
+        <div id="${botLoadingId}" class="chat-bubble bot" style="background: rgba(236, 72, 153, 0.18); border: 1px solid rgba(236, 72, 153, 0.3); color: #ffffff; padding: 10px 14px; border-radius: 12px; font-size: 0.84rem; margin-bottom: 8px; line-height: 1.5;">
+            페로가 생각하는 중이에요... 🐣✨
+        </div>
+    `;
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    try {
+        const studentId = currentStudent ? currentStudent.id : 1;
+        const res = await fetch('/api/ai/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                student_id: studentId,
+                message: msg,
+                school_level: 'ELEMENTARY'
+            })
+        });
+        const botEl = document.getElementById(botLoadingId);
+        if (res.ok) {
+            const data = await res.json();
+            if (botEl) botEl.innerHTML = (data.response || data.reply || '').replace(/\n/g, '<br>');
+        } else {
+            if (botEl) botEl.innerText = '페로가 잠시 낮잠을 자고 있나 봐요! 다시 말해줄래? ✨';
+        }
+    } catch(e) {
+        const botEl = document.getElementById(botLoadingId);
+        if (botEl) botEl.innerText = '페로와의 연결이 잠시 불안정해요.';
+    }
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+window.sendElemPeroChat = sendElemPeroChat;
+
+function checkElemQuiz(optionIndex) {
+    const feedback = document.getElementById('elem-quiz-feedback');
+    if (!feedback) return;
+    feedback.style.display = 'block';
+    if (optionIndex === 1) { // 설거지가 맞음
+        feedback.style.color = '#22c55e';
+        feedback.innerHTML = '🎉 <b>딩동댕! 정답입니다!</b> \'설거지\'가 표준어예요! (+20 EXP 획득 🌟)';
+        if (currentStudent) {
+            currentStudent.pet_exp = (currentStudent.pet_exp || 0) + 20;
+            refreshElemPetUI(currentStudent);
+        }
+    } else {
+        feedback.style.color = '#f43f5e';
+        feedback.innerHTML = '아쉬워요! \'설겆이\'가 아니라 <b>\'설거지\'</b>가 올바른 표준어랍니다! 다시 도전해볼까요? 😊';
+    }
+}
+window.checkElemQuiz = checkElemQuiz;
+
+// --- [내신 기출 출처 정밀 추적기] ---
+async function runExamSourceTrace() {
+    const subject = document.getElementById('tracer-subject')?.value || '국어';
+    const examType = document.getElementById('tracer-exam-type')?.value || '1학기 중간';
+    const schoolName = document.getElementById('tracer-school')?.value.trim() || currentStudent?.high_school || currentStudent?.school_name || '';
+    const query = document.getElementById('tracer-query')?.value.trim();
+    const resultBox = document.getElementById('tracer-result-box');
+    const itemsList = document.getElementById('tracer-items-list');
+    const trendBox = document.getElementById('tracer-school-trend');
+    const countBadge = document.getElementById('tracer-match-count');
+
+    if (!query || query.length < 5) {
+        alert('출처를 추적할 문제 지문/발문/선지를 5자 이상 입력해 주세요.');
+        return;
+    }
+
+    if (resultBox) {
+        resultBox.style.display = 'block';
+        if (itemsList) itemsList.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-secondary);">🔍 공공 기출 DB, EBS 연계교재, 시중 대표 문제집 정밀 스캔 중...</div>';
+    }
+
+    try {
+        const res = await fetch('/api/exam-sources/trace', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                query_text: query,
+                subject: subject,
+                school_level: currentStudent?.school_level || 'HIGH',
+                school_name: schoolName,
+                exam_type: examType
+            })
+        });
+
+        if (!res.ok) {
+            const err = await res.json();
+            if (itemsList) itemsList.innerHTML = `<div style="color: #f43f5e; padding: 12px;">${err.detail || '추적 실패'}</div>`;
+            return;
+        }
+
+        const data = await res.json();
+        if (countBadge) countBadge.innerText = `${data.total_matches || 0}개 매칭`;
+
+        if (data.school_trend && trendBox) {
+            trendBox.style.display = 'block';
+            trendBox.innerHTML = `<b>📊 ${data.school_trend.school_name} 출제 경향 분석:</b><br>${data.school_trend.trend_summary}<br><span style="font-size:0.72rem; color:#a5b4fc;">EBS 연계율: ${data.school_trend.ebs_ratio}% · 평가원 변형: ${data.school_trend.past_exam_ratio}% · 시중교재: ${data.school_trend.commercial_book_ratio}%</span>`;
+        } else if (trendBox) {
+            trendBox.style.display = 'none';
+        }
+
+        renderExamSourceTracerResults(data, itemsList);
+
+    } catch(e) {
+        console.error('runExamSourceTrace error:', e);
+        if (itemsList) itemsList.innerHTML = '<div style="color: #f43f5e; padding: 12px;">서버 통신 오류가 발생했습니다.</div>';
+    }
+}
+window.runExamSourceTrace = runExamSourceTrace;
+
+function renderExamSourceTracerResults(data, container) {
+    if (!container) return;
+    const matches = data.matched_sources || [];
+    if (matches.length === 0) {
+        container.innerHTML = `
+            <div style="text-align:center; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 10px; color: var(--text-secondary); font-size: 0.8rem;">
+                일치하는 정밀 출처를 찾지 못했습니다.<br>
+                선배·튜터 크라우드소싱 제보를 요청하시거나 직접 제보해 보세요!
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = matches.map((m, idx) => {
+        const scoreColor = m.similarity_score >= 80 ? '#10b981' : (m.similarity_score >= 50 ? '#f59e0b' : '#94a3b8');
+        const badgeColor = m.source_type === 'PAST_EXAM' ? '#3b82f6' : (m.source_type === 'EBS' ? '#8b5cf6' : '#ec4899');
+        const badgeLabel = m.source_type === 'PAST_EXAM' ? '공공 기출' : (m.source_type === 'EBS' ? 'EBS 연계' : '시중 교재');
+
+        return `
+            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.7rem; background: ${badgeColor}; color: white; padding: 2px 7px; border-radius: 6px; font-weight: 800;">${badgeLabel}</span>
+                        <span style="font-size: 0.88rem; font-weight: 800; color: #ffffff;">${idx + 1}순위. ${m.source_title}</span>
+                    </div>
+                    <span style="font-size: 0.78rem; font-weight: 900; color: ${scoreColor}; background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 10px;">유사도 ${m.similarity_score}%</span>
+                </div>
+                <div style="font-size: 0.76rem; color: #cbd5e1; margin-bottom: 4px;">
+                    <b>위치:</b> ${m.chapter || '-'} · ${m.question_number ? `${m.question_number}번` : ''} · ${m.page_number ? `p.${m.page_number}` : ''}
+                </div>
+                ${m.variation_type ? `<div style="font-size: 0.72rem; color: #a5b4fc; margin-bottom: 4px;"><b>변형 포인트:</b> ${m.variation_type} (${m.variation_notes || '원문 변형 출제'})</div>` : ''}
+                ${m.fact_verified ? `<div style="font-size: 0.7rem; color: #10b981; font-weight: 700;">✓ 100% 팩트 검증 완료 (데이터베이스 원문 확인)</div>` : ''}
+            </div>
+        `;
+    }).join('');
+}
+window.renderExamSourceTracerResults = renderExamSourceTracerResults;
+
+function openExamTagModal() {
+    const modal = document.getElementById('exam-tag-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        const schoolInp = document.getElementById('tag-school-name');
+        if (schoolInp && currentStudent) {
+            schoolInp.value = currentStudent.high_school || currentStudent.school_name || '';
+        }
+    }
+}
+window.openExamTagModal = openExamTagModal;
+
+function closeExamTagModal() {
+    const modal = document.getElementById('exam-tag-modal');
+    if (modal) modal.style.display = 'none';
+}
+window.closeExamTagModal = closeExamTagModal;
+
+async function submitExamTag() {
+    const schoolName = document.getElementById('tag-school-name')?.value.trim();
+    const grade = document.getElementById('tag-grade')?.value || '고3';
+    const subject = document.getElementById('tag-subject')?.value || '국어';
+    const examTitle = document.getElementById('tag-exam-title')?.value.trim();
+    const questionNum = document.getElementById('tag-question-num')?.value.trim();
+    const sourceName = document.getElementById('tag-source-name')?.value.trim();
+    const notes = document.getElementById('tag-notes')?.value.trim();
+
+    if (!schoolName || !sourceName) {
+        alert('학교명과 정확한 출처명을 입력해 주세요.');
+        return;
+    }
+
+    try {
+        const studentId = currentStudent ? currentStudent.id : 1;
+        const res = await fetch('/api/exam-sources/tag', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                student_id: studentId,
+                school_name: schoolName,
+                grade: grade,
+                subject: subject,
+                exam_title: examTitle,
+                question_num: questionNum,
+                source_name: sourceName,
+                notes: notes
+            })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            alert(`🎉 출처 제보가 완료되었습니다!\n보상으로 +500 캐시가 지급되었습니다.`);
+            closeExamTagModal();
+            loadExamTagsFeed();
+            if (currentStudent) {
+                currentStudent.paid_cash = (currentStudent.paid_cash || 0) + 500;
+                if (typeof updateHeaderUI === 'function') updateHeaderUI();
+            }
+        } else {
+            alert('출처 제보 등록 중 오류가 발생했습니다.');
+        }
+    } catch(e) {
+        alert('서버 연결 실패');
+    }
+}
+window.submitExamTag = submitExamTag;
+
+async function loadExamTagsFeed() {
+    const container = document.getElementById('tracer-recent-tags');
+    if (!container) return;
+    try {
+        const res = await fetch('/api/exam-sources/list?limit=5');
+        if (res.ok) {
+            const list = await res.json();
+            if (list.length === 0) {
+                container.innerHTML = '<div style="font-size:0.75rem; color:var(--text-secondary); text-align:center; padding:10px;">아직 등록된 제보가 없습니다. 첫 제보자가 되어보세요!</div>';
+                return;
+            }
+            container.innerHTML = list.map(t => `
+                <div style="background: rgba(255,255,255,0.03); border-radius: 8px; padding: 8px 10px; font-size: 0.74rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <b style="color: #c7d2fe;">${t.school_name || '낙생고'}</b> <span style="color: var(--text-secondary);">[${t.subject || '국어'}]</span>
+                        <div style="color: #94a3b8; font-size: 0.7rem; margin-top: 1px;">출처: <span style="color: #e2e8f0; font-weight: 700;">${t.source_name}</span> (${t.question_num || '객관식'})</div>
+                    </div>
+                    <span style="font-size: 0.68rem; background: rgba(16,185,129,0.15); color: #10b981; padding: 2px 6px; border-radius: 6px; font-weight: 800;">+500C</span>
+                </div>
+            `).join('');
+        }
+    } catch(e) {}
+}
+window.loadExamTagsFeed = loadExamTagsFeed;
 

@@ -31,13 +31,21 @@ class StudentCreate(BaseModel):
     phone: str
     grade: int
     region: str
-    high_school: str
-    target_univ: str
-    baseline_univ: str
+    high_school: Optional[str] = "-"
+    target_univ: Optional[str] = "-"
+    baseline_univ: Optional[str] = "-"
     parent_name: str
     parent_phone: str
     referred_by: Optional[str] = None # 추천인 코드
     academy_code: Optional[str] = None # 소속 학원 초대 코드
+    # 초등/중등 확장 필드
+    school_level: Optional[str] = "HIGH" # ELEMENTARY | MIDDLE | HIGH
+    school_name: Optional[str] = None
+    target_high_school: Optional[str] = None
+    target_high_school_type: Optional[str] = None
+    baseline_high_school: Optional[str] = None
+    dream_job: Optional[str] = None
+    pet_type: Optional[str] = "cat"
 
 class StudentResponse(BaseModel):
     id: int
@@ -53,6 +61,18 @@ class StudentResponse(BaseModel):
     sleep_target_time: Optional[str] = "23:30"
     current_points: Optional[int] = 100
     parent_id: Optional[int] = None
+    
+    # 🏫 초등/중등/고등 독립 플랫폼 필드
+    school_level: Optional[str] = "HIGH"
+    school_name: Optional[str] = None
+    target_high_school: Optional[str] = None
+    target_high_school_type: Optional[str] = None
+    baseline_high_school: Optional[str] = None
+    dream_job: Optional[str] = None
+    pet_type: Optional[str] = "cat"
+    pet_level: Optional[int] = 1
+    pet_exp: Optional[int] = 0
+    elem_routine_status: Optional[str] = "{}"
     
     # 💎 B2C 유료 캐시 & 친구 초대 바이럴 필드
     paid_cash: Optional[int] = 0
@@ -96,6 +116,33 @@ class StudentProfileUpdate(BaseModel):
     dday_date: Optional[str] = None
     dday_title: Optional[str] = None
     medical_symbol: Optional[str] = None
+    school_level: Optional[str] = None
+    school_name: Optional[str] = None
+    target_high_school: Optional[str] = None
+    target_high_school_type: Optional[str] = None
+    baseline_high_school: Optional[str] = None
+    dream_job: Optional[str] = None
+    pet_type: Optional[str] = None
+
+# === 🔍 내신 출처 추적기 관련 스키마 ===
+class ExamSourceTraceRequest(BaseModel):
+    school_name: Optional[str] = None
+    grade: Optional[int] = None
+    subject: Optional[str] = None
+    query_text: str # 검색할 문항 텍스트나 키워드
+
+class ExamSourceTagCreate(BaseModel):
+    item_id: Optional[int] = None
+    student_id: Optional[int] = 1
+    school_name: str
+    grade: Optional[str] = "고3"
+    subject: str
+    exam_title: Optional[str] = ""
+    question_num: Optional[Any] = 1
+    source_name: Optional[str] = ""
+    tag_source_detail: Optional[str] = ""
+    notes: Optional[str] = ""
+
 
 class NoticeCreate(BaseModel):
     title: str

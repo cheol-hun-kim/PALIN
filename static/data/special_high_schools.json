@@ -1,0 +1,153 @@
+[
+  {
+    "id": "hufs",
+    "name": "용인한국외국어대학교부설고등학교 (외대부고)",
+    "type": "전국자사고",
+    "sido": "경기도",
+    "sigungu": "용인시 처인구",
+    "location": "경기 용인",
+    "homepage": "http://www.hafs.hs.kr",
+    "target_departments": [
+      "자연과학과정",
+      "인문사회과정",
+      "국제과정"
+    ],
+    "competition_rate": "3.1:1",
+    "gpa_requirement": "중2-1 ~ 중3-2 국영수사과 All A (성취도 5개 학기 100% 만점 기본)",
+    "admission_steps": "1단계: 교과성적(160점) + 출결(감점) (2배수 선발) ➔ 2단계: 1단계성적(160점) + 면접(40점)",
+    "interview_tip": "개별 맞춤 3문항 공통문항 없음. 학생부 세특 기반 심화 탐구 및 진로 연계 독서 활동의 진정성 집중 검증. 꼬리 질문 대비 필수.",
+    "key_features": "전국 최상위권 SKY 및 의치한약수 진학률 압도적 1위, 자율형 교육과정 및 소논문/R&E 연구",
+    "badge_color": "#6366f1"
+  },
+  {
+    "id": "hana",
+    "name": "하나고등학교",
+    "type": "전국자사고",
+    "sido": "서울특별시",
+    "sigungu": "은평구",
+    "location": "서울 은평",
+    "homepage": "http://www.hana.hs.kr",
+    "target_departments": [
+      "일반전형(무계열 선발)"
+    ],
+    "competition_rate": "2.8:1",
+    "gpa_requirement": "중2-1 ~ 중3-2 주요 교과 All A (수학/국어 가중치)",
+    "admission_steps": "1단계: 내신성적(40점) + 출결(감점) (2배수) ➔ 2단계: 서류(20점) + 면접(40점) + 체력검사",
+    "interview_tip": "1인 2기(체육/예술) 및 기숙사 협동심 검증. 학생이 직접 쓴 자소서 3개 영역(자기주도학습/인성) 구체적 실천사례 질문.",
+    "key_features": "무계열 무학년 수강신청제, 서울대 학종/수시 최다 합격 명문, 1인 2기 전인교육",
+    "badge_color": "#3b82f6"
+  },
+  {
+    "id": "sangsan",
+    "name": "상산고등학교",
+    "type": "전국자사고",
+    "sido": "전북특별자치도",
+    "sigungu": "전주시 완산구",
+    "location": "전북 전주",
+    "homepage": "http://www.sangsan.hs.kr",
+    "target_departments": [
+      "자연/인문계열"
+    ],
+    "competition_rate": "2.2:1",
+    "gpa_requirement": "중2-1 ~ 중3-2 수학(최대 비중)/국어/영어/과학/사회 All A",
+    "admission_steps": "1단계: 교과성적(240점) + 출결(감점) (2배수) ➔ 2단계: 1단계성적(240점) + 창의융합면접(60점) + 인성면접(40점)",
+    "interview_tip": "창의융합 면접에서 수학/과학적 원리를 실생활 문제 해결에 적용하는 논리적 사고력과 문제해결 과정 구술 구술평가.",
+    "key_features": "의대 사관학교(전국 의치한약수 합격자 최다 배출), 수학의 정석 홍성대 설립, 강력한 이공계 몰입 환경",
+    "badge_color": "#10b981"
+  },
+  {
+    "id": "minsa",
+    "name": "민족사관고등학교 (민사고)",
+    "type": "전국자사고",
+    "sido": "강원특별자치도",
+    "sigungu": "횡성군",
+    "location": "강원 횡성",
+    "homepage": "http://www.minjok.hs.kr",
+    "target_departments": [
+      "국내과정",
+      "국제과정"
+    ],
+    "competition_rate": "2.0:1",
+    "gpa_requirement": "중학교 전 과목(예체능 포함) 성취도 평가",
+    "admission_steps": "1단계: 교과성적(100점) (2~2.5배수) ➔ 2단계: 서류평가 + 심층 개별 면접(각 과목별 20분씩 총 100분) + 체력검사",
+    "interview_tip": "국어, 수학, 영어, 탐구선택, 인성 총 5개 방을 돌며 각 20분간 전문 교수진 수준의 심층 학술 토론 구술 면접.",
+    "key_features": "소수정예 원탁 토론 수업, 국어/국사 제외 전 과목 영어 수업(EOP), 글로벌 아이비리그 및 서울대 최고 진학",
+    "badge_color": "#f59e0b"
+  },
+  {
+    "id": "daewon_fl",
+    "name": "대원외국어고등학교",
+    "type": "외국어고",
+    "sido": "서울특별시",
+    "sigungu": "광진구",
+    "location": "서울 광진",
+    "homepage": "http://www.daewon.hs.kr",
+    "target_departments": [
+      "독일어과",
+      "프랑스어과",
+      "스페인어과",
+      "일본어과",
+      "중국어과"
+    ],
+    "competition_rate": "1.7:1",
+    "gpa_requirement": "중2~중3 영어 내신 성적(160점) + 출결 감점",
+    "admission_steps": "1단계: 영어내신(160점) + 출결 (1.5배수) ➔ 2단계: 1단계성적(160점) + 면접(40점)",
+    "interview_tip": "전공 외국어에 대한 관심 계기, 전공 언어권 문화/사회 이슈에 대한 비판적 사고력 및 진로 로드맵.",
+    "key_features": "외고의 독보적 원탑, 인문/상경/로스쿨/외교관/글로벌 리더 최다 배출 명문",
+    "badge_color": "#ec4899"
+  },
+  {
+    "id": "seoul_science",
+    "name": "서울과학고등학교 (영재학교)",
+    "type": "영재학교",
+    "sido": "서울특별시",
+    "sigungu": "종로구",
+    "location": "서울 종로",
+    "homepage": "http://www.sshs.hs.kr",
+    "target_departments": [
+      "과학영재단일과정"
+    ],
+    "competition_rate": "6.5:1",
+    "gpa_requirement": "수학/과학 분야 탁월한 영재성 및 자기주도 학습역량",
+    "admission_steps": "1단계: 학생기록물 평가 ➔ 2단계: 영재성 및 창의적 문제해결력 검사 ➔ 3단계: 영재성 다면평가 캠프(1박2일 실험/토론/면접)",
+    "interview_tip": "고난도 수학/과학 창의적 사고력 문항 풀이 및 실험 설계 능력 평가.",
+    "key_features": "국제 올림피아드 국가대표 산실, 서울대 이공계 및 카이스트/포스텍/해외 최고 연구중심대 진학",
+    "badge_color": "#06b6d4"
+  },
+  {
+    "id": "hanseong_sci",
+    "name": "한성과학고등학교",
+    "type": "과학고",
+    "sido": "서울특별시",
+    "sigungu": "서대문구",
+    "location": "서울 서대문",
+    "homepage": "http://www.hansung-sh.hs.kr",
+    "target_departments": [
+      "과학/수학 전문과정"
+    ],
+    "competition_rate": "4.2:1",
+    "gpa_requirement": "중2-1 ~ 중3-1 수학/과학 내신 성취도 A",
+    "admission_steps": "1단계: 서류평가 및 출석면담 ➔ 2단계: 소집면접 (수학/과학 융합 사고력 구술)",
+    "interview_tip": "중학교 수학/과학 교육과정을 기초로 한 창의 융합 구술 문항.",
+    "key_features": "조기졸업 및 카이스트/포스텍/유니스트/디지스트/지스트 특성화대 진학률 최상위",
+    "badge_color": "#8b5cf6"
+  },
+  {
+    "id": "dongtan_intl",
+    "name": "동탄국제고등학교",
+    "type": "국제고",
+    "sido": "경기도",
+    "sigungu": "화성시",
+    "location": "경기 화성",
+    "homepage": "http://www.dtis.hs.kr",
+    "target_departments": [
+      "국제인재과정"
+    ],
+    "competition_rate": "2.3:1",
+    "gpa_requirement": "중2~중3 영어/사회/국어 성취도 A",
+    "admission_steps": "1단계: 영어내신(160점) + 출결 ➔ 2단계: 1단계성적(160점) + 자기주도학습 면접(40점)",
+    "interview_tip": "국제 사회 이슈에 대한 관심, 영어 원서 독서 역량, 글로벌 시민의식과 자기주도 학습과정.",
+    "key_features": "기숙사형 공립 국제고, 수시 학종에 최적화된 토론 및 국제관계 전문 커리큘럼",
+    "badge_color": "#14b8a6"
+  }
+]

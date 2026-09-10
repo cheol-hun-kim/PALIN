@@ -1,0 +1,129 @@
+[
+  {
+    "source_id": "KICE_2025_CSAT_KOR_34",
+    "exam_name": "2025학년도 대학수학능력시험",
+    "grade_level": "고3/N수",
+    "subject": "국어",
+    "section": "문학 (현대소설)",
+    "question_num": 34,
+    "keywords": [
+      "이문구",
+      "우리 동네 김씨",
+      "토지 수용",
+      "근대화의 그늘",
+      "사투리 구사",
+      "공동체 해체"
+    ],
+    "passage_snippet": "그는 땅을 팔아넘긴 돈으로 도회지로 나가 장사를 시작했으나 3년 만에 거덜이 나고 말았다...",
+    "verified_source": "2025 수능 국어 34번 (평가원 공식 기출)",
+    "ebs_linkage": "2025 EBS 수능특강 국어 문학 182p 수록 작품 직접 연계 (연계율 100%)",
+    "high_school_adaptation_cases": [
+      {
+        "school": "낙생고등학교",
+        "grade": 3,
+        "semester": "1학기 기말",
+        "adapted_type": "보기 변형 및 인물 심리 추론 서술형 출제"
+      },
+      {
+        "school": "휘문고등학교",
+        "grade": 3,
+        "semester": "1학기 중간",
+        "adapted_type": "미수록 장면 확장 및 어휘 문맥적 의미 출제"
+      }
+    ]
+  },
+  {
+    "source_id": "KICE_2025_CSAT_MATH_22",
+    "exam_name": "2025학년도 대학수학능력시험",
+    "grade_level": "고3/N수",
+    "subject": "수학",
+    "section": "공통 (수학II 미분과 적분)",
+    "question_num": 22,
+    "keywords": [
+      "삼차함수 그래프 개형",
+      "절댓값 미분가능성",
+      "극댓값 극솟값 곱",
+      "정수 조건 부정방정식"
+    ],
+    "passage_snippet": "최고차항의 계수가 1인 삼차함수 f(x)가 다음 조건을 만족시킨다. 함수 g(x)=|f(x)-t|가 실수 전체에서 미분가능하지 않은 점의 개수...",
+    "verified_source": "2025 수능 수학 공통 22번 킬러 (평가원 공식 기출)",
+    "ebs_linkage": "2025 EBS 수능완성 수학II 실전모의고사 3회 21번 핵심 아이디어 변형",
+    "high_school_adaptation_cases": [
+      {
+        "school": "단대부고",
+        "grade": 2,
+        "semester": "2학기 기말",
+        "adapted_type": "사차함수로 차수 상향 및 구간별 정의 함수로 변형 출제"
+      },
+      {
+        "school": "중동고등학교",
+        "grade": 2,
+        "semester": "2학기 기말",
+        "adapted_type": "정수 계수 조건 변형하여 서술형 1번 배점 12점으로 출제"
+      }
+    ]
+  },
+  {
+    "source_id": "MOE_2024_09_ENG_33",
+    "exam_name": "2024년 9월 고2 전국연합학력평가",
+    "grade_level": "고2",
+    "subject": "영어",
+    "section": "빈칸 추론",
+    "question_num": 33,
+    "keywords": [
+      "cognitive bias",
+      "anchoring effect",
+      "decision making",
+      "heuristics",
+      "irrational behavior"
+    ],
+    "passage_snippet": "When individuals are asked to make an estimate based on limited information, they tend to heavily rely on the first piece of information offered...",
+    "verified_source": "2024년 9월 고2 학력평가 영어 33번 (인천시교육청)",
+    "ebs_linkage": "EBS 올림포스 영어독해 기본 12강 4번 유사 지문",
+    "high_school_adaptation_cases": [
+      {
+        "school": "분당대진고",
+        "grade": 2,
+        "semester": "2학기 중간",
+        "adapted_type": "원문 유지 후 어법상 틀린 3곳 찾아 바르게 고치기 서술형 출제"
+      },
+      {
+        "school": "수내고등학교",
+        "grade": 2,
+        "semester": "2학기 중간",
+        "adapted_type": "지문 요약문 완성 (A), (B) 단어 배열 영작 출제"
+      }
+    ]
+  },
+  {
+    "source_id": "MID_MATH_GRADE2_TRIANGLE_01",
+    "exam_name": "중학교 2학년 2학기 도형의 성질 기출 표준",
+    "grade_level": "중2",
+    "subject": "수학",
+    "section": "기하 (이등변삼각형 & 직각삼각형의 합동)",
+    "question_num": 18,
+    "keywords": [
+      "RHA합동",
+      "RHS합동",
+      "외심 내심 성질",
+      "각의 이등분선 정리"
+    ],
+    "passage_snippet": "그림과 같이 ∠A=90°인 직각이등변삼각형 ABC의 꼭짓점 A를 지나는 직선 l에 두 점 B, C에서 내린 수선의 발을 각각 D, E라 할 때...",
+    "verified_source": "교과서(천재교육/비상교육) 공통 심화 + 블랙라벨 중2(하) 14p Step3 4번",
+    "ebs_linkage": "EBS 중학 뉴런 수학2(하) 28p 12번",
+    "high_school_adaptation_cases": [
+      {
+        "school": "수내중학교",
+        "grade": 2,
+        "semester": "2학기 중간",
+        "adapted_type": "직선 l이 삼각형 내부를 통과하도록 회전 변형 출제"
+      },
+      {
+        "school": "대치중학교",
+        "grade": 2,
+        "semester": "2학기 중간",
+        "adapted_type": "점 D, E 사이의 거리를 구하는 서술형 3단계 유도 문제로 출제"
+      }
+    ]
+  }
+]

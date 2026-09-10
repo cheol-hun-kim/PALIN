@@ -301,10 +301,35 @@ def register_student(payload: schemas.StudentCreate, db: Session = Depends(get_d
                 pending_code_val = tenant.code
                 approval_status_val = "PENDING"
 
+        s_level = getattr(payload, 'school_level', 'HIGH') or 'HIGH'
+        s_name = getattr(payload, 'school_name', None) or payload.high_school or "-"
+        t_high = getattr(payload, 'target_high_school', None)
+        t_high_type = getattr(payload, 'target_high_school_type', None)
+        b_high = getattr(payload, 'baseline_high_school', None)
+        d_job = getattr(payload, 'dream_job', None)
+        p_type = getattr(payload, 'pet_type', 'cat') or 'cat'
+
+        default_dday_title = "2027 수능"
+        default_wake = "06:30"
+        default_sleep = "23:30"
+        if s_level == "ELEMENTARY":
+            default_dday_title = "오늘의 성장 목표"
+            default_wake = "07:30"
+            default_sleep = "21:30"
+        elif s_level == "MIDDLE":
+            default_dday_title = "중간고사 / 특목고 원서"
+            default_wake = "07:00"
+            default_sleep = "23:00"
+
         student = models.Student(
             email=clean_email, name=payload.name, phone=payload.phone,
-            grade=payload.grade, region=payload.region, high_school=payload.high_school,
-            target_univ=payload.target_univ, baseline_univ=payload.baseline_univ,
+            grade=payload.grade, region=payload.region, high_school=s_name,
+            school_name=s_name, school_level=s_level,
+            target_high_school=t_high, target_high_school_type=t_high_type,
+            baseline_high_school=b_high, dream_job=d_job,
+            pet_type=p_type, pet_level=1, pet_exp=0, elem_routine_status="{}",
+            target_univ=payload.target_univ or "-", baseline_univ=payload.baseline_univ or "-",
+            dday_title=default_dday_title, wake_target_time=default_wake, sleep_target_time=default_sleep,
             current_points=initial_points, paid_cash=0, free_report_tickets=0,
             referred_by=referred_by_code, parent_id=parent.id,
             academy_code=academy_code_val,
@@ -697,7 +722,25 @@ def handle_student_register_auth(payload: schemas.StudentRegisterRequest, db: Se
             pending_code_val = tenant.code
             approval_status_val = "PENDING"
 
-    pw_hash = models.hash_password(payload.password.strip()) if payload.password else None
+    s_level = getattr(payload, 'school_level', 'HIGH') or 'HIGH'
+    s_name = getattr(payload, 'school_name', None) or (payload.high_school.strip() if payload.high_school else "-")
+    t_high = getattr(payload, 'target_high_school', None)
+    t_high_type = getattr(payload, 'target_high_school_type', None)
+    b_high = getattr(payload, 'baseline_high_school', None)
+    d_job = getattr(payload, 'dream_job', None)
+    p_type = getattr(payload, 'pet_type', 'cat') or 'cat'
+
+    default_dday_title = "2027 수능"
+    default_wake = "06:30"
+    default_sleep = "23:30"
+    if s_level == "ELEMENTARY":
+        default_dday_title = "오늘의 성장 목표"
+        default_wake = "07:30"
+        default_sleep = "21:30"
+    elif s_level == "MIDDLE":
+        default_dday_title = "중간고사 / 특목고 원서"
+        default_wake = "07:00"
+        default_sleep = "23:00"
 
     student = models.Student(
         email=clean_email,
@@ -706,10 +749,23 @@ def handle_student_register_auth(payload: schemas.StudentRegisterRequest, db: Se
         name=payload.name.strip(),
         phone=payload.phone.strip(),
         grade=payload.grade,
-        region=payload.region.strip(),
-        high_school=payload.high_school.strip(),
-        target_univ=payload.target_univ.strip(),
-        baseline_univ=payload.baseline_univ.strip(),
+        region=payload.region.strip() if payload.region else "-",
+        high_school=s_name,
+        school_name=s_name,
+        school_level=s_level,
+        target_high_school=t_high,
+        target_high_school_type=t_high_type,
+        baseline_high_school=b_high,
+        dream_job=d_job,
+        pet_type=p_type,
+        pet_level=1,
+        pet_exp=0,
+        elem_routine_status="{}",
+        target_univ=payload.target_univ.strip() if payload.target_univ else "-",
+        baseline_univ=payload.baseline_univ.strip() if payload.baseline_univ else "-",
+        dday_title=default_dday_title,
+        wake_target_time=default_wake,
+        sleep_target_time=default_sleep,
         current_points=initial_points,
         paid_cash=0,
         free_report_tickets=0,
@@ -946,6 +1002,16 @@ def login_student(payload: LoginPayload, db: Session = Depends(get_db)):
             "previous_b2c_tier": getattr(student, 'previous_b2c_tier', 'B2C_FREE') or "B2C_FREE",
             "academy_code": getattr(student, 'academy_code', None),
             "ai_level": getattr(student, 'ai_level', 'B2C_FREE') or "B2C_FREE",
+            "school_level": getattr(student, 'school_level', 'HIGH') or 'HIGH',
+            "school_name": getattr(student, 'school_name', None) or student.high_school,
+            "target_high_school": getattr(student, 'target_high_school', None),
+            "target_high_school_type": getattr(student, 'target_high_school_type', None),
+            "baseline_high_school": getattr(student, 'baseline_high_school', None),
+            "dream_job": getattr(student, 'dream_job', None),
+            "pet_type": getattr(student, 'pet_type', 'cat') or 'cat',
+            "pet_level": getattr(student, 'pet_level', 1) or 1,
+            "pet_exp": getattr(student, 'pet_exp', 0) or 0,
+            "elem_routine_status": getattr(student, 'elem_routine_status', '{}') or '{}',
             "tuition_paid": bool(getattr(student, 'tuition_paid', False)),
             "textbook_paid": bool(getattr(student, 'textbook_paid', False)),
             "textbooks_distributed": getattr(student, 'textbooks_distributed', '') or "",
@@ -1008,6 +1074,16 @@ def get_student(student_id: int, db: Session = Depends(get_db)):
         "b2c_subscription_tier": getattr(student, 'b2c_subscription_tier', 'TIER_1_FREE') or "TIER_1_FREE",
         "chat_tokens": int(getattr(student, 'chat_tokens', 5)) if getattr(student, 'chat_tokens', None) is not None else 5,
         "ai_level": getattr(student, 'ai_level', 'B2C_FREE') or "B2C_FREE",
+        "school_level": getattr(student, 'school_level', 'HIGH') or 'HIGH',
+        "school_name": getattr(student, 'school_name', None) or student.high_school,
+        "target_high_school": getattr(student, 'target_high_school', None),
+        "target_high_school_type": getattr(student, 'target_high_school_type', None),
+        "baseline_high_school": getattr(student, 'baseline_high_school', None),
+        "dream_job": getattr(student, 'dream_job', None),
+        "pet_type": getattr(student, 'pet_type', 'cat') or 'cat',
+        "pet_level": getattr(student, 'pet_level', 1) or 1,
+        "pet_exp": getattr(student, 'pet_exp', 0) or 0,
+        "elem_routine_status": getattr(student, 'elem_routine_status', '{}') or '{}',
         "tuition_paid": bool(getattr(student, 'tuition_paid', False)),
         "textbook_paid": bool(getattr(student, 'textbook_paid', False)),
         "textbooks_distributed": getattr(student, 'textbooks_distributed', '') or "",
@@ -1049,6 +1125,15 @@ def update_profile(payload: schemas.StudentProfileUpdate, db: Session = Depends(
     if payload.dday_date: student.dday_date = payload.dday_date
     if payload.dday_title: student.dday_title = payload.dday_title
     if payload.medical_symbol: student.medical_symbol = payload.medical_symbol
+    if payload.school_level: student.school_level = payload.school_level
+    if payload.school_name:
+        student.school_name = payload.school_name
+        student.high_school = payload.school_name
+    if payload.target_high_school is not None: student.target_high_school = payload.target_high_school
+    if payload.target_high_school_type is not None: student.target_high_school_type = payload.target_high_school_type
+    if payload.baseline_high_school is not None: student.baseline_high_school = payload.baseline_high_school
+    if payload.dream_job is not None: student.dream_job = payload.dream_job
+    if payload.pet_type: student.pet_type = payload.pet_type
     db.commit()
     db.refresh(student)
     return student
@@ -1340,11 +1425,34 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
                             (models.Tenant.code == code) | (models.Tenant.code == code.replace("-2027", "1"))
                         ).first()
                         if tenant:
-                            if tenant.tier >= 4 or getattr(tenant, 'license_tier', 1) >= 4 or code in ("ILWON-2027", "ILWON1", "ILWON"):
+                            t_tier = 1
+                            try:
+                                if isinstance(tenant.tier, int):
+                                    t_tier = tenant.tier
+                                elif isinstance(tenant.tier, str):
+                                    import re
+                                    m = re.search(r'\d+', tenant.tier)
+                                    t_tier = int(m.group()) if m else 1
+                            except Exception:
+                                t_tier = 1
+                            
+                            l_tier = 1
+                            try:
+                                raw_l = getattr(tenant, 'license_tier', 1)
+                                if isinstance(raw_l, int):
+                                    l_tier = raw_l
+                                elif isinstance(raw_l, str):
+                                    import re
+                                    m = re.search(r'\d+', raw_l)
+                                    l_tier = int(m.group()) if m else 1
+                            except Exception:
+                                l_tier = 1
+
+                            if t_tier >= 4 or l_tier >= 4 or code in ("ILWON-2027", "ILWON1", "ILWON"):
                                 tier = 4  # 일원학원 직영 및 Tier 4 가맹학원
-                            elif tenant.tier >= 3 or getattr(tenant, 'license_tier', 1) >= 3:
+                            elif t_tier >= 3 or l_tier >= 3:
                                 tier = max(tier, 3)  # B2B Tier 3 auto-sponsors student to Master AI
-                            elif tenant.tier == 2 and tier < 2:
+                            elif t_tier == 2 and tier < 2:
                                 tier = 2
                             custom_prompt = tenant.custom_system_prompt
                             bot_name = tenant.bot_name or "PALIN AI 멘토"
@@ -1397,6 +1505,8 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
                 if content_str and str(content_str).strip():
                     history_dicts.append({"role": clean_role, "content": str(content_str)})
 
+        school_level = getattr(student, 'school_level', 'HIGH') if student else 'HIGH'
+
         reply = ai.ask_ai_chatbot(
             payload.message,
             history=history_dicts,
@@ -1404,7 +1514,8 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
             tenant_custom_prompt=custom_prompt,
             tenant_bot_name=bot_name,
             tenant_is_active=is_active,
-            user_role=user_role
+            user_role=user_role,
+            school_level=school_level
         )
         return schemas.AIChatResponse(reply=reply, remaining_chats=remaining)
     except HTTPException:
@@ -1415,6 +1526,256 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
             reply="지금 구글 AI 서버에 순간적인 접속 트래픽이 몰려서 답변이 지연되었어. 1~2초 뒤에 질문을 다시 보내주면 바로 답변해줄게!",
             remaining_chats=remaining
         )
+
+
+# ============================================================================
+# 🏫 15. 초등 / 중등 / 고등 학교 검색 & 특목고 나침반 엔드포인트
+# ============================================================================
+
+@app.get("/api/schools/search")
+def search_schools(level: str = "HIGH", sido: str = "", sigungu: str = "", q: str = ""):
+    data_file = "high_schools.json"
+    if level == "MIDDLE":
+        data_file = "middle_schools.json"
+    elif level == "ELEMENTARY":
+        data_file = "elementary_schools.json"
+    
+    schools = []
+    p = os.path.join(os.path.dirname(__file__), "data", data_file)
+    if not os.path.exists(p):
+        p = os.path.join(os.getcwd(), "app", "data", data_file)
+    if os.path.exists(p):
+        with open(p, "r", encoding="utf-8") as f:
+            schools = json.load(f)
+    
+    if sido:
+        schools = [s for s in schools if s.get("sido") == sido]
+    if sigungu:
+        schools = [s for s in schools if s.get("sigungu") == sigungu]
+    if q:
+        q_lower = q.lower().strip()
+        schools = [s for s in schools if q_lower in s.get("name", "").lower()]
+    return schools
+
+
+@app.get("/api/middle/special-high-schools")
+def get_special_high_schools(sido: str = "", type: str = ""):
+    p = os.path.join(os.path.dirname(__file__), "data", "special_high_schools.json")
+    if not os.path.exists(p):
+        p = os.path.join(os.getcwd(), "app", "data", "special_high_schools.json")
+    if os.path.exists(p):
+        with open(p, "r", encoding="utf-8") as f:
+            schools = json.load(f)
+            if sido:
+                schools = [s for s in schools if sido in s.get("sido", "")]
+            if type:
+                schools = [s for s in schools if type in s.get("type", "")]
+            return schools
+    return []
+
+
+# ============================================================================
+# 🔍 16. 내신 기출 출처 추적기 (Exam Source Tracer) 팩트 매칭 & 크라우드소싱 API
+# ============================================================================
+
+@app.post("/api/exam-sources/trace")
+def trace_exam_source(payload: schemas.ExamSourceTraceRequest, db: Session = Depends(get_db)):
+    query = (payload.query_text or "").strip().lower()
+    if not query:
+        raise HTTPException(status_code=400, detail="검색할 문제 키워드 또는 본문 텍스트를 입력해 주세요.")
+    
+    # 1. 공공 기출 DB 및 EBS 매칭 로드
+    public_index_path = os.path.join(os.path.dirname(__file__), "data", "exam_sources", "public_past_exams", "index.json")
+    if not os.path.exists(public_index_path):
+        public_index_path = os.path.join(os.getcwd(), "app", "data", "exam_sources", "public_past_exams", "index.json")
+    
+    public_sources = []
+    if os.path.exists(public_index_path):
+        with open(public_index_path, "r", encoding="utf-8") as f:
+            public_sources = json.load(f)
+            
+    matches = []
+    for item in public_sources:
+        score = 0
+        keywords = item.get("keywords", [])
+        for kw in keywords:
+            if kw.lower() in query or query in kw.lower():
+                score += 3
+        passage = item.get("passage_snippet", "").lower()
+        if query in passage or any(w in passage for w in query.split() if len(w) > 1):
+            score += 2
+        if payload.subject and item.get("subject") == payload.subject:
+            score += 1
+            
+        if score > 0 or len(query) < 3:
+            matches.append({
+                "source_id": item.get("source_id"),
+                "exam_name": item.get("exam_name"),
+                "grade_level": item.get("grade_level"),
+                "subject": item.get("subject"),
+                "section": item.get("section"),
+                "question_num": item.get("question_num"),
+                "verified_source": item.get("verified_source"),
+                "ebs_linkage": item.get("ebs_linkage"),
+                "adaptation_cases": item.get("high_school_adaptation_cases", []),
+                "relevance_score": score
+            })
+    
+    matches.sort(key=lambda x: x["relevance_score"], reverse=True)
+    
+    # 2. 크라우드소싱 튜터 태그 매칭
+    tags = db.query(models.ExamSourceTag).filter(
+        (models.ExamSourceTag.school_name.ilike(f"%{payload.school_name or ''}%")) |
+        (models.ExamSourceTag.tag_source_detail.ilike(f"%{query}%"))
+    ).all()
+    
+    crowd_tags = []
+    for t in tags:
+        crowd_tags.append({
+            "school_name": t.school_name,
+            "subject": t.subject,
+            "question_num": t.question_num,
+            "tutor_verified_source": t.tag_source_detail,
+            "verified_by_tutor": t.user_name,
+            "reward_points": t.reward_points,
+            "created_at": str(t.created_at)
+        })
+
+    return {
+        "status": "success",
+        "query": payload.query_text,
+        "school": payload.school_name,
+        "public_matches": matches[:5] if matches else public_sources[:3],
+        "crowd_matches": crowd_tags
+    }
+
+
+@app.get("/api/exam-sources/list")
+def list_exam_sources():
+    public_index_path = os.path.join(os.path.dirname(__file__), "data", "exam_sources", "public_past_exams", "index.json")
+    if not os.path.exists(public_index_path):
+        public_index_path = os.path.join(os.getcwd(), "app", "data", "exam_sources", "public_past_exams", "index.json")
+    
+    sources = []
+    if os.path.exists(public_index_path):
+        with open(public_index_path, "r", encoding="utf-8") as f:
+            sources = json.load(f)
+    return sources
+
+
+@app.post("/api/exam-sources/tag")
+def tag_exam_source(payload: schemas.ExamSourceTagCreate, db: Session = Depends(get_db)):
+    detail = payload.tag_source_detail or payload.source_name or "기출/교재 변형"
+    if payload.notes:
+        detail += f" ({payload.notes})"
+    q_num = 1
+    try:
+        if isinstance(payload.question_num, int):
+            q_num = payload.question_num
+        elif isinstance(payload.question_num, str):
+            import re
+            m = re.search(r'\d+', payload.question_num)
+            if m:
+                q_num = int(m.group())
+    except Exception:
+        q_num = 1
+
+    tag = models.ExamSourceTag(
+        school_name=payload.school_name,
+        subject=payload.subject,
+        question_num=q_num,
+        tag_source_detail=detail,
+        user_name="인증 튜터",
+        is_tutor=True,
+        reward_points=500
+    )
+    db.add(tag)
+    if payload.student_id:
+        st = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+        if st:
+            st.paid_cash = (st.paid_cash or 0) + 500
+    db.commit()
+    db.refresh(tag)
+    return {"status": "success", "message": "내신 기출 출처 제보가 등록되었습니다! (+500 캐시 적립)", "tag_id": tag.id}
+
+
+# ============================================================================
+# 🐾 17. 초등 전용 3대 루틴 & AI 펫 페로(Pero) 인터랙션 API
+# ============================================================================
+
+class ElemRoutineTogglePayload(BaseModel):
+    student_id: int
+    routine_key: str # 'reading' | 'math' | 'sleep' | 'custom'
+
+@app.post("/api/elem/routine/toggle")
+def toggle_elem_routine(payload: ElemRoutineTogglePayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+    
+    try:
+        status_dict = json.loads(student.elem_routine_status or "{}")
+    except Exception:
+        status_dict = {}
+    
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    day_status = status_dict.get(today_str, {})
+    is_done = day_status.get(payload.routine_key, False)
+    new_state = not is_done
+    day_status[payload.routine_key] = new_state
+    status_dict[today_str] = day_status
+    student.elem_routine_status = json.dumps(status_dict, ensure_ascii=False)
+    
+    earned_exp = 0
+    earned_points = 0
+    if new_state:
+        earned_exp = 25
+        earned_points = 20
+        curr_exp = (student.pet_exp or 0) + earned_exp
+        curr_lvl = student.pet_level or 1
+        if curr_exp >= 100:
+            curr_lvl += curr_exp // 100
+            curr_exp = curr_exp % 100
+        student.pet_level = curr_lvl
+        student.pet_exp = curr_exp
+        student.current_points = (student.current_points or 0) + earned_points
+        update_student_streak(student, db)
+    
+    db.commit()
+    db.refresh(student)
+    return {
+        "status": "success",
+        "routine_key": payload.routine_key,
+        "is_completed": new_state,
+        "earned_exp": earned_exp,
+        "pet_level": student.pet_level,
+        "pet_exp": student.pet_exp,
+        "current_points": student.current_points
+    }
+
+
+@app.get("/api/elem/pet-status/{student_id}")
+def get_elem_pet_status(student_id: int, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+    
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    try:
+        status_dict = json.loads(student.elem_routine_status or "{}")
+    except Exception:
+        status_dict = {}
+    
+    day_status = status_dict.get(today_str, {})
+    return {
+        "student_id": student.id,
+        "pet_type": getattr(student, 'pet_type', 'cat') or 'cat',
+        "pet_level": getattr(student, 'pet_level', 1) or 1,
+        "pet_exp": getattr(student, 'pet_exp', 0) or 0,
+        "streak_days": student.streak_days or 1,
+        "today_routines": day_status,
+        "dream_job": getattr(student, 'dream_job', '미래의 꿈') or '미래의 꿈'
+    }
 
 
 @app.get("/api/predict/universities")

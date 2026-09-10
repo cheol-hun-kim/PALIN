@@ -1,0 +1,32 @@
+[
+  {
+    "material_name": "2026 EBS 수능특강 국어",
+    "subjects": [
+      "독서",
+      "문학",
+      "화법과작문",
+      "언어와매체"
+    ],
+    "total_passages": 184
+  },
+  {
+    "material_name": "2026 EBS 수능특강 수학",
+    "subjects": [
+      "수학I",
+      "수학II",
+      "미적분",
+      "확률과통계",
+      "기하"
+    ],
+    "total_questions": 640
+  },
+  {
+    "material_name": "2026 EBS 수능완성 국/수/영",
+    "subjects": [
+      "국어",
+      "수학",
+      "영어"
+    ],
+    "total_tests": 5
+  }
+]
