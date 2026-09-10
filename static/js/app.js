@@ -7373,36 +7373,66 @@ function switchRole(role) {
 function switchTab(tabId) {
     if (!tabId) return;
     
+    const level = (currentStudent && currentStudent.school_level ? currentStudent.school_level : (localStorage.getItem('palin_master_school_level') || 'HIGH')).toUpperCase();
+    
+    // Normalize to base tab (page1, page2, page3, page4, page5)
+    let baseTab = tabId;
+    if (baseTab.startsWith('elem-')) baseTab = baseTab.replace('elem-', '');
+    if (baseTab.startsWith('mid-')) baseTab = baseTab.replace('mid-', '');
+    
     // 1. 모든 page-view 숨기기
     document.querySelectorAll(".page-view").forEach(page => {
         page.style.display = "none";
     });
     
-    // 2. 대상 page-view 표시
-    const targetPage = document.getElementById(tabId);
+    // 2. 학교급별 대상 page-view ID 결정 및 표시
+    let targetPageId = baseTab;
+    if (baseTab === 'page5') {
+        targetPageId = 'page5';
+    } else if (level === 'ELEMENTARY') {
+        targetPageId = `elem-${baseTab}`;
+    } else if (level === 'MIDDLE') {
+        targetPageId = `mid-${baseTab}`;
+    } else {
+        targetPageId = baseTab;
+    }
+    
+    const targetPage = document.getElementById(targetPageId);
     if (targetPage) {
         targetPage.style.display = "block";
     }
     
-    // 3. 네비게이션 액티브 스타일 갱신
-    document.querySelectorAll(".nav-item").forEach(item => {
-        if (item.getAttribute("data-tab") === tabId) {
+    // 3. 하단 네비게이션 액티브 스타일 갱신
+    document.querySelectorAll("#bottom-nav-main .nav-item, .bottom-nav .nav-item").forEach(item => {
+        if (item.getAttribute("data-tab") === baseTab) {
             item.classList.add("active");
         } else {
             item.classList.remove("active");
         }
     });
     
-    // 4. 페이지별 데이터 로드
-    if (tabId === "page1") {
-        if (typeof loadPage1Data === 'function') loadPage1Data();
-        if (typeof loadTimetable === 'function') loadTimetable();
-    } else if (tabId === "page2") {
-        if (typeof loadPage2Data === 'function') loadPage2Data();
-    } else if (tabId === "page3") {
-        if (typeof loadPage3Data === 'function') loadPage3Data();
-    } else if (tabId === "page4") {
-        if (typeof loadAcademyHubView === 'function') loadAcademyHubView();
+    // 4. 페이지 및 학교급별 데이터 로드
+    if (level === 'ELEMENTARY') {
+        if (baseTab === 'page1') {
+            if (typeof refreshElemPetUI === 'function') refreshElemPetUI(currentStudent);
+        }
+    } else if (level === 'MIDDLE') {
+        if (baseTab === 'page1') {
+            if (typeof refreshMiddleUI === 'function') refreshMiddleUI(currentStudent);
+        } else if (baseTab === 'page2') {
+            if (typeof loadSpecialHighSchools === 'function') loadSpecialHighSchools();
+        }
+    } else {
+        if (baseTab === "page1") {
+            if (typeof loadPage1Data === 'function') loadPage1Data();
+            if (typeof loadTimetable === 'function') loadTimetable();
+        } else if (baseTab === "page2") {
+            if (typeof loadPage2Data === 'function') loadPage2Data();
+        } else if (baseTab === "page3") {
+            if (typeof loadPage3Data === 'function') loadPage3Data();
+        } else if (baseTab === "page4") {
+            if (typeof loadAcademyHubView === 'function') loadAcademyHubView();
+        }
     }
     
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -7467,6 +7497,52 @@ function switchSubTabPage3(subTab) {
     }
 }
 window.switchSubTabPage3 = switchSubTabPage3;
+
+function switchSubTabPageMid(subTab) {
+    if (!subTab) return;
+    document.querySelectorAll(".mid-subtab-view").forEach(view => {
+        view.style.display = "none";
+    });
+    document.querySelectorAll("#mid-p2-tabs .tab-btn").forEach(btn => {
+        if (btn.getAttribute("data-midsub") === subTab) {
+            btn.classList.add("active");
+        } else {
+            btn.classList.remove("active");
+        }
+    });
+    
+    const target = document.getElementById(`mid-sub-${subTab}`);
+    if (target) target.style.display = "block";
+    
+    if (subTab === "compass") {
+        if (typeof loadSpecialHighSchools === 'function') loadSpecialHighSchools();
+    } else if (subTab === "tracer") {
+        if (typeof populateTracerSchoolDatalist === 'function') populateTracerSchoolDatalist();
+    }
+}
+window.switchSubTabPageMid = switchSubTabPageMid;
+
+function switchSubTabPageElem(subTab) {
+    if (!subTab) return;
+    document.querySelectorAll(".elem-subtab-view").forEach(view => {
+        view.style.display = "none";
+    });
+    document.querySelectorAll("#elem-p2-tabs .tab-btn").forEach(btn => {
+        if (btn.getAttribute("data-elemsub") === subTab) {
+            btn.classList.add("active");
+        } else {
+            btn.classList.remove("active");
+        }
+    });
+    
+    const target = document.getElementById(`elem-sub-${subTab}`);
+    if (target) target.style.display = "block";
+}
+window.switchSubTabPageElem = switchSubTabPageElem;
+
+// 하위 호환 별칭
+window.switchMidTab = function(tabId) { switchTab(tabId); };
+window.switchElemTab = function(tabId) { switchTab(tabId); };
 
 
 
@@ -15814,40 +15890,26 @@ function renderAppForSchoolLevel(student) {
     const midView = document.getElementById('middle-app-view');
     const elemView = document.getElementById('elem-app-view');
 
-    const highNav = document.getElementById('bottom-nav-high');
-    const midNav = document.getElementById('bottom-nav-middle');
-    const elemNav = document.getElementById('bottom-nav-elem');
-
     if (level === 'ELEMENTARY') {
         if (highView) highView.style.display = 'none';
         if (midView) midView.style.display = 'none';
         if (elemView) elemView.style.display = 'block';
 
-        if (highNav) highNav.style.display = 'none';
-        if (midNav) midNav.style.display = 'none';
-        if (elemNav) elemNav.style.display = 'flex';
-
         refreshElemPetUI(student);
-        switchElemTab('elem-page1');
+        switchTab('page1');
     } else if (level === 'MIDDLE') {
         if (highView) highView.style.display = 'none';
         if (midView) midView.style.display = 'block';
         if (elemView) elemView.style.display = 'none';
 
-        if (highNav) highNav.style.display = 'none';
-        if (midNav) midNav.style.display = 'flex';
-        if (elemNav) elemNav.style.display = 'none';
-
         refreshMiddleUI(student);
-        switchMidTab('mid-page1');
+        switchTab('page1');
     } else { // HIGH
         if (highView) highView.style.display = 'block';
         if (midView) midView.style.display = 'none';
         if (elemView) elemView.style.display = 'none';
 
-        if (highNav) highNav.style.display = 'flex';
-        if (midNav) midNav.style.display = 'none';
-        if (elemNav) elemNav.style.display = 'none';
+        switchTab('page1');
     }
 }
 window.renderAppForSchoolLevel = renderAppForSchoolLevel;

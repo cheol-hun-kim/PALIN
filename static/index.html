@@ -2474,31 +2474,47 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                  🧭 중등 전용 독립 관제 화면 (특목·자사고 마스터 & 중등 내신 올A OS)
                  ============================================================================ -->
             <div id="middle-app-view" style="display: none;">
-                <!-- 1. 중등 목표 고교 & 내신 D-Day 배너 -->
-                <div class="univ-banner" style="margin-bottom: 14px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 12px; background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); border: 1.5px solid #818cf8; border-radius: 16px; padding: 16px;">
-                    <div style="flex: 1; min-width: 0; z-index: 2;">
-                        <div style="font-size: 0.72rem; color: #a5b4fc; font-weight: 800; margin-bottom: 3px;">🎯 목표 고등학교</div>
-                        <div id="mid-banner-target-high" style="font-size: 1.05rem; font-weight: 900; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">외대부고 자연계열</div>
-                        <div style="font-size: 0.74rem; color: #cbd5e1; margin-top: 3px;">
-                            🛡️ 마지노선: <span id="mid-banner-base-high" style="color: #93c5fd; font-weight: 700;">지역 일반고</span>
+
+                <!-- 1페이지: 생활관리 화면 -->
+                <div id="mid-page1" class="page-view" style="display: block;">
+                    <!-- 목표 고교 & 내신 D-Day 배너 -->
+                    <div class="univ-banner" style="margin-bottom: 14px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 12px; background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); border: 1.5px solid #818cf8; border-radius: 16px; padding: 16px;">
+                        <div style="flex: 1; min-width: 0; z-index: 2;">
+                            <div style="font-size: 0.72rem; color: #a5b4fc; font-weight: 800; margin-bottom: 3px;">🎯 목표 고등학교</div>
+                            <div id="mid-banner-target-high" style="font-size: 1.05rem; font-weight: 900; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">외대부고 자연계열</div>
+                            <div style="font-size: 0.74rem; color: #cbd5e1; margin-top: 3px;">
+                                🛡️ 마지노선: <span id="mid-banner-base-high" style="color: #93c5fd; font-weight: 700;">지역 일반고</span>
+                            </div>
+                        </div>
+                        <div style="text-align: right; z-index: 2; flex-shrink: 0;">
+                            <div style="font-size: 0.68rem; color: #fbcfe8; font-weight: 800; margin-bottom: 2px;">⏳ 1학기 중간고사</div>
+                            <div id="mid-banner-dday" style="font-size: 1.3rem; font-weight: 900; color: #f43f5e; letter-spacing: -0.5px;">D-24</div>
                         </div>
                     </div>
-                    <div style="text-align: right; z-index: 2; flex-shrink: 0;">
-                        <div style="font-size: 0.68rem; color: #fbcfe8; font-weight: 800; margin-bottom: 2px;">⏳ 1학기 중간고사</div>
-                        <div id="mid-banner-dday" style="font-size: 1.3rem; font-weight: 900; color: #f43f5e; letter-spacing: -0.5px;">D-24</div>
+
+                    <!-- 중등 오늘 공부 플래너 -->
+                    <div class="card" style="margin-bottom: 12px; padding: 14px;">
+                        <div class="card-title" style="color: #38bdf8; margin-bottom: 6px;">
+                            <span class="material-symbols-rounded" style="color: #0ea5e9;">checklist</span>
+                            오늘의 중등 자기주도 학습 미션
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px;" id="mid-routine-list">
+                            <label style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.04); padding: 10px 12px; border-radius: 10px; cursor: pointer;">
+                                <input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #6366f1;">
+                                <span style="font-size: 0.84rem; font-weight: 600;">수학 심화(에이급/블랙라벨) 10문제 풀이</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.04); padding: 10px 12px; border-radius: 10px; cursor: pointer;">
+                                <input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #6366f1;">
+                                <span style="font-size: 0.84rem; font-weight: 600;">영어 교과서 본문 및 서술형 문장 암기</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.04); padding: 10px 12px; border-radius: 10px; cursor: pointer;">
+                                <input type="checkbox" style="width: 18px; height: 18px; accent-color: #6366f1;">
+                                <span style="font-size: 0.84rem; font-weight: 600;">과학/사회 교과 핵심 개념 요약 노트 정리</span>
+                            </label>
+                        </div>
                     </div>
-                </div>
 
-                <!-- 2. 중등 4대 탭 네비게이션 -->
-                <div class="tab-header subtab-grid-2x2" id="mid-main-tabs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px;">
-                    <button class="tab-btn active" data-midtab="mid-page1" onclick="switchMidTab('mid-page1')">🏠 중등 내신/생활</button>
-                    <button class="tab-btn" data-midtab="mid-page2" onclick="switchMidTab('mid-page2')">🧭 특목고 나침반</button>
-                    <button class="tab-btn" data-midtab="mid-page3" onclick="switchMidTab('mid-page3')">🔍 내신 출처추적</button>
-                    <button class="tab-btn" data-midtab="mid-page4" onclick="switchMidTab('mid-page4')">🤖 특목 AI 코치</button>
-                </div>
-
-                <!-- 중등 1페이지: 생활 & 내신 올A 트래커 -->
-                <div id="mid-page1" class="mid-subtab-view" style="display: block;">
+                    <!-- 중등 내신 올A 달성 프로젝트 카드 -->
                     <div class="card" style="margin-bottom: 12px; padding: 14px;">
                         <div class="card-title" style="color: #818cf8; margin-bottom: 6px;">
                             <span class="material-symbols-rounded" style="color: #6366f1;">verified</span>
@@ -2507,7 +2523,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px;">
                             특목·자사고 1단계 합격을 위한 주요 5개 과목(국·수·영·사·과) 성취도 A 달성 현황입니다.
                         </p>
-                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; text-align: center; margin-bottom: 12px;">
+                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; text-align: center;">
                             <div style="background: rgba(99, 102, 241, 0.15); border: 1px solid #818cf8; border-radius: 8px; padding: 8px 2px;">
                                 <div style="font-size: 0.7rem; color: #a5b4fc; font-weight: 700;">국어</div>
                                 <div style="font-size: 1.1rem; font-weight: 900; color: #22c55e;">A</div>
@@ -2530,147 +2546,263 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             </div>
                         </div>
                     </div>
-
-                    <!-- 중등 오늘 공부 플래너 -->
-                    <div class="card" style="padding: 14px;">
-                        <div class="card-title" style="color: #38bdf8; margin-bottom: 6px;">
-                            <span class="material-symbols-rounded" style="color: #0ea5e9;">checklist</span>
-                            오늘의 중등 자기주도 학습 미션
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 8px;" id="mid-routine-list">
-                            <label style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.04); padding: 10px 12px; border-radius: 10px; cursor: pointer;">
-                                <input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #6366f1;">
-                                <span style="font-size: 0.84rem; font-weight: 600;">수학 심화(에이급/블랙라벨) 10문제 풀이</span>
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.04); padding: 10px 12px; border-radius: 10px; cursor: pointer;">
-                                <input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #6366f1;">
-                                <span style="font-size: 0.84rem; font-weight: 600;">영어 교과서 본문 및 서술형 문장 암기</span>
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.04); padding: 10px 12px; border-radius: 10px; cursor: pointer;">
-                                <input type="checkbox" style="width: 18px; height: 18px; accent-color: #6366f1;">
-                                <span style="font-size: 0.84rem; font-weight: 600;">과학/사회 교과 핵심 개념 요약 노트 정리</span>
-                            </label>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- 중등 2페이지: 특목·자사고 입시 나침반 -->
-                <div id="mid-page2" class="mid-subtab-view" style="display: none;">
-                    <div class="card" style="padding: 14px;">
-                        <div class="card-title" style="color: #f59e0b; margin-bottom: 6px;">
-                            <span class="material-symbols-rounded" style="color: #d97706;">explore</span>
-                            전국 30+ 명문 특목·자사고 입시 전형 나침반
-                        </div>
-                        <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px;">
-                            학교별 전형 일정, 내신 반영 과목, 1단계 합격 컷, 2단계 개별 면접 핵심 포인트를 한눈에 분석합니다.
-                        </p>
-                        <!-- 필터 버튼 -->
-                        <div style="display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px;" id="mid-school-filter-bar">
-                            <button type="button" class="btn active" onclick="filterSpecialHighSchools('ALL', this)" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; border-radius: 8px;">전체</button>
-                            <button type="button" class="btn btn-secondary" onclick="filterSpecialHighSchools('과학고/영재학교', this)" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; border-radius: 8px;">🔬 과고/영재고</button>
-                            <button type="button" class="btn btn-secondary" onclick="filterSpecialHighSchools('외고/국제고', this)" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; border-radius: 8px;">🌐 외고/국제고</button>
-                            <button type="button" class="btn btn-secondary" onclick="filterSpecialHighSchools('전국단위 자사고', this)" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; border-radius: 8px;">🏛️ 전국 자사고</button>
-                        </div>
-                        <!-- 학교 목록 컨테이너 -->
-                        <div id="special-high-schools-container" style="display: flex; flex-direction: column; gap: 10px;">
-                            <div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.8rem;">특목·자사고 입시 데이터를 불러오는 중입니다...</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 중등 3페이지: 중등 내신 출처 추적기 -->
-                <div id="mid-page3" class="mid-subtab-view" style="display: none;">
-                    <div class="card" style="padding: 14px;">
-                        <div class="card-title" style="color: #a78bfa; margin-bottom: 6px;">
-                            <span class="material-symbols-rounded" style="color: #818cf8;">travel_explore</span>
-                            중등 내신 기출 출처 추적기
-                        </div>
-                        <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px;">
-                            중학교 중간/기말고사에 출제된 문제의 교과서(천재/비상/미래엔 등) 및 시중 심화서(에이급, 블랙라벨 등) 출처를 팩트 기반으로 검색합니다.
-                        </p>
-                        <div style="margin-bottom: 10px;">
-                            <label class="input-label" style="font-size: 0.76rem; color: #c7d2fe;">문제 본문 또는 지문 입력</label>
-                            <textarea id="mid-tracer-query" class="form-input" placeholder="중등 시험 문제의 핵심 지문, 보기, 조건식을 입력하세요..." rows="3" style="resize: vertical; font-size: 0.82rem; border-radius: 10px;"></textarea>
-                        </div>
-                        <button type="button" class="btn" onclick="runMiddleSourceTrace()" style="width: 100%; padding: 12px; font-weight: 800; font-size: 0.9rem; background: linear-gradient(135deg, #6366f1, #4f46e5); border-radius: 10px;">
-                            🔍 출처 검색 실행
+                <!-- 2페이지: 학습공간 화면 -->
+                <div id="mid-page2" class="page-view" style="display: none;">
+                    <!-- 🚀 중등 학습공간 서브탭: 상단 대형 AI 챗봇 + 2x2 서브 그리드 -->
+                    <div id="mid-p2-tabs" style="margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px;">
+                        <!-- 1. 최상단: [🤖 특목·자사고 마스터 AI 1:1 코치] 단일 대형 버튼 -->
+                        <button class="tab-btn active" data-midsub="chat" onclick="switchSubTabPageMid('chat')" style="width: 100%; padding: 14px 16px; font-size: 1rem; font-weight: 900; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #ffffff; border: 1.5px solid #60a5fa; box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35); cursor: pointer;">
+                            <span style="font-size: 1.3rem;">🤖</span>
+                            <span>특목·자사고 마스터 AI 1:1 코치</span>
+                            <span style="font-size: 0.68rem; background: rgba(255,255,255,0.22); color: #ffffff; padding: 2px 7px; border-radius: 10px; font-weight: 900; margin-left: 4px;">HOT</span>
                         </button>
-                        <div id="mid-tracer-results" style="display: none; margin-top: 14px;"></div>
-                    </div>
-                </div>
 
-                <!-- 중등 4페이지: 특목·자사고 AI 마스터 코치 -->
-                <div id="mid-page4" class="mid-subtab-view" style="display: none;">
-                    <div class="card" style="padding: 14px;">
-                        <div class="card-title" style="color: #60a5fa; margin-bottom: 6px;">
-                            <span class="material-symbols-rounded" style="color: #3b82f6;">forum</span>
-                            특목·자사고 마스터 AI 1:1 코치
+                        <!-- 2. 하단: 4대 핵심 서브 기능 (2x2 그리드) -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                            <button class="tab-btn" data-midsub="compass" onclick="switchSubTabPageMid('compass')" style="padding: 12px 8px; font-size: 0.84rem; font-weight: 800; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <span>🧭</span>
+                                <span>특목고 나침반</span>
+                            </button>
+                            <button class="tab-btn" data-midsub="tracer" onclick="switchSubTabPageMid('tracer')" style="padding: 12px 8px; font-size: 0.84rem; font-weight: 800; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <span>🔍</span>
+                                <span>내신 출처추적</span>
+                            </button>
+                            <button class="tab-btn" data-midsub="tracker" onclick="switchSubTabPageMid('tracker')" style="padding: 12px 8px; font-size: 0.84rem; font-weight: 800; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <span>📊</span>
+                                <span>내신 올A 진단</span>
+                            </button>
+                            <button class="tab-btn" data-midsub="archive" onclick="switchSubTabPageMid('archive')" style="padding: 12px 8px; font-size: 0.84rem; font-weight: 800; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <span>📚</span>
+                                <span>중등 기출족보</span>
+                            </button>
                         </div>
-                        <div class="chat-container" id="mid-chat-box" style="min-height: 250px; max-height: 380px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px; margin-bottom: 10px;">
-                            <div class="chat-bubble bot" style="background: rgba(99, 102, 241, 0.18); border: 1px solid rgba(99,102,241,0.3); color: #ffffff; padding: 10px 14px; border-radius: 12px; font-size: 0.84rem; line-height: 1.5;">
-                                안녕하세요! <b>특목·자사고 입시 전문 AI 코치</b>입니다. 목표 고교(과고, 영재고, 외고, 자사고)의 자기소개서 작성 팁, 면접 대비 전략, 중등 내신 올A 공부법에 대해 질문해주세요!
+                    </div>
+
+                    <!-- 중등 AI 코치 챗창 -->
+                    <div id="mid-sub-chat" class="mid-subtab-view" style="display: block;">
+                        <div class="card" style="padding: 14px;">
+                            <div class="card-title" style="color: #60a5fa; margin-bottom: 6px;">
+                                <span class="material-symbols-rounded" style="color: #3b82f6;">forum</span>
+                                특목·자사고 마스터 AI 1:1 코치
+                            </div>
+                            <div class="chat-container" id="mid-chat-box" style="min-height: 250px; max-height: 380px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px; margin-bottom: 10px;">
+                                <div class="chat-bubble bot" style="background: rgba(99, 102, 241, 0.18); border: 1px solid rgba(99,102,241,0.3); color: #ffffff; padding: 10px 14px; border-radius: 12px; font-size: 0.84rem; line-height: 1.5;">
+                                    안녕하세요! <b>특목·자사고 입시 전문 AI 코치</b>입니다. 목표 고교(과고, 영재고, 외고, 자사고)의 자기소개서 작성 팁, 면접 대비 전략, 중등 내신 올A 공부법에 대해 질문해주세요!
+                                </div>
+                            </div>
+                            <div class="chat-input-row" style="display: flex; gap: 8px;">
+                                <input type="text" id="mid-chat-input" class="form-input" placeholder="특목고 자소서, 면접 질문 등을 물어보세요" style="margin-bottom: 0; font-size: 0.84rem;" onkeydown="if(event.key==='Enter'){ event.preventDefault(); sendMiddleAICoachChat(); }">
+                                <button type="button" class="btn" onclick="sendMiddleAICoachChat()" style="padding: 0 16px; background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800;">전송</button>
                             </div>
                         </div>
-                        <div class="chat-input-row" style="display: flex; gap: 8px;">
-                            <input type="text" id="mid-chat-input" class="form-input" placeholder="특목고 자소서, 면접 질문 등을 물어보세요" style="margin-bottom: 0; font-size: 0.84rem;" onkeydown="if(event.key==='Enter'){ event.preventDefault(); sendMiddleAICoachChat(); }">
-                            <button type="button" class="btn" onclick="sendMiddleAICoachChat()" style="padding: 0 16px; background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800;">전송</button>
+                    </div>
+
+                    <!-- 특목고 나침반 -->
+                    <div id="mid-sub-compass" class="mid-subtab-view" style="display: none;">
+                        <div class="card" style="padding: 14px;">
+                            <div class="card-title" style="color: #f59e0b; margin-bottom: 6px;">
+                                <span class="material-symbols-rounded" style="color: #d97706;">explore</span>
+                                전국 30+ 명문 특목·자사고 입시 전형 나침반
+                            </div>
+                            <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px;">
+                                학교별 전형 일정, 내신 반영 과목, 1단계 합격 컷, 2단계 개별 면접 핵심 포인트를 한눈에 분석합니다.
+                            </p>
+                            <div style="display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px;" id="mid-school-filter-bar">
+                                <button type="button" class="btn active" onclick="filterSpecialHighSchools('ALL', this)" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; border-radius: 8px;">전체</button>
+                                <button type="button" class="btn btn-secondary" onclick="filterSpecialHighSchools('과학고/영재학교', this)" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; border-radius: 8px;">🔬 과고/영재고</button>
+                                <button type="button" class="btn btn-secondary" onclick="filterSpecialHighSchools('외고/국제고', this)" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; border-radius: 8px;">🌐 외고/국제고</button>
+                                <button type="button" class="btn btn-secondary" onclick="filterSpecialHighSchools('전국단위 자사고', this)" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; border-radius: 8px;">🏛️ 전국 자사고</button>
+                            </div>
+                            <div id="special-high-schools-container" style="display: flex; flex-direction: column; gap: 10px;">
+                                <div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.8rem;">특목·자사고 입시 데이터를 불러오는 중입니다...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 중등 내신 출처 추적기 -->
+                    <div id="mid-sub-tracer" class="mid-subtab-view" style="display: none;">
+                        <div class="card" style="padding: 14px;">
+                            <div class="card-title" style="color: #a78bfa; margin-bottom: 6px;">
+                                <span class="material-symbols-rounded" style="color: #818cf8;">travel_explore</span>
+                                중등 내신 기출 출처 추적기
+                            </div>
+                            <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px;">
+                                중학교 중간/기말고사에 출제된 문제의 교과서(천재/비상/미래엔 등) 및 시중 심화서(에이급, 블랙라벨 등) 출처를 팩트 기반으로 검색합니다.
+                            </p>
+                            <div style="margin-bottom: 10px;">
+                                <label class="input-label" style="font-size: 0.76rem; color: #c7d2fe;">문제 본문 또는 지문 입력</label>
+                                <textarea id="mid-tracer-query" class="form-input" placeholder="중등 시험 문제의 핵심 지문, 보기, 조건식을 입력하세요..." rows="3" style="resize: vertical; font-size: 0.82rem; border-radius: 10px;"></textarea>
+                            </div>
+                            <button type="button" class="btn" onclick="runMiddleSourceTrace()" style="width: 100%; padding: 12px; font-weight: 800; font-size: 0.9rem; background: linear-gradient(135deg, #6366f1, #4f46e5); border-radius: 10px;">
+                                🔍 출처 검색 실행
+                            </button>
+                            <div id="mid-tracer-results" style="display: none; margin-top: 14px;"></div>
+                        </div>
+                    </div>
+
+                    <!-- 중등 내신 올A 진단 -->
+                    <div id="mid-sub-tracker" class="mid-subtab-view" style="display: none;">
+                        <div class="card" style="padding: 14px;">
+                            <div class="card-title" style="color: #10b981; margin-bottom: 6px;">
+                                <span class="material-symbols-rounded" style="color: #059669;">analytics</span>
+                                중등 과목별 내신 A등급 정밀 진단
+                            </div>
+                            <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px;">
+                                자유학기제 및 2~3학년 성취평가제 기준 내신 산출표입니다.
+                            </p>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <div style="background: rgba(255,255,255,0.03); padding: 10px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                    <span>📖 국어 (원점수 95 / 성취도 A)</span>
+                                    <span style="color: #10b981; font-weight: 800;">안정권</span>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.03); padding: 10px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                    <span>📐 수학 (원점수 92 / 성취도 A)</span>
+                                    <span style="color: #10b981; font-weight: 800;">안정권</span>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.03); padding: 10px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                    <span>🔤 영어 (원점수 98 / 성취도 A)</span>
+                                    <span style="color: #10b981; font-weight: 800;">최상위</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 중등 기출 족보 자료실 -->
+                    <div id="mid-sub-archive" class="mid-subtab-view" style="display: none;">
+                        <div class="card" style="padding: 14px;">
+                            <div class="card-title" style="color: #38bdf8; margin-bottom: 6px;">
+                                <span class="material-symbols-rounded" style="color: #0284c7;">library_books</span>
+                                중등 주요 기출 문제 & 족보 자료실
+                            </div>
+                            <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px;">
+                                강남/분당/목동 주요 중학교 중간·기말고사 기출 문항 및 서술형 대비 모음집입니다.
+                            </p>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div style="font-size: 0.86rem; font-weight: 800; color: #fff;">[중3 수학] 피타고라스 & 삼각비 킬러 N제</div>
+                                        <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">대치/목동권 기출 50문항 해설 수록</div>
+                                    </div>
+                                    <button class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.75rem;">열람</button>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div style="font-size: 0.86rem; font-weight: 800; color: #fff;">[중2 영어] 교과서 5종 서술형 핵심 문장 100</div>
+                                        <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">천재(이), 비상, YBM, 동아 빈출 서술형</div>
+                                    </div>
+                                    <button class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.75rem;">열람</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- 3페이지: 커뮤니티 공간 -->
+                <div id="mid-page3" class="page-view" style="display: none;">
+                    <div class="card" style="padding: 14px; margin-bottom: 12px;">
+                        <div class="card-title" style="color: #a78bfa;">
+                            <span class="material-symbols-rounded" style="color: #818cf8;">groups</span>
+                            중등 커뮤니티 & 공부 Q&A
+                        </div>
+                        <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px;">
+                            중학교 내신 킬러 문제, 특목고 입시 고민을 질문하고 선배들의 조언을 받으세요!
+                        </p>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <input type="text" class="form-input" placeholder="중등 질문 제목을 입력하세요..." style="margin-bottom: 0;">
+                            <textarea class="form-input" placeholder="궁금한 문제나 고민을 작성해주세요..." style="height: 70px; resize: none;"></textarea>
+                            <button class="btn" style="padding: 10px; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5);">질문 등록하기 (+30P)</button>
+                        </div>
+                    </div>
+
+                    <div class="card" style="padding: 14px;">
+                        <div class="card-title" style="color: #fbbf24; margin-bottom: 8px;">
+                            <span class="material-symbols-rounded" style="color: #f59e0b;">emoji_events</span>
+                            전국 중학교 실시간 랭킹 (동네/학교 대항전)
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <div style="background: rgba(255,255,255,0.04); padding: 10px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                <span>🥇 1위. 대치중학교 (주간 1,420시간)</span>
+                                <span style="color: #fbbf24; font-weight: 800;">TOP 1</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.04); padding: 10px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                <span>🥈 2위. 내정중학교 (주간 1,280시간)</span>
+                                <span style="color: #cbd5e1; font-weight: 800;">TOP 2</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.04); padding: 10px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                <span>🥉 3위. 목동중학교 (주간 1,150시간)</span>
+                                <span style="color: #d97706; font-weight: 800;">TOP 3</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4페이지: 학원관리 화면 -->
+                <div id="mid-page4" class="page-view" style="display: none;">
+                    <div class="card" style="text-align: center; padding: 24px 16px; margin-bottom: 12px; background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(168,85,247,0.08)); border: 1.5px solid rgba(99,102,241,0.35);">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(99,102,241,0.2); display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; color: #818cf8;">
+                            <span class="material-symbols-rounded" style="font-size: 1.8rem;">school</span>
+                        </div>
+                        <div style="font-size: 1.1rem; font-weight: 800; color: #ffffff; margin-bottom: 4px;">중등 B2B 소속 학원 허브</div>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 14px;">
+                            소속 학원 코드를 입력하시면 주차별 내신/특목 대비 진도표와 복습 VOD, OMR 채점이 활성화됩니다.
+                        </div>
+                        <div style="display: flex; gap: 8px; max-width: 320px; margin: 0 auto;">
+                            <input type="text" class="form-input" placeholder="중등 학원 코드 입력" style="flex: 1; text-align: center; font-weight: 800; text-transform: uppercase;">
+                            <button class="btn" style="padding: 10px 16px; font-weight: 800; background: linear-gradient(135deg, #3b82f6, #1d4ed8);">연동하기</button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- ============================================================================
                  🐣 초등 전용 독립 관제 화면 (펫 파트너 '페로' & 3대 바른 루틴)
                  ============================================================================ -->
             <div id="elem-app-view" style="display: none;">
-                <!-- 1. 초등 펫 '페로(Pero)' 카드 & 레벨 상태 -->
-                <div class="card" style="margin-bottom: 12px; padding: 16px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(236, 72, 153, 0.1) 100%); border: 1.5px solid #f59e0b; border-radius: 18px;">
-                    <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px;">
-                        <div style="width: 64px; height: 64px; border-radius: 20px; background: radial-gradient(circle, #fde047, #f59e0b); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4); flex-shrink: 0;" id="elem-pet-avatar">
-                            🐣
+
+                <!-- 1페이지: 생활관리 화면 -->
+                <div id="elem-page1" class="page-view" style="display: block;">
+                    <!-- 1. 초등 펫 '페로(Pero)' 카드 & 레벨 상태 -->
+                    <div class="card" style="margin-bottom: 12px; padding: 16px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(236, 72, 153, 0.1) 100%); border: 1.5px solid #f59e0b; border-radius: 18px;">
+                        <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px;">
+                            <div style="width: 64px; height: 64px; border-radius: 20px; background: radial-gradient(circle, #fde047, #f59e0b); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4); flex-shrink: 0;" id="elem-pet-avatar">
+                                🐣
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                                    <span style="font-size: 1.1rem; font-weight: 900; color: #ffffff;" id="elem-pet-name">페로 (Pero)</span>
+                                    <span style="font-size: 0.72rem; background: #f59e0b; color: #000000; padding: 2px 8px; border-radius: 10px; font-weight: 900;" id="elem-pet-level-badge">Lv. 3</span>
+                                </div>
+                                <div style="font-size: 0.76rem; color: #fed7aa; margin-bottom: 6px;" id="elem-pet-talk">
+                                    "안녕! 오늘도 멋진 하루를 함께 시작해볼까? ✨"
+                                </div>
+                                <!-- EXP 게이지 바 -->
+                                <div style="background: rgba(0,0,0,0.4); border-radius: 10px; height: 10px; overflow: hidden; position: relative;">
+                                    <div id="elem-pet-exp-bar" style="background: linear-gradient(90deg, #f59e0b, #ec4899); height: 100%; width: 45%; border-radius: 10px; transition: width 0.3s ease;"></div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-size: 0.68rem; color: #cbd5e1; margin-top: 3px;">
+                                    <span>성장 경험치 (EXP)</span>
+                                    <span id="elem-pet-exp-text">45 / 100</span>
+                                </div>
+                            </div>
                         </div>
-                        <div style="flex: 1; min-width: 0;">
-                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
-                                <span style="font-size: 1.1rem; font-weight: 900; color: #ffffff;" id="elem-pet-name">페로 (Pero)</span>
-                                <span style="font-size: 0.72rem; background: #f59e0b; color: #000000; padding: 2px 8px; border-radius: 10px; font-weight: 900;" id="elem-pet-level-badge">Lv. 3</span>
-                            </div>
-                            <div style="font-size: 0.76rem; color: #fed7aa; margin-bottom: 6px;" id="elem-pet-talk">
-                                "안녕! 오늘도 멋진 하루를 함께 시작해볼까? ✨"
-                            </div>
-                            <!-- EXP 게이지 바 -->
-                            <div style="background: rgba(0,0,0,0.4); border-radius: 10px; height: 10px; overflow: hidden; position: relative;">
-                                <div id="elem-pet-exp-bar" style="background: linear-gradient(90deg, #f59e0b, #ec4899); height: 100%; width: 45%; border-radius: 10px; transition: width 0.3s ease;"></div>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; font-size: 0.68rem; color: #cbd5e1; margin-top: 3px;">
-                                <span>성장 경험치 (EXP)</span>
-                                <span id="elem-pet-exp-text">45 / 100</span>
-                            </div>
+
+                        <!-- 펫 상호작용 액션 버튼 -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <button type="button" class="btn" onclick="feedElemPet('apple')" style="padding: 9px; font-size: 0.8rem; font-weight: 800; background: rgba(239, 68, 68, 0.2); border: 1px solid #f87171; color: #fecaca; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                <span>🍎 맛있는 간식 주기</span>
+                                <span style="font-size: 0.68rem; color: #fca5a5;">(+15 EXP)</span>
+                            </button>
+                            <button type="button" class="btn" onclick="feedElemPet('praise')" style="padding: 9px; font-size: 0.8rem; font-weight: 800; background: rgba(245, 158, 11, 0.2); border: 1px solid #fbbf24; color: #fef08a; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                <span>💖 쓰다듬고 칭찬하기</span>
+                                <span style="font-size: 0.68rem; color: #fef08a;">(+10 EXP)</span>
+                            </button>
                         </div>
                     </div>
 
-                    <!-- 펫 상호작용 액션 버튼 -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                        <button type="button" class="btn" onclick="feedElemPet('apple')" style="padding: 9px; font-size: 0.8rem; font-weight: 800; background: rgba(239, 68, 68, 0.2); border: 1px solid #f87171; color: #fecaca; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 4px;">
-                            <span>🍎 맛있는 간식 주기</span>
-                            <span style="font-size: 0.68rem; color: #fca5a5;">(+15 EXP)</span>
-                        </button>
-                        <button type="button" class="btn" onclick="feedElemPet('praise')" style="padding: 9px; font-size: 0.8rem; font-weight: 800; background: rgba(245, 158, 11, 0.2); border: 1px solid #fbbf24; color: #fef08a; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 4px;">
-                            <span>💖 쓰다듬고 칭찬하기</span>
-                            <span style="font-size: 0.68rem; color: #fef08a;">(+10 EXP)</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 2. 초등 4대 탭 네비게이션 -->
-                <div class="tab-header subtab-grid-2x2" id="elem-main-tabs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px;">
-                    <button class="tab-btn active" data-elemtab="elem-page1" onclick="switchElemTab('elem-page1')">🌟 오늘의 3대 루틴</button>
-                    <button class="tab-btn" data-elemtab="elem-page2" onclick="switchElemTab('elem-page2')">🤖 AI 친구 페로</button>
-                    <button class="tab-btn" data-elemtab="elem-page3" onclick="switchElemTab('elem-page3')">🧩 두뇌 낱말 퀴즈</button>
-                    <button class="tab-btn" data-elemtab="elem-page4" onclick="switchElemTab('elem-page4')">🏆 칭찬 스티커판</button>
-                </div>
-
-                <!-- 초등 1페이지: 오늘의 3대 바른 루틴 -->
-                <div id="elem-page1" class="elem-subtab-view" style="display: block;">
+                    <!-- 오늘의 3대 바른 성장 루틴 -->
                     <div class="card" style="padding: 14px;">
                         <div class="card-title" style="color: #fbbf24; margin-bottom: 6px;">
                             <span class="material-symbols-rounded" style="color: #f59e0b;">stars</span>
@@ -2679,10 +2811,8 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px;">
                             매일 3가지 루틴을 실천하고 체크하면 페로가 무럭무럭 자라고 칭찬 스티커를 받아요!
                         </p>
-
                         <div style="display: flex; flex-direction: column; gap: 10px;">
-                            <!-- 루틴 1: 독서 -->
-                            <div class="elem-routine-card" onclick="toggleElemRoutine('reading')" style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 14px; cursor: pointer; transition: all 0.2s ease;" id="elem-routine-reading">
+                            <div class="elem-routine-card" onclick="toggleElemRoutine('reading')" style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 14px; cursor: pointer;" id="elem-routine-reading">
                                 <div style="display: flex; align-items: center; gap: 12px;">
                                     <span style="font-size: 1.6rem;">📖</span>
                                     <div>
@@ -2690,13 +2820,9 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                         <div style="font-size: 0.74rem; color: var(--text-secondary);">동화책, 위인전, 교양 만화 등</div>
                                     </div>
                                 </div>
-                                <div class="elem-check-badge" id="elem-check-reading" style="width: 28px; height: 28px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; color: white;">
-                                    ✓
-                                </div>
+                                <div class="elem-check-badge" id="elem-check-reading" style="width: 28px; height: 28px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; color: white;">✓</div>
                             </div>
-
-                            <!-- 루틴 2: 연산 -->
-                            <div class="elem-routine-card" onclick="toggleElemRoutine('math')" style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 14px; cursor: pointer; transition: all 0.2s ease;" id="elem-routine-math">
+                            <div class="elem-routine-card" onclick="toggleElemRoutine('math')" style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 14px; cursor: pointer;" id="elem-routine-math">
                                 <div style="display: flex; align-items: center; gap: 12px;">
                                     <span style="font-size: 1.6rem;">🔢</span>
                                     <div>
@@ -2704,13 +2830,9 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                         <div style="font-size: 0.74rem; color: var(--text-secondary);">구구단, 덧셈/뺄셈/분수 문제 풀기</div>
                                     </div>
                                 </div>
-                                <div class="elem-check-badge" id="elem-check-math" style="width: 28px; height: 28px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; color: white;">
-                                    ✓
-                                </div>
+                                <div class="elem-check-badge" id="elem-check-math" style="width: 28px; height: 28px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; color: white;">✓</div>
                             </div>
-
-                            <!-- 루틴 3: 바른 수면 -->
-                            <div class="elem-routine-card" onclick="toggleElemRoutine('sleep')" style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 14px; cursor: pointer; transition: all 0.2s ease;" id="elem-routine-sleep">
+                            <div class="elem-routine-card" onclick="toggleElemRoutine('sleep')" style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 14px; cursor: pointer;" id="elem-routine-sleep">
                                 <div style="display: flex; align-items: center; gap: 12px;">
                                     <span style="font-size: 1.6rem;">⏰</span>
                                     <div>
@@ -2718,98 +2840,228 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                         <div style="font-size: 0.74rem; color: var(--text-secondary);">밤 10시 전 푹 자기 & 스마트폰 멀리하기</div>
                                     </div>
                                 </div>
-                                <div class="elem-check-badge" id="elem-check-sleep" style="width: 28px; height: 28px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; color: white;">
-                                    ✓
+                                <div class="elem-check-badge" id="elem-check-sleep" style="width: 28px; height: 28px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; color: white;">✓</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2페이지: 학습공간 화면 -->
+                <div id="elem-page2" class="page-view" style="display: none;">
+                    <!-- 🚀 초등 학습공간 서브탭: 상단 대형 AI 챗봇 + 2x2 서브 그리드 -->
+                    <div id="elem-p2-tabs" style="margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px;">
+                        <!-- 1. 최상단: [🤖 AI 친구 페로 1:1 대화] 단일 대형 버튼 -->
+                        <button class="tab-btn active" data-elemsub="chat" onclick="switchSubTabPageElem('chat')" style="width: 100%; padding: 14px 16px; font-size: 1rem; font-weight: 900; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, #ec4899, #f59e0b); color: #ffffff; border: 1.5px solid #f472b6; box-shadow: 0 4px 16px rgba(236, 72, 153, 0.35); cursor: pointer;">
+                            <span style="font-size: 1.3rem;">🤖</span>
+                            <span>AI 단짝 친구 페로 1:1 대화</span>
+                            <span style="font-size: 0.68rem; background: rgba(255,255,255,0.22); color: #ffffff; padding: 2px 7px; border-radius: 10px; font-weight: 900; margin-left: 4px;">BEST</span>
+                        </button>
+
+                        <!-- 2. 하단: 4대 핵심 서브 기능 (2x2 그리드) -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                            <button class="tab-btn" data-elemsub="quiz" onclick="switchSubTabPageElem('quiz')" style="padding: 12px 8px; font-size: 0.84rem; font-weight: 800; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <span>🧩</span>
+                                <span>두뇌 낱말 퀴즈</span>
+                            </button>
+                            <button class="tab-btn" data-elemsub="sticker" onclick="switchSubTabPageElem('sticker')" style="padding: 12px 8px; font-size: 0.84rem; font-weight: 800; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <span>🏆</span>
+                                <span>칭찬 스티커판</span>
+                            </button>
+                            <button class="tab-btn" data-elemsub="library" onclick="switchSubTabPageElem('library')" style="padding: 12px 8px; font-size: 0.84rem; font-weight: 800; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <span>📚</span>
+                                <span>추천 도서관</span>
+                            </button>
+                            <button class="tab-btn" data-elemsub="mathplay" onclick="switchSubTabPageElem('mathplay')" style="padding: 12px 8px; font-size: 0.84rem; font-weight: 800; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <span>📐</span>
+                                <span>쏙쏙 연산놀이</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- AI 친구 페로 챗창 -->
+                    <div id="elem-sub-chat" class="elem-subtab-view" style="display: block;">
+                        <div class="card" style="padding: 14px;">
+                            <div class="card-title" style="color: #f472b6; margin-bottom: 6px;">
+                                <span class="material-symbols-rounded" style="color: #ec4899;">smart_toy</span>
+                                다정한 AI 친구 페로와 대화하기
+                            </div>
+                            <div class="chat-container" id="elem-chat-box" style="min-height: 250px; max-height: 380px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px; margin-bottom: 10px;">
+                                <div class="chat-bubble bot" style="background: rgba(236, 72, 153, 0.18); border: 1px solid rgba(236, 72, 153, 0.3); color: #ffffff; padding: 10px 14px; border-radius: 12px; font-size: 0.84rem; line-height: 1.5;">
+                                    안녕! 나는 너의 단짝 친구 페로야! 🐣 오늘 학교에서 무슨 재미있는 일이 있었어? 궁금한 게 있으면 뭐든지 나한테 물어봐!
+                                </div>
+                            </div>
+                            <div class="chat-input-row" style="display: flex; gap: 8px;">
+                                <input type="text" id="elem-chat-input" class="form-input" placeholder="페로에게 말해보세요! (예: 공룡 이야기 들려줘)" style="margin-bottom: 0; font-size: 0.84rem;" onkeydown="if(event.key==='Enter'){ event.preventDefault(); sendElemPeroChat(); }">
+                                <button type="button" class="btn" onclick="sendElemPeroChat()" style="padding: 0 16px; background: linear-gradient(135deg, #ec4899, #f59e0b); font-weight: 800; color: white;">전송</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 두뇌 팡팡 낱말 퀴즈 -->
+                    <div id="elem-sub-quiz" class="elem-subtab-view" style="display: none;">
+                        <div class="card" style="padding: 14px;">
+                            <div class="card-title" style="color: #38bdf8; margin-bottom: 6px;">
+                                <span class="material-symbols-rounded" style="color: #0ea5e9;">quiz</span>
+                                두뇌 팡팡! 오늘의 맞춤법 & 낱말 퀴즈
+                            </div>
+                            <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 14px;">
+                                올바른 표현을 고르고 정답을 맞추면 <b>+20 EXP</b>와 <b>칭찬 스티커</b>를 받아요!
+                            </p>
+                            <div style="background: rgba(255,255,255,0.05); border-radius: 14px; padding: 16px; text-align: center; margin-bottom: 14px;">
+                                <div style="font-size: 0.8rem; color: #a5b4fc; margin-bottom: 6px; font-weight: 700;">[오늘의 문제]</div>
+                                <div style="font-size: 1.05rem; font-weight: 900; color: #ffffff; line-height: 1.5; margin-bottom: 14px;" id="elem-quiz-question">
+                                    밥을 다 먹고 난 뒤 깨끗하게 그릇을 씻는 것을 무엇이라고 할까요?
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;" id="elem-quiz-options">
+                                    <button type="button" class="btn btn-secondary" onclick="checkElemQuiz(1)" style="padding: 12px; font-size: 0.95rem; font-weight: 800; border-radius: 10px;">1. 설거지</button>
+                                    <button type="button" class="btn btn-secondary" onclick="checkElemQuiz(2)" style="padding: 12px; font-size: 0.95rem; font-weight: 800; border-radius: 10px;">2. 설겆이</button>
+                                </div>
+                                <div id="elem-quiz-feedback" style="margin-top: 12px; font-size: 0.84rem; font-weight: 800; display: none;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 칭찬 스티커판 -->
+                    <div id="elem-sub-sticker" class="elem-subtab-view" style="display: none;">
+                        <div class="card" style="padding: 14px;">
+                            <div class="card-title" style="color: #fbbf24; margin-bottom: 6px;">
+                                <span class="material-symbols-rounded" style="color: #f59e0b;">workspace_premium</span>
+                                나의 황금 칭찬 스티커판
+                            </div>
+                            <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px;">
+                                루틴과 퀴즈를 완료하여 모은 스티커 목록입니다!
+                            </p>
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; text-align: center;" id="elem-sticker-board">
+                                <div style="background: rgba(245, 158, 11, 0.15); border: 1.5px solid #f59e0b; border-radius: 12px; padding: 12px 4px;">
+                                    <div style="font-size: 1.5rem;">🌟</div>
+                                    <div style="font-size: 0.68rem; color: #fef08a; font-weight: 800; margin-top: 2px;">독서왕</div>
+                                </div>
+                                <div style="background: rgba(245, 158, 11, 0.15); border: 1.5px solid #f59e0b; border-radius: 12px; padding: 12px 4px;">
+                                    <div style="font-size: 1.5rem;">🌟</div>
+                                    <div style="font-size: 0.68rem; color: #fef08a; font-weight: 800; margin-top: 2px;">연산왕</div>
+                                </div>
+                                <div style="background: rgba(245, 158, 11, 0.15); border: 1.5px solid #f59e0b; border-radius: 12px; padding: 12px 4px;">
+                                    <div style="font-size: 1.5rem;">🌟</div>
+                                    <div style="font-size: 0.68rem; color: #fef08a; font-weight: 800; margin-top: 2px;">수면왕</div>
+                                </div>
+                                <div style="background: rgba(245, 158, 11, 0.15); border: 1.5px solid #f59e0b; border-radius: 12px; padding: 12px 4px;">
+                                    <div style="font-size: 1.5rem;">🌟</div>
+                                    <div style="font-size: 0.68rem; color: #fef08a; font-weight: 800; margin-top: 2px;">퀴즈왕</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 추천 도서관 -->
+                    <div id="elem-sub-library" class="elem-subtab-view" style="display: none;">
+                        <div class="card" style="padding: 14px;">
+                            <div class="card-title" style="color: #34d399; margin-bottom: 6px;">
+                                <span class="material-symbols-rounded" style="color: #10b981;">menu_book</span>
+                                초등 추천 필독 도서관
+                            </div>
+                            <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px;">
+                                교과 연계 및 상상력을 키워주는 추천 도서 목록입니다.
+                            </p>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div style="font-weight: 800; font-size: 0.85rem; color: #fff;">📖 [초등 5-6학년] 어린왕자 & 생각하는 힘</div>
+                                        <div style="font-size: 0.7rem; color: #94a3b8;">교과 수록 추천 명작</div>
+                                    </div>
+                                    <span style="font-size: 0.72rem; color: #34d399; font-weight: 800;">추천</span>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div style="font-weight: 800; font-size: 0.85rem; color: #fff;">🔬 [과학 교양] 신비한 우주와 지구 이야기</div>
+                                        <div style="font-size: 0.7rem; color: #94a3b8;">호기심 쑥쑥 과학 만화</div>
+                                    </div>
+                                    <span style="font-size: 0.72rem; color: #38bdf8; font-weight: 800;">인기</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 쏙쏙 연산 놀이 -->
+                    <div id="elem-sub-mathplay" class="elem-subtab-view" style="display: none;">
+                        <div class="card" style="padding: 14px;">
+                            <div class="card-title" style="color: #f59e0b; margin-bottom: 6px;">
+                                <span class="material-symbols-rounded" style="color: #d97706;">calculate</span>
+                                매일 10분 쏙쏙 연산 놀이
+                            </div>
+                            <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px;">
+                                구구단과 스피드 암산으로 두뇌 연산력을 키워보세요!
+                            </p>
+                            <div style="background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-radius: 12px; padding: 16px; text-align: center;">
+                                <div style="font-size: 1.3rem; font-weight: 900; color: #fbbf24; margin-bottom: 10px;">7 × 8 = ?</div>
+                                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+                                    <button class="btn btn-secondary" onclick="alert('정답입니다! 🎉 +10 EXP'); feedElemPet('apple');" style="padding: 10px; font-size: 0.9rem; font-weight: 800;">56</button>
+                                    <button class="btn btn-secondary" onclick="alert('다시 풀어보세요! 😊');" style="padding: 10px; font-size: 0.9rem; font-weight: 800;">54</button>
+                                    <button class="btn btn-secondary" onclick="alert('다시 풀어보세요! 😊');" style="padding: 10px; font-size: 0.9rem; font-weight: 800;">63</button>
+                                    <button class="btn btn-secondary" onclick="alert('다시 풀어보세요! 😊');" style="padding: 10px; font-size: 0.9rem; font-weight: 800;">58</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 초등 2페이지: AI 친구 페로 1:1 대화 -->
-                <div id="elem-page2" class="elem-subtab-view" style="display: none;">
-                    <div class="card" style="padding: 14px;">
-                        <div class="card-title" style="color: #f472b6; margin-bottom: 6px;">
-                            <span class="material-symbols-rounded" style="color: #ec4899;">smart_toy</span>
-                            다정한 AI 친구 페로와 대화하기
-                        </div>
-                        <div class="chat-container" id="elem-chat-box" style="min-height: 250px; max-height: 380px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px; margin-bottom: 10px;">
-                            <div class="chat-bubble bot" style="background: rgba(236, 72, 153, 0.18); border: 1px solid rgba(236, 72, 153, 0.3); color: #ffffff; padding: 10px 14px; border-radius: 12px; font-size: 0.84rem; line-height: 1.5;">
-                                안녕! 나는 너의 단짝 친구 페로야! 🐣 오늘 학교에서 무슨 재미있는 일이 있었어? 궁금한 게 있으면 뭐든지 나한테 물어봐!
-                            </div>
-                        </div>
-                        <div class="chat-input-row" style="display: flex; gap: 8px;">
-                            <input type="text" id="elem-chat-input" class="form-input" placeholder="페로에게 말해보세요! (예: 공룡 이야기 들려줘)" style="margin-bottom: 0; font-size: 0.84rem;" onkeydown="if(event.key==='Enter'){ event.preventDefault(); sendElemPeroChat(); }">
-                            <button type="button" class="btn" onclick="sendElemPeroChat()" style="padding: 0 16px; background: linear-gradient(135deg, #ec4899, #f59e0b); font-weight: 800; color: white;">전송</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 초등 3페이지: 두뇌 팡팡 오늘의 낱말 퀴즈 -->
-                <div id="elem-page3" class="elem-subtab-view" style="display: none;">
-                    <div class="card" style="padding: 14px;">
-                        <div class="card-title" style="color: #38bdf8; margin-bottom: 6px;">
-                            <span class="material-symbols-rounded" style="color: #0ea5e9;">quiz</span>
-                            두뇌 팡팡! 오늘의 맞춤법 & 낱말 퀴즈
-                        </div>
-                        <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 14px;">
-                            올바른 표현을 고르고 정답을 맞추면 <b>+20 EXP</b>와 <b>칭찬 스티커</b>를 받아요!
-                        </p>
-
-                        <div style="background: rgba(255,255,255,0.05); border-radius: 14px; padding: 16px; text-align: center; margin-bottom: 14px;">
-                            <div style="font-size: 0.8rem; color: #a5b4fc; margin-bottom: 6px; font-weight: 700;">[오늘의 문제]</div>
-                            <div style="font-size: 1.05rem; font-weight: 900; color: #ffffff; line-height: 1.5; margin-bottom: 14px;" id="elem-quiz-question">
-                                밥을 다 먹고 난 뒤 깨끗하게 그릇을 씻는 것을 무엇이라고 할까요?
-                            </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;" id="elem-quiz-options">
-                                <button type="button" class="btn btn-secondary" onclick="checkElemQuiz(1)" style="padding: 12px; font-size: 0.95rem; font-weight: 800; border-radius: 10px;">
-                                    1. 설거지
-                                </button>
-                                <button type="button" class="btn btn-secondary" onclick="checkElemQuiz(2)" style="padding: 12px; font-size: 0.95rem; font-weight: 800; border-radius: 10px;">
-                                    2. 설겆이
-                                </button>
-                            </div>
-                            <div id="elem-quiz-feedback" style="margin-top: 12px; font-size: 0.84rem; font-weight: 800; display: none;"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 초등 4페이지: 칭찬 스티커판 -->
-                <div id="elem-page4" class="elem-subtab-view" style="display: none;">
-                    <div class="card" style="padding: 14px;">
-                        <div class="card-title" style="color: #fbbf24; margin-bottom: 6px;">
-                            <span class="material-symbols-rounded" style="color: #f59e0b;">workspace_premium</span>
-                            나의 황금 칭찬 스티커판
+                <!-- 3페이지: 커뮤니티 공간 -->
+                <div id="elem-page3" class="page-view" style="display: none;">
+                    <div class="card" style="padding: 14px; margin-bottom: 12px;">
+                        <div class="card-title" style="color: #f472b6;">
+                            <span class="material-symbols-rounded" style="color: #ec4899;">forum</span>
+                            초등 어린이 광장 & 질문 놀이터
                         </div>
                         <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px;">
-                            루틴과 퀴즈를 완료하여 모은 스티커 목록입니다!
+                            오늘 읽은 책, 학교 이야기, 자랑하고 싶은 일을 친구들과 나눠요!
                         </p>
-                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; text-align: center;" id="elem-sticker-board">
-                            <div style="background: rgba(245, 158, 11, 0.15); border: 1.5px solid #f59e0b; border-radius: 12px; padding: 12px 4px;">
-                                <div style="font-size: 1.5rem;">🌟</div>
-                                <div style="font-size: 0.68rem; color: #fef08a; font-weight: 800; margin-top: 2px;">독서왕</div>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <input type="text" class="form-input" placeholder="이야기 제목을 적어주세요..." style="margin-bottom: 0;">
+                            <textarea class="form-input" placeholder="친구들에게 들려주고 싶은 이야기를 써보세요..." style="height: 70px; resize: none;"></textarea>
+                            <button class="btn" style="padding: 10px; font-weight: 800; background: linear-gradient(135deg, #ec4899, #f59e0b); color: white;">이야기 올리기 (+20P)</button>
+                        </div>
+                    </div>
+
+                    <div class="card" style="padding: 14px;">
+                        <div class="card-title" style="color: #fbbf24; margin-bottom: 8px;">
+                            <span class="material-symbols-rounded" style="color: #f59e0b;">stars</span>
+                            우리 학교 칭찬 스티커 랭킹
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <div style="background: rgba(255,255,255,0.04); padding: 10px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                <span>🌟 1위. 서울대치초등학교 (스티커 380개)</span>
+                                <span style="color: #fbbf24; font-weight: 800;">1등</span>
                             </div>
-                            <div style="background: rgba(245, 158, 11, 0.15); border: 1.5px solid #f59e0b; border-radius: 12px; padding: 12px 4px;">
-                                <div style="font-size: 1.5rem;">🌟</div>
-                                <div style="font-size: 0.68rem; color: #fef08a; font-weight: 800; margin-top: 2px;">연산왕</div>
-                            </div>
-                            <div style="background: rgba(245, 158, 11, 0.15); border: 1.5px solid #f59e0b; border-radius: 12px; padding: 12px 4px;">
-                                <div style="font-size: 1.5rem;">🌟</div>
-                                <div style="font-size: 0.68rem; color: #fef08a; font-weight: 800; margin-top: 2px;">수면왕</div>
-                            </div>
-                            <div style="background: rgba(245, 158, 11, 0.15); border: 1.5px solid #f59e0b; border-radius: 12px; padding: 12px 4px;">
-                                <div style="font-size: 1.5rem;">🌟</div>
-                                <div style="font-size: 0.68rem; color: #fef08a; font-weight: 800; margin-top: 2px;">퀴즈왕</div>
+                            <div style="background: rgba(255,255,255,0.04); padding: 10px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                <span>🌟 2위. 성남서현초등학교 (스티커 320개)</span>
+                                <span style="color: #cbd5e1; font-weight: 800;">2등</span>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- 4페이지: 학원관리 화면 -->
+                <div id="elem-page4" class="page-view" style="display: none;">
+                    <div class="card" style="text-align: center; padding: 24px 16px; margin-bottom: 12px; background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(236,72,153,0.08)); border: 1.5px solid rgba(245,158,11,0.35);">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(245,158,11,0.2); display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; color: #fbbf24;">
+                            <span class="material-symbols-rounded" style="font-size: 1.8rem;">menu_book</span>
+                        </div>
+                        <div style="font-size: 1.1rem; font-weight: 800; color: #ffffff; margin-bottom: 4px;">초등 보습·어학원 연동 허브</div>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 14px;">
+                            다니는 학원 코드를 연결하면 출석 체크와 매주 알림장, 숙제 확인을 할 수 있어요!
+                        </div>
+                        <div style="display: flex; gap: 8px; max-width: 320px; margin: 0 auto;">
+                            <input type="text" class="form-input" placeholder="초등 학원 코드 입력" style="flex: 1; text-align: center; font-weight: 800; text-transform: uppercase;">
+                            <button class="btn" style="padding: 10px 16px; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000;">연동하기</button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
         </main>
 
-        <!-- 5-High. 고등 하단 플로팅 탭바 네비게이션 -->
-        <div class="bottom-nav" id="bottom-nav-high">
+        <!-- 5. 🌟 전 연령 공통 표준 4대 하단 플로팅 탭바 네비게이션 -->
+        <div class="bottom-nav" id="bottom-nav-main">
             <div class="nav-item active" data-tab="page1" onclick="switchTab('page1')">
                 <span class="material-symbols-rounded nav-icon">local_activity</span>
                 <span>생활관리</span>
@@ -2831,46 +3083,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <span class="nav-text-director">원장관제</span>
             </div>
         </div>
-
-        <!-- 5-Middle. 중등 하단 플로팅 탭바 네비게이션 -->
-        <div class="bottom-nav" id="bottom-nav-middle" style="display: none;">
-            <div class="nav-item active" data-midtab="mid-page1" onclick="switchMidTab('mid-page1')">
-                <span class="material-symbols-rounded nav-icon">school</span>
-                <span>중등내신</span>
-            </div>
-            <div class="nav-item" data-midtab="mid-page2" onclick="switchMidTab('mid-page2')">
-                <span class="material-symbols-rounded nav-icon">explore</span>
-                <span>특목나침반</span>
-            </div>
-            <div class="nav-item" data-midtab="mid-page3" onclick="switchMidTab('mid-page3')">
-                <span class="material-symbols-rounded nav-icon">travel_explore</span>
-                <span>출처추적</span>
-            </div>
-            <div class="nav-item" data-midtab="mid-page4" onclick="switchMidTab('mid-page4')">
-                <span class="material-symbols-rounded nav-icon">forum</span>
-                <span>특목AI코치</span>
-            </div>
-        </div>
-
-        <!-- 5-Elem. 초등 하단 플로팅 탭바 네비게이션 -->
-        <div class="bottom-nav" id="bottom-nav-elem" style="display: none;">
-            <div class="nav-item active" data-elemtab="elem-page1" onclick="switchElemTab('elem-page1')">
-                <span class="material-symbols-rounded nav-icon">task_alt</span>
-                <span>3대루틴</span>
-            </div>
-            <div class="nav-item" data-elemtab="elem-page2" onclick="switchElemTab('elem-page2')">
-                <span class="material-symbols-rounded nav-icon">smart_toy</span>
-                <span>AI친구</span>
-            </div>
-            <div class="nav-item" data-elemtab="elem-page3" onclick="switchElemTab('elem-page3')">
-                <span class="material-symbols-rounded nav-icon">quiz</span>
-                <span>두뇌퀴즈</span>
-            </div>
-            <div class="nav-item" data-elemtab="elem-page4" onclick="switchElemTab('elem-page4')">
-                <span class="material-symbols-rounded nav-icon">workspace_premium</span>
-                <span>스티커판</span>
-            </div>
-        </div>
+    </div>
 
     </div>
 
@@ -4442,7 +4655,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app.js?v=20260910.v7_page2_fix"></script>
+    <script src="js/app.js?v=20260910.v8_4tab_unified"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소
