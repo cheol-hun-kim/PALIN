@@ -5921,6 +5921,89 @@ def generate_standard_answer_keys(subject: str, elective_subject: Optional[str] 
                 answer_keys[q_str] = str(((i * 2 + 1) % 5) + 1)
                 score_weights[q_str] = 2.0
                 topic_tags[q_str] = f"{clean_subj} 일반"
+
+    elif curriculum_era == "2021_PREV":
+        # 2021학년도 이전 (구 수능체제: 국어/영어 단일형, 수학 가형(이과)/나형(문과) 분기, 과탐 8과목, 사탐 9과목)
+        if clean_subj == "국어":
+            num_q = 45
+            sample_answers = ["1", "4", "2", "5", "3", "2", "4", "1", "3", "5", "4", "2", "3", "1", "5", "2", "4", "3", "1", "5", "4", "2", "3", "1", "5", "3", "1", "4", "2", "5", "4", "2", "5", "1", "3", "2", "4", "1", "5", "3", "2", "4", "1", "3", "5"]
+            for i in range(1, num_q + 1):
+                q_str = str(i)
+                answer_keys[q_str] = sample_answers[(i - 1) % len(sample_answers)]
+                score_weights[q_str] = 3.0 if i in [4, 8, 12, 17, 21, 25, 29, 34, 38, 42] else 2.0
+                topic_tags[q_str] = "국어 화법·작문·문법 (1~15)" if i <= 15 else ("국어 독서 (16~30)" if i <= 30 else "국어 문학 (31~45)")
+
+        elif "수학" in clean_subj:
+            num_q = 30
+            is_na = ("나" in clean_subj or "나" in clean_elec or "문과" in clean_subj or "문과" in clean_elec)
+            if is_na:
+                # 수학 나형 (문과: 수학II, 미적분I, 확률과통계)
+                sample_obj = ["3", "1", "4", "2", "5", "2", "4", "1", "3", "5", "4", "2", "3", "1", "5", "3", "2", "4", "1", "5", "2"]
+                sample_subj = ["18", "42", "72", "25", "12", "144", "65", "84", "256"]
+                tag_label = "수학 나형(문과)"
+            else:
+                # 수학 가형 (이과: 미적분II, 기하와벡터, 확률과통계 - 기본값)
+                sample_obj = ["2", "4", "1", "5", "3", "4", "2", "3", "1", "5", "3", "2", "4", "1", "5", "4", "2", "3", "1", "5", "4"]
+                sample_subj = ["14", "35", "124", "48", "16", "210", "75", "162", "480"]
+                tag_label = "수학 가형(이과)"
+                
+            for i in range(1, 22):
+                q_str = str(i)
+                answer_keys[q_str] = sample_obj[i - 1]
+                score_weights[q_str] = 4.0 if i >= 13 else (3.0 if i >= 4 else 2.0)
+                topic_tags[q_str] = f"{tag_label} 객관식"
+            for i in range(22, 31):
+                q_str = str(i)
+                answer_keys[q_str] = sample_subj[i - 22]
+                score_weights[q_str] = 4.0 if i >= 27 else 3.0
+                topic_tags[q_str] = f"{tag_label} 단답형 주관식"
+
+        elif clean_subj in ["영어"]:
+            num_q = 45
+            sample_answers = ["1", "4", "2", "5", "3", "2", "4", "1", "3", "5", "4", "2", "1", "3", "5"] * 3
+            for i in range(1, num_q + 1):
+                q_str = str(i)
+                answer_keys[q_str] = sample_answers[(i - 1) % len(sample_answers)]
+                score_weights[q_str] = 3.0 if i in [4, 8, 12, 17, 21, 23, 29, 33, 34, 37] else 2.0
+                topic_tags[q_str] = "영어 듣기(1~17)" if i <= 17 else ("영어 독해/빈칸(18~45)")
+
+        elif clean_subj in ["과탐", "과학탐구"] or clean_elec in ["물리학I", "화학I", "생명과학I", "지구과학I", "물리학II", "화학II", "생명과학II", "지구과학II"]:
+            num_q = 20
+            sample_answers = ["4", "2", "1", "5", "3", "1", "4", "2", "5", "3", "2", "5", "1", "4", "3", "5", "2", "4", "1", "3"]
+            label = clean_elec or "과학탐구"
+            for i in range(1, num_q + 1):
+                q_str = str(i)
+                answer_keys[q_str] = sample_answers[(i - 1) % len(sample_answers)]
+                score_weights[q_str] = 3.0 if i in [4, 7, 9, 11, 13, 15, 17, 18, 19, 20] else 2.0
+                topic_tags[q_str] = f"{label} 심화실험/추론" if score_weights[q_str] == 3.0 else f"{label} 기본개념"
+
+        elif clean_subj in ["사탐", "사회탐구"] or clean_elec in ["생활과윤리", "윤리와사상", "한국지리", "세계지리", "사회문화", "사회·문화", "정치와법", "법과정치", "경제", "동아시아사", "세계사"]:
+            num_q = 20
+            sample_answers = ["2", "5", "3", "1", "4", "3", "1", "5", "2", "4", "1", "4", "2", "3", "5", "4", "1", "3", "5", "2"]
+            label = clean_elec or "사회탐구"
+            for i in range(1, num_q + 1):
+                q_str = str(i)
+                answer_keys[q_str] = sample_answers[(i - 1) % len(sample_answers)]
+                score_weights[q_str] = 3.0 if i in [3, 6, 8, 10, 11, 14, 16, 17, 19, 20] else 2.0
+                topic_tags[q_str] = f"{label} 사상가/도표분석" if score_weights[q_str] == 3.0 else f"{label} 핵심개념"
+
+        elif clean_subj in ["한국사"]:
+            num_q = 20
+            sample_answers = ["1", "3", "5", "2", "4", "2", "4", "1", "3", "5", "3", "1", "4", "2", "5", "4", "2", "5", "1", "3"]
+            for i in range(1, num_q + 1):
+                q_str = str(i)
+                answer_keys[q_str] = sample_answers[(i - 1) % len(sample_answers)]
+                score_weights[q_str] = 3.0 if i in [3, 5, 8, 10, 11, 14, 15, 17, 18, 20] else 2.0
+                topic_tags[q_str] = "한국사 시대사"
+
+        else:
+            num_q = max(20, total_q)
+            for i in range(1, num_q + 1):
+                q_str = str(i)
+                answer_keys[q_str] = str(((i * 2 + 1) % 5) + 1)
+                score_weights[q_str] = 2.0
+                topic_tags[q_str] = f"{clean_subj} 일반"
+
     else:
         # 2022~2027 Elective System (Current CSAT)
         if clean_subj == "국어":

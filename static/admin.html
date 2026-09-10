@@ -3818,12 +3818,11 @@ function onAdminCurriculumEraChange() {
         `;
     } else if (era === "2021_PREV") {
         subjSelect.innerHTML = `
-            <option value="국어" selected>📖 국어 (45문항)</option>
-            <option value="수학 가형">📐 수학 가형 (30문항)</option>
-            <option value="수학 나형">📐 수학 나형 (30문항)</option>
-            <option value="영어">🔤 영어 (45문항)</option>
-            <option value="과탐">🧪 과학탐구 (20문항)</option>
-            <option value="사탐">🌏 사회탐구 (20문항)</option>
+            <option value="국어" selected>📖 국어 (45문항: 단일형)</option>
+            <option value="수학">📐 수학 (30문항: 가형(이과) / 나형(문과))</option>
+            <option value="영어">🔤 영어 (45문항: 단일형)</option>
+            <option value="과탐">🧪 과학탐구 (20문항: 8과목 택1)</option>
+            <option value="사탐">🌏 사회탐구 (20문항: 9과목 택1)</option>
             <option value="한국사">🇰🇷 한국사 (20문항)</option>
         `;
     } else {
@@ -3855,7 +3854,48 @@ function onAdminExamSubjectChange() {
         if (totalQSelect) totalQSelect.value = "20";
     }
 
-    if (era === "2022_2027") {
+    if (era === "2021_PREV") {
+        if (sub.includes("수학")) {
+            if (elecBox) elecBox.style.display = "block";
+            if (elecSelect) {
+                elecSelect.innerHTML = `
+                    <option value="가형(이과)" selected>수학 가형 (이과: 미적II·기베·확통)</option>
+                    <option value="나형(문과)">수학 나형 (문과: 수II·미적I·확통)</option>
+                `;
+            }
+        } else if (sub.includes("과탐")) {
+            if (elecBox) elecBox.style.display = "block";
+            if (elecSelect) {
+                elecSelect.innerHTML = `
+                    <option value="생명과학I" selected>생명과학 I (20문항)</option>
+                    <option value="지구과학I">지구과학 I (20문항)</option>
+                    <option value="물리학I">물리학 I (20문항)</option>
+                    <option value="화학I">화학 I (20문항)</option>
+                    <option value="생명과학II">생명과학 II (20문항)</option>
+                    <option value="지구과학II">지구과학 II (20문항)</option>
+                    <option value="물리학II">물리학 II (20문항)</option>
+                    <option value="화학II">화학 II (20문항)</option>
+                `;
+            }
+        } else if (sub.includes("사탐")) {
+            if (elecBox) elecBox.style.display = "block";
+            if (elecSelect) {
+                elecSelect.innerHTML = `
+                    <option value="생활과윤리" selected>생활과 윤리 (20문항)</option>
+                    <option value="사회문화">사회·문화 (20문항)</option>
+                    <option value="한국지리">한국지리 (20문항)</option>
+                    <option value="세계지리">세계지리 (20문항)</option>
+                    <option value="윤리와사상">윤리와 사상 (20문항)</option>
+                    <option value="정치와법">정치와 법 (20문항)</option>
+                    <option value="경제">경제 (20문항)</option>
+                    <option value="동아시아사">동아시아사 (20문항)</option>
+                    <option value="세계사">세계사 (20문항)</option>
+                `;
+            }
+        } else {
+            if (elecBox) elecBox.style.display = "none";
+        }
+    } else if (era === "2022_2027") {
         if (elecBox) elecBox.style.display = "block";
         if (sub.includes("국어")) {
             elecSelect.innerHTML = `
@@ -3954,11 +3994,18 @@ function renderAdminAnswerKeyGrid() {
             if (i === 16) html += `<div style="background: rgba(56,189,248,0.15); color: #38bdf8; padding: 4px 8px; border-radius: 4px; font-weight: 800; font-size: 0.76rem; margin: 6px 0 4px;">✏️ [공통 단답형 16~22번: 주관식 숫자입력]</div>`;
             if (i === 23) html += `<div style="background: rgba(251,191,36,0.15); color: #fbbf24; padding: 4px 8px; border-radius: 4px; font-weight: 800; font-size: 0.76rem; margin: 6px 0 4px;">🎯 [선택 객관식 23~28번: ${elec || '미적분'}]</div>`;
             if (i === 29) html += `<div style="background: rgba(244,63,94,0.15); color: #fb7185; padding: 4px 8px; border-radius: 4px; font-weight: 800; font-size: 0.76rem; margin: 6px 0 4px;">✏️ [선택 단답형 29~30번: ${elec || '미적분'}]</div>`;
+        } else if (era === "2021_PREV" && sub.includes("수학")) {
+            if (i === 1) html += `<div style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 4px 8px; border-radius: 4px; font-weight: 800; font-size: 0.76rem; margin: 4px 0;">📌 [객관식 1~21번: ${elec || '수학 가형'}] (69점)</div>`;
+            if (i === 22) html += `<div style="background: rgba(56,189,248,0.15); color: #38bdf8; padding: 4px 8px; border-radius: 4px; font-weight: 800; font-size: 0.76rem; margin: 6px 0 4px;">✏️ [단답형 주관식 22~30번: ${elec || '수학 가형'} 정수 0~999] (31점)</div>`;
+        } else if (era === "2028_PLUS" && sub.includes("수학")) {
+            if (i === 1) html += `<div style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 4px 8px; border-radius: 4px; font-weight: 800; font-size: 0.76rem; margin: 4px 0;">📌 [객관식 1~21번]</div>`;
+            if (i === 22) html += `<div style="background: rgba(56,189,248,0.15); color: #38bdf8; padding: 4px 8px; border-radius: 4px; font-weight: 800; font-size: 0.76rem; margin: 6px 0 4px;">✏️ [단답형 22~30번: 주관식 정수입력]</div>`;
         }
 
         const isShortAnswer = (sub.includes("수학") && (
             (era === "2022_2027" && ((i >= 16 && i <= 22) || (i >= 29 && i <= 30))) ||
-            (era === "2028_PLUS" && i >= 22)
+            (era === "2028_PLUS" && i >= 22) ||
+            (era === "2021_PREV" && i >= 22)
         ));
 
         const defaultAns = isShortAnswer ? (i * 7 + 13) : (((i - 1) % 5) + 1);
