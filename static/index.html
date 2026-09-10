@@ -1984,7 +1984,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
                                 <!-- 1. 디지털 OMR 직접 마킹 모드 (기본) -->
                                 <div id="omr-mode-digital-view">
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
                                         <div>
                                             <label style="font-size: 0.74rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">시험 주차</label>
                                             <select id="digital-omr-week" onchange="renderDigitalOmrPad()" class="form-input" style="width: 100%;">
@@ -2041,13 +2041,32 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                             </select>
                                         </div>
                                         <div>
+                                            <label style="font-size: 0.74rem; color: #38bdf8; font-weight: 800; display: block; margin-bottom: 4px;">🎓 교육과정 체제</label>
+                                            <select id="digital-omr-era" onchange="onDigitalOmrEraChange()" class="form-input" style="width: 100%; font-weight: 800; color: #38bdf8; border-color: rgba(56,189,248,0.4);">
+                                                <option value="2022_2027" selected>2022~2027 (선택형 수능)</option>
+                                                <option value="2028_PLUS">2028+ (개편 통합수능)</option>
+                                                <option value="2021_PREV">2021 이전 (구 수능체제)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                                        <div>
                                             <label style="font-size: 0.74rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">응시 과목</label>
-                                            <select id="digital-omr-subject" onchange="renderDigitalOmrPad()" class="form-input" style="width: 100%; font-weight: 700;">
+                                            <select id="digital-omr-subject" onchange="onDigitalOmrSubjectChange()" class="form-input" style="width: 100%; font-weight: 700;">
                                                 <option value="국어" selected>📖 국어 (45문항)</option>
                                                 <option value="수학">📐 수학 (30문항)</option>
                                                 <option value="영어">🔤 영어 (45문항)</option>
                                                 <option value="과탐">🧪 과학탐구 (20문항)</option>
                                                 <option value="사탐">🌏 사회탐구 (20문항)</option>
+                                                <option value="한국사">🇰🇷 한국사 (20문항)</option>
+                                            </select>
+                                        </div>
+                                        <div id="digital-omr-elective-box">
+                                            <label style="font-size: 0.74rem; color: #fbbf24; font-weight: 800; display: block; margin-bottom: 4px;">🎯 선택 과목</label>
+                                            <select id="digital-omr-elective" onchange="renderDigitalOmrPad()" class="form-input" style="width: 100%; font-weight: 800; color: #fbbf24; border-color: rgba(251,191,36,0.4);">
+                                                <option value="언어와매체" selected>언어와 매체 (35~45번)</option>
+                                                <option value="화법과작문">화법과 작문 (35~45번)</option>
                                             </select>
                                         </div>
                                     </div>
@@ -3828,6 +3847,106 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 // ==============================================================================
 window.currentStudentOmrMarks = window.currentStudentOmrMarks || {};
 
+window.onDigitalOmrEraChange = function() {
+    const era = document.getElementById("digital-omr-era")?.value || "2022_2027";
+    const subjSelect = document.getElementById("digital-omr-subject");
+    if (!subjSelect) return;
+
+    if (era === "2028_PLUS") {
+        subjSelect.innerHTML = `
+            <option value="국어" selected>📖 국어 (45문항 단일)</option>
+            <option value="수학">📐 수학 (30문항 단일)</option>
+            <option value="영어">🔤 영어 (45문항 단일)</option>
+            <option value="통합사회">🌏 통합사회 (20문항 단일)</option>
+            <option value="통합과학">🧪 통합과학 (20문항 단일)</option>
+            <option value="한국사">🇰🇷 한국사 (20문항 단일)</option>
+        `;
+    } else {
+        subjSelect.innerHTML = `
+            <option value="국어" selected>📖 국어 (45문항: 공통+선택)</option>
+            <option value="수학">📐 수학 (30문항: 공통+선택)</option>
+            <option value="영어">🔤 영어 (45문항)</option>
+            <option value="과탐">🧪 과학탐구 (20문항: 물/화/생/지 I·II 택1)</option>
+            <option value="사탐">🌏 사회탐구 (20문항: 9과목 택1)</option>
+            <option value="한국사">🇰🇷 한국사 (20문항)</option>
+        `;
+    }
+    window.onDigitalOmrSubjectChange();
+};
+
+window.onDigitalOmrSubjectChange = function() {
+    const era = document.getElementById("digital-omr-era")?.value || "2022_2027";
+    const sub = document.getElementById("digital-omr-subject")?.value || "국어";
+    const elecBox = document.getElementById("digital-omr-elective-box");
+    const elecSelect = document.getElementById("digital-omr-elective");
+
+    if (era === "2022_2027") {
+        if (sub.includes("국어")) {
+            if (elecBox) elecBox.style.display = "block";
+            if (elecSelect) {
+                elecSelect.innerHTML = `
+                    <option value="언어와매체" selected>언어와 매체 (35~45번)</option>
+                    <option value="화법과작문">화법과 작문 (35~45번)</option>
+                `;
+            }
+        } else if (sub.includes("수학")) {
+            if (elecBox) elecBox.style.display = "block";
+            if (elecSelect) {
+                elecSelect.innerHTML = `
+                    <option value="미적분" selected>미적분 (23~30번)</option>
+                    <option value="기하">기하 (23~30번)</option>
+                    <option value="확률과통계">확률과 통계 (23~30번)</option>
+                `;
+            }
+        } else if (sub.includes("과탐")) {
+            if (elecBox) elecBox.style.display = "block";
+            if (elecSelect) {
+                elecSelect.innerHTML = `
+                    <option value="생명과학I" selected>생명과학 I (20문항)</option>
+                    <option value="지구과학I">지구과학 I (20문항)</option>
+                    <option value="물리학I">물리학 I (20문항)</option>
+                    <option value="화학I">화학 I (20문항)</option>
+                    <option value="생명과학II">생명과학 II (20문항)</option>
+                    <option value="지구과학II">지구과학 II (20문항)</option>
+                    <option value="물리학II">물리학 II (20문항)</option>
+                    <option value="화학II">화학 II (20문항)</option>
+                `;
+            }
+        } else if (sub.includes("사탐")) {
+            if (elecBox) elecBox.style.display = "block";
+            if (elecSelect) {
+                elecSelect.innerHTML = `
+                    <option value="생활과윤리" selected>생활과 윤리 (20문항)</option>
+                    <option value="사회문화">사회·문화 (20문항)</option>
+                    <option value="한국지리">한국지리 (20문항)</option>
+                    <option value="세계지리">세계지리 (20문항)</option>
+                    <option value="윤리와사상">윤리와 사상 (20문항)</option>
+                    <option value="정치와법">정치와 법 (20문항)</option>
+                    <option value="경제">경제 (20문항)</option>
+                    <option value="동아시아사">동아시아사 (20문항)</option>
+                    <option value="세계사">세계사 (20문항)</option>
+                `;
+            }
+        } else {
+            if (elecBox) elecBox.style.display = "none";
+        }
+    } else {
+        if (elecBox) elecBox.style.display = "none";
+    }
+
+    window.renderDigitalOmrPad();
+};
+
+window.onDigitalOmrShortAnswerChange = function(qNum, value) {
+    const cleanVal = String(value).trim();
+    if (cleanVal === "") {
+        delete window.currentStudentOmrMarks[String(qNum)];
+    } else {
+        window.currentStudentOmrMarks[String(qNum)] = cleanVal;
+    }
+    window.updateOmrProgressCount();
+};
+
 window.switchOmrMode = function(mode) {
     const digitalView = document.getElementById("omr-mode-digital-view");
     const photoView = document.getElementById("omr-mode-photo-view");
@@ -3852,39 +3971,84 @@ window.renderDigitalOmrPad = function() {
     const container = document.getElementById("omr-bubbles-container");
     if (!container) return;
 
-    const subject = document.getElementById("digital-omr-subject")?.value || "국어";
-    const totalQ = (subject === "국어" || subject === "영어") ? 45 : ((subject === "수학") ? 30 : 20);
+    const era = document.getElementById("digital-omr-era")?.value || "2022_2027";
+    const sub = document.getElementById("digital-omr-subject")?.value || "국어";
+    const elec = document.getElementById("digital-omr-elective")?.value || "";
+
+    const totalQ = (sub.includes("국어") || sub.includes("영어")) ? 45 : (sub.includes("수학") ? 30 : 20);
 
     const totalEl = document.getElementById("omr-total-count");
     if (totalEl) totalEl.innerText = totalQ;
 
+    const marks = window.currentStudentOmrMarks || {};
+
     let html = "";
     const circleSymbols = ["", "①", "②", "③", "④", "⑤"];
+
     for (let i = 1; i <= totalQ; i++) {
-        const curVal = window.currentStudentOmrMarks[String(i)] || "";
-        html += `
-            <div class="omr-q-row" style="display: flex; justify-content: space-between; align-items: center; padding: 7px 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; margin-bottom: 2px;">
-                <div style="font-weight: 800; font-size: 0.82rem; color: var(--text-primary); width: 45px;">
-                    ${i}번
+        // Section separator headers
+        if (era === "2022_2027" && sub.includes("국어")) {
+            if (i === 1) html += `<div style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 4px 0;">📌 [공통 1~34번: 독서·문학] (76점)</div>`;
+            if (i === 35) html += `<div style="background: rgba(251,191,36,0.15); color: #fbbf24; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 8px 0 4px;">🎯 [선택 35~45번: ${elec || '선택과목'}] (24점)</div>`;
+        } else if (era === "2022_2027" && sub.includes("수학")) {
+            if (i === 1) html += `<div style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 4px 0;">📌 [공통 객관식 1~15번: 수학I·II]</div>`;
+            if (i === 16) html += `<div style="background: rgba(56,189,248,0.15); color: #38bdf8; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 8px 0 4px;">✏️ [공통 단답형 주관식 16~22번: 정수 0~999]</div>`;
+            if (i === 23) html += `<div style="background: rgba(251,191,36,0.15); color: #fbbf24; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 8px 0 4px;">🎯 [선택 객관식 23~28번: ${elec || '미적분'}]</div>`;
+            if (i === 29) html += `<div style="background: rgba(244,63,94,0.15); color: #fb7185; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 8px 0 4px;">✏️ [선택 단답형 주관식 29~30번: ${elec || '미적분'} 정수 0~999]</div>`;
+        } else if (era === "2028_PLUS" && sub.includes("수학")) {
+            if (i === 1) html += `<div style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 4px 0;">📌 [객관식 1~21번]</div>`;
+            if (i === 22) html += `<div style="background: rgba(56,189,248,0.15); color: #38bdf8; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 8px 0 4px;">✏️ [단답형 주관식 22~30번: 정수 0~999]</div>`;
+        }
+
+        const isShortAnswer = (sub.includes("수학") && (
+            (era === "2022_2027" && ((i >= 16 && i <= 22) || (i >= 29 && i <= 30))) ||
+            (era === "2028_PLUS" && i >= 22)
+        ));
+
+        const curVal = marks[String(i)] || "";
+
+        if (isShortAnswer) {
+            html += `
+                <div class="omr-q-row" style="display: flex; justify-content: space-between; align-items: center; padding: 7px 10px; background: rgba(56,189,248,0.06); border: 1px dashed rgba(56,189,248,0.3); border-radius: 8px; margin-bottom: 2px;">
+                    <div style="font-weight: 800; font-size: 0.82rem; color: #38bdf8; width: 65px;">
+                        ${i}번 (주관식)
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="number" 
+                            min="0" max="999" 
+                            value="${curVal}" 
+                            placeholder="0~999 정수 입력" 
+                            oninput="window.onDigitalOmrShortAnswerChange(${i}, this.value)"
+                            class="form-input" 
+                            style="width: 140px; padding: 6px 10px; font-size: 0.9rem; font-weight: 800; text-align: center; color: #38bdf8; border-color: rgba(56,189,248,0.4);">
+                    </div>
                 </div>
-                <div style="display: flex; gap: 6px;">
-                    ${[1, 2, 3, 4, 5].map(choice => {
-                        const isSelected = curVal === String(choice);
-                        const bg = isSelected ? "#10b981" : "rgba(255,255,255,0.08)";
-                        const color = isSelected ? "#ffffff" : "#94a3b8";
-                        const border = isSelected ? "1.5px solid #10b981" : "1px solid rgba(255,255,255,0.15)";
-                        const fontW = isSelected ? "900" : "700";
-                        return `
-                            <button type="button" 
-                                onclick="selectOmrChoice(${i}, ${choice})" 
-                                style="width: 32px; height: 32px; border-radius: 50%; background: ${bg}; color: ${color}; border: ${border}; font-weight: ${fontW}; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease;">
-                                ${circleSymbols[choice]}
-                            </button>
-                        `;
-                    }).join('')}
+            `;
+        } else {
+            html += `
+                <div class="omr-q-row" style="display: flex; justify-content: space-between; align-items: center; padding: 7px 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; margin-bottom: 2px;">
+                    <div style="font-weight: 800; font-size: 0.82rem; color: var(--text-primary); width: 45px;">
+                        ${i}번
+                    </div>
+                    <div style="display: flex; gap: 6px;">
+                        ${[1, 2, 3, 4, 5].map(choice => {
+                            const isSelected = curVal === String(choice);
+                            const bg = isSelected ? "#10b981" : "rgba(255,255,255,0.08)";
+                            const color = isSelected ? "#ffffff" : "#94a3b8";
+                            const border = isSelected ? "1.5px solid #10b981" : "1px solid rgba(255,255,255,0.15)";
+                            const fontW = isSelected ? "900" : "700";
+                            return `
+                                <button type="button" 
+                                    onclick="window.selectOmrChoice(${i}, ${choice})" 
+                                    style="width: 32px; height: 32px; border-radius: 50%; background: ${bg}; color: ${color}; border: ${border}; font-weight: ${fontW}; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease;">
+                                    ${circleSymbols[choice]}
+                                </button>
+                            `;
+                        }).join('')}
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
+        }
     }
     container.innerHTML = html;
     window.updateOmrProgressCount();
@@ -3916,10 +4080,13 @@ window.clearAllOmrMarks = function() {
 window.submitDigitalOmr = async function() {
     const st = window.currentStudent || (typeof currentStudent !== 'undefined' && currentStudent ? currentStudent : { id: 9999, name: "수험생" });
     const weekVal = parseInt(document.getElementById("digital-omr-week")?.value || "3", 10);
+    const eraVal = document.getElementById("digital-omr-era")?.value || "2022_2027";
     const subjectVal = document.getElementById("digital-omr-subject")?.value || "국어";
-    const totalQ = (subjectVal === "국어" || subjectVal === "영어") ? 45 : ((subjectVal === "수학") ? 30 : 20);
+    const electiveVal = document.getElementById("digital-omr-elective")?.value || "";
+    const totalQ = (subjectVal.includes("국어") || subjectVal.includes("영어")) ? 45 : (subjectVal.includes("수학") ? 30 : 20);
 
-    const markedCount = Object.keys(window.currentStudentOmrMarks || {}).length;
+    const markedAnswers = window.currentStudentOmrMarks || {};
+    const markedCount = Object.keys(markedAnswers).length;
     if (markedCount < Math.floor(totalQ * 0.5)) {
         if (!confirm(`총 ${totalQ}문항 중 ${markedCount}문항만 마킹되었습니다. 그래도 채점을 진행하시겠습니까?`)) {
             return;
@@ -3931,10 +4098,12 @@ window.submitDigitalOmr = async function() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                student_id: st.id,
+                student_id: st.id || 9999,
                 exam_week: weekVal,
+                curriculum_era: eraVal,
                 subject: subjectVal,
-                marked_answers: window.currentStudentOmrMarks
+                elective_subject: electiveVal || null,
+                marked_answers: markedAnswers
             })
         });
 
@@ -3952,22 +4121,7 @@ window.submitDigitalOmr = async function() {
         }
     } catch(e) {
         console.error("submitDigitalOmr error:", e);
-        window.renderOmrResultCard({
-            score: 88.0,
-            grade: 2,
-            wrong_count: 3,
-            wrong_questions: [4, 12, 28],
-            diagnosis: `[${st.name || "학생"} 3주차 ${subjectVal} 진단 소견]\n• 취약 단원: 고난도 논리 독해 및 복합 추론\n• 1~2등급 진입 단계이며, 틀린 3문항([4, 12, 28])에 대한 1:1 오답노트 복습을 권장합니다.`,
-            comparison_details: Array.from({length: totalQ}, (_, idx) => ({
-                question_num: idx + 1,
-                student_answer: window.currentStudentOmrMarks[String(idx + 1)] || "3",
-                correct_answer: [4, 12, 28].includes(idx + 1) ? "4" : (window.currentStudentOmrMarks[String(idx + 1)] || "3"),
-                is_correct: ![4, 12, 28].includes(idx + 1),
-                points: ((idx + 1) % 4 === 0) ? 3.0 : 2.0,
-                topic: [4, 12, 28].includes(idx + 1) ? "심화 킬러 추론" : "기본 핵심 개념"
-            }))
-        });
-        alert(`🎉 [즉시 채점 완료] 원점수 88.0점 (2등급) 획득! (+50P 지급)\n원장 1:1 맞춤 처방전이 생성되었습니다.`);
+        alert("서버 통신 오류로 채점에 실패했습니다.");
     }
 };
 
@@ -3985,9 +4139,10 @@ window.renderOmrResultCard = function(data) {
     const wrongEl = document.getElementById("omr-result-wrong-count");
     if (wrongEl) wrongEl.innerText = `${data.wrong_count}개`;
     const diagEl = document.getElementById("omr-result-diagnosis-text");
-    if (diagEl) diagEl.innerText = data.diagnosis || "원장 진단서가 생성 중입니다.";
+    if (diagEl) diagEl.innerText = data.director_diagnosis || data.diagnosis || "원장 진단서가 생성 중입니다.";
 
-    if (data.comparison_details) {
+    const compDetails = data.comparison || data.comparison_details;
+    if (compDetails) {
         const compTable = document.getElementById("omr-detail-comparison-table");
         if (compTable) {
             compTable.innerHTML = `
@@ -4003,7 +4158,7 @@ window.renderOmrResultCard = function(data) {
                         </tr>
                     </thead>
                     <tbody>
-                        ${data.comparison_details.map(c => `
+                        ${compDetails.map(c => `
                             <tr style="border-bottom: 1px solid rgba(255,255,255,0.04); background: ${c.is_correct ? 'transparent' : 'rgba(244, 63, 94, 0.08)'};">
                                 <td style="padding: 5px; font-weight: 700;">${c.question_num}번</td>
                                 <td style="padding: 5px; color: var(--text-secondary);">${c.points}점</td>

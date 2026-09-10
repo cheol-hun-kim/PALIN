@@ -757,7 +757,9 @@ class ExamPaperMaster(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     academy_code = Column(String, default="ILWON-2027", index=True) # 소속 학원 코드
-    subject = Column(String, nullable=False)                         # 국어 | 수학 | 영어 | 과탐 | 사탐
+    curriculum_era = Column(String, default="2022_2027")            # '2022_2027'(선택형 통합수능) | '2028_PLUS'(통합형) | '2021_PREV'
+    subject = Column(String, nullable=False)                         # 국어 | 수학 | 영어 | 과탐 | 사탐 | 통합과학 | 통합사회 ...
+    elective_subject = Column(String, nullable=True)                # 화법과작문 | 언어와매체 | 미적분 | 기하 | 확률과통계 | 생명과학I ...
     title = Column(String, nullable=False)                           # 예: 3주차 팰린 파이널 실전 모의고사
     exam_week = Column(Integer, default=3)                          # 주차 (1~16주차)
     total_questions = Column(Integer, default=30)                    # 총 문항수 (10~50)
@@ -814,7 +816,9 @@ class ExamOMRSubmission(Base):
     exam_id = Column(Integer, ForeignKey("exam_paper_masters.id"), nullable=True, index=True)
     student_id = Column(Integer, ForeignKey("students.id"), nullable=False, index=True)
     exam_week = Column(Integer, default=3)
-    subject = Column(String, nullable=False)                         # 국어 | 수학 | 영어 ...
+    curriculum_era = Column(String, default="2022_2027")            # '2022_2027' | '2028_PLUS' | '2021_PREV'
+    subject = Column(String, nullable=False)                         # 국어 | 수학 | 영어 | 과탐 | 사탐 | 통합사회 | 통합과학 ...
+    elective_subject = Column(String, nullable=True)                # 화법과작문 | 언어와매체 | 미적분 | 기하 | 확률과통계 | 생명과학I ...
     marked_answers = Column(Text, nullable=False)                   # JSON 문자열: {"1": "3", "2": "5", ...}
     raw_score = Column(Float, default=0.0)                          # 총 획득 원점수
     wrong_questions = Column(Text, default="[]")                    # JSON 배열: [4, 12, 28] (틀린 문항 번호 목록)

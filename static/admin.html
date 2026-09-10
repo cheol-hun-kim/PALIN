@@ -1088,7 +1088,7 @@
                     </div>
 
                     <form onsubmit="handleSaveAdminExam(event)" style="display: flex; flex-direction: column; gap: 12px;">
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
                             <div>
                                 <label style="font-size: 0.74rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">시험 주차</label>
                                 <select id="admin-exam-week" class="form-input" style="width: 100%; font-weight: 700; height: 44px; min-height: 44px; padding: 6px 10px; font-size: 0.88rem; line-height: 1.4;">
@@ -1117,31 +1117,14 @@
                                     <option value="23">23회차 (23주차 모의고사)</option>
                                     <option value="24">24회차 (24주차 모의고사)</option>
                                     <option value="25">25회차 (25주차 모의고사)</option>
-                                    <option value="26">26회차 (26주차 모의고사)</option>
-                                    <option value="27">27회차 (27주차 모의고사)</option>
-                                    <option value="28">28회차 (28주차 모의고사)</option>
-                                    <option value="29">29회차 (29주차 모의고사)</option>
-                                    <option value="30">30회차 (30주차 모의고사)</option>
-                                    <option value="31">31회차 (31주차 모의고사)</option>
-                                    <option value="32">32회차 (32주차 모의고사)</option>
-                                    <option value="33">33회차 (33주차 모의고사)</option>
-                                    <option value="34">34회차 (34주차 모의고사)</option>
-                                    <option value="35">35회차 (35주차 모의고사)</option>
-                                    <option value="36">36회차 (36주차 모의고사)</option>
-                                    <option value="37">37회차 (37주차 모의고사)</option>
-                                    <option value="38">38회차 (38주차 모의고사)</option>
-                                    <option value="39">39회차 (39주차 모의고사)</option>
-                                    <option value="40">40회차 (40주차 모의고사)</option>
-                                    <option value="41">41회차 (41주차 모의고사)</option>
-                                    <option value="42">42회차 (42주차 모의고사)</option>
-                                    <option value="43">43회차 (43주차 모의고사)</option>
-                                    <option value="44">44회차 (44주차 모의고사)</option>
-                                    <option value="45">45회차 (45주차 모의고사)</option>
-                                    <option value="46">46회차 (46주차 모의고사)</option>
-                                    <option value="47">47회차 (47주차 모의고사)</option>
-                                    <option value="48">48회차 (48주차 모의고사)</option>
-                                    <option value="49">49회차 (49주차 모의고사)</option>
-                                    <option value="50">50회차 (50주차 모의고사)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.74rem; color: #38bdf8; font-weight: 800; display: block; margin-bottom: 4px;">🎓 교육과정 수능 체제</label>
+                                <select id="admin-exam-era" onchange="onAdminCurriculumEraChange()" class="form-input" style="width: 100%; font-weight: 800; border-color: rgba(56,189,248,0.4); height: 44px; min-height: 44px; padding: 6px 10px; font-size: 0.85rem; line-height: 1.4; color: #38bdf8;">
+                                    <option value="2022_2027" selected>2022~2027 (선택형 수능: 화작/언매·미적/기하/확통)</option>
+                                    <option value="2028_PLUS">2028+ (개편 통합수능: 국/수/영/통사/통과 단일)</option>
+                                    <option value="2021_PREV">2021 이전 (가/나형 구 수능체제)</option>
                                 </select>
                             </div>
                             <div>
@@ -1152,6 +1135,16 @@
                                     <option value="영어">🔤 영어 (45문항)</option>
                                     <option value="과탐">🧪 과학탐구 (20문항)</option>
                                     <option value="사탐">🌏 사회탐구 (20문항)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 10px;">
+                            <div id="admin-exam-elective-box">
+                                <label style="font-size: 0.74rem; color: #fbbf24; font-weight: 800; display: block; margin-bottom: 4px;">🎯 선택 과목 (정답표 분기)</label>
+                                <select id="admin-exam-elective" onchange="renderAdminAnswerKeyGrid()" class="form-input" style="width: 100%; font-weight: 800; border-color: rgba(251,191,36,0.4); height: 44px; min-height: 44px; padding: 6px 10px; font-size: 0.85rem; line-height: 1.4; color: #fbbf24;">
+                                    <option value="언어와매체" selected>언어와 매체 (35~45번)</option>
+                                    <option value="화법과작문">화법과 작문 (35~45번)</option>
                                 </select>
                             </div>
                             <div>
@@ -3809,23 +3802,109 @@
 
 let currentAdminExamSubmissions = [];
 
+function onAdminCurriculumEraChange() {
+    const era = document.getElementById("admin-exam-era")?.value || "2022_2027";
+    const subjSelect = document.getElementById("admin-exam-subject");
+    if (!subjSelect) return;
+
+    if (era === "2028_PLUS") {
+        subjSelect.innerHTML = `
+            <option value="국어" selected>📖 국어 (45문항 - 단일 공통)</option>
+            <option value="수학">📐 수학 (30문항 - 대수·미적I·확통 통합)</option>
+            <option value="영어">🔤 영어 (45문항)</option>
+            <option value="통합사회">🌏 통합사회 (20문항)</option>
+            <option value="통합과학">🔬 통합과학 (20문항)</option>
+            <option value="한국사">🇰🇷 한국사 (20문항)</option>
+        `;
+    } else if (era === "2021_PREV") {
+        subjSelect.innerHTML = `
+            <option value="국어" selected>📖 국어 (45문항)</option>
+            <option value="수학 가형">📐 수학 가형 (30문항)</option>
+            <option value="수학 나형">📐 수학 나형 (30문항)</option>
+            <option value="영어">🔤 영어 (45문항)</option>
+            <option value="과탐">🧪 과학탐구 (20문항)</option>
+            <option value="사탐">🌏 사회탐구 (20문항)</option>
+            <option value="한국사">🇰🇷 한국사 (20문항)</option>
+        `;
+    } else {
+        // 2022_2027 (현행 선택형 통합수능)
+        subjSelect.innerHTML = `
+            <option value="국어" selected>📖 국어 (45문항: 공통+화작/언매)</option>
+            <option value="수학">📐 수학 (30문항: 공통+미적/기하/확통)</option>
+            <option value="영어">🔤 영어 (45문항)</option>
+            <option value="과탐">🧪 과학탐구 (20문항: 8과목 택2)</option>
+            <option value="사탐">🌏 사회탐구 (20문항: 9과목 택2)</option>
+            <option value="한국사">🇰🇷 한국사 (20문항)</option>
+        `;
+    }
+    onAdminExamSubjectChange();
+}
+
 function onAdminExamSubjectChange() {
+    const era = document.getElementById("admin-exam-era")?.value || "2022_2027";
     const sub = document.getElementById("admin-exam-subject")?.value || "국어";
     const totalQSelect = document.getElementById("admin-exam-total-q");
-    if (!totalQSelect) return;
-    
-    if (sub === "국어" || sub === "영어") {
-        totalQSelect.value = "45";
-    } else if (sub === "수학") {
-        totalQSelect.value = "30";
-    } else if (sub === "과탐" || sub === "사탐") {
-        totalQSelect.value = "20";
+    const elecBox = document.getElementById("admin-exam-elective-box");
+    const elecSelect = document.getElementById("admin-exam-elective");
+
+    if (sub.includes("국어") || sub.includes("영어")) {
+        if (totalQSelect) totalQSelect.value = "45";
+    } else if (sub.includes("수학")) {
+        if (totalQSelect) totalQSelect.value = "30";
+    } else {
+        if (totalQSelect) totalQSelect.value = "20";
     }
+
+    if (era === "2022_2027") {
+        if (elecBox) elecBox.style.display = "block";
+        if (sub.includes("국어")) {
+            elecSelect.innerHTML = `
+                <option value="언어와매체" selected>언어와 매체 (35~45번)</option>
+                <option value="화법과작문">화법과 작문 (35~45번)</option>
+            `;
+        } else if (sub.includes("수학")) {
+            elecSelect.innerHTML = `
+                <option value="미적분" selected>미적분 (23~30번)</option>
+                <option value="기하">기하 (23~30번)</option>
+                <option value="확률과통계">확률과 통계 (23~30번)</option>
+            `;
+        } else if (sub.includes("과탐")) {
+            elecSelect.innerHTML = `
+                <option value="생명과학I" selected>생명과학 I (20문항)</option>
+                <option value="지구과학I">지구과학 I (20문항)</option>
+                <option value="물리학I">물리학 I (20문항)</option>
+                <option value="화학I">화학 I (20문항)</option>
+                <option value="생명과학II">생명과학 II (20문항)</option>
+                <option value="지구과학II">지구과학 II (20문항)</option>
+                <option value="물리학II">물리학 II (20문항)</option>
+                <option value="화학II">화학 II (20문항)</option>
+            `;
+        } else if (sub.includes("사탐")) {
+            elecSelect.innerHTML = `
+                <option value="생활과윤리" selected>생활과 윤리 (20문항)</option>
+                <option value="사회문화">사회·문화 (20문항)</option>
+                <option value="한국지리">한국지리 (20문항)</option>
+                <option value="세계지리">세계지리 (20문항)</option>
+                <option value="윤리와사상">윤리와 사상 (20문항)</option>
+                <option value="정치와법">정치와 법 (20문항)</option>
+                <option value="경제">경제 (20문항)</option>
+                <option value="동아시아사">동아시아사 (20문항)</option>
+                <option value="세계사">세계사 (20문항)</option>
+            `;
+        } else {
+            elecSelect.innerHTML = `<option value="공통" selected>공통 (선택과목 없음)</option>`;
+        }
+    } else {
+        if (elecBox) elecBox.style.display = "none";
+    }
+
     renderAdminAnswerKeyGrid();
 }
 
 function updateGradeCutPlaceholders() {
     const mode = document.querySelector('input[name="admin-grade-mode"]:checked')?.value || "RAW_SCORE";
+    const sub = document.getElementById("admin-exam-subject")?.value || "국어";
+    const isHalf = sub.includes("탐구") || sub.includes("과탐") || sub.includes("사탐") || sub.includes("한국사") || sub.includes("통합");
     const c1 = document.getElementById("admin-cut-1");
     const c2 = document.getElementById("admin-cut-2");
     const c3 = document.getElementById("admin-cut-3");
@@ -3838,46 +3917,91 @@ function updateGradeCutPlaceholders() {
         c3.value = "6";
         c4.value = "9";
     } else {
-        c1.value = "90.0";
-        c2.value = "82.0";
-        c3.value = "74.0";
-        c4.value = "64.0";
+        if (isHalf) {
+            c1.value = "45.0";
+            c2.value = "40.0";
+            c3.value = "35.0";
+            c4.value = "30.0";
+        } else {
+            c1.value = "90.0";
+            c2.value = "82.0";
+            c3.value = "74.0";
+            c4.value = "64.0";
+        }
     }
 }
 
 function renderAdminAnswerKeyGrid() {
     const container = document.getElementById("admin-answer-keys-grid");
     const totalQ = parseInt(document.getElementById("admin-exam-total-q")?.value || "45", 10);
+    const era = document.getElementById("admin-exam-era")?.value || "2022_2027";
+    const sub = document.getElementById("admin-exam-subject")?.value || "국어";
+    const elec = document.getElementById("admin-exam-elective")?.value || "";
     const labelEl = document.getElementById("admin-total-q-label");
     if (labelEl) labelEl.innerText = totalQ;
     if (!container) return;
 
     let html = "";
     const circleSymbols = ["", "①", "②", "③", "④", "⑤"];
+
     for (let i = 1; i <= totalQ; i++) {
-        const defaultAns = ((i - 1) % 5) + 1;
-        const defaultPts = (i % 4 === 0) ? "3.0" : "2.0";
-        html += `
-            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 5px 8px; border-radius: 6px;">
-                <div style="font-weight: 800; font-size: 0.78rem; width: 45px; color: #f8fafc;">${i}번</div>
-                <div style="display: flex; gap: 4px;">
-                    ${[1, 2, 3, 4, 5].map(c => `
-                        <button type="button" 
-                            id="admin-q-${i}-btn-${c}"
-                            onclick="selectAdminKeyChoice(${i}, ${c})"
-                            style="width: 26px; height: 26px; border-radius: 50%; font-size: 0.75rem; font-weight: 800; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); background: ${c === defaultAns ? '#10b981' : 'rgba(255,255,255,0.06)'}; color: ${c === defaultAns ? '#fff' : '#94a3b8'};">
-                            ${circleSymbols[c]}
-                        </button>
-                    `).join('')}
+        // Section separator headers
+        if (era === "2022_2027" && sub.includes("국어")) {
+            if (i === 1) html += `<div style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 4px 8px; border-radius: 4px; font-weight: 800; font-size: 0.76rem; margin: 4px 0;">📌 [공통 1~34번: 독서·문학] (76점)</div>`;
+            if (i === 35) html += `<div style="background: rgba(251,191,36,0.15); color: #fbbf24; padding: 4px 8px; border-radius: 4px; font-weight: 800; font-size: 0.76rem; margin: 6px 0 4px;">🎯 [선택 35~45번: ${elec || '선택과목'}] (24점)</div>`;
+        } else if (era === "2022_2027" && sub.includes("수학")) {
+            if (i === 1) html += `<div style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 4px 8px; border-radius: 4px; font-weight: 800; font-size: 0.76rem; margin: 4px 0;">📌 [공통 객관식 1~15번: 수학I·II]</div>`;
+            if (i === 16) html += `<div style="background: rgba(56,189,248,0.15); color: #38bdf8; padding: 4px 8px; border-radius: 4px; font-weight: 800; font-size: 0.76rem; margin: 6px 0 4px;">✏️ [공통 단답형 16~22번: 주관식 숫자입력]</div>`;
+            if (i === 23) html += `<div style="background: rgba(251,191,36,0.15); color: #fbbf24; padding: 4px 8px; border-radius: 4px; font-weight: 800; font-size: 0.76rem; margin: 6px 0 4px;">🎯 [선택 객관식 23~28번: ${elec || '미적분'}]</div>`;
+            if (i === 29) html += `<div style="background: rgba(244,63,94,0.15); color: #fb7185; padding: 4px 8px; border-radius: 4px; font-weight: 800; font-size: 0.76rem; margin: 6px 0 4px;">✏️ [선택 단답형 29~30번: ${elec || '미적분'}]</div>`;
+        }
+
+        const isShortAnswer = (sub.includes("수학") && (
+            (era === "2022_2027" && ((i >= 16 && i <= 22) || (i >= 29 && i <= 30))) ||
+            (era === "2028_PLUS" && i >= 22)
+        ));
+
+        const defaultAns = isShortAnswer ? (i * 7 + 13) : (((i - 1) % 5) + 1);
+        const defaultPts = (sub.includes("수학") && (i in [9,10,11,12,13,14,15,20,21,22,27,28,29,30])) ? "4.0" : ((i % 4 === 0) ? "3.0" : "2.0");
+
+        if (isShortAnswer) {
+            html += `
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(56,189,248,0.06); padding: 5px 8px; border-radius: 6px; border: 1px dashed rgba(56,189,248,0.3);">
+                    <div style="font-weight: 800; font-size: 0.78rem; width: 45px; color: #38bdf8;">${i}번 (주관식)</div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.72rem; color: #cbd5e1;">정답:</span>
+                        <input type="number" id="admin-q-${i}-ans" value="${defaultAns}" class="form-input" style="width: 75px; padding: 3px 6px; font-size: 0.8rem; font-weight: 800; text-align: center; color: #38bdf8;" placeholder="0~999">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <span style="font-size: 0.7rem; color: #94a3b8;">배점:</span>
+                        <input type="number" step="0.5" min="1" max="5" id="admin-q-${i}-pts" value="${defaultPts}" class="form-input" style="width: 48px; padding: 2px 4px; font-size: 0.72rem; text-align: center;">
+                        <span style="font-size: 0.7rem; color: #94a3b8;">점</span>
+                    </div>
                 </div>
-                <input type="hidden" id="admin-q-${i}-ans" value="${defaultAns}">
-                <div style="display: flex; align-items: center; gap: 4px;">
-                    <span style="font-size: 0.7rem; color: #94a3b8;">배점:</span>
-                    <input type="number" step="0.5" min="1" max="5" id="admin-q-${i}-pts" value="${defaultPts}" class="form-input" style="width: 48px; padding: 2px 4px; font-size: 0.72rem; text-align: center;">
-                    <span style="font-size: 0.7rem; color: #94a3b8;">점</span>
+            `;
+        } else {
+            html += `
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 5px 8px; border-radius: 6px;">
+                    <div style="font-weight: 800; font-size: 0.78rem; width: 45px; color: #f8fafc;">${i}번</div>
+                    <div style="display: flex; gap: 4px;">
+                        ${[1, 2, 3, 4, 5].map(c => `
+                            <button type="button" 
+                                id="admin-q-${i}-btn-${c}"
+                                onclick="selectAdminKeyChoice(${i}, ${c})"
+                                style="width: 26px; height: 26px; border-radius: 50%; font-size: 0.75rem; font-weight: 800; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); background: ${c === defaultAns ? '#10b981' : 'rgba(255,255,255,0.06)'}; color: ${c === defaultAns ? '#fff' : '#94a3b8'};">
+                                ${circleSymbols[c]}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <input type="hidden" id="admin-q-${i}-ans" value="${defaultAns}">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <span style="font-size: 0.7rem; color: #94a3b8;">배점:</span>
+                        <input type="number" step="0.5" min="1" max="5" id="admin-q-${i}-pts" value="${defaultPts}" class="form-input" style="width: 48px; padding: 2px 4px; font-size: 0.72rem; text-align: center;">
+                        <span style="font-size: 0.7rem; color: #94a3b8;">점</span>
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
+        }
     }
     container.innerHTML = html;
 }
@@ -3897,18 +4021,26 @@ function selectAdminKeyChoice(qNum, choice) {
 
 function autoFillStandardAnswerKeys() {
     const totalQ = parseInt(document.getElementById("admin-exam-total-q")?.value || "45", 10);
+    const sub = document.getElementById("admin-exam-subject")?.value || "국어";
     const pattern = [1, 3, 5, 2, 4, 3, 1, 2, 4, 5];
     for (let i = 1; i <= totalQ; i++) {
-        const ans = pattern[(i - 1) % pattern.length];
-        selectAdminKeyChoice(i, ans);
+        const input = document.getElementById(`admin-q-${i}-ans`);
+        if (input && input.type !== "hidden") {
+            input.value = String(i * 12 + 5);
+        } else {
+            const ans = pattern[(i - 1) % pattern.length];
+            selectAdminKeyChoice(i, ans);
+        }
     }
-    alert(`⚡ ${totalQ}개 문항의 수능 표준 정답이 자동 설정되었습니다.`);
+    alert(`⚡ ${sub} (${totalQ}개 문항)의 수능 표준 정답표가 자동 세팅되었습니다.`);
 }
 
 async function handleSaveAdminExam(e) {
     e.preventDefault();
     const weekVal = parseInt(document.getElementById("admin-exam-week")?.value || "3", 10);
+    const eraVal = document.getElementById("admin-exam-era")?.value || "2022_2027";
     const subjectVal = document.getElementById("admin-exam-subject")?.value || "국어";
+    const electiveVal = document.getElementById("admin-exam-elective")?.value || "";
     const totalQ = parseInt(document.getElementById("admin-exam-total-q")?.value || "45", 10);
     const titleVal = document.getElementById("admin-exam-title")?.value || `${weekVal}주차 ${subjectVal} 모의고사`;
     const gradeModeVal = document.querySelector('input[name="admin-grade-mode"]:checked')?.value || "RAW_SCORE";
@@ -3922,11 +4054,17 @@ async function handleSaveAdminExam(e) {
     for (let i = 1; i <= totalQ; i++) {
         const ans = document.getElementById(`admin-q-${i}-ans`)?.value || "1";
         const pts = parseFloat(document.getElementById(`admin-q-${i}-pts`)?.value || "2.0");
+        let tag = pts >= 3.5 ? "심화 킬러 추론" : "기본 핵심 개념";
+        if (subjectVal.includes("국어")) {
+            tag = i <= 17 ? "공통: 독서" : (i <= 34 ? "공통: 문학" : `선택: ${electiveVal}`);
+        } else if (subjectVal.includes("수학")) {
+            tag = i <= 22 ? "공통: 수학I·II" : `선택: ${electiveVal}`;
+        }
         answerKeys.push({
             question_num: i,
-            correct_answer: ans,
+            correct_answer: String(ans).trim(),
             score_points: pts,
-            topic_tag: pts >= 3.0 ? "심화 킬러 추론" : "기본 핵심 개념"
+            topic_tag: tag
         });
     }
 
@@ -3936,7 +4074,9 @@ async function handleSaveAdminExam(e) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 academy_code: currentTenantCode || "ILWON-2027",
+                curriculum_era: eraVal,
                 subject: subjectVal,
+                elective_subject: electiveVal || null,
                 title: titleVal,
                 exam_week: weekVal,
                 total_questions: totalQ,

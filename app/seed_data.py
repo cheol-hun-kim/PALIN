@@ -5,23 +5,32 @@ from sqlalchemy import text, func
 def auto_seed_database(db: Session, engine):
     from app import models
     
-    # 1. Ensure deleted_at column exists across all tables
+    # 1. Ensure deleted_at and new elective columns exist across all tables
     try:
         if engine.dialect.name == "sqlite":
-            tables = ["students", "parents", "tenants", "exam_materials", "vod_library", "attendance_logs", "tutor_profiles", "planner_blocks", "administrative_requests"]
+            tables = ["students", "parents", "tenants", "exam_materials", "vod_library", "attendance_logs", "tutor_profiles", "planner_blocks", "administrative_requests", "exam_paper_masters", "exam_omr_submissions"]
             for t in tables:
                 try:
                     cols = [row[1] for row in db.execute(text(f"PRAGMA table_info({t})")).fetchall()]
-                    if cols and "deleted_at" not in cols:
-                        db.execute(text(f"ALTER TABLE {t} ADD COLUMN deleted_at DATETIME"))
+                    if cols:
+                        if "deleted_at" not in cols:
+                            db.execute(text(f"ALTER TABLE {t} ADD COLUMN deleted_at DATETIME"))
+                        if t in ["exam_paper_masters", "exam_omr_submissions"]:
+                            if "curriculum_era" not in cols:
+                                db.execute(text(f"ALTER TABLE {t} ADD COLUMN curriculum_era VARCHAR(50) DEFAULT '2022_2027'"))
+                            if "elective_subject" not in cols:
+                                db.execute(text(f"ALTER TABLE {t} ADD COLUMN elective_subject VARCHAR(100)"))
                         db.commit()
                 except Exception:
                     db.rollback()
         elif engine.dialect.name in ("postgresql", "postgres"):
-            tables = ["students", "parents", "tenants", "exam_materials", "vod_library", "attendance_logs", "tutor_profiles", "planner_blocks", "administrative_requests"]
+            tables = ["students", "parents", "tenants", "exam_materials", "vod_library", "attendance_logs", "tutor_profiles", "planner_blocks", "administrative_requests", "exam_paper_masters", "exam_omr_submissions"]
             for t in tables:
                 try:
                     db.execute(text(f"ALTER TABLE {t} ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP WITH TIME ZONE;"))
+                    if t in ["exam_paper_masters", "exam_omr_submissions"]:
+                        db.execute(text(f"ALTER TABLE {t} ADD COLUMN IF NOT EXISTS curriculum_era VARCHAR(50) DEFAULT '2022_2027';"))
+                        db.execute(text(f"ALTER TABLE {t} ADD COLUMN IF NOT EXISTS elective_subject VARCHAR(100);"))
                     db.commit()
                 except Exception:
                     db.rollback()

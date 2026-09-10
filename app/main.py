@@ -5851,17 +5851,15 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
         "rankers": rankers[:5]
     }
 
-
-
-
-
 # ==============================================================================
-# 📝 14. 주차별 실전 모의고사 & 디지털 OMR & 원장 등급컷 / AI 진단서 API
+# 📝 14. 주차별 실전 모의고사 & 교육과정별 디지털 OMR & 원장 등급컷 / AI 진단서 API
 # ==============================================================================
 
 class ExamCreatePayload(BaseModel):
     academy_code: str = "ILWON-2027"
+    curriculum_era: str = "2022_2027" # '2022_2027' | '2028_PLUS' | '2021_PREV'
     subject: str
+    elective_subject: Optional[str] = None # 화법과작문 | 언어와매체 | 미적분 | 기하 | 확률과통계 | 생명과학I ...
     title: str
     exam_week: int = 3
     total_questions: int = 30
@@ -5872,6 +5870,170 @@ class ExamCreatePayload(BaseModel):
     cut_3: float = 70.0
     cut_4: float = 60.0
     answer_keys: List[Dict[str, Any]] = [] # [{"question_num": 1, "correct_answer": "3", "score_points": 2.0, "topic_tag": "독서"}]
+
+
+def generate_standard_answer_keys(subject: str, elective_subject: Optional[str] = None, curriculum_era: str = "2022_2027", total_q: int = 45):
+    """
+    Generate realistic, curriculum-aligned Korean CSAT answer keys, scoring weights, and topic tags.
+    """
+    answer_keys = {}
+    score_weights = {}
+    topic_tags = {}
+    
+    clean_subj = (subject or "").strip()
+    clean_elec = (elective_subject or "").strip()
+    
+    if curriculum_era == "2028_PLUS":
+        if clean_subj in ["국어", "영어"]:
+            num_q = 45
+            sample_answers = ["1", "3", "5", "2", "4", "3", "1", "2", "4", "5", "2", "4", "1", "3", "5"] * 3
+            for i in range(1, num_q + 1):
+                q_str = str(i)
+                answer_keys[q_str] = sample_answers[(i - 1) % len(sample_answers)]
+                score_weights[q_str] = 3.0 if i in [4, 8, 12, 17, 21, 25, 29, 34, 38, 42] else 2.0
+                topic_tags[q_str] = "통합국어 독해/추론" if clean_subj == "국어" else "통합영어 대의파악/빈칸"
+        elif clean_subj == "수학":
+            num_q = 30
+            sample_obj = ["2", "4", "1", "3", "5", "3", "2", "4", "1", "5", "4", "2", "3", "1", "5", "2", "4", "3", "1", "5", "4"]
+            sample_subj = ["12", "45", "128", "25", "74", "16", "240", "81", "35"]
+            for i in range(1, 22):
+                q_str = str(i)
+                answer_keys[q_str] = sample_obj[(i - 1) % len(sample_obj)]
+                score_weights[q_str] = 4.0 if i >= 13 else (3.0 if i >= 4 else 2.0)
+                topic_tags[q_str] = "통합수학 (대수·미적분I·확통)"
+            for i in range(22, 31):
+                q_str = str(i)
+                answer_keys[q_str] = sample_subj[(i - 22) % len(sample_subj)]
+                score_weights[q_str] = 4.0 if i >= 27 else 3.0
+                topic_tags[q_str] = "통합수학 단답형"
+        elif clean_subj in ["통합사회", "통합과학", "한국사"]:
+            num_q = 20
+            sample_answers = ["3", "1", "4", "2", "5", "2", "4", "1", "3", "5", "4", "2", "5", "1", "3", "2", "4", "3", "1", "5"]
+            for i in range(1, num_q + 1):
+                q_str = str(i)
+                answer_keys[q_str] = sample_answers[(i - 1) % len(sample_answers)]
+                score_weights[q_str] = 3.0 if i in [3, 5, 7, 9, 11, 13, 15, 17, 19, 20] else 2.0
+                topic_tags[q_str] = f"{clean_subj} 핵심개념"
+        else:
+            num_q = max(20, total_q)
+            for i in range(1, num_q + 1):
+                q_str = str(i)
+                answer_keys[q_str] = str(((i * 2 + 1) % 5) + 1)
+                score_weights[q_str] = 2.0
+                topic_tags[q_str] = f"{clean_subj} 일반"
+    else:
+        # 2022~2027 Elective System (Current CSAT)
+        if clean_subj == "국어":
+            num_q = 45
+            sample_answers = ["2", "4", "1", "3", "5", "3", "2", "4", "1", "5", "4", "2", "3", "1", "5", "3", "2", "4", "1", "5", "2", "4", "1", "3", "5", "3", "2", "4", "1", "5", "4", "2", "3", "1"]
+            for i in range(1, 35):
+                q_str = str(i)
+                answer_keys[q_str] = sample_answers[(i - 1) % len(sample_answers)]
+                score_weights[q_str] = 3.0 if i in [4, 8, 12, 17, 21, 25, 29, 34] else 2.0
+                topic_tags[q_str] = "공통: 독서(비문학)" if i <= 17 else "공통: 문학(현대·고전)"
+            
+            if "언어" in clean_elec or "매체" in clean_elec or "언매" in clean_elec:
+                elec_ans = ["3", "5", "2", "4", "1", "4", "2", "3", "5", "1", "4"]
+                for i in range(35, 46):
+                    q_str = str(i)
+                    answer_keys[q_str] = elec_ans[i - 35]
+                    score_weights[q_str] = 3.0 if i in [38, 42] else 2.0
+                    topic_tags[q_str] = "선택: 언어(문법)" if i <= 39 else "선택: 매체"
+            else:
+                elec_ans = ["1", "4", "3", "5", "2", "3", "1", "4", "2", "5", "3"]
+                for i in range(35, 46):
+                    q_str = str(i)
+                    answer_keys[q_str] = elec_ans[i - 35]
+                    score_weights[q_str] = 3.0 if i in [37, 42] else 2.0
+                    topic_tags[q_str] = "선택: 화법" if i <= 37 else ("선택: 작문" if i <= 41 else "선택: 화법과작문 융합")
+
+        elif clean_subj == "수학":
+            num_q = 30
+            sample_obj = ["3", "1", "4", "2", "5", "2", "4", "1", "3", "5", "4", "2", "3", "1", "5"]
+            sample_subj = ["16", "24", "108", "45", "12", "256", "75"] # 16~22
+            for i in range(1, 16):
+                q_str = str(i)
+                answer_keys[q_str] = sample_obj[i - 1]
+                score_weights[q_str] = 4.0 if i in [9, 10, 11, 12, 13, 14, 15] else (3.0 if i >= 4 else 2.0)
+                topic_tags[q_str] = "공통: 수학I" if i in [1, 3, 5, 7, 9, 11, 13] else "공통: 수학II"
+            for i in range(16, 23):
+                q_str = str(i)
+                answer_keys[q_str] = sample_subj[i - 16]
+                score_weights[q_str] = 4.0 if i in [20, 21, 22] else 3.0
+                topic_tags[q_str] = "공통: 단답형(수학I·II)"
+
+            if "기하" in clean_elec:
+                elec_obj = ["2", "4", "1", "5", "3", "4"]
+                elec_subj = ["48", "162"]
+                tag_name = "선택: 기하"
+            elif "확" in clean_elec or "통" in clean_elec:
+                elec_obj = ["1", "5", "3", "2", "4", "2"]
+                elec_subj = ["36", "84"]
+                tag_name = "선택: 확률과통계"
+            else: # 미적분 (Default)
+                elec_obj = ["3", "2", "5", "1", "4", "3"]
+                elec_subj = ["28", "215"]
+                tag_name = "선택: 미적분"
+
+            for i in range(23, 29):
+                q_str = str(i)
+                answer_keys[q_str] = elec_obj[i - 23]
+                score_weights[q_str] = 4.0 if i == 28 else 3.0
+                topic_tags[q_str] = tag_name
+            for i in range(29, 31):
+                q_str = str(i)
+                answer_keys[q_str] = elec_subj[i - 29]
+                score_weights[q_str] = 4.0
+                topic_tags[q_str] = f"{tag_name} 단답형"
+
+        elif clean_subj in ["영어"]:
+            num_q = 45
+            sample_answers = ["1", "4", "2", "5", "3", "2", "4", "1", "3", "5", "4", "2", "1", "3", "5"] * 3
+            for i in range(1, num_q + 1):
+                q_str = str(i)
+                answer_keys[q_str] = sample_answers[(i - 1) % len(sample_answers)]
+                score_weights[q_str] = 3.0 if i in [4, 8, 12, 17, 21, 23, 29, 33, 34, 37] else 2.0
+                topic_tags[q_str] = "듣기·말하기" if i <= 17 else ("빈칸추론·순서배열" if i in [31, 32, 33, 34, 36, 37] else "독해·대의파악")
+
+        elif clean_subj in ["과탐", "과학탐구"] or clean_elec in ["물리학I", "화학I", "생명과학I", "지구과학I", "물리학II", "화학II", "생명과학II", "지구과학II"]:
+            num_q = 20
+            sample_answers = ["4", "2", "1", "5", "3", "1", "4", "2", "5", "3", "2", "5", "1", "4", "3", "5", "2", "4", "1", "3"]
+            label = clean_elec or "과학탐구"
+            for i in range(1, num_q + 1):
+                q_str = str(i)
+                answer_keys[q_str] = sample_answers[(i - 1) % len(sample_answers)]
+                score_weights[q_str] = 3.0 if i in [4, 7, 9, 11, 13, 15, 17, 18, 19, 20] else 2.0
+                topic_tags[q_str] = f"{label} 심화실험/추론" if score_weights[q_str] == 3.0 else f"{label} 기본개념"
+
+        elif clean_subj in ["사탐", "사회탐구"] or clean_elec in ["생활과윤리", "윤리와사상", "한국지리", "세계지리", "사회문화", "사회·문화", "정치와법", "경제", "동아시아사", "세계사"]:
+            num_q = 20
+            sample_answers = ["2", "5", "3", "1", "4", "3", "1", "5", "2", "4", "1", "4", "2", "3", "5", "4", "1", "3", "5", "2"]
+            label = clean_elec or "사회탐구"
+            for i in range(1, num_q + 1):
+                q_str = str(i)
+                answer_keys[q_str] = sample_answers[(i - 1) % len(sample_answers)]
+                score_weights[q_str] = 3.0 if i in [3, 6, 8, 10, 11, 14, 16, 17, 19, 20] else 2.0
+                topic_tags[q_str] = f"{label} 사상가/도표분석" if score_weights[q_str] == 3.0 else f"{label} 핵심개념"
+
+        elif clean_subj in ["한국사"]:
+            num_q = 20
+            sample_answers = ["1", "3", "5", "2", "4", "2", "4", "1", "3", "5", "3", "1", "4", "2", "5", "4", "2", "5", "1", "3"]
+            for i in range(1, num_q + 1):
+                q_str = str(i)
+                answer_keys[q_str] = sample_answers[(i - 1) % len(sample_answers)]
+                score_weights[q_str] = 3.0 if i in [3, 5, 8, 10, 11, 14, 15, 17, 18, 20] else 2.0
+                topic_tags[q_str] = "한국사 시대사"
+
+        else:
+            num_q = max(20, total_q)
+            for i in range(1, num_q + 1):
+                q_str = str(i)
+                answer_keys[q_str] = str(((i * 2 + 1) % 5) + 1)
+                score_weights[q_str] = 2.0
+                topic_tags[q_str] = f"{clean_subj} 일반"
+
+    return answer_keys, score_weights, topic_tags
+
 
 @app.get("/api/admin/exams")
 def get_admin_exams(academy_code: str = "ILWON-2027", db: Session = Depends(get_db)):
@@ -5891,7 +6053,9 @@ def get_admin_exams(academy_code: str = "ILWON-2027", db: Session = Depends(get_
         res.append({
             "id": ex.id,
             "academy_code": ex.academy_code,
+            "curriculum_era": ex.curriculum_era or "2022_2027",
             "subject": ex.subject,
+            "elective_subject": ex.elective_subject or "",
             "title": ex.title,
             "exam_week": ex.exam_week,
             "total_questions": ex.total_questions,
@@ -5912,17 +6076,27 @@ def get_admin_exams(academy_code: str = "ILWON-2027", db: Session = Depends(get_
 
 @app.post("/api/admin/exams")
 def create_or_update_exam(payload: ExamCreatePayload, db: Session = Depends(get_db)):
-    exam = db.query(models.ExamPaperMaster).filter(
+    clean_elec = payload.elective_subject.strip() if payload.elective_subject else None
+    
+    query = db.query(models.ExamPaperMaster).filter(
         models.ExamPaperMaster.academy_code == payload.academy_code,
         models.ExamPaperMaster.subject == payload.subject,
         models.ExamPaperMaster.exam_week == payload.exam_week,
         models.ExamPaperMaster.deleted_at == None
-    ).first()
+    )
+    if clean_elec:
+        query = query.filter(models.ExamPaperMaster.elective_subject == clean_elec)
+    if payload.curriculum_era:
+        query = query.filter(models.ExamPaperMaster.curriculum_era == payload.curriculum_era)
+        
+    exam = query.first()
     
     if not exam:
         exam = models.ExamPaperMaster(
             academy_code=payload.academy_code,
+            curriculum_era=payload.curriculum_era or "2022_2027",
             subject=payload.subject,
+            elective_subject=clean_elec,
             title=payload.title,
             exam_week=payload.exam_week,
             total_questions=payload.total_questions,
@@ -5932,6 +6106,8 @@ def create_or_update_exam(payload: ExamCreatePayload, db: Session = Depends(get_
         db.flush()
     else:
         exam.title = payload.title
+        exam.curriculum_era = payload.curriculum_era or "2022_2027"
+        exam.elective_subject = clean_elec
         exam.total_questions = payload.total_questions
         exam.time_limit_minutes = payload.time_limit_minutes
     
@@ -5968,14 +6144,17 @@ def create_or_update_exam(payload: ExamCreatePayload, db: Session = Depends(get_
             db.add(ak)
             
     db.commit()
-    return {"status": "ok", "message": f"{payload.exam_week}주차 {payload.subject} 시험지 및 정답/등급컷이 성공적으로 저장되었습니다.", "exam_id": exam.id}
+    elec_desc = f" ({clean_elec})" if clean_elec else ""
+    return {"status": "ok", "message": f"{payload.exam_week}주차 {payload.subject}{elec_desc} 시험지 및 정답/등급컷이 성공적으로 저장되었습니다.", "exam_id": exam.id}
 
 
 class OMRSubmitPayload(BaseModel):
     student_id: int
     exam_id: Optional[int] = None
     exam_week: int = 3
+    curriculum_era: Optional[str] = "2022_2027"
     subject: str = "국어"
+    elective_subject: Optional[str] = None
     marked_answers: Dict[str, str] # {"1": "3", "2": "5", ...}
 
 @app.post("/api/exam/omr-submit")
@@ -5985,20 +6164,38 @@ def submit_digital_omr(payload: OMRSubmitPayload, db: Session = Depends(get_db))
         raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
 
     academy_code = student.academy_code or "ILWON-2027"
+    clean_subj = (payload.subject or "국어").strip()
+    clean_elec = (payload.elective_subject or "").strip()
+    clean_era = (payload.curriculum_era or "2022_2027").strip()
     
-    # 1. 시험지 마스터 및 정답표 조회
+    # 1. 시험지 마스터 및 정답표 조회 (교육과정 & 선택과목 우선 정밀 매칭)
     exam = None
     if payload.exam_id:
         exam = db.query(models.ExamPaperMaster).filter(models.ExamPaperMaster.id == payload.exam_id).first()
-    if not exam:
+    
+    if not exam and clean_elec:
         exam = db.query(models.ExamPaperMaster).filter(
             models.ExamPaperMaster.academy_code == academy_code,
-            models.ExamPaperMaster.subject == payload.subject,
+            models.ExamPaperMaster.curriculum_era == clean_era,
+            models.ExamPaperMaster.subject == clean_subj,
+            models.ExamPaperMaster.elective_subject == clean_elec,
             models.ExamPaperMaster.exam_week == payload.exam_week,
             models.ExamPaperMaster.deleted_at == None
         ).first()
 
-    total_q = exam.total_questions if exam else max(30, len(payload.marked_answers))
+    if not exam and not clean_elec:
+        exam = db.query(models.ExamPaperMaster).filter(
+            models.ExamPaperMaster.academy_code == academy_code,
+            models.ExamPaperMaster.curriculum_era == clean_era,
+            models.ExamPaperMaster.subject == clean_subj,
+            (models.ExamPaperMaster.elective_subject == None) | (models.ExamPaperMaster.elective_subject == ""),
+            models.ExamPaperMaster.exam_week == payload.exam_week,
+            models.ExamPaperMaster.deleted_at == None
+        ).first()
+
+    target_total = 45 if clean_subj in ["국어", "영어"] else (30 if clean_subj == "수학" else 20)
+    total_q = exam.total_questions if (exam and exam.total_questions) else target_total
+    
     answer_keys = {}
     score_weights = {}
     topic_tags = {}
@@ -6013,18 +6210,26 @@ def submit_digital_omr(payload: OMRSubmitPayload, db: Session = Depends(get_db))
             score_weights[str(k.question_num)] = float(k.score_points)
             topic_tags[str(k.question_num)] = str(k.topic_tag)
     
-    # 기본 정답 Fallback (사전 세팅이 없는 경우 수능 표준 샘플 정답 생성)
-    if not answer_keys:
-        sample_answers = ["1", "3", "5", "2", "4", "3", "1", "2", "4", "5"] * 5
-        for i in range(1, total_q + 1):
-            q_str = str(i)
-            answer_keys[q_str] = sample_answers[(i - 1) % len(sample_answers)]
-            score_weights[q_str] = 3.0 if i in [4, 8, 12, 17, 21, 25, 29, 34, 38, 42] else 2.0
-            topic_tags[q_str] = "심화 추론/독해" if score_weights[q_str] == 3.0 else "기본 핵심 개념"
+    # 세부 교육과정 및 선택과목 기반 고도화 정답/배점 Fallback 매핑 (정답표가 비었거나 문항 수 부족 시 완벽 보정)
+    if len(answer_keys) < total_q:
+        std_keys, std_weights, std_tags = generate_standard_answer_keys(
+            subject=clean_subj,
+            elective_subject=clean_elec,
+            curriculum_era=clean_era,
+            total_q=total_q
+        )
+        for q_k, a_v in std_keys.items():
+            if q_k not in answer_keys:
+                answer_keys[q_k] = a_v
+                score_weights[q_k] = std_weights.get(q_k, 2.0)
+                topic_tags[q_k] = std_tags.get(q_k, "일반")
+        total_q = max(len(answer_keys), total_q)
 
     # 2. 실시간 자동 채점 실행
     total_score = 0.0
     max_score = 0.0
+    common_score = 0.0
+    elective_score = 0.0
     wrong_list = []
     comparison_details = []
     
@@ -6038,6 +6243,12 @@ def submit_digital_omr(payload: OMRSubmitPayload, db: Session = Depends(get_db))
         is_correct = (student_ans == correct_ans) and (student_ans != "")
         if is_correct:
             total_score += points
+            if clean_subj == "국어":
+                if i <= 34: common_score += points
+                else: elective_score += points
+            elif clean_subj == "수학":
+                if i <= 22: common_score += points
+                else: elective_score += points
         else:
             wrong_list.append(i)
             
@@ -6050,21 +6261,30 @@ def submit_digital_omr(payload: OMRSubmitPayload, db: Session = Depends(get_db))
             "topic": topic_tags.get(q_str, "일반")
         })
 
-    # 원점수 환산 (100점 만점 기준 보정)
-    if max_score > 0 and max_score != 100.0:
-        scaled_score = round((total_score / max_score) * 100.0, 1)
+    # 원점수 환산 (100점 만점 기준 보정, 탐구는 50점 만점)
+    is_half_scale = clean_subj in ["과탐", "과학탐구", "사탐", "사회탐구", "한국사", "통합사회", "통합과학"]
+    target_max = 50.0 if is_half_scale else 100.0
+    if max_score > 0 and max_score != target_max:
+        scaled_score = round((total_score / max_score) * target_max, 1)
     else:
         scaled_score = round(total_score, 1)
         
     wrong_count = len(wrong_list)
 
-    # 3. 원장 등급컷에 따른 등급 산출 (RAW_SCORE or WRONG_COUNT)
+    # 3. 원장 등급컷에 따른 등급 산출
     gc = exam.grade_cut if exam else None
     grade_mode = gc.grade_mode if gc else "RAW_SCORE"
-    cut_1 = gc.cut_1 if gc else 90.0
-    cut_2 = gc.cut_2 if gc else 80.0
-    cut_3 = gc.cut_3 if gc else 70.0
-    cut_4 = gc.cut_4 if gc else 60.0
+    
+    if is_half_scale:
+        cut_1 = gc.cut_1 if gc else 45.0
+        cut_2 = gc.cut_2 if gc else 40.0
+        cut_3 = gc.cut_3 if gc else 35.0
+        cut_4 = gc.cut_4 if gc else 30.0
+    else:
+        cut_1 = gc.cut_1 if gc else 90.0
+        cut_2 = gc.cut_2 if gc else 80.0
+        cut_3 = gc.cut_3 if gc else 70.0
+        cut_4 = gc.cut_4 if gc else 60.0
 
     calculated_grade = 9
     if grade_mode == "WRONG_COUNT":
@@ -6072,37 +6292,45 @@ def submit_digital_omr(payload: OMRSubmitPayload, db: Session = Depends(get_db))
         elif wrong_count <= cut_2: calculated_grade = 2
         elif wrong_count <= cut_3: calculated_grade = 3
         elif wrong_count <= cut_4: calculated_grade = 4
-        else: calculated_grade = min(9, 4 + ((wrong_count - int(cut_4)) // 3 + 1))
+        else: calculated_grade = min(9, 4 + ((wrong_count - int(cut_4)) // 2 + 1))
     else:
         if scaled_score >= cut_1: calculated_grade = 1
         elif scaled_score >= cut_2: calculated_grade = 2
         elif scaled_score >= cut_3: calculated_grade = 3
         elif scaled_score >= cut_4: calculated_grade = 4
-        elif scaled_score >= 50: calculated_grade = 5
-        elif scaled_score >= 40: calculated_grade = 6
-        elif scaled_score >= 30: calculated_grade = 7
-        elif scaled_score >= 20: calculated_grade = 8
+        elif scaled_score >= (cut_4 * 0.8): calculated_grade = 5
+        elif scaled_score >= (cut_4 * 0.65): calculated_grade = 6
+        elif scaled_score >= (cut_4 * 0.5): calculated_grade = 7
+        elif scaled_score >= (cut_4 * 0.35): calculated_grade = 8
         else: calculated_grade = 9
 
-    # 4. AI 오답 클러스터 진단 초안 자동 생성
+    # 4. AI 오답 클러스터 진단 소견 자동 생성
     wrong_topics = [comparison_details[idx - 1]["topic"] for idx in wrong_list[:5]]
     topic_summary = ", ".join(set(wrong_topics)) if wrong_topics else "전 영역 고른 정답률 유지"
     
-    ai_diagnosis = f"[{student.name} 학생 {payload.exam_week}주차 {payload.subject} 진단 소견]\n"
+    subject_display = f"{clean_subj} ({clean_elec})" if clean_elec else clean_subj
+    era_label = "2028+ 통합수능" if clean_era == "2028_PLUS" else "2022~2027 선택형 수능"
+    
+    ai_diagnosis = f"[{student.name} 학생 {payload.exam_week}주차 {subject_display} 진단 처방전 ({era_label})]\n"
+    if clean_subj in ["국어", "수학"] and clean_elec:
+        ai_diagnosis += f"• 득점 분석: 공통 {round(common_score,1)}점 / 선택({clean_elec}) {round(elective_score,1)}점\n"
     ai_diagnosis += f"• 취약 단원 클러스터: {topic_summary}\n"
+    
     if wrong_count == 0:
         ai_diagnosis += "• 최고 난도 킬러 문항까지 완벽 해결! 현재의 168시간 집중 루틴을 유지하십시오."
     elif wrong_count <= 3:
         ai_diagnosis += f"• 상위권 진입 완료 단계입니다. 틀린 {wrong_count}문항({wrong_list})의 오개념을 1:1 오답노트로 복습하십시오."
     else:
-        ai_diagnosis += f"• 취약 유형({topic_summary})에서 개념 연계 부족이 감지되었습니다. 이번 주 보강 워크북 집중 풀이를 처방합니다."
+        ai_diagnosis += f"• 취약 유형({topic_summary})에서 오개념이 감지되었습니다. 이번 주 {subject_display} 보강 워크북 집중 풀이를 처방합니다."
 
     # 5. DB 저장
     sub = models.ExamOMRSubmission(
         exam_id=exam.id if exam else None,
         student_id=student.id,
         exam_week=payload.exam_week,
-        subject=payload.subject,
+        curriculum_era=clean_era,
+        subject=clean_subj,
+        elective_subject=clean_elec if clean_elec else None,
         marked_answers=json.dumps(payload.marked_answers, ensure_ascii=False),
         raw_score=scaled_score,
         wrong_questions=json.dumps(wrong_list),
@@ -6112,7 +6340,7 @@ def submit_digital_omr(payload: OMRSubmitPayload, db: Session = Depends(get_db))
     )
     db.add(sub)
     
-    # 출석/성실도 포인트 +50P 지급
+    # 성실도 포인트 +50P 지급
     try:
         cur_d = int(student.diligence_score) if student.diligence_score else 0
         cur_w = int(student.weekly_diligence_points) if student.weekly_diligence_points else 0
@@ -6129,97 +6357,51 @@ def submit_digital_omr(payload: OMRSubmitPayload, db: Session = Depends(get_db))
         "submission_id": sub.id,
         "score": scaled_score,
         "grade": calculated_grade,
-        "grade_mode": grade_mode,
         "wrong_count": wrong_count,
         "wrong_questions": wrong_list,
-        "comparison_details": comparison_details,
-        "diagnosis": ai_diagnosis,
-        "points_rewarded": 50
+        "subject": clean_subj,
+        "elective_subject": clean_elec,
+        "curriculum_era": clean_era,
+        "comparison": comparison_details,
+        "director_diagnosis": ai_diagnosis
     }
 
-@app.get("/api/exam/submissions/{student_id}")
-def get_student_omr_submissions(student_id: int, db: Session = Depends(get_db)):
-    subs = db.query(models.ExamOMRSubmission).filter(
-        models.ExamOMRSubmission.student_id == student_id,
-        models.ExamOMRSubmission.deleted_at == None
-    ).order_by(models.ExamOMRSubmission.created_at.desc()).all()
-    
-    return [{
-        "id": s.id,
-        "exam_week": s.exam_week,
-        "subject": s.subject,
-        "raw_score": s.raw_score,
-        "wrong_count": s.wrong_count,
-        "wrong_questions": json.loads(s.wrong_questions or "[]"),
-        "calculated_grade": s.calculated_grade,
-        "director_diagnosis": s.director_diagnosis,
-        "created_at": s.created_at.strftime("%Y-%m-%d %H:%M") if s.created_at else ""
-    } for s in subs]
-
-
-class PrescriptionPayload(BaseModel):
-    submission_id: int
-    director_diagnosis: str
-    send_alimtalk: bool = True
-
-@app.get("/api/admin/exams/submissions")
-def get_all_admin_exam_submissions(academy_code: Optional[str] = "ILWON-2027", db: Session = Depends(get_db)):
-    """전체 학생 회차별 OMR 채점 및 진단 기록 전수 반환"""
-    subs = db.query(models.ExamOMRSubmission).filter(
-        models.ExamOMRSubmission.deleted_at == None
-    ).order_by(models.ExamOMRSubmission.created_at.desc()).all()
-    
-    result = []
-    for s in subs:
-        st_name = s.student.name if s.student else "미확인 학생"
-        st_school = s.student.high_school if s.student else "-"
-        st_grade = s.student.grade if s.student else 0
-        st_phone = s.student.phone if s.student else "-"
-        parent_phone = (s.student.parent.phone if (s.student and s.student.parent) else st_phone)
-        
-        try:
-            wrong_list = json.loads(s.wrong_questions or "[]")
-        except Exception:
-            wrong_list = []
-            
-        result.append({
-            "id": s.id,
-            "student_id": s.student_id,
-            "student_name": st_name,
-            "high_school": st_school,
-            "grade": st_grade,
-            "student_phone": st_phone,
-            "parent_phone": parent_phone,
-            "exam_week": s.exam_week,
-            "subject": s.subject,
-            "raw_score": s.raw_score,
-            "calculated_grade": s.calculated_grade,
-            "wrong_count": s.wrong_count,
-            "wrong_questions": wrong_list,
-            "director_diagnosis": s.director_diagnosis or "",
-            "is_report_sent": bool(s.is_report_sent),
-            "created_at": s.created_at.strftime("%Y-%m-%d %H:%M") if s.created_at else ""
-        })
-    return result
-
 @app.get("/api/exam/paper/config")
-def get_exam_paper_config(exam_week: int = 3, subject: str = "국어", academy_code: str = "ILWON-2027", db: Session = Depends(get_db)):
-    """해당 주차/과목의 문항 수 및 등급컷 설정 조회"""
-    exam = db.query(models.ExamPaperMaster).filter(
+def get_exam_paper_config(
+    exam_week: int = 3,
+    subject: str = "국어",
+    elective_subject: Optional[str] = None,
+    curriculum_era: str = "2022_2027",
+    academy_code: str = "ILWON-2027",
+    db: Session = Depends(get_db)
+):
+    """해당 주차/과목/선택과목의 문항 수 및 등급컷 설정 조회"""
+    clean_elec = elective_subject.strip() if elective_subject else None
+    
+    query = db.query(models.ExamPaperMaster).filter(
         models.ExamPaperMaster.academy_code == academy_code,
         models.ExamPaperMaster.subject == subject,
         models.ExamPaperMaster.exam_week == exam_week,
         models.ExamPaperMaster.deleted_at == None
-    ).first()
+    )
+    if clean_elec:
+        query = query.filter(models.ExamPaperMaster.elective_subject == clean_elec)
+    if curriculum_era:
+        query = query.filter(models.ExamPaperMaster.curriculum_era == curriculum_era)
+        
+    exam = query.first()
     
     default_total = 45 if subject in ["국어", "영어"] else (30 if subject == "수학" else 20)
     
     if not exam:
+        elec_label = f" ({clean_elec})" if clean_elec else ""
         return {
             "exists": False,
             "exam_week": exam_week,
+            "curriculum_era": curriculum_era,
             "subject": subject,
-            "title": f"{exam_week}주차 {subject} 실전 모의고사",
+            "elective_subject": clean_elec or "",
+            "title": f"{exam_week}주차 {subject}{elec_label} 실전 모의고사",
             "total_questions": default_total,
             "time_limit_minutes": 80 if subject == "국어" else (100 if subject == "수학" else 70),
             "grade_mode": "RAW_SCORE",
@@ -6234,7 +6416,9 @@ def get_exam_paper_config(exam_week: int = 3, subject: str = "국어", academy_c
         "exists": True,
         "exam_id": exam.id,
         "exam_week": exam.exam_week,
+        "curriculum_era": exam.curriculum_era or "2022_2027",
         "subject": exam.subject,
+        "elective_subject": exam.elective_subject or "",
         "title": exam.title,
         "total_questions": exam.total_questions or default_total,
         "time_limit_minutes": exam.time_limit_minutes,
@@ -6244,6 +6428,11 @@ def get_exam_paper_config(exam_week: int = 3, subject: str = "국어", academy_c
         "cut_3": gc.cut_3 if gc else 70.0,
         "cut_4": gc.cut_4 if gc else 60.0
     }
+
+class PrescriptionPayload(BaseModel):
+    submission_id: int
+    director_diagnosis: str
+    send_alimtalk: bool = False
 
 @app.post("/api/admin/exams/prescribe")
 def save_director_prescription(payload: PrescriptionPayload, db: Session = Depends(get_db)):
