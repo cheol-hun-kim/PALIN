@@ -681,6 +681,9 @@ class Tenant(Base):
     royalty_rate = Column(Float, default=15.0)                    # 본사 로열티 요율 (%)
     monthly_revenue = Column(Integer, default=0)                  # 당월 창출 수익 (에스크로+결제분)
     subject_desc = Column(String, default="수능국어, 대입전략")     # 과목/성격 태그
+    business_type = Column(String, default="HIGH_ACADEMY")        # HIGH_ACADEMY (고등) | MID_ACADEMY (중등) | ELEM_ACADEMY (초등) | STUDY_CAFE (독서실/스카)
+    seat_layout_json = Column(Text, default="[]")                 # 독서실/스터디카페 2D 좌석 매트릭스 배치 및 점유 현황 JSON
+    target_schools_json = Column(Text, default="[]")              # 중등/초등 주요 타깃 학교 및 특목고 진학 목표 JSON
     
     # 🧠 B2B 커스텀 뇌 이식 (Custom Brain Injection) 필드
     bot_name = Column(String, default="PALIN AI 멘토")            # AI 챗봇 이름

@@ -426,11 +426,37 @@ class RoleLoginResponse(BaseModel):
     tenant_code: Optional[str] = None
     wallet_balance: Optional[int] = 0
     parent_invite_code: Optional[str] = None
+    business_type: Optional[str] = "HIGH_ACADEMY" # HIGH_ACADEMY | MID_ACADEMY | ELEM_ACADEMY | STUDY_CAFE
 
 class SetPasswordRequest(BaseModel):
     user_id: int
     role: str
     new_password: str
+
+class DirectorRegisterRequest(BaseModel):
+    academy_name: str
+    director_name: str
+    email: EmailStr
+    password: str
+    phone: str
+    business_type: Optional[str] = "HIGH_ACADEMY" # HIGH_ACADEMY | MID_ACADEMY | ELEM_ACADEMY | STUDY_CAFE
+    academy_code: Optional[str] = None
+    region: Optional[str] = "서울 강남구 대치동"
+
+class StudyCafeSeatActionPayload(BaseModel):
+    seat_id: str
+    action: str  # ASSIGN | LEAVE | EXTEND | CLEAN | OUT
+    student_id: Optional[int] = None
+    student_name: Optional[str] = None
+    plan_type: Optional[str] = "TIME_PASS"  # TIME_PASS | MONTH_PASS | DAY_PASS
+    duration_hours: Optional[int] = 4
+
+class ElemStickerBatchPayload(BaseModel):
+    student_ids: List[int]
+    sticker_type: str = "GREAT"  # GREAT | HOMEWORK | READING | VOCA | HABIT
+    exp_amount: int = 50
+    message: Optional[str] = "오늘의 바른 루틴 완벽 달성!"
+    send_alimtalk: Optional[bool] = False
 
 class StudentRegisterRequest(BaseModel):
     email: EmailStr

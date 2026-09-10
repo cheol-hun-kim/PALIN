@@ -5817,79 +5817,119 @@ async function handleParentRegister(e) {
 }
 
 async function handleDirectorLogin(e) {
-
     e.preventDefault();
-
     const email = document.getElementById('dir-login-email').value.trim();
-
     const pw = document.getElementById('dir-login-password').value.trim();
-
     try {
-
         const res = await fetch('/api/auth/login', {
-
             method: 'POST',
-
             headers: { 'Content-Type': 'application/json' },
-
             body: JSON.stringify({ login_type: 'DIRECTOR', email: email, password: pw })
-
         });
-
         const data = await res.json();
-
         if (!res.ok) {
-
             alert(data.detail || '학원장 로그인 실패');
-
             return;
-
         }
 
         // 🛡️ 데모 잔상 및 이전 세션 상태 완전 초기화
         resetSessionState();
-
         localStorage.setItem('userRole', data.role);
-
         localStorage.setItem('jwtToken', data.token);
-
-        if (data.role === 'SUPER_ADMIN') {
-
-            sessionStorage.setItem('palin_super_admin', 'true');
-
-            hideOverlay('register-overlay');
-
-            applyRolePermissions('SUPER_ADMIN');
-
-            alert('👑 [총괄 제작자 마스터 계정] 인증 성공! 갓모드 툴바가 상단에 활성화되었습니다.');
-
-            const sId = localStorage.getItem('studentId') || 1;
-
-            fetchStudentInfo(sId);
-
-        } else {
-
-            sessionStorage.setItem('palin_admin_authenticated', 'true');
-
-            alert(`🏫 [${data.name}] 원장님 환영합니다!`);
-
-            hideOverlay('register-overlay');
-
-            applyRolePermissions('TENANT_ADMIN');
-
-            const sId = localStorage.getItem('studentId') || 1;
-
-            fetchStudentInfo(sId);
-
+        if (data.business_type) {
+            localStorage.setItem('directorBusinessType', data.business_type);
+            sessionStorage.setItem('palin_business_type', data.business_type);
         }
 
+        if (data.role === 'SUPER_ADMIN') {
+            sessionStorage.setItem('palin_super_admin', 'true');
+            hideOverlay('register-overlay');
+            applyRolePermissions('SUPER_ADMIN');
+            alert('👑 [총괄 제작자 마스터 계정] 인증 성공! 갓모드 툴바가 상단에 활성화되었습니다.');
+            const sId = localStorage.getItem('studentId') || 1;
+            fetchStudentInfo(sId);
+        } else {
+            sessionStorage.setItem('palin_admin_authenticated', 'true');
+            sessionStorage.setItem('palin_current_tenant_code', data.tenant_code || 'ILWON-2027');
+            sessionStorage.setItem('palin_current_tenant_name', data.name);
+            alert(`🏫 [${data.name}] 원장님 환영합니다! 전용 관제실로 이동합니다.`);
+            window.location.href = `/admin.html?business_type=${data.business_type || 'HIGH_ACADEMY'}&tenant=${data.tenant_code || 'ILWON-2027'}`;
+        }
     } catch(err) {
-
         alert('서버 연결 오류');
+    }
+}
 
+function toggleDirectorAuthMode(mode) {
+    const loginForm = document.getElementById("director-login-form");
+    const regForm = document.getElementById("director-register-form");
+    if (mode === 'REGISTER') {
+        if (loginForm) loginForm.style.display = "none";
+        if (regForm) regForm.style.display = "block";
+    } else {
+        if (regForm) regForm.style.display = "none";
+        if (loginForm) loginForm.style.display = "block";
+    }
+}
+
+async function handleDirectorRegisterSubmit(e) {
+    e.preventDefault();
+    const bizTypeRadio = document.querySelector('input[name="dir_biz_type"]:checked');
+    const bizType = bizTypeRadio ? bizTypeRadio.value : "HIGH_ACADEMY";
+    const academyName = document.getElementById("dir-reg-academy-name")?.value.trim();
+    const directorName = document.getElementById("dir-reg-name")?.value.trim();
+    const email = document.getElementById("dir-reg-email")?.value.trim();
+    const password = document.getElementById("dir-reg-password")?.value.trim();
+    const phone = document.getElementById("dir-reg-phone")?.value.trim();
+
+    if (!academyName || !directorName || !email || !password || !phone) {
+        alert("모든 필수 입력값을 작성해 주세요.");
+        return;
     }
 
+    try {
+        const res = await fetch('/api/auth/register/director', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                academy_name: academyName,
+                director_name: directorName,
+                email: email,
+                password: password,
+                phone: phone,
+                business_type: bizType
+            })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            alert(data.detail || '가맹점 가입 실패');
+            return;
+        }
+
+        localStorage.setItem('userRole', data.role);
+        localStorage.setItem('jwtToken', data.token);
+        localStorage.setItem('directorBusinessType', data.business_type || bizType);
+        sessionStorage.setItem('palin_admin_authenticated', 'true');
+        sessionStorage.setItem('palin_current_tenant_code', data.tenant_code);
+        sessionStorage.setItem('palin_current_tenant_name', academyName);
+        sessionStorage.setItem('palin_business_type', data.business_type || bizType);
+
+        alert(`🎉 [${academyName}] 가맹점 등록이 완료되었습니다!
+발급된 가맹점 코드: ${data.tenant_code}
+전용 관제실로 이동합니다.`);
+        window.location.href = `/admin.html?business_type=${data.business_type || bizType}&tenant=${data.tenant_code}`;
+    } catch(err) {
+        alert('서버 통신 중 오류가 발생했습니다.');
+    }
 }
+
+function launchDemoCockpit(bizType, code) {
+    sessionStorage.setItem("palin_shadow_mode", "true");
+    sessionStorage.setItem("palin_shadow_tenant_code", code);
+    sessionStorage.setItem("palin_business_type", bizType);
+    window.open(`/admin.html?simulator=${bizType}&tenant=${code}&shadow=true`, '_blank');
+}
+
 
 function promptInitialPasswordSetup(userId, role) {
 

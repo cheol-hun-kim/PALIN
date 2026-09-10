@@ -53,11 +53,113 @@ def auto_seed_database(db: Session, engine):
         db.rollback()
         print(f"[AUTO_SEED] One-time migration note: {e}")
 
-    # 1.5 Ensure Default Real Active Tenant Exists & Synchronize Pilot Tier 3
+    # 1.5 Ensure Default Real Active Tenants Exist for All 4 Industry Types
     try:
+        import json
+        
+        def generate_default_seats():
+            seats = []
+            types = ["FOCUS", "FOCUS", "OPEN", "WINDOW"]
+            dummy_users = [
+                {"name": "김민준", "plan": "정기권 (30일)", "rem": 18, "start": "08:30", "time": "6시간 40분"},
+                {"name": "이서연", "plan": "100시간권", "rem": 42, "start": "09:10", "time": "5시간 15분"},
+                {"name": "박도윤", "plan": "정기권 (30일)", "rem": 5, "start": "10:00", "time": "4시간 20분"},
+                {"name": "최지우", "plan": "당일권 (8시간)", "rem": 3, "start": "11:30", "time": "3시간 10분"},
+                {"name": "정예은", "plan": "50시간권", "rem": 21, "start": "13:00", "time": "2시간 00분"},
+                {"name": "강현우", "plan": "정기권 (60일)", "rem": 45, "start": "07:50", "time": "7시간 30분"},
+                {"name": "윤서아", "plan": "100시간권", "rem": 88, "start": "14:20", "time": "1시간 20분"},
+                {"name": "임지호", "plan": "당일권 (4시간)", "rem": 1, "start": "15:00", "time": "0시간 40분"},
+            ]
+            u_idx = 0
+            for r_idx, row_char in enumerate(["A", "B", "C", "D"]):
+                for col_idx in range(1, 7):
+                    s_id = f"{row_char}{col_idx:02d}"
+                    s_num = r_idx * 6 + col_idx
+                    stype = types[r_idx]
+                    status = "EMPTY"
+                    student_name = ""
+                    plan_type = ""
+                    rem_days = 0
+                    start_time = ""
+                    study_time = ""
+                    
+                    if s_num in [1, 2, 4, 7, 8, 13, 19, 21] and u_idx < len(dummy_users):
+                        u = dummy_users[u_idx]
+                        status = "OCCUPIED" if s_num != 4 else "OUT_BRIEF"
+                        student_name = u["name"]
+                        plan_type = u["plan"]
+                        rem_days = u["rem"]
+                        start_time = u["start"]
+                        study_time = u["time"]
+                        u_idx += 1
+                    elif s_num == 12:
+                        status = "RESERVED"
+                        student_name = "예약 대기"
+
+                    seats.append({
+                        "seat_id": s_id,
+                        "seat_num": s_num,
+                        "seat_type": stype,
+                        "status": status,
+                        "student_name": student_name,
+                        "plan_type": plan_type,
+                        "remaining_days": rem_days,
+                        "start_time": start_time,
+                        "study_time_today": study_time
+                    })
+            return json.dumps(seats, ensure_ascii=False)
+
         default_tenants = [
-            {"code": "ILWON-2027", "name": "일원학원", "director_name": "김철훈 원장", "director_email": "1286orbital21@gmail.com", "director_pin": "12Yonsei21*", "tier": 3, "license_tier": 3}
+            {
+                "code": "ILWON-2027",
+                "name": "일원 대입전문학원",
+                "director_name": "김철훈 원장",
+                "director_email": "1286orbital21@gmail.com",
+                "director_pin": "12Yonsei21*",
+                "tier": 3,
+                "license_tier": 3,
+                "business_type": "HIGH_ACADEMY",
+                "subject_desc": "수능국어, 대치동 대입직강, 모의고사 OMR 처방",
+                "seats": "[]"
+            },
+            {
+                "code": "MID-TOP01",
+                "name": "대치 탑클래스 중등학원",
+                "director_name": "박중등 원장",
+                "director_email": "mid_top@palin.com",
+                "director_pin": "1286",
+                "tier": 2,
+                "license_tier": 2,
+                "business_type": "MID_ACADEMY",
+                "subject_desc": "중등 5대과목 내신 올A, 특목자사고(외대부고/하나고) 진학",
+                "seats": "[]"
+            },
+            {
+                "code": "ELEM-PET01",
+                "name": "아이꿈 초등 보습·어학원",
+                "director_name": "이지은 원장",
+                "director_email": "elem_pet@palin.com",
+                "director_pin": "1286",
+                "tier": 2,
+                "license_tier": 2,
+                "business_type": "ELEM_ACADEMY",
+                "subject_desc": "초등 3대 바른 루틴, 펫 성장 칭찬케어, 영재 어학",
+                "seats": "[]"
+            },
+            {
+                "code": "CAFE-STUDY01",
+                "name": "일원 프리미엄 스터디카페",
+                "director_name": "정스카 대표",
+                "director_email": "study_cafe@palin.com",
+                "director_pin": "1286",
+                "tier": 2,
+                "license_tier": 2,
+                "business_type": "STUDY_CAFE",
+                "subject_desc": "24시간 2D 좌석관제, 전연령 순공 랭킹, 이용권 자동관리",
+                "seats": generate_default_seats()
+            }
         ]
+
         for dt in default_tenants:
             t_exist = db.query(models.Tenant).filter(models.Tenant.code == dt["code"]).first()
             if not t_exist:
@@ -70,10 +172,12 @@ def auto_seed_database(db: Session, engine):
                     director_pin=dt["director_pin"],
                     tier=dt["tier"],
                     license_tier=dt["license_tier"],
+                    business_type=dt["business_type"],
+                    seat_layout_json=dt.get("seats", "[]"),
                     max_students=99999,
                     royalty_rate=15.0,
                     monthly_revenue=0,
-                    subject_desc="수능국어, 대치동 직강",
+                    subject_desc=dt["subject_desc"],
                     is_active=True,
                     deleted_at=None
                 ))
@@ -85,6 +189,10 @@ def auto_seed_database(db: Session, engine):
                 t_exist.director_name = dt["director_name"]
                 t_exist.director_pin = dt["director_pin"]
                 t_exist.director_email = dt["director_email"]
+                if not getattr(t_exist, "business_type", None) or t_exist.business_type == "HIGH_ACADEMY" and dt["business_type"] != "HIGH_ACADEMY":
+                    t_exist.business_type = dt["business_type"]
+                if dt["business_type"] == "STUDY_CAFE" and (not getattr(t_exist, "seat_layout_json", None) or t_exist.seat_layout_json == "[]"):
+                    t_exist.seat_layout_json = dt.get("seats", "[]")
                 db.commit()
     except Exception as e:
         db.rollback()
