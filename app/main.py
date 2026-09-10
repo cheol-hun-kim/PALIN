@@ -1325,9 +1325,12 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
                 student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
                 if student:
                     # 1. Tier Resolution (B2C Subscription vs B2B Tenant Sponsor)
-                    if getattr(student, 'b2c_subscription_tier', '') == "TIER_3_MASTER":
+                    sub_tier = getattr(student, 'b2c_subscription_tier', '') or ''
+                    if sub_tier in ("TIER_4_ILWON", "TIER_4_MASTER", "TIER_4_ACADEMY"):
+                        tier = 4
+                    elif sub_tier == "TIER_3_MASTER":
                         tier = 3
-                    elif getattr(student, 'b2c_subscription_tier', '') == "TIER_2_PARENT":
+                    elif sub_tier == "TIER_2_PARENT":
                         tier = 2
 
                     is_academy_approved = bool(student.academy_code and getattr(student, 'academy_approval_status', 'NONE') == 'APPROVED')
@@ -1337,8 +1340,10 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
                             (models.Tenant.code == code) | (models.Tenant.code == code.replace("-2027", "1"))
                         ).first()
                         if tenant:
-                            if tenant.tier >= 3 or getattr(tenant, 'license_tier', 1) >= 3:
-                                tier = 3  # B2B Tier 3 auto-sponsors student to Master AI
+                            if tenant.tier >= 4 or getattr(tenant, 'license_tier', 1) >= 4 or code in ("ILWON-2027", "ILWON1", "ILWON"):
+                                tier = 4  # 일원학원 직영 및 Tier 4 가맹학원
+                            elif tenant.tier >= 3 or getattr(tenant, 'license_tier', 1) >= 3:
+                                tier = max(tier, 3)  # B2B Tier 3 auto-sponsors student to Master AI
                             elif tenant.tier == 2 and tier < 2:
                                 tier = 2
                             custom_prompt = tenant.custom_system_prompt
@@ -1351,7 +1356,7 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
                         is_unlimited = True
                     elif getattr(student, 'has_unlimited_chat', False):
                         is_unlimited = True
-                    elif getattr(student, 'b2c_subscription_tier', '') in ('TIER_2_PARENT', 'TIER_3_MASTER'):
+                    elif getattr(student, 'b2c_subscription_tier', '') in ('TIER_2_PARENT', 'TIER_3_MASTER', 'TIER_4_ILWON', 'TIER_4_MASTER', 'TIER_4_ACADEMY'):
                         is_unlimited = True
                     elif is_academy_approved and tier >= 3:
                         is_unlimited = True

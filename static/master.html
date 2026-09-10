@@ -925,6 +925,7 @@
                         </select>
                         <select id="master-filter-tier" class="form-input" onchange="filterMasterStudents()" style="font-weight: 700;">
                             <option value="ALL">⭐ 전체 AI 티어</option>
+                            <option value="TIER_4">Tier 4 (일원 직영/비매품)</option>
                             <option value="TIER_3">Tier 3 (플래그십)</option>
                             <option value="TIER_2">Tier 2 (맞춤뇌)</option>
                             <option value="TIER_1">Tier 1 (기본)</option>
@@ -2440,9 +2441,11 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
                 if (tierFilter !== "ALL") {
                     const isApprovedAcademy = (s.academy_approval_status === "APPROVED" || (s.academy_code && s.academy_approval_status !== "REJECTED" && s.academy_approval_status !== "PENDING"));
                     const tierStr = (s.b2c_subscription_tier || "").toUpperCase();
-                    const isTier3 = isApprovedAcademy || tierStr.includes("TIER_3");
-                    const isTier2 = !isTier3 && tierStr.includes("TIER_2");
-                    const isTier1 = !isTier3 && !isTier2;
+                    const isTier4 = tierStr.includes("TIER_4");
+                    const isTier3 = !isTier4 && (isApprovedAcademy || tierStr.includes("TIER_3"));
+                    const isTier2 = !isTier4 && !isTier3 && tierStr.includes("TIER_2");
+                    const isTier1 = !isTier4 && !isTier3 && !isTier2;
+                    if (tierFilter === "TIER_4" && !isTier4) return false;
                     if (tierFilter === "TIER_3" && !isTier3) return false;
                     if (tierFilter === "TIER_2" && !isTier2) return false;
                     if (tierFilter === "TIER_1" && !isTier1) return false;
@@ -2510,7 +2513,9 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
                 // 2) B2C Tier Badge
                 let b2cTierBadge = '';
                 const b2cTier = (s.b2c_subscription_tier || "TIER_1_FREE").toUpperCase();
-                if (b2cTier.includes("TIER_3_MASTER")) {
+                if (b2cTier.includes("TIER_4")) {
+                    b2cTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(245,158,11,0.2); color:#fbbf24; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:900; border:1px solid #f59e0b; margin-bottom:2px;">👑 Tier 4 (일원직영/비매품)</span>';
+                } else if (b2cTier.includes("TIER_3_MASTER")) {
                     b2cTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(168,85,247,0.15); color:#c084fc; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:800; border:1px solid rgba(168,85,247,0.3); margin-bottom:2px;">B2C: Tier 3 (마스터)</span>';
                 } else if (b2cTier.includes("TIER_2")) {
                     b2cTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(99,102,241,0.15); color:#818cf8; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:800; border:1px solid rgba(99,102,241,0.3); margin-bottom:2px;">B2C: Tier 2 (스탠다드)</span>';
