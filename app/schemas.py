@@ -509,4 +509,16 @@ class BatchStudentActionPayload(BaseModel):
     reason: Optional[str] = None
     academy_code: Optional[str] = "ILWON-2027"
 
+class StudentSeatSelectPayload(BaseModel):
+    student_id: int
+    academy_code: Optional[str] = None
+    seat_id: Optional[str] = None
+    seat_number: Optional[int] = None
+    action: str = "CHECK_IN"  # CHECK_IN | RESERVE | CHECK_OUT
+
+class TenantSeatModeTogglePayload(BaseModel):
+    tenant_code: str
+    seat_mode: str  # FREE_SELECT | FIXED_ASSIGN
+
+
 

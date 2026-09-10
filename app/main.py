@@ -2566,14 +2566,16 @@ def get_admin_dashboard(tenant_code: Optional[str] = "ILWON-2027", db: Session =
         # Middle school logic: if targeting special high school or diligence >= 300
         if getattr(s, "target_high_school_type", None) in ["전국자사고", "과학고", "영재학교", "외국어고", "국제고"]:
             mid_target_special_count += 1
-        if (s.diligence_score or 0) >= 300:
+        d_score = int(s.diligence_score) if str(s.diligence_score).isdigit() else 0
+        if d_score >= 300:
             mid_a_grade_count += 1
 
         # Elementary school logic
         r_status = s.elem_routine_status or "{}"
         if '"morning":true' in r_status or '"study":true' in r_status or '"reading":true' in r_status:
             elem_routine_done_count += 1
-        elem_total_exp += (s.pet_exp or 0)
+        p_exp = int(s.pet_exp) if str(s.pet_exp).isdigit() else 0
+        elem_total_exp += p_exp
 
         student_list.append({
             "id": s.id,
@@ -2705,6 +2707,7 @@ def get_admin_dashboard(tenant_code: Optional[str] = "ILWON-2027", db: Session =
             "active_tutors_count": len(all_tutors),
             "league_counts": tier_counts,
             "business_type": biz_type,
+            "seat_mode": getattr(tenant, "seat_mode", "FREE_SELECT") or "FREE_SELECT",
             "tenant_name": tenant.name if tenant else "일원학원",
             "tenant_code": tenant.code if tenant else (tenant_code or "ILWON-2027"),
             "director_name": tenant.director_name if tenant else "원장",
@@ -2728,7 +2731,7 @@ def get_admin_dashboard(tenant_code: Optional[str] = "ILWON-2027", db: Session =
     }
 
 
-# === ☕ 독서실/스터디카페 2D 좌석 제어 API ===
+# === ☕ 독서실/스터디카페 및 일반 학원 2D 좌석 제어 & 학생 선택/예약 API ===
 
 @app.get("/api/admin/studycafe/seats")
 def get_studycafe_seats(tenant_code: Optional[str] = "CAFE-STUDY01", db: Session = Depends(get_db)):
@@ -2750,6 +2753,7 @@ def get_studycafe_seats(tenant_code: Optional[str] = "CAFE-STUDY01", db: Session
                     "seat_num": s_num,
                     "seat_type": types[r_idx],
                     "status": "EMPTY",
+                    "student_id": None,
                     "student_name": "",
                     "plan_type": "",
                     "remaining_days": 0,
@@ -2761,7 +2765,12 @@ def get_studycafe_seats(tenant_code: Optional[str] = "CAFE-STUDY01", db: Session
             tenant.seat_layout_json = seat_json
             db.commit()
 
-    return {"status": "success", "tenant_code": tenant.code if tenant else tenant_code, "seats": json.loads(seat_json)}
+    return {
+        "status": "success",
+        "tenant_code": tenant.code if tenant else tenant_code,
+        "seat_mode": getattr(tenant, "seat_mode", "FREE_SELECT") or "FREE_SELECT",
+        "seats": json.loads(seat_json)
+    }
 
 
 @app.post("/api/admin/studycafe/seat/action")
@@ -2770,7 +2779,7 @@ def handle_studycafe_seat_action(payload: schemas.StudyCafeSeatActionPayload, te
     if not tenant:
         tenant = db.query(models.Tenant).filter(models.Tenant.business_type == "STUDY_CAFE", models.Tenant.deleted_at == None).first()
     if not tenant:
-        raise HTTPException(status_code=404, detail="스터디카페 가맹점을 찾을 수 없습니다.")
+        raise HTTPException(status_code=404, detail="가맹점을 찾을 수 없습니다.")
 
     seat_json = getattr(tenant, "seat_layout_json", "[]") or "[]"
     try:
@@ -2780,7 +2789,7 @@ def handle_studycafe_seat_action(payload: schemas.StudyCafeSeatActionPayload, te
 
     target_seat = None
     for s in seats:
-        if s.get("seat_id") == payload.seat_id:
+        if s.get("seat_id") == payload.seat_id or (payload.seat_id and str(s.get("seat_num")) == str(payload.seat_id)):
             target_seat = s
             break
 
@@ -2791,12 +2800,13 @@ def handle_studycafe_seat_action(payload: schemas.StudyCafeSeatActionPayload, te
     if payload.action == "ASSIGN":
         target_seat["status"] = "OCCUPIED"
         target_seat["student_name"] = payload.student_name or "회원"
-        target_seat["plan_type"] = payload.plan_type or "시간권"
+        target_seat["plan_type"] = payload.plan_type or "지정 배정"
         target_seat["remaining_days"] = 30 if "정기" in (payload.plan_type or "") else 10
         target_seat["start_time"] = now_str
         target_seat["study_time_today"] = "0시간 01분"
     elif payload.action == "LEAVE":
         target_seat["status"] = "EMPTY"
+        target_seat["student_id"] = None
         target_seat["student_name"] = ""
         target_seat["plan_type"] = ""
         target_seat["remaining_days"] = 0
@@ -2808,10 +2818,223 @@ def handle_studycafe_seat_action(payload: schemas.StudyCafeSeatActionPayload, te
         target_seat["remaining_days"] = (target_seat.get("remaining_days") or 0) + (payload.duration_hours or 4)
     elif payload.action == "CLEAN":
         target_seat["status"] = "EMPTY"
+        target_seat["student_id"] = None
+        target_seat["student_name"] = ""
 
     tenant.seat_layout_json = json.dumps(seats, ensure_ascii=False)
     db.commit()
     return {"status": "success", "message": f"좌석 [{payload.seat_id}] 상태가 변경되었습니다.", "seat": target_seat}
+
+
+@app.post("/api/admin/academy/seat-mode")
+def toggle_admin_academy_seat_mode(payload: schemas.TenantSeatModeTogglePayload, db: Session = Depends(get_db)):
+    """원장 관제실: [자유선택/선착순제] <-> [원장 전담 지정좌석제] 모드 토글 API"""
+    tenant = db.query(models.Tenant).filter(models.Tenant.code == payload.tenant_code, models.Tenant.deleted_at == None).first()
+    if not tenant:
+        raise HTTPException(status_code=404, detail="학원(독서실)을 찾을 수 없습니다.")
+
+    mode = "FIXED_ASSIGN" if payload.seat_mode == "FIXED_ASSIGN" else "FREE_SELECT"
+    tenant.seat_mode = mode
+    db.commit()
+    return {
+        "status": "success",
+        "message": f"좌석 운영 모드가 [{'🔒 원장 전담 지정좌석제' if mode == 'FIXED_ASSIGN' else '🟢 자유선택/선착순제'}]로 변경되었습니다.",
+        "tenant_code": tenant.code,
+        "seat_mode": tenant.seat_mode
+    }
+
+
+# === 🪑 학생용 학원/독서실 실시간 2D 좌석 조회 & 자유선택/예약/퇴실 API ===
+
+@app.get("/api/student/academy/seats")
+def get_student_academy_seats(student_id: Optional[int] = None, academy_code: Optional[str] = None, db: Session = Depends(get_db)):
+    """학생 앱: 소속 학원/독서실의 2D 좌석 배치도, 점유 상태 및 본인 좌석 반환"""
+    student = None
+    if student_id:
+        student = db.query(models.Student).filter(models.Student.id == student_id, models.Student.deleted_at == None).first()
+    
+    code = academy_code or (student.academy_code if student else None) or "CAFE-STUDY01"
+    tenant = db.query(models.Tenant).filter(models.Tenant.code == code, models.Tenant.deleted_at == None).first()
+    if not tenant:
+        tenant = db.query(models.Tenant).filter(models.Tenant.business_type == "STUDY_CAFE", models.Tenant.deleted_at == None).first()
+    
+    seat_json = getattr(tenant, "seat_layout_json", "[]") if tenant else "[]"
+    seats = []
+    if seat_json and seat_json != "[]":
+        try:
+            seats = json.loads(seat_json)
+        except Exception:
+            seats = []
+    
+    if not seats:
+        # Default 24 seats (A01~D06)
+        types = ["FOCUS", "FOCUS", "OPEN", "WINDOW"]
+        for r_idx, row_char in enumerate(["A", "B", "C", "D"]):
+            for col_idx in range(1, 7):
+                s_id = f"{row_char}{col_idx:02d}"
+                s_num = r_idx * 6 + col_idx
+                seats.append({
+                    "seat_id": s_id,
+                    "seat_num": s_num,
+                    "seat_type": types[r_idx],
+                    "status": "EMPTY",
+                    "student_id": None,
+                    "student_name": "",
+                    "plan_type": "",
+                    "remaining_days": 0,
+                    "start_time": "",
+                    "study_time_today": ""
+                })
+        if tenant:
+            tenant.seat_layout_json = json.dumps(seats, ensure_ascii=False)
+            db.commit()
+
+    seat_mode = getattr(tenant, "seat_mode", "FREE_SELECT") if tenant else "FREE_SELECT"
+    
+    my_seat = None
+    if student:
+        for s in seats:
+            if (s.get("student_id") == student.id) or (s.get("student_name") == student.name and s.get("status") in ["OCCUPIED", "RESERVED"]):
+                my_seat = s
+                break
+        if not my_seat and student.assigned_seat_number:
+            for s in seats:
+                if s.get("seat_num") == student.assigned_seat_number:
+                    my_seat = s
+                    break
+
+    available_count = len([s for s in seats if s.get("status") in ["EMPTY", "AVAILABLE"]])
+    occupied_count = len(seats) - available_count
+
+    return {
+        "status": "success",
+        "academy_code": tenant.code if tenant else code,
+        "academy_name": tenant.name if tenant else "등록 독서실/학원",
+        "business_type": getattr(tenant, "business_type", "STUDY_CAFE") if tenant else "STUDY_CAFE",
+        "seat_mode": seat_mode,  # 'FREE_SELECT' | 'FIXED_ASSIGN'
+        "total_seats": len(seats),
+        "available_seats": available_count,
+        "occupied_seats": occupied_count,
+        "my_seat": my_seat,
+        "seats": seats
+    }
+
+
+@app.post("/api/student/academy/seat/select")
+def select_student_academy_seat(payload: schemas.StudentSeatSelectPayload, db: Session = Depends(get_db)):
+    """학생 앱: 자유석 선택/입실/예약/퇴실 처리 (지정좌석제 시 잠금 방어)"""
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id, models.Student.deleted_at == None).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생 정보를 찾을 수 없습니다.")
+
+    code = payload.academy_code or student.academy_code or "CAFE-STUDY01"
+    tenant = db.query(models.Tenant).filter(models.Tenant.code == code, models.Tenant.deleted_at == None).first()
+    if not tenant:
+        tenant = db.query(models.Tenant).filter(models.Tenant.business_type == "STUDY_CAFE", models.Tenant.deleted_at == None).first()
+    if not tenant:
+        raise HTTPException(status_code=404, detail="소속 학원/독서실을 찾을 수 없습니다.")
+
+    seat_mode = getattr(tenant, "seat_mode", "FREE_SELECT") or "FREE_SELECT"
+    seat_json = getattr(tenant, "seat_layout_json", "[]") or "[]"
+    try:
+        seats = json.loads(seat_json)
+    except Exception:
+        seats = []
+
+    action = (payload.action or "CHECK_IN").upper()
+    now_str = datetime.now().strftime("%H:%M")
+
+    # 1. 원장 전담 지정좌석제 (FIXED_ASSIGN) 방어 검증
+    if seat_mode == "FIXED_ASSIGN":
+        if action in ["CHECK_IN", "RESERVE"]:
+            # Check if seat matches student's assigned seat
+            is_my_assigned_seat = False
+            if student.assigned_seat_number and (payload.seat_number == student.assigned_seat_number or (payload.seat_id and str(payload.seat_id) == str(student.assigned_seat_number))):
+                is_my_assigned_seat = True
+            
+            if not is_my_assigned_seat:
+                raise HTTPException(
+                    status_code=400,
+                    detail="🔒 본 학원(독서실)은 원장 전담 [지정좌석제]로 운영 중입니다. 좌석 변경 및 신규 배정은 원장실에 문의해 주세요."
+                )
+
+    # 2. 자유석 입실 / 예약
+    if action in ["CHECK_IN", "RESERVE"]:
+        target_seat = None
+        for s in seats:
+            if payload.seat_id and s.get("seat_id") == payload.seat_id:
+                target_seat = s
+                break
+            if payload.seat_number and s.get("seat_num") == payload.seat_number:
+                target_seat = s
+                break
+
+        if not target_seat:
+            raise HTTPException(status_code=404, detail="해당 좌석을 찾을 수 없습니다.")
+
+        # 타인 점유 여부 확인
+        if target_seat.get("status") in ["OCCUPIED", "RESERVED"] and target_seat.get("student_id") and target_seat.get("student_id") != student.id:
+            raise HTTPException(status_code=400, detail=f"[{target_seat.get('seat_id', target_seat.get('seat_num'))}] 좌석은 이미 다른 회원이 이용 중입니다.")
+
+        # 본인의 이전 다른 좌석 해제
+        for s in seats:
+            if s.get("student_id") == student.id and s != target_seat:
+                s["status"] = "EMPTY"
+                s["student_id"] = None
+                s["student_name"] = ""
+                s["start_time"] = ""
+
+        target_seat["status"] = "OCCUPIED" if action == "CHECK_IN" else "RESERVED"
+        target_seat["student_id"] = student.id
+        target_seat["student_name"] = student.name
+        target_seat["plan_type"] = "선착순 자유석" if seat_mode == "FREE_SELECT" else "지정좌석"
+        target_seat["start_time"] = now_str
+        target_seat["study_time_today"] = "0시간 01분"
+
+        student.assigned_seat_number = target_seat.get("seat_num")
+        student.seat_status = target_seat["status"]
+        student.seat_checkin_time = datetime.now()
+
+        tenant.seat_layout_json = json.dumps(seats, ensure_ascii=False)
+        db.commit()
+
+        return {
+            "status": "success",
+            "message": f"🎉 [{target_seat.get('seat_id', target_seat.get('seat_num'))}번] 좌석에 성공적으로 착석(입실)되었습니다.",
+            "seat": target_seat,
+            "seat_mode": seat_mode
+        }
+
+    # 3. 퇴실 및 좌석 반납
+    elif action in ["CHECK_OUT", "LEAVE"]:
+        released = None
+        for s in seats:
+            if s.get("student_id") == student.id or (payload.seat_id and s.get("seat_id") == payload.seat_id) or (payload.seat_number and s.get("seat_num") == payload.seat_number):
+                if s.get("student_id") == student.id or s.get("student_name") == student.name:
+                    s["status"] = "EMPTY"
+                    s["student_id"] = None
+                    s["student_name"] = ""
+                    s["plan_type"] = ""
+                    s["start_time"] = ""
+                    released = s
+
+        if seat_mode == "FREE_SELECT":
+            student.assigned_seat_number = None
+        student.seat_status = "NONE"
+        student.seat_checkin_time = None
+
+        tenant.seat_layout_json = json.dumps(seats, ensure_ascii=False)
+        db.commit()
+
+        return {
+            "status": "success",
+            "message": "🚪 퇴실 및 좌석 반납이 정상 완료되었습니다.",
+            "seat": released,
+            "seat_mode": seat_mode
+        }
+
+    else:
+        raise HTTPException(status_code=400, detail="유효하지 않은 좌석 요청입니다.")
 
 
 # === 🎒 초등 보습/어학원 칭찬 스티커 & 루틴 일괄 수여 API ===

@@ -28,6 +28,7 @@
             width: 100%;
             overflow-x: hidden;
             min-height: 100vh;
+            display: block !important;
         }
         body.shadow-god-mode {
             box-shadow: inset 0 0 35px rgba(239, 68, 68, 0.5);
@@ -359,7 +360,7 @@
     <!-- 🚨 갓 모드 섀도잉 경고 배너 -->
 
     <!-- 🏢 4대 업종별 관제실 시뮬레이터 바 (슈퍼마스터 & 데모 프리뷰 지원) -->
-    <div id="industry-simulator-bar" style="background: rgba(15, 23, 42, 0.95); border-bottom: 1.5px solid #4f46e5; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; z-index: 999; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+    <div id="industry-simulator-bar" style="width: 100%; box-sizing: border-box; background: rgba(15, 23, 42, 0.95); border-bottom: 1.5px solid #4f46e5; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; z-index: 999; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
             <div style="display: flex; align-items: center; gap: 6px;">
                 <span class="material-symbols-rounded" style="font-size: 1.2rem; color: #fbbf24;">storefront</span>
@@ -378,7 +379,7 @@
         </div>
     </div>
 
-    <div id="god-mode-banner" style="display: none;">
+    <div id="god-mode-banner" style="display: none; width: 100%; box-sizing: border-box;">
         <div style="display: flex; align-items: center; gap: 6px;">
             <span class="material-symbols-rounded" style="font-size: 1.2rem;">shield_person</span>
             <span>🚨 [GOD MODE: <span id="god-mode-target-name">원장</span> 관제실 섀도잉 접속]</span>
@@ -1740,6 +1741,7 @@
                 </div>
 
                 <!-- 2D 좌석 매트릭스 그리드 (4행 x 6열) -->
+                <div id="admin-seat-mode-toggle-area"></div>
                 <div id="studycafe-seat-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px;">
                     <!-- JS에서 좌석 카드 동적 렌더링 -->
                 </div>
@@ -1853,6 +1855,388 @@
 
 <script>
         let allStudentsCache = [];
+        let currentTenantCode = "ILWON-2027";
+        let currentTenantName = "일원학원";
+        let currentBusinessType = "HIGH_ACADEMY";
+        let currentTenantSeatMode = "FREE_SELECT";
+        let currentStudyCafeSeats = [];
+        let selectedAdminSeatId = null;
+        let currentFinanceFilter = "ALL";
+
+        // ==========================================
+        // 🏢 4대 업종별 특화 관제실 스킨 & 탭 전환 시스템
+        // ==========================================
+        function switchIndustryConsoleMode(bizType) {
+            if (!bizType) bizType = 'HIGH_ACADEMY';
+            currentBusinessType = bizType.toUpperCase();
+            
+            // 1. 시뮬레이터 상단 버튼 Active 갱신
+            const btns = {
+                'HIGH_ACADEMY': document.getElementById('sim-btn-high'),
+                'MID_ACADEMY': document.getElementById('sim-btn-mid'),
+                'ELEM_ACADEMY': document.getElementById('sim-btn-elem'),
+                'STUDY_CAFE': document.getElementById('sim-btn-cafe')
+            };
+
+            const colors = {
+                'HIGH_ACADEMY': { primary: '#6366f1', text: '🎓 고등 대입전문학원', tabText: '📝 7. 모의고사·OMR 관제', tabIcon: 'assignment', badgeColor: '#34d399', badgeBg: 'rgba(16, 185, 129, 0.15)', badgeBorder: 'rgba(16, 185, 129, 0.3)' },
+                'MID_ACADEMY': { primary: '#0284c7', text: '🏫 중등 내신·특목전문학원', tabText: '📊 7. 올A 내신 & 특목고 진학', tabIcon: 'grade', badgeColor: '#38bdf8', badgeBg: 'rgba(2, 132, 199, 0.15)', badgeBorder: 'rgba(2, 132, 199, 0.3)' },
+                'ELEM_ACADEMY': { primary: '#d97706', text: '🎒 초등 보습·어학원', tabText: '🌟 7. 매일 습관 · 스티커 · 펫', tabIcon: 'stars', badgeColor: '#fbbf24', badgeBg: 'rgba(245, 158, 11, 0.15)', badgeBorder: 'rgba(245, 158, 11, 0.3)' },
+                'STUDY_CAFE': { primary: '#7c3aed', text: '☕ 독서실·스터디카페', tabText: '🪑 7. 2D 좌석 매트릭스 & 이용권', tabIcon: 'chair', badgeColor: '#c084fc', badgeBg: 'rgba(168, 85, 247, 0.15)', badgeBorder: 'rgba(168, 85, 247, 0.3)' }
+            };
+
+            const activeCfg = colors[currentBusinessType] || colors['HIGH_ACADEMY'];
+
+            Object.keys(btns).forEach(k => {
+                const btn = btns[k];
+                if (!btn) return;
+                if (k === currentBusinessType) {
+                    btn.classList.add('active');
+                    btn.style.border = `1.5px solid ${activeCfg.primary}`;
+                    btn.style.background = activeCfg.primary;
+                    btn.style.color = '#ffffff';
+                } else {
+                    btn.classList.remove('active');
+                    btn.style.border = '1.5px solid rgba(255,255,255,0.15)';
+                    btn.style.background = 'rgba(255,255,255,0.06)';
+                    btn.style.color = '#cbd5e1';
+                }
+            });
+
+            // 2. 우측 상단 현재 관제 모드 배지 갱신
+            const badgeEl = document.getElementById('industry-active-badge');
+            const badgeTextEl = document.getElementById('industry-active-badge-text');
+            if (badgeEl && badgeTextEl) {
+                badgeEl.style.color = activeCfg.badgeColor;
+                badgeEl.style.background = activeCfg.badgeBg;
+                badgeEl.style.border = `1px solid ${activeCfg.badgeBorder}`;
+                badgeTextEl.innerText = `현재 관제: ${activeCfg.text}`;
+            }
+
+            // 3. 7번 특화 탭 버튼 라벨 및 아이콘 갱신
+            const specialBtn = document.getElementById('tab-btn-special');
+            const specialIcon = document.getElementById('tab-special-icon');
+            const specialText = document.getElementById('tab-special-text');
+            if (specialIcon) {
+                specialIcon.innerText = activeCfg.tabIcon;
+                specialIcon.style.color = activeCfg.badgeColor;
+            }
+            if (specialText) {
+                specialText.innerText = activeCfg.tabText;
+                specialText.style.color = activeCfg.badgeColor;
+            }
+
+            // 4. 만약 현재 7번 특화 탭이 열려있는 상태라면, 화면 컨테이너도 즉시 해당 업종 전용으로 전환
+            const specialContainers = ['tab-exams', 'tab-middle-achievement', 'tab-elem-routines', 'tab-studycafe-seats'];
+            const isSpecialActive = specialContainers.some(id => {
+                const el = document.getElementById(id);
+                return el && el.style.display !== 'none';
+            }) || (specialBtn && specialBtn.classList.contains('active'));
+
+            if (isSpecialActive) {
+                switchAdminSpecialTab();
+            }
+        }
+
+        // 7번 특화 탭 클릭 핸들러
+        function switchAdminSpecialTab() {
+            // 모든 탭 숨기기 및 비활성화
+            document.querySelectorAll('.cockpit-tab-view').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.admin-cockpit-tab-btn').forEach(btn => btn.classList.remove('active'));
+
+            const specialBtn = document.getElementById('tab-btn-special');
+            if (specialBtn) specialBtn.classList.add('active');
+
+            // 업종별 대상 컨테이너 표시
+            if (currentBusinessType === 'STUDY_CAFE') {
+                const cafeTab = document.getElementById('tab-studycafe-seats');
+                if (cafeTab) cafeTab.style.display = 'block';
+                loadStudyCafeSeats();
+            } else if (currentBusinessType === 'MID_ACADEMY') {
+                const midTab = document.getElementById('tab-middle-achievement');
+                if (midTab) midTab.style.display = 'block';
+                loadMiddleAchievementStats();
+            } else if (currentBusinessType === 'ELEM_ACADEMY') {
+                const elemTab = document.getElementById('tab-elem-routines');
+                if (elemTab) elemTab.style.display = 'block';
+                loadElemRoutines();
+            } else {
+                // 기본: HIGH_ACADEMY (고등)
+                const examTab = document.getElementById('tab-exams');
+                if (examTab) examTab.style.display = 'block';
+                loadAdminExamsList();
+                loadAdminSubmissionsList();
+            }
+        }
+
+        // ==========================================
+        // 🪑 스터디카페 / 독서실 2D 좌석 제어 시스템
+        // ==========================================
+        async function loadStudyCafeSeats() {
+            try {
+                const res = await fetch(`/api/admin/studycafe/seats?tenant_code=${currentTenantCode}`);
+                if (!res.ok) return;
+                const data = await res.json();
+                currentStudyCafeSeats = data.seats || [];
+                currentTenantSeatMode = data.seat_mode || 'FREE_SELECT';
+
+                renderStudyCafeSeatGrid();
+                updateSeatModeUI();
+            } catch(e) {
+                console.error("loadStudyCafeSeats error:", e);
+            }
+        }
+
+        function renderStudyCafeSeatGrid() {
+            const grid = document.getElementById('studycafe-seat-grid');
+            if (!grid) return;
+
+            let occupiedCount = 0;
+            grid.innerHTML = currentStudyCafeSeats.map(s => {
+                const isOccupied = s.status === 'OCCUPIED';
+                const isOut = s.status === 'OUT_BRIEF';
+                const isReserved = s.status === 'RESERVED';
+                if (isOccupied || isOut || isReserved) occupiedCount++;
+
+                let borderCol = 'rgba(255,255,255,0.12)';
+                let bgCol = 'rgba(15, 23, 42, 0.6)';
+                let badgeText = '⚪ 빈자리';
+                let badgeStyle = 'background: rgba(255,255,255,0.06); color: #94a3b8;';
+
+                if (isOccupied) {
+                    borderCol = '#10b981';
+                    bgCol = 'rgba(16, 185, 129, 0.12)';
+                    badgeText = '🟢 이용중';
+                    badgeStyle = 'background: #10b981; color: #ffffff;';
+                } else if (isOut) {
+                    borderCol = '#eab308';
+                    bgCol = 'rgba(234, 179, 8, 0.12)';
+                    badgeText = '🟡 외출중';
+                    badgeStyle = 'background: #eab308; color: #000000;';
+                } else if (isReserved) {
+                    borderCol = '#3b82f6';
+                    bgCol = 'rgba(59, 130, 246, 0.12)';
+                    badgeText = '🔵 예약';
+                    badgeStyle = 'background: #3b82f6; color: #ffffff;';
+                }
+
+                const seatTypeName = s.seat_type === 'FOCUS' ? '1인 집중석' : (s.seat_type === 'WINDOW' ? '창가석' : '오픈석');
+
+                return `
+                    <div onclick="openStudycafeSeatModal('${s.seat_id}')" style="background: ${bgCol}; border: 1.5px solid ${borderCol}; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span style="font-size: 1rem; font-weight: 900; color: #ffffff; font-family: monospace;">${s.seat_id}</span>
+                            <span style="font-size: 0.7rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; ${badgeStyle}">${badgeText}</span>
+                        </div>
+                        <div style="font-size: 0.72rem; color: #94a3b8; margin-bottom: 4px;">${seatTypeName} (${s.seat_num}번)</div>
+                        <div style="font-size: 0.85rem; font-weight: 800; color: ${isOccupied ? '#34d399' : '#f8fafc'}; min-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            ${s.student_name ? '👤 ' + s.student_name : '<span style="color:#64748b;">(비어있음)</span>'}
+                        </div>
+                        <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px; display: flex; justify-content: space-between;">
+                            <span>${s.start_time ? '⏱️ ' + s.start_time : '-'}</span>
+                            <span>${s.plan_type || '-'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // KPI 업데이트
+            const total = currentStudyCafeSeats.length || 24;
+            const rate = Math.round((occupiedCount / total) * 100);
+            const occEl = document.getElementById('cafe-kpi-occupancy');
+            const countEl = document.getElementById('cafe-kpi-seat-count');
+            if (occEl) occEl.innerText = `${rate}%`;
+            if (countEl) countEl.innerText = `${occupiedCount}석 이용 중`;
+        }
+
+        function updateSeatModeUI() {
+            const modeToggleContainer = document.getElementById('admin-seat-mode-toggle-area');
+            if (!modeToggleContainer) return;
+            const isFixed = currentTenantSeatMode === 'FIXED_ASSIGN';
+            modeToggleContainer.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.4); border: 1.5px solid ${isFixed ? '#f59e0b' : '#10b981'}; border-radius: 12px; padding: 12px 16px; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <div style="font-size: 0.92rem; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 6px;">
+                            <span>${isFixed ? '🔒 원장 전담 [지정좌석제] 운영 중' : '🟢 학생 자율 [선착순/자유석] 운영 중'}</span>
+                            <span style="font-size: 0.75rem; padding: 2px 8px; border-radius: 20px; font-weight: 800; background: ${isFixed ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)'}; color: ${isFixed ? '#fbbf24' : '#34d399'};">
+                                ${isFixed ? '원장 지정 배정' : '학생 직접 선택 가능'}
+                            </span>
+                        </div>
+                        <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 3px;">
+                            ${isFixed ? '학생이 앱에서 좌석을 직접 선택할 수 없으며, 원장실에서 배정한 지정 좌석만 이용할 수 있습니다.' : '학생들이 학원관리 탭에서 실시간 2D 좌석표를 보고 빈자리를 직접 선택/입실할 수 있습니다.'}
+                        </div>
+                    </div>
+                    <div>
+                        <button type="button" onclick="handleAdminToggleSeatMode('${isFixed ? 'FREE_SELECT' : 'FIXED_ASSIGN'}')" class="btn" style="padding: 8px 14px; font-size: 0.8rem; font-weight: 900; background: ${isFixed ? '#10b981' : '#f59e0b'}; color: ${isFixed ? 'white' : 'black'}; border-radius: 8px; cursor: pointer;">
+                            🔀 ${isFixed ? '🟢 자유선택/선착순제로 전환' : '🔒 지정좌석제로 전환'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function handleAdminToggleSeatMode(newMode) {
+            try {
+                const res = await fetch('/api/admin/academy/seat-mode', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tenant_code: currentTenantCode, seat_mode: newMode })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`✅ ${data.message || '좌석 운영 방식이 변경되었습니다.'}`);
+                    currentTenantSeatMode = newMode;
+                    updateSeatModeUI();
+                } else {
+                    alert(data.detail || '모드 변경 실패');
+                }
+            } catch(e) {
+                alert('서버 통신 실패');
+            }
+        }
+
+        function openStudycafeSeatModal(seatId) {
+            const seat = currentStudyCafeSeats.find(s => s.seat_id === seatId);
+            if (!seat) return;
+            selectedAdminSeatId = seatId;
+
+            const modal = document.getElementById('studycafe-seat-modal');
+            const titleEl = document.getElementById('modal-seat-id-title');
+            const infoBox = document.getElementById('modal-seat-info-box');
+
+            if (titleEl) titleEl.innerText = `${seat.seat_id} (${seat.seat_num}번)`;
+            if (infoBox) {
+                const statusK = seat.status === 'OCCUPIED' ? '🟢 이용중' : (seat.status === 'OUT_BRIEF' ? '🟡 외출중' : (seat.status === 'RESERVED' ? '🔵 예약' : '⚪ 빈자리'));
+                infoBox.innerHTML = `
+                    <div style="display:grid; grid-template-columns: 80px 1fr; gap: 6px;">
+                        <span style="color:#94a3b8;">현재 상태:</span><strong>${statusK}</strong>
+                        <span style="color:#94a3b8;">이용자:</span><strong style="color:#34d399;">${seat.student_name || '없음'}</strong>
+                        <span style="color:#94a3b8;">이용권 종류:</span><span>${seat.plan_type || '지정 배정'}</span>
+                        <span style="color:#94a3b8;">입실 시각:</span><span>${seat.start_time || '-'}</span>
+                    </div>
+                `;
+            }
+
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeStudycafeSeatModal() {
+            const modal = document.getElementById('studycafe-seat-modal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        async function executeSeatAction(action) {
+            if (!selectedAdminSeatId) return;
+            let stName = '';
+            let pType = '지정 배정';
+
+            if (action === 'ASSIGN') {
+                stName = prompt('배정할 원생 또는 회원 이름을 입력하세요:', '김열공');
+                if (!stName) return;
+                pType = prompt('이용권/배정 방식을 입력하세요 (예: 4주 정기권, 당일 4시간, 지정석):', '4주 정기권') || '지정석';
+            }
+
+            try {
+                const res = await fetch(`/api/admin/studycafe/seat/action?tenant_code=${currentTenantCode}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        seat_id: selectedAdminSeatId,
+                        action: action,
+                        student_name: stName,
+                        plan_type: pType
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`✅ ${data.message || '좌석 상태가 변경되었습니다.'}`);
+                    closeStudycafeSeatModal();
+                    loadStudyCafeSeats();
+                } else {
+                    alert(data.detail || '작업 실패');
+                }
+            } catch(e) {
+                alert('서버 통신 실패');
+            }
+        }
+
+        // ==========================================
+        // 🏫 중등 내신 / 특목고 진학 지표 관제 로더
+        // ==========================================
+        async function loadMiddleAchievementStats() {
+            try {
+                const res = await fetch(`/api/admin/middle/achievement-stats?tenant_code=${currentTenantCode}`);
+                if (!res.ok) return;
+                const data = await res.json();
+                const rateEl = document.getElementById('mid-kpi-all-a-rate');
+                const specialEl = document.getElementById('mid-kpi-special-count');
+                if (rateEl) rateEl.innerText = `${data.all_a_rate || 87.5}%`;
+                if (specialEl) specialEl.innerText = `${data.special_high_count || 0}명`;
+            } catch(e) {}
+        }
+
+        // ==========================================
+        // 🎒 초등 보습 / 칭찬 스티커 & 루틴 관제 로더
+        // ==========================================
+        async function loadElemRoutines() {
+            const tbody = document.getElementById('elem-students-tbody');
+            if (!tbody) return;
+            if (allStudentsCache.length === 0) {
+                await fetchDashboardData();
+            }
+            tbody.innerHTML = allStudentsCache.map(s => {
+                const petExp = s.pet_exp || 0;
+                const petLvl = s.pet_level || 1;
+                return `
+                    <tr>
+                        <td style="text-align:center;"><input type="checkbox" class="elem-student-cb" value="${s.id}"></td>
+                        <td style="font-weight:800; color:white;">${s.name}</td>
+                        <td>${s.high_school || '초등부'} (${s.grade || 5}학년)</td>
+                        <td><span style="background:rgba(245,158,11,0.2); color:#fbbf24; padding:2px 8px; border-radius:12px; font-weight:800; font-size:0.75rem;">🐾 Lv.${petLvl} (${petExp} EXP)</span></td>
+                        <td><span style="color:#34d399; font-weight:800;">⏰ 3대 루틴 완료</span></td>
+                        <td><button onclick="singleAwardElemSticker(${s.id}, '${s.name}')" class="btn" style="padding:4px 8px; font-size:0.72rem; background:linear-gradient(135deg,#f59e0b,#d97706); color:black; font-weight:800;">🌟 스티커</button></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function handleBatchAwardElemStickers() {
+            const checked = Array.from(document.querySelectorAll('.elem-student-cb:checked')).map(cb => parseInt(cb.value));
+            if (checked.length === 0) {
+                alert('칭찬 스티커를 수여할 원생을 1명 이상 체크해 주세요.');
+                return;
+            }
+            const sType = document.getElementById('elem-sticker-type-select')?.value || 'GREAT';
+            try {
+                const res = await fetch('/api/admin/elementary/stickers/batch-award', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ student_ids: checked, sticker_type: sType, exp_amount: 50 })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`✨ ${data.message || '선택한 원생에게 칭찬 스티커와 펫 EXP가 지급되었습니다!'}`);
+                    loadElemRoutines();
+                } else {
+                    alert(data.detail || '지급 실패');
+                }
+            } catch(e) {
+                alert('서버 통신 실패');
+            }
+        }
+
+        function singleAwardElemSticker(stId, stName) {
+            const sType = document.getElementById('elem-sticker-type-select')?.value || 'GREAT';
+            fetch('/api/admin/elementary/stickers/batch-award', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ student_ids: [stId], sticker_type: sType, exp_amount: 50 })
+            }).then(r => r.json()).then(d => {
+                alert(`✨ [${stName}] 원생에게 칭찬 스티커와 펫 경험치(+50 EXP)가 수여되었습니다!`);
+                loadElemRoutines();
+            }).catch(() => alert('수여 실패'));
+        }
+
         let currentTenantCode = "ILWON-2027";
         let currentTenantName = "일원학원";
         let currentFinanceFilter = "ALL";

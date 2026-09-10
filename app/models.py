@@ -92,7 +92,7 @@ class Student(Base):
     weekly_diligence_points = Column(Integer, default=0)  # 주간 누적 성실도 포인트 (매주 월요일 00:00 0점 초기화)
     is_vip_this_week = Column(Boolean, default=False)     # 상위 1% VIP 블랙 라운지 진입 권한
     
-    # 🏫 Phase 1~5 B2B 학원 테넌트 & ERP & 출결 & 수납 관리 필드
+    # 🏫 Phase 1~5 B2B 학원 테넌트 & ERP & 출결 & 수납 관리 & 좌석 필드
     previous_b2c_tier = Column(String, default="B2C_FREE") # B2C 티어 백업 스냅샷
     academy_code = Column(String, nullable=True, index=True) # 소속 학원 코드 (예: ILWON-2027)
     academy_approval_status = Column(String, default="NONE") # NONE | PENDING | APPROVED | REJECTED
@@ -103,6 +103,9 @@ class Student(Base):
     textbooks_distributed = Column(Text, default="")       # 현재 지급된 교재 목록
     enrollment_status = Column(String, default="ENROLLED") # ENROLLED(재원) | ON_LEAVE(휴강) | WITHDRAWN(퇴원)
     leave_reason = Column(String, nullable=True)           # 휴강 사유 (내신 휴강 / 개인 사유 / 상담 후 결정)
+    assigned_seat_number = Column(Integer, nullable=True)  # 배정 또는 선택된 좌석 번호
+    seat_checkin_time = Column(DateTime(timezone=True), nullable=True) # 입실/예약 시간
+    seat_status = Column(String, default="NONE")           # NONE | OCCUPIED | RESERVED
  
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
@@ -682,6 +685,7 @@ class Tenant(Base):
     monthly_revenue = Column(Integer, default=0)                  # 당월 창출 수익 (에스크로+결제분)
     subject_desc = Column(String, default="수능국어, 대입전략")     # 과목/성격 태그
     business_type = Column(String, default="HIGH_ACADEMY")        # HIGH_ACADEMY (고등) | MID_ACADEMY (중등) | ELEM_ACADEMY (초등) | STUDY_CAFE (독서실/스카)
+    seat_mode = Column(String, default="FREE_SELECT")             # FREE_SELECT (자유석/선착순제) | FIXED_ASSIGN (원장 전담 지정좌석제)
     seat_layout_json = Column(Text, default="[]")                 # 독서실/스터디카페 2D 좌석 매트릭스 배치 및 점유 현황 JSON
     target_schools_json = Column(Text, default="[]")              # 중등/초등 주요 타깃 학교 및 특목고 진학 목표 JSON
     

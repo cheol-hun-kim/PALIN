@@ -16603,3 +16603,186 @@ async function loadExamTagsFeed() {
 }
 window.loadExamTagsFeed = loadExamTagsFeed;
 
+
+
+// ==========================================
+// 🪑 학생용 실시간 좌석 매트릭스 & 좌석 선택/예약 시스템
+// ==========================================
+let currentStudentSeatsCache = [];
+let currentStudentSeatMode = "FREE_SELECT";
+let currentStudentMySeat = null;
+
+async function loadStudentAcademySeats() {
+    const seatCard = document.getElementById("student-academy-seat-card");
+    if (!seatCard) return;
+
+    const studentId = (window.currentStudent && window.currentStudent.id) ? window.currentStudent.id : (localStorage.getItem("studentId") || 1);
+    const academyCode = (typeof currentActiveFacility !== 'undefined' && currentActiveFacility) ? currentActiveFacility : ((window.currentStudent && window.currentStudent.academy_code) ? window.currentStudent.academy_code : "CAFE-STUDY01");
+
+    try {
+        const res = await fetch(`/api/student/academy/seats?student_id=${studentId}&academy_code=${academyCode}`);
+        if (!res.ok) return;
+        const data = await res.json();
+
+        currentStudentSeatsCache = data.seats || [];
+        currentStudentSeatMode = data.seat_mode || "FREE_SELECT";
+        currentStudentMySeat = data.my_seat;
+
+        renderStudentSeatUI(data);
+    } catch (e) {
+        console.error("loadStudentAcademySeats error:", e);
+    }
+}
+window.loadStudentAcademySeats = loadStudentAcademySeats;
+
+function renderStudentSeatUI(data) {
+    const modeBadge = document.getElementById("student-seat-mode-badge");
+    const mySeatText = document.getElementById("student-my-seat-text");
+    const mySeatActionArea = document.getElementById("student-my-seat-action-btn-area");
+    const lockNotice = document.getElementById("student-seat-lock-notice");
+    const grid = document.getElementById("student-seat-matrix-grid");
+    const statsText = document.getElementById("student-seat-stats-text");
+
+    const isFixed = currentStudentSeatMode === "FIXED_ASSIGN";
+
+    if (modeBadge) {
+        if (isFixed) {
+            modeBadge.style.background = "rgba(245, 158, 11, 0.15)";
+            modeBadge.style.color = "#fbbf24";
+            modeBadge.style.borderColor = "rgba(245, 158, 11, 0.35)";
+            modeBadge.innerText = "🔒 원장 전담 지정좌석제";
+        } else {
+            modeBadge.style.background = "rgba(16, 185, 129, 0.15)";
+            modeBadge.style.color = "#34d399";
+            modeBadge.style.borderColor = "rgba(16, 185, 129, 0.35)";
+            modeBadge.innerText = "🟢 자유선택/선착순제";
+        }
+    }
+
+    if (lockNotice) {
+        lockNotice.style.display = isFixed ? "block" : "none";
+    }
+
+    // 내 좌석 상태
+    if (mySeatText && mySeatActionArea) {
+        if (currentStudentMySeat) {
+            const s = currentStudentMySeat;
+            const sName = s.seat_id || `${s.seat_num}번`;
+            mySeatText.innerHTML = `<span style="color: #34d399;">🪑 ${sName} 좌석 이용 중</span> <span style="font-size: 0.78rem; color: var(--text-secondary);">(${s.start_time ? s.start_time + ' 입실' : '배정'})</span>`;
+            mySeatActionArea.innerHTML = `
+                <button type="button" onclick="handleStudentSeatAction('CHECK_OUT', '${s.seat_id}', ${s.seat_num})" class="btn" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #ef4444; padding: 6px 12px; font-size: 0.75rem; font-weight: 800; border-radius: 8px; cursor: pointer;">
+                    🚪 퇴실 / 반납
+                </button>
+            `;
+        } else {
+            if (isFixed) {
+                mySeatText.innerHTML = `<span style="color: #f59e0b;">🔒 원장실 좌석 배정 대기 중</span>`;
+            } else {
+                mySeatText.innerHTML = `<span>미배정 <span style="font-size: 0.78rem; color: var(--text-secondary);">(빈 좌석 터치 시 즉시 입실)</span></span>`;
+            }
+            mySeatActionArea.innerHTML = "";
+        }
+    }
+
+    if (statsText) {
+        statsText.innerText = `잔여 ${data.available_seats || 0}석 / 총 ${data.total_seats || 24}석`;
+    }
+
+    // 2D 좌석 그리드 렌더링
+    if (grid) {
+        grid.innerHTML = currentStudentSeatsCache.map(s => {
+            const isMine = currentStudentMySeat && (currentStudentMySeat.seat_id === s.seat_id || currentStudentMySeat.seat_num === s.seat_num);
+            const isOccupied = s.status === 'OCCUPIED' || s.status === 'RESERVED';
+            const sTitle = s.seat_id || `${s.seat_num}번`;
+
+            let bgCol = "rgba(255, 255, 255, 0.04)";
+            let borderCol = "rgba(255, 255, 255, 0.12)";
+            let textCol = "var(--text-primary)";
+            let statusDot = `<span style="width: 6px; height: 6px; border-radius: 50%; background: #94a3b8; display: inline-block;"></span>`;
+
+            if (isMine) {
+                bgCol = "linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.2))";
+                borderCol = "#10b981";
+                textCol = "#34d399";
+                statusDot = `<span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; display: inline-block;"></span>`;
+            } else if (isOccupied) {
+                bgCol = "rgba(239, 68, 68, 0.08)";
+                borderCol = "rgba(239, 68, 68, 0.25)";
+                textCol = "#94a3b8";
+                statusDot = `<span style="width: 6px; height: 6px; border-radius: 50%; background: #ef4444; display: inline-block;"></span>`;
+            }
+
+            const cursorStyle = isOccupied && !isMine ? "cursor: not-allowed;" : "cursor: pointer;";
+
+            return `
+                <div onclick="handleStudentSeatCardClick('${s.seat_id}', ${s.seat_num}, '${s.status}')" style="background: ${bgCol}; border: 1.5px solid ${borderCol}; border-radius: 8px; padding: 8px; text-align: center; ${cursorStyle} transition: all 0.2s;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                        <span style="font-size: 0.78rem; font-weight: 900; color: ${textCol}; font-family: monospace;">${sTitle}</span>
+                        ${statusDot}
+                    </div>
+                    <div style="font-size: 0.68rem; color: ${isMine ? '#34d399' : (isOccupied ? '#f87171' : '#94a3b8')}; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        ${isMine ? '내 좌석' : (isOccupied ? (s.student_name ? s.student_name[0] + '*님' : '이용중') : '선택가능')}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+}
+window.renderStudentSeatUI = renderStudentSeatUI;
+
+function handleStudentSeatCardClick(seatId, seatNum, status) {
+    const isFixed = currentStudentSeatMode === "FIXED_ASSIGN";
+    const isMine = currentStudentMySeat && (currentStudentMySeat.seat_id === seatId || currentStudentMySeat.seat_num === seatNum);
+
+    if (isMine) {
+        if (confirm(`🪑 [${seatId || seatNum + '번'}] 좌석을 퇴실하고 반납하시겠습니까?`)) {
+            handleStudentSeatAction("CHECK_OUT", seatId, seatNum);
+        }
+        return;
+    }
+
+    if (isFixed) {
+        alert("🔒 본 기관(독서실/학원)은 원장 전담 [지정좌석제]로 운영 중입니다.\n\n좌석 변경 및 신규 배정은 원장실에 문의해 주세요.");
+        return;
+    }
+
+    if (status === "OCCUPIED" || status === "RESERVED") {
+        alert(`⚠️ [${seatId || seatNum + '번'}] 좌석은 이미 다른 회원이 이용 중입니다. 빈 좌석을 선택해 주세요.`);
+        return;
+    }
+
+    if (confirm(`🎉 [${seatId || seatNum + '번'}] 좌석을 선택하여 지금 입실하시겠습니까?`)) {
+        handleStudentSeatAction("CHECK_IN", seatId, seatNum);
+    }
+}
+window.handleStudentSeatCardClick = handleStudentSeatCardClick;
+
+async function handleStudentSeatAction(action, seatId, seatNum) {
+    const studentId = (window.currentStudent && window.currentStudent.id) ? window.currentStudent.id : (localStorage.getItem("studentId") || 1);
+    const academyCode = (typeof currentActiveFacility !== 'undefined' && currentActiveFacility) ? currentActiveFacility : ((window.currentStudent && window.currentStudent.academy_code) ? window.currentStudent.academy_code : "CAFE-STUDY01");
+
+    try {
+        const res = await fetch("/api/student/academy/seat/select", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: studentId,
+                academy_code: academyCode,
+                seat_id: seatId,
+                seat_number: seatNum,
+                action: action
+            })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            alert(data.message || "좌석 상태가 변경되었습니다.");
+            loadStudentAcademySeats();
+        } else {
+            alert(data.detail || "좌석 요청 실패");
+        }
+    } catch (e) {
+        alert("서버 연결 실패");
+    }
+}
+window.handleStudentSeatAction = handleStudentSeatAction;
