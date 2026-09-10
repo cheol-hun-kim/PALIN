@@ -787,8 +787,10 @@ body.day-mode .day-column:hover {
     background: rgba(255, 255, 255, 0.05);
     border: 1.5px solid rgba(255, 255, 255, 0.12);
     color: var(--text-secondary);
-    min-height: 44px;
-    padding: 10px 8px;
+    height: 42px;
+    min-height: 42px;
+    max-height: 42px;
+    padding: 0 8px;
     font-size: 0.84rem;
     font-weight: 800;
     border-radius: 12px;
@@ -799,6 +801,11 @@ body.day-mode .day-column:hover {
     -webkit-user-drag: none;
     touch-action: manipulation;
     box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
 }
 
 .tab-btn:hover {
@@ -830,6 +837,31 @@ body.day-mode .day-column:hover {
     border-color: #f472b6 !important;
     color: #ffffff !important;
     box-shadow: 0 4px 14px rgba(236, 72, 153, 0.35) !important;
+}
+
+/* 🚀 학습공간 서브탭 전용 통일 버튼 스타일 (상단 AI 단일 버튼 + 2x2 그리드 버튼 높이 100% 일치) */
+.subtab-main-btn {
+    width: 100% !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    padding: 0 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    font-size: 0.84rem !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -webkit-user-drag: none !important;
+    touch-action: manipulation !important;
 }
 
 /* 챗봇 대화방 */
