@@ -6141,7 +6141,7 @@ def execute_master_student_action(student_id: int, payload: MasterStudentActionP
         student.pending_tenant_code = None
         student.academy_approval_status = "APPROVED"
         is_ilwon = str(target_code).upper().startswith("ILWON")
-        student.b2c_subscription_tier = "TIER_4_ILWON" if is_ilwon else "TIER_3_ACADEMY"
+        student.b2c_subscription_tier = student.b2c_subscription_tier or "TIER_1_FREE"
         student.ai_level = "TIER_4_ILWON" if is_ilwon else "B2B_MASTER_AI"
         student.has_unlimited_chat = True
         student.chat_tokens = 999
@@ -6825,26 +6825,23 @@ def approve_student_enrollment(student_id: int, db: Session = Depends(get_db)):
     t_tier = _safe_tier(tenant)
     is_ilwon = str(target_code).upper().startswith("ILWON")
 
+    student.b2c_subscription_tier = student.b2c_subscription_tier or "TIER_1_FREE"
     if is_ilwon or t_tier >= 4:
-        student.b2c_subscription_tier = "TIER_4_ILWON"
         student.ai_level = "TIER_4_ILWON"
         student.has_unlimited_chat = True
         student.chat_tokens = 999
         tier_title = "Tier 4 일원직영 비매품 AI"
     elif t_tier >= 3:
-        student.b2c_subscription_tier = "TIER_3_ACADEMY"
         student.ai_level = "B2B_MASTER_AI"
         student.has_unlimited_chat = True
         student.chat_tokens = 999
         tier_title = "Tier 3 마스터 AI"
     elif t_tier == 2:
-        student.b2c_subscription_tier = "TIER_2_ACADEMY"
         student.ai_level = "B2B_CUSTOM_BRAIN"
         student.has_unlimited_chat = False
         student.chat_tokens = 50
         tier_title = "Tier 2 맞춤 커스텀 AI"
     else:
-        student.b2c_subscription_tier = "TIER_1_ACADEMY"
         student.ai_level = "B2B_STANDARD"
         student.has_unlimited_chat = False
         student.chat_tokens = 15

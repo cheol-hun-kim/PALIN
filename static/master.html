@@ -1436,6 +1436,7 @@
     <script>
         let allTenantsCache = [];
         let currentSelectedTenantId = null;
+        let currentTenantFilter = "ALL";
 
         function switchMasterTab(tabId) {
             if (tabId === "tab-topdown-notices") { loadAllMasterNotices(); }
@@ -1634,7 +1635,9 @@
                         </td>
                     </tr>
                 `}).join('');
-            } catch(e) {}
+            } catch(e) {
+                console.error("loadMasterTenants error:", e);
+            }
         }
 
         async function editTenantPin(tId, name, currentPin) {
