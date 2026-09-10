@@ -1110,16 +1110,35 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             <!-- ==========================================
                  2페이지: 학습공간 화면
                  ========================================== -->
-            <div id="page2" class="page-view" style="display: none;">
-                <div class="tab-header subtab-grid-2x2" id="p2-tabs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px;">
-                    <button class="tab-btn active" data-sub="chat" onclick="switchSubTabPage2('chat')">🤖 AI 챗봇</button>
-                    <button class="tab-btn" data-sub="predict" onclick="switchSubTabPage2('predict')">🎯 합격 예측</button>
-                    <button class="tab-btn" data-sub="calendar" onclick="switchSubTabPage2('calendar')">📅 입시 캘린더</button>
-                    <button class="tab-btn" data-sub="archive" onclick="switchSubTabPage2('archive')">📚 기출문제</button>
-                    <button class="tab-btn" data-sub="tracer" onclick="switchSubTabPage2('tracer')" style="grid-column: span 2; padding: 11px; font-weight: 800; background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.25)); border: 1.5px solid #818cf8; color: #ffffff; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                        <span>🔍 내신 기출 출처 추적기</span>
-                        <span style="font-size: 0.65rem; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 2px 6px; border-radius: 6px; font-weight: 900;">NEW</span>
+                <!-- 🚀 학습공간 5대 서브탭 네비게이션: AI 챗봇 단일 대형 버튼(상단) + 4대 기능 2x2 서브 그리드(하단) -->
+                <div id="p2-tabs" style="margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px;">
+                    <!-- 1. 최상단: 가장 많이 쓰는 [🤖 AI 챗봇] 단일 대형 버튼 -->
+                    <button class="tab-btn active" data-sub="chat" onclick="switchSubTabPage2('chat')" style="width: 100%; padding: 14px 16px; font-size: 1rem; font-weight: 900; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff; border: 1.5px solid #818cf8; box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35); cursor: pointer; transition: all 0.2s ease;">
+                        <span style="font-size: 1.3rem;">🤖</span>
+                        <span>수능/내신 마스터 AI 1:1 챗봇</span>
+                        <span style="font-size: 0.68rem; background: rgba(255,255,255,0.22); color: #ffffff; padding: 2px 7px; border-radius: 10px; font-weight: 900; margin-left: 4px;">HOT</span>
                     </button>
+
+                    <!-- 2. 하단: 4대 핵심 서브 기능 (2x2 그리드) -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                        <button class="tab-btn" data-sub="predict" onclick="switchSubTabPage2('predict')" style="padding: 12px 8px; font-size: 0.84rem; font-weight: 800; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            <span>🎯</span>
+                            <span>합격 예측</span>
+                        </button>
+                        <button class="tab-btn" data-sub="calendar" onclick="switchSubTabPage2('calendar')" style="padding: 12px 8px; font-size: 0.84rem; font-weight: 800; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            <span>📅</span>
+                            <span>입시 캘린더</span>
+                        </button>
+                        <button class="tab-btn" data-sub="archive" onclick="switchSubTabPage2('archive')" style="padding: 12px 8px; font-size: 0.84rem; font-weight: 800; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            <span>📚</span>
+                            <span>기출문제</span>
+                        </button>
+                        <button class="tab-btn" data-sub="tracer" onclick="switchSubTabPage2('tracer')" style="padding: 12px 8px; font-size: 0.84rem; font-weight: 800; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 5px; border-color: rgba(168,85,247,0.4); background: rgba(168,85,247,0.12); color: #e9d5ff;">
+                            <span>🔍</span>
+                            <span>내신 출처추적</span>
+                            <span style="font-size: 0.65rem; background: #10b981; color: white; padding: 1px 5px; border-radius: 4px; font-weight: 900;">NEW</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- 2-Cal: 연간 대입 입시 캘린더 탭 -->
@@ -1647,8 +1666,12 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </div>
 
                         <div style="margin-bottom: 10px;">
-                            <label class="input-label" style="font-size: 0.76rem; color: #c7d2fe;">학교명 (선택)</label>
-                            <input type="text" id="tracer-school" class="form-input" placeholder="예: 낙생고등학교 / 대치중학교" style="height: 38px; font-size: 0.82rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <label class="input-label" style="font-size: 0.76rem; color: #c7d2fe; margin-bottom: 0;">학교명 선택 (내 지역 기반 드롭다운)</label>
+                                <span style="font-size: 0.7rem; color: #94a3b8;" id="tracer-school-region-hint">지역 학교 자동 추천</span>
+                            </div>
+                            <input type="text" id="tracer-school" class="form-input" placeholder="학교명 선택 또는 직접 입력 (예: 낙생고등학교/대치중학교)" list="tracer-school-datalist" style="height: 40px; font-size: 0.84rem; font-weight: 700;">
+                            <datalist id="tracer-school-datalist"></datalist>
                         </div>
 
                         <div style="margin-bottom: 12px;">
@@ -4387,7 +4410,8 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 학교 시험에서 나온 문제의 정확한 출처(문제집, 교과서, EBS, 모의고사 등)를 제보해주세요. 검증 완료 시 <b>+500 캐시</b>가 지급됩니다.
             </p>
             <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
-                <input type="text" id="tag-school-name" class="auth-input" placeholder="학교명 (예: 낙생고, 대치중)" style="margin-bottom: 0 !important; font-size: 0.85rem;">
+                <input type="text" id="tag-school-name" class="auth-input" placeholder="학교명 선택 또는 직접 입력 (예: 낙생고, 대치중)" list="tag-school-datalist" style="margin-bottom: 0 !important; font-size: 0.85rem; font-weight: 700;">
+                <datalist id="tag-school-datalist"></datalist>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
                     <select id="tag-grade" class="auth-input" style="margin-bottom: 0 !important; font-size: 0.85rem;">
                         <option value="고3">고3</option>
@@ -4416,7 +4440,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app.js?v=20260910.school_levels_v4"></script>
+    <script src="js/app.js?v=20260910.v6_final"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
     // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소

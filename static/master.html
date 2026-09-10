@@ -522,7 +522,8 @@
                         <select id="new-t-tier" class="form-input" style="font-weight: 700;">
                             <option value="1">Tier 1 (기본 AI)</option>
                             <option value="2">Tier 2 (맞춤 뇌이식)</option>
-                            <option value="3" selected>Tier 3 (백서 RAG 풀탑재)</option>
+                            <option value="3">Tier 3 (백서 RAG 풀탑재)</option>
+                            <option value="4" selected>👑 Tier 4 (비매품 · 수능국어 심층 분석 & 원장 직강 RAG)</option>
                         </select>
                         <select id="new-t-cap" class="form-input" style="font-weight: 700;">
                             <option value="50">CAP: 50명</option>
@@ -1542,10 +1543,11 @@
                     let tierBadge = '<span style="background:#3b82f6; color:white; padding:3px 8px; border-radius:6px; font-weight:800; font-size:0.72rem;">Tier 1 (기본)</span>';
                     if (t.tier === 2) tierBadge = '<span style="background:#a855f7; color:white; padding:3px 8px; border-radius:6px; font-weight:800; font-size:0.72rem;">Tier 2 (맞춤뇌)</span>';
                     if (t.tier === 3) tierBadge = '<span style="background:#f59e0b; color:black; padding:3px 8px; border-radius:6px; font-weight:900; font-size:0.72rem;">Tier 3 (백서RAG)</span>';
+                    if (t.tier === 4) tierBadge = '<span style="background:linear-gradient(135deg, #ec4899, #8b5cf6); color:white; padding:3px 8px; border-radius:6px; font-weight:900; font-size:0.72rem; box-shadow:0 0 10px rgba(236,72,153,0.4);">👑 Tier 4 (수능국어/비매품)</span>';
 
                     const capText = t.max_students >= 99999 ? '무제한' : `${t.enrolled_students_count} / ${t.max_students}명`;
                     const capColor = t.enrolled_students_count >= t.max_students && t.max_students < 99999 ? '#ef4444' : '#34d399';
-                    const nextTier = t.tier === 1 ? 2 : (t.tier === 2 ? 3 : 1);
+                    const nextTier = t.tier === 1 ? 2 : (t.tier === 2 ? 3 : (t.tier === 3 ? 4 : 1));
 
                     return `
                     <tr style="${!isActive ? 'opacity: 0.55;' : ''}">
@@ -2683,12 +2685,15 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
                 `1: B2C Tier 1 (무료 체험)\n` +
                 `2: B2C Tier 2 (스탠다드 - 문진표/맞춤뇌)\n` +
                 `3: B2C Tier 3 (마스터 - 무제한 AI/심층 리포트)\n` +
-                `4: B2B Tier 3 (학원 가맹 혜택 강제 부여)`;
-            const choice = prompt(promptMsg, "3");
+                `4: B2B Tier 3 (학원 가맹 혜택 강제 부여)\n` +
+                `5: 👑 Tier 4 (비매품 · 일원직영 수능국어 심층 분석 & 원장 직강 RAG)`;
+            const choice = prompt(promptMsg, "5");
             if (!choice) return;
 
             let targetTier = "TIER_1_FREE";
-            if (choice === "4" || choice.toLowerCase() === "tier3_academy" || choice.toLowerCase() === "b2b") {
+            if (choice === "5" || choice.toLowerCase() === "tier4" || choice.toLowerCase() === "ilwon" || choice.toLowerCase() === "tier_4") {
+                targetTier = "TIER_4_ILWON";
+            } else if (choice === "4" || choice.toLowerCase() === "tier3_academy" || choice.toLowerCase() === "b2b") {
                 targetTier = "TIER_3_ACADEMY";
             } else if (choice === "3" || choice.toLowerCase() === "tier3" || choice.toLowerCase() === "tier_3" || choice.toLowerCase() === "master") {
                 targetTier = "TIER_3_MASTER";

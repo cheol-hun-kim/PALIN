@@ -7434,6 +7434,7 @@ function switchSubTabPage2(subTab) {
         if (typeof loadUniversityList === 'function') loadUniversityList();
     } else if (subTab === "tracer") {
         if (typeof loadExamTagsFeed === 'function') loadExamTagsFeed();
+        if (typeof populateTracerSchoolDatalist === 'function') populateTracerSchoolDatalist();
     }
 }
 window.switchSubTabPage2 = switchSubTabPage2;
@@ -16386,9 +16387,39 @@ function openExamTagModal() {
         if (schoolInp && currentStudent) {
             schoolInp.value = currentStudent.high_school || currentStudent.school_name || '';
         }
+        if (typeof populateTracerSchoolDatalist === 'function') populateTracerSchoolDatalist();
     }
 }
 window.openExamTagModal = openExamTagModal;
+
+async function populateTracerSchoolDatalist() {
+    const dlist1 = document.getElementById('tracer-school-datalist');
+    const dlist2 = document.getElementById('tag-school-datalist');
+    if (!dlist1 && !dlist2) return;
+
+    let sido = '';
+    let sigungu = '';
+    if (currentStudent && currentStudent.region) {
+        const parts = currentStudent.region.split(' ');
+        sido = parts[0] || '';
+        sigungu = parts[1] || '';
+    }
+
+    try {
+        const level = currentStudent?.school_level || 'HIGH';
+        const url = `/api/schools/search?level=${level}&sido=${encodeURIComponent(sido)}&sigungu=${encodeURIComponent(sigungu)}`;
+        const res = await fetch(url);
+        if (res.ok) {
+            const list = await res.json();
+            const optionsHtml = list.map(s => `<option value="${s}">`).join('');
+            if (dlist1) dlist1.innerHTML = optionsHtml;
+            if (dlist2) dlist2.innerHTML = optionsHtml;
+        }
+    } catch(e) {
+        console.warn('populateTracerSchoolDatalist error:', e);
+    }
+}
+window.populateTracerSchoolDatalist = populateTracerSchoolDatalist;
 
 function closeExamTagModal() {
     const modal = document.getElementById('exam-tag-modal');

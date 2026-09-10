@@ -1651,21 +1651,26 @@ def trace_exam_source(payload: schemas.ExamSourceTraceRequest, db: Session = Dep
 
 
 @app.get("/api/exam-sources/list")
-def list_exam_sources():
-    public_index_path = os.path.join(os.path.dirname(__file__), "data", "exam_sources", "public_past_exams", "index.json")
-    if not os.path.exists(public_index_path):
-        public_index_path = os.path.join(os.getcwd(), "app", "data", "exam_sources", "public_past_exams", "index.json")
-    
-    sources = []
-    if os.path.exists(public_index_path):
-        with open(public_index_path, "r", encoding="utf-8") as f:
-            sources = json.load(f)
-    return sources
+def list_exam_sources(limit: int = 10, db: Session = Depends(get_db)):
+    tags = db.query(models.ExamSourceTag).order_by(models.ExamSourceTag.id.desc()).limit(limit).all()
+    results = []
+    for t in tags:
+        results.append({
+            "id": t.id,
+            "school_name": t.school_name,
+            "subject": t.subject,
+            "question_num": t.question_num,
+            "source_name": t.tag_source_detail or "기출/연계교재 변형",
+            "reward_points": t.reward_points or 500,
+            "user_name": t.user_name or "선배 튜터",
+            "created_at": str(t.created_at) if t.created_at else ""
+        })
+    return results
 
 
 @app.post("/api/exam-sources/tag")
 def tag_exam_source(payload: schemas.ExamSourceTagCreate, db: Session = Depends(get_db)):
-    detail = payload.tag_source_detail or payload.source_name or "기출/교재 변형"
+    detail = payload.source_name or payload.tag_source_detail or "기출/교재 변형"
     if payload.notes:
         detail += f" ({payload.notes})"
     q_num = 1
@@ -1680,20 +1685,25 @@ def tag_exam_source(payload: schemas.ExamSourceTagCreate, db: Session = Depends(
     except Exception:
         q_num = 1
 
+    user_name = "선배 튜터"
+    if payload.student_id:
+        st = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+        if st:
+            user_name = st.name
+            st.paid_cash = (st.paid_cash or 0) + 500
+            st.current_points = (st.current_points or 0) + 500
+
     tag = models.ExamSourceTag(
         school_name=payload.school_name,
         subject=payload.subject,
         question_num=q_num,
+        user_id=payload.student_id,
+        user_name=user_name,
         tag_source_detail=detail,
-        user_name="인증 튜터",
-        is_tutor=True,
-        reward_points=500
+        reward_points=500,
+        is_approved=True
     )
     db.add(tag)
-    if payload.student_id:
-        st = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
-        if st:
-            st.paid_cash = (st.paid_cash or 0) + 500
     db.commit()
     db.refresh(tag)
     return {"status": "success", "message": "내신 기출 출처 제보가 등록되었습니다! (+500 캐시 적립)", "tag_id": tag.id}
@@ -1731,8 +1741,8 @@ def toggle_elem_routine(payload: ElemRoutineTogglePayload, db: Session = Depends
     if new_state:
         earned_exp = 25
         earned_points = 20
-        curr_exp = (student.pet_exp or 0) + earned_exp
-        curr_lvl = student.pet_level or 1
+        curr_exp = int(student.pet_exp or 0) + earned_exp
+        curr_lvl = int(student.pet_level or 1)
         if curr_exp >= 100:
             curr_lvl += curr_exp // 100
             curr_exp = curr_exp % 100
