@@ -642,15 +642,14 @@ body.day-mode #univ-slogan-text {
 /* 목표 대학교 배너 */
 .univ-banner {
     position: relative;
-    padding: 16px 18px;
+    padding: 14px 16px;
     background: rgba(18, 20, 29, 0.85);
-    border-radius: 18px;
+    border-radius: 16px;
     border: 1.5px solid rgba(99, 102, 241, 0.25);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
+    flex-direction: column;
+    gap: 6px;
     overflow: hidden;
 }
 

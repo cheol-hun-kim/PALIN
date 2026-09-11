@@ -730,10 +730,10 @@ function applyUniversityTheme(targetUnivStr) {
     if (ddayBadgeBox) {
         if (isDayMode) {
             ddayBadgeBox.style.background = `linear-gradient(135deg, ${theme.color}, ${theme.accent || theme.color})`;
-            ddayBadgeBox.style.boxShadow = `0 4px 14px ${theme.color}40`;
+            ddayBadgeBox.style.boxShadow = `0 2px 8px ${theme.color}40`;
         } else {
             ddayBadgeBox.style.background = `linear-gradient(135deg, ${theme.color}, #4f46e5)`;
-            ddayBadgeBox.style.boxShadow = `0 4px 14px ${theme.color}35`;
+            ddayBadgeBox.style.boxShadow = `0 2px 8px ${theme.color}35`;
         }
     }
 

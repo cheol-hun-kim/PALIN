@@ -763,32 +763,29 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <span id="univ-slogan-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-style: italic; letter-spacing: -0.3px; line-height: 1.3;">“진리가 너희를 자유케 하리라”</span>
                 </div>
 
-                <!-- 목표대학 & D-Day 배너 (D-Day 수동 변경 지원) -->
-                <div class="univ-banner" id="univ-target-banner" style="margin-bottom: 14px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 12px; transition: all 0.3s ease;">
-                    <!-- 대학별 배경 세리프 워터마크 (카드 중앙-좌측에 자연스럽게 배치) -->
-                    <div id="banner-univ-watermark" style="position: absolute; left: 45%; top: 50%; transform: translate(-50%, -50%); font-family: 'Cinzel', 'Playfair Display', 'Times New Roman', serif; font-size: 4.2rem; font-weight: 900; opacity: 0.18; letter-spacing: 4px; pointer-events: none; user-select: none; line-height: 1; z-index: 1; white-space: nowrap;">SNU</div>
+                <!-- 목표대학 & D-Day 배너 (D-Day 수동 변경 지원 & 모바일 최적화 일체형 레이아웃) -->
+                <div class="univ-banner" id="univ-target-banner" style="margin-bottom: 14px; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 14px 16px; border-radius: 16px; gap: 6px; transition: all 0.3s ease;">
+                    <!-- 대학별 배경 세리프 워터마크 (카드 정중앙에 시원하게 배치되어 가려짐 없음) -->
+                    <div id="banner-univ-watermark" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-family: 'Cinzel', 'Playfair Display', 'Times New Roman', serif; font-size: 4.2rem; font-weight: 900; opacity: 0.18; letter-spacing: 4px; pointer-events: none; user-select: none; line-height: 1; z-index: 1; white-space: nowrap;">SNU</div>
 
-                    <!-- 좌측: 대학 정보 (단정하고 균형잡힌 타이포그래피) -->
-                    <div style="flex: 1; min-width: 0; position: relative; z-index: 2; display: flex; flex-direction: column; gap: 5px;">
-                        <!-- 목표 대학 -->
-                        <div>
-                            <div id="banner-target-label" style="font-size: 0.72rem; color: #818cf8; font-weight: 800; letter-spacing: 0.3px; margin-bottom: 2px;">목표 대학</div>
-                            <div class="univ-name" id="banner-target-univ" style="font-size: 0.98rem; font-weight: 800; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.3px;">목표 대학을 설정해 주세요</div>
-                        </div>
-                        
-                        <!-- 마지노선 대학 -->
-                        <div style="display: flex; align-items: center; gap: 6px; font-size: 0.78rem;">
-                            <span style="color: #94a3b8; font-weight: 600;">마지노선</span>
-                            <span id="banner-baseline-univ" style="font-weight: 700; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">마지노선 대학 미설정</span>
+                    <!-- 상단 헤더 행: 목표 대학 라벨 (좌측) + D-Day 인라인 캡슐 뱃지 (우측) -->
+                    <div style="position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <div id="banner-target-label" style="font-size: 0.72rem; color: #818cf8; font-weight: 800; letter-spacing: 0.3px;">목표 대학</div>
+                        <div id="banner-dday-badge-box" onclick="openMyPageModal()" title="클릭하여 목표 D-Day 변경" style="cursor: pointer; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3); white-space: nowrap; flex-shrink: 0; transition: transform 0.15s ease;">
+                            <span id="banner-dday-title" style="font-size: 0.68rem; font-weight: 700; color: #ffffff !important; opacity: 0.95;">2027 수능</span>
+                            <span id="banner-dday" style="font-size: 0.82rem; font-weight: 900; color: #ffffff !important; letter-spacing: -0.2px;">D-78</span>
                         </div>
                     </div>
 
-                    <!-- 우측: D-Day 일체형 프리미엄 뱃지 (선명한 화이트 텍스트) -->
-                    <div style="flex-shrink: 0; position: relative; z-index: 2; cursor: pointer;" onclick="openMyPageModal()" title="클릭하여 목표 D-Day 변경">
-                        <div id="banner-dday-badge-box" style="background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; padding: 8px 14px; border-radius: 12px; text-align: center; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 72px;">
-                            <span style="font-size: 0.68rem; font-weight: 800; color: #ffffff !important; opacity: 0.95; letter-spacing: 0.3px; line-height: 1;" id="banner-dday-title">2027 수능</span>
-                            <span style="font-size: 1.08rem; font-weight: 900; color: #ffffff !important; letter-spacing: -0.3px; line-height: 1.1;" id="banner-dday">D-78</span>
-                        </div>
+                    <!-- 중간 메인 행: 목표 대학 & 학과명 (100% 전폭 확보로 모바일에서도 글자 잘림 없음) -->
+                    <div style="position: relative; z-index: 2; width: 100%;">
+                        <div class="univ-name" id="banner-target-univ" style="font-size: 1.05rem; font-weight: 900; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.3px;">목표 대학을 설정해 주세요</div>
+                    </div>
+
+                    <!-- 하단 마지노선 행 -->
+                    <div style="position: relative; z-index: 2; display: flex; align-items: center; gap: 6px; font-size: 0.76rem; width: 100%;">
+                        <span style="color: #94a3b8; font-weight: 600; flex-shrink: 0;">마지노선</span>
+                        <span id="banner-baseline-univ" style="font-weight: 700; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">마지노선 대학 미설정</span>
                     </div>
                 </div>
 
