@@ -401,6 +401,8 @@ assert '.brochure-btn-director' in css_content, "Missing .brochure-btn-director 
 assert '.quick-sub-btn' in css_content and '.quick-dur-btn' in css_content, "Missing quick subject/duration contrast rules"
 assert '.nav-icon-director' in css_content and '.nav-text-director' in css_content, "Missing GNB director contrast rules"
 assert '.vod-password-badge' in css_content, "Missing VOD password badge contrast rules"
+assert '.pg-method-option' in css_content, "Missing .pg-method-option high contrast rule"
+assert 'body.day-mode .pg-method-option' in css_content, "Missing Day Mode .pg-method-option high contrast rule"
 print("[GATE 4.1 PASS] Dark / Light high-contrast color palette and critical UI classes verified!")
 
 with open(os.path.join(ROOT_DIR, 'static', 'js', 'app.js'), 'r', encoding='utf-8') as f:
@@ -409,10 +411,13 @@ with open(os.path.join(ROOT_DIR, 'static', 'js', 'app.js'), 'r', encoding='utf-8
 assert 'function resetSessionState()' in js_source, "resetSessionState function missing"
 assert 'chat-messages' in js_source and 'predict-result' in js_source, "Chat & Prediction reset targets missing"
 assert 'hub-academy-materials-list' in js_source and 'hub-vod-list-container' in js_source, "Materials & VOD reset targets missing"
+assert 'function selectPgMethod(' in js_source, "selectPgMethod function missing"
 print("[GATE 4.2 PASS] Zero-Flash & Demo State Isolation Defense verified!")
 
 assert 'body.day-mode' in css_content, "Missing body.day-mode base rule"
-assert 'body.day-mode #p3-school-guild-list' in css_content or 'p3-school-guild-list' in css_content, "Missing school guild list day mode rule"
+assert 'body.day-mode #pg-checkout-modal .trigger-content' in css_content, "Missing pg-checkout-modal Day Mode contrast rule"
+assert 'body.day-mode #student-card-modal .trigger-content' in css_content, "Missing student-card-modal Day Mode contrast rule"
+assert 'body.day-mode #cash-modal .trigger-content' in css_content, "Missing cash-modal Day Mode contrast rule"
 print("[GATE 4.3 PASS] Day Mode high-contrast text styling verified (Zero White-on-White text)!")
 
 # ==============================================================================

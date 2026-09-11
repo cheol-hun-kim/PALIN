@@ -12899,6 +12899,22 @@ function openCashModal() {
 
 let currentCheckoutOrder = { amount: 10000, itemName: '10,000 캐시', price: 10000 };
 
+function selectPgMethod(methodValue) {
+    const radio = document.querySelector(`input[name="pg-method"][value="${methodValue}"]`);
+    if (radio) radio.checked = true;
+    
+    document.querySelectorAll('.pg-method-option').forEach(el => el.classList.remove('active'));
+    const optMap = {
+        'CARD': 'pg-opt-card',
+        'KAKAOPAY': 'pg-opt-kakaopay',
+        'TOSSPAY': 'pg-opt-tosspay',
+        'NAVERPAY': 'pg-opt-naverpay'
+    };
+    const activeEl = document.getElementById(optMap[methodValue]);
+    if (activeEl) activeEl.classList.add('active');
+}
+window.selectPgMethod = selectPgMethod;
+
 function openPgCheckoutModal(amount, itemName, price) {
     currentCheckoutOrder = { amount, itemName, price };
     const nameEl = document.getElementById("pg-item-name");
@@ -12909,6 +12925,8 @@ function openPgCheckoutModal(amount, itemName, price) {
     if (priceEl) priceEl.innerText = price.toLocaleString();
     if (submitPriceEl) submitPriceEl.innerText = price.toLocaleString();
     
+    selectPgMethod('CARD');
+
     const cashModal = document.getElementById("cash-modal");
     if (cashModal) cashModal.style.display = "none";
     

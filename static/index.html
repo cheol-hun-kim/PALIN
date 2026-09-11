@@ -3895,18 +3895,22 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             <!-- 결제 수단 선택 -->
             <div style="margin-bottom: 18px;">
                 <div style="font-size: 0.78rem; font-weight: 800; color: #94a3b8; margin-bottom: 8px;">결제 수단 선택</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <label style="display: flex; align-items: center; gap: 6px; padding: 10px 12px; background: rgba(56, 189, 248, 0.1); border: 1.5px solid #38bdf8; border-radius: 8px; cursor: pointer; font-size: 0.82rem; font-weight: 700; color: #f8fafc;">
-                        <input type="radio" name="pg-method" value="CARD" checked style="accent-color: #38bdf8;"> 💳 신용/체크카드
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;" id="pg-method-group">
+                    <label id="pg-opt-card" class="pg-method-option active" onclick="selectPgMethod('CARD')">
+                        <input type="radio" name="pg-method" value="CARD" checked style="accent-color: #38bdf8; margin: 0; width: 16px; height: 16px;">
+                        <span>💳 신용/체크카드</span>
                     </label>
-                    <label style="display: flex; align-items: center; gap: 6px; padding: 10px 12px; background: rgba(255, 255, 255, 0.04); border: 1.5px solid rgba(255, 255, 255, 0.15); border-radius: 8px; cursor: pointer; font-size: 0.82rem; font-weight: 700; color: #f8fafc;">
-                        <input type="radio" name="pg-method" value="KAKAOPAY" style="accent-color: #fee500;"> 🟡 카카오페이
+                    <label id="pg-opt-kakaopay" class="pg-method-option" onclick="selectPgMethod('KAKAOPAY')">
+                        <input type="radio" name="pg-method" value="KAKAOPAY" style="accent-color: #fee500; margin: 0; width: 16px; height: 16px;">
+                        <span>🟡 카카오페이</span>
                     </label>
-                    <label style="display: flex; align-items: center; gap: 6px; padding: 10px 12px; background: rgba(255, 255, 255, 0.04); border: 1.5px solid rgba(255, 255, 255, 0.15); border-radius: 8px; cursor: pointer; font-size: 0.82rem; font-weight: 700; color: #f8fafc;">
-                        <input type="radio" name="pg-method" value="TOSSPAY" style="accent-color: #0064ff;"> 🔵 토스페이
+                    <label id="pg-opt-tosspay" class="pg-method-option" onclick="selectPgMethod('TOSSPAY')">
+                        <input type="radio" name="pg-method" value="TOSSPAY" style="accent-color: #0064ff; margin: 0; width: 16px; height: 16px;">
+                        <span>🔵 토스페이</span>
                     </label>
-                    <label style="display: flex; align-items: center; gap: 6px; padding: 10px 12px; background: rgba(255, 255, 255, 0.04); border: 1.5px solid rgba(255, 255, 255, 0.15); border-radius: 8px; cursor: pointer; font-size: 0.82rem; font-weight: 700; color: #f8fafc;">
-                        <input type="radio" name="pg-method" value="NAVERPAY" style="accent-color: #03c75a;"> 🟢 네이버페이
+                    <label id="pg-opt-naverpay" class="pg-method-option" onclick="selectPgMethod('NAVERPAY')">
+                        <input type="radio" name="pg-method" value="NAVERPAY" style="accent-color: #03c75a; margin: 0; width: 16px; height: 16px;">
+                        <span>🟢 네이버페이</span>
                     </label>
                 </div>
             </div>
