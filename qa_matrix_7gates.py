@@ -451,6 +451,23 @@ with open(os.path.join(ROOT_DIR, 'app', 'main.py'), 'r', encoding='utf-8') as f:
 assert 'TIER_1_ACADEMY' in main_py_content and 'TIER_2_ACADEMY' in main_py_content and 'TIER_3_ACADEMY' in main_py_content and 'TIER_4_ILWON' in main_py_content, "Missing 7-tier backend support in main.py"
 print("[GATE 4.4 PASS] Mobile Viewport Zero-Clipping & 7-Tier God-Mode Integrity verified!")
 
+# Gate 4.5: Strict Dual-Tier Rule (B2C Tier 1~3 & B2B Tier 1~4) Defense
+with open(os.path.join(ROOT_DIR, 'static', 'admin.html'), 'r', encoding='utf-8') as f:
+    admin_html_content = f.read()
+
+# Verify B2C Tier 4 is completely banned in B2C badges
+b2c_badge_section = admin_html_content[admin_html_content.find("let b2cTierBadge = '';"):admin_html_content.find("let b2bTierBadge = '';")]
+assert 'B2C: Tier 4' not in b2c_badge_section and 'TIER_4' not in b2c_badge_section and 'Tier 4 (' not in b2c_badge_section, "B2C Tier 4 must never be referenced in B2C badge logic in admin.html"
+assert 'B2C: Tier 1' in admin_html_content and 'B2C: Tier 2' in admin_html_content and 'B2C: Tier 3' in admin_html_content, "Missing B2C 1~3 tiers in admin.html"
+assert 'B2B: Tier 4' in admin_html_content, "Missing B2B: Tier 4 in admin.html"
+
+# Verify B2C model declaration in models.py
+with open(os.path.join(ROOT_DIR, 'app', 'models.py'), 'r', encoding='utf-8') as f:
+    models_py_content = f.read()
+assert 'b2c_subscription_tier' in models_py_content, "Missing b2c_subscription_tier in models.py"
+
+print("[GATE 4.5 PASS] Strict Dual-Tier Rule Verified: B2C is strictly Tier 1~3, B2B Tier 4 is exclusively Ilwon Academy!")
+
 # ==============================================================================
 # GATE 5: Backend / Frontend Syntax Compiles
 # ==============================================================================
@@ -552,6 +569,77 @@ if missing_deps:
 
 print(f"[GATE 5.3 PASS] Cloud Deployment Parity Verified: All {len(detected_3rd_party)} external Python modules strictly declared in requirements.txt!")
 
+# 5.4 Frontend Global Scope & Chatbot Runtime Stability Defense
+eval_chat_script = f"""
+global.window = global;
+global.document = {{
+    getElementById: (id) => ({{ 
+        addEventListener: () => {{}}, 
+        style: {{}}, 
+        classList: {{ add: () => {{}}, remove: () => {{}} }},
+        innerText: '',
+        innerHTML: '',
+        dataset: {{}}
+    }}),
+    querySelectorAll: () => [],
+    querySelector: () => null,
+    addEventListener: () => {{}},
+    createElement: () => ({{ classList: {{ add: () => {{}} }}, style: {{}}, appendChild: () => {{}} }})
+}};
+global.localStorage = {{ getItem: () => null, setItem: () => {{}}, removeItem: () => {{}} }};
+global.sessionStorage = {{ getItem: () => null, setItem: () => {{}}, removeItem: () => {{}} }};
+global.navigator = {{ clipboard: {{ writeText: async () => {{}} }} }};
+try {{
+    require({json.dumps(os.path.join(ROOT_DIR, 'static', 'js', 'app.js'))});
+    
+    // Validate critical global functions
+    if (typeof updateChatTierAndTokens !== 'function') throw new Error('updateChatTierAndTokens is not a function at global scope');
+    if (typeof getEffectiveTierInfo !== 'function') throw new Error('getEffectiveTierInfo is not a function at global scope');
+    if (typeof getB2CTierInfo !== 'function') throw new Error('getB2CTierInfo is not a function at global scope');
+    
+    // Test execution with test student
+    const testStudent = {{
+        id: 1,
+        name: '김철훈',
+        b2c_subscription_tier: 'TIER_3_MASTER',
+        academy_code: 'ILWON-2027',
+        ai_level: 'TIER_4_ILWON',
+        academy_approval_status: 'APPROVED',
+        chat_tokens: 999
+    }};
+    
+    const info = getEffectiveTierInfo(testStudent);
+    if (info.tierNumber !== 4) throw new Error('Effective tier for Ilwon student should be Tier 4');
+    
+    // Simulate chatbot post-response token update
+    updateChatTierAndTokens(testStudent, 999);
+    
+    // Test pure B2C student
+    const b2cStudent = {{
+        id: 2,
+        name: '홍길동',
+        b2c_subscription_tier: 'TIER_3_MASTER',
+        academy_code: null,
+        academy_approval_status: 'NONE',
+        chat_tokens: 999
+    }};
+    const b2cInfo = getEffectiveTierInfo(b2cStudent);
+    if (b2cInfo.tierNumber !== 3) throw new Error('Effective tier for B2C Tier 3 student should be Tier 3');
+    updateChatTierAndTokens(b2cStudent, 999);
+    
+}} catch (e) {{
+    console.error('CHATBOT RUNTIME / GLOBAL SCOPE VALIDATION FAILED:', e);
+    process.exit(1);
+}}
+"""
+res_chat_eval = subprocess.run(['node', '-e', eval_chat_script], capture_output=True, text=True)
+if res_chat_eval.returncode != 0:
+    print(f"[GATE 5.4 FAIL] Chatbot Runtime / Global Scope Evaluation error:\n{res_chat_eval.stderr or res_chat_eval.stdout}")
+    sys.exit(1)
+
+print("[GATE 5.4 PASS] Frontend Global Scope & Chatbot Runtime Stability Verified (Zero 'updateChatTierAndTokens is not defined' risk)!")
+
+
 
 # ==============================================================================
 # GATE 6: Supabase Live Schema & Model 100% Alignment Verification
@@ -634,6 +722,27 @@ try:
     print(f"[GATE 6.4 PASS] User Upload & Physical Asset Guarantee: 100% of {len(materials)} DB materials verified with valid physical files on disk!")
 finally:
     db_asset_check.close()
+
+# 6.5 Dual-Tier Database Integrity & Student #1 Master Profile Validator
+db_tier_audit = database.SessionLocal()
+try:
+    # 1) Database-wide B2C Tier integrity: All students must have B2C Tier 1~3
+    invalid_b2c_students = db_tier_audit.query(models.Student).filter(
+        ~models.Student.b2c_subscription_tier.in_(['TIER_1_FREE', 'TIER_2_PARENT', 'TIER_3_MASTER'])
+    ).all()
+    assert len(invalid_b2c_students) == 0, f"Found {len(invalid_b2c_students)} students with invalid B2C tier: {[s.id for s in invalid_b2c_students]}"
+
+    # 2) Student #1 (김철훈) dual-tier integrity
+    s1 = db_tier_audit.query(models.Student).filter(models.Student.id == 1).first()
+    assert s1 is not None, "Student #1 profile missing in database"
+    assert s1.b2c_subscription_tier == "TIER_3_MASTER", f"Student #1 B2C tier corrupted: expected TIER_3_MASTER, got {s1.b2c_subscription_tier}"
+    assert s1.ai_level == "TIER_4_ILWON", f"Student #1 B2B ai_level corrupted: expected TIER_4_ILWON, got {s1.ai_level}"
+    assert "ILWON" in (s1.academy_code or "").upper(), f"Student #1 academy_code corrupted: {s1.academy_code}"
+    assert s1.academy_approval_status == "APPROVED", f"Student #1 academy_approval_status corrupted: {s1.academy_approval_status}"
+
+    print("[GATE 6.5 PASS] Dual-Tier Database Integrity & Student #1 Master Profile (B2C Tier 3 + B2B Tier 4 Ilwon) Verified!")
+finally:
+    db_tier_audit.close()
 
 # ==============================================================================
 # GATE 7: Role UI Isolation, Live E2E Transactions & Streak Verification
@@ -981,7 +1090,7 @@ print("[GATE 7.13 PASS] Live Real File Upload, Exact Byte-for-Byte SHA-256 Persi
 
 
 print("\n" + "=" * 70)
-print("[100% PROOF] ALL 7 GATES (36/36 SUB-GATES) PASSED WITH ZERO DEFECTS!")
+print("[100% PROOF] ALL 7 GATES (39/39 SUB-GATES) PASSED WITH ZERO DEFECTS!")
 print("=" * 70 + "\n")
 
 

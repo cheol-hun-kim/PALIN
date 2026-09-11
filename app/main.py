@@ -6209,7 +6209,6 @@ def execute_master_student_action(student_id: int, payload: MasterStudentActionP
 
     elif action == "SET_TIER":
         target_tier = val or "TIER_1_FREE"
-        student.b2c_subscription_tier = target_tier
         if target_tier in ["TIER_4_ILWON", "TIER_4_MASTER", "TIER_4_ACADEMY", "B2B_TIER_4"]:
             student.academy_approval_status = "APPROVED"
             student.academy_code = "ILWON-2027"
@@ -6217,6 +6216,7 @@ def execute_master_student_action(student_id: int, payload: MasterStudentActionP
             student.ai_level = "TIER_4_ILWON"
             student.has_unlimited_chat = True
             student.chat_tokens = 999
+            student.b2c_subscription_tier = student.b2c_subscription_tier or "TIER_1_FREE"
         elif target_tier in ["TIER_3_ACADEMY", "B2B_TIER_3"]:
             student.academy_approval_status = "APPROVED"
             student.academy_code = student.academy_code or "ILWON-2027"
@@ -6224,6 +6224,7 @@ def execute_master_student_action(student_id: int, payload: MasterStudentActionP
             student.ai_level = "B2B_MASTER_AI"
             student.has_unlimited_chat = True
             student.chat_tokens = 999
+            student.b2c_subscription_tier = student.b2c_subscription_tier or "TIER_1_FREE"
         elif target_tier in ["TIER_2_ACADEMY", "B2B_TIER_2"]:
             student.academy_approval_status = "APPROVED"
             student.academy_code = student.academy_code or "ILWON-2027"
@@ -6231,6 +6232,7 @@ def execute_master_student_action(student_id: int, payload: MasterStudentActionP
             student.ai_level = "B2B_CUSTOM_BRAIN"
             student.has_unlimited_chat = True
             student.chat_tokens = 999
+            student.b2c_subscription_tier = student.b2c_subscription_tier or "TIER_1_FREE"
         elif target_tier in ["TIER_1_ACADEMY", "B2B_TIER_1"]:
             student.academy_approval_status = "APPROVED"
             student.academy_code = student.academy_code or "ILWON-2027"
@@ -6238,15 +6240,22 @@ def execute_master_student_action(student_id: int, payload: MasterStudentActionP
             student.ai_level = "B2B_BASIC"
             student.has_unlimited_chat = False
             student.chat_tokens = 30
+            student.b2c_subscription_tier = student.b2c_subscription_tier or "TIER_1_FREE"
         elif target_tier in ["TIER_3_MASTER", "B2C_TIER_3"]:
+            student.b2c_subscription_tier = "TIER_3_MASTER"
+            student.previous_b2c_tier = "TIER_3_MASTER"
             student.ai_level = "B2C_MASTER"
             student.has_unlimited_chat = True
             student.chat_tokens = 999
         elif target_tier in ["TIER_2_PARENT", "B2C_TIER_2"]:
+            student.b2c_subscription_tier = "TIER_2_PARENT"
+            student.previous_b2c_tier = "TIER_2_PARENT"
             student.ai_level = "B2C_STANDARD"
             student.has_unlimited_chat = False
             student.chat_tokens = 50
         else:
+            student.b2c_subscription_tier = "TIER_1_FREE"
+            student.previous_b2c_tier = "TIER_1_FREE"
             student.ai_level = "B2C_FREE"
             student.has_unlimited_chat = False
             student.chat_tokens = 15
