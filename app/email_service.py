@@ -10,22 +10,52 @@ EMAIL_LOG_FILE = os.path.join(os.path.dirname(__file__), "..", "email_log.txt")
 
 def load_email_settings() -> Dict[str, Any]:
     """
-    Loads SMTP email configuration from JSON file or environment variables.
+    Loads SMTP email configuration from Database, JSON file, or environment variables.
     """
+    # 1. First check Database (Permanent Storage across cloud redeploys)
+    try:
+        from app.database import SessionLocal
+        from app import models
+        db = SessionLocal()
+        try:
+            configs = db.query(models.SystemConfig).filter(models.SystemConfig.config_key.in_([
+                "smtp_user", "smtp_password", "smtp_host", "smtp_port", "from_name"
+            ])).all()
+            cfg_map = {c.config_key: c.config_value for c in configs}
+            db_user = cfg_map.get("smtp_user", "").strip()
+            db_pw = cfg_map.get("smtp_password", "").strip()
+            if db_user and db_pw:
+                return {
+                    "smtp_user": db_user,
+                    "smtp_password": db_pw,
+                    "smtp_host": cfg_map.get("smtp_host", "smtp.gmail.com").strip(),
+                    "smtp_port": int(cfg_map.get("smtp_port", 587)),
+                    "from_name": cfg_map.get("from_name", "PASS MATE (PALIN)").strip()
+                }
+        finally:
+            db.close()
+    except Exception as e:
+        pass
+
+    # 2. Check email_settings.json
     if os.path.exists(EMAIL_SETTINGS_FILE):
         try:
             with open(EMAIL_SETTINGS_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                return {
-                    "smtp_user": data.get("smtp_user", "").strip(),
-                    "smtp_password": data.get("smtp_password", "").strip(),
-                    "smtp_host": data.get("smtp_host", "smtp.gmail.com").strip(),
-                    "smtp_port": int(data.get("smtp_port", 587)),
-                    "from_name": data.get("from_name", "PASS MATE (PALIN)").strip()
-                }
+                u = data.get("smtp_user", "").strip()
+                p = data.get("smtp_password", "").strip()
+                if u and p:
+                    return {
+                        "smtp_user": u,
+                        "smtp_password": p,
+                        "smtp_host": data.get("smtp_host", "smtp.gmail.com").strip(),
+                        "smtp_port": int(data.get("smtp_port", 587)),
+                        "from_name": data.get("from_name", "PASS MATE (PALIN)").strip()
+                    }
         except Exception as e:
             print(f"[EMAIL SETTINGS] Error reading {EMAIL_SETTINGS_FILE}: {e}")
 
+    # 3. Check environment variables
     return {
         "smtp_user": os.environ.get("SMTP_USER", "").strip(),
         "smtp_password": os.environ.get("SMTP_PASSWORD", "").strip(),
@@ -36,7 +66,7 @@ def load_email_settings() -> Dict[str, Any]:
 
 def save_email_settings(smtp_user: str, smtp_password: str, smtp_host: str = "smtp.gmail.com", smtp_port: int = 587, from_name: str = "PASS MATE (PALIN)") -> bool:
     """
-    Saves SMTP settings to email_settings.json.
+    Saves SMTP settings to both email_settings.json and Database.
     """
     try:
         data = {
@@ -49,6 +79,26 @@ def save_email_settings(smtp_user: str, smtp_password: str, smtp_host: str = "sm
         with open(EMAIL_SETTINGS_FILE, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         print(f"[EMAIL SETTINGS] Successfully saved SMTP settings for user: {smtp_user}")
+
+        # Save to Database (Permanent DB persistence across server rebuilds)
+        try:
+            from app.database import SessionLocal
+            from app import models
+            db = SessionLocal()
+            try:
+                for k, v in data.items():
+                    cfg = db.query(models.SystemConfig).filter(models.SystemConfig.config_key == k).first()
+                    if cfg:
+                        cfg.config_value = str(v)
+                    else:
+                        cfg = models.SystemConfig(config_key=k, config_value=str(v), description="SMTP Configuration")
+                        db.add(cfg)
+                db.commit()
+            finally:
+                db.close()
+        except Exception as dbe:
+            print(f"[EMAIL SETTINGS DB] Notice on saving to DB: {dbe}")
+
         return True
     except Exception as e:
         print(f"[EMAIL SETTINGS] Error saving SMTP settings: {e}")

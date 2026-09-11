@@ -937,5 +937,17 @@ class ExamSourceTag(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
+class SystemConfig(Base):
+    """서버 재배포 및 재부팅 후에도 영구 보존되는 전역 관리자 설정 (SMTP, 시스템 파라미터 등)"""
+    __tablename__ = "system_configs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    config_key = Column(String, unique=True, index=True, nullable=False)
+    config_value = Column(Text, nullable=False)
+    description = Column(String, nullable=True)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), default=func.now())
+
+
+
 
 
