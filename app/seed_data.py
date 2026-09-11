@@ -55,7 +55,13 @@ def auto_seed_database(db: Session, engine):
         mig_b2c = db.execute(text("SELECT migration_key FROM system_migrations WHERE migration_key = 'b2c_tier1_global_reset_20260910'")).fetchone()
         if not mig_b2c:
             db.query(models.Student).filter(models.Student.id != 1).update({models.Student.b2c_subscription_tier: "TIER_1_FREE"})
-            db.query(models.Student).filter(models.Student.id == 1).update({models.Student.b2c_subscription_tier: "TIER_4_ILWON"})
+            db.query(models.Student).filter(models.Student.id == 1).update({
+                models.Student.b2c_subscription_tier: "TIER_3_MASTER",
+                models.Student.previous_b2c_tier: "TIER_3_MASTER",
+                models.Student.ai_level: "TIER_4_ILWON",
+                models.Student.academy_code: "ILWON-2027",
+                models.Student.academy_approval_status: "APPROVED"
+            })
             db.execute(text("INSERT INTO system_migrations (migration_key) VALUES ('b2c_tier1_global_reset_20260910')"))
             db.commit()
             print("[AUTO_SEED] Global B2C tier normalization applied successfully.")

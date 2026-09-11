@@ -6624,62 +6624,187 @@ function updateHeaderUI() {
 
     if (sleepLabel) sleepLabel.innerText = `취침 미션 (${currentStudent.sleep_target_time || "23:30"})`;
 
-// 🤖 7단계 AI 티어 및 잔여 대화 토큰 실시간 UI 동기화
-function updateChatTierAndTokens(student, customRemaining = null) {
-    if (!student) return;
+// 🌟 [통합 Tier 아키텍처] B2B 가맹 학원 및 개인 B2C 구독 동적 권한/설명 해석기
+function getEffectiveTierInfo(student) {
+    if (!student) {
+        return {
+            tierNumber: 1,
+            tierTitleName: '무료 체험',
+            type: 'B2C',
+            isApprovedAcademy: false,
+            badgeText: '무료',
+            title: 'Tier 1 기본 AI (무료 체험)',
+            planTitle: 'Tier 1 무료 체험',
+            sponsorText: '기본 AI 코칭 플랜 이용 중',
+            modalTitle: 'Tier 1 무료 플랜 이용 중',
+            modalDesc: '기본 AI 코칭 플랜을 이용하고 있습니다.',
+            chatLabel: 'B2C Tier 1 (무료)',
+            chatDesc: 'B2C Tier 1 (무료 체험)',
+            color: '#94a3b8',
+            bg: 'rgba(148, 163, 184, 0.15)',
+            isUnlimited: false
+        };
+    }
+
     const b2cTier = (student.b2c_subscription_tier || "TIER_1_FREE").toUpperCase();
     const isApprovedAcademy = (student.academy_approval_status === "APPROVED" || (student.academy_code && student.academy_approval_status !== "REJECTED" && student.academy_approval_status !== "PENDING"));
-    const academyName = student.academy_code || "가맹학원";
-
-    let tierLabel = "B2C Tier 1 (무료)";
-    let tierColor = "#94a3b8";
-    let tierBg = "rgba(148, 163, 184, 0.15)";
-    let isUnlimited = false;
-    let descText = "B2C Tier 1 (무료 체험)";
-
-    if (b2cTier === "TIER_4_ILWON" || (isApprovedAcademy && academyName.toUpperCase().includes("ILWON")) || student.id === 1) {
-        tierLabel = "B2B Tier 4 (일원직영)";
-        tierColor = "#fbbf24";
-        tierBg = "rgba(245, 158, 11, 0.25)";
-        descText = "B2B Tier 4 · 김철훈 대표원장 직강 RAG 무제한";
-        isUnlimited = true;
-    } else if (b2cTier === "TIER_3_ACADEMY" || (isApprovedAcademy && student.ai_level === "B2B_MASTER_AI")) {
-        tierLabel = `B2B Tier 3 (${academyName})`;
-        tierColor = "#34d399";
-        tierBg = "rgba(16, 185, 129, 0.2)";
-        descText = `B2B Tier 3 (${academyName}) · 백서 지식 무제한 AI 활성화`;
-        isUnlimited = true;
-    } else if (b2cTier === "TIER_2_ACADEMY" || (isApprovedAcademy && student.ai_level === "B2B_CUSTOM_BRAIN")) {
-        tierLabel = `B2B Tier 2 (${academyName})`;
-        tierColor = "#60a5fa";
-        tierBg = "rgba(59, 130, 246, 0.2)";
-        descText = `B2B Tier 2 (${academyName}) · 원장 맞춤 뇌 무제한 활성화`;
-        isUnlimited = true;
-    } else if (b2cTier === "TIER_1_ACADEMY" || (isApprovedAcademy && student.ai_level === "B2B_BASIC")) {
-        tierLabel = `B2B Tier 1 (${academyName})`;
-        tierColor = "#cbd5e1";
-        tierBg = "rgba(148, 163, 184, 0.2)";
-        descText = `B2B Tier 1 (${academyName}) · 학원 기본 코칭`;
-        isUnlimited = false;
-    } else if (b2cTier.includes("TIER_3_MASTER")) {
-        tierLabel = "B2C Tier 3 (마스터)";
-        tierColor = "#c084fc";
-        tierBg = "rgba(168, 85, 247, 0.2)";
-        descText = "B2C Tier 3 (마스터) · 백서 지식 100% 무제한 AI 활성화";
-        isUnlimited = true;
-    } else if (b2cTier.includes("TIER_2")) {
-        tierLabel = "B2C Tier 2 (스탠다드)";
-        tierColor = "#818cf8";
-        tierBg = "rgba(99, 102, 241, 0.2)";
-        descText = "B2C Tier 2 (스탠다드 · 핵심 압축 코칭)";
-        isUnlimited = false;
-    } else {
-        tierLabel = "B2C Tier 1 (무료)";
-        tierColor = "#94a3b8";
-        tierBg = "rgba(148, 163, 184, 0.15)";
-        descText = "B2C Tier 1 (무료 체험)";
-        isUnlimited = false;
+    const acadCode = (student.academy_code || "").toUpperCase();
+    const acadName = (acadCode.includes("ILWON") || acadCode.includes("일원")) ? "일원학원" : (student.academy_name || student.academy_code || "가맹학원");
+    
+    // Academy tier calculation (우선순위: 명시적 academy_tier -> 코드/ai_level 추론)
+    let acadTier = Number(student.academy_tier) || 0;
+    if (!acadTier) {
+        if (acadCode.includes("ILWON") || student.ai_level === "TIER_4_ILWON" || b2cTier.includes("TIER_4")) acadTier = 4;
+        else if (student.ai_level === "B2B_MASTER_AI" || b2cTier.includes("TIER_3_ACADEMY")) acadTier = 3;
+        else if (student.ai_level === "B2B_CUSTOM_BRAIN" || b2cTier.includes("TIER_2_ACADEMY")) acadTier = 2;
+        else acadTier = 1;
     }
+
+    if (isApprovedAcademy) {
+        if (acadTier >= 4 || acadCode.includes("ILWON") || student.ai_level === "TIER_4_ILWON") {
+            return {
+                tierNumber: 4,
+                tierTitleName: '일원직영 마스터 AI',
+                type: 'B2B',
+                isApprovedAcademy: true,
+                badgeText: '학원 지원',
+                title: 'Tier 4 일원직영 마스터 AI 활성화',
+                planTitle: `B2B 가맹학원 연동 (${student.academy_code || 'ILWON-2027'})`,
+                sponsorText: `${acadName} 원장님 전액 지원 (Tier 4 직영 마스터 AI 무료 이용 중)`,
+                modalTitle: '가맹 학원 전액 무료 혜택 이용 중',
+                modalDesc: '원장님 지원으로 최상위 Tier 4 일원직영 마스터 AI를 무료 이용하고 있습니다.',
+                chatLabel: 'B2B Tier 4 (일원직영)',
+                chatDesc: 'B2B Tier 4 · 김철훈 대표원장 직강 RAG 무제한',
+                color: '#fbbf24',
+                bg: 'rgba(245, 158, 11, 0.25)',
+                isUnlimited: true
+            };
+        } else if (acadTier === 3 || student.ai_level === "B2B_MASTER_AI") {
+            return {
+                tierNumber: 3,
+                tierTitleName: '플래그십 마스터 AI',
+                type: 'B2B',
+                isApprovedAcademy: true,
+                badgeText: '학원 지원',
+                title: 'Tier 3 마스터 AI 활성화',
+                planTitle: `B2B 가맹학원 연동 (${student.academy_code})`,
+                sponsorText: `${acadName} 원장님 전액 지원 (월 99.9만 B2B 마스터 플랜)`,
+                modalTitle: '가맹 학원 전액 무료 혜택 이용 중',
+                modalDesc: '원장님 지원으로 최상위 Tier 3 마스터 AI(수험전략 백서 RAG 풀탑재)를 무료 이용하고 있습니다.',
+                chatLabel: `B2B Tier 3 (${acadName})`,
+                chatDesc: `B2B Tier 3 (${acadName}) · 백서 지식 무제한 AI 활성화`,
+                color: '#34d399',
+                bg: 'rgba(16, 185, 129, 0.2)',
+                isUnlimited: true
+            };
+        } else if (acadTier === 2 || student.ai_level === "B2B_CUSTOM_BRAIN") {
+            return {
+                tierNumber: 2,
+                tierTitleName: '맞춤 커스텀 AI',
+                type: 'B2B',
+                isApprovedAcademy: true,
+                badgeText: '학원 지원',
+                title: 'Tier 2 맞춤 커스텀 AI 활성화',
+                planTitle: `B2B 가맹학원 연동 (${student.academy_code})`,
+                sponsorText: `${acadName} 원장님 전액 지원 (월 59.9만 B2B 커스텀 플랜)`,
+                modalTitle: '가맹 학원 전액 무료 혜택 이용 중',
+                modalDesc: '원장님 맞춤 커스텀 AI 뇌를 무료 이용하고 있습니다.',
+                chatLabel: `B2B Tier 2 (${acadName})`,
+                chatDesc: `B2B Tier 2 (${acadName}) · 원장 맞춤 뇌 무제한 활성화`,
+                color: '#60a5fa',
+                bg: 'rgba(59, 130, 246, 0.2)',
+                isUnlimited: true
+            };
+        } else {
+            return {
+                tierNumber: 1,
+                tierTitleName: '표준 가맹 연동',
+                type: 'B2B',
+                isApprovedAcademy: true,
+                badgeText: '학원 지원',
+                title: 'Tier 1 표준 가맹 연동 활성화',
+                planTitle: `B2B 가맹학원 연동 (${student.academy_code})`,
+                sponsorText: `${acadName} 원장님 지원 (가맹 학원 전용 혜택)`,
+                modalTitle: '가맹 학원 기본 혜택 이용 중',
+                modalDesc: '원장님 지원으로 가맹 기본 AI를 무료 이용하고 있습니다.',
+                chatLabel: `B2B Tier 1 (${acadName})`,
+                chatDesc: `B2B Tier 1 (${acadName}) · 학원 기본 코칭`,
+                color: '#cbd5e1',
+                bg: 'rgba(148, 163, 184, 0.2)',
+                isUnlimited: false
+            };
+        }
+    } else {
+        // B2C 개인 플랜
+        if (b2cTier === "TIER_3_MASTER" || b2cTier.includes("TIER_3")) {
+            return {
+                tierNumber: 3,
+                tierTitleName: '마스터 AI 풀패키지',
+                type: 'B2C',
+                isApprovedAcademy: false,
+                badgeText: '최상위 플랜',
+                title: 'Tier 3 마스터 AI 활성화',
+                planTitle: 'Tier 3 마스터 AI 풀패키지',
+                sponsorText: '월 99,000원 멤버십 이용 중 (수험 전략 백서 풀 RAG + 무제한 AI)',
+                modalTitle: 'Tier 3 마스터 AI 이용 중',
+                modalDesc: '월 99,000원 멤버십 이용 중 (수험 전략 백서 풀 RAG + 무제한 AI)',
+                chatLabel: 'B2C Tier 3 (마스터)',
+                chatDesc: 'B2C Tier 3 (마스터) · 백서 지식 100% 무제한 AI 활성화',
+                color: '#c084fc',
+                bg: 'rgba(168, 85, 247, 0.2)',
+                isUnlimited: true
+            };
+        } else if (b2cTier === "TIER_2_PARENT" || b2cTier.includes("TIER_2")) {
+            return {
+                tierNumber: 2,
+                tierTitleName: '스탠다드 AI',
+                type: 'B2C',
+                isApprovedAcademy: false,
+                badgeText: '이용 중',
+                title: 'Tier 2 스탠다드 AI 활성화',
+                planTitle: 'Tier 2 스탠다드 AI',
+                sponsorText: '월 19,900원 멤버십 이용 중 (핵심 압축 요약 코칭)',
+                modalTitle: 'Tier 2 스탠다드 AI 이용 중',
+                modalDesc: '월 19,900원 멤버십 이용 중 (핵심 압축 요약 코칭)',
+                chatLabel: 'B2C Tier 2 (스탠다드)',
+                chatDesc: 'B2C Tier 2 (스탠다드 · 핵심 압축 코칭)',
+                color: '#818cf8',
+                bg: 'rgba(99, 102, 241, 0.2)',
+                isUnlimited: false
+            };
+        } else {
+            return {
+                tierNumber: 1,
+                tierTitleName: '무료 체험',
+                type: 'B2C',
+                isApprovedAcademy: false,
+                badgeText: '무료',
+                title: 'Tier 1 기본 AI (무료 체험)',
+                planTitle: 'Tier 1 무료 체험',
+                sponsorText: '기본 AI 코칭 플랜 이용 중',
+                modalTitle: 'Tier 1 무료 플랜 이용 중',
+                modalDesc: '기본 AI 코칭 플랜 이용 중',
+                chatLabel: 'B2C Tier 1 (무료)',
+                chatDesc: 'B2C Tier 1 (무료 체험)',
+                color: '#94a3b8',
+                bg: 'rgba(148, 163, 184, 0.15)',
+                isUnlimited: false
+            };
+        }
+    }
+}
+window.getEffectiveTierInfo = getEffectiveTierInfo;
+
+// 🤖 AI 티어 및 잔여 대화 토큰 실시간 UI 동기화
+function updateChatTierAndTokens(student, customRemaining = null) {
+    if (!student) return;
+    const tierInfo = getEffectiveTierInfo(student);
+
+    let tierLabel = tierInfo.chatLabel;
+    let tierColor = tierInfo.color;
+    let tierBg = tierInfo.bg;
+    let isUnlimited = tierInfo.isUnlimited;
+    let descText = tierInfo.chatDesc;
 
     if (student.parent && student.parent.is_premium_subscribed) {
         isUnlimited = true;
@@ -7103,9 +7228,8 @@ function executeB2CSubscribe(tier = 'TIER_2_PARENT') {
 
 function openB2CPlanManageModal() {
     const student = currentStudent || {};
-    const b2cTier = (student.b2c_subscription_tier || "TIER_1_FREE").toUpperCase();
-    const isApprovedAcademy = (student.academy_approval_status === "APPROVED" || (student.academy_code && student.academy_approval_status !== "REJECTED" && student.academy_approval_status !== "PENDING"));
-    const academyName = student.academy_code || "가맹학원";
+    const tierInfo = getEffectiveTierInfo(student);
+    const b2cTier = (student.b2c_subscription_tier || student.previous_b2c_tier || "TIER_1_FREE").toUpperCase();
 
     const titleEl = document.getElementById("plan-manage-current-title");
     const descEl = document.getElementById("plan-manage-current-desc");
@@ -7113,16 +7237,25 @@ function openB2CPlanManageModal() {
     const optionsContainer = document.getElementById("plan-manage-options-container");
     const cancelSection = document.getElementById("plan-manage-cancel-section");
 
-    if (isApprovedAcademy) {
-        if (titleEl) titleEl.innerText = `B2B 가맹학원 연동 (${academyName})`;
-        if (descEl) descEl.innerText = `${academyName} 원장님 전액 지원 (Tier 3 마스터 AI 무료 이용 중)`;
-        if (badgeEl) badgeEl.innerText = "학원 지원";
+    if (titleEl) titleEl.innerText = tierInfo.planTitle;
+    if (descEl) descEl.innerText = tierInfo.sponsorText;
+    if (badgeEl) badgeEl.innerText = tierInfo.badgeText;
+
+    if (tierInfo.isApprovedAcademy) {
         if (optionsContainer) {
+            let b2cSubDesc = "무료 플랜";
+            if (b2cTier === "TIER_3_MASTER") b2cSubDesc = "Tier 3 마스터 플랜 (월 99,000원)";
+            else if (b2cTier === "TIER_2_PARENT") b2cSubDesc = "Tier 2 스탠다드 플랜 (월 19,900원)";
+
             optionsContainer.innerHTML = `
-                <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid #10b981; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div style="font-weight: 800; color: #34d399; font-size: 0.85rem;">가맹 학원 전액 무료 혜택 이용 중</div>
-                        <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">원장님 지원으로 최상위 마스터 AI를 무료 이용하고 있습니다.</div>
+                <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid #10b981; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 6px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 800; color: #34d399; font-size: 0.88rem;">${tierInfo.modalTitle}</div>
+                        <span style="font-size: 0.7rem; color: #10b981; background: rgba(16, 185, 129, 0.15); padding: 2px 6px; border-radius: 4px; font-weight: 800;">100% 원장님 지원</span>
+                    </div>
+                    <div style="font-size: 0.74rem; color: #cbd5e1; line-height: 1.4;">${tierInfo.modalDesc}</div>
+                    <div style="font-size: 0.7rem; color: #94a3b8; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 6px; margin-top: 4px;">
+                        💡 <b>개인 B2C 보유 상태:</b> ${b2cSubDesc} (학원 연동 해제 시 자동 유지 및 전환)
                     </div>
                 </div>
             `;
@@ -7135,9 +7268,6 @@ function openB2CPlanManageModal() {
             `;
         }
     } else if (b2cTier === "TIER_3_MASTER") {
-        if (titleEl) titleEl.innerText = "Tier 3 마스터 AI 풀패키지";
-        if (descEl) descEl.innerText = "월 99,000원 멤버십 이용 중 (수험 전략 백서 풀 RAG + 무제한 AI)";
-        if (badgeEl) badgeEl.innerText = "최상위 플랜";
         if (optionsContainer) {
             optionsContainer.innerHTML = `
                 <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid #10b981; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
@@ -7157,9 +7287,6 @@ function openB2CPlanManageModal() {
             `;
         }
     } else if (b2cTier.includes("TIER_2")) {
-        if (titleEl) titleEl.innerText = "Tier 2 스탠다드 AI";
-        if (descEl) descEl.innerText = "월 19,900원 멤버십 이용 중 (핵심 압축 요약 코칭)";
-        if (badgeEl) badgeEl.innerText = "이용 중";
         if (optionsContainer) {
             optionsContainer.innerHTML = `
                 <div style="background: rgba(245, 158, 11, 0.1); border: 1.5px solid #f59e0b; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
@@ -7179,9 +7306,6 @@ function openB2CPlanManageModal() {
             `;
         }
     } else {
-        if (titleEl) titleEl.innerText = "Tier 1 무료 체험";
-        if (descEl) descEl.innerText = "기본 AI 코칭 플랜 이용 중";
-        if (badgeEl) badgeEl.innerText = "무료";
         if (optionsContainer) {
             optionsContainer.innerHTML = `
                 <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid #10b981; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
@@ -7673,26 +7797,16 @@ function openMyPageModal() {
         const tierTitle = document.getElementById("mypage-tier-title");
 
         const approvalStatus = currentStudent.academy_approval_status || "NONE";
-        const acadCode = currentStudent.academy_code;
-        const b2cTier = currentStudent.b2c_subscription_tier || "TIER_1_FREE";
+        const tierInfo = getEffectiveTierInfo(currentStudent);
 
-        if (acadCode && approvalStatus === "APPROVED") {
+        if (tierInfo.isApprovedAcademy) {
             // Case 1: 가맹 학원 원장님 전액 지원 승인 완료 학생 (학원 가맹 Tier 맞춤 적용)
             if (pendingBadge) pendingBadge.style.display = "none";
             if (freeBadge) freeBadge.style.display = "none";
             if (activeBadge) {
                 activeBadge.style.display = "flex";
-                const acadName = (acadCode.includes("ILWON") || acadCode.includes("일원")) ? "일원학원" : (currentStudent.academy_name || acadCode);
-                if (b2cTier === "TIER_3_ACADEMY" || b2cTier === "TIER_3_MASTER") {
-                    if (tierTitle) tierTitle.innerText = "Tier 3 마스터 AI 활성화";
-                    if (sponsorText) sponsorText.innerText = `${acadName} 원장님 전액 지원 (월 99,000원 마스터 플랜)`;
-                } else if (b2cTier === "TIER_2_ACADEMY" || b2cTier === "TIER_2_PARENT") {
-                    if (tierTitle) tierTitle.innerText = "Tier 2 맞춤 커스텀 AI 활성화";
-                    if (sponsorText) sponsorText.innerText = `${acadName} 원장님 전액 지원 (월 59,000원 커스텀 플랜)`;
-                } else {
-                    if (tierTitle) tierTitle.innerText = "Tier 1 가맹 학원 연동 활성화";
-                    if (sponsorText) sponsorText.innerText = `${acadName} 원장님 지원 (가맹 학원 전용 혜택)`;
-                }
+                if (tierTitle) tierTitle.innerText = tierInfo.title;
+                if (sponsorText) sponsorText.innerText = tierInfo.sponsorText;
             }
         } else if (approvalStatus === "PENDING") {
             // Case 2: 학원 초대코드 입력 후 원장님 승인 대기 중
@@ -7702,23 +7816,23 @@ function openMyPageModal() {
                 pendingBadge.style.display = "block";
                 if (pendingAcadName) pendingAcadName.innerText = currentStudent.pending_tenant_code || "학원";
             }
-        } else if (b2cTier === "TIER_2_PARENT") {
-            // Case 3: B2C Tier 2 스탠다드 구독 (월 19,900원)
-            if (pendingBadge) pendingBadge.style.display = "none";
-            if (freeBadge) freeBadge.style.display = "none";
-            if (activeBadge) {
-                activeBadge.style.display = "flex";
-                if (tierTitle) tierTitle.innerText = "Tier 2 스탠다드 AI 활성화";
-                if (sponsorText) sponsorText.innerText = "월 19,900원 멤버십 이용 중";
-            }
-        } else if (b2cTier === "TIER_3_MASTER") {
-            // Case 4: B2C Tier 3 마스터 구독 (월 99,000원)
+        } else if (tierInfo.tierNumber === 3 && tierInfo.type === "B2C") {
+            // Case 3: B2C Tier 3 마스터 구독 (월 99,000원)
             if (pendingBadge) pendingBadge.style.display = "none";
             if (freeBadge) freeBadge.style.display = "none";
             if (activeBadge) {
                 activeBadge.style.display = "flex";
                 if (tierTitle) tierTitle.innerText = "Tier 3 마스터 AI 활성화";
-                if (sponsorText) sponsorText.innerText = "월 99,000원 프리미엄 플랜";
+                if (sponsorText) sponsorText.innerText = "월 99,000원 프리미엄 플랜 (수험 전략 백서 풀 RAG)";
+            }
+        } else if (tierInfo.tierNumber === 2 && tierInfo.type === "B2C") {
+            // Case 4: B2C Tier 2 스탠다드 구독 (월 19,900원)
+            if (pendingBadge) pendingBadge.style.display = "none";
+            if (freeBadge) freeBadge.style.display = "none";
+            if (activeBadge) {
+                activeBadge.style.display = "flex";
+                if (tierTitle) tierTitle.innerText = "Tier 2 스탠다드 AI 활성화";
+                if (sponsorText) sponsorText.innerText = "월 19,900원 멤버십 이용 중 (핵심 압축 요약 코칭)";
             }
         } else {
             // Case 5: B2C Tier 1 무료 체험 회원 (신규 가입 기본값)

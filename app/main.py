@@ -1003,6 +1003,28 @@ def update_student_streak(student: models.Student, db: Session):
         print("update_student_streak error:", e)
 
 
+def get_student_academy_meta(student, db):
+    acad_code = getattr(student, 'academy_code', None)
+    if not acad_code:
+        return {"academy_name": None, "academy_tier": 1}
+    if "ILWON" in str(acad_code).upper() or "일원" in str(acad_code):
+        return {"academy_name": "일원학원", "academy_tier": 4}
+    tenant = db.query(models.Tenant).filter(
+        (models.Tenant.code == acad_code) |
+        (models.Tenant.code == acad_code.replace("-2027", "1")) |
+        (models.Tenant.code == acad_code.replace("1", "-2027")) |
+        (models.Tenant.code.ilike(f"{acad_code[:4]}%"))
+    ).first()
+    if tenant:
+        try:
+            t_tier = int(getattr(tenant, 'tier', 1) or getattr(tenant, 'license_tier', 1) or 1)
+        except Exception:
+            t_tier = 1
+        t_name = "일원학원" if ("ILWON" in tenant.code.upper() or "일원" in tenant.name) else tenant.name
+        return {"academy_name": t_name, "academy_tier": t_tier}
+    return {"academy_name": acad_code, "academy_tier": 1}
+
+
 @app.post("/api/login")
 def login_student(payload: LoginPayload, db: Session = Depends(get_db)):
     try:
@@ -1024,6 +1046,8 @@ def login_student(payload: LoginPayload, db: Session = Depends(get_db)):
         update_student_streak(student, db)
         db.commit()
         db.refresh(student)
+
+        acad_meta = get_student_academy_meta(student, db)
 
         return {
             "id": student.id,
@@ -1054,9 +1078,14 @@ def login_student(payload: LoginPayload, db: Session = Depends(get_db)):
             "streak_days": student.streak_days or 0,
             "max_streak_days": student.max_streak_days or 0,
             "medical_symbol": getattr(student, 'medical_symbol', 'GENERAL') or "GENERAL",
-            "previous_b2c_tier": getattr(student, 'previous_b2c_tier', 'B2C_FREE') or "B2C_FREE",
+            "previous_b2c_tier": getattr(student, 'previous_b2c_tier', 'TIER_1_FREE') or "TIER_1_FREE",
             "academy_code": getattr(student, 'academy_code', None),
-            "b2c_subscription_tier": "TIER_4_ILWON" if (student.id == 1 or str(student.email).lower() == "1286orbital21@gmail.com") else (getattr(student, 'b2c_subscription_tier', 'TIER_1_FREE') or "TIER_1_FREE"),
+            "academy_name": acad_meta["academy_name"],
+            "academy_tier": acad_meta["academy_tier"],
+            "academy_approval_status": getattr(student, 'academy_approval_status', 'NONE') or "NONE",
+            "pending_tenant_code": getattr(student, 'pending_tenant_code', None),
+            "b2c_subscription_tier": getattr(student, 'b2c_subscription_tier', 'TIER_1_FREE') or "TIER_1_FREE",
+            "chat_tokens": int(getattr(student, 'chat_tokens', 5)) if getattr(student, 'chat_tokens', None) is not None else 5,
             "ai_level": getattr(student, 'ai_level', 'B2C_FREE') or "B2C_FREE",
             "school_level": getattr(student, 'school_level', 'HIGH') or 'HIGH',
             "school_name": getattr(student, 'school_name', None) or student.high_school,
@@ -1094,6 +1123,8 @@ def get_student(student_id: int, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(student)
 
+    acad_meta = get_student_academy_meta(student, db)
+
     return {
         "id": student.id,
         "email": student.email,
@@ -1123,11 +1154,13 @@ def get_student(student_id: int, db: Session = Depends(get_db)):
         "streak_days": student.streak_days or 0,
         "max_streak_days": student.max_streak_days or 0,
         "medical_symbol": getattr(student, 'medical_symbol', 'GENERAL') or "GENERAL",
-        "previous_b2c_tier": getattr(student, 'previous_b2c_tier', 'B2C_FREE') or "B2C_FREE",
+        "previous_b2c_tier": getattr(student, 'previous_b2c_tier', 'TIER_1_FREE') or "TIER_1_FREE",
         "academy_code": getattr(student, 'academy_code', None),
+        "academy_name": acad_meta["academy_name"],
+        "academy_tier": acad_meta["academy_tier"],
         "academy_approval_status": getattr(student, 'academy_approval_status', 'NONE') or "NONE",
         "pending_tenant_code": getattr(student, 'pending_tenant_code', None),
-        "b2c_subscription_tier": "TIER_4_ILWON" if (student.id == 1 or str(student.email).lower() == "1286orbital21@gmail.com") else (getattr(student, 'b2c_subscription_tier', 'TIER_1_FREE') or "TIER_1_FREE"),
+        "b2c_subscription_tier": getattr(student, 'b2c_subscription_tier', 'TIER_1_FREE') or "TIER_1_FREE",
         "chat_tokens": int(getattr(student, 'chat_tokens', 5)) if getattr(student, 'chat_tokens', None) is not None else 5,
         "ai_level": getattr(student, 'ai_level', 'B2C_FREE') or "B2C_FREE",
         "school_level": getattr(student, 'school_level', 'HIGH') or 'HIGH',
@@ -1144,8 +1177,7 @@ def get_student(student_id: int, db: Session = Depends(get_db)):
         "textbook_paid": bool(getattr(student, 'textbook_paid', False)),
         "textbooks_distributed": getattr(student, 'textbooks_distributed', '') or "",
         "enrollment_status": getattr(student, 'enrollment_status', 'ENROLLED') or "ENROLLED",
-        "leave_reason": getattr(student, 'leave_reason', None)
-        }
+    }
 
 @app.get("/api/student/{student_id}/parent", response_model=schemas.ParentResponse)
 def get_student_parent(student_id: int, db: Session = Depends(get_db)):
@@ -2765,7 +2797,7 @@ def get_admin_dashboard(tenant_code: Optional[str] = "ILWON-2027", db: Session =
             "ban_reason": getattr(s, "ban_reason", "") or "",
             "academy_code": getattr(s, "academy_code", None),
             "academy_approval_status": getattr(s, "academy_approval_status", "NONE") or "NONE",
-            "b2c_subscription_tier": "TIER_4_ILWON" if (s.id == 1 or str(s.email).lower() == "1286orbital21@gmail.com") else (getattr(s, 'b2c_subscription_tier', 'TIER_1_FREE') or "TIER_1_FREE"),
+            "b2c_subscription_tier": getattr(s, 'b2c_subscription_tier', 'TIER_1_FREE') or "TIER_1_FREE",
             "ai_level": getattr(s, "ai_level", "B2C_FREE") or "B2C_FREE",
             "tuition_paid": bool(getattr(s, "tuition_paid", False)),
             "textbook_paid": bool(getattr(s, "textbook_paid", False)),
@@ -2773,7 +2805,7 @@ def get_admin_dashboard(tenant_code: Optional[str] = "ILWON-2027", db: Session =
             "enrollment_status": getattr(s, "enrollment_status", "ENROLLED") or "ENROLLED",
             "is_alumni": bool(getattr(s, "is_alumni", False)),
             "alumni_academy": getattr(s, "alumni_academy", None),
-            "previous_b2c_tier": getattr(s, "previous_b2c_tier", "B2C_FREE") or "B2C_FREE",
+            "previous_b2c_tier": getattr(s, "previous_b2c_tier", "TIER_1_FREE") or "TIER_1_FREE",
             "leave_reason": getattr(s, "leave_reason", None)
         })
 
@@ -6127,7 +6159,7 @@ def get_master_all_students(include_deleted: bool = True, db: Session = Depends(
             "academy_code": s.academy_code or "-",
             "pending_tenant_code": s.pending_tenant_code or "-",
             "academy_approval_status": s.academy_approval_status or "NONE",
-            "b2c_subscription_tier": "TIER_4_ILWON" if (s.id == 1 or str(s.email).lower() == "1286orbital21@gmail.com") else (getattr(s, 'b2c_subscription_tier', 'TIER_1_FREE') or "TIER_1_FREE"),
+            "b2c_subscription_tier": getattr(s, 'b2c_subscription_tier', 'TIER_1_FREE') or "TIER_1_FREE",
             "ai_level": s.ai_level or "B2C_FREE",
             "enrollment_status": s.enrollment_status or "ENROLLED",
             "current_points": s.current_points or 0,
@@ -6465,22 +6497,19 @@ def subscribe_b2c_tier(payload: B2CSubPayload, db: Session = Depends(get_db)):
             "tier": "TIER_1_FREE"
         }
 
-    # Check if student belongs to B2B Tier 3 Academy
-    if student.academy_code:
-        tenant = db.query(models.Tenant).filter(models.Tenant.code == student.academy_code.upper()).first()
-        if tenant and (int(getattr(tenant, 'tier', 1) or 1) >= 3 or int(getattr(tenant, 'license_tier', 1) or 1) >= 3):
-            student.b2c_subscription_tier = "TIER_3_MASTER"
-            db.commit()
-            return {
-                "status": "success",
-                "is_academy_sponsored": True,
-                "message": f"[{tenant.name}] 원장님 전액 지원으로 Tier 3 마스터 AI가 무료 활성화되었습니다.",
-                "tier": "TIER_3_MASTER"
-            }
-
     price_map = {"TIER_2_PARENT": 19900, "TIER_3_MASTER": 99000, "TIER_1_FREE": 0}
     price = price_map.get(target_tier, 19900)
     student.b2c_subscription_tier = target_tier
+    student.previous_b2c_tier = target_tier
+
+    if target_tier == "TIER_3_MASTER":
+        student.ai_level = "B2C_MASTER"
+        student.has_unlimited_chat = True
+        student.chat_tokens = 999
+    elif target_tier == "TIER_2_PARENT":
+        student.ai_level = "B2C_STANDARD"
+        student.has_unlimited_chat = False
+        student.chat_tokens = 50
 
     if price > 0:
         rev = models.PlatformRevenueLog(
@@ -6786,7 +6815,14 @@ def apply_student_academy_code(payload: ApplyAcademyCodePayload, db: Session = D
         t_tier = int(getattr(tenant, 'tier', 1) or getattr(tenant, 'license_tier', 1) or 1)
     except Exception:
         t_tier = 1
-    tier_label = "Tier 3 마스터 AI" if t_tier >= 3 else ("Tier 2 맞춤 커스텀 AI" if t_tier == 2 else "Tier 1 가맹 연동")
+    if t_tier >= 4 or "ILWON" in tenant.code.upper():
+        tier_label = "Tier 4 일원직영 비매품 마스터 AI"
+    elif t_tier == 3:
+        tier_label = "Tier 3 플래그십 마스터 AI"
+    elif t_tier == 2:
+        tier_label = "Tier 2 맞춤 커스텀 AI"
+    else:
+        tier_label = "Tier 1 표준 가맹 연동"
 
     return {
         "status": "success",
@@ -6807,9 +6843,26 @@ def cancel_student_academy_code(payload: CancelAcademyCodePayload, db: Session =
     student.pending_tenant_code = None
     student.academy_code = None
     student.academy_approval_status = "NONE"
-    student.b2c_subscription_tier = student.previous_b2c_tier or "TIER_1_FREE"
+    base_tier = student.previous_b2c_tier or "TIER_1_FREE"
+    student.b2c_subscription_tier = base_tier
+    if base_tier == "TIER_3_MASTER":
+        student.ai_level = "B2C_MASTER"
+        student.has_unlimited_chat = True
+        student.chat_tokens = 999
+    elif base_tier == "TIER_2_PARENT":
+        student.ai_level = "B2C_STANDARD"
+        student.has_unlimited_chat = False
+        student.chat_tokens = 50
+    else:
+        student.ai_level = "B2C_FREE"
+        student.has_unlimited_chat = False
+        student.chat_tokens = 15
     db.commit()
-    return {"status": "success", "message": "가맹 학원 등록 신청이 취소되었습니다."}
+    return {
+        "status": "success",
+        "message": f"학원 가맹 연동이 해제되었습니다. 개인 B2C 플랜({base_tier})으로 전환되었습니다.",
+        "b2c_subscription_tier": base_tier
+    }
 
 
 @app.get("/api/admin/pending-students")
