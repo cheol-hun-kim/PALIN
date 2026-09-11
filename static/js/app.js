@@ -15820,30 +15820,30 @@ function onDigitalOmrEraChange() {
 
     if (era === "2028_PLUS") {
         subjSelect.innerHTML = `
-            <option value="국어" selected>📖 국어 (45문항 단일)</option>
-            <option value="수학">📐 수학 (30문항 단일)</option>
-            <option value="영어">🔤 영어 (45문항 단일)</option>
-            <option value="통합사회">🌏 통합사회 (20문항 단일)</option>
-            <option value="통합과학">🧪 통합과학 (20문항 단일)</option>
-            <option value="한국사">🇰🇷 한국사 (20문항 단일)</option>
+            <option value="국어" selected>국어 (45문항 단일)</option>
+            <option value="수학">수학 (30문항 단일)</option>
+            <option value="영어">영어 (45문항 단일)</option>
+            <option value="통합사회">통합사회 (20문항 단일)</option>
+            <option value="통합과학">통합과학 (20문항 단일)</option>
+            <option value="한국사">한국사 (20문항 단일)</option>
         `;
     } else if (era === "2021_PREV") {
         subjSelect.innerHTML = `
-            <option value="국어" selected>📖 국어 (45문항: 단일형)</option>
-            <option value="수학">📐 수학 (30문항: 가형(이과) / 나형(문과))</option>
-            <option value="영어">🔤 영어 (45문항: 단일형)</option>
-            <option value="과탐">🧪 과학탐구 (20문항: 8과목 택1)</option>
-            <option value="사탐">🌏 사회탐구 (20문항: 9과목 택1)</option>
-            <option value="한국사">🇰🇷 한국사 (20문항)</option>
+            <option value="국어" selected>국어 (45문항: 단일형)</option>
+            <option value="수학">수학 (30문항: 가형(이과) / 나형(문과))</option>
+            <option value="영어">영어 (45문항: 단일형)</option>
+            <option value="과탐">과학탐구 (20문항: 8과목 택1)</option>
+            <option value="사탐">사회탐구 (20문항: 9과목 택1)</option>
+            <option value="한국사">한국사 (20문항)</option>
         `;
     } else {
         subjSelect.innerHTML = `
-            <option value="국어" selected>📖 국어 (45문항: 공통+선택)</option>
-            <option value="수학">📐 수학 (30문항: 공통+선택)</option>
-            <option value="영어">🔤 영어 (45문항)</option>
-            <option value="과탐">🧪 과학탐구 (20문항: 물/화/생/지 I·II 택1)</option>
-            <option value="사탐">🌏 사회탐구 (20문항: 9과목 택1)</option>
-            <option value="한국사">🇰🇷 한국사 (20문항)</option>
+            <option value="국어" selected>국어 (45문항: 공통+선택)</option>
+            <option value="수학">수학 (30문항: 공통+선택)</option>
+            <option value="영어">영어 (45문항)</option>
+            <option value="과탐">과학탐구 (20문항: 물/화/생/지 I·II 택1)</option>
+            <option value="사탐">사회탐구 (20문항: 9과목 택1)</option>
+            <option value="한국사">한국사 (20문항)</option>
         `;
     }
     onDigitalOmrSubjectChange();
@@ -17245,14 +17245,28 @@ async function loadSchoolBibleSummary(schoolName, subject) {
         const data = await res.json();
 
         if (verifiedBadge) {
-            verifiedBadge.innerText = `검증 족보 ${data.verified_count}건`;
+            if (data.verified_count > 0) {
+                verifiedBadge.innerText = `검증 족보 ${data.verified_count}건`;
+                verifiedBadge.style.color = "#34d399";
+                verifiedBadge.style.background = "rgba(16,185,129,0.15)";
+            } else {
+                verifiedBadge.innerText = "집계 대기중 (0건)";
+                verifiedBadge.style.color = "#94a3b8";
+                verifiedBadge.style.background = "rgba(255,255,255,0.06)";
+            }
         }
 
-        // 1. 점유율 프로그레스 바 목록 렌더링
+        // 1. 점유율 프로그레스 바 목록 렌더링 (100% 실제 채택 데이터 기반)
         if (rankingContainer) {
             const topBooks = data.top_books || [];
             if (topBooks.length === 0) {
-                rankingContainer.innerHTML = '<div style="text-align:center; padding: 14px; font-size: 0.78rem; color: var(--text-secondary);">아직 등록된 출제 데이터가 없습니다. 질문 및 제보를 남겨보세요!</div>';
+                rankingContainer.innerHTML = `
+                    <div style="text-align:center; padding: 22px 10px; font-size: 0.8rem; color: var(--text-secondary); background: rgba(255,255,255,0.02); border-radius: 10px;">
+                        <span class="material-symbols-rounded" style="font-size: 1.8rem; color: #94a3b8; display: block; margin-bottom: 6px;">menu_book</span>
+                        아직 100% 채택·검증된 출제 데이터가 없습니다.<br>
+                        <span style="font-size: 0.74rem; color: #64748b; margin-top: 2px; display: inline-block;">시험 문제 사진이나 텍스트를 등록하고 선배 튜터들의 출처 분석을 받아보세요.</span>
+                    </div>
+                `;
             } else {
                 const barColors = [
                     "linear-gradient(90deg, #6366f1, #818cf8)",
@@ -17286,7 +17300,7 @@ async function loadSchoolBibleSummary(schoolName, subject) {
 
         // 2. 선배/튜터 1등급 실전 공략 가이드
         if (guideEl) {
-            guideEl.innerText = data.alumni_guide || `${schoolName}의 1등급 대비를 위해 기출 분석과 심화서 풀이를 병행하세요.`;
+            guideEl.innerText = data.alumni_guide || `${schoolName}의 100% 채택·검증된 출제 데이터가 수집되는 중입니다. 모르는 시험 문제의 출처를 질문하거나 알고 있는 출처를 제보해 보세요!`;
         }
 
         // 3. 최근 채택 검증된 실제 출제 문항 아카이브 피드

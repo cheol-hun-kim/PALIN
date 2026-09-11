@@ -1945,36 +1945,30 @@ def get_exam_source_bible_summary(school_name: Optional[str] = "낙생고등학�
             "created_at": "2025.04.10"
         })
 
-    # Default baseline stats if data is sparse
-    if not book_counts:
-        if subject == "국어":
-            book_counts = {"EBS 수능특강": 14, "평가원/교육청 기출": 10, "마더텅": 6, "교과서 심화": 4}
-        elif subject == "영어":
-            book_counts = {"EBS 수능특강": 15, "평가원 기출": 9, "외부 학술지/사설": 6, "올림포스": 4}
-        elif subject == "통합과학" or subject == "과학":
-            book_counts = {"평가원/교육청 기출": 16, "완자/오투": 8, "하이탑": 5, "EBS": 4}
-        else: # 수학 or default
-            book_counts = {"블랙라벨": 18, "평가원/교육청 기출": 14, "일품": 7, "쎈": 5, "EBS": 3}
-
-    total_count = sum(book_counts.values()) or 1
+    # Only calculate top books if real verified data exists (Zero-Mock strict standard)
     top_books = []
-    for idx, (bname, cnt) in enumerate(sorted(book_counts.items(), key=lambda x: x[1], reverse=True)[:5]):
-        ratio = int(round((cnt / total_count) * 100))
-        top_books.append({
-            "rank": idx + 1,
-            "source_book_name": bname,
-            "book_name": bname,
-            "count": cnt,
-            "percentage": ratio,
-            "ratio": ratio
-        })
-
-    # Ensure ratios sum to 100 or close
-    top_adaptations = [
-        {"type": "조건 비틀기 및 수식 변형", "ratio": 45},
-        {"type": "복합 개념(함수/기하 결합) 융합", "ratio": 35},
-        {"type": "서술형 풀이 단계 세분화", "ratio": 20}
-    ]
+    top_adaptations = []
+    
+    if book_counts:
+        total_count = sum(book_counts.values()) or 1
+        for idx, (bname, cnt) in enumerate(sorted(book_counts.items(), key=lambda x: x[1], reverse=True)[:5]):
+            ratio = int(round((cnt / total_count) * 100))
+            top_books.append({
+                "rank": idx + 1,
+                "source_book_name": bname,
+                "book_name": bname,
+                "count": cnt,
+                "percentage": ratio,
+                "ratio": ratio
+            })
+            
+        if adaptation_counts:
+            total_adapt = sum(adaptation_counts.values()) or 1
+            for atype, acnt in sorted(adaptation_counts.items(), key=lambda x: x[1], reverse=True)[:3]:
+                top_adaptations.append({
+                    "type": atype,
+                    "ratio": int(round((acnt / total_adapt) * 100))
+                })
 
     # School-specific curated alumni guides
     curated_guides = {
@@ -2000,11 +1994,13 @@ def get_exam_source_bible_summary(school_name: Optional[str] = "낙생고등학�
     school_key = next((k for k in curated_guides if k in target_school), None)
     if school_key:
         guide_dict = curated_guides[school_key]
-        alumni_guide = guide_dict.get(subject, guide_dict.get("default", f"{target_school} 내신은 주요 기출 변형 비중이 높습니다."))
+        alumni_guide = guide_dict.get(subject, guide_dict.get("default", f"{target_school} 내신은 주요 기출 및 심화서 변형 비중이 높습니다."))
+    elif top_books:
+        alumni_guide = f"{target_school}는 채택 검증 데이터 분석 결과 '{top_books[0]['source_book_name']}'의 출제 점유율이 가장 높습니다. 해당 교재와 연계 기출을 집중 공략하세요."
     else:
-        alumni_guide = f"{target_school}는 최근 3개년 평가원 기출 및 시중 최상위 심화 교재의 발문·조건 변형 출제 비중이 높습니다. 기본 유형을 빠르게 마스터한 후 고난도 기출 3회독을 추천합니다."
+        alumni_guide = f"{target_school} {subject or ''}의 100% 채택·검증된 출제 데이터가 수집되는 중입니다. 모르는 시험 문제의 출처를 질문하거나 알고 있는 출처를 제보해 보세요!"
 
-    verified_cnt = len(recent_archive) if recent_archive else total_count
+    verified_cnt = len(recent_archive)
     return {
         "status": "success",
         "school_name": target_school,
