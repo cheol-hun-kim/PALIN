@@ -389,7 +389,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
                             <!-- 세부지역 연동 학교 자동완성 & 직접입력 Datalist -->
                             <div style="margin-bottom: 8px;">
-                                <input type="text" id="reg-school" class="auth-input" placeholder="고등학교 검색 (클릭 시 선택지 또는 직접 입력)" list="school-datalist" required style="margin-bottom: 0;">
+                                <input type="text" id="reg-school" class="auth-input" placeholder="고등학교 검색 (클릭 시 선택지 또는 직접 입력)" list="school-datalist" required style="margin-bottom: 0;" onfocus="refreshSchoolsBySelectedLevel()" oninput="handleSchoolInputSearch(this.value)">
                                 <datalist id="school-datalist"></datalist>
                                 <datalist id="highschool-datalist"></datalist>
                             </div>

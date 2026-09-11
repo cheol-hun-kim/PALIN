@@ -15927,6 +15927,38 @@ async function refreshSchoolsBySelectedLevel() {
 }
 window.refreshSchoolsBySelectedLevel = refreshSchoolsBySelectedLevel;
 
+let schoolSearchDebounceTimer = null;
+async function handleSchoolInputSearch(query) {
+    clearTimeout(schoolSearchDebounceTimer);
+    schoolSearchDebounceTimer = setTimeout(async () => {
+        const level = document.getElementById('reg-school-level-val')?.value || 'HIGH';
+        const sido = document.getElementById('reg-sido')?.value || '';
+        const sigungu = document.getElementById('reg-sigungu')?.value || '';
+        const datalist = document.getElementById('school-datalist');
+        const highDatalist = document.getElementById('highschool-datalist');
+        if (!datalist && !highDatalist) return;
+
+        try {
+            const url = `/api/schools/search?level=${level}&sido=${encodeURIComponent(sido)}&sigungu=${encodeURIComponent(sigungu)}&q=${encodeURIComponent(query || '')}`;
+            const res = await fetch(url);
+            if (res.ok) {
+                const list = await res.json();
+                const optionsHtml = list.map(s => {
+                    const name = typeof s === 'string' ? s : (s.name || s.school_name || s.학교명 || '');
+                    if (!name || name === '[object Object]') return '';
+                    const type = s.type ? ` [${s.type}]` : '';
+                    const loc = s.sigungu ? ` (${s.sigungu})` : (s.sido ? ` (${s.sido})` : '');
+                    return `<option value="${name}">${name}${type}${loc}</option>`;
+                }).filter(Boolean).join('');
+
+                if (datalist) datalist.innerHTML = optionsHtml;
+                if (highDatalist) highDatalist.innerHTML = optionsHtml;
+            }
+        } catch(e) {}
+    }, 120);
+}
+window.handleSchoolInputSearch = handleSchoolInputSearch;
+
 function renderAppForSchoolLevel(student) {
     if (!student) return;
     const level = (student.school_level || 'HIGH').toUpperCase();

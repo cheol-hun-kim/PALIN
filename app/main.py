@@ -1602,14 +1602,30 @@ def search_schools(level: str = "HIGH", sido: str = "", sigungu: str = "", q: st
         with open(p, "r", encoding="utf-8") as f:
             schools = json.load(f)
     
-    if sido:
-        schools = [s for s in schools if s.get("sido") == sido]
-    if sigungu:
-        schools = [s for s in schools if s.get("sigungu") == sigungu]
     if q:
         q_lower = q.lower().strip()
-        schools = [s for s in schools if q_lower in s.get("name", "").lower()]
-    return schools
+        matched = [s for s in schools if q_lower in s.get("name", "").lower()]
+        return matched[:100]
+
+    if sido and sigungu:
+        matched_sigungu = [s for s in schools if s.get("sido") == sido and s.get("sigungu") == sigungu]
+        matched_sido_others = [s for s in schools if s.get("sido") == sido and s.get("sigungu") != sigungu]
+        special_nationwide = [s for s in schools if s.get("sido") != sido and s.get("type") in ("자사고", "전국자사고", "영재학교", "과학고", "외고", "국제고")]
+        
+        result = matched_sigungu + matched_sido_others + special_nationwide[:15]
+        if not result:
+            result = [s for s in schools if s.get("sido") == sido]
+        if not result:
+            result = schools[:50]
+        return result
+        
+    elif sido:
+        matched_sido = [s for s in schools if s.get("sido") == sido]
+        special_nationwide = [s for s in schools if s.get("sido") != sido and s.get("type") in ("자사고", "전국자사고", "영재학교", "과학고", "외고", "국제고")]
+        result = matched_sido + special_nationwide[:15]
+        return result if result else schools[:50]
+
+    return schools[:100]
 
 
 @app.get("/api/middle/special-high-schools")
