@@ -739,8 +739,35 @@ function applyUniversityTheme(targetUnivStr) {
 
     if (watermark) {
         watermark.innerText = theme.code;
-        watermark.style.color = theme.color;
-        watermark.style.opacity = isDayMode ? "0.08" : "0.05";
+
+        // 글자 수에 따른 폰트 크기 및 자간 최적화 (배너 너비 내 완벽한 세리프 타이포그래피 비율)
+        const codeLen = (theme.code || "").length;
+        if (codeLen <= 4) {
+            watermark.style.fontSize = "4.2rem";
+            watermark.style.letterSpacing = "6px";
+        } else if (codeLen <= 7) {
+            watermark.style.fontSize = "3.6rem";
+            watermark.style.letterSpacing = "4px";
+        } else if (codeLen <= 10) {
+            watermark.style.fontSize = "3.0rem";
+            watermark.style.letterSpacing = "3px";
+        } else {
+            watermark.style.fontSize = "2.4rem";
+            watermark.style.letterSpacing = "2px";
+        }
+
+        if (isDayMode) {
+            // 데이 모드: 화이트 배경 위에서 단정하고 우아한 대학 상징 컬러
+            watermark.style.color = theme.color;
+            watermark.style.opacity = "0.10";
+            watermark.style.textShadow = "none";
+        } else {
+            // 다크 모드: 딥 네이비/블랙 배경에서도 묻히지 않도록 밝은 액센트 컬러 + 선명한 가시성(0.18) + 은은한 앰비언트 글로우
+            const glowColor = theme.accent || "#818cf8";
+            watermark.style.color = glowColor;
+            watermark.style.opacity = "0.18";
+            watermark.style.textShadow = `0 0 28px ${glowColor}40`;
+        }
     }
 
     // 목표 대학 공식 슬로건 렌더링
