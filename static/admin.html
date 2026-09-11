@@ -367,15 +367,15 @@
                 <span style="font-size: 0.84rem; font-weight: 900; color: #818cf8;">4대 업종 맞춤 관제실 전환:</span>
             </div>
             <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                <button onclick="switchIndustryConsoleMode('HIGH_ACADEMY')" id="sim-btn-high" class="sim-type-btn active" style="padding: 5px 12px; font-size: 0.78rem; border-radius: 8px; font-weight: 800; cursor: pointer; border: 1.5px solid #6366f1; background: #6366f1; color: white; transition: all 0.2s;">🎓 고등 대입전문</button>
-                <button onclick="switchIndustryConsoleMode('MID_ACADEMY')" id="sim-btn-mid" class="sim-type-btn" style="padding: 5px 12px; font-size: 0.78rem; border-radius: 8px; font-weight: 800; cursor: pointer; border: 1.5px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: #cbd5e1; transition: all 0.2s;">🏫 중등 내신·특목</button>
-                <button onclick="switchIndustryConsoleMode('ELEM_ACADEMY')" id="sim-btn-elem" class="sim-type-btn" style="padding: 5px 12px; font-size: 0.78rem; border-radius: 8px; font-weight: 800; cursor: pointer; border: 1.5px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: #cbd5e1; transition: all 0.2s;">🎒 초등 보습·어학</button>
-                <button onclick="switchIndustryConsoleMode('STUDY_CAFE')" id="sim-btn-cafe" class="sim-type-btn" style="padding: 5px 12px; font-size: 0.78rem; border-radius: 8px; font-weight: 800; cursor: pointer; border: 1.5px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: #cbd5e1; transition: all 0.2s;">☕ 독서실·스터디카페</button>
+                <button onclick="switchIndustryConsoleMode('HIGH_ACADEMY')" id="sim-btn-high" class="sim-type-btn active" style="padding: 5px 12px; font-size: 0.78rem; border-radius: 8px; font-weight: 800; cursor: pointer; border: 1.5px solid #6366f1; background: #6366f1; color: white; transition: all 0.2s;">고등 대입전문</button>
+                <button onclick="switchIndustryConsoleMode('MID_ACADEMY')" id="sim-btn-mid" class="sim-type-btn" style="padding: 5px 12px; font-size: 0.78rem; border-radius: 8px; font-weight: 800; cursor: pointer; border: 1.5px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: #cbd5e1; transition: all 0.2s;">중등 내신·특목</button>
+                <button onclick="switchIndustryConsoleMode('ELEM_ACADEMY')" id="sim-btn-elem" class="sim-type-btn" style="padding: 5px 12px; font-size: 0.78rem; border-radius: 8px; font-weight: 800; cursor: pointer; border: 1.5px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: #cbd5e1; transition: all 0.2s;">초등 보습·어학</button>
+                <button onclick="switchIndustryConsoleMode('STUDY_CAFE')" id="sim-btn-cafe" class="sim-type-btn" style="padding: 5px 12px; font-size: 0.78rem; border-radius: 8px; font-weight: 800; cursor: pointer; border: 1.5px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: #cbd5e1; transition: all 0.2s;">독서실·스터디카페</button>
             </div>
         </div>
         <div id="industry-active-badge" style="font-size: 0.78rem; color: #34d399; font-weight: 800; background: rgba(16, 185, 129, 0.15); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.3); display: flex; align-items: center; gap: 6px;">
             <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
-            <span id="industry-active-badge-text">현재 관제: 🎓 고등 대입전문학원</span>
+            <span id="industry-active-badge-text">현재 관제: 고등 대입전문학원</span>
         </div>
     </div>
 
@@ -385,7 +385,7 @@
             <span>🚨 [GOD MODE: <span id="god-mode-target-name">원장</span> 관제실 섀도잉 접속]</span>
         </div>
         <button onclick="exitGodMode()" class="btn" style="background: white; color: #dc2626; font-weight: 900; padding: 5px 12px; font-size: 0.75rem;">
-            👑 마스터 콘솔 복귀
+            마스터 콘솔 복귀
         </button>
     </div>
 
@@ -416,18 +416,18 @@
                 </div>
                 <div class="admin-header-actions">
                     <a id="admin-master-console-btn" href="/master.html" target="_blank" class="btn" style="display: none; padding: 8px 14px; font-size: 0.78rem; font-weight: 900; background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; border-radius: 10px; text-decoration: none; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(245,158,11,0.3);">
-                        👑 갓모드 (마스터 관제)
+                        갓모드 (마스터 관제)
                     </a>
                     <button onclick="openBrainSurveyModal()" class="btn" style="padding: 8px 12px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #a855f7, #7e22ce); color: white; display: flex; align-items: center; gap: 4px;">
-                        <span>🧠</span> AI 페르소나 설정
+                        AI 페르소나 설정
                     </button>
                     <button onclick="openChangePinModal()" class="btn" style="padding: 8px 12px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; display: flex; align-items: center; gap: 4px;" title="원장 관제실 접속 PIN 번호 직접 변경">
-                        <span>🔑</span> 보안 PIN 변경
+                        보안 PIN 변경
                     </button>
 
-                    <button onclick="fetchDashboardData()" class="btn" style="padding: 8px 12px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">🔄 갱신</button>
-                    <button onclick="adminLogout()" class="btn" style="padding: 8px 12px; font-size: 0.78rem; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #ef4444; font-weight: 800;">🔒 로그아웃</button>
-                    <a href="/" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.78rem; text-decoration: none;">📱 학생 화면</a>
+                    <button onclick="fetchDashboardData()" class="btn" style="padding: 8px 12px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">갱신</button>
+                    <button onclick="adminLogout()" class="btn" style="padding: 8px 12px; font-size: 0.78rem; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #ef4444; font-weight: 800;">로그아웃</button>
+                    <a href="/" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.78rem; text-decoration: none;">학생 화면</a>
                 </div>
             </div>
 
@@ -435,65 +435,65 @@
             <div class="admin-tab-nav" id="admin-tab-nav-bar">
                 <button class="admin-cockpit-tab-btn active" onclick="switchAdminCockpitTab('tab-schedule')" id="tab-btn-schedule">
                     <span class="material-symbols-rounded" style="font-size: 1rem;">calendar_month</span>
-                    <span id="tab-label-schedule">📅 1. 원장 스케줄러</span>
+                    <span id="tab-label-schedule">1. 원장 스케줄러</span>
                 </button>
                 <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-attendance')" id="tab-btn-attendance">
                     <span class="material-symbols-rounded" style="font-size: 1rem;">wifi_tethering</span>
-                    <span id="tab-label-attendance">📡 2. 출결관리</span>
+                    <span id="tab-label-attendance">2. 출결관리</span>
                 </button>
                 <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-finance')" id="tab-btn-finance">
                     <span class="material-symbols-rounded" style="font-size: 1rem;">payments</span>
-                    <span id="tab-label-finance">💰 3. 수업료 & 수납ERP</span>
+                    <span id="tab-label-finance">3. 수업료 & 수납ERP</span>
                 </button>
                 <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-curriculum')" id="tab-btn-curriculum">
                     <span class="material-symbols-rounded" style="font-size: 1rem;">campaign</span>
-                    <span id="tab-label-curriculum">📢 4. 수업관리</span>
+                    <span id="tab-label-curriculum">4. 수업 및 과제 관리</span>
                 </button>
                 <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-students')" id="tab-btn-students">
                     <span class="material-symbols-rounded" style="font-size: 1rem;">groups</span>
-                    <span id="tab-label-students">👥 5. 원생 관리</span>
+                    <span id="tab-label-students">5. 원생 관리</span>
                 </button>
                 <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-tutors')" id="tab-btn-tutors">
                     <span class="material-symbols-rounded" style="font-size: 1rem;">school</span>
-                    <span id="tab-label-tutors">🎓 6. 튜터관리</span>
+                    <span id="tab-label-tutors">6. 튜터 관리</span>
                 </button>
                 <button class="admin-cockpit-tab-btn" onclick="switchAdminSpecialTab()" id="tab-btn-special">
                     <span class="material-symbols-rounded" id="tab-special-icon" style="font-size: 1rem; color: #34d399;">assignment</span>
-                    <span id="tab-special-text" style="color: #34d399; font-weight: 800;">📝 7. 모의고사·OMR 관제</span>
+                    <span id="tab-special-text" style="color: #34d399; font-weight: 800;">7. 모의고사·OMR 관제</span>
                 </button>
             </div>
 
-            <!-- TAB 1: 📅 1. 원장 스케줄러 -->
+            <!-- TAB 1: 1. 원장 스케줄러 -->
             <div id="tab-schedule" class="cockpit-tab-view" style="display: block;">
                 <div class="kpi-card" style="border: 1.5px solid rgba(99, 102, 241, 0.4);">
                     <div class="section-title" style="color: #818cf8;">
                         <div style="display:flex; align-items:center; gap:6px;">
                             <span class="material-symbols-rounded">calendar_month</span>
-                            <span>📅 원장 전용 개인 스케줄러</span>
+                            <span>원장 전용 개인 스케줄러</span>
                         </div>
                     </div>
                     <form onsubmit="handleCreateSchedule(event)" style="margin-bottom: 18px; background: rgba(0,0,0,0.3); padding: 14px; border-radius: 12px; border: 1px solid rgba(99, 102, 241, 0.3); box-sizing: border-box; width: 100%;">
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
                             <div>
-                                <label style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">📂 일정 구분</label>
+                                <label style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">일정 구분</label>
                                 <select id="sched-category" class="form-input" style="font-weight: 700; height: 42px; width: 100%; box-sizing: border-box;">
-                                    <option value="교재주문">📦 교재 주문</option>
-                                    <option value="입시설명회">🎤 입시설명회</option>
-                                    <option value="모의고사마감">📝 모의고사 마감</option>
-                                    <option value="행정일반">📋 행정 일반</option>
+                                    <option value="교재주문">교재 주문</option>
+                                    <option value="입시설명회">입시설명회</option>
+                                    <option value="모의고사마감">모의고사 마감</option>
+                                    <option value="행정일반">행정 일반</option>
                                 </select>
                             </div>
                             <div>
-                                <label style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">📌 주차 라벨</label>
+                                <label style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">주차 라벨</label>
                                 <input type="text" id="sched-week-label" placeholder="예: 3주차" value="3주차" class="form-input" style="text-align: center; font-weight: 800; height: 42px; width: 100%; box-sizing: border-box;">
                             </div>
                         </div>
                         <div style="margin-bottom: 10px;">
-                            <label style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">📅 일정 날짜 선택</label>
+                            <label style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">일정 날짜 선택</label>
                             <input type="date" id="sched-date" required class="form-input" style="color-scheme: dark !important; font-weight: 700; height: 42px; width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.08); color: #ffffff !important; padding: 8px 12px; border-radius: 8px;">
                         </div>
                         <div style="margin-bottom: 10px;">
-                            <label style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">📝 일정 제목</label>
+                            <label style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">일정 제목</label>
                             <input type="text" id="sched-title" placeholder="일정 제목 (예: 6모 교재 발주 및 수강생 명단 마감)" required class="form-input" style="height: 42px; width: 100%; box-sizing: border-box;">
                         </div>
                         <button type="submit" class="btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; padding: 12px; font-size: 0.92rem; color: white; border-radius: 8px; width: 100%; box-sizing: border-box; cursor: pointer; box-shadow: 0 4px 12px rgba(99,102,241,0.35);">
@@ -1879,10 +1879,10 @@
             };
 
             const colors = {
-                'HIGH_ACADEMY': { primary: '#6366f1', text: '🎓 고등 대입전문학원', tabText: '📝 7. 모의고사·OMR 관제', tabIcon: 'assignment', badgeColor: '#34d399', badgeBg: 'rgba(16, 185, 129, 0.15)', badgeBorder: 'rgba(16, 185, 129, 0.3)' },
-                'MID_ACADEMY': { primary: '#0284c7', text: '🏫 중등 내신·특목전문학원', tabText: '📊 7. 올A 내신 & 특목고 진학', tabIcon: 'grade', badgeColor: '#38bdf8', badgeBg: 'rgba(2, 132, 199, 0.15)', badgeBorder: 'rgba(2, 132, 199, 0.3)' },
-                'ELEM_ACADEMY': { primary: '#d97706', text: '🎒 초등 보습·어학원', tabText: '🌟 7. 매일 습관 · 스티커 · 펫', tabIcon: 'stars', badgeColor: '#fbbf24', badgeBg: 'rgba(245, 158, 11, 0.15)', badgeBorder: 'rgba(245, 158, 11, 0.3)' },
-                'STUDY_CAFE': { primary: '#7c3aed', text: '☕ 독서실·스터디카페', tabText: '🪑 7. 2D 좌석 매트릭스 & 이용권', tabIcon: 'chair', badgeColor: '#c084fc', badgeBg: 'rgba(168, 85, 247, 0.15)', badgeBorder: 'rgba(168, 85, 247, 0.3)' }
+                'HIGH_ACADEMY': { primary: '#6366f1', text: '고등 대입전문학원', tabText: '7. 모의고사·OMR 관제', tabIcon: 'assignment', badgeColor: '#34d399', badgeBg: 'rgba(16, 185, 129, 0.15)', badgeBorder: 'rgba(16, 185, 129, 0.3)' },
+                'MID_ACADEMY': { primary: '#0284c7', text: '중등 내신·특목전문학원', tabText: '7. 올A 내신 & 특목고 진학', tabIcon: 'grade', badgeColor: '#38bdf8', badgeBg: 'rgba(2, 132, 199, 0.15)', badgeBorder: 'rgba(2, 132, 199, 0.3)' },
+                'ELEM_ACADEMY': { primary: '#d97706', text: '초등 보습·어학원', tabText: '7. 매일 습관 · 스티커 · 펫', tabIcon: 'stars', badgeColor: '#fbbf24', badgeBg: 'rgba(245, 158, 11, 0.15)', badgeBorder: 'rgba(245, 158, 11, 0.3)' },
+                'STUDY_CAFE': { primary: '#7c3aed', text: '독서실·스터디카페', tabText: '7. 2D 좌석 매트릭스 & 이용권', tabIcon: 'chair', badgeColor: '#c084fc', badgeBg: 'rgba(168, 85, 247, 0.15)', badgeBorder: 'rgba(168, 85, 247, 0.3)' }
             };
 
             const activeCfg = colors[currentBusinessType] || colors['HIGH_ACADEMY'];

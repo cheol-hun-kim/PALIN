@@ -172,9 +172,10 @@ def send_smtp_email_otp(to_email: str, otp_code: str):
             return True
         except Exception as e:
             print(f"⚠️ [SMTP FALLBACK] Failed to send via live SMTP ({e}). Fallback logged.")
+            return False
     
     print(f"📧 [EMAIL OTP LOG] Code [{otp_code}] issued for [{to_email}] (Valid for 5 mins)")
-    return True
+    return False
 
 @app.post("/api/auth/send-email-otp")
 def send_email_otp(payload: schemas.EmailOtpSendPayload, db: Session = Depends(get_db)):
@@ -195,12 +196,13 @@ def send_email_otp(payload: schemas.EmailOtpSendPayload, db: Session = Depends(g
         "created_at": time.time()
     }
     
-    send_smtp_email_otp(clean_email, code)
+    is_live_smtp = send_smtp_email_otp(clean_email, code)
     
     return {
         "status": "success",
-        "message": "인증코드가 발송되었습니다. (유효시간: 5분)",
+        "message": "인증코드가 발송되었습니다. (유효시간: 5분)" if is_live_smtp else "인증코드가 발급되었습니다.",
         "expires_in": 300,
+        "is_live_smtp": is_live_smtp,
         "dev_code": code
     }
 

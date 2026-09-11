@@ -5489,7 +5489,19 @@ async function handleSendEmailOtp() {
         if (otpSection) otpSection.style.display = "block";
         if (statusMsg) {
             statusMsg.style.color = "#38bdf8";
-            statusMsg.innerText = `✉️ [${email}]로 6자리 인증번호가 발송되었습니다. 메일함을 확인해 주세요.`;
+            if (data.is_live_smtp) {
+                statusMsg.innerText = `✉️ [${email}]로 6자리 인증번호가 발송되었습니다. 메일함을 확인해 주세요.`;
+            } else {
+                statusMsg.innerText = `✉️ 인증번호가 발급되었습니다. (코드: ${data.dev_code || '자동완성됨'})`;
+            }
+        }
+
+        // 라이브 SMTP 미연결 환경(데모/테스트)일 경우 사용자 편의를 위해 인증번호 즉시 자동완성
+        if (!data.is_live_smtp && data.dev_code) {
+            const otpInput = document.getElementById("reg-otp-input");
+            if (otpInput) {
+                otpInput.value = data.dev_code;
+            }
         }
 
         // 타이머 초기화 (5분)
