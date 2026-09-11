@@ -6595,6 +6595,9 @@ function updateHeaderUI() {
 
     if (sub) sub.innerText = `${currentStudent.high_school || "학교미설정"} ${gradeText} | ${currentStudent.region || "지역미설정"}`;
 
+    const tracerBadge = document.getElementById("tracer-my-school-badge");
+    if (tracerBadge) tracerBadge.innerText = (typeof getMyRegisteredSchool === 'function') ? getMyRegisteredSchool() : (currentStudent.high_school || "낙생고등학교");
+
     // 메인화면 미션 라벨 업데이트 (이모지 없이 깔끔하게 표기)
 
     const wakeLabel = document.getElementById("mission-wakeup-label");
@@ -17209,17 +17212,25 @@ function switchTracerSubMode(mode) {
 }
 window.switchTracerSubMode = switchTracerSubMode;
 
-function onBibleSchoolOrSubjectChange() {
-    const select = document.getElementById("tracer-school-select");
-    const customInp = document.getElementById("tracer-school");
-    let schoolName = select ? select.value : "낙생고등학교";
-    if (schoolName === "CUSTOM") {
-        if (customInp) customInp.style.display = "block";
-        schoolName = customInp ? customInp.value.trim() : "";
-        if (!schoolName) schoolName = "낙생고등학교";
-    } else {
-        if (customInp) customInp.style.display = "none";
+function getMyRegisteredSchool() {
+    if (typeof currentStudent !== 'undefined' && currentStudent) {
+        let sch = currentStudent.high_school || currentStudent.school_name || currentStudent.school || '';
+        sch = sch.trim();
+        if (sch) {
+            if (sch.endsWith('고') && !sch.endsWith('고등학교')) {
+                sch = sch + '등학교';
+            }
+            return sch;
+        }
     }
+    return "낙생고등학교";
+}
+window.getMyRegisteredSchool = getMyRegisteredSchool;
+
+function onBibleSchoolOrSubjectChange() {
+    const schoolName = getMyRegisteredSchool();
+    const badgeEl = document.getElementById("tracer-my-school-badge");
+    if (badgeEl) badgeEl.innerText = schoolName;
 
     const subject = document.getElementById("tracer-subject")?.value || "전체";
     loadSchoolBibleSummary(schoolName, subject);
@@ -17227,11 +17238,14 @@ function onBibleSchoolOrSubjectChange() {
 window.onBibleSchoolOrSubjectChange = onBibleSchoolOrSubjectChange;
 
 async function loadSchoolBibleSummary(schoolName, subject) {
-    if (!schoolName) schoolName = "낙생고등학교";
+    if (!schoolName) schoolName = getMyRegisteredSchool();
     if (!subject) subject = "전체";
 
     const titleEl = document.getElementById("bible-school-title-display");
     if (titleEl) titleEl.innerText = schoolName;
+
+    const badgeEl = document.getElementById("tracer-my-school-badge");
+    if (badgeEl) badgeEl.innerText = schoolName;
 
     const rankingContainer = document.getElementById("bible-books-ranking-list");
     const guideEl = document.getElementById("bible-alumni-guide-text");

@@ -1681,7 +1681,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             <span style="font-size: 0.72rem; background: rgba(99,102,241,0.2); color: #c7d2fe; padding: 2px 8px; border-radius: 12px; font-weight: 800;">100% 팩트 집단지성</span>
                         </div>
                         <div style="font-size:0.78rem; color:var(--text-secondary); margin-bottom: 14px; line-height: 1.45;">
-                            학생 및 선배 튜터의 집단지성 답변 채택 데이터를 기반으로, 전국 주요 고교의 <b>내신 출제 교재 점유율(블랙라벨, 평가원 기출 등)</b>과 <b>실제 출제 족보 팩트</b>를 제공합니다.
+                            학생 및 선배 튜터의 집단지성 답변 채택 데이터를 기반으로, <b>내가 재학 중인 학교의 내신 출제 교재 점유율(블랙라벨, 평가원 기출 등)</b>과 <b>실제 출제 족보 팩트</b>를 집중 제공합니다.
                         </div>
 
                         <!-- 2대 모드 전환 탭버튼 -->
@@ -1698,33 +1698,30 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <!-- [MODE 1] 🏛️ 우리 학교 출제 바이블 대시보드                   -->
                         <!-- ========================================================== -->
                         <div id="tracer-submode-bible-view" style="display: block;">
-                            <!-- 대상 학교 및 과목 필터 -->
-                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 12px;">
-                                <div>
-                                    <label class="input-label" style="font-size: 0.74rem; color: #c7d2fe; font-weight: 700;">🏫 분석 대상 학교</label>
-                                    <select id="tracer-school-select" class="form-input" style="height: 40px; font-size: 0.84rem; font-weight: 800;" onchange="onBibleSchoolOrSubjectChange()">
-                                        <option value="낙생고등학교" selected>⭐ 낙생고등학교 (내 학교)</option>
-                                        <option value="분당대진고등학교">분당대진고등학교</option>
-                                        <option value="서현고등학교">서현고등학교</option>
-                                        <option value="수내고등학교">수내고등학교</option>
-                                        <option value="휘문고등학교">휘문고등학교</option>
-                                        <option value="중동고등학교">중동고등학교</option>
-                                        <option value="단대부속고등학교">단대부속고등학교</option>
-                                        <option value="대원외국어고등학교">대원외국어고등학교</option>
-                                        <option value="대치중학교">대치중학교</option>
-                                        <option value="CUSTOM">✏️ 직접 입력</option>
-                                    </select>
-                                    <input type="text" id="tracer-school" class="form-input" placeholder="학교명 직접 입력 (예: 낙생고등학교)" style="height: 38px; font-size: 0.84rem; font-weight: 700; display: none; margin-top: 6px;" onchange="onBibleSchoolOrSubjectChange()">
+                            <!-- 내 재학 학교 고정 분석 & 과목 필터 -->
+                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 12px; align-items: stretch;">
+                                <div style="background: rgba(99, 102, 241, 0.12); border: 1.5px solid rgba(99, 102, 241, 0.35); border-radius: 10px; padding: 6px 12px; display: flex; flex-direction: column; justify-content: center;">
+                                    <div style="font-size: 0.68rem; color: #a5b4fc; font-weight: 700; display: flex; align-items: center; justify-content: space-between;">
+                                        <span style="display: flex; align-items: center; gap: 4px;">
+                                            <span class="material-symbols-rounded" style="font-size: 0.85rem; color: #818cf8;">school</span>
+                                            <span>내 재학 학교 분석</span>
+                                        </span>
+                                        <span style="font-size: 0.65rem; color: #34d399; background: rgba(16,185,129,0.15); padding: 1px 5px; border-radius: 4px; font-weight: 800;">재학 고교 전용</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 2px;">
+                                        <span id="tracer-my-school-badge" style="font-size: 0.92rem; font-weight: 900; color: #ffffff; letter-spacing: -0.3px;">낙생고등학교</span>
+                                        <button type="button" onclick="openMyPageModal()" style="background: none; border: none; font-size: 0.68rem; color: #94a3b8; text-decoration: underline; cursor: pointer; padding: 0;">학교 변경</button>
+                                    </div>
                                 </div>
                                 <div>
-                                    <label class="input-label" style="font-size: 0.74rem; color: #c7d2fe; font-weight: 700;">과목</label>
-                                    <select id="tracer-subject" class="form-input" style="height: 40px; font-size: 0.84rem; font-weight: 800;" onchange="onBibleSchoolOrSubjectChange()">
+                                    <label class="input-label" style="font-size: 0.74rem; color: #c7d2fe; font-weight: 700; margin-bottom: 4px;">과목 선택</label>
+                                    <select id="tracer-subject" class="form-input" style="height: 42px; font-size: 0.84rem; font-weight: 800; width: 100%; box-sizing: border-box;" onchange="onBibleSchoolOrSubjectChange()">
                                         <option value="전체" selected>전체 과목</option>
                                         <option value="수학">수학</option>
                                         <option value="국어">국어</option>
                                         <option value="영어">영어</option>
-                                        <option value="통합과학">과학</option>
-                                        <option value="통합사회">사회</option>
+                                        <option value="과학탐구">과학</option>
+                                        <option value="사회탐구">사회</option>
                                     </select>
                                 </div>
                             </div>
