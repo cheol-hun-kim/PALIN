@@ -8017,7 +8017,8 @@ function switchSubTabPage2(subTab) {
         if (typeof loadPage2Data === 'function') loadPage2Data();
         if (typeof loadUniversityList === 'function') loadUniversityList();
     } else if (subTab === "tracer") {
-        if (typeof loadExamTagsFeed === 'function') loadExamTagsFeed();
+        if (typeof onBibleSchoolOrSubjectChange === 'function') onBibleSchoolOrSubjectChange();
+        if (typeof loadExamSourceQuestionsFeed === 'function') loadExamSourceQuestionsFeed();
         if (typeof populateTracerSchoolDatalist === 'function') populateTracerSchoolDatalist();
     }
 }
@@ -17178,61 +17179,501 @@ async function runExamSourceTrace() {
 }
 window.runExamSourceTrace = runExamSourceTrace;
 
-function renderExamSourceTracerResults(data, container) {
-    if (!container) return;
-    const matches = data.matched_sources || [];
-    if (matches.length === 0) {
-        container.innerHTML = `
-            <div style="text-align:center; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 10px; color: var(--text-secondary); font-size: 0.8rem;">
-                일치하는 정밀 출처를 찾지 못했습니다.<br>
-                선배·튜터 크라우드소싱 제보를 요청하시거나 직접 제보해 보세요!
-            </div>
-        `;
+// ==============================================================================
+// 🏛️ 우리 학교 내신 출제 바이블 & 📸 집단지성 출처 Q&A 엔진 (PALIN Bible OS)
+// ==============================================================================
+let currentTracerSubMode = "bible";
+let currentTracerQAStatusFilter = "ALL";
+let currentAskImageBase64 = null;
+
+function switchTracerSubMode(mode) {
+    currentTracerSubMode = mode;
+    const bibleView = document.getElementById("tracer-submode-bible-view");
+    const qaView = document.getElementById("tracer-submode-qa-view");
+    const btnBible = document.getElementById("btn-tracer-bible");
+    const btnQA = document.getElementById("btn-tracer-qa");
+
+    if (mode === "bible") {
+        if (bibleView) bibleView.style.display = "block";
+        if (qaView) qaView.style.display = "none";
+        if (btnBible) { btnBible.className = "btn active tracer-submode-btn"; }
+        if (btnQA) { btnQA.className = "btn btn-secondary tracer-submode-btn"; }
+        onBibleSchoolOrSubjectChange();
+    } else {
+        if (bibleView) bibleView.style.display = "none";
+        if (qaView) qaView.style.display = "block";
+        if (btnQA) { btnQA.className = "btn active tracer-submode-btn"; }
+        if (btnBible) { btnBible.className = "btn btn-secondary tracer-submode-btn"; }
+        loadExamSourceQuestionsFeed();
+    }
+}
+window.switchTracerSubMode = switchTracerSubMode;
+
+function onBibleSchoolOrSubjectChange() {
+    const select = document.getElementById("tracer-school-select");
+    const customInp = document.getElementById("tracer-school");
+    let schoolName = select ? select.value : "낙생고등학교";
+    if (schoolName === "CUSTOM") {
+        if (customInp) customInp.style.display = "block";
+        schoolName = customInp ? customInp.value.trim() : "";
+        if (!schoolName) schoolName = "낙생고등학교";
+    } else {
+        if (customInp) customInp.style.display = "none";
+    }
+
+    const subject = document.getElementById("tracer-subject")?.value || "전체";
+    loadSchoolBibleSummary(schoolName, subject);
+}
+window.onBibleSchoolOrSubjectChange = onBibleSchoolOrSubjectChange;
+
+async function loadSchoolBibleSummary(schoolName, subject) {
+    if (!schoolName) schoolName = "낙생고등학교";
+    if (!subject) subject = "전체";
+
+    const titleEl = document.getElementById("bible-school-title-display");
+    if (titleEl) titleEl.innerText = schoolName;
+
+    const rankingContainer = document.getElementById("bible-books-ranking-list");
+    const guideEl = document.getElementById("bible-alumni-guide-text");
+    const archiveContainer = document.getElementById("bible-recent-archive-list");
+    const verifiedBadge = document.getElementById("bible-verified-count-badge");
+
+    try {
+        const url = `/api/exam-sources/bible-summary?school_name=${encodeURIComponent(schoolName)}&subject=${encodeURIComponent(subject)}`;
+        const res = await fetch(url);
+        if (!res.ok) return;
+        const data = await res.json();
+
+        if (verifiedBadge) {
+            verifiedBadge.innerText = `검증 족보 ${data.verified_count}건`;
+        }
+
+        // 1. 점유율 프로그레스 바 목록 렌더링
+        if (rankingContainer) {
+            const topBooks = data.top_books || [];
+            if (topBooks.length === 0) {
+                rankingContainer.innerHTML = '<div style="text-align:center; padding: 14px; font-size: 0.78rem; color: var(--text-secondary);">아직 등록된 출제 데이터가 없습니다. 질문 및 제보를 남겨보세요!</div>';
+            } else {
+                const barColors = [
+                    "linear-gradient(90deg, #6366f1, #818cf8)",
+                    "linear-gradient(90deg, #38bdf8, #0ea5e9)",
+                    "linear-gradient(90deg, #f59e0b, #d97706)",
+                    "linear-gradient(90deg, #10b981, #059669)",
+                    "linear-gradient(90deg, #a855f7, #9333ea)"
+                ];
+                rankingContainer.innerHTML = topBooks.map((b, idx) => {
+                    const color = barColors[idx % barColors.length];
+                    return `
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; margin-bottom: 2px;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-weight: 900; color: #fbbf24;">TOP ${b.rank}</span>
+                                    <span style="font-weight: 700; color: #ffffff;">${b.source_book_name}</span>
+                                </div>
+                                <div style="font-weight: 800; color: #a5b4fc;">
+                                    <span>${b.percentage}%</span>
+                                    <span style="font-size: 0.7rem; color: var(--text-secondary); font-weight: 400; margin-left: 4px;">(${b.count}문항)</span>
+                                </div>
+                            </div>
+                            <div class="bible-book-bar-container">
+                                <div class="bible-book-bar-fill" style="width: ${b.percentage}%; background: ${color};"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+            }
+        }
+
+        // 2. 선배/튜터 1등급 실전 공략 가이드
+        if (guideEl) {
+            guideEl.innerText = data.alumni_guide || `${schoolName}의 1등급 대비를 위해 기출 분석과 심화서 풀이를 병행하세요.`;
+        }
+
+        // 3. 최근 채택 검증된 실제 출제 문항 아카이브 피드
+        if (archiveContainer) {
+            const recent = data.recent_verified || [];
+            if (recent.length === 0) {
+                archiveContainer.innerHTML = '<div style="text-align:center; padding: 12px; font-size: 0.76rem; color: var(--text-secondary);">채택 검증된 기출 문항이 없습니다.</div>';
+            } else {
+                archiveContainer.innerHTML = recent.map(item => `
+                    <div class="qa-answer-item accepted">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span style="font-size: 0.7rem; background: #6366f1; color: white; padding: 1px 6px; border-radius: 4px; font-weight: 800;">${item.subject || '공통'}</span>
+                                <span style="font-size: 0.84rem; font-weight: 800; color: #ffffff;">${item.exam_title || '시험'} ${item.question_num || ''}</span>
+                            </div>
+                            <span style="font-size: 0.7rem; color: #10b981; font-weight: 800;">✓ 100% 팩트 채택</span>
+                        </div>
+                        <div style="font-size: 0.78rem; color: #fde68a; font-weight: 700; margin-bottom: 2px;">
+                            📚 원본 출처: ${item.source_book_name} ${item.source_detail || ''}
+                        </div>
+                        ${item.adaptation_notes ? `<div style="font-size: 0.74rem; color: #cbd5e1; line-height: 1.4;">📝 변형: ${item.adaptation_notes}</div>` : ''}
+                    </div>
+                `).join("");
+            }
+        }
+    } catch(e) {
+        console.error("loadSchoolBibleSummary error:", e);
+    }
+}
+window.loadSchoolBibleSummary = loadSchoolBibleSummary;
+
+function filterTracerQAStatus(status, btn) {
+    currentTracerQAStatusFilter = status;
+    const filterContainer = document.getElementById("tracer-qa-status-filters");
+    if (filterContainer) {
+        filterContainer.querySelectorAll("button").forEach(b => {
+            if (b === btn) {
+                b.className = "btn active";
+            } else {
+                b.className = "btn btn-secondary";
+            }
+        });
+    }
+    loadExamSourceQuestionsFeed();
+}
+window.filterTracerQAStatus = filterTracerQAStatus;
+
+async function loadExamSourceQuestionsFeed() {
+    const feed = document.getElementById("tracer-qa-questions-feed");
+    if (!feed) return;
+
+    try {
+        const url = `/api/exam-sources/questions?status=${currentTracerQAStatusFilter}&limit=20`;
+        const res = await fetch(url);
+        if (!res.ok) return;
+        const questions = await res.json();
+
+        if (questions.length === 0) {
+            feed.innerHTML = `
+                <div style="text-align: center; padding: 24px; background: rgba(255,255,255,0.02); border-radius: 12px; color: var(--text-secondary); font-size: 0.82rem;">
+                    현재 등록된 출처 질문이 없습니다.<br>
+                    <button type="button" class="btn" onclick="openExamSourceAskModal()" style="margin-top: 10px; padding: 8px 16px; font-size: 0.78rem; background: #6366f1; color: white;">
+                        첫 질문 올리기 (+500P)
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        feed.innerHTML = questions.map(q => {
+            const isResolved = q.is_resolved;
+            const statusBadgeClass = isResolved ? "qa-status-badge resolved" : "qa-status-badge pending";
+            const statusText = isResolved ? "🌟 채택 완료" : "⏳ 답변 대기중";
+            const textSnippet = q.question_text ? (q.question_text.length > 80 ? q.question_text.substring(0, 80) + "..." : q.question_text) : "(사진 등록 문항)";
+
+            return `
+                <div class="qa-question-card" onclick="openExamSourceDetailModal(${q.id})">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                            <span class="${statusBadgeClass}">${statusText}</span>
+                            <span style="font-size: 0.75rem; background: rgba(99,102,241,0.15); color: #c7d2fe; padding: 2px 7px; border-radius: 6px; font-weight: 700;">${q.school_name}</span>
+                            <span style="font-size: 0.75rem; background: rgba(255,255,255,0.06); color: #94a3b8; padding: 2px 7px; border-radius: 6px; font-weight: 700;">${q.grade} ${q.subject}</span>
+                        </div>
+                        <span style="font-size: 0.72rem; color: #fbbf24; background: rgba(245, 158, 11, 0.15); padding: 2px 7px; border-radius: 6px; font-weight: 800;">+${q.bounty_points}P</span>
+                    </div>
+                    <div style="font-size: 0.88rem; font-weight: 800; color: #ffffff; margin-bottom: 4px;">
+                        ${q.exam_type} · ${q.question_num}
+                    </div>
+                    <div style="font-size: 0.78rem; color: #cbd5e1; line-height: 1.45; margin-bottom: 8px;">
+                        ${textSnippet}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: var(--text-secondary); border-top: 1px solid rgba(255,255,255,0.04); padding-top: 6px;">
+                        <span>질문자: <b>${q.author_name}</b> · ${q.created_at ? q.created_at.substring(5, 16) : ''}</span>
+                        <span style="color: #38bdf8; font-weight: 700;">💬 제보 답변 ${q.answers_count}개 &gt;</span>
+                    </div>
+                </div>
+            `;
+        }).join("");
+    } catch (e) {
+        console.error("loadExamSourceQuestionsFeed error:", e);
+    }
+}
+window.loadExamSourceQuestionsFeed = loadExamSourceQuestionsFeed;
+
+function openExamSourceAskModal() {
+    const modal = document.getElementById("exam-source-ask-modal");
+    if (!modal) return;
+    modal.style.display = "flex";
+
+    const schoolInp = document.getElementById("ask-school-name");
+    if (schoolInp && currentStudent) {
+        schoolInp.value = currentStudent.high_school || currentStudent.school_name || "낙생고등학교";
+    }
+    currentAskImageBase64 = null;
+    const previewBox = document.getElementById("ask-image-preview-box");
+    if (previewBox) previewBox.style.display = "none";
+
+    populateTracerSchoolDatalist();
+}
+window.openExamSourceAskModal = openExamSourceAskModal;
+
+function closeExamSourceAskModal() {
+    const modal = document.getElementById("exam-source-ask-modal");
+    if (modal) modal.style.display = "none";
+}
+window.closeExamSourceAskModal = closeExamSourceAskModal;
+
+function handleAskImageFileSelected(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            currentAskImageBase64 = e.target.result;
+            const previewBox = document.getElementById("ask-image-preview-box");
+            const previewImg = document.getElementById("ask-image-preview-img");
+            if (previewBox && previewImg) {
+                previewImg.src = currentAskImageBase64;
+                previewBox.style.display = "block";
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+}
+window.handleAskImageFileSelected = handleAskImageFileSelected;
+
+async function handleSendExamSourceAsk(e) {
+    if (e) e.preventDefault();
+    const schoolName = document.getElementById("ask-school-name")?.value.trim();
+    const grade = document.getElementById("ask-grade")?.value || "고3";
+    const subject = document.getElementById("ask-subject")?.value || "수학";
+    const examType = document.getElementById("ask-exam-type")?.value.trim();
+    const questionNum = document.getElementById("ask-question-num")?.value.trim();
+    const questionText = document.getElementById("ask-question-text")?.value.trim();
+
+    if (!schoolName || !examType || !questionNum) {
+        alert("학교명, 시험 구분, 문항 번호는 필수 입력 항목입니다.");
         return;
     }
 
-    container.innerHTML = matches.map((m, idx) => {
-        const scoreColor = m.similarity_score >= 80 ? '#10b981' : (m.similarity_score >= 50 ? '#f59e0b' : '#94a3b8');
-        const badgeColor = m.source_type === 'PAST_EXAM' ? '#3b82f6' : (m.source_type === 'EBS' ? '#8b5cf6' : '#ec4899');
-        const badgeLabel = m.source_type === 'PAST_EXAM' ? '공공 기출' : (m.source_type === 'EBS' ? 'EBS 연계' : '시중 교재');
+    if (!questionText && !currentAskImageBase64) {
+        alert("문제 본문 텍스트를 입력하거나 문제 사진을 첨부해 주세요.");
+        return;
+    }
 
-        return `
-            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 0.7rem; background: ${badgeColor}; color: white; padding: 2px 7px; border-radius: 6px; font-weight: 800;">${badgeLabel}</span>
-                        <span style="font-size: 0.88rem; font-weight: 800; color: #ffffff;">${idx + 1}순위. ${m.source_title}</span>
-                    </div>
-                    <span style="font-size: 0.78rem; font-weight: 900; color: ${scoreColor}; background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 10px;">유사도 ${m.similarity_score}%</span>
-                </div>
-                <div style="font-size: 0.76rem; color: #cbd5e1; margin-bottom: 4px;">
-                    <b>위치:</b> ${m.chapter || '-'} · ${m.question_number ? `${m.question_number}번` : ''} · ${m.page_number ? `p.${m.page_number}` : ''}
-                </div>
-                ${m.variation_type ? `<div style="font-size: 0.72rem; color: #a5b4fc; margin-bottom: 4px;"><b>변형 포인트:</b> ${m.variation_type} (${m.variation_notes || '원문 변형 출제'})</div>` : ''}
-                ${m.fact_verified ? `<div style="font-size: 0.7rem; color: #10b981; font-weight: 700;">✓ 100% 팩트 검증 완료 (데이터베이스 원문 확인)</div>` : ''}
-            </div>
-        `;
-    }).join('');
-}
-window.renderExamSourceTracerResults = renderExamSourceTracerResults;
+    const studentId = currentStudent ? currentStudent.id : 1;
 
-function openExamTagModal() {
-    const modal = document.getElementById('exam-tag-modal');
-    if (modal) {
-        modal.style.display = 'flex';
-        const schoolInp = document.getElementById('tag-school-name');
-        if (schoolInp && currentStudent) {
-            schoolInp.value = currentStudent.high_school || currentStudent.school_name || '';
+    try {
+        const res = await fetch("/api/exam-sources/questions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: studentId,
+                school_name: schoolName,
+                grade: grade,
+                subject: subject,
+                exam_type: examType,
+                question_num: questionNum,
+                question_text: questionText || "(사진 참조)",
+                question_image_url: currentAskImageBase64 || null,
+                bounty_points: 500
+            })
+        });
+
+        if (res.ok) {
+            alert("🎉 출처 질문이 성공적으로 등록되었습니다!\n동료와 선배 튜터들이 출처를 제보하면 실시간으로 알림을 드립니다.");
+            closeExamSourceAskModal();
+            switchTracerSubMode("qa");
+            loadExamSourceQuestionsFeed();
+        } else {
+            const err = await res.json();
+            alert(err.detail || "질문 등록 중 오류가 발생했습니다.");
         }
-        if (typeof populateTracerSchoolDatalist === 'function') populateTracerSchoolDatalist();
+    } catch (e) {
+        console.error("handleSendExamSourceAsk error:", e);
+        alert("서버 통신 실패");
     }
 }
+window.handleSendExamSourceAsk = handleSendExamSourceAsk;
+
+async function openExamSourceDetailModal(questionId) {
+    const modal = document.getElementById("exam-source-detail-modal");
+    if (!modal) return;
+    modal.style.display = "flex";
+
+    const targetInput = document.getElementById("answer-target-question-id");
+    if (targetInput) targetInput.value = questionId;
+
+    try {
+        const res = await fetch(`/api/exam-sources/questions/${questionId}`);
+        if (!res.ok) {
+            alert("질문 정보를 불러오지 못했습니다.");
+            closeExamSourceDetailModal();
+            return;
+        }
+        const q = await res.json();
+
+        // Populate header
+        const statusBadge = document.getElementById("detail-qa-status-badge");
+        if (statusBadge) {
+            statusBadge.className = q.is_resolved ? "qa-status-badge resolved" : "qa-status-badge pending";
+            statusBadge.innerText = q.is_resolved ? "🌟 채택 완료" : "⏳ 답변 대기중";
+        }
+        const schoolBadge = document.getElementById("detail-qa-school-badge");
+        if (schoolBadge) schoolBadge.innerText = q.school_name;
+        const subjBadge = document.getElementById("detail-qa-subject-badge");
+        if (subjBadge) subjBadge.innerText = `${q.grade} ${q.subject}`;
+
+        const titleEl = document.getElementById("detail-qa-title");
+        if (titleEl) titleEl.innerText = `${q.exam_type} ${q.question_num}`;
+
+        const authorInfoEl = document.getElementById("detail-qa-author-info");
+        if (authorInfoEl) authorInfoEl.innerText = `질문자: ${q.author_name} · 등록: ${q.created_at ? q.created_at.substring(0, 16) : ''}`;
+
+        const textEl = document.getElementById("detail-qa-text");
+        if (textEl) textEl.innerText = q.question_text || "-";
+
+        const imgContainer = document.getElementById("detail-qa-image-container");
+        const imgEl = document.getElementById("detail-qa-image");
+        if (q.question_image_url && imgContainer && imgEl) {
+            imgEl.src = q.question_image_url;
+            imgContainer.style.display = "block";
+        } else if (imgContainer) {
+            imgContainer.style.display = "none";
+        }
+
+        // Answers list
+        const answersCountEl = document.getElementById("detail-answers-count-badge");
+        const answersListEl = document.getElementById("detail-answers-list");
+        const answers = q.answers || [];
+        if (answersCountEl) answersCountEl.innerText = `${answers.length}개`;
+
+        if (answersListEl) {
+            if (answers.length === 0) {
+                answersListEl.innerHTML = '<div style="text-align:center; padding: 14px; font-size: 0.78rem; color: var(--text-secondary);">아직 등록된 출처 제보가 없습니다. 아래에서 첫 출처를 제보해 보세요!</div>';
+            } else {
+                answersListEl.innerHTML = answers.map(ans => {
+                    const isAccepted = ans.is_accepted;
+                    const canAdopt = !q.is_resolved;
+
+                    return `
+                        <div class="qa-answer-item ${isAccepted ? 'accepted' : ''}">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-weight: 800; font-size: 0.82rem; color: #ffffff;">${ans.author_name}</span>
+                                    ${ans.is_tutor ? '<span style="font-size: 0.68rem; background: #6366f1; color: white; padding: 1px 5px; border-radius: 4px; font-weight: 800;">선배 튜터</span>' : ''}
+                                    <span style="font-size: 0.7rem; color: var(--text-secondary);">${ans.created_at ? ans.created_at.substring(5, 16) : ''}</span>
+                                </div>
+                                ${isAccepted ? '<span style="font-size: 0.75rem; color: #10b981; font-weight: 900; background: rgba(16,185,129,0.15); padding: 2px 8px; border-radius: 12px; border: 1px solid #10b981;">🌟 정답 채택 완료</span>' : ''}
+                            </div>
+                            <div style="font-size: 0.85rem; font-weight: 800; color: #fbbf24; margin-bottom: 4px;">
+                                📚 출처: ${ans.source_book_name} ${ans.source_detail || ''}
+                            </div>
+                            ${ans.adaptation_notes ? `<div style="font-size: 0.78rem; color: #cbd5e1; line-height: 1.45; margin-bottom: 8px;">📝 <b>변형 분석:</b> ${ans.adaptation_notes}</div>` : ''}
+                            
+                            ${canAdopt ? `
+                                <div style="text-align: right; margin-top: 6px;">
+                                    <button type="button" class="btn" onclick="acceptExamSourceAnswer(${q.id}, ${ans.id})" style="padding: 6px 12px; font-size: 0.76rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 6px;">
+                                        🌟 이 출처 채택하기 (+500P 지급)
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join("");
+            }
+        }
+    } catch (e) {
+        console.error("openExamSourceDetailModal error:", e);
+    }
+}
+window.openExamSourceDetailModal = openExamSourceDetailModal;
+
+function closeExamSourceDetailModal() {
+    const modal = document.getElementById("exam-source-detail-modal");
+    if (modal) modal.style.display = "none";
+}
+window.closeExamSourceDetailModal = closeExamSourceDetailModal;
+
+async function handleSendExamSourceAnswer(e) {
+    if (e) e.preventDefault();
+    const questionId = document.getElementById("answer-target-question-id")?.value;
+    const sourceBook = document.getElementById("answer-source-book-name")?.value.trim();
+    const sourceDetail = document.getElementById("answer-source-detail")?.value.trim();
+    const adaptationNotes = document.getElementById("answer-adaptation-notes")?.value.trim();
+
+    if (!questionId || !sourceBook) {
+        alert("정확한 출처 교재/기출명을 입력해 주세요.");
+        return;
+    }
+
+    const studentId = currentStudent ? currentStudent.id : 1;
+
+    try {
+        const res = await fetch(`/api/exam-sources/questions/${questionId}/answers`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: studentId,
+                source_book_name: sourceBook,
+                source_detail: sourceDetail || "",
+                adaptation_notes: adaptationNotes || ""
+            })
+        });
+
+        if (res.ok) {
+            alert("🎉 출처 제보 답변이 등록되었습니다!\n질문자가 확인 후 답변을 채택하면 +500P 현상금이 지급됩니다.");
+            document.getElementById("answer-source-book-name").value = "";
+            if (document.getElementById("answer-source-detail")) document.getElementById("answer-source-detail").value = "";
+            if (document.getElementById("answer-adaptation-notes")) document.getElementById("answer-adaptation-notes").value = "";
+            openExamSourceDetailModal(questionId);
+            loadExamSourceQuestionsFeed();
+        } else {
+            const err = await res.json();
+            alert(err.detail || "답변 등록 실패");
+        }
+    } catch(e) {
+        console.error("handleSendExamSourceAnswer error:", e);
+        alert("서버 연결 오류");
+    }
+}
+window.handleSendExamSourceAnswer = handleSendExamSourceAnswer;
+
+async function acceptExamSourceAnswer(questionId, answerId) {
+    if (!confirm("이 제보를 정답 출처로 채택하시겠습니까?\n답변자에게 500 포인트가 지급되고, 우리 학교 출제 바이블 통계에 영구 반영됩니다.")) {
+        return;
+    }
+
+    const studentId = currentStudent ? currentStudent.id : 1;
+
+    try {
+        const res = await fetch(`/api/exam-sources/questions/${questionId}/accept/${answerId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: studentId })
+        });
+
+        if (res.ok) {
+            alert("🎉 정답 채택이 완료되었습니다!\n답변자에게 500P가 지급되었으며, 우리 학교 출제 바이블 통계에 100% 검증 족보로 등록되었습니다.");
+            openExamSourceDetailModal(questionId);
+            loadExamSourceQuestionsFeed();
+            onBibleSchoolOrSubjectChange();
+        } else {
+            const err = await res.json();
+            alert(err.detail || "답변 채택 실패");
+        }
+    } catch(e) {
+        console.error("acceptExamSourceAnswer error:", e);
+        alert("서버 연결 실패");
+    }
+}
+window.acceptExamSourceAnswer = acceptExamSourceAnswer;
+
+function openExamTagModal() {
+    openExamSourceAskModal();
+}
 window.openExamTagModal = openExamTagModal;
+
+function closeExamTagModal() {
+    closeExamSourceAskModal();
+}
+window.closeExamTagModal = closeExamTagModal;
 
 async function populateTracerSchoolDatalist() {
     const dlist1 = document.getElementById('tracer-school-datalist');
     const dlist2 = document.getElementById('tag-school-datalist');
-    if (!dlist1 && !dlist2) return;
+    const dlist3 = document.getElementById('ask-school-datalist');
+    if (!dlist1 && !dlist2 && !dlist3) return;
 
     let sido = '';
     let sigungu = '';
@@ -17256,92 +17697,13 @@ async function populateTracerSchoolDatalist() {
             }).filter(Boolean).join('');
             if (dlist1) dlist1.innerHTML = optionsHtml;
             if (dlist2) dlist2.innerHTML = optionsHtml;
+            if (dlist3) dlist3.innerHTML = optionsHtml;
         }
     } catch(e) {
         console.warn('populateTracerSchoolDatalist error:', e);
     }
 }
 window.populateTracerSchoolDatalist = populateTracerSchoolDatalist;
-
-function closeExamTagModal() {
-    const modal = document.getElementById('exam-tag-modal');
-    if (modal) modal.style.display = 'none';
-}
-window.closeExamTagModal = closeExamTagModal;
-
-async function submitExamTag() {
-    const schoolName = document.getElementById('tag-school-name')?.value.trim();
-    const grade = document.getElementById('tag-grade')?.value || '고3';
-    const subject = document.getElementById('tag-subject')?.value || '국어';
-    const examTitle = document.getElementById('tag-exam-title')?.value.trim();
-    const questionNum = document.getElementById('tag-question-num')?.value.trim();
-    const sourceName = document.getElementById('tag-source-name')?.value.trim();
-    const notes = document.getElementById('tag-notes')?.value.trim();
-
-    if (!schoolName || !sourceName) {
-        alert('학교명과 정확한 출처명을 입력해 주세요.');
-        return;
-    }
-
-    try {
-        const studentId = currentStudent ? currentStudent.id : 1;
-        const res = await fetch('/api/exam-sources/tag', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                student_id: studentId,
-                school_name: schoolName,
-                grade: grade,
-                subject: subject,
-                exam_title: examTitle,
-                question_num: questionNum,
-                source_name: sourceName,
-                notes: notes
-            })
-        });
-
-        if (res.ok) {
-            const data = await res.json();
-            alert(`🎉 출처 제보가 완료되었습니다!\n보상으로 +500 캐시가 지급되었습니다.`);
-            closeExamTagModal();
-            loadExamTagsFeed();
-            if (currentStudent) {
-                currentStudent.paid_cash = (currentStudent.paid_cash || 0) + 500;
-                if (typeof updateHeaderUI === 'function') updateHeaderUI();
-            }
-        } else {
-            alert('출처 제보 등록 중 오류가 발생했습니다.');
-        }
-    } catch(e) {
-        alert('서버 연결 실패');
-    }
-}
-window.submitExamTag = submitExamTag;
-
-async function loadExamTagsFeed() {
-    const container = document.getElementById('tracer-recent-tags');
-    if (!container) return;
-    try {
-        const res = await fetch('/api/exam-sources/list?limit=5');
-        if (res.ok) {
-            const list = await res.json();
-            if (list.length === 0) {
-                container.innerHTML = '<div style="font-size:0.75rem; color:var(--text-secondary); text-align:center; padding:10px;">아직 등록된 제보가 없습니다. 첫 제보자가 되어보세요!</div>';
-                return;
-            }
-            container.innerHTML = list.map(t => `
-                <div style="background: rgba(255,255,255,0.03); border-radius: 8px; padding: 8px 10px; font-size: 0.74rem; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <b style="color: #c7d2fe;">${t.school_name || '낙생고'}</b> <span style="color: var(--text-secondary);">[${t.subject || '국어'}]</span>
-                        <div style="color: #94a3b8; font-size: 0.7rem; margin-top: 1px;">출처: <span style="color: #e2e8f0; font-weight: 700;">${t.source_name}</span> (${t.question_num || '객관식'})</div>
-                    </div>
-                    <span style="font-size: 0.68rem; background: rgba(16,185,129,0.15); color: #10b981; padding: 2px 6px; border-radius: 6px; font-weight: 800;">+500C</span>
-                </div>
-            `).join('');
-        }
-    } catch(e) {}
-}
-window.loadExamTagsFeed = loadExamTagsFeed;
 
 
 

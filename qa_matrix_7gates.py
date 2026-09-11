@@ -251,7 +251,8 @@ critical_modals = [
     'student-card-modal', 'streak-modal', 'report-tier-modal',
     'deep-report-modal', 'referral-modal', 'cash-modal', 'terms-modal',
     'director-demo-modal', 'demo-director-cockpit-modal',
-    'demo-parent-weekly-report-modal', 'demo-sms-simulation-modal'
+    'demo-parent-weekly-report-modal', 'demo-sms-simulation-modal',
+    'exam-source-ask-modal', 'exam-source-detail-modal'
 ]
 
 for modal_id in critical_modals:
@@ -1258,9 +1259,73 @@ assert len(remaining_overdue) == 0, "Paid invoice must not appear in overdue lis
 
 print("[GATE 7.15 PASS] 결제선생 Hostage Protocol (0.1s Instant Settlement & Feature Unlock) 100% Verified!")
 
+# --- GATE 7.16: Crowdsourced Exam Source Q&A, Peer/Tutor Adoption & School Bible Aggregation ---
+# 1. Fetch initial bible summary for 낙생고등학교
+bible_init_res = client.get("/api/exam-sources/bible-summary?school_name=낙생고등학교&subject=전체")
+assert bible_init_res.status_code == 200, f"Bible summary failed: {bible_init_res.text}"
+bible_init_data = bible_init_res.json()
+assert "top_books" in bible_init_data, "Bible summary missing top_books"
+assert "alumni_guide" in bible_init_data, "Bible summary missing alumni_guide"
+init_verified_count = bible_init_data.get("verified_count", 0)
+
+# 2. Student 1 posts a new exam source question with 500P bounty
+q_create_res = client.post("/api/exam-sources/questions", json={
+    "student_id": 1,
+    "school_name": "낙생고등학교",
+    "grade": "고3",
+    "subject": "수학",
+    "exam_type": "2026학년도 1학기 중간고사",
+    "question_num": "객관식 15번",
+    "question_text": "함수 f(x)가 x=1에서 극값을 가지고 모든 실수 x에 대해 f(x) >= 0을 만족할 때...",
+    "question_image_url": None,
+    "bounty_points": 500
+})
+assert q_create_res.status_code == 200, f"Question creation failed: {q_create_res.text}"
+created_q = q_create_res.json().get("question", {})
+q_id = created_q.get("id")
+assert q_id is not None, "Created question ID missing"
+assert created_q.get("is_resolved") is False, "New question must have is_resolved=False"
+
+# 3. Tutor/Peer posts an answer pointing to exact source
+ans_create_res = client.post(f"/api/exam-sources/questions/{q_id}/answers", json={
+    "student_id": 2,
+    "source_book_name": "블랙라벨 수학 II",
+    "source_detail": "Step 3 1등급 완성 p.62 14번",
+    "adaptation_notes": "원문 f(x)의 최고차항 계수 1을 2로 변형하고 나 조건의 부등호 방향 치환 출제"
+})
+assert ans_create_res.status_code == 200, f"Answer creation failed: {ans_create_res.text}"
+ans_id = ans_create_res.json().get("answer", {}).get("id")
+assert ans_id is not None, "Created answer ID missing"
+
+# 4. Question detail view verification
+q_detail_res = client.get(f"/api/exam-sources/questions/{q_id}")
+assert q_detail_res.status_code == 200, f"Question detail failed: {q_detail_res.text}"
+q_detail_data = q_detail_res.json()
+assert len(q_detail_data.get("answers", [])) >= 1, "Answers list must contain the submitted answer"
+
+# 5. Questioner accepts the answer (Reward settlement + Bible archive promotion)
+accept_res = client.post(f"/api/exam-sources/questions/{q_id}/accept/{ans_id}", json={
+    "student_id": 1
+})
+assert accept_res.status_code == 200, f"Accept answer failed: {accept_res.text}"
+accept_data = accept_res.json()
+assert accept_data.get("question", {}).get("is_resolved") is True, "Question must be resolved after adoption"
+assert accept_data.get("question", {}).get("accepted_answer_id") == ans_id, "Accepted answer ID must match"
+
+# 6. Verify instant School Bible summary update (Real-time aggregation check)
+bible_after_res = client.get("/api/exam-sources/bible-summary?school_name=낙생고등학교&subject=전체")
+assert bible_after_res.status_code == 200
+bible_after_data = bible_after_res.json()
+assert bible_after_data.get("verified_count") == init_verified_count + 1, "Verified count must increment by 1"
+recent_titles = [r["question_num"] for r in bible_after_data.get("recent_verified", [])]
+assert "객관식 15번" in recent_titles, "Adopted question must appear in recent_verified feed"
+
+print("[GATE 7.16 PASS] Crowdsourced Exam Source Q&A, Tutor Adoption & School Bible Real-Time Aggregation 100% Verified!")
+
 
 print("\n" + "=" * 70)
-print("[100% PROOF] ALL 7 GATES (42/42 SUB-GATES) PASSED WITH ZERO DEFECTS!")
+print("[100% PROOF] ALL 7 GATES (43/43 SUB-GATES) PASSED WITH ZERO DEFECTS!")
 print("=" * 70 + "\n")
+
 
 

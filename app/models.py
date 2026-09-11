@@ -948,6 +948,51 @@ class ExamSourceTag(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
+class ExamSourceQuestion(Base):
+    """집단지성 출처 의뢰 질문 (학생이 시험/프린트 문제를 올리고 현상금을 건 질문)"""
+    __tablename__ = "exam_source_questions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    student_id = Column(Integer, ForeignKey("students.id", ondelete="SET NULL"), nullable=True)
+    author_name = Column(String, default="익명 수험생")
+    school_name = Column(String, index=True, nullable=False) # 예: 낙생고등학교
+    grade = Column(String, default="고1")                   # 고1, 고2, 고3, 중1 등
+    subject = Column(String, index=True, nullable=False)     # 국어, 수학, 영어, 통합과학, 통합사회 등
+    exam_type = Column(String, default="1학기 중간")          # 1학기 중간, 1학기 기말, 2학기 중간, 2학기 기말, 수행/모의
+    question_num = Column(String, default="1번")             # 예: "18번", "서술형 2번"
+    question_text = Column(Text, nullable=False)             # 문제 텍스트 또는 발문
+    image_url = Column(Text, nullable=True)                  # 문제 사진 (Base64 또는 파일 경로)
+    bounty_points = Column(Integer, default=500)             # 현상금 포인트
+    is_resolved = Column(Boolean, default=False)             # 채택 완료 여부
+    accepted_answer_id = Column(Integer, nullable=True)      # 채택된 답변 ID
+    views_count = Column(Integer, default=0)                 # 조회수
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
+
+    # Relationships
+    answers = relationship("ExamSourceAnswer", back_populates="question", cascade="all, delete-orphan")
+
+
+class ExamSourceAnswer(Base):
+    """집단지성 출처 제보 답변 (학생/튜터가 교재명, 단원/페이지, 변형내용을 제보)"""
+    __tablename__ = "exam_source_answers"
+
+    id = Column(Integer, primary_key=True, index=True)
+    question_id = Column(Integer, ForeignKey("exam_source_questions.id", ondelete="CASCADE"), index=True, nullable=False)
+    student_id = Column(Integer, ForeignKey("students.id", ondelete="SET NULL"), nullable=True)
+    author_name = Column(String, default="선배 튜터")
+    is_alumni_tutor = Column(Boolean, default=False)
+    source_book_name = Column(String, nullable=False)        # 예: "블랙라벨", "2023년 6월 평가원 기출", "EBS 수능특강", "쎈", "일품"
+    source_detail = Column(String, nullable=False)           # 예: "수학II p.42 8번", "21번 킬러 변형", "인문 제재 3번"
+    adaptation_notes = Column(Text, nullable=True)           # 변형 설명 (예: "최고차항 계수와 부호 변형, (나) 조건을 도함수 형태로 비틀어 출제")
+    is_accepted = Column(Boolean, default=False)             # 질문자가 최종 채택했는지 여부
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    question = relationship("ExamSourceQuestion", back_populates="answers")
+
+
+
 class SystemConfig(Base):
     """서버 재배포 및 재부팅 후에도 영구 보존되는 전역 관리자 설정 (SMTP, 시스템 파라미터 등)"""
     __tablename__ = "system_configs"

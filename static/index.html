@@ -1670,194 +1670,129 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     </div>
                 </div>
 
-                <!-- 2-D: 내신 기출 출처 추적기 탭 (Exam Source Tracer) -->
+                <!-- 2-D: 내신 기출 출처 정밀 추적기 & 학교별 출제 바이블 (Exam Source Tracer & School Bible) -->
                 <div id="p2-tracer" class="subtab-view-p2" style="display: none; padding-bottom: 100px;">
-                    <div class="card">
-                        <div class="card-title" style="color: #a78bfa; margin-bottom: 4px;">
-                            <span class="material-symbols-rounded" style="color: #818cf8;">travel_explore</span>
-                            <span>내신 기출 출처 정밀 추적기</span>
+                    <div class="card" style="padding: 16px;">
+                        <div class="card-title" style="color: #a78bfa; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span class="material-symbols-rounded" style="color: #818cf8;">travel_explore</span>
+                                <span>내신 출제 바이블 & 집단지성 추적기</span>
+                            </div>
+                            <span style="font-size: 0.72rem; background: rgba(99,102,241,0.2); color: #c7d2fe; padding: 2px 8px; border-radius: 12px; font-weight: 800;">100% 팩트 집단지성</span>
                         </div>
-                        <div style="font-size:0.78rem; color:var(--text-secondary); margin-bottom: 12px; line-height: 1.45;">
-                            학교 시험 문제의 지문·발문·선지를 입력하면, <b>공공 기출(수능/평가원/교육청)</b>, <b>EBS 연계교재</b>, <b>시중 대표 문제집(블랙라벨, 쎈 등)</b>의 실제 출처와 변형 여부를 100% 팩트 기반으로 찾아냅니다.
-                        </div>
-
-                        <!-- 100% 팩트 보장 뱃지 -->
-                        <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; font-size: 0.78rem; color: #a7f3d0; display: flex; align-items: center; gap: 8px;">
-                            <span style="font-size: 1.2rem;">🛡️</span>
-                            <div><b>100% 검증 팩트 원칙:</b> 꾸며낸 답변(환각) 없이 실제 출처 DB 및 크라우드소싱 검증 데이터만 맵핑합니다.</div>
+                        <div style="font-size:0.78rem; color:var(--text-secondary); margin-bottom: 14px; line-height: 1.45;">
+                            학생 및 선배 튜터의 집단지성 답변 채택 데이터를 기반으로, 전국 주요 고교의 <b>내신 출제 교재 점유율(블랙라벨, 평가원 기출 등)</b>과 <b>실제 출제 족보 팩트</b>를 제공합니다.
                         </div>
 
-                        <!-- 추적 입력 폼 -->
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                        <!-- 2대 모드 전환 탭버튼 -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: rgba(255,255,255,0.05); padding: 4px; border-radius: 12px; margin-bottom: 16px;" id="tracer-mode-selector">
+                            <button type="button" class="btn active tracer-submode-btn" id="btn-tracer-bible" onclick="switchTracerSubMode('bible')" style="padding: 10px; font-size: 0.82rem; font-weight: 800; border-radius: 8px;">
+                                🏛️ 우리 학교 출제 바이블
+                            </button>
+                            <button type="button" class="btn btn-secondary tracer-submode-btn" id="btn-tracer-qa" onclick="switchTracerSubMode('qa')" style="padding: 10px; font-size: 0.82rem; font-weight: 800; border-radius: 8px;">
+                                📸 이 문제 출처 어디야? (Q&A)
+                            </button>
+                        </div>
+
+                        <!-- ========================================================== -->
+                        <!-- [MODE 1] 🏛️ 우리 학교 출제 바이블 대시보드                   -->
+                        <!-- ========================================================== -->
+                        <div id="tracer-submode-bible-view" style="display: block;">
+                            <!-- 대상 학교 및 과목 필터 -->
+                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 12px;">
+                                <div>
+                                    <label class="input-label" style="font-size: 0.74rem; color: #c7d2fe; font-weight: 700;">🏫 분석 대상 학교</label>
+                                    <select id="tracer-school-select" class="form-input" style="height: 40px; font-size: 0.84rem; font-weight: 800;" onchange="onBibleSchoolOrSubjectChange()">
+                                        <option value="낙생고등학교" selected>⭐ 낙생고등학교 (내 학교)</option>
+                                        <option value="분당대진고등학교">분당대진고등학교</option>
+                                        <option value="서현고등학교">서현고등학교</option>
+                                        <option value="수내고등학교">수내고등학교</option>
+                                        <option value="휘문고등학교">휘문고등학교</option>
+                                        <option value="중동고등학교">중동고등학교</option>
+                                        <option value="단대부속고등학교">단대부속고등학교</option>
+                                        <option value="대원외국어고등학교">대원외국어고등학교</option>
+                                        <option value="대치중학교">대치중학교</option>
+                                        <option value="CUSTOM">✏️ 직접 입력</option>
+                                    </select>
+                                    <input type="text" id="tracer-school" class="form-input" placeholder="학교명 직접 입력 (예: 낙생고등학교)" style="height: 38px; font-size: 0.84rem; font-weight: 700; display: none; margin-top: 6px;" onchange="onBibleSchoolOrSubjectChange()">
+                                </div>
+                                <div>
+                                    <label class="input-label" style="font-size: 0.74rem; color: #c7d2fe; font-weight: 700;">과목</label>
+                                    <select id="tracer-subject" class="form-input" style="height: 40px; font-size: 0.84rem; font-weight: 800;" onchange="onBibleSchoolOrSubjectChange()">
+                                        <option value="전체" selected>전체 과목</option>
+                                        <option value="수학">📐 수학</option>
+                                        <option value="국어">📖 국어</option>
+                                        <option value="영어">🔤 영어</option>
+                                        <option value="통합과학">🔬 과학</option>
+                                        <option value="통합사회">🌏 사회</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- 1. 출제 바이블 점유율 TOP 3 랭킹 카드 -->
+                            <div class="card" style="background: rgba(99, 102, 241, 0.08); border: 1.5px solid rgba(99, 102, 241, 0.3); border-radius: 14px; padding: 14px; margin-bottom: 14px;" id="bible-top-books-card">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <div style="font-size: 0.86rem; font-weight: 800; color: #a5b4fc; display: flex; align-items: center; gap: 6px;">
+                                        <span>📊</span>
+                                        <span id="bible-school-title-display">낙생고등학교</span>
+                                        <span style="color: #fbbf24;">출제 교재 점유율</span>
+                                    </div>
+                                    <span id="bible-verified-count-badge" style="font-size: 0.7rem; color: #34d399; background: rgba(16,185,129,0.15); padding: 2px 6px; border-radius: 6px; font-weight: 800;">팩트 검증 완료</span>
+                                </div>
+                                <!-- 프로그레스 바 목록 렌더링 영역 -->
+                                <div id="bible-books-ranking-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                            </div>
+
+                            <!-- 2. 선배/튜터들의 1등급 실전 공략 총평 가이드 -->
+                            <div class="card" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px;" id="bible-alumni-guide-card">
+                                <div style="font-size: 0.82rem; font-weight: 800; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                                    <span class="material-symbols-rounded" style="font-size: 1rem; color: #f59e0b;">verified</span>
+                                    <span>선배 튜터의 1등급 출제 바이블 공략 가이드</span>
+                                </div>
+                                <div id="bible-alumni-guide-text" style="font-size: 0.78rem; line-height: 1.5; color: #fde68a;">
+                                    낙생고 수학은 시중 기본서보다 블랙라벨 Step3와 3개년 평가원 4점 기출 변형이 75% 이상을 차지합니다.
+                                </div>
+                            </div>
+
+                            <!-- 3. 실제 채택 검증된 기출 문항 아카이브 피드 -->
                             <div>
-                                <label class="input-label" style="font-size: 0.76rem; color: #c7d2fe;">과목</label>
-                                <select id="tracer-subject" class="form-input" style="height: 38px; font-size: 0.82rem;">
-                                    <option value="국어" selected>국어 (문학/비문학/언매/화작)</option>
-                                    <option value="수학">수학 (공통/수1/수2/미적/기하/확통)</option>
-                                    <option value="영어">영어 (독해/어법/서술형)</option>
-                                    <option value="통합사회">통합사회 / 사탐</option>
-                                    <option value="통합과학">통합과학 / 과탐</option>
-                                    <option value="한국사">한국사</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="input-label" style="font-size: 0.76rem; color: #c7d2fe;">시험 구분</label>
-                                <select id="tracer-exam-type" class="form-input" style="height: 38px; font-size: 0.82rem;">
-                                    <option value="1학기 중간">1학기 중간고사</option>
-                                    <option value="1학기 기말">1학기 기말고사</option>
-                                    <option value="2학기 중간">2학기 중간고사</option>
-                                    <option value="2학기 기말">2학기 기말고사</option>
-                                    <option value="수행/모의">수행평가 / 학평 대비</option>
-                                </select>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="font-size: 0.82rem; font-weight: 800; color: #cbd5e1;">📑 최근 100% 채택 검증된 실제 출제 문항</div>
+                                    <button type="button" class="btn btn-secondary" onclick="onBibleSchoolOrSubjectChange()" style="padding: 3px 8px; font-size: 0.72rem;">새로고침</button>
+                                </div>
+                                <div id="bible-recent-archive-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
                             </div>
                         </div>
 
-                        <div style="margin-bottom: 10px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                <label class="input-label" style="font-size: 0.78rem; color: #c7d2fe; font-weight: 700; margin-bottom: 0;">🏫 대상 학교 선택</label>
-                                <span style="font-size: 0.72rem; color: #a5b4fc; cursor: pointer;" id="tracer-school-region-hint" onclick="toggleTracerCustomSchool()">✏️ 학교명 직접 입력</span>
+                        <!-- ========================================================== -->
+                        <!-- [MODE 2] 📸 이 문제 출처 어디야? (집단지성 Q&A & 채택)          -->
+                        <!-- ========================================================== -->
+                        <div id="tracer-submode-qa-view" style="display: none;">
+                            <!-- 상단 질문 등록 트리거 배너 -->
+                            <div style="background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(168,85,247,0.15)); border: 1.5px dashed #818cf8; border-radius: 12px; padding: 14px; text-align: center; margin-bottom: 14px;">
+                                <div style="font-size: 0.9rem; font-weight: 800; color: #ffffff; margin-bottom: 4px;">❓ 모르는 시험 문제 출처를 질문해보세요!</div>
+                                <div style="font-size: 0.74rem; color: #cbd5e1; margin-bottom: 10px;">
+                                    사진이나 텍스트를 올리면 동료 학생 및 선배 튜터들이 원본 문제집과 변형 방식을 찾아드립니다.
+                                </div>
+                                <button type="button" class="btn" onclick="openExamSourceAskModal()" style="padding: 10px 20px; font-size: 0.85rem; font-weight: 900; background: linear-gradient(135deg, #6366f1, #4f46e5); border-radius: 8px; color: white;">
+                                    ➕ 문제 사진/텍스트 올리고 출처 질문하기 (+500P 현상금)
+                                </button>
                             </div>
-                            <select id="tracer-school-select" class="form-input" style="height: 42px; font-size: 0.84rem; font-weight: 700; background: #1e1e2f; color: white;" onchange="handleTracerSchoolSelect(this.value)">
-                                <option value="AUTO_MY_SCHOOL" selected>⭐ 내 등록 학교 (자동 연동)</option>
-                                <optgroup label="📍 강남·서초구 주요 고교">
-                                    <option value="낙생고등학교">낙생고등학교</option>
-                                    <option value="휘문고등학교">휘문고등학교</option>
-                                    <option value="중동고등학교">중동고등학교</option>
-                                    <option value="단대부속고등학교">단대부속고등학교</option>
-                                    <option value="중산고등학교">중산고등학교</option>
-                                    <option value="경기고등학교">경기고등학교</option>
-                                    <option value="서울고등학교">서울고등학교</option>
-                                    <option value="세화고등학교">세화고등학교</option>
-                                    <option value="세화여자고등학교">세화여자고등학교</option>
-                                    <option value="숙명여자고등학교">숙명여자고등학교</option>
-                                    <option value="은광여자고등학교">은광여자고등학교</option>
-                                    <option value="진선여자고등학교">진선여자고등학교</option>
-                                    <option value="경기여자고등학교">경기여자고등학교</option>
-                                    <option value="서문여자고등학교">서문여자고등학교</option>
-                                    <option value="영동고등학교">영동고등학교</option>
-                                    <option value="개포고등학교">개포고등학교</option>
-                                    <option value="양재고등학교">양재고등학교</option>
-                                    <option value="반포고등학교">반포고등학교</option>
-                                    <option value="서초고등학교">서초고등학교</option>
-                                    <option value="현대고등학교">현대고등학교</option>
-                                    <option value="압구정고등학교">압구정고등학교</option>
-                                    <option value="청담고등학교">청담고등학교</option>
-                                </optgroup>
-                                <optgroup label="📍 분당·판교·용인 주요 고교">
-                                    <option value="분당대진고등학교">분당대진고등학교</option>
-                                    <option value="서현고등학교">서현고등학교</option>
-                                    <option value="수내고등학교">수내고등학교</option>
-                                    <option value="분당고등학교">분당고등학교</option>
-                                    <option value="늘푸른고등학교">늘푸른고등학교</option>
-                                    <option value="야탑고등학교">야탑고등학교</option>
-                                    <option value="이매고등학교">이매고등학교</option>
-                                    <option value="보평고등학교">보평고등학교</option>
-                                    <option value="판교고등학교">판교고등학교</option>
-                                    <option value="운중고등학교">운중고등학교</option>
-                                    <option value="태원고등학교">태원고등학교</option>
-                                    <option value="송림고등학교">송림고등학교</option>
-                                    <option value="한솔고등학교">한솔고등학교</option>
-                                    <option value="불곡고등학교">불곡고등학교</option>
-                                    <option value="수지고등학교">수지고등학교</option>
-                                    <option value="풍덕고등학교">풍덕고등학교</option>
-                                    <option value="홍천고등학교">홍천고등학교</option>
-                                </optgroup>
-                                <optgroup label="📍 송파·강동·목동 주요 고교">
-                                    <option value="보인고등학교">보인고등학교</option>
-                                    <option value="배재고등학교">배재고등학교</option>
-                                    <option value="한영고등학교">한영고등학교</option>
-                                    <option value="명일여자고등학교">명일여자고등학교</option>
-                                    <option value="강서고등학교">강서고등학교</option>
-                                    <option value="양정고등학교">양정고등학교</option>
-                                    <option value="목동고등학교">목동고등학교</option>
-                                    <option value="신목고등학교">신목고등학교</option>
-                                </optgroup>
-                                <optgroup label="📍 전국단위 자사고 / 특목·외고">
-                                    <option value="용인외대부고">용인외대부고 (외대부고)</option>
-                                    <option value="하나고등학교">하나고등학교</option>
-                                    <option value="상산고등학교">상산고등학교</option>
-                                    <option value="민족사관고등학교">민족사관고등학교 (민사고)</option>
-                                    <option value="포항제철고등학교">포항제철고등학교</option>
-                                    <option value="대원외국어고등학교">대원외국어고등학교</option>
-                                    <option value="한영외국어고등학교">한영외국어고등학교</option>
-                                    <option value="명덕외국어고등학교">명덕외국어고등학교</option>
-                                </optgroup>
-                                <optgroup label="📍 주요 중학교">
-                                    <option value="대치중학교">대치중학교</option>
-                                    <option value="역삼중학교">역삼중학교</option>
-                                    <option value="도곡중학교">도곡중학교</option>
-                                    <option value="대청중학교">대청중학교</option>
-                                    <option value="구룡중학교">구룡중학교</option>
-                                    <option value="개원중학교">개원중학교</option>
-                                    <option value="휘문중학교">휘문중학교</option>
-                                    <option value="단대부중학교">단대부중학교</option>
-                                    <option value="중동중학교">중동중학교</option>
-                                    <option value="내정중학교">내정중학교</option>
-                                    <option value="수내중학교">수내중학교</option>
-                                    <option value="백현중학교">백현중학교</option>
-                                    <option value="보평중학교">보평중학교</option>
-                                    <option value="월촌중학교">월촌중학교</option>
-                                    <option value="목동중학교">목동중학교</option>
-                                    <option value="신목중학교">신목중학교</option>
-                                </optgroup>
-                                <option value="CUSTOM">✏️ 직접 입력 (목록에 없는 학교)</option>
-                            </select>
-                            <input type="text" id="tracer-school" class="form-input" placeholder="학교명 직접 입력 (예: 낙생고등학교/대치중학교)" style="height: 40px; font-size: 0.84rem; font-weight: 700; display: none; margin-top: 6px;">
+
+                            <!-- Q&A 필터 바 (전체 / 답변 대기중 / 채택 완료) -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 6px;">
+                                <div style="display: flex; gap: 4px;" id="tracer-qa-status-filters">
+                                    <button type="button" class="btn active" data-qastatus="ALL" onclick="filterTracerQAStatus('ALL', this)" style="padding: 4px 10px; font-size: 0.72rem; border-radius: 6px;">전체</button>
+                                    <button type="button" class="btn btn-secondary" data-qastatus="PENDING" onclick="filterTracerQAStatus('PENDING', this)" style="padding: 4px 10px; font-size: 0.72rem; border-radius: 6px;">⏳ 답변 대기중</button>
+                                    <button type="button" class="btn btn-secondary" data-qastatus="RESOLVED" onclick="filterTracerQAStatus('RESOLVED', this)" style="padding: 4px 10px; font-size: 0.72rem; border-radius: 6px;">🌟 채택 완료</button>
+                                </div>
+                                <button type="button" class="btn btn-secondary" onclick="loadExamSourceQuestionsFeed()" style="padding: 4px 8px; font-size: 0.72rem;">🔄 새로고침</button>
+                            </div>
+
+                            <!-- 실시간 질문 피드 컨테이너 -->
+                            <div id="tracer-qa-questions-feed" style="display: flex; flex-direction: column; gap: 10px;"></div>
                         </div>
 
-                        <!-- 📷 문제 사진 촬영 / 이미지 업로드 AI OCR 검색 -->
-                        <div style="margin-bottom: 12px; background: rgba(99, 102, 241, 0.08); border: 1.5px dashed rgba(99, 102, 241, 0.4); border-radius: 12px; padding: 12px 14px; text-align: center;">
-                            <div id="tracer-image-preview-area" style="display: none; margin-bottom: 10px; position: relative;">
-                                <img id="tracer-image-preview" src="" style="max-height: 180px; max-width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); object-fit: contain;">
-                                <button type="button" onclick="clearTracerImage()" style="position: absolute; top: 4px; right: 4px; background: rgba(239,68,68,0.9); color: white; border: none; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; font-weight: 900; font-size: 1rem; line-height: 1;">×</button>
-                                <div id="tracer-ocr-status" style="font-size: 0.76rem; color: #818cf8; font-weight: 700; margin-top: 6px;"></div>
-                            </div>
-                            <input type="file" id="tracer-image-input" accept="image/*" capture="environment" style="display: none;" onchange="handleTracerImageUpload(event)">
-                            <button type="button" onclick="document.getElementById('tracer-image-input').click()" class="btn" style="width: 100%; padding: 11px 14px; font-size: 0.85rem; font-weight: 800; background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                                <span class="material-symbols-rounded" style="font-size: 1.2rem;">photo_camera</span>
-                                <span>문제 사진 촬영 / 이미지 업로드 (AI OCR 자동분석)</span>
-                            </button>
-                            <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 6px;">
-                                시험지나 문제집 사진을 올리면 <b>Gemini AI Vision</b>이 지문·수식·선지를 자동 추출하여 출처를 검색합니다.
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom: 12px; width: 100%; box-sizing: border-box;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                <label class="input-label" style="font-size: 0.78rem; color: #c7d2fe; font-weight: 700; margin-bottom: 0;">문제 본문 / 지문 / 발문 / 선지 텍스트</label>
-                                <span style="font-size: 0.72rem; color: var(--text-secondary);" id="tracer-char-count">0자</span>
-                            </div>
-                            <textarea id="tracer-query" class="form-input" placeholder="시험 문제의 핵심 지문, 선지, 조건식을 복사하여 붙여넣으세요.&#10;&#10;• 국어 예: (가) 나 하늘로 돌아가리라 아름다운 이 세상 소풍 끝내는 날...&#10;• 수학 예: 최고차항의 계수가 1인 삼차함수 f(x)가 다음 조건을 만족시킨다..." rows="6" style="width: 100%; box-sizing: border-box; display: block; resize: vertical; min-height: 165px; height: 165px; line-height: 1.55; font-size: 0.85rem; border-radius: 10px; padding: 12px 14px;" oninput="document.getElementById('tracer-char-count').innerText=this.value.length+'자'"></textarea>
-                        </div>
-
-                        <div style="display: flex; gap: 8px; margin-bottom: 14px;">
-                            <button type="button" class="btn" onclick="runExamSourceTrace()" style="flex: 2; padding: 13px; font-weight: 900; font-size: 0.95rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                                <span class="material-symbols-rounded" style="font-size: 1.15rem;">search_check</span>
-                                <span>출처 정밀 추적 실행</span>
-                            </button>
-                            <button type="button" class="btn btn-secondary" onclick="openExamTagModal()" style="flex: 1; padding: 13px 6px; font-size: 0.82rem; font-weight: 800; border-radius: 10px; border: 1px dashed #818cf8; color: #c7d2fe;" title="직접 출처 제보하고 500 캐시 받기">
-                                출처 제보
-                            </button>
-                        </div>
-
-                        <!-- 추적 결과 렌더링 컨테이너 -->
-                        <div id="tracer-result-box" style="display: none;">
-                            <div style="font-size: 0.82rem; font-weight: 800; color: #c7d2fe; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
-                                <span>🎯 추적 분석 결과</span>
-                                <span id="tracer-match-count" style="font-size: 0.72rem; color: #10b981; background: rgba(16,185,129,0.15); padding: 2px 7px; border-radius: 6px;">-</span>
-                            </div>
-                            <div id="tracer-school-trend" style="display: none; background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.3); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; font-size: 0.78rem; line-height: 1.45; color: #ddd6fe;"></div>
-                            <div id="tracer-items-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
-                        </div>
-
-                        <!-- 튜터/선배 출처 제보 목록 & 크라우드소싱 피드 -->
-                        <div style="margin-top: 18px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <span style="font-size: 0.8rem; font-weight: 800; color: #cbd5e1;">👥 실시간 선배·튜터 출처 제보 피드</span>
-                                <button type="button" onclick="loadExamTagsFeed()" class="btn btn-secondary" style="padding: 3px 8px; font-size: 0.72rem;">새로고침</button>
-                            </div>
-                            <div id="tracer-recent-tags" style="display: flex; flex-direction: column; gap: 6px;"></div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -4962,6 +4897,130 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             <button type="button" onclick="submitExamTag()" class="btn" style="width: 100%; padding: 12px; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5);">
                 제보 등록하고 500 캐시 받기
             </button>
+        </div>
+    </div>
+
+    <!-- 📸 출처 의뢰 Q&A 등록 모달 -->
+    <div id="exam-source-ask-modal" class="trigger-modal" style="display: none;">
+        <div class="trigger-content" style="border-color: #818cf8; max-width: 500px; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div style="font-size: 1.05rem; font-weight: 800; color: #c7d2fe;">📸 내신 출처 의뢰 질문 올리기</div>
+                <button type="button" onclick="closeExamSourceAskModal()" class="modal-close-btn">&times;</button>
+            </div>
+            <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.45;">
+                시험 문제 사진이나 텍스트를 등록하면 동료 학생 및 선배 튜터들이 원본 출처를 찾아드립니다. 정답 채택 시 답변자에게 <b>500P</b>가 지급됩니다.
+            </p>
+            <form onsubmit="handleSendExamSourceAsk(event)" style="display: flex; flex-direction: column; gap: 8px;">
+                <div>
+                    <label class="input-label" style="font-size: 0.74rem; color: #c7d2fe; margin-bottom: 3px;">학교명</label>
+                    <input type="text" id="ask-school-name" class="auth-input" placeholder="학교명 (예: 낙생고등학교, 분당대진고)" list="ask-school-datalist" style="margin-bottom: 0 !important; font-size: 0.85rem; font-weight: 700;" required>
+                    <datalist id="ask-school-datalist"></datalist>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <div>
+                        <label class="input-label" style="font-size: 0.74rem; color: #c7d2fe; margin-bottom: 3px;">학년</label>
+                        <select id="ask-grade" class="auth-input" style="margin-bottom: 0 !important; font-size: 0.85rem;">
+                            <option value="고1">고1</option>
+                            <option value="고2">고2</option>
+                            <option value="고3" selected>고3</option>
+                            <option value="중3">중3</option>
+                            <option value="중2">중2</option>
+                            <option value="중1">중1</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="input-label" style="font-size: 0.74rem; color: #c7d2fe; margin-bottom: 3px;">과목</label>
+                        <select id="ask-subject" class="auth-input" style="margin-bottom: 0 !important; font-size: 0.85rem;">
+                            <option value="수학" selected>수학</option>
+                            <option value="국어">국어</option>
+                            <option value="영어">영어</option>
+                            <option value="통합과학">과학/통합과학</option>
+                            <option value="통합사회">사회/한국사</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 6px;">
+                    <div>
+                        <label class="input-label" style="font-size: 0.74rem; color: #c7d2fe; margin-bottom: 3px;">시험 구분</label>
+                        <input type="text" id="ask-exam-type" class="auth-input" placeholder="예: 2024 1학기 기말고사" style="margin-bottom: 0 !important; font-size: 0.85rem;" required>
+                    </div>
+                    <div>
+                        <label class="input-label" style="font-size: 0.74rem; color: #c7d2fe; margin-bottom: 3px;">문항 번호</label>
+                        <input type="text" id="ask-question-num" class="auth-input" placeholder="예: 14번" style="margin-bottom: 0 !important; font-size: 0.85rem;" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="input-label" style="font-size: 0.74rem; color: #c7d2fe; margin-bottom: 3px;">문제 본문 또는 핵심 키워드/지문/조건식</label>
+                    <textarea id="ask-question-text" class="auth-input" placeholder="문제의 핵심 발문, 조건식, 지문을 입력하세요 (사진 업로드 시 생략 가능)" rows="3" style="resize: vertical; font-size: 0.82rem; margin-bottom: 0 !important;"></textarea>
+                </div>
+                <div>
+                    <label class="input-label" style="font-size: 0.74rem; color: #c7d2fe; margin-bottom: 3px;">문제 사진 첨부 (선택)</label>
+                    <input type="file" id="ask-question-image-file" accept="image/*" class="auth-input" style="margin-bottom: 0 !important; font-size: 0.8rem; padding: 6px;" onchange="handleAskImageFileSelected(this)">
+                    <div id="ask-image-preview-box" style="display: none; margin-top: 6px; text-align: center;">
+                        <img id="ask-image-preview-img" src="" alt="문제 미리보기" style="max-height: 140px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15);">
+                    </div>
+                </div>
+                <div style="background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.25); border-radius: 8px; padding: 8px 10px; font-size: 0.74rem; color: #cbd5e1; display: flex; justify-content: space-between; align-items: center;">
+                    <span>💰 출처 채택 보상금</span>
+                    <span style="font-weight: 800; color: #fbbf24;">500 P 예치</span>
+                </div>
+                <button type="submit" class="btn" style="width: 100%; padding: 12px; font-weight: 900; background: linear-gradient(135deg, #6366f1, #4f46e5); margin-top: 4px;">
+                    🚀 출처 질문 등록하기
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 💡 출처 Q&A 상세 & 집단지성 답변 / 채택 모달 -->
+    <div id="exam-source-detail-modal" class="trigger-modal" style="display: none;">
+        <div class="trigger-content" style="border-color: #818cf8; max-width: 580px; max-height: 90vh; overflow-y: auto; padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                        <span id="detail-qa-status-badge" class="qa-status-badge">-</span>
+                        <span id="detail-qa-school-badge" style="font-size: 0.75rem; background: rgba(99,102,241,0.15); color: #c7d2fe; padding: 2px 7px; border-radius: 6px; font-weight: 700;">-</span>
+                        <span id="detail-qa-subject-badge" style="font-size: 0.75rem; background: rgba(255,255,255,0.06); color: #94a3b8; padding: 2px 7px; border-radius: 6px; font-weight: 700;">-</span>
+                    </div>
+                    <div id="detail-qa-title" style="font-size: 1.05rem; font-weight: 900; color: #ffffff;">문항 출처 질의</div>
+                </div>
+                <button type="button" onclick="closeExamSourceDetailModal()" class="modal-close-btn">&times;</button>
+            </div>
+
+            <!-- 문제 내용 영역 -->
+            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; margin-bottom: 14px;">
+                <div id="detail-qa-author-info" style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 8px;">작성자 · 등록일시</div>
+                <div id="detail-qa-text" style="font-size: 0.85rem; line-height: 1.55; color: #f1f5f9; white-space: pre-wrap; margin-bottom: 8px;">-</div>
+                <div id="detail-qa-image-container" style="display: none; text-align: center; margin-top: 8px;">
+                    <img id="detail-qa-image" src="" alt="문제 이미지" style="max-width: 100%; max-height: 240px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                </div>
+            </div>
+
+            <!-- 집단지성 답변 목록 헤더 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div style="font-size: 0.86rem; font-weight: 800; color: #a5b4fc; display: flex; align-items: center; gap: 4px;">
+                    <span>💡 등록된 출처 제보</span>
+                    <span id="detail-answers-count-badge" style="font-size: 0.72rem; color: #10b981; background: rgba(16,185,129,0.15); padding: 1px 6px; border-radius: 6px;">0개</span>
+                </div>
+            </div>
+
+            <!-- 집단지성 답변 목록 -->
+            <div id="detail-answers-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;"></div>
+
+            <!-- 답변 작성 폼 (인라인) -->
+            <div id="detail-answer-form-box" style="background: rgba(99,102,241,0.06); border: 1px dashed rgba(99,102,241,0.3); border-radius: 12px; padding: 12px;">
+                <div style="font-size: 0.82rem; font-weight: 800; color: #c7d2fe; margin-bottom: 8px;">
+                    ✍️ 이 문제의 원본 출처를 아시나요? (+500P 획득)
+                </div>
+                <form onsubmit="handleSendExamSourceAnswer(event)" style="display: flex; flex-direction: column; gap: 6px;">
+                    <input type="hidden" id="answer-target-question-id" value="">
+                    <input type="text" id="answer-source-book-name" class="auth-input" placeholder="출처 교재/기출명 (예: 블랙라벨 수학(상), 2023 고3 6월 모평)" style="margin-bottom: 0 !important; font-size: 0.82rem;" required>
+                    <input type="text" id="answer-source-detail" class="auth-input" placeholder="세부 위치 (예: p.48 15번, 21번 문항)" style="margin-bottom: 0 !important; font-size: 0.82rem;">
+                    <textarea id="answer-adaptation-notes" class="auth-input" placeholder="변형 분석 및 팁 (예: 최고차항 계수가 2로 변경되고 (나) 조건이 추가됨)" rows="2" style="resize: vertical; font-size: 0.8rem; margin-bottom: 0 !important;"></textarea>
+                    <button type="submit" class="btn" style="padding: 10px; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; margin-top: 2px;">
+                        🌟 출처 제보 답변 등록하기
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 

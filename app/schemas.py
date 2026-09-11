@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Union
 from datetime import datetime
 
 # --- 과외선생님 프로필 응답 (상위 선언 필요) ---
@@ -149,6 +149,65 @@ class ExamSourceTagCreate(BaseModel):
     source_name: Optional[str] = ""
     tag_source_detail: Optional[str] = ""
     notes: Optional[str] = ""
+
+class ExamSourceQuestionCreate(BaseModel):
+    student_id: Optional[int] = None
+    author_name: Optional[str] = "익명 수험생"
+    school_name: str
+    grade: Union[str, int] = "고1"
+    subject: str
+    exam_type: str = "1학기 중간"
+    question_num: str = "1번"
+    question_text: str
+    image_url: Optional[str] = None
+    bounty_points: int = 500
+
+class ExamSourceAnswerCreate(BaseModel):
+    student_id: Optional[int] = None
+    author_name: Optional[str] = "선배 튜터"
+    is_alumni_tutor: bool = False
+    source_book_name: str
+    source_detail: str
+    adaptation_notes: Optional[str] = None
+
+class ExamSourceAnswerResponse(BaseModel):
+    id: int
+    question_id: int
+    student_id: Optional[int] = None
+    author_name: str
+    is_alumni_tutor: bool
+    source_book_name: str
+    source_detail: str
+    adaptation_notes: Optional[str] = None
+    is_accepted: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class ExamSourceQuestionResponse(BaseModel):
+    id: int
+    student_id: Optional[int] = None
+    author_name: str
+    school_name: str
+    grade: Union[str, int] = "고1"
+    subject: str
+    exam_type: str
+    question_num: str
+    question_text: str
+    image_url: Optional[str] = None
+    bounty_points: int
+    is_resolved: bool
+    accepted_answer_id: Optional[int] = None
+    views_count: int
+    created_at: datetime
+    answers_count: int = 0
+    accepted_source_book: Optional[str] = None
+    accepted_source_detail: Optional[str] = None
+    answers: Optional[List[ExamSourceAnswerResponse]] = None
+
+    class Config:
+        from_attributes = True
 
 
 class NoticeCreate(BaseModel):

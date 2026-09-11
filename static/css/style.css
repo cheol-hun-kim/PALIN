@@ -4834,3 +4834,130 @@ body.day-mode #pledge-target-text {
     color: #991b1b !important;
 }
 
+/* ==========================================================================
+   📚 School Exam Bible & Crowdsourced Tracer Q&A UI Styles (High Contrast)
+   ========================================================================== */
+.tracer-submode-btn {
+    transition: all 0.2s ease;
+}
+.tracer-submode-btn.active {
+    background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+}
+
+.qa-status-badge {
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.qa-status-badge.pending {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.qa-status-badge.resolved {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.qa-question-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.qa-question-card:hover {
+    border-color: #818cf8;
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.qa-answer-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    padding: 12px;
+    transition: border-color 0.2s ease;
+}
+.qa-answer-item.accepted {
+    border: 1.5px solid #10b981;
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.bible-book-bar-container {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    overflow: hidden;
+    height: 9px;
+    margin-top: 4px;
+}
+.bible-book-bar-fill {
+    height: 100%;
+    border-radius: 8px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Day Mode High-Contrast Overrides */
+body.day-mode .tracer-submode-btn.active {
+    background: #4f46e5 !important;
+    color: #ffffff !important;
+}
+body.day-mode .tracer-submode-btn:not(.active) {
+    background: #f1f5f9 !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+}
+body.day-mode #bible-top-books-card {
+    background: #f8fafc !important;
+    border: 1.5px solid #cbd5e1 !important;
+}
+body.day-mode #bible-school-title-display {
+    color: #1e1b4b !important;
+}
+body.day-mode #bible-alumni-guide-card {
+    background: #fffbeb !important;
+    border: 1.5px solid #fde68a !important;
+}
+body.day-mode #bible-alumni-guide-text {
+    color: #78350f !important;
+}
+body.day-mode .qa-question-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+body.day-mode .qa-question-card:hover {
+    border-color: #6366f1 !important;
+    box-shadow: 0 4px 8px rgba(99, 102, 241, 0.1) !important;
+}
+body.day-mode .qa-answer-item {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+}
+body.day-mode .qa-answer-item.accepted {
+    background: #f0fdf4 !important;
+    border: 1.5px solid #22c55e !important;
+}
+body.day-mode #detail-qa-text {
+    color: #0f172a !important;
+}
+body.day-mode #detail-qa-title {
+    color: #0f172a !important;
+}
+body.day-mode #detail-answer-form-box {
+    background: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+}
+body.day-mode .bible-book-bar-container {
+    background: #e2e8f0 !important;
+}
+
+
