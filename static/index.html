@@ -1195,9 +1195,9 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             </span>
                         </div>
                         
-                        <!-- 💡 심도 있는 답변 사전 안내 문구 -->
+                        <!-- 심도 있는 답변 사전 안내 문구 -->
                         <div class="chatbot-notice-box" style="border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; font-size: 0.82rem; display: flex; align-items: center; gap: 10px; line-height: 1.5; background: rgba(99, 102, 241, 0.12); border: 1.5px solid #6366f1;">
-                            <span style="font-size: 1.3rem; flex-shrink: 0;">💡</span>
+                            <span class="material-symbols-rounded" style="font-size: 1.3rem; flex-shrink: 0; color: #6366f1;">lightbulb</span>
                             <div style="font-weight: 700; color: inherit;">수험생 백서 지식 기반으로 <b style="font-weight: 900; color: var(--color-accent, #6366f1);">심도 있는 맞춤형 답변을 분석/작성</b>하므로 질문 후 <b style="font-weight: 900; color: var(--color-accent, #6366f1);">약 10~20초</b>가량 소요될 수 있습니다.</div>
                         </div>
 
@@ -1207,7 +1207,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             </div>
                         </div>
                         <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 8px;" id="chat-limit-label">
-                            오늘 남은 무료 대화: 5회
+                            오늘 남은 대화: 5회
                         </div>
                         <div class="chat-input-row" style="display: flex; gap: 8px; align-items: flex-end;">
                             <textarea id="chat-input" class="form-input" placeholder="수험 고민, 공부법 등을 질문해보세요" rows="1" style="resize: none; overflow-y: auto; min-height: 48px; max-height: 120px; line-height: 1.4; padding: 13px 14px; font-size: 0.88rem; flex: 1; box-sizing: border-box; border-radius: 12px;" oninput="this.style.height='auto'; this.style.height=Math.max(48, Math.min(this.scrollHeight, 120))+'px';" onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); sendChatMessage(); }"></textarea>
@@ -4242,7 +4242,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid #10b981; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <div style="font-weight: 800; color: #34d399; font-size: 0.85rem;">Tier 2 스탠다드</div>
-                            <div style="font-size: 0.7rem; color: #94a3b8;">1/10 핵심 팩트폭격 AI 코칭 (1~2문장)</div>
+                            <div style="font-size: 0.7rem; color: #94a3b8;">피상적 나열 없는 핵심 고급정보 압축 요약 코칭</div>
                         </div>
                         <div style="text-align: right;">
                             <div style="font-weight: 900; color: #ffffff; font-size: 0.95rem;">월 19,900원</div>
@@ -4264,7 +4264,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
                 <!-- 가맹 학원생 전액 지원 안내 -->
                 <div style="background: rgba(99, 102, 241, 0.1); border: 1px dashed #818cf8; border-radius: 12px; padding: 12px 14px; text-align: center;">
-                    <div style="font-size: 0.8rem; font-weight: 800; color: #a5b4fc; margin-bottom: 3px;">🎁 가맹 학원 재원생 전액 무료 지원</div>
+                    <div style="font-size: 0.8rem; font-weight: 800; color: #a5b4fc; margin-bottom: 3px;">가맹 학원 재원생 전액 무료 지원</div>
                     <div style="font-size: 0.74rem; color: #cbd5e1; line-height: 1.45;">소속 학원이 가맹 학원인 경우, 원장님 지원으로 <b>Tier 3 마스터 AI</b> 및 학원 관리 기능이 100% 무료로 제공됩니다.</div>
                 </div>
             </div>
@@ -4364,7 +4364,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
                 <!-- 학원 연동 안내 -->
                 <div style="background: rgba(16, 185, 129, 0.1); border: 1px dashed #10b981; border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 0.76rem; font-weight: 800; color: #34d399; margin-bottom: 2px;">🏫 자녀가 다니는 학원이 가맹 학원인가요?</div>
+                    <div style="font-size: 0.76rem; font-weight: 800; color: #34d399; margin-bottom: 2px;">자녀가 다니는 학원이 가맹 학원인가요?</div>
                     <div style="font-size: 0.7rem; color: #cbd5e1; line-height: 1.4;">소속 학원이 PALIN OS 가맹 학원인 경우, 학원 원장님의 전액 지원으로 <b>학부모님과 자녀 모두 100% 무료</b>로 이용하실 수 있습니다.</div>
                 </div>
             </div>

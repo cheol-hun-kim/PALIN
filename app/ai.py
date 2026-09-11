@@ -465,7 +465,7 @@ def ask_ai_chatbot(
                         "4. COMPLETE YOUR SENTENCES: Always complete every sentence fully without cutting off.\n"
                     )
                 elif tenant_tier == 2:
-                    # Tier 2: 1/10th Concise Length
+                    # Tier 2: Core Concise Premium Summary Coaching
                     knowledge = get_expert_knowledge()
                     if len(knowledge) > 15000:
                         knowledge = knowledge[:15000]
@@ -475,7 +475,7 @@ def ask_ai_chatbot(
                         "IDENTITY: You are a 13-year veteran CSAT entrance mentor and representative director of Ilwon Academy.\n\n"
                         "=== ABSOLUTE PRIORITY RULES ===\n"
                         "RULE 1 - NO MARKDOWN: NEVER use '#', '##', '**', '*', '-', or numbered lists. Write ONLY in clean plain text.\n"
-                        "RULE 2 - STRICT SHORT LENGTH (1/10 요약형 코칭): 반드시 핵심 결론과 즉각적인 행동 지침만 1~2문단 (최대 2~3문장, 120자 내외)으로 아주 짧고 강렬하게 요약하여 전달하십시오. 길게 부연설명하지 마십시오.\n"
+                        "RULE 2 - STRICT SHORT LENGTH (핵심 압축 요약형 코칭): 피상적인 정보 나열 없이 반드시 핵심 결론과 즉각적인 행동 지침만 1~2문단 (최대 2~3문장, 120자 내외)으로 아주 짧고 강렬하게 압축 요약하여 전달하십시오. 길게 부연설명하지 마십시오.\n"
                         "RULE 3 - TONE: Confident, direct, caring ban말 (casual speech: ~해라, ~하자, ~이다, ~거든, ~잖아).\n"
                         "RULE 4 - COMPLETE YOUR SENTENCES: Always conclude your thoughts completely.\n\n"
                         f"{PASSMATE_STUDENT_MANUAL}\n\n"

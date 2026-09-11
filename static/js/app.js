@@ -6641,10 +6641,10 @@ function updateChatTierAndTokens(student, customRemaining = null) {
         descText = "B2C Tier 3 (마스터) · 백서 지식 100% 무제한 AI 활성화";
         isUnlimited = true;
     } else if (b2cTier.includes("TIER_2")) {
-        tierLabel = "B2C Tier 2 (스탠다드 · 1/10 답변)";
+        tierLabel = "B2C Tier 2 (스탠다드)";
         tierColor = "#818cf8";
         tierBg = "rgba(99, 102, 241, 0.2)";
-        descText = "B2C Tier 2 (스탠다드 · 1/10 요약 코칭)";
+        descText = "B2C Tier 2 (스탠다드 · 핵심 압축 코칭)";
         isUnlimited = false;
     } else {
         tierLabel = "B2C Tier 1 (무료)";
@@ -6673,9 +6673,9 @@ function updateChatTierAndTokens(student, customRemaining = null) {
     const limitLabel = document.getElementById("chat-limit-label");
     if (limitLabel) {
         if (isUnlimited || toks >= 900) {
-            limitLabel.innerHTML = `<span style="color: ${tierColor}; font-weight: 800;">${descText}</span>`;
+            limitLabel.innerHTML = `<span style="color: ${tierColor}; font-weight: 800;">백서 무제한 AI 대화 활성화 중</span>`;
         } else {
-            limitLabel.innerHTML = `${descText} · 잔여 대화: <b style="color: #38bdf8;">${toks}회</b>`;
+            limitLabel.innerHTML = `오늘 남은 대화: <b style="color: #38bdf8;">${toks}회</b>`;
             limitLabel.style.color = "var(--text-secondary)";
             limitLabel.style.fontWeight = "normal";
         }
