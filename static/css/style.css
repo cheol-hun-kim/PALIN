@@ -623,13 +623,13 @@ header {
 }
 
 body.day-mode .univ-slogan-bar {
-    background: #ffffff !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 body.day-mode #univ-slogan-text {
-    color: #1e293b !important;
+    color: #1e293b;
 }
 
 @media (max-width: 480px) {

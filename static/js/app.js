@@ -662,15 +662,17 @@ function updateUniversitySlogan(targetUnivStr, theme, isDayMode) {
     const accent = theme ? (theme.accent || theme.color) : "#818CF8";
 
     if (isDayMode) {
-        sloganBox.style.background = "#ffffff";
-        sloganBox.style.borderColor = `${color}35`;
-        sloganBox.style.boxShadow = `0 2px 10px ${color}12`;
+        sloganBox.style.background = `linear-gradient(135deg, ${color}0D, #ffffff 80%)`;
+        sloganBox.style.borderColor = `${color}40`;
+        sloganBox.style.boxShadow = `0 3px 12px ${color}15`;
         sloganEl.style.color = color;
+        sloganEl.style.fontWeight = "800";
     } else {
         sloganBox.style.background = `linear-gradient(90deg, ${color}20, rgba(15, 23, 42, 0.75), ${color}20)`;
         sloganBox.style.borderColor = `${color}45`;
         sloganBox.style.boxShadow = `0 2px 14px ${color}20`;
         sloganEl.style.color = accent;
+        sloganEl.style.fontWeight = "700";
     }
 }
 
@@ -704,11 +706,13 @@ function applyUniversityTheme(targetUnivStr) {
 
     const banner = document.getElementById("univ-target-banner");
     const watermark = document.getElementById("banner-univ-watermark");
+    const targetLabel = document.getElementById("banner-target-label");
+    const ddayBadgeBox = document.getElementById("banner-dday-badge-box");
     const isDayMode = document.body.classList.contains("day-mode");
 
     if (banner) {
         if (isDayMode) {
-            banner.style.background = "#ffffff";
+            banner.style.background = `linear-gradient(135deg, ${theme.color}08, #ffffff 80%)`;
             banner.style.borderColor = `${theme.color}35`;
             banner.style.boxShadow = `0 4px 18px ${theme.color}15`;
         } else {
@@ -719,10 +723,24 @@ function applyUniversityTheme(targetUnivStr) {
         }
     }
 
+    if (targetLabel) {
+        targetLabel.style.color = isDayMode ? theme.color : (theme.accent || "#818cf8");
+    }
+
+    if (ddayBadgeBox) {
+        if (isDayMode) {
+            ddayBadgeBox.style.background = `linear-gradient(135deg, ${theme.color}, ${theme.accent || theme.color})`;
+            ddayBadgeBox.style.boxShadow = `0 4px 14px ${theme.color}40`;
+        } else {
+            ddayBadgeBox.style.background = `linear-gradient(135deg, ${theme.color}, #4f46e5)`;
+            ddayBadgeBox.style.boxShadow = `0 4px 14px ${theme.color}35`;
+        }
+    }
+
     if (watermark) {
         watermark.innerText = theme.code;
-        watermark.style.color = isDayMode ? theme.color : "#ffffff";
-        watermark.style.opacity = isDayMode ? "0.04" : "0.05";
+        watermark.style.color = theme.color;
+        watermark.style.opacity = isDayMode ? "0.08" : "0.05";
     }
 
     // 목표 대학 공식 슬로건 렌더링

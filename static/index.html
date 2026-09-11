@@ -772,7 +772,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <div style="flex: 1; min-width: 0; position: relative; z-index: 2; display: flex; flex-direction: column; gap: 5px;">
                         <!-- 목표 대학 -->
                         <div>
-                            <div style="font-size: 0.72rem; color: #818cf8; font-weight: 800; letter-spacing: 0.3px; margin-bottom: 2px;">목표 대학</div>
+                            <div id="banner-target-label" style="font-size: 0.72rem; color: #818cf8; font-weight: 800; letter-spacing: 0.3px; margin-bottom: 2px;">목표 대학</div>
                             <div class="univ-name" id="banner-target-univ" style="font-size: 0.98rem; font-weight: 800; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.3px;">목표 대학을 설정해 주세요</div>
                         </div>
                         
@@ -785,7 +785,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
                     <!-- 우측: D-Day 일체형 프리미엄 뱃지 (선명한 화이트 텍스트) -->
                     <div style="flex-shrink: 0; position: relative; z-index: 2; cursor: pointer;" onclick="openMyPageModal()" title="클릭하여 목표 D-Day 변경">
-                        <div style="background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; padding: 8px 14px; border-radius: 12px; text-align: center; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 72px;">
+                        <div id="banner-dday-badge-box" style="background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; padding: 8px 14px; border-radius: 12px; text-align: center; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 72px;">
                             <span style="font-size: 0.68rem; font-weight: 800; color: #ffffff !important; opacity: 0.95; letter-spacing: 0.3px; line-height: 1;" id="banner-dday-title">2027 수능</span>
                             <span style="font-size: 1.08rem; font-weight: 900; color: #ffffff !important; letter-spacing: -0.3px; line-height: 1.1;" id="banner-dday">D-78</span>
                         </div>
