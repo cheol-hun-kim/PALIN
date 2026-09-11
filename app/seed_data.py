@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime, timedelta
+import random
 from sqlalchemy.orm import Session
 from sqlalchemy import text, func
 
@@ -293,8 +295,6 @@ def auto_seed_database(db: Session, engine):
 
     # STEP C: Ensure Study Sessions exist for students
     try:
-        from datetime import timedelta
-        import random
         now = datetime.now()
         for st in db.query(models.Student).all():
             if db.query(models.StudySession).filter(models.StudySession.student_id == st.id).count() == 0:
