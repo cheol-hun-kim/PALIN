@@ -363,9 +363,9 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             <div style="margin-bottom: 10px;">
                                 <label style="font-size: 0.74rem; color: #c7d2fe; font-weight: 800; display: block; margin-bottom: 5px;">학교급 선택 (맞춤형 전용 화면 제공)</label>
                                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;" id="reg-school-level-bar">
-                                    <button type="button" class="btn btn-secondary" id="reg-lvl-elem" onclick="setSchoolLevelSignup('ELEMENTARY')" style="padding: 9px 2px; font-size: 0.78rem; font-weight: 800; border-radius: 10px;">🐣 초등</button>
-                                    <button type="button" class="btn btn-secondary" id="reg-lvl-middle" onclick="setSchoolLevelSignup('MIDDLE')" style="padding: 9px 2px; font-size: 0.78rem; font-weight: 800; border-radius: 10px;">🧭 중등</button>
-                                    <button type="button" class="btn" id="reg-lvl-high" onclick="setSchoolLevelSignup('HIGH')" style="padding: 9px 2px; font-size: 0.78rem; font-weight: 800; border-radius: 10px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">🎯 고등</button>
+                                    <button type="button" class="btn btn-secondary" id="reg-lvl-elem" onclick="setSchoolLevelSignup('ELEMENTARY')" style="padding: 9px 2px; font-size: 0.78rem; font-weight: 800; border-radius: 10px;">초등</button>
+                                    <button type="button" class="btn btn-secondary" id="reg-lvl-middle" onclick="setSchoolLevelSignup('MIDDLE')" style="padding: 9px 2px; font-size: 0.78rem; font-weight: 800; border-radius: 10px;">중등</button>
+                                    <button type="button" class="btn" id="reg-lvl-high" onclick="setSchoolLevelSignup('HIGH')" style="padding: 9px 2px; font-size: 0.78rem; font-weight: 800; border-radius: 10px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">고등</button>
                                 </div>
                                 <input type="hidden" id="reg-school-level-val" value="HIGH">
                             </div>
@@ -725,15 +725,15 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </header>
 
         <!-- 👑 제작자/관리자 전용 학교급 실시간 3단 뷰어 스위처 바 -->
-        <div id="master-school-level-bar" style="background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); border-bottom: 1.5px solid #818cf8; padding: 7px 12px; display: flex; align-items: center; justify-content: space-between; gap: 6px; box-sizing: border-box; z-index: 100;">
-            <div style="display: flex; align-items: center; gap: 4px; font-size: 0.74rem; font-weight: 800; color: #cbd5e1; white-space: nowrap;">
-                <span class="material-symbols-rounded" style="font-size: 1rem; color: #fbbf24;">admin_panel_settings</span>
-                <span>제작자 관제 모드:</span>
+        <div id="master-school-level-bar" style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); border-bottom: 1.5px solid rgba(129, 140, 248, 0.4); padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; box-sizing: border-box; z-index: 100;">
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 800; color: #ffffff; white-space: nowrap;">
+                <span class="material-symbols-rounded" style="font-size: 1.25rem; color: #fbbf24; filter: drop-shadow(0 0 6px rgba(251,191,36,0.8)); vertical-align: middle;">admin_panel_settings</span>
+                <span style="color: #ffffff; letter-spacing: -0.2px;">제작자 관제 모드:</span>
             </div>
-            <div style="display: flex; gap: 4px; overflow-x: auto;" id="master-level-switcher-btns">
-                <button type="button" class="btn" id="m-btn-elem" onclick="switchMasterSchoolView('ELEMENTARY')" style="padding: 5px 9px; font-size: 0.72rem; font-weight: 800; border-radius: 6px; background: rgba(245,158,11,0.15); border: 1px solid #f59e0b; color: #fed7aa; white-space: nowrap;">초등 모드</button>
-                <button type="button" class="btn" id="m-btn-mid" onclick="switchMasterSchoolView('MIDDLE')" style="padding: 5px 9px; font-size: 0.72rem; font-weight: 800; border-radius: 6px; background: rgba(59,130,246,0.15); border: 1px solid #3b82f6; color: #93c5fd; white-space: nowrap;">중등 모드</button>
-                <button type="button" class="btn active" id="m-btn-high" onclick="switchMasterSchoolView('HIGH')" style="padding: 5px 9px; font-size: 0.72rem; font-weight: 800; border-radius: 6px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff; white-space: nowrap;">고등 모드</button>
+            <div style="display: flex; gap: 6px; overflow-x: auto;" id="master-level-switcher-btns">
+                <button type="button" class="btn" id="m-btn-elem" onclick="switchMasterSchoolView('ELEMENTARY')" style="padding: 5px 11px; font-size: 0.74rem; font-weight: 800; border-radius: 6px; background: rgba(245,158,11,0.15); border: 1.5px solid #f59e0b; color: #fbbf24; white-space: nowrap; cursor: pointer;">초등 모드</button>
+                <button type="button" class="btn" id="m-btn-mid" onclick="switchMasterSchoolView('MIDDLE')" style="padding: 5px 11px; font-size: 0.74rem; font-weight: 800; border-radius: 6px; background: rgba(59,130,246,0.15); border: 1.5px solid #3b82f6; color: #93c5fd; white-space: nowrap; cursor: pointer;">중등 모드</button>
+                <button type="button" class="btn active" id="m-btn-high" onclick="switchMasterSchoolView('HIGH')" style="padding: 5px 11px; font-size: 0.74rem; font-weight: 900; border-radius: 6px; background: linear-gradient(135deg, #6366f1, #4f46e5); border: 1.5px solid #818cf8; color: #ffffff; white-space: nowrap; box-shadow: 0 0 10px rgba(99,102,241,0.5); cursor: pointer;">고등 모드</button>
             </div>
         </div>
 
@@ -3305,14 +3305,14 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     초등·중등·고등 전 연령대 화면을 즉시 전환하여 각 학교급별 UI와 특화 기능을 직접 테스트 및 관제할 수 있습니다.
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;" id="mypage-school-switcher-btns">
-                    <button type="button" class="btn" id="mypage-btn-elem" onclick="switchMasterSchoolView('ELEMENTARY'); closeMyPageModal();" style="padding: 9px 4px; font-size: 0.74rem; font-weight: 800; border-radius: 8px; background: rgba(245,158,11,0.15); border: 1px solid #f59e0b; color: #fed7aa; cursor: pointer;">
-                        🐣 초등 모드
+                    <button type="button" class="btn" id="mypage-btn-elem" onclick="switchMasterSchoolView('ELEMENTARY'); closeMyPageModal();" style="padding: 9px 4px; font-size: 0.74rem; font-weight: 800; border-radius: 8px; background: rgba(245,158,11,0.15); border: 1.5px solid #f59e0b; color: #fbbf24; cursor: pointer;">
+                        초등 모드
                     </button>
-                    <button type="button" class="btn" id="mypage-btn-mid" onclick="switchMasterSchoolView('MIDDLE'); closeMyPageModal();" style="padding: 9px 4px; font-size: 0.74rem; font-weight: 800; border-radius: 8px; background: rgba(59,130,246,0.15); border: 1px solid #3b82f6; color: #93c5fd; cursor: pointer;">
-                        🧭 중등 모드
+                    <button type="button" class="btn" id="mypage-btn-mid" onclick="switchMasterSchoolView('MIDDLE'); closeMyPageModal();" style="padding: 9px 4px; font-size: 0.74rem; font-weight: 800; border-radius: 8px; background: rgba(59,130,246,0.15); border: 1.5px solid #3b82f6; color: #93c5fd; cursor: pointer;">
+                        중등 모드
                     </button>
                     <button type="button" class="btn active" id="mypage-btn-high" onclick="switchMasterSchoolView('HIGH'); closeMyPageModal();" style="padding: 9px 4px; font-size: 0.74rem; font-weight: 800; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff; cursor: pointer;">
-                        🎯 고등 모드
+                        고등 모드
                     </button>
                 </div>
             </div>

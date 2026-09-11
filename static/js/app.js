@@ -4553,25 +4553,20 @@ function filterHighSchoolsByRegion(sidoSelectId, sigunguSelectId, datalistId) {
     }
 
     matchedSchools.forEach(hs => {
-
         const rName = hs.sido || hs.region || '지역';
-
         const sType = hs.type || '고교';
-
         const loc = hs.sigungu ? ` (${hs.sigungu})` : '';
-
-        dl.innerHTML += `<option value="${hs.name}">[${rName} ${sType}] ${hs.name}${loc}</option>`;
-
+        const name = typeof hs === 'string' ? hs : (hs.name || hs.school_name || hs.학교명 || '');
+        if (!name || name === '[object Object]') return;
+        dl.innerHTML += `<option value="${name}">[${rName} ${sType}] ${name}${loc}</option>`;
     });
 
     otherSpecialSchools.forEach(hs => {
-
         const rName = hs.sido || hs.region || '전국';
-
         const sType = hs.type || '특목고';
-
-        dl.innerHTML += `<option value="${hs.name}">[전국 ${sType}] ${hs.name} (${rName})</option>`;
-
+        const name = typeof hs === 'string' ? hs : (hs.name || hs.school_name || hs.학교명 || '');
+        if (!name || name === '[object Object]') return;
+        dl.innerHTML += `<option value="${name}">[전국 ${sType}] ${name} (${rName})</option>`;
     });
 
 }
@@ -15890,14 +15885,24 @@ async function refreshSchoolsBySelectedLevel() {
     const sido = document.getElementById('reg-sido')?.value || '';
     const sigungu = document.getElementById('reg-sigungu')?.value || '';
     const datalist = document.getElementById('school-datalist');
-    if (!datalist) return;
+    const highDatalist = document.getElementById('highschool-datalist');
+    if (!datalist && !highDatalist) return;
 
     try {
         const url = `/api/schools/search?level=${level}&sido=${encodeURIComponent(sido)}&sigungu=${encodeURIComponent(sigungu)}`;
         const res = await fetch(url);
         if (res.ok) {
             const list = await res.json();
-            datalist.innerHTML = list.map(s => `<option value="${s}">`).join('');
+            const optionsHtml = list.map(s => {
+                const name = typeof s === 'string' ? s : (s.name || s.school_name || s.학교명 || '');
+                if (!name || name === '[object Object]') return '';
+                const type = s.type ? ` [${s.type}]` : '';
+                const loc = s.sigungu ? ` (${s.sigungu})` : (s.sido ? ` (${s.sido})` : '');
+                return `<option value="${name}">${name}${type}${loc}</option>`;
+            }).filter(Boolean).join('');
+
+            if (datalist) datalist.innerHTML = optionsHtml;
+            if (highDatalist) highDatalist.innerHTML = optionsHtml;
         }
     } catch(e) {
         console.warn('refreshSchoolsBySelectedLevel fetch error:', e);
@@ -15910,7 +15915,11 @@ async function refreshSchoolsBySelectedLevel() {
                 const sres = await fetch('/api/middle/special-high-schools');
                 if (sres.ok) {
                     const slist = await sres.json();
-                    specialDatalist.innerHTML = slist.map(s => `<option value="${s.school_name}">[${s.school_type}] ${s.school_name}</option>`).join('');
+                    specialDatalist.innerHTML = slist.map(s => {
+                        const sname = typeof s === 'string' ? s : (s.school_name || s.name || '');
+                        const stype = s.school_type || s.type || '특목고';
+                        return `<option value="${sname}">[${stype}] ${sname}</option>`;
+                    }).join('');
                 }
             } catch(e) {}
         }
@@ -15982,17 +15991,47 @@ function switchMasterSchoolView(level) {
     const btnHigh = document.getElementById('m-btn-high');
 
     if (btnElem && btnMid && btnHigh) {
-        btnElem.style.background = level === 'ELEMENTARY' ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'rgba(245,158,11,0.15)';
-        btnElem.style.color = level === 'ELEMENTARY' ? '#000000' : '#fed7aa';
-        btnElem.style.fontWeight = level === 'ELEMENTARY' ? '900' : '800';
+        if (level === 'ELEMENTARY') {
+            btnElem.style.background = '#f59e0b';
+            btnElem.style.border = '1.5px solid #fbbf24';
+            btnElem.style.color = '#000000';
+            btnElem.style.fontWeight = '900';
+            btnElem.style.boxShadow = '0 0 10px rgba(245,158,11,0.5)';
+        } else {
+            btnElem.style.background = 'rgba(245,158,11,0.15)';
+            btnElem.style.border = '1.5px solid #f59e0b';
+            btnElem.style.color = '#fbbf24';
+            btnElem.style.fontWeight = '800';
+            btnElem.style.boxShadow = 'none';
+        }
 
-        btnMid.style.background = level === 'MIDDLE' ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)' : 'rgba(59,130,246,0.15)';
-        btnMid.style.color = level === 'MIDDLE' ? '#ffffff' : '#93c5fd';
-        btnMid.style.fontWeight = level === 'MIDDLE' ? '900' : '800';
+        if (level === 'MIDDLE') {
+            btnMid.style.background = '#3b82f6';
+            btnMid.style.border = '1.5px solid #60a5fa';
+            btnMid.style.color = '#ffffff';
+            btnMid.style.fontWeight = '900';
+            btnMid.style.boxShadow = '0 0 10px rgba(59,130,246,0.5)';
+        } else {
+            btnMid.style.background = 'rgba(59,130,246,0.15)';
+            btnMid.style.border = '1.5px solid #3b82f6';
+            btnMid.style.color = '#93c5fd';
+            btnMid.style.fontWeight = '800';
+            btnMid.style.boxShadow = 'none';
+        }
 
-        btnHigh.style.background = level === 'HIGH' ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : 'rgba(99,102,241,0.15)';
-        btnHigh.style.color = level === 'HIGH' ? '#ffffff' : '#c7d2fe';
-        btnHigh.style.fontWeight = level === 'HIGH' ? '900' : '800';
+        if (level === 'HIGH') {
+            btnHigh.style.background = 'linear-gradient(135deg, #6366f1, #4f46e5)';
+            btnHigh.style.border = '1.5px solid #818cf8';
+            btnHigh.style.color = '#ffffff';
+            btnHigh.style.fontWeight = '900';
+            btnHigh.style.boxShadow = '0 0 10px rgba(99,102,241,0.5)';
+        } else {
+            btnHigh.style.background = 'rgba(99,102,241,0.15)';
+            btnHigh.style.border = '1.5px solid #6366f1';
+            btnHigh.style.color = '#c7d2fe';
+            btnHigh.style.fontWeight = '800';
+            btnHigh.style.boxShadow = 'none';
+        }
     }
 
     // Update buttons in mypage modal if present
@@ -16000,14 +16039,41 @@ function switchMasterSchoolView(level) {
     const mpMid = document.getElementById('mypage-btn-mid');
     const mpHigh = document.getElementById('mypage-btn-high');
     if (mpElem && mpMid && mpHigh) {
-        mpElem.style.background = level === 'ELEMENTARY' ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'rgba(245,158,11,0.15)';
-        mpElem.style.color = level === 'ELEMENTARY' ? '#000000' : '#fed7aa';
+        if (level === 'ELEMENTARY') {
+            mpElem.style.background = '#f59e0b';
+            mpElem.style.border = '1.5px solid #fbbf24';
+            mpElem.style.color = '#000000';
+            mpElem.style.fontWeight = '900';
+        } else {
+            mpElem.style.background = 'rgba(245,158,11,0.15)';
+            mpElem.style.border = '1.5px solid #f59e0b';
+            mpElem.style.color = '#fbbf24';
+            mpElem.style.fontWeight = '800';
+        }
 
-        mpMid.style.background = level === 'MIDDLE' ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)' : 'rgba(59,130,246,0.15)';
-        mpMid.style.color = level === 'MIDDLE' ? '#ffffff' : '#93c5fd';
+        if (level === 'MIDDLE') {
+            mpMid.style.background = '#3b82f6';
+            mpMid.style.border = '1.5px solid #60a5fa';
+            mpMid.style.color = '#ffffff';
+            mpMid.style.fontWeight = '900';
+        } else {
+            mpMid.style.background = 'rgba(59,130,246,0.15)';
+            mpMid.style.border = '1.5px solid #3b82f6';
+            mpMid.style.color = '#93c5fd';
+            mpMid.style.fontWeight = '800';
+        }
 
-        mpHigh.style.background = level === 'HIGH' ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : 'rgba(99,102,241,0.15)';
-        mpHigh.style.color = level === 'HIGH' ? '#ffffff' : '#c7d2fe';
+        if (level === 'HIGH') {
+            mpHigh.style.background = 'linear-gradient(135deg, #6366f1, #4f46e5)';
+            mpHigh.style.border = '1.5px solid #818cf8';
+            mpHigh.style.color = '#ffffff';
+            mpHigh.style.fontWeight = '900';
+        } else {
+            mpHigh.style.background = 'rgba(99,102,241,0.15)';
+            mpHigh.style.border = '1.5px solid #6366f1';
+            mpHigh.style.color = '#c7d2fe';
+            mpHigh.style.fontWeight = '800';
+        }
     }
 
     renderAppForSchoolLevel(currentStudent);
@@ -16662,7 +16728,12 @@ async function populateTracerSchoolDatalist() {
         const res = await fetch(url);
         if (res.ok) {
             const list = await res.json();
-            const optionsHtml = list.map(s => `<option value="${s}">`).join('');
+            const optionsHtml = list.map(s => {
+                const name = typeof s === 'string' ? s : (s.name || s.school_name || s.학교명 || '');
+                if (!name || name === '[object Object]') return '';
+                const type = s.type ? ` [${s.type}]` : '';
+                return `<option value="${name}">${name}${type}</option>`;
+            }).filter(Boolean).join('');
             if (dlist1) dlist1.innerHTML = optionsHtml;
             if (dlist2) dlist2.innerHTML = optionsHtml;
         }
