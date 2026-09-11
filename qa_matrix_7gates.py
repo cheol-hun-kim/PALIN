@@ -418,7 +418,13 @@ assert 'body.day-mode' in css_content, "Missing body.day-mode base rule"
 assert 'body.day-mode #pg-checkout-modal .trigger-content' in css_content, "Missing pg-checkout-modal Day Mode contrast rule"
 assert 'body.day-mode #student-card-modal .trigger-content' in css_content, "Missing student-card-modal Day Mode contrast rule"
 assert 'body.day-mode #cash-modal .trigger-content' in css_content, "Missing cash-modal Day Mode contrast rule"
-print("[GATE 4.3 PASS] Day Mode high-contrast text styling verified (Zero White-on-White text)!")
+assert 'body.day-mode #mypage-tier-manage-btn' in css_content, "Missing mypage-tier-manage-btn Day Mode high contrast rule"
+assert 'body.day-mode #mypage-tier-active-badge' in css_content, "Missing mypage-tier-active-badge Day Mode contrast rule"
+
+# Automated Zero White-on-White Button Scanner
+low_contrast_buttons = re.findall(r'<button[^>]*id=["\']mypage-tier-manage-btn["\'][^>]*style=["\'][^"\']*rgba\(255,\s*255,\s*255[^"\']*#fff[^"\']*["\']', index_html, re.IGNORECASE)
+assert len(low_contrast_buttons) == 0, f"Found low-contrast transparent white button in index.html: {low_contrast_buttons}"
+print("[GATE 4.3 PASS] Day Mode high-contrast text styling verified (Zero White-on-White text across MyPage & all Modals)!")
 
 # Gate 4.4: Mobile Viewport Zero-Clipping & 7-Tier God-Mode Integrity
 assert '#header-student-name' in css_content, "Missing #header-student-name CSS rule"

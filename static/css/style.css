@@ -4075,3 +4075,61 @@ body.day-mode #register-overlay #dynamic-login-notice-director strong {
     color: #fef08a !important;
     font-weight: 800 !important;
 }
+
+/* 💎 MyPage Tier Badge & Plan Manage Button (Zero-Defect High Contrast Dark & Day Mode) */
+#mypage-tier-manage-btn, 
+.mypage-tier-manage-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 5px 12px !important;
+    font-size: 0.74rem !important;
+    font-weight: 800 !important;
+    background: #10b981 !important;
+    color: #ffffff !important;
+    border: 1px solid #059669 !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25) !important;
+    transition: all 0.15s ease !important;
+}
+
+#mypage-tier-manage-btn:hover, 
+.mypage-tier-manage-btn:hover {
+    background: #059669 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35) !important;
+}
+
+/* Day Mode (Light Theme) Contrast Fixes for Tier Badges */
+body.day-mode #mypage-tier-active-badge {
+    background: rgba(16, 185, 129, 0.12) !important;
+    border: 1.5px solid #059669 !important;
+    color: #065f46 !important;
+}
+
+body.day-mode #mypage-tier-title {
+    color: #065f46 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #mypage-academy-sponsor-text {
+    color: #92400e !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode #mypage-tier-manage-btn, 
+body.day-mode .mypage-tier-manage-btn {
+    background: #047857 !important;
+    color: #ffffff !important;
+    border: 1px solid #065f46 !important;
+    box-shadow: 0 2px 6px rgba(4, 120, 87, 0.35) !important;
+}
+
+body.day-mode #mypage-tier-manage-btn:hover, 
+body.day-mode .mypage-tier-manage-btn:hover {
+    background: #065f46 !important;
+    color: #ffffff !important;
+}
+
