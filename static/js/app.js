@@ -743,16 +743,16 @@ function applyUniversityTheme(targetUnivStr) {
         // 글자 수에 따른 폰트 크기 및 자간 최적화 (배너 너비 내 완벽한 세리프 타이포그래피 비율)
         const codeLen = (theme.code || "").length;
         if (codeLen <= 4) {
-            watermark.style.fontSize = "4.2rem";
-            watermark.style.letterSpacing = "6px";
+            watermark.style.fontSize = "3.8rem";
+            watermark.style.letterSpacing = "5px";
         } else if (codeLen <= 7) {
-            watermark.style.fontSize = "3.6rem";
+            watermark.style.fontSize = "3.2rem";
             watermark.style.letterSpacing = "4px";
         } else if (codeLen <= 10) {
-            watermark.style.fontSize = "3.0rem";
+            watermark.style.fontSize = "2.7rem";
             watermark.style.letterSpacing = "3px";
         } else {
-            watermark.style.fontSize = "2.4rem";
+            watermark.style.fontSize = "2.2rem";
             watermark.style.letterSpacing = "2px";
         }
 
