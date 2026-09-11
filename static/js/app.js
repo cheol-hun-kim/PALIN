@@ -6338,59 +6338,59 @@ function updateChatTierAndTokens(student, customRemaining = null) {
     const isApprovedAcademy = (student.academy_approval_status === "APPROVED" || (student.academy_code && student.academy_approval_status !== "REJECTED" && student.academy_approval_status !== "PENDING"));
     const academyName = student.academy_code || "가맹학원";
 
-    let tierLabel = "🌱 B2C Tier 1 (무료)";
+    let tierLabel = "B2C Tier 1 (무료)";
     let tierColor = "#94a3b8";
     let tierBg = "rgba(148, 163, 184, 0.15)";
     let isUnlimited = false;
-    let descText = "🌱 B2C Tier 1 (무료 체험)";
+    let descText = "B2C Tier 1 (무료 체험)";
 
     if (b2cTier === "TIER_4_ILWON" || (isApprovedAcademy && academyName.toUpperCase().includes("ILWON")) || student.id === 1) {
-        tierLabel = "👑 B2B Tier 4 (일원직영)";
+        tierLabel = "B2B Tier 4 (일원직영)";
         tierColor = "#fbbf24";
         tierBg = "rgba(245, 158, 11, 0.25)";
-        descText = "👑 B2B Tier 4 · 김철훈 대표원장 직강 RAG 무제한";
+        descText = "B2B Tier 4 · 김철훈 대표원장 직강 RAG 무제한";
         isUnlimited = true;
     } else if (b2cTier === "TIER_3_ACADEMY" || (isApprovedAcademy && student.ai_level === "B2B_MASTER_AI")) {
-        tierLabel = `🏢 B2B Tier 3 (${academyName})`;
+        tierLabel = `B2B Tier 3 (${academyName})`;
         tierColor = "#34d399";
         tierBg = "rgba(16, 185, 129, 0.2)";
-        descText = `⚡ B2B Tier 3 (${academyName}) · 백서 지식 무제한 AI 활성화`;
+        descText = `B2B Tier 3 (${academyName}) · 백서 지식 무제한 AI 활성화`;
         isUnlimited = true;
     } else if (b2cTier === "TIER_2_ACADEMY" || (isApprovedAcademy && student.ai_level === "B2B_CUSTOM_BRAIN")) {
-        tierLabel = `🏢 B2B Tier 2 (${academyName})`;
+        tierLabel = `B2B Tier 2 (${academyName})`;
         tierColor = "#60a5fa";
         tierBg = "rgba(59, 130, 246, 0.2)";
-        descText = `⚡ B2B Tier 2 (${academyName}) · 원장 맞춤 뇌 무제한 활성화`;
+        descText = `B2B Tier 2 (${academyName}) · 원장 맞춤 뇌 무제한 활성화`;
         isUnlimited = true;
     } else if (b2cTier === "TIER_1_ACADEMY" || (isApprovedAcademy && student.ai_level === "B2B_BASIC")) {
-        tierLabel = `🏢 B2B Tier 1 (${academyName})`;
+        tierLabel = `B2B Tier 1 (${academyName})`;
         tierColor = "#cbd5e1";
         tierBg = "rgba(148, 163, 184, 0.2)";
-        descText = `🏢 B2B Tier 1 (${academyName}) · 학원 기본 코칭`;
+        descText = `B2B Tier 1 (${academyName}) · 학원 기본 코칭`;
         isUnlimited = false;
     } else if (b2cTier.includes("TIER_3_MASTER")) {
-        tierLabel = "👑 B2C Tier 3 (마스터)";
+        tierLabel = "B2C Tier 3 (마스터)";
         tierColor = "#c084fc";
         tierBg = "rgba(168, 85, 247, 0.2)";
-        descText = "⚡ B2C Tier 3 (마스터) · 백서 지식 100% 무제한 AI 활성화";
+        descText = "B2C Tier 3 (마스터) · 백서 지식 100% 무제한 AI 활성화";
         isUnlimited = true;
     } else if (b2cTier.includes("TIER_2")) {
-        tierLabel = "🎯 B2C Tier 2 (스탠다드 · 1/10 답변)";
+        tierLabel = "B2C Tier 2 (스탠다드 · 1/10 답변)";
         tierColor = "#818cf8";
         tierBg = "rgba(99, 102, 241, 0.2)";
-        descText = "🎯 B2C Tier 2 (스탠다드 · 1/10 요약 코칭)";
+        descText = "B2C Tier 2 (스탠다드 · 1/10 요약 코칭)";
         isUnlimited = false;
     } else {
-        tierLabel = "🌱 B2C Tier 1 (무료)";
+        tierLabel = "B2C Tier 1 (무료)";
         tierColor = "#94a3b8";
         tierBg = "rgba(148, 163, 184, 0.15)";
-        descText = "🌱 B2C Tier 1 (무료 체험)";
+        descText = "B2C Tier 1 (무료 체험)";
         isUnlimited = false;
     }
 
     if (student.parent && student.parent.is_premium_subscribed) {
         isUnlimited = true;
-        descText = "👑 프리미엄 회원 (부모 연동) · 무제한 대화";
+        descText = "프리미엄 회원 (부모 연동) · 무제한 대화";
     } else if (student.has_unlimited_chat) {
         isUnlimited = true;
     }
@@ -6407,7 +6407,7 @@ function updateChatTierAndTokens(student, customRemaining = null) {
     const limitLabel = document.getElementById("chat-limit-label");
     if (limitLabel) {
         if (isUnlimited || toks >= 900) {
-            limitLabel.innerHTML = `<span style="color: ${tierColor}; font-weight: 800;">⚡ ${descText}</span>`;
+            limitLabel.innerHTML = `<span style="color: ${tierColor}; font-weight: 800;">${descText}</span>`;
         } else {
             limitLabel.innerHTML = `${descText} · 잔여 대화: <b style="color: #38bdf8;">${toks}회</b>`;
             limitLabel.style.color = "var(--text-secondary)";

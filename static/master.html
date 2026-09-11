@@ -561,7 +561,7 @@
                             <option value="1">Tier 1 (기본 AI)</option>
                             <option value="2">Tier 2 (맞춤 뇌이식)</option>
                             <option value="3">Tier 3 (백서 RAG 풀탑재)</option>
-                            <option value="4" selected>👑 Tier 4 (비매품 · 수능국어 심층 분석 & 원장 직강 RAG)</option>
+                            <option value="4" selected>Tier 4 (비매품 · 수능국어 심층 분석 & 원장 직강 RAG)</option>
                         </select>
                         <select id="new-t-cap" class="form-input" style="font-weight: 700;">
                             <option value="50">CAP: 50명</option>
@@ -1741,7 +1741,7 @@
                     let tierBadge = '<span style="background:#3b82f6; color:white; padding:3px 8px; border-radius:6px; font-weight:800; font-size:0.72rem;">Tier 1 (기본)</span>';
                     if (t.tier === 2) tierBadge = '<span style="background:#a855f7; color:white; padding:3px 8px; border-radius:6px; font-weight:800; font-size:0.72rem;">Tier 2 (맞춤뇌)</span>';
                     if (t.tier === 3) tierBadge = '<span style="background:#f59e0b; color:black; padding:3px 8px; border-radius:6px; font-weight:900; font-size:0.72rem;">Tier 3 (백서RAG)</span>';
-                    if (t.tier === 4) tierBadge = '<span style="background:linear-gradient(135deg, #ec4899, #8b5cf6); color:white; padding:3px 8px; border-radius:6px; font-weight:900; font-size:0.72rem; box-shadow:0 0 10px rgba(236,72,153,0.4);">👑 Tier 4 (수능국어/비매품)</span>';
+                    if (t.tier === 4) tierBadge = '<span style="background:linear-gradient(135deg, #ec4899, #8b5cf6); color:white; padding:3px 8px; border-radius:6px; font-weight:900; font-size:0.72rem; box-shadow:0 0 10px rgba(236,72,153,0.4);">Tier 4 (수능국어/비매품)</span>';
 
                     const capText = t.max_students >= 99999 ? '무제한' : `${t.enrolled_students_count} / ${t.max_students}명`;
                     const capColor = t.enrolled_students_count >= t.max_students && t.max_students < 99999 ? '#ef4444' : '#34d399';
@@ -2761,7 +2761,7 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
                 let b2cTierBadge = '';
                 const b2cTier = (s.b2c_subscription_tier || "TIER_1_FREE").toUpperCase();
                 if (b2cTier === "TIER_4_ILWON" || b2cTier === "B2B_TIER_4") {
-                    b2cTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(245,158,11,0.25); color:#fbbf24; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:900; border:1px solid #f59e0b; margin-bottom:2px;">👑 B2B Tier 4 (일원직영 전용)</span>';
+                    b2cTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(245,158,11,0.25); color:#fbbf24; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:900; border:1px solid #f59e0b; margin-bottom:2px;">B2B Tier 4 (일원직영 전용)</span>';
                 } else if (b2cTier === "TIER_3_ACADEMY" || b2cTier === "B2B_TIER_3") {
                     b2cTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(16,185,129,0.2); color:#34d399; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:900; border:1px solid #10b981; margin-bottom:2px;">B2B Tier 3 (백서지식)</span>';
                 } else if (b2cTier === "TIER_2_ACADEMY" || b2cTier === "B2B_TIER_2") {
@@ -2779,22 +2779,22 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
                 // 3) B2B Tier Badge
                 let b2bTierBadge = '';
                 if (isGraduated) {
-                    b2bTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(51,65,85,0.4); color:#cbd5e1; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:800; border:1px solid rgba(148,163,184,0.2);">B2B: 🎓 정규 졸업생</span>';
+                    b2bTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(51,65,85,0.4); color:#cbd5e1; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:800; border:1px solid rgba(148,163,184,0.2);">B2B: 정규 졸업생</span>';
                 } else if (isApprovedAcademy) {
                     const isIlwon = (s.academy_code || '').toUpperCase().includes('ILWON');
                     if (isIlwon) {
-                        b2bTierBadge = `<span style="display:block; white-space:nowrap; background:rgba(245,158,11,0.25); color:#fbbf24; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:900; border:1px solid #f59e0b;">B2B: 👑 Tier 4 (${s.academy_code || '일원학원'})</span>`;
+                        b2bTierBadge = `<span style="display:block; white-space:nowrap; background:rgba(245,158,11,0.25); color:#fbbf24; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:900; border:1px solid #f59e0b;">B2B: Tier 4 (${s.academy_code || '일원학원'})</span>`;
                     } else {
-                        b2bTierBadge = `<span style="display:block; white-space:nowrap; background:rgba(16,185,129,0.2); color:#34d399; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:900; border:1px solid #10b981;">B2B: 🟢 Tier 3 (${s.academy_code || '학원'})</span>`;
+                        b2bTierBadge = `<span style="display:block; white-space:nowrap; background:rgba(16,185,129,0.2); color:#34d399; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:900; border:1px solid #10b981;">B2B: Tier 3 (${s.academy_code || '학원'})</span>`;
                     }
                 } else if (status === "PENDING") {
-                    b2bTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(245,158,11,0.25); color:#fbbf24; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:900; border:1px solid #f59e0b;">B2B: ⏳ 승인대기</span>';
+                    b2bTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(245,158,11,0.25); color:#fbbf24; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:900; border:1px solid #f59e0b;">B2B: 승인대기</span>';
                 } else if (status === "REJECTED") {
-                    b2bTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(239,68,68,0.2); color:#f87171; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:800; border:1px solid #ef4444;">B2B: 🔴 반려</span>';
+                    b2bTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(239,68,68,0.2); color:#f87171; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:800; border:1px solid #ef4444;">B2B: 반려</span>';
                 } else if (isWithdrawn) {
-                    b2bTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(239,68,68,0.15); color:#f87171; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:800; border:1px solid rgba(239,68,68,0.35);">B2B: 🔴 가맹해지(퇴원)</span>';
+                    b2bTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(239,68,68,0.15); color:#f87171; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:800; border:1px solid rgba(239,68,68,0.35);">B2B: 가맹해지(퇴원)</span>';
                 } else {
-                    b2bTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(255,255,255,0.03); color:#64748b; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:700; border:1px solid rgba(255,255,255,0.08);">B2B: ⚪ 미연동 (B2C)</span>';
+                    b2bTierBadge = '<span style="display:block; white-space:nowrap; background:rgba(255,255,255,0.03); color:#64748b; font-size:0.68rem; padding:2px 6px; border-radius:4px; font-weight:700; border:1px solid rgba(255,255,255,0.08);">B2B: 미연동 (B2C)</span>';
                 }
 
                 const dualTierHtml = `<div style="display:flex; flex-direction:column; gap:2px; align-items:center;">${b2cTierBadge}${b2bTierBadge}</div>`;
@@ -2802,11 +2802,11 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
                 // Approval Status Badge
                 let statusBadge = '<span style="display: inline-flex; align-items: center; justify-content: center; background: rgba(148,163,184,0.15); color: #94a3b8; font-size: 0.74rem; padding: 4px 8px; border-radius: 6px; font-weight: 700; white-space: nowrap;">미연동</span>';
                 if (status === "APPROVED") {
-                    statusBadge = '<span style="display: inline-flex; align-items: center; justify-content: center; background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid #10b981; font-size: 0.74rem; padding: 4px 8px; border-radius: 6px; font-weight: 800; white-space: nowrap;">🟢 승인완료</span>';
+                    statusBadge = '<span style="display: inline-flex; align-items: center; justify-content: center; background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid #10b981; font-size: 0.74rem; padding: 4px 8px; border-radius: 6px; font-weight: 800; white-space: nowrap;">승인완료</span>';
                 } else if (status === "PENDING") {
-                    statusBadge = '<span style="display: inline-flex; align-items: center; justify-content: center; background: rgba(245,158,11,0.25); color: #fbbf24; border: 1px solid #f59e0b; font-size: 0.74rem; padding: 4px 8px; border-radius: 6px; font-weight: 900; white-space: nowrap;">⏳ 승인대기</span>';
+                    statusBadge = '<span style="display: inline-flex; align-items: center; justify-content: center; background: rgba(245,158,11,0.25); color: #fbbf24; border: 1px solid #f59e0b; font-size: 0.74rem; padding: 4px 8px; border-radius: 6px; font-weight: 900; white-space: nowrap;">승인대기</span>';
                 } else if (status === "REJECTED") {
-                    statusBadge = '<span style="display: inline-flex; align-items: center; justify-content: center; background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid #ef4444; font-size: 0.74rem; padding: 4px 8px; border-radius: 6px; font-weight: 800; white-space: nowrap;">🔴 반려</span>';
+                    statusBadge = '<span style="display: inline-flex; align-items: center; justify-content: center; background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid #ef4444; font-size: 0.74rem; padding: 4px 8px; border-radius: 6px; font-weight: 800; white-space: nowrap;">반려</span>';
                 }
 
                 // Academy Code Text
@@ -2927,7 +2927,7 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
                 `4: B2B Tier 1 : 백서지식 없음 (학원 기본 가맹)\n` +
                 `5: B2B Tier 2 : 원장 커스텀 맞춤 뇌 (가맹 학원 전용 커스텀 RAG)\n` +
                 `6: B2B Tier 3 : 백서지식 (학원 가맹 프리미엄 · 백서 지식 + 무제한 AI)\n` +
-                `7: 👑 B2B Tier 4 : 일원학원 전용 (비매품 · 수능국어 심층 분석 & 원장 직강 RAG)`;
+                `7: B2B Tier 4 : 일원학원 전용 (비매품 · 수능국어 심층 분석 & 원장 직강 RAG)`;
             const choice = prompt(promptMsg, "7");
             if (!choice) return;
 
