@@ -55,8 +55,8 @@ class Student(Base):
     is_banned = Column(Boolean, default=False)   # 강제 퇴거/차단 여부
     ban_reason = Column(String, nullable=True)   # 강제 퇴거/차단 사유
     
-    # 💰 금융 인질 성실 보증금 에스크로 (Beeminder 모델)
-    escrow_deposit = Column(Integer, default=50000) # 성실 보증금 잔액 (기본 50,000원)
+    # 금융 인질 성실 보증금 에스크로 (Beeminder 모델)
+    escrow_deposit = Column(Integer, default=0) # 성실 보증금 잔액 (기본 0원)
     escrow_deductions = Column(Integer, default=0)  # 누적 차감 벌금액 (미션 실패/딴짓 시 1,000원씩)
     
     # 듀오링고/포레스트/D-Day 고도화 필드

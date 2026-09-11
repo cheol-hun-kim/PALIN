@@ -7074,6 +7074,144 @@ function executeB2CSubscribe(tier = 'TIER_2_PARENT') {
     openB2CCheckoutModal(tier);
 }
 
+function openB2CPlanManageModal() {
+    const student = currentStudent || {};
+    const b2cTier = (student.b2c_subscription_tier || "TIER_1_FREE").toUpperCase();
+    const isApprovedAcademy = (student.academy_approval_status === "APPROVED" || (student.academy_code && student.academy_approval_status !== "REJECTED" && student.academy_approval_status !== "PENDING"));
+    const academyName = student.academy_code || "가맹학원";
+
+    const titleEl = document.getElementById("plan-manage-current-title");
+    const descEl = document.getElementById("plan-manage-current-desc");
+    const badgeEl = document.getElementById("plan-manage-current-badge");
+    const optionsContainer = document.getElementById("plan-manage-options-container");
+    const cancelSection = document.getElementById("plan-manage-cancel-section");
+
+    if (isApprovedAcademy) {
+        if (titleEl) titleEl.innerText = `B2B 가맹학원 연동 (${academyName})`;
+        if (descEl) descEl.innerText = `${academyName} 원장님 전액 지원 (Tier 3 마스터 AI 무료 이용 중)`;
+        if (badgeEl) badgeEl.innerText = "학원 지원";
+        if (optionsContainer) {
+            optionsContainer.innerHTML = `
+                <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid #10b981; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 800; color: #34d399; font-size: 0.85rem;">가맹 학원 전액 무료 혜택 이용 중</div>
+                        <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">원장님 지원으로 최상위 마스터 AI를 무료 이용하고 있습니다.</div>
+                    </div>
+                </div>
+            `;
+        }
+        if (cancelSection) {
+            cancelSection.innerHTML = `
+                <button type="button" onclick="closeB2CPlanManageModal(); handleCancelAcademyApplication();" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.76rem; color: #f87171; border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; cursor: pointer;">
+                    학원 가맹 연동 해제하기
+                </button>
+            `;
+        }
+    } else if (b2cTier === "TIER_3_MASTER") {
+        if (titleEl) titleEl.innerText = "Tier 3 마스터 AI 풀패키지";
+        if (descEl) descEl.innerText = "월 99,000원 멤버십 이용 중 (수험 전략 백서 풀 RAG + 무제한 AI)";
+        if (badgeEl) badgeEl.innerText = "최상위 플랜";
+        if (optionsContainer) {
+            optionsContainer.innerHTML = `
+                <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid #10b981; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 800; color: #34d399; font-size: 0.85rem;">Tier 2 스탠다드로 다운그레이드</div>
+                        <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">월 19,900원 · 피상적 나열 없는 핵심 압축 요약 코칭</div>
+                    </div>
+                    <button onclick="closeB2CPlanManageModal(); executeB2CSubscribe('TIER_2_PARENT');" class="btn" style="padding: 5px 12px; font-size: 0.74rem; background: #10b981; color: white; font-weight: 800; border-radius: 6px; cursor: pointer; white-space: nowrap;">변경하기</button>
+                </div>
+            `;
+        }
+        if (cancelSection) {
+            cancelSection.innerHTML = `
+                <button type="button" onclick="cancelB2CSubscription()" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.76rem; color: #94a3b8; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; cursor: pointer;">
+                    구독 해지 (Tier 1 무료 플랜으로 다운그레이드)
+                </button>
+            `;
+        }
+    } else if (b2cTier.includes("TIER_2")) {
+        if (titleEl) titleEl.innerText = "Tier 2 스탠다드 AI";
+        if (descEl) descEl.innerText = "월 19,900원 멤버십 이용 중 (핵심 압축 요약 코칭)";
+        if (badgeEl) badgeEl.innerText = "이용 중";
+        if (optionsContainer) {
+            optionsContainer.innerHTML = `
+                <div style="background: rgba(245, 158, 11, 0.1); border: 1.5px solid #f59e0b; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 800; color: #fbbf24; font-size: 0.85rem;">Tier 3 마스터 AI로 업그레이드</div>
+                        <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">월 99,000원 · 백서 100% 풀 RAG + 무제한 심층 처방전</div>
+                    </div>
+                    <button onclick="closeB2CPlanManageModal(); executeB2CSubscribe('TIER_3_MASTER');" class="btn" style="padding: 5px 12px; font-size: 0.74rem; background: #f59e0b; color: #000; font-weight: 800; border-radius: 6px; cursor: pointer; white-space: nowrap;">업그레이드</button>
+                </div>
+            `;
+        }
+        if (cancelSection) {
+            cancelSection.innerHTML = `
+                <button type="button" onclick="cancelB2CSubscription()" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.76rem; color: #94a3b8; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; cursor: pointer;">
+                    구독 해지 (Tier 1 무료 플랜으로 다운그레이드)
+                </button>
+            `;
+        }
+    } else {
+        if (titleEl) titleEl.innerText = "Tier 1 무료 체험";
+        if (descEl) descEl.innerText = "기본 AI 코칭 플랜 이용 중";
+        if (badgeEl) badgeEl.innerText = "무료";
+        if (optionsContainer) {
+            optionsContainer.innerHTML = `
+                <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid #10b981; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 800; color: #34d399; font-size: 0.85rem;">Tier 2 스탠다드 AI</div>
+                        <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">월 19,900원 · 핵심 압축 요약 코칭</div>
+                    </div>
+                    <button onclick="closeB2CPlanManageModal(); executeB2CSubscribe('TIER_2_PARENT');" class="btn" style="padding: 5px 12px; font-size: 0.74rem; background: #10b981; color: white; font-weight: 800; border-radius: 6px; cursor: pointer; white-space: nowrap;">선택하기</button>
+                </div>
+                <div style="background: rgba(245, 158, 11, 0.1); border: 1.5px solid #f59e0b; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 800; color: #fbbf24; font-size: 0.85rem;">Tier 3 마스터 AI</div>
+                        <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">월 99,000원 · 백서 100% 무제한 AI 풀패키지</div>
+                    </div>
+                    <button onclick="closeB2CPlanManageModal(); executeB2CSubscribe('TIER_3_MASTER');" class="btn" style="padding: 5px 12px; font-size: 0.74rem; background: #f59e0b; color: #000; font-weight: 800; border-radius: 6px; cursor: pointer; white-space: nowrap;">선택하기</button>
+                </div>
+            `;
+        }
+        if (cancelSection) {
+            cancelSection.innerHTML = "";
+        }
+    }
+
+    const modal = document.getElementById("b2c-plan-manage-modal");
+    if (modal) modal.style.display = "flex";
+}
+window.openB2CPlanManageModal = openB2CPlanManageModal;
+
+function closeB2CPlanManageModal() {
+    const modal = document.getElementById("b2c-plan-manage-modal");
+    if (modal) modal.style.display = "none";
+}
+window.closeB2CPlanManageModal = closeB2CPlanManageModal;
+
+async function cancelB2CSubscription() {
+    if (!confirm("정말로 멤버십 구독을 해지하시겠습니까?\n\n해지 즉시 다음 결제가 중단되며, Tier 1 무료 체험 플랜으로 전환됩니다.")) return;
+    const sid = (currentStudent && currentStudent.id) ? currentStudent.id : parseInt(localStorage.getItem('studentId') || '1', 10);
+    try {
+        const res = await fetch("/api/payment/b2c-subscription", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: sid, tier: "TIER_1_FREE" })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(data.message || "구독이 정상적으로 해지되었습니다.");
+            closeB2CPlanManageModal();
+            if (typeof fetchStudentInfo === 'function') fetchStudentInfo(sid);
+        } else {
+            alert(data.detail || "구독 해지 실패");
+        }
+    } catch(e) {
+        alert("구독 해지 처리 중 오류가 발생했습니다.");
+    }
+}
+window.cancelB2CSubscription = cancelB2CSubscription;
+
 function openB2BContactModal() {
     const modal = document.getElementById("b2b-contact-modal");
     if (modal) modal.style.display = "flex";
@@ -13689,7 +13827,7 @@ async function fetchEscrowStatus(studentId) {
 
             const dedEl = document.getElementById("mypage-escrow-deductions");
 
-            if (depEl) depEl.innerText = `${(data.escrow_deposit || 50000).toLocaleString()}원`;
+            if (depEl) depEl.innerText = `${(data.escrow_deposit || 0).toLocaleString()}원`;
 
             if (dedEl) dedEl.innerText = `${(data.escrow_deductions || 0).toLocaleString()}원`;
 

@@ -3692,7 +3692,7 @@ def get_escrow_status(student_id: int, db: Session = Depends(get_db)):
     if not student:
         raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
     return {
-        "escrow_deposit": student.escrow_deposit or 50000,
+        "escrow_deposit": student.escrow_deposit or 0,
         "escrow_deductions": student.escrow_deductions or 0
     }
 
@@ -4263,7 +4263,7 @@ def export_b2b_marketing_report(db: Session = Depends(get_db)):
                 s.baseline_univ or "미설정",
                 s.diligence_score or 0,
                 f"{s.streak_days or 0}일",
-                f"{(s.escrow_deposit or 50000):,}원",
+                f"{(s.escrow_deposit or 0):,}원",
                 f"{(s.escrow_deductions or 0):,}원",
                 s.created_at.strftime("%Y-%m-%d") if s.created_at else "-"
             ]
@@ -4319,7 +4319,7 @@ def export_b2b_marketing_report(db: Session = Depends(get_db)):
                 s.baseline_univ or "미설정",
                 s.diligence_score or 0,
                 f"{s.streak_days or 0}일",
-                f"{(s.escrow_deposit or 50000)}원",
+                f"{(s.escrow_deposit or 0)}원",
                 f"{(s.escrow_deductions or 0)}원",
                 s.created_at.strftime("%Y-%m-%d") if s.created_at else "-"
             ])
@@ -5235,7 +5235,7 @@ def check_in_attendance(payload: AttendanceCheckInPayload, request: Request, db:
         
     if penalty > 0:
         student.escrow_deductions = (student.escrow_deductions or 0) + penalty
-        student.escrow_deposit = max(0, (student.escrow_deposit or 50000) - penalty)
+        student.escrow_deposit = max(0, (student.escrow_deposit or 0) - penalty)
         
     log = models.AttendanceLog(
         student_id=student.id,
@@ -5268,7 +5268,7 @@ def assign_manual_red_card(user_id: int, payload: ManualPenaltyPayload, db: Sess
         
     penalty = payload.penalty_amount
     student.escrow_deductions = (student.escrow_deductions or 0) + penalty
-    student.escrow_deposit = max(0, (student.escrow_deposit or 50000) - penalty)
+    student.escrow_deposit = max(0, (student.escrow_deposit or 0) - penalty)
     db.commit()
     
     if student.parent and student.parent.phone:
@@ -6454,6 +6454,17 @@ def subscribe_b2c_tier(payload: B2CSubPayload, db: Session = Depends(get_db)):
     if not student:
         raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
 
+    target_tier = payload.tier.upper().strip()
+    if target_tier in ("TIER_1_FREE", "CANCEL", "FREE"):
+        student.b2c_subscription_tier = "TIER_1_FREE"
+        db.commit()
+        return {
+            "status": "success",
+            "is_academy_sponsored": False,
+            "message": "멤버십 구독이 정상적으로 해지되어 Tier 1 무료 플랜으로 전환되었습니다.",
+            "tier": "TIER_1_FREE"
+        }
+
     # Check if student belongs to B2B Tier 3 Academy
     if student.academy_code:
         tenant = db.query(models.Tenant).filter(models.Tenant.code == student.academy_code.upper()).first()
@@ -6463,29 +6474,31 @@ def subscribe_b2c_tier(payload: B2CSubPayload, db: Session = Depends(get_db)):
             return {
                 "status": "success",
                 "is_academy_sponsored": True,
-                "message": f"🏫 [{tenant.name}] 원장님 전액 지원으로 Tier 3 마스터 AI가 무료 활성화되었습니다!",
+                "message": f"[{tenant.name}] 원장님 전액 지원으로 Tier 3 마스터 AI가 무료 활성화되었습니다.",
                 "tier": "TIER_3_MASTER"
             }
 
-    price_map = {"TIER_2_PARENT": 19900, "TIER_3_MASTER": 99000}
-    price = price_map.get(payload.tier, 19900)
-    student.b2c_subscription_tier = payload.tier
+    price_map = {"TIER_2_PARENT": 19900, "TIER_3_MASTER": 99000, "TIER_1_FREE": 0}
+    price = price_map.get(target_tier, 19900)
+    student.b2c_subscription_tier = target_tier
 
-    rev = models.PlatformRevenueLog(
-        category="B2C_SUB",
-        title=f"B2C {payload.tier} 1개월 구독 ({student.name})",
-        amount=price,
-        net_margin=price,
-        student_id=student.id,
-        tenant_code=student.academy_code
-    )
-    db.add(rev)
+    if price > 0:
+        rev = models.PlatformRevenueLog(
+            category="B2C_SUB",
+            title=f"B2C {target_tier} 멤버십 ({student.name})",
+            amount=price,
+            net_margin=price,
+            student_id=student.id,
+            tenant_code=student.academy_code
+        )
+        db.add(rev)
     db.commit()
 
+    tier_korean = "Tier 3 마스터 AI" if target_tier == "TIER_3_MASTER" else ("Tier 2 스탠다드 AI" if target_tier == "TIER_2_PARENT" else "Tier 1 무료")
     return {
         "status": "success",
         "is_academy_sponsored": False,
-        "message": f"🎉 {payload.tier} 구독 결제가 완료되었습니다!",
+        "message": f"{tier_korean} 멤버십이 정상적으로 활성화되었습니다.",
         "tier": student.b2c_subscription_tier
     }
 
