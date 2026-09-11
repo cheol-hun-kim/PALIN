@@ -17321,9 +17321,12 @@ async function loadSchoolBibleSummary(schoolName, subject) {
         if (archiveContainer) {
             const recent = data.recent_verified || [];
             if (recent.length === 0) {
-                archiveContainer.innerHTML = '<div style="text-align:center; padding: 12px; font-size: 0.76rem; color: var(--text-secondary);">채택 검증된 기출 문항이 없습니다.</div>';
+                archiveContainer.innerHTML = '<div style="text-align:center; padding: 16px 10px; font-size: 0.78rem; color: var(--text-secondary); background: rgba(255,255,255,0.02); border-radius: 8px;">아직 채택·검증된 기출 문항이 없습니다.</div>';
             } else {
-                archiveContainer.innerHTML = recent.map(item => `
+                archiveContainer.innerHTML = recent.map(item => {
+                    const bookName = item.source_book_name || item.source_book || '기출/시중교재';
+                    const detail = item.source_detail ? ` ${item.source_detail}` : '';
+                    return `
                     <div class="qa-answer-item accepted">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                             <div style="display: flex; align-items: center; gap: 6px;">
@@ -17333,11 +17336,12 @@ async function loadSchoolBibleSummary(schoolName, subject) {
                             <span style="font-size: 0.7rem; color: #10b981; font-weight: 800;">✓ 100% 팩트 채택</span>
                         </div>
                         <div style="font-size: 0.78rem; color: #fde68a; font-weight: 700; margin-bottom: 2px;">
-                            📚 원본 출처: ${item.source_book_name} ${item.source_detail || ''}
+                            📚 원본 출처: ${bookName}${detail}
                         </div>
                         ${item.adaptation_notes ? `<div style="font-size: 0.74rem; color: #cbd5e1; line-height: 1.4;">📝 변형: ${item.adaptation_notes}</div>` : ''}
                     </div>
-                `).join("");
+                `;
+                }).join("");
             }
         }
     } catch(e) {
