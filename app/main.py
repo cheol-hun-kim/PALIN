@@ -19,7 +19,7 @@ from app.cache import cache_manager
 
 app = FastAPI(title="PASS-MATE API")
 
-from sqlalchemy import text, inspect, func
+from sqlalchemy import text, inspect, func, or_, and_
 def init_db_schema():
     from app import database, seed_data
     from sqlalchemy import text
@@ -1970,35 +1970,38 @@ def get_exam_source_bible_summary(school_name: Optional[str] = "낙생고등학�
                     "ratio": int(round((acnt / total_adapt) * 100))
                 })
 
-    # School-specific curated alumni guides
-    curated_guides = {
-        "낙생고등학교": {
-            "수학": "낙생고 수학은 킬러(18~21번)가 블랙라벨 Step3 및 3개년 평가원 4점 기출에서 집중 변형 출제됩니다. 시중 기본서 5회독보다 블랙라벨/평가원 기출 3회독이 1등급의 유일한 지름길입니다.",
-            "국어": "낙생고 국어는 EBS 수능특강 연계 지문에 당해년도 6/9월 모평 선지 논리를 비틀어 출제하므로 지문 구조독해 분석이 필수입니다.",
-            "default": "낙생고는 전국 최상위권 일반고답게 시중 최상위 심화서(블랙라벨)와 평가원 킬러 기출의 결합 변형 출제 비중이 75% 이상을 차지합니다."
-        },
-        "분당대진고등학교": {
-            "수학": "분당대진고 수학은 쎈 C단계와 최근 2개년 교육청 학평 기출 15~19번 번호대 변형이 집중 출제되어 속도전이 핵심입니다.",
-            "default": "분당대진고는 학평 기출과 대표 유형서(쎈/일품)의 복합 변형 비중이 높아 빠른 계산력과 기출 패턴 체화가 필수입니다."
-        },
-        "휘문고등학교": {
-            "수학": "휘문고 수학은 의대 진학률 최상위권 학교답게 21/22/30번 극악 킬러가 평가원 킬러와 블랙라벨 심화에서 융합 변형됩니다.",
-            "default": "휘문고는 대치동 1번지 내신답게 수능 킬러 이상의 호흡을 요구하는 초고난도 복합 변형 문항이 다수 포진해 있습니다."
-        },
-        "대원외국어고등학교": {
-            "영어": "대원외고 심화영어는 영미권 사설(Economist, NYT) 및 TED 원문 발췌 패러프레이징 빈칸추론이 1등급을 가릅니다.",
-            "default": "대원외고는 전공 어학 및 심화 영어에서 원문 사설과 수능특강 고난도 비문학 연계 변형이 핵심입니다."
-        }
-    }
-
-    school_key = next((k for k in curated_guides if k in target_school), None)
-    if school_key:
-        guide_dict = curated_guides[school_key]
-        alumni_guide = guide_dict.get(subject, guide_dict.get("default", f"{target_school} 내신은 주요 기출 및 심화서 변형 비중이 높습니다."))
-    elif top_books:
-        alumni_guide = f"{target_school}는 채택 검증 데이터 분석 결과 '{top_books[0]['source_book_name']}'의 출제 점유율이 가장 높습니다. 해당 교재와 연계 기출을 집중 공략하세요."
+    # Pure data-driven statistical alumni guide (Zero-Mock strict standard)
+    verified_cnt = len(recent_archive)
+    subj_label = f"[{subject}]" if subject and subject != "전체" else "[전체 과목]"
+    
+    if top_books and verified_cnt > 0:
+        top1 = top_books[0]
+        top1_name = top1["source_book_name"]
+        top1_pct = top1["percentage"]
+        
+        if len(top_books) >= 2:
+            top2 = top_books[1]
+            top2_name = top2["source_book_name"]
+            top2_pct = top2["percentage"]
+            
+            top_adapt_str = f"주요 변형 출제 유형은 '{top_adaptations[0]['type']}'({top_adaptations[0]['ratio']}%) 비중이 가장 높습니다. " if top_adaptations else ""
+            alumni_guide = (
+                f"{target_school} {subj_label}의 실제 채택·검증된 기출 데이터 {verified_cnt}건 통계 분석 결과, "
+                f"1위 출제 교재는 '{top1_name}'({top1_pct}%), 2위는 '{top2_name}'({top2_pct}%)로 집계되었습니다. "
+                f"{top_adapt_str}"
+                f"내신 1등급을 위해서는 '{top1_name}'의 고난도 문항과 '{top2_name}'의 변형 패턴을 최우선으로 체화하는 것을 권장합니다."
+            )
+        else:
+            alumni_guide = (
+                f"{target_school} {subj_label}의 실제 채택·검증된 기출 데이터 {verified_cnt}건 통계 분석 결과, "
+                f"'{top1_name}'({top1_pct}%)가 최다 출제 교재로 확인되었습니다. "
+                f"해당 교재의 핵심 문항과 유사 변형 기출을 집중 공략하세요."
+            )
     else:
-        alumni_guide = f"{target_school} {subject or ''}의 100% 채택·검증된 출제 데이터가 수집되는 중입니다. 모르는 시험 문제의 출처를 질문하거나 알고 있는 출처를 제보해 보세요!"
+        alumni_guide = (
+            f"현재 {target_school} {subj_label}의 100% 채택·검증된 출제 데이터가 0건으로 집계 대기 중입니다. "
+            f"시험 문제 사진이나 텍스트를 등록하고 선배 튜터들의 집단지성 출처 분석을 받아보세요."
+        )
 
     verified_cnt = len(recent_archive)
     return {
@@ -7447,33 +7450,54 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
     my_region = student.region or "지역 미설정"
     my_school = student.high_school or "학교 미설정"
 
+    # 1. Real Region & School Filtering (Strict Local Cohort)
+    reg_clean = (student.region or "").strip()
+    tokens = [t.strip() for t in reg_clean.split() if len(t.strip()) > 1]
+    district = tokens[-1] if tokens else reg_clean
+    city = tokens[-2] if len(tokens) >= 2 else district
+    school = (student.high_school or "").strip()
+
     # 1. Real Region Ranking Calculation
+    region_cond = [models.Student.region == reg_clean]
+    if district:
+        region_cond.append(models.Student.region.ilike(f"%{district}%"))
+    
     region_students = db.query(models.Student).filter(
-        models.Student.region == student.region,
-        models.Student.deleted_at == None
-    ).all() if student.region else [student]
+        models.Student.deleted_at == None,
+        or_(*region_cond)
+    ).all() if reg_clean else [student]
 
     region_scores = []
     for st in region_students:
         st_sess = db.query(models.StudySession).filter(
             models.StudySession.student_id == st.id,
-            models.StudySession.created_at >= week_start
+            models.StudySession.created_at >= week_start,
+            models.StudySession.deleted_at == None
         ).all()
         sec = sum((s.duration_sec or 0) for s in st_sess)
         region_scores.append((st.id, sec))
     region_scores.sort(key=lambda x: x[1], reverse=True)
 
     # 2. Real School Ranking Calculation
+    school_cond = []
+    if school:
+        school_cond.append(models.Student.high_school == school)
+        if school.endswith("고") and not school.endswith("고등학교"):
+            school_cond.append(models.Student.high_school == school + "등학교")
+        elif school.endswith("고등학교"):
+            school_cond.append(models.Student.high_school == school[:-2])
+            
     school_students = db.query(models.Student).filter(
-        models.Student.high_school == student.high_school,
-        models.Student.deleted_at == None
-    ).all() if student.high_school else [student]
+        models.Student.deleted_at == None,
+        or_(*school_cond)
+    ).all() if school else [student]
 
     school_scores = []
     for st in school_students:
         st_sess = db.query(models.StudySession).filter(
             models.StudySession.student_id == st.id,
-            models.StudySession.created_at >= week_start
+            models.StudySession.created_at >= week_start,
+            models.StudySession.deleted_at == None
         ).all()
         sec = sum((s.duration_sec or 0) for s in st_sess)
         school_scores.append((st.id, sec))
@@ -7491,11 +7515,28 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
         region_pos_str = f"자습 {region_rank}위 {medal_r}".strip()
         school_pos_str = f"전교 {school_rank}위 {medal_s}".strip()
 
-    # Get peers for display
+    # 3. Query peer students strictly in the same local neighborhood (district) or same school
+    peer_filter_clauses = []
+    if school_cond:
+        peer_filter_clauses.extend(school_cond)
+    if region_cond:
+        peer_filter_clauses.extend(region_cond)
+
     peer_students = db.query(models.Student).filter(
         models.Student.id != student.id,
-        models.Student.deleted_at == None
-    ).limit(10).all()
+        models.Student.deleted_at == None,
+        or_(*peer_filter_clauses) if peer_filter_clauses else True
+    ).all()
+
+    # If fewer than 4 peers found in the immediate district, expand to city-wide
+    if len(peer_students) < 4 and city and city != district:
+        more_peers = db.query(models.Student).filter(
+            models.Student.id != student.id,
+            models.Student.deleted_at == None,
+            models.Student.region.ilike(f"%{city}%"),
+            ~models.Student.id.in_([p.id for p in peer_students])
+        ).limit(10).all()
+        peer_students.extend(more_peers)
 
     rankers = []
     rankers.append({
@@ -7512,7 +7553,8 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
     for p in peer_students:
         p_sessions = db.query(models.StudySession).filter(
             models.StudySession.student_id == p.id,
-            models.StudySession.created_at >= week_start
+            models.StudySession.created_at >= week_start,
+            models.StudySession.deleted_at == None
         ).all()
         p_sec = sum((s.duration_sec or 0) for s in p_sessions)
         p_m = p_sec // 60
@@ -7532,7 +7574,7 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
             "isMe": False
         })
 
-    rankers.sort(key=lambda r: r["studySeconds"], reverse=True)
+    rankers.sort(key=lambda r: (r["studySeconds"], r["streak"]), reverse=True)
     for idx, r in enumerate(rankers):
         r["rank"] = idx + 1
 

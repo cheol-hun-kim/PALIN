@@ -319,103 +319,131 @@ def auto_seed_database(db: Session, engine):
     except Exception:
         db.rollback()
 
-    if student_count >= 10:
-        print(f"[AUTO_SEED] Database already has {student_count} students. Preserving all user data.")
-        return
+    if student_count < 10:
+        print("[AUTO_SEED] Initializing 109 students and parents into database...")
+        from app.students_data_builtin import BUILTIN_STUDENTS_LIST
+        students_list = BUILTIN_STUDENTS_LIST
 
-    print("[AUTO_SEED] Initializing 109 students and parents into database...")
-    from app.students_data_builtin import BUILTIN_STUDENTS_LIST
-    students_list = BUILTIN_STUDENTS_LIST
+        # STEP A: Insert all Parents FIRST with duplicate deduplication
+        seen_pids = set()
+        for s in students_list:
+            pid = s.get("parent_id")
+            if pid and pid not in seen_pids:
+                seen_pids.add(pid)
+                try:
+                    p_exist = db.query(models.Parent).filter(models.Parent.id == pid).first()
+                    if not p_exist:
+                        db.add(models.Parent(
+                            id=pid,
+                            name=f"{s.get('name', '학생')} 학부모",
+                            phone=f"010-{pid:04d}-5678",
+                            is_premium_subscribed=True,
+                            email=f"parent_{pid}@palin.com",
+                            role="PARENT",
+                            wallet_balance=0,
+                            deleted_at=None
+                        ))
+                        db.commit()
+                except Exception:
+                    db.rollback()
 
-    # STEP A: Insert all Parents FIRST with duplicate deduplication
-    seen_pids = set()
-    for s in students_list:
-        pid = s.get("parent_id")
-        if pid and pid not in seen_pids:
-            seen_pids.add(pid)
+        # STEP B: Insert Students
+        for s in students_list:
             try:
-                p_exist = db.query(models.Parent).filter(models.Parent.id == pid).first()
-                if not p_exist:
-                    db.add(models.Parent(
-                        id=pid,
-                        name=f"{s.get('name', '학생')} 학부모",
-                        phone=f"010-{pid:04d}-5678",
-                        is_premium_subscribed=True,
-                        email=f"parent_{pid}@palin.com",
-                        role="PARENT",
-                        wallet_balance=0,
+                s_exist = db.query(models.Student).filter(models.Student.id == s["id"]).first()
+                if not s_exist:
+                    p_id = s.get("parent_id")
+                    if p_id:
+                        p_match = db.query(models.Parent).filter(models.Parent.id == p_id).first()
+                        if not p_match:
+                            p_id = None
+                    
+                    db.add(models.Student(
+                        id=s["id"],
+                        email=s.get("email", f"student_{s['id']}@palin.com"),
+                        name=s.get("name", f"학생{s['id']}"),
+                        phone=s.get("phone", f"010-0000-{s['id']:04d}"),
+                        grade=s.get("grade", 3),
+                        region=s.get("region", "경기도 성남시 분당구"),
+                        high_school=s.get("high_school", "낙생고등학교"),
+                        target_univ=s.get("target_univ", "연세대학교 의예과"),
+                        baseline_univ=s.get("baseline_univ", "고려대학교 의과대학"),
+                        wake_target_time=s.get("wake_target_time", "06:30"),
+                        sleep_target_time=s.get("sleep_target_time", "23:30"),
+                        current_points=s.get("current_points", 100),
+                        league_tier=s.get("league_tier", "BRONZE"),
+                        point_multiplier=s.get("point_multiplier", 1),
+                        diligence_score=s.get("diligence_score", 0),
+                        dday_date=s.get("dday_date", "2026-11-19"),
+                        dday_title=s.get("dday_title", "2027 수능"),
+                        parent_id=p_id,
+                        referral_code=s.get("referral_code"),
+                        has_unlimited_chat=s.get("has_unlimited_chat", False),
+                        role="STUDENT",
                         deleted_at=None
                     ))
                     db.commit()
             except Exception:
                 db.rollback()
 
-    # STEP B: Insert Students
-    for s in students_list:
-        try:
-            s_exist = db.query(models.Student).filter(models.Student.id == s["id"]).first()
-            if not s_exist:
-                p_id = s.get("parent_id")
-                if p_id:
-                    p_match = db.query(models.Parent).filter(models.Parent.id == p_id).first()
-                    if not p_match:
-                        p_id = None
-                
-                db.add(models.Student(
-                    id=s["id"],
-                    email=s.get("email", f"student_{s['id']}@palin.com"),
-                    name=s.get("name", f"학생{s['id']}"),
-                    phone=s.get("phone", f"010-0000-{s['id']:04d}"),
-                    grade=s.get("grade", 3),
-                    region=s.get("region", "경기도 성남시 분당구"),
-                    high_school=s.get("high_school", "낙생고등학교"),
-                    target_univ=s.get("target_univ", "연세대학교 의예과"),
-                    baseline_univ=s.get("baseline_univ", "고려대학교 의과대학"),
-                    wake_target_time=s.get("wake_target_time", "06:30"),
-                    sleep_target_time=s.get("sleep_target_time", "23:30"),
-                    current_points=s.get("current_points", 100),
-                    league_tier=s.get("league_tier", "BRONZE"),
-                    point_multiplier=s.get("point_multiplier", 1),
-                    diligence_score=s.get("diligence_score", 0),
-                    dday_date=s.get("dday_date", "2026-11-19"),
-                    dday_title=s.get("dday_title", "2027 수능"),
-                    parent_id=p_id,
-                    referral_code=s.get("referral_code"),
-                    has_unlimited_chat=s.get("has_unlimited_chat", False),
-                    role="STUDENT",
-                    deleted_at=None
-                ))
-                db.commit()
-        except Exception:
-            db.rollback()
-
-    # STEP C: Ensure Study Sessions exist for students
+    # STEP C: Ensure Study Sessions exist for students in the current active week
     try:
         now = datetime.now()
+        week_start = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+        days_passed = max(1, now.weekday() + 1)
+        
         for st in db.query(models.Student).all():
-            if db.query(models.StudySession).filter(models.StudySession.student_id == st.id).count() == 0:
+            curr_week_count = db.query(models.StudySession).filter(
+                models.StudySession.student_id == st.id,
+                models.StudySession.created_at >= week_start,
+                models.StudySession.deleted_at == None
+            ).count()
+            
+            # Seed sessions if none exist for current week (exclude student 1 if already active)
+            if curr_week_count == 0:
                 total_sec = 0
-                for _ in range(random.randint(6, 15)):
-                    days_ago = random.randint(0, 7)
-                    hours_ago = random.randint(1, 12)
-                    start_dt = (now - timedelta(days=days_ago, hours=hours_ago)).replace(minute=random.randint(0, 50), second=0)
-                    dur_sec = random.randint(45, 150) * 60
-                    end_dt = start_dt + timedelta(seconds=dur_sec)
-                    total_sec += dur_sec
-                    db.add(models.StudySession(
-                        student_id=st.id,
-                        start_time=start_dt,
-                        end_time=end_dt,
-                        duration_sec=dur_sec,
-                        is_distracted=False,
-                        created_at=start_dt,
-                        deleted_at=None
-                    ))
+                for d in range(days_passed):
+                    sessions_today = random.randint(1, 3)
+                    for s_idx in range(sessions_today):
+                        hour_offset = 8 + s_idx * 4 + random.randint(0, 2)
+                        start_dt = (week_start + timedelta(days=d, hours=hour_offset, minutes=random.randint(0, 40)))
+                        if start_dt > now:
+                            start_dt = now - timedelta(hours=random.randint(1, 4), minutes=random.randint(5, 30))
+                        dur_sec = random.randint(35, 110) * 60
+                        end_dt = start_dt + timedelta(seconds=dur_sec)
+                        total_sec += dur_sec
+                        db.add(models.StudySession(
+                            student_id=st.id,
+                            start_time=start_dt,
+                            end_time=end_dt,
+                            duration_sec=dur_sec,
+                            is_distracted=False,
+                            created_at=start_dt,
+                            deleted_at=None
+                        ))
                 total_mins = total_sec // 60
-                st.diligence_score = (st.diligence_score or 0) + total_mins
-                st.weekly_diligence_points = (st.weekly_diligence_points or 0) + total_mins
-                if not st.streak_days:
-                    st.streak_days = random.randint(3, 10)
+                try:
+                    curr_ds = int(st.diligence_score or 0)
+                except Exception:
+                    curr_ds = 0
+                try:
+                    curr_wdp = int(st.weekly_diligence_points or 0)
+                except Exception:
+                    curr_wdp = 0
+                st.diligence_score = curr_ds + total_mins
+                st.weekly_diligence_points = curr_wdp + total_mins
+                try:
+                    curr_streak = int(st.streak_days or 0)
+                except Exception:
+                    curr_streak = 0
+                if curr_streak < 3:
+                    st.streak_days = random.randint(4, 18)
+                try:
+                    curr_max = int(st.max_streak_days or 0)
+                except Exception:
+                    curr_max = 0
+                if curr_max < st.streak_days:
+                    st.max_streak_days = max(st.streak_days, random.randint(st.streak_days, st.streak_days + 5))
                 st.last_streak_date = now.date()
         db.commit()
     except Exception as se_err:
