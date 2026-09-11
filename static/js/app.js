@@ -5057,15 +5057,17 @@ async function fetchStudentInfo(studentId) {
         try { updateStudentUnivSelectors(); } catch(e) { console.warn("updateStudentUnivSelectors error:", e); }
 
         try {
+            const isMaster = (sessionStorage.getItem('palin_super_admin') === 'true') || 
+                             (currentStudent && currentStudent.email && currentStudent.email.toLowerCase() === '1286orbital21@gmail.com') || 
+                             (localStorage.getItem('userRole') === 'SUPER_ADMIN');
             const urlParams = new URLSearchParams(window.location.search);
-            const previewLevel = urlParams.get("preview_level") || localStorage.getItem("palin_master_school_level");
+            const previewLevel = urlParams.get("preview_level") || (isMaster ? localStorage.getItem("palin_master_school_level") : null);
             if (previewLevel) {
                 currentStudent.school_level = previewLevel.toUpperCase();
             }
-            if (typeof switchMasterSchoolView === "function") {
+            renderAppForSchoolLevel(currentStudent);
+            if (isMaster && typeof switchMasterSchoolView === "function") {
                 switchMasterSchoolView(currentStudent.school_level || "HIGH");
-            } else {
-                renderAppForSchoolLevel(currentStudent);
             }
         } catch(e) { console.warn("renderAppForSchoolLevel error:", e); }
 
@@ -5356,6 +5358,11 @@ function resetSessionState() {
     if (paReport) paReport.style.display = "none";
     const smsSim = document.getElementById("demo-sms-simulation-modal");
     if (smsSim) smsSim.style.display = "none";
+
+    // 6. 마스터 모드 잔상 제거
+    if (localStorage.getItem('userRole') !== 'SUPER_ADMIN' && sessionStorage.getItem('palin_super_admin') !== 'true') {
+        localStorage.removeItem('palin_master_school_level');
+    }
 }
 window.resetSessionState = resetSessionState;
 
@@ -6033,14 +6040,20 @@ function applyRolePermissions(role) {
 
                          (localStorage.getItem('userRole') === 'SUPER_ADMIN');
 
-    // 1. Master God-mode Top Banner (Always visible for Master Account)
-
+    // 1. Master God-mode Top Banner & School Level Switcher Bar (Only visible for Master Account)
     const masterBanner = document.getElementById('master-godmode-banner');
-
     if (masterBanner) {
-
         masterBanner.style.display = isMasterUser ? 'flex' : 'none';
+    }
 
+    const masterSchoolBar = document.getElementById('master-school-level-bar');
+    if (masterSchoolBar) {
+        masterSchoolBar.style.display = isMasterUser ? 'flex' : 'none';
+    }
+
+    const mypageSchoolSwitcher = document.getElementById('mypage-master-school-switcher');
+    if (mypageSchoolSwitcher) {
+        mypageSchoolSwitcher.style.display = isMasterUser ? 'block' : 'none';
     }
 
     // 2. MyPage Admin Link

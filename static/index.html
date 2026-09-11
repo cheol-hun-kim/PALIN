@@ -724,8 +724,8 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             </div>
         </header>
 
-        <!-- 👑 제작자/관리자 전용 학교급 실시간 3단 뷰어 스위처 바 -->
-        <div id="master-school-level-bar" style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); border-bottom: 1.5px solid rgba(129, 140, 248, 0.4); padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; box-sizing: border-box; z-index: 100;">
+        <!-- 👑 제작자/관리자 전용 학교급 실시간 3단 뷰어 스위처 바 (갓모드 마스터 전용) -->
+        <div id="master-school-level-bar" style="display: none; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); border-bottom: 1.5px solid rgba(129, 140, 248, 0.4); padding: 8px 14px; align-items: center; justify-content: space-between; gap: 8px; box-sizing: border-box; z-index: 100;">
             <div style="display: flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 800; color: #ffffff; white-space: nowrap;">
                 <span class="material-symbols-rounded" style="font-size: 1.25rem; color: #fbbf24; filter: drop-shadow(0 0 6px rgba(251,191,36,0.8)); vertical-align: middle;">admin_panel_settings</span>
                 <span style="color: #ffffff; letter-spacing: -0.2px;">제작자 관제 모드:</span>
@@ -1800,7 +1800,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 <label class="input-label" style="font-size: 0.78rem; color: #c7d2fe; font-weight: 700; margin-bottom: 0;">문제 본문 / 지문 / 발문 / 선지 텍스트</label>
                                 <span style="font-size: 0.72rem; color: var(--text-secondary);" id="tracer-char-count">0자</span>
                             </div>
-                            <textarea id="tracer-query" class="form-input" placeholder="시험 문제의 핵심 지문, 보기, 선지, 조건식 등을 복사하여 붙여넣으세요.&#10;&#10;예: (가) 나 하늘로 돌아가리라 아름다운 이 세상 소풍 끝내는 날 가서, 아름다웠더라고 말하리라...&#10;예: 최고차항의 계수가 1인 삼차함수 f(x)가 다음 조건을 만족시킨다. (가) f(0)=0 (나) 모든 실수 x에 대하여 f'(x) ≥ 0..." rows="6" style="width: 100%; box-sizing: border-box; display: block; resize: vertical; min-height: 140px; line-height: 1.5; font-size: 0.86rem; border-radius: 10px; padding: 12px;" oninput="document.getElementById('tracer-char-count').innerText=this.value.length+'자'"></textarea>
+                            <textarea id="tracer-query" class="form-input" placeholder="시험 문제의 핵심 지문, 선지, 조건식을 복사하여 붙여넣으세요.&#10;&#10;• 국어 예: (가) 나 하늘로 돌아가리라 아름다운 이 세상 소풍 끝내는 날...&#10;• 수학 예: 최고차항의 계수가 1인 삼차함수 f(x)가 다음 조건을 만족시킨다..." rows="6" style="width: 100%; box-sizing: border-box; display: block; resize: vertical; min-height: 165px; height: 165px; line-height: 1.55; font-size: 0.85rem; border-radius: 10px; padding: 12px 14px;" oninput="document.getElementById('tracer-char-count').innerText=this.value.length+'자'"></textarea>
                         </div>
 
                         <div style="display: flex; gap: 8px; margin-bottom: 14px;">
@@ -3292,8 +3292,8 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 </div>
             </div>
 
-            <!-- 👑 학교급 화면 실시간 전환 (제작자/관리자 전용) -->
-            <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(30, 27, 75, 0.4)); border: 1.5px solid #818cf8; border-radius: 16px; padding: 14px; margin-bottom: 14px;">
+            <!-- 👑 학교급 화면 실시간 전환 (갓모드 제작자/관리자 전용) -->
+            <div id="mypage-master-school-switcher" style="display: none; background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(30, 27, 75, 0.4)); border: 1.5px solid #818cf8; border-radius: 16px; padding: 14px; margin-bottom: 14px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                     <div style="font-size: 0.85rem; font-weight: 800; color: #c7d2fe; display: flex; align-items: center; gap: 6px;">
                         <span>👑</span>
