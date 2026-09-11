@@ -4133,3 +4133,162 @@ body.day-mode .mypage-tier-manage-btn:hover {
     color: #ffffff !important;
 }
 
+/* 🤖 Chat Header Tier Pill Badge (Zero-Defect High Contrast Dark & Day Mode) */
+#chat-tier-status-pill {
+    font-weight: 800 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+    transition: all 0.2s ease !important;
+}
+
+body.day-mode #chat-tier-status-pill {
+    font-weight: 800 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+body.day-mode #chat-tier-status-pill[data-tier="4"],
+body.day-mode #chat-tier-status-pill.tier-4 {
+    background: #fef3c7 !important;
+    border: 1.5px solid #d97706 !important;
+    color: #78350f !important;
+}
+
+body.day-mode #chat-tier-status-pill[data-tier="3"],
+body.day-mode #chat-tier-status-pill.tier-3 {
+    background: #d1fae5 !important;
+    border: 1.5px solid #059669 !important;
+    color: #065f46 !important;
+}
+
+body.day-mode #chat-tier-status-pill[data-tier="2"],
+body.day-mode #chat-tier-status-pill.tier-2 {
+    background: #dbeafe !important;
+    border: 1.5px solid #2563eb !important;
+    color: #1e3a8a !important;
+}
+
+body.day-mode #chat-tier-status-pill[data-tier="1"],
+body.day-mode #chat-tier-status-pill.tier-1 {
+    background: #f1f5f9 !important;
+    border: 1.5px solid #64748b !important;
+    color: #1e293b !important;
+}
+
+/* 👑 School Switcher Tab Buttons (Zero-Defect Contrast for Dark & Day Mode) */
+.school-switcher-btn {
+    padding: 6px 12px !important;
+    font-size: 0.75rem !important;
+    font-weight: 800 !important;
+    border-radius: 8px !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+    color: #e2e8f0 !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.school-switcher-btn:hover {
+    background: rgba(255, 255, 255, 0.16) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    color: #ffffff !important;
+}
+
+/* Active States (Dark Mode) */
+.school-switcher-btn#m-btn-elem.active,
+.school-switcher-btn#mypage-btn-elem.active {
+    background: #f59e0b !important;
+    border: 1.5px solid #fbbf24 !important;
+    color: #000000 !important;
+    font-weight: 900 !important;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.5) !important;
+}
+
+.school-switcher-btn#m-btn-mid.active,
+.school-switcher-btn#mypage-btn-mid.active {
+    background: #2563eb !important;
+    border: 1.5px solid #60a5fa !important;
+    color: #ffffff !important;
+    font-weight: 900 !important;
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.5) !important;
+}
+
+.school-switcher-btn#m-btn-high.active,
+.school-switcher-btn#mypage-btn-high.active {
+    background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+    border: 1.5px solid #a5b4fc !important;
+    color: #ffffff !important;
+    font-weight: 900 !important;
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.5) !important;
+}
+
+/* Day Mode (Light Theme) Contrast Rules */
+body.day-mode #master-school-level-bar {
+    background: #f8fafc !important;
+    border-bottom: 1.5px solid #cbd5e1 !important;
+}
+
+body.day-mode #master-school-level-bar span {
+    color: #0f172a !important;
+}
+
+body.day-mode .school-switcher-btn {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #334155 !important;
+}
+
+body.day-mode .school-switcher-btn:hover {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border-color: #94a3b8 !important;
+}
+
+body.day-mode .school-switcher-btn#m-btn-elem.active,
+body.day-mode .school-switcher-btn#mypage-btn-elem.active {
+    background: #d97706 !important;
+    border: 1.5px solid #b45309 !important;
+    color: #ffffff !important;
+    font-weight: 900 !important;
+    box-shadow: 0 2px 8px rgba(217, 119, 6, 0.35) !important;
+}
+
+body.day-mode .school-switcher-btn#m-btn-mid.active,
+body.day-mode .school-switcher-btn#mypage-btn-mid.active {
+    background: #1d4ed8 !important;
+    border: 1.5px solid #1e40af !important;
+    color: #ffffff !important;
+    font-weight: 900 !important;
+    box-shadow: 0 2px 8px rgba(29, 78, 216, 0.35) !important;
+}
+
+body.day-mode .school-switcher-btn#m-btn-high.active,
+body.day-mode .school-switcher-btn#mypage-btn-high.active {
+    background: #4f46e5 !important;
+    border: 1.5px solid #4338ca !important;
+    color: #ffffff !important;
+    font-weight: 900 !important;
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35) !important;
+}
+
+/* Day Mode Notice & Pending Badges Contrast Rules */
+body.day-mode #hub-unlinked-pending-area div {
+    background: #fef3c7 !important;
+    border: 1.5px solid #d97706 !important;
+    color: #78350f !important;
+}
+
+body.day-mode #student-seat-lock-notice {
+    background: #fef3c7 !important;
+    border: 1.5px solid #d97706 !important;
+    color: #78350f !important;
+}
+
+body.day-mode #mypage-tier-pending-badge {
+    background: #fef3c7 !important;
+    border: 1.5px solid #d97706 !important;
+    color: #78350f !important;
+}
+

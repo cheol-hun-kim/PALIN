@@ -6624,13 +6624,13 @@ function updateHeaderUI() {
 
     if (sleepLabel) sleepLabel.innerText = `취침 미션 (${currentStudent.sleep_target_time || "23:30"})`;
 
-// 🌟 [통합 Tier 아키텍처] B2B 가맹 학원 및 개인 B2C 구독 동적 권한/설명 해석기
+// 🌟 [통합 Tier 아키텍처] 가맹 학원 및 개인 구독 동적 권한/설명 해석기 (사용자 친화적 용어 통일)
 function getEffectiveTierInfo(student) {
     if (!student) {
         return {
             tierNumber: 1,
             tierTitleName: '무료 체험',
-            type: 'B2C',
+            type: 'INDIVIDUAL',
             isApprovedAcademy: false,
             badgeText: '무료',
             title: 'Tier 1 기본 AI (무료 체험)',
@@ -6638,8 +6638,8 @@ function getEffectiveTierInfo(student) {
             sponsorText: '기본 AI 코칭 플랜 이용 중',
             modalTitle: 'Tier 1 무료 플랜 이용 중',
             modalDesc: '기본 AI 코칭 플랜을 이용하고 있습니다.',
-            chatLabel: 'B2C Tier 1 (무료)',
-            chatDesc: 'B2C Tier 1 (무료 체험)',
+            chatLabel: 'Tier 1 (무료 체험)',
+            chatDesc: 'Tier 1 (무료 체험)',
             color: '#94a3b8',
             bg: 'rgba(148, 163, 184, 0.15)',
             isUnlimited: false
@@ -6665,16 +6665,16 @@ function getEffectiveTierInfo(student) {
             return {
                 tierNumber: 4,
                 tierTitleName: '일원직영 마스터 AI',
-                type: 'B2B',
+                type: 'ACADEMY',
                 isApprovedAcademy: true,
                 badgeText: '학원 지원',
                 title: 'Tier 4 일원직영 마스터 AI 활성화',
-                planTitle: `B2B 가맹학원 연동 (${student.academy_code || 'ILWON-2027'})`,
+                planTitle: `가맹학원 연동 (${student.academy_code || 'ILWON-2027'})`,
                 sponsorText: `${acadName} 원장님 전액 지원 (Tier 4 직영 마스터 AI 무료 이용 중)`,
                 modalTitle: '가맹 학원 전액 무료 혜택 이용 중',
                 modalDesc: '원장님 지원으로 최상위 Tier 4 일원직영 마스터 AI를 무료 이용하고 있습니다.',
-                chatLabel: 'B2B Tier 4 (일원직영)',
-                chatDesc: 'B2B Tier 4 · 김철훈 대표원장 직강 RAG 무제한',
+                chatLabel: 'Tier 4 (일원직영)',
+                chatDesc: 'Tier 4 (일원직영) · 김철훈 대표원장 직강 RAG 무제한',
                 color: '#fbbf24',
                 bg: 'rgba(245, 158, 11, 0.25)',
                 isUnlimited: true
@@ -6683,16 +6683,16 @@ function getEffectiveTierInfo(student) {
             return {
                 tierNumber: 3,
                 tierTitleName: '플래그십 마스터 AI',
-                type: 'B2B',
+                type: 'ACADEMY',
                 isApprovedAcademy: true,
                 badgeText: '학원 지원',
                 title: 'Tier 3 마스터 AI 활성화',
-                planTitle: `B2B 가맹학원 연동 (${student.academy_code})`,
-                sponsorText: `${acadName} 원장님 전액 지원 (월 99.9만 B2B 마스터 플랜)`,
+                planTitle: `가맹학원 연동 (${student.academy_code})`,
+                sponsorText: `${acadName} 원장님 전액 지원 (최상위 마스터 AI 무제한 플랜)`,
                 modalTitle: '가맹 학원 전액 무료 혜택 이용 중',
                 modalDesc: '원장님 지원으로 최상위 Tier 3 마스터 AI(수험전략 백서 RAG 풀탑재)를 무료 이용하고 있습니다.',
-                chatLabel: `B2B Tier 3 (${acadName})`,
-                chatDesc: `B2B Tier 3 (${acadName}) · 백서 지식 무제한 AI 활성화`,
+                chatLabel: `Tier 3 (${acadName} 지원)`,
+                chatDesc: `Tier 3 (${acadName} 지원) · 백서 지식 무제한 AI 활성화`,
                 color: '#34d399',
                 bg: 'rgba(16, 185, 129, 0.2)',
                 isUnlimited: true
@@ -6701,16 +6701,16 @@ function getEffectiveTierInfo(student) {
             return {
                 tierNumber: 2,
                 tierTitleName: '맞춤 커스텀 AI',
-                type: 'B2B',
+                type: 'ACADEMY',
                 isApprovedAcademy: true,
                 badgeText: '학원 지원',
                 title: 'Tier 2 맞춤 커스텀 AI 활성화',
-                planTitle: `B2B 가맹학원 연동 (${student.academy_code})`,
-                sponsorText: `${acadName} 원장님 전액 지원 (월 59.9만 B2B 커스텀 플랜)`,
+                planTitle: `가맹학원 연동 (${student.academy_code})`,
+                sponsorText: `${acadName} 원장님 전액 지원 (원장 맞춤 커스텀 AI 플랜)`,
                 modalTitle: '가맹 학원 전액 무료 혜택 이용 중',
                 modalDesc: '원장님 맞춤 커스텀 AI 뇌를 무료 이용하고 있습니다.',
-                chatLabel: `B2B Tier 2 (${acadName})`,
-                chatDesc: `B2B Tier 2 (${acadName}) · 원장 맞춤 뇌 무제한 활성화`,
+                chatLabel: `Tier 2 (${acadName} 지원)`,
+                chatDesc: `Tier 2 (${acadName} 지원) · 원장 맞춤 AI 무제한 활성화`,
                 color: '#60a5fa',
                 bg: 'rgba(59, 130, 246, 0.2)',
                 isUnlimited: true
@@ -6719,28 +6719,28 @@ function getEffectiveTierInfo(student) {
             return {
                 tierNumber: 1,
                 tierTitleName: '표준 가맹 연동',
-                type: 'B2B',
+                type: 'ACADEMY',
                 isApprovedAcademy: true,
                 badgeText: '학원 지원',
                 title: 'Tier 1 표준 가맹 연동 활성화',
-                planTitle: `B2B 가맹학원 연동 (${student.academy_code})`,
+                planTitle: `가맹학원 연동 (${student.academy_code})`,
                 sponsorText: `${acadName} 원장님 지원 (가맹 학원 전용 혜택)`,
                 modalTitle: '가맹 학원 기본 혜택 이용 중',
                 modalDesc: '원장님 지원으로 가맹 기본 AI를 무료 이용하고 있습니다.',
-                chatLabel: `B2B Tier 1 (${acadName})`,
-                chatDesc: `B2B Tier 1 (${acadName}) · 학원 기본 코칭`,
+                chatLabel: `Tier 1 (${acadName} 지원)`,
+                chatDesc: `Tier 1 (${acadName} 지원) · 학원 기본 코칭`,
                 color: '#cbd5e1',
                 bg: 'rgba(148, 163, 184, 0.2)',
                 isUnlimited: false
             };
         }
     } else {
-        // B2C 개인 플랜
+        // 개인 구독 플랜
         if (b2cTier === "TIER_3_MASTER" || b2cTier.includes("TIER_3")) {
             return {
                 tierNumber: 3,
                 tierTitleName: '마스터 AI 풀패키지',
-                type: 'B2C',
+                type: 'INDIVIDUAL',
                 isApprovedAcademy: false,
                 badgeText: '최상위 플랜',
                 title: 'Tier 3 마스터 AI 활성화',
@@ -6748,8 +6748,8 @@ function getEffectiveTierInfo(student) {
                 sponsorText: '월 99,000원 멤버십 이용 중 (수험 전략 백서 풀 RAG + 무제한 AI)',
                 modalTitle: 'Tier 3 마스터 AI 이용 중',
                 modalDesc: '월 99,000원 멤버십 이용 중 (수험 전략 백서 풀 RAG + 무제한 AI)',
-                chatLabel: 'B2C Tier 3 (마스터)',
-                chatDesc: 'B2C Tier 3 (마스터) · 백서 지식 100% 무제한 AI 활성화',
+                chatLabel: 'Tier 3 (마스터)',
+                chatDesc: 'Tier 3 (마스터) · 백서 지식 100% 무제한 AI 활성화',
                 color: '#c084fc',
                 bg: 'rgba(168, 85, 247, 0.2)',
                 isUnlimited: true
@@ -6758,7 +6758,7 @@ function getEffectiveTierInfo(student) {
             return {
                 tierNumber: 2,
                 tierTitleName: '스탠다드 AI',
-                type: 'B2C',
+                type: 'INDIVIDUAL',
                 isApprovedAcademy: false,
                 badgeText: '이용 중',
                 title: 'Tier 2 스탠다드 AI 활성화',
@@ -6766,8 +6766,8 @@ function getEffectiveTierInfo(student) {
                 sponsorText: '월 19,900원 멤버십 이용 중 (핵심 압축 요약 코칭)',
                 modalTitle: 'Tier 2 스탠다드 AI 이용 중',
                 modalDesc: '월 19,900원 멤버십 이용 중 (핵심 압축 요약 코칭)',
-                chatLabel: 'B2C Tier 2 (스탠다드)',
-                chatDesc: 'B2C Tier 2 (스탠다드 · 핵심 압축 코칭)',
+                chatLabel: 'Tier 2 (스탠다드)',
+                chatDesc: 'Tier 2 (스탠다드 · 핵심 압축 코칭)',
                 color: '#818cf8',
                 bg: 'rgba(99, 102, 241, 0.2)',
                 isUnlimited: false
@@ -6776,7 +6776,7 @@ function getEffectiveTierInfo(student) {
             return {
                 tierNumber: 1,
                 tierTitleName: '무료 체험',
-                type: 'B2C',
+                type: 'INDIVIDUAL',
                 isApprovedAcademy: false,
                 badgeText: '무료',
                 title: 'Tier 1 기본 AI (무료 체험)',
@@ -6784,8 +6784,8 @@ function getEffectiveTierInfo(student) {
                 sponsorText: '기본 AI 코칭 플랜 이용 중',
                 modalTitle: 'Tier 1 무료 플랜 이용 중',
                 modalDesc: '기본 AI 코칭 플랜 이용 중',
-                chatLabel: 'B2C Tier 1 (무료)',
-                chatDesc: 'B2C Tier 1 (무료 체험)',
+                chatLabel: 'Tier 1 (무료 체험)',
+                chatDesc: 'Tier 1 (무료 체험)',
                 color: '#94a3b8',
                 bg: 'rgba(148, 163, 184, 0.15)',
                 isUnlimited: false
@@ -6816,6 +6816,8 @@ function updateChatTierAndTokens(student, customRemaining = null) {
     const pill = document.getElementById("chat-tier-status-pill");
     if (pill) {
         pill.innerText = tierLabel;
+        pill.dataset.tier = tierInfo.tierNumber;
+        pill.className = `tier-pill tier-${tierInfo.tierNumber}`;
         pill.style.color = tierColor;
         pill.style.background = tierBg;
         pill.style.borderColor = tierColor;
@@ -7255,7 +7257,7 @@ function openB2CPlanManageModal() {
                     </div>
                     <div style="font-size: 0.74rem; color: #cbd5e1; line-height: 1.4;">${tierInfo.modalDesc}</div>
                     <div style="font-size: 0.7rem; color: #94a3b8; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 6px; margin-top: 4px;">
-                        💡 <b>개인 B2C 보유 상태:</b> ${b2cSubDesc} (학원 연동 해제 시 자동 유지 및 전환)
+                        💡 <b>개인 멤버십 보유 상태:</b> ${b2cSubDesc} (학원 연동 해제 시 자동 유지 및 전환)
                     </div>
                 </div>
             `;
@@ -16565,47 +16567,13 @@ function switchMasterSchoolView(level) {
     const btnHigh = document.getElementById('m-btn-high');
 
     if (btnElem && btnMid && btnHigh) {
-        if (level === 'ELEMENTARY') {
-            btnElem.style.background = '#f59e0b';
-            btnElem.style.border = '1.5px solid #fbbf24';
-            btnElem.style.color = '#000000';
-            btnElem.style.fontWeight = '900';
-            btnElem.style.boxShadow = '0 0 10px rgba(245,158,11,0.5)';
-        } else {
-            btnElem.style.background = 'rgba(245,158,11,0.15)';
-            btnElem.style.border = '1.5px solid #f59e0b';
-            btnElem.style.color = '#fbbf24';
-            btnElem.style.fontWeight = '800';
-            btnElem.style.boxShadow = 'none';
-        }
-
-        if (level === 'MIDDLE') {
-            btnMid.style.background = '#3b82f6';
-            btnMid.style.border = '1.5px solid #60a5fa';
-            btnMid.style.color = '#ffffff';
-            btnMid.style.fontWeight = '900';
-            btnMid.style.boxShadow = '0 0 10px rgba(59,130,246,0.5)';
-        } else {
-            btnMid.style.background = 'rgba(59,130,246,0.15)';
-            btnMid.style.border = '1.5px solid #3b82f6';
-            btnMid.style.color = '#93c5fd';
-            btnMid.style.fontWeight = '800';
-            btnMid.style.boxShadow = 'none';
-        }
-
-        if (level === 'HIGH') {
-            btnHigh.style.background = 'linear-gradient(135deg, #6366f1, #4f46e5)';
-            btnHigh.style.border = '1.5px solid #818cf8';
-            btnHigh.style.color = '#ffffff';
-            btnHigh.style.fontWeight = '900';
-            btnHigh.style.boxShadow = '0 0 10px rgba(99,102,241,0.5)';
-        } else {
-            btnHigh.style.background = 'rgba(99,102,241,0.15)';
-            btnHigh.style.border = '1.5px solid #6366f1';
-            btnHigh.style.color = '#c7d2fe';
-            btnHigh.style.fontWeight = '800';
-            btnHigh.style.boxShadow = 'none';
-        }
+        [btnElem, btnMid, btnHigh].forEach(b => {
+            b.classList.remove('active');
+            b.removeAttribute('style');
+        });
+        if (level === 'ELEMENTARY') btnElem.classList.add('active');
+        else if (level === 'MIDDLE') btnMid.classList.add('active');
+        else btnHigh.classList.add('active');
     }
 
     // Update buttons in mypage modal if present
@@ -16613,41 +16581,13 @@ function switchMasterSchoolView(level) {
     const mpMid = document.getElementById('mypage-btn-mid');
     const mpHigh = document.getElementById('mypage-btn-high');
     if (mpElem && mpMid && mpHigh) {
-        if (level === 'ELEMENTARY') {
-            mpElem.style.background = '#f59e0b';
-            mpElem.style.border = '1.5px solid #fbbf24';
-            mpElem.style.color = '#000000';
-            mpElem.style.fontWeight = '900';
-        } else {
-            mpElem.style.background = 'rgba(245,158,11,0.15)';
-            mpElem.style.border = '1.5px solid #f59e0b';
-            mpElem.style.color = '#fbbf24';
-            mpElem.style.fontWeight = '800';
-        }
-
-        if (level === 'MIDDLE') {
-            mpMid.style.background = '#3b82f6';
-            mpMid.style.border = '1.5px solid #60a5fa';
-            mpMid.style.color = '#ffffff';
-            mpMid.style.fontWeight = '900';
-        } else {
-            mpMid.style.background = 'rgba(59,130,246,0.15)';
-            mpMid.style.border = '1.5px solid #3b82f6';
-            mpMid.style.color = '#93c5fd';
-            mpMid.style.fontWeight = '800';
-        }
-
-        if (level === 'HIGH') {
-            mpHigh.style.background = 'linear-gradient(135deg, #6366f1, #4f46e5)';
-            mpHigh.style.border = '1.5px solid #818cf8';
-            mpHigh.style.color = '#ffffff';
-            mpHigh.style.fontWeight = '900';
-        } else {
-            mpHigh.style.background = 'rgba(99,102,241,0.15)';
-            mpHigh.style.border = '1.5px solid #6366f1';
-            mpHigh.style.color = '#c7d2fe';
-            mpHigh.style.fontWeight = '800';
-        }
+        [mpElem, mpMid, mpHigh].forEach(b => {
+            b.classList.remove('active');
+            b.removeAttribute('style');
+        });
+        if (level === 'ELEMENTARY') mpElem.classList.add('active');
+        else if (level === 'MIDDLE') mpMid.classList.add('active');
+        else mpHigh.classList.add('active');
     }
 
     renderAppForSchoolLevel(currentStudent);

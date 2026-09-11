@@ -420,11 +420,18 @@ assert 'body.day-mode #student-card-modal .trigger-content' in css_content, "Mis
 assert 'body.day-mode #cash-modal .trigger-content' in css_content, "Missing cash-modal Day Mode contrast rule"
 assert 'body.day-mode #mypage-tier-manage-btn' in css_content, "Missing mypage-tier-manage-btn Day Mode high contrast rule"
 assert 'body.day-mode #mypage-tier-active-badge' in css_content, "Missing mypage-tier-active-badge Day Mode contrast rule"
+assert 'body.day-mode #chat-tier-status-pill' in css_content, "Missing chat-tier-status-pill Day Mode high contrast rule"
+assert '.school-switcher-btn' in css_content and 'body.day-mode .school-switcher-btn' in css_content, "Missing school switcher button dark/day mode contrast rules"
 
-# Automated Zero White-on-White Button Scanner
+# Automated Zero White-on-White Button & Low-Contrast Pattern Scanner
 low_contrast_buttons = re.findall(r'<button[^>]*id=["\']mypage-tier-manage-btn["\'][^>]*style=["\'][^"\']*rgba\(255,\s*255,\s*255[^"\']*#fff[^"\']*["\']', index_html, re.IGNORECASE)
 assert len(low_contrast_buttons) == 0, f"Found low-contrast transparent white button in index.html: {low_contrast_buttons}"
-print("[GATE 4.3 PASS] Day Mode high-contrast text styling verified (Zero White-on-White text across MyPage & all Modals)!")
+
+# Ensure no switcher button in index.html has yellow-on-yellow or blue-on-blue inline text
+for forbidden_inline in ['#m-btn-elem.*rgba(245,158,11,0.15).*#fbbf24', '#m-btn-mid.*rgba(59,130,246,0.15).*#93c5fd']:
+    assert not re.search(forbidden_inline, index_html, re.DOTALL), f"Low contrast inline switcher button detected: {forbidden_inline}"
+
+print("[GATE 4.3 PASS] Day Mode & Dark Mode High-Contrast text styling verified (Zero Low-Contrast / White-on-White text across all Badges, Pills & Modals)!")
 
 # Gate 4.4: Mobile Viewport Zero-Clipping & 7-Tier God-Mode Integrity
 assert '#header-student-name' in css_content, "Missing #header-student-name CSS rule"

@@ -731,9 +731,9 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <span style="color: #ffffff; letter-spacing: -0.2px;">제작자 관제 모드:</span>
             </div>
             <div style="display: flex; gap: 6px; overflow-x: auto;" id="master-level-switcher-btns">
-                <button type="button" class="btn" id="m-btn-elem" onclick="switchMasterSchoolView('ELEMENTARY')" style="padding: 5px 11px; font-size: 0.74rem; font-weight: 800; border-radius: 6px; background: rgba(245,158,11,0.15); border: 1.5px solid #f59e0b; color: #fbbf24; white-space: nowrap; cursor: pointer;">초등 모드</button>
-                <button type="button" class="btn" id="m-btn-mid" onclick="switchMasterSchoolView('MIDDLE')" style="padding: 5px 11px; font-size: 0.74rem; font-weight: 800; border-radius: 6px; background: rgba(59,130,246,0.15); border: 1.5px solid #3b82f6; color: #93c5fd; white-space: nowrap; cursor: pointer;">중등 모드</button>
-                <button type="button" class="btn active" id="m-btn-high" onclick="switchMasterSchoolView('HIGH')" style="padding: 5px 11px; font-size: 0.74rem; font-weight: 900; border-radius: 6px; background: linear-gradient(135deg, #6366f1, #4f46e5); border: 1.5px solid #818cf8; color: #ffffff; white-space: nowrap; box-shadow: 0 0 10px rgba(99,102,241,0.5); cursor: pointer;">고등 모드</button>
+                <button type="button" class="btn school-switcher-btn" id="m-btn-elem" onclick="switchMasterSchoolView('ELEMENTARY')">초등 모드</button>
+                <button type="button" class="btn school-switcher-btn" id="m-btn-mid" onclick="switchMasterSchoolView('MIDDLE')">중등 모드</button>
+                <button type="button" class="btn school-switcher-btn active" id="m-btn-high" onclick="switchMasterSchoolView('HIGH')">고등 모드</button>
             </div>
         </div>
 
@@ -1189,8 +1189,8 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 <span class="material-symbols-rounded" style="color: var(--color-accent)">forum</span>
                                 <span>대입 입시 전략 전문 멘토링</span>
                             </div>
-                            <span id="chat-tier-status-pill" style="font-size: 0.72rem; padding: 3px 9px; border-radius: 20px; font-weight: 800; background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); white-space: nowrap;">
-                                B2C Tier 1 (무료 체험)
+                            <span id="chat-tier-status-pill" class="tier-pill tier-1" style="font-size: 0.72rem; padding: 3px 9px; border-radius: 20px; font-weight: 800; background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); white-space: nowrap;">
+                                Tier 1 (무료 체험)
                             </span>
                         </div>
                         
@@ -2114,7 +2114,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <div id="hub-unlinked-icon-box" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(99,102,241,0.2); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: #818cf8;">
                         <span class="material-symbols-rounded" id="hub-unlinked-icon" style="font-size: 2rem;">account_balance</span>
                     </div>
-                    <div id="hub-unlinked-title" style="font-size: 1.15rem; font-weight: 800; color: #ffffff; margin-bottom: 6px;">소속 학원(B2B) 연동</div>
+                    <div id="hub-unlinked-title" style="font-size: 1.15rem; font-weight: 800; color: #ffffff; margin-bottom: 6px;">소속 학원 연동</div>
                     <div id="hub-unlinked-desc" style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 18px; max-width: 360px; margin-left: auto; margin-right: auto;">
                         소속 학원에서 발급받은 <b style="color: #fbbf24;">학원 고유코드(예: PALIN-2027)</b>를 입력하시면 원장님 승인 시 해당 학원 티어로 자동 연동되며, 주차별 학사 일정, 복습 VOD, OMR 자동채점 및 출결 관리가 즉시 활성화됩니다.
                     </div>
@@ -2924,7 +2924,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(99,102,241,0.2); display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; color: #818cf8;">
                             <span class="material-symbols-rounded" style="font-size: 1.8rem;">school</span>
                         </div>
-                        <div style="font-size: 1.1rem; font-weight: 800; color: #ffffff; margin-bottom: 4px;">중등 B2B 소속 학원 허브</div>
+                        <div style="font-size: 1.1rem; font-weight: 800; color: #ffffff; margin-bottom: 4px;">중등 소속 학원 허브</div>
                         <div style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 14px;">
                             소속 학원 코드를 입력하시면 주차별 내신/특목 대비 진도표와 복습 VOD, OMR 채점이 활성화됩니다.
                         </div>
@@ -3319,13 +3319,13 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     초등·중등·고등 전 연령대 화면을 즉시 전환하여 각 학교급별 UI와 특화 기능을 직접 테스트 및 관제할 수 있습니다.
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;" id="mypage-school-switcher-btns">
-                    <button type="button" class="btn" id="mypage-btn-elem" onclick="switchMasterSchoolView('ELEMENTARY'); closeMyPageModal();" style="padding: 9px 4px; font-size: 0.74rem; font-weight: 800; border-radius: 8px; background: rgba(245,158,11,0.15); border: 1.5px solid #f59e0b; color: #fbbf24; cursor: pointer;">
+                    <button type="button" class="btn school-switcher-btn" id="mypage-btn-elem" onclick="switchMasterSchoolView('ELEMENTARY'); closeMyPageModal();">
                         초등 모드
                     </button>
-                    <button type="button" class="btn" id="mypage-btn-mid" onclick="switchMasterSchoolView('MIDDLE'); closeMyPageModal();" style="padding: 9px 4px; font-size: 0.74rem; font-weight: 800; border-radius: 8px; background: rgba(59,130,246,0.15); border: 1.5px solid #3b82f6; color: #93c5fd; cursor: pointer;">
+                    <button type="button" class="btn school-switcher-btn" id="mypage-btn-mid" onclick="switchMasterSchoolView('MIDDLE'); closeMyPageModal();">
                         중등 모드
                     </button>
-                    <button type="button" class="btn active" id="mypage-btn-high" onclick="switchMasterSchoolView('HIGH'); closeMyPageModal();" style="padding: 9px 4px; font-size: 0.74rem; font-weight: 800; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff; cursor: pointer;">
+                    <button type="button" class="btn school-switcher-btn active" id="mypage-btn-high" onclick="switchMasterSchoolView('HIGH'); closeMyPageModal();">
                         고등 모드
                     </button>
                 </div>
