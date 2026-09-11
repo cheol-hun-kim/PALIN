@@ -1417,6 +1417,60 @@
                     </div>
                 </div>
 
+                <!-- 📧 실시간 이메일 발송 서버(SMTP) & 회원가입 본인인증 제어판 -->
+                <div class="section-box" style="margin-bottom: 20px; border-color: rgba(99, 102, 241, 0.4);">
+                    <div class="section-header" style="color: #818cf8;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-rounded">mail</span>
+                            <span>실시간 이메일 발송 서버(SMTP) & 회원가입 본인인증 관리</span>
+                        </div>
+                        <span id="smtp-status-badge" style="font-size: 0.76rem; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; padding: 3px 8px; border-radius: 6px; font-weight: 800;">
+                            설정 대기 중
+                        </span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 14px; line-height: 1.5;">
+                        회원가입 시 실제 수험생 및 학부모의 이메일함으로 6자리 본인인증 번호(OTP)를 실시간 발송하는 SMTP 메일 서버를 관리합니다. (Gmail 이용 시 <b>Google 계정 관리 ➔ 보안 ➔ 2단계 인증 ➔ 앱 비밀번호(16자리)</b>를 생성하여 입력하세요.)
+                    </div>
+                    <form onsubmit="handleSaveEmailSettings(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 12px;">
+                        <div>
+                            <label style="font-size: 0.74rem; color: #cbd5e1; font-weight: 700; display: block; margin-bottom: 4px;">발송자 이메일 계정 (SMTP User)</label>
+                            <input type="email" id="smtp-cfg-user" placeholder="예: onetheoryedu@gmail.com" required class="form-input" style="font-weight: 700;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.74rem; color: #cbd5e1; font-weight: 700; display: block; margin-bottom: 4px;">SMTP 앱 비밀번호 (16자리)</label>
+                            <input type="password" id="smtp-cfg-pw" placeholder="Gmail 16자리 앱 비밀번호" class="form-input" style="letter-spacing: 2px;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.74rem; color: #cbd5e1; font-weight: 700; display: block; margin-bottom: 4px;">SMTP 호스트 서버</label>
+                            <input type="text" id="smtp-cfg-host" value="smtp.gmail.com" required class="form-input">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.74rem; color: #cbd5e1; font-weight: 700; display: block; margin-bottom: 4px;">SMTP 포트 (TLS: 587 / SSL: 465)</label>
+                            <input type="number" id="smtp-cfg-port" value="587" required class="form-input">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.74rem; color: #cbd5e1; font-weight: 700; display: block; margin-bottom: 4px;">발송자 표시 이름</label>
+                            <input type="text" id="smtp-cfg-from" value="PASS MATE (PALIN)" required class="form-input">
+                        </div>
+                        <div style="display: flex; align-items: flex-end; gap: 8px;">
+                            <button type="submit" class="btn" style="flex: 1; padding: 12px; font-weight: 900; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border-radius: 10px;">
+                                💾 SMTP 설정 저장
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- 테스트 발송 영역 -->
+                    <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 250px;">
+                            <span class="material-symbols-rounded" style="color: #38bdf8; font-size: 1.2rem;">send</span>
+                            <input type="email" id="smtp-test-email" placeholder="테스트 수신 이메일 주소 입력" class="form-input" style="flex: 1; margin-bottom: 0 !important;">
+                        </div>
+                        <button type="button" onclick="handleTestEmailSend()" class="btn btn-secondary" style="padding: 10px 16px; font-weight: 800; border-color: #38bdf8; color: #38bdf8;">
+                            ⚡ 1-클릭 테스트 메일 발송
+                        </button>
+                    </div>
+                </div>
+
             </div>
 
         </div>
@@ -1453,6 +1507,7 @@
             if (tabId === 'tab-consulting') loadMasterConsultingRequests();
             if (tabId === 'tab-b2b-helpdesk') { loadB2BTickets(); loadMasterFeedbacks(); }
             if (tabId === 'tab-all-members') loadMasterStudents();
+            if (tabId === 'tab-secret-rnd') loadEmailSettings();
         }
 
         function handleMasterLogin() {
@@ -1494,10 +1549,107 @@
                 loadMasterTenants();
                 loadMasterB2BInquiries();
                 loadWhiteLabelStatus();
+                loadEmailSettings();
             } catch (e) {
                 console.error("Master dashboard fetch error:", e);
             }
         }
+
+        // --- 📧 SMTP 이메일 발송 서버 설정 및 테스트 ---
+        async function loadEmailSettings() {
+            try {
+                const res = await fetch("/api/admin/email/settings");
+                if (res.ok) {
+                    const data = await res.json();
+                    const userEl = document.getElementById("smtp-cfg-user");
+                    const pwEl = document.getElementById("smtp-cfg-pw");
+                    const hostEl = document.getElementById("smtp-cfg-host");
+                    const portEl = document.getElementById("smtp-cfg-port");
+                    const fromEl = document.getElementById("smtp-cfg-from");
+                    const badgeEl = document.getElementById("smtp-status-badge");
+
+                    if (userEl && data.smtp_user) userEl.value = data.smtp_user;
+                    if (pwEl && data.smtp_password_masked) pwEl.placeholder = "기존 비밀번호 등록됨 (변경 시에만 입력)";
+                    if (hostEl && data.smtp_host) hostEl.value = data.smtp_host;
+                    if (portEl && data.smtp_port) portEl.value = data.smtp_port;
+                    if (fromEl && data.from_name) fromEl.value = data.from_name;
+
+                    if (badgeEl) {
+                        if (data.is_configured) {
+                            badgeEl.style.background = "rgba(16, 185, 129, 0.2)";
+                            badgeEl.style.color = "#34d399";
+                            badgeEl.style.borderColor = "#10b981";
+                            badgeEl.innerText = `✅ 연동 정상 (${data.smtp_user})`;
+                        } else {
+                            badgeEl.style.background = "rgba(239, 68, 68, 0.2)";
+                            badgeEl.style.color = "#f87171";
+                            badgeEl.style.borderColor = "#ef4444";
+                            badgeEl.innerText = "⚠️ 미설정 (계정 입력 필요)";
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn("loadEmailSettings error:", e);
+            }
+        }
+        window.loadEmailSettings = loadEmailSettings;
+
+        async function handleSaveEmailSettings(e) {
+            e.preventDefault();
+            const user = document.getElementById("smtp-cfg-user").value.trim();
+            const pw = document.getElementById("smtp-cfg-pw").value.trim();
+            const host = document.getElementById("smtp-cfg-host").value.trim();
+            const port = parseInt(document.getElementById("smtp-cfg-port").value.trim()) || 587;
+            const fromName = document.getElementById("smtp-cfg-from").value.trim();
+
+            try {
+                const res = await fetch("/api/admin/email/settings", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        smtp_user: user,
+                        smtp_password: pw,
+                        smtp_host: host,
+                        smtp_port: port,
+                        from_name: fromName
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert("🎉 " + data.message);
+                    loadEmailSettings();
+                } else {
+                    alert(data.detail || "설정 저장 실패");
+                }
+            } catch (err) {
+                alert("서버 연결 실패");
+            }
+        }
+        window.handleSaveEmailSettings = handleSaveEmailSettings;
+
+        async function handleTestEmailSend() {
+            const toEmail = (document.getElementById("smtp-test-email")?.value || "").trim();
+            if (!toEmail || !toEmail.includes("@")) {
+                alert("테스트 메일을 수신할 올바른 이메일 주소를 입력해 주세요.");
+                return;
+            }
+            try {
+                const res = await fetch("/api/admin/email/test", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ to_email: toEmail })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert("🎉 " + data.message);
+                } else {
+                    alert("⚠️ " + (data.detail || "테스트 발송 실패"));
+                }
+            } catch (err) {
+                alert("서버 연결 실패");
+            }
+        }
+        window.handleTestEmailSend = handleTestEmailSend;
 
         async function loadMasterB2BInquiries() {
             const listEl = document.getElementById("master-inquiries-list");

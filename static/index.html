@@ -235,6 +235,24 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 border-color: #818cf8 !important;
                 background: rgba(0, 0, 0, 0.7) !important;
             }
+            .auth-input.verified,
+            .auth-input:read-only.verified,
+            .auth-input[readonly].verified {
+                background: rgba(16, 185, 129, 0.18) !important;
+                border: 1.5px solid #10b981 !important;
+                color: #34d399 !important;
+                font-weight: 800 !important;
+                cursor: default !important;
+            }
+            body.day-mode .auth-input.verified,
+            body.day-mode .auth-input:read-only.verified,
+            body.day-mode .auth-input[readonly].verified {
+                background: #ecfdf5 !important;
+                border: 1.5px solid #059669 !important;
+                color: #065f46 !important;
+                font-weight: 800 !important;
+                cursor: default !important;
+            }
             .auth-submit-btn {
                 width: 100% !important;
                 box-sizing: border-box !important;
@@ -2521,24 +2539,24 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
                         <!-- 서브탭 4: 📋 행정 요청 센터 (VOD, 결석보강, 반변경, 휴강/퇴원) -->
                         
-                        <!-- 서브탭 5: 🪑 실시간 2D 좌석 매트릭스 & 좌석 선택/예약 -->
+                        <!-- 서브탭 5: 실시간 2D 좌석 매트릭스 & 좌석 선택/예약 -->
                         <div id="hub-view-seat" class="hub-subtab-view" style="display: none;">
-                            <div class="card" id="student-academy-seat-card" style="margin-bottom: 14px; border: 1.5px solid rgba(124, 58, 237, 0.35); background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(99, 102, 241, 0.04));">
+                            <div class="card" id="student-academy-seat-card" style="margin-bottom: 14px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
                                     <div style="display: flex; align-items: center; gap: 6px;">
-                                        <span class="material-symbols-rounded" style="color: #a78bfa; font-size: 1.3rem;">chair</span>
-                                        <span style="font-size: 0.98rem; font-weight: 800; color: var(--text-primary);">🪑 실시간 좌석 현황 & 내 좌석</span>
+                                        <span class="material-symbols-rounded" style="color: #818cf8; font-size: 1.3rem;">chair</span>
+                                        <span style="font-size: 0.98rem; font-weight: 800; color: var(--text-primary);">실시간 좌석 현황 & 내 좌석</span>
                                     </div>
-                                    <div id="student-seat-mode-badge" style="font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
-                                        🟢 자유선택/선착순제
+                                    <div id="student-seat-mode-badge" class="seat-mode-badge">
+                                        자유선택/선착순제
                                     </div>
                                 </div>
 
                                 <!-- 내 현재 배정/입실 좌석 상태 바 -->
-                                <div id="student-my-seat-banner" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                <div id="student-my-seat-banner">
                                     <div>
-                                        <div style="font-size: 0.74rem; color: var(--text-secondary);">내 현재 좌석 상태</div>
-                                        <div style="font-size: 0.92rem; font-weight: 900; color: #ffffff;" id="student-my-seat-text">
+                                        <div class="seat-banner-title">내 현재 좌석 상태</div>
+                                        <div id="student-my-seat-text">
                                             미배정 (빈 좌석을 터치하여 입실하세요)
                                         </div>
                                     </div>

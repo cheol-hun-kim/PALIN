@@ -123,59 +123,9 @@ def send_mock_sms(to_phone: str, message: str):
 
 import random
 import time
+from app.email_service import send_real_email_otp, load_email_settings, save_email_settings, test_smtp_connection
 
 EMAIL_OTP_STORE: Dict[str, Dict[str, Any]] = {}
-
-def send_smtp_email_otp(to_email: str, otp_code: str):
-    """
-    Sends 6-digit OTP email using configured SMTP or logs cleanly.
-    """
-    import os, smtplib
-    from email.mime.text import MIMEText
-    from email.mime.multipart import MIMEMultipart
-
-    smtp_user = os.getenv("SMTP_USER", "")
-    smtp_password = os.getenv("SMTP_PASSWORD", "")
-    smtp_host = os.getenv("SMTP_HOST", "smtp.gmail.com")
-    smtp_port = int(os.getenv("SMTP_PORT", "587"))
-
-    html_content = f"""
-    <div style="font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; background: #0f172a; color: #ffffff; border-radius: 16px; border: 1px solid #312e81;">
-        <div style="text-align: center; margin-bottom: 20px;">
-            <h1 style="font-size: 26px; margin: 0; color: #ffffff; font-weight: 900;">PALIN <span style="color: #6366f1;">OS</span></h1>
-            <p style="font-size: 13px; color: #94a3b8; margin: 4px 0 0 0;">수험생 입시 관제 플랫폼 본인인증</p>
-        </div>
-        <div style="background: rgba(99, 102, 241, 0.1); border: 1.5px solid #6366f1; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px;">
-            <p style="font-size: 14px; color: #c7d2fe; margin: 0 0 10px 0;">아래의 6자리 인증번호를 회원가입 화면에 입력해 주세요.</p>
-            <div style="font-size: 32px; font-weight: 900; letter-spacing: 8px; color: #38bdf8; padding: 10px 0;">
-                {otp_code}
-            </div>
-            <p style="font-size: 12px; color: #f43f5e; margin: 8px 0 0 0;">⏱️ 유효시간: 5분 (300초)</p>
-        </div>
-        <p style="font-size: 12px; color: #64748b; text-align: center; margin: 0;">본인이 요청하지 않은 경우 이 메일을 무시해 주세요.<br>© PALIN CORP. All rights reserved.</p>
-    </div>
-    """
-
-    if smtp_user and smtp_password:
-        try:
-            msg = MIMEMultipart("alternative")
-            msg["Subject"] = f"[PALIN OS] 회원가입 이메일 본인인증 번호 [{otp_code}]"
-            msg["From"] = f"PALIN OS <{smtp_user}>"
-            msg["To"] = to_email
-            msg.attach(MIMEText(html_content, "html", "utf-8"))
-
-            with smtplib.SMTP(smtp_host, smtp_port, timeout=5) as server:
-                server.starttls()
-                server.login(smtp_user, smtp_password)
-                server.sendmail(smtp_user, to_email, msg.as_string())
-            print(f"📧 [SMTP SUCCESS] Successfully sent OTP email to {to_email}")
-            return True
-        except Exception as e:
-            print(f"⚠️ [SMTP FALLBACK] Failed to send via live SMTP ({e}). Fallback logged.")
-            return False
-    
-    print(f"📧 [EMAIL OTP LOG] Code [{otp_code}] issued for [{to_email}] (Valid for 5 mins)")
-    return False
 
 @app.post("/api/auth/send-email-otp")
 def send_email_otp(payload: schemas.EmailOtpSendPayload, db: Session = Depends(get_db)):
@@ -187,7 +137,15 @@ def send_email_otp(payload: schemas.EmailOtpSendPayload, db: Session = Depends(g
         raise HTTPException(status_code=400, detail="이미 등록된 이메일 주소입니다. 로그인해 주세요.")
     
     code = f"{random.randint(100000, 999999)}"
-    expires_at = time.time() + 300 # 5분
+    expires_at = time.time() + 300 # 5분 (300초)
+    
+    # 실제 SMTP 이메일 발송 실행
+    sent_ok, err_msg = send_real_email_otp(clean_email, code)
+    if not sent_ok:
+        raise HTTPException(
+            status_code=500,
+            detail=f"인증 이메일 발송에 실패했습니다 ({err_msg}). 관리자 콘솔에서 메일 발송 서버(SMTP) 설정을 확인해 주세요."
+        )
     
     EMAIL_OTP_STORE[clean_email] = {
         "code": code,
@@ -196,14 +154,10 @@ def send_email_otp(payload: schemas.EmailOtpSendPayload, db: Session = Depends(g
         "created_at": time.time()
     }
     
-    is_live_smtp = send_smtp_email_otp(clean_email, code)
-    
     return {
         "status": "success",
-        "message": "인증코드가 발송되었습니다. (유효시간: 5분)" if is_live_smtp else "인증코드가 발급되었습니다.",
-        "expires_in": 300,
-        "is_live_smtp": is_live_smtp,
-        "dev_code": code
+        "message": f"[{clean_email}]로 6자리 인증번호가 발송되었습니다. 메일함을 확인해 주세요. (유효시간: 5분)",
+        "expires_in": 300
     }
 
 @app.post("/api/auth/verify-email-otp")
@@ -4140,6 +4094,51 @@ class SMSTestPayload(BaseModel):
 def test_send_sms(payload: SMSTestPayload):
     res = send_sms(to_phone=payload.phone, message=payload.message, title="[PALIN OS 테스트]")
     return {"status": "ok", "result": res}
+
+# --- 📧 관리자 SMTP 실시간 이메일 발송 서버 설정 및 테스트 엔드포인트 ---
+
+class EmailSettingsPayload(BaseModel):
+    smtp_user: str
+    smtp_password: str
+    smtp_host: str = "smtp.gmail.com"
+    smtp_port: int = 587
+    from_name: str = "PASS MATE (PALIN)"
+
+@app.get("/api/admin/email/settings")
+def get_email_settings():
+    cfg = load_email_settings()
+    masked_pw = ("*" * len(cfg.get("smtp_password", ""))) if cfg.get("smtp_password") else ""
+    return {
+        "smtp_user": cfg.get("smtp_user", ""),
+        "smtp_password_masked": masked_pw,
+        "smtp_host": cfg.get("smtp_host", "smtp.gmail.com"),
+        "smtp_port": cfg.get("smtp_port", 587),
+        "from_name": cfg.get("from_name", "PASS MATE (PALIN)"),
+        "is_configured": bool(cfg.get("smtp_user") and cfg.get("smtp_password"))
+    }
+
+@app.post("/api/admin/email/settings")
+def update_email_settings(payload: EmailSettingsPayload):
+    ok = save_email_settings(
+        smtp_user=payload.smtp_user,
+        smtp_password=payload.smtp_password,
+        smtp_host=payload.smtp_host,
+        smtp_port=payload.smtp_port,
+        from_name=payload.from_name
+    )
+    if not ok:
+        raise HTTPException(status_code=500, detail="SMTP 이메일 설정 저장에 실패했습니다.")
+    return {"status": "ok", "message": "SMTP 이메일 발송 서버 설정이 안전하게 저장되었습니다."}
+
+class EmailTestPayload(BaseModel):
+    to_email: str
+
+@app.post("/api/admin/email/test")
+def test_send_email(payload: EmailTestPayload):
+    success, msg = test_smtp_connection(payload.to_email.strip())
+    if not success:
+        raise HTTPException(status_code=500, detail=msg)
+    return {"status": "ok", "message": msg}
 
 # Static files
 

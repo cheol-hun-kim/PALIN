@@ -5489,19 +5489,7 @@ async function handleSendEmailOtp() {
         if (otpSection) otpSection.style.display = "block";
         if (statusMsg) {
             statusMsg.style.color = "#38bdf8";
-            if (data.is_live_smtp) {
-                statusMsg.innerText = `✉️ [${email}]로 6자리 인증번호가 발송되었습니다. 메일함을 확인해 주세요.`;
-            } else {
-                statusMsg.innerText = `✉️ 인증번호가 발급되었습니다. (코드: ${data.dev_code || '자동완성됨'})`;
-            }
-        }
-
-        // 라이브 SMTP 미연결 환경(데모/테스트)일 경우 사용자 편의를 위해 인증번호 즉시 자동완성
-        if (!data.is_live_smtp && data.dev_code) {
-            const otpInput = document.getElementById("reg-otp-input");
-            if (otpInput) {
-                otpInput.value = data.dev_code;
-            }
+            statusMsg.innerText = `✉️ [${email}]로 6자리 인증번호가 발송되었습니다. 메일함을 확인해 주세요.`;
         }
 
         // 타이머 초기화 (5분)
@@ -5579,13 +5567,14 @@ async function handleVerifyEmailOtp() {
         const emailInput = document.getElementById("reg-email");
         if (emailInput) {
             emailInput.readOnly = true;
-            emailInput.style.borderColor = "#10b981";
-            emailInput.style.background = "rgba(16, 185, 129, 0.1)";
+            emailInput.classList.add("verified");
+            emailInput.style.removeProperty("background");
+            emailInput.style.removeProperty("color");
         }
 
         if (otpInput) {
             otpInput.readOnly = true;
-            otpInput.style.borderColor = "#10b981";
+            otpInput.classList.add("verified");
         }
 
         if (verifyBtn) {
@@ -16807,15 +16796,11 @@ function renderStudentSeatUI(data) {
 
     if (modeBadge) {
         if (isFixed) {
-            modeBadge.style.background = "rgba(245, 158, 11, 0.15)";
-            modeBadge.style.color = "#fbbf24";
-            modeBadge.style.borderColor = "rgba(245, 158, 11, 0.35)";
+            modeBadge.className = "seat-mode-badge fixed";
             modeBadge.innerText = "🔒 원장 전담 지정좌석제";
         } else {
-            modeBadge.style.background = "rgba(16, 185, 129, 0.15)";
-            modeBadge.style.color = "#34d399";
-            modeBadge.style.borderColor = "rgba(16, 185, 129, 0.35)";
-            modeBadge.innerText = "🟢 자유선택/선착순제";
+            modeBadge.className = "seat-mode-badge";
+            modeBadge.innerText = "자유선택/선착순제";
         }
     }
 
@@ -16828,17 +16813,18 @@ function renderStudentSeatUI(data) {
         if (currentStudentMySeat) {
             const s = currentStudentMySeat;
             const sName = s.seat_id || `${s.seat_num}번`;
-            mySeatText.innerHTML = `<span style="color: #34d399;">🪑 ${sName} 좌석 이용 중</span> <span style="font-size: 0.78rem; color: var(--text-secondary);">(${s.start_time ? s.start_time + ' 입실' : '배정'})</span>`;
+            const sTime = s.start_time ? s.start_time + ' 입실' : '배정 완료';
+            mySeatText.innerHTML = `<span class="seat-active-highlight">🪑 ${sName} 좌석 이용 중</span> <span class="seat-active-time">(${sTime})</span>`;
             mySeatActionArea.innerHTML = `
-                <button type="button" onclick="handleStudentSeatAction('CHECK_OUT', '${s.seat_id}', ${s.seat_num})" class="btn" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #ef4444; padding: 6px 12px; font-size: 0.75rem; font-weight: 800; border-radius: 8px; cursor: pointer;">
-                    🚪 퇴실 / 반납
+                <button type="button" onclick="handleStudentSeatAction('CHECK_OUT', '${s.seat_id}', ${s.seat_num})" class="btn" style="background: rgba(239, 68, 68, 0.15); border: 1.5px solid #ef4444; color: #ef4444; padding: 7px 14px; font-size: 0.78rem; font-weight: 800; border-radius: 8px; cursor: pointer;">
+                    퇴실 / 반납
                 </button>
             `;
         } else {
             if (isFixed) {
-                mySeatText.innerHTML = `<span style="color: #f59e0b;">🔒 원장실 좌석 배정 대기 중</span>`;
+                mySeatText.innerHTML = `<span style="color: #f59e0b; font-weight: 800;">🔒 원장실 좌석 배정 대기 중</span>`;
             } else {
-                mySeatText.innerHTML = `<span>미배정 <span style="font-size: 0.78rem; color: var(--text-secondary);">(빈 좌석 터치 시 즉시 입실)</span></span>`;
+                mySeatText.innerHTML = `<span class="seat-empty-title">미배정</span> <span class="seat-empty-hint">(빈 좌석 터치 시 즉시 입실)</span>`;
             }
             mySeatActionArea.innerHTML = "";
         }
@@ -16855,33 +16841,28 @@ function renderStudentSeatUI(data) {
             const isOccupied = s.status === 'OCCUPIED' || s.status === 'RESERVED';
             const sTitle = s.seat_id || `${s.seat_num}번`;
 
-            let bgCol = "rgba(255, 255, 255, 0.04)";
-            let borderCol = "rgba(255, 255, 255, 0.12)";
-            let textCol = "var(--text-primary)";
-            let statusDot = `<span style="width: 6px; height: 6px; border-radius: 50%; background: #94a3b8; display: inline-block;"></span>`;
+            let cardClass = "seat-item-card is-available";
+            let statusDot = `<span style="width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; display: inline-block;"></span>`;
+            let statusLabel = "선택가능";
 
             if (isMine) {
-                bgCol = "linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.2))";
-                borderCol = "#10b981";
-                textCol = "#34d399";
-                statusDot = `<span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; display: inline-block;"></span>`;
+                cardClass = "seat-item-card is-mine";
+                statusDot = `<span style="width: 7px; height: 7px; border-radius: 50%; background: #10b981; display: inline-block;"></span>`;
+                statusLabel = "내 좌석";
             } else if (isOccupied) {
-                bgCol = "rgba(239, 68, 68, 0.08)";
-                borderCol = "rgba(239, 68, 68, 0.25)";
-                textCol = "#94a3b8";
-                statusDot = `<span style="width: 6px; height: 6px; border-radius: 50%; background: #ef4444; display: inline-block;"></span>`;
+                cardClass = "seat-item-card is-occupied";
+                statusDot = `<span style="width: 7px; height: 7px; border-radius: 50%; background: #ef4444; display: inline-block;"></span>`;
+                statusLabel = s.student_name ? s.student_name[0] + '*님' : '이용중';
             }
 
-            const cursorStyle = isOccupied && !isMine ? "cursor: not-allowed;" : "cursor: pointer;";
-
             return `
-                <div onclick="handleStudentSeatCardClick('${s.seat_id}', ${s.seat_num}, '${s.status}')" style="background: ${bgCol}; border: 1.5px solid ${borderCol}; border-radius: 8px; padding: 8px; text-align: center; ${cursorStyle} transition: all 0.2s;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
-                        <span style="font-size: 0.78rem; font-weight: 900; color: ${textCol}; font-family: monospace;">${sTitle}</span>
+                <div onclick="handleStudentSeatCardClick('${s.seat_id}', ${s.seat_num}, '${s.status}')" class="${cardClass}">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                        <span class="seat-num">${sTitle}</span>
                         ${statusDot}
                     </div>
-                    <div style="font-size: 0.68rem; color: ${isMine ? '#34d399' : (isOccupied ? '#f87171' : '#94a3b8')}; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                        ${isMine ? '내 좌석' : (isOccupied ? (s.student_name ? s.student_name[0] + '*님' : '이용중') : '선택가능')}
+                    <div class="seat-status-label">
+                        ${statusLabel}
                     </div>
                 </div>
             `;

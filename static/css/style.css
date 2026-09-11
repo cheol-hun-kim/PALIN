@@ -215,6 +215,258 @@ body.day-mode .univ-name {
     font-weight: 800 !important;
 }
 
+/* ==========================================================================
+   🪑 2D 좌석 매트릭스 & 배정 상태 바 (Night / Day WCAG AAA 완벽 고대비)
+   ========================================================================== */
+#student-academy-seat-card {
+    border: 1.5px solid rgba(124, 58, 237, 0.35);
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(99, 102, 241, 0.04));
+    transition: all 0.2s ease;
+}
+
+.seat-mode-badge {
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.seat-mode-badge.fixed {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+#student-my-seat-banner {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1.5px solid rgba(99, 102, 241, 0.3);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.seat-banner-title {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-bottom: 2px;
+}
+
+#student-my-seat-text {
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: #ffffff;
+}
+
+#student-my-seat-text .seat-active-highlight {
+    color: #34d399;
+    font-weight: 900;
+}
+
+#student-my-seat-text .seat-active-time {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+#student-my-seat-text .seat-empty-title {
+    color: #e2e8f0;
+}
+
+#student-my-seat-text .seat-empty-hint {
+    font-size: 0.78rem;
+    color: #94a3b8;
+}
+
+/* 좌석 카드 (Night Mode 기본) */
+.seat-item-card {
+    border-radius: 8px;
+    padding: 8px 6px;
+    text-align: center;
+    transition: all 0.2s ease;
+    user-select: none;
+    box-sizing: border-box;
+}
+
+.seat-item-card.is-available {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1.5px solid rgba(255, 255, 255, 0.14);
+    cursor: pointer;
+}
+
+.seat-item-card.is-available .seat-num {
+    font-size: 0.82rem;
+    font-weight: 900;
+    color: #f8fafc;
+    font-family: monospace;
+}
+
+.seat-item-card.is-available .seat-status-label {
+    font-size: 0.68rem;
+    color: #94a3b8;
+    font-weight: 800;
+}
+
+.seat-item-card.is-mine {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.2));
+    border: 2px solid #10b981;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+}
+
+.seat-item-card.is-mine .seat-num {
+    font-size: 0.82rem;
+    font-weight: 900;
+    color: #34d399;
+    font-family: monospace;
+}
+
+.seat-item-card.is-mine .seat-status-label {
+    font-size: 0.68rem;
+    color: #34d399;
+    font-weight: 900;
+}
+
+.seat-item-card.is-occupied {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1.5px solid rgba(239, 68, 68, 0.25);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.seat-item-card.is-occupied .seat-num {
+    font-size: 0.82rem;
+    font-weight: 900;
+    color: #94a3b8;
+    font-family: monospace;
+}
+
+.seat-item-card.is-occupied .seat-status-label {
+    font-size: 0.68rem;
+    color: #f87171;
+    font-weight: 800;
+}
+
+/* ☀️ Day Mode (Light Theme) Seat Styles - 100% Crisp High Contrast */
+body.day-mode #student-academy-seat-card {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05) !important;
+}
+
+body.day-mode .seat-mode-badge {
+    background: #ecfdf5 !important;
+    color: #047857 !important;
+    border: 1.5px solid #a7f3d0 !important;
+}
+
+body.day-mode .seat-mode-badge.fixed {
+    background: #fffbeb !important;
+    color: #b45309 !important;
+    border: 1.5px solid #fde68a !important;
+}
+
+body.day-mode #student-my-seat-banner {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.day-mode .seat-banner-title {
+    color: #475569 !important;
+    font-weight: 700 !important;
+}
+
+body.day-mode #student-my-seat-text {
+    color: #0f172a !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #student-my-seat-text .seat-active-highlight {
+    color: #047857 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #student-my-seat-text .seat-active-time {
+    color: #475569 !important;
+    font-weight: 700 !important;
+}
+
+body.day-mode #student-my-seat-text .seat-empty-title {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode #student-my-seat-text .seat-empty-hint {
+    color: #64748b !important;
+    font-weight: 600 !important;
+}
+
+body.day-mode .seat-item-card.is-available {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+}
+
+body.day-mode .seat-item-card.is-available:hover {
+    border-color: #6366f1 !important;
+    background: #f8fafc !important;
+}
+
+body.day-mode .seat-item-card.is-available .seat-num {
+    color: #0f172a !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode .seat-item-card.is-available .seat-status-label {
+    color: #475569 !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode .seat-item-card.is-mine {
+    background: #ecfdf5 !important;
+    border: 2px solid #059669 !important;
+    box-shadow: 0 2px 10px rgba(5, 150, 105, 0.15) !important;
+}
+
+body.day-mode .seat-item-card.is-mine .seat-num {
+    color: #065f46 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode .seat-item-card.is-mine .seat-status-label {
+    color: #047857 !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode .seat-item-card.is-occupied {
+    background: #fef2f2 !important;
+    border: 1.5px solid #fecaca !important;
+}
+
+body.day-mode .seat-item-card.is-occupied .seat-num {
+    color: #991b1b !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode .seat-item-card.is-occupied .seat-status-label {
+    color: #dc2626 !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode #student-seat-stats-text {
+    color: #475569 !important;
+    font-weight: 700 !important;
+}
+
 /* PALIN OS League Badges */
 .league-badge {
     display: inline-flex;
