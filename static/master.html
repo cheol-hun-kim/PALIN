@@ -449,6 +449,72 @@
                 </div>
             </div>
 
+            <!-- 🎨 갓모드 멀티 테마 스위처 샌드박스 (God-Mode Multi-Theme Switcher Sandbox) -->
+            <div class="card" style="margin-bottom: 20px; background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9)); border: 1.5px solid #38bdf8; border-radius: 16px; padding: 16px 20px; box-shadow: 0 4px 20px rgba(56, 189, 248, 0.15);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                    <div>
+                        <div style="font-size: 1.05rem; font-weight: 900; color: #38bdf8; display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-rounded" style="color: #38bdf8;">palette</span>
+                            <span>🎨 갓모드 멀티 테마 스위처 (Enterprise UI & Theme Sandbox)</span>
+                        </div>
+                        <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 2px;">
+                            4대 핵심 디자인 테마를 실시간으로 비교·전환합니다. (목표대학 다이내믹 앰블럼/컬러는 100% 성역 보존)
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span id="active-theme-badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #38bdf8; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 900;">
+                            현재 테마: 클래식 다크
+                        </span>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">
+                    <!-- Theme 1: Classic Dark/Indigo -->
+                    <div onclick="applyGodModeTheme('classic')" id="theme-card-classic" style="background: #0a0b0e; border: 2px solid #6366f1; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s ease; position: relative;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span style="font-weight: 900; font-size: 0.88rem; color: #ffffff;">1. 클래식 다크</span>
+                            <span style="font-size: 0.72rem; background: #6366f1; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 800;">기본값</span>
+                        </div>
+                        <div style="font-size: 0.74rem; color: #94a3b8; line-height: 1.4;">
+                            오리지널 네오브루탈리즘 다크 & 인디고 네온 글로우 스타일
+                        </div>
+                    </div>
+
+                    <!-- Theme 2: Enterprise Minimal -->
+                    <div onclick="applyGodModeTheme('enterprise-minimal')" id="theme-card-enterprise-minimal" style="background: #ffffff; border: 2px solid #cbd5e1; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s ease; color: #0f172a;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span style="font-weight: 900; font-size: 0.88rem; color: #0f172a;">2. 엔터프라이즈 미니멀</span>
+                            <span style="font-size: 0.72rem; background: #2563eb; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 800;">모던 플랫</span>
+                        </div>
+                        <div style="font-size: 0.74rem; color: #475569; line-height: 1.4;">
+                            애플/리니어 감성 초슬림 1.5px 벡터 & 여백 극대화 데이모드
+                        </div>
+                    </div>
+
+                    <!-- Theme 3: Fintech Clean -->
+                    <div onclick="applyGodModeTheme('fintech-clean')" id="theme-card-fintech-clean" style="background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s ease; color: #0f172a;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span style="font-weight: 900; font-size: 0.88rem; color: #0064ff;">3. 핀테크 클린</span>
+                            <span style="font-size: 0.72rem; background: #0064ff; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 800;">토스/스트라이프</span>
+                        </div>
+                        <div style="font-size: 0.74rem; color: #475569; line-height: 1.4;">
+                            정갈한 금융 대시보드 타이포그래피 & 에메랄드/블루 액센트
+                        </div>
+                    </div>
+
+                    <!-- Theme 4: Deep Academic -->
+                    <div onclick="applyGodModeTheme('deep-academic')" id="theme-card-deep-academic" style="background: #060913; border: 2px solid #334155; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s ease; color: #f8fafc;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span style="font-weight: 900; font-size: 0.88rem; color: #60a5fa;">4. 딥 아카데믹</span>
+                            <span style="font-size: 0.72rem; background: #1e3a8a; color: #93c5fd; padding: 2px 6px; border-radius: 4px; font-weight: 800;">아이비리그</span>
+                        </div>
+                        <div style="font-size: 0.74rem; color: #94a3b8; line-height: 1.4;">
+                            예일/옥스퍼드 풍 딥 네이비 & 웜톤 파치먼트 학술 아카이브
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- 📊 매크로 글로벌 통계 KPI 그리드 -->
             
             <!-- 👑 4대 업종별 원장 관제실 원클릭 시뮬레이터 카드 -->
@@ -3004,6 +3070,43 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
                 alert(`✓ ${successMsg || '내용이 클립보드에 복사되었습니다.'}`);
             });
         }
+
+        // --- 🎨 갓모드 멀티 테마 스위처 함수 ---
+        function applyGodModeTheme(themeName) {
+            const validThemes = ['classic', 'enterprise-minimal', 'fintech-clean', 'deep-academic'];
+            if (!validThemes.includes(themeName)) themeName = 'classic';
+
+            document.documentElement.setAttribute('data-theme', themeName);
+            localStorage.setItem('palin_theme', themeName);
+
+            const labels = {
+                'classic': '클래식 다크',
+                'enterprise-minimal': '엔터프라이즈 미니멀',
+                'fintech-clean': '핀테크 클린',
+                'deep-academic': '딥 아카데믹'
+            };
+
+            const badge = document.getElementById('active-theme-badge');
+            if (badge) badge.innerText = `현재 테마: ${labels[themeName] || themeName}`;
+
+            validThemes.forEach(t => {
+                const card = document.getElementById(`theme-card-${t}`);
+                if (card) {
+                    if (t === themeName) {
+                        card.style.outline = '3px solid #38bdf8';
+                        card.style.transform = 'scale(1.02)';
+                    } else {
+                        card.style.outline = 'none';
+                        card.style.transform = 'scale(1)';
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('palin_theme') || 'classic';
+            applyGodModeTheme(savedTheme);
+        });
 </script>
 </body>
 </html>

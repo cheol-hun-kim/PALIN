@@ -205,6 +205,15 @@ def auto_seed_database(db: Session, engine):
                 t_exist.director_name = dt["director_name"]
                 t_exist.director_pin = dt["director_pin"]
                 t_exist.director_email = dt["director_email"]
+                if dt["code"] == "ILWON-2027":
+                    t_exist.business_reg_number = "128-86-23861"
+                    t_exist.settlement_bank = "신한은행"
+                    t_exist.settlement_account_number = "110-384-928192"
+                    t_exist.settlement_account_holder = "김철훈(일원학원)"
+                    t_exist.submall_id = "SM_ILWON_2027"
+                    t_exist.submall_status = "APPROVED"
+                    t_exist.saas_fee_rate = 3.3
+                    t_exist.tuition_due_day = 25
                 if not getattr(t_exist, "business_type", None) or t_exist.business_type == "HIGH_ACADEMY" and dt["business_type"] != "HIGH_ACADEMY":
                     t_exist.business_type = dt["business_type"]
                 if dt["business_type"] == "STUDY_CAFE" and (not getattr(t_exist, "seat_layout_json", None) or t_exist.seat_layout_json == "[]"):
@@ -213,6 +222,87 @@ def auto_seed_database(db: Session, engine):
     except Exception as e:
         db.rollback()
         print(f"[AUTO_SEED] Tenant seed warning: {e}")
+
+    # 1.55 Seed Sample Billing Invoices for 결제선생 ERP if empty
+    try:
+        inv_count = db.query(models.BillingInvoice).count()
+        if inv_count == 0:
+            sample_invoices = [
+                {
+                    "student_id": 1, "student_name": "김철훈", "parent_phone": "010-8888-1286",
+                    "item_title": "2026년 9월 고3 파이널 수능국어 정규반 & 특수교재",
+                    "amount": 550000, "discount": 50000, "final": 500000, "due": "2026-09-25",
+                    "status": "PAID", "paid_at": datetime.now() - timedelta(days=2), "method": "CARD", "card": "신한카드 (개인일시불)",
+                    "split_saas": 16500, "split_sms": 15, "split_payout": 483485
+                },
+                {
+                    "student_id": 2, "student_name": "이수아", "parent_phone": "010-2345-6789",
+                    "item_title": "2026년 9월 고3 메디컬 심화반 수강료",
+                    "amount": 480000, "discount": 0, "final": 480000, "due": "2026-09-25",
+                    "status": "PAID", "paid_at": datetime.now() - timedelta(days=3), "method": "EASY_PAY", "card": "카카오페이 (머니)",
+                    "split_saas": 15840, "split_sms": 15, "split_payout": 464145
+                },
+                {
+                    "student_id": 3, "student_name": "박민준", "parent_phone": "010-3456-7890",
+                    "item_title": "2026년 9월 수능국어 킬러문항 집중반",
+                    "amount": 450000, "discount": 0, "final": 450000, "due": "2026-09-25",
+                    "status": "PAID", "paid_at": datetime.now() - timedelta(days=1), "method": "CARD", "card": "현대카드 (M포인트)",
+                    "split_saas": 14850, "split_sms": 15, "split_payout": 435135
+                },
+                {
+                    "student_id": 4, "student_name": "정다은", "parent_phone": "010-4567-8901",
+                    "item_title": "2026년 9월 고3 실전 모의고사 파이널반",
+                    "amount": 520000, "discount": 20000, "final": 500000, "due": "2026-09-25",
+                    "status": "SENT", "paid_at": None, "method": None, "card": None,
+                    "split_saas": 16500, "split_sms": 15, "split_payout": 483485
+                },
+                {
+                    "student_id": 5, "student_name": "강태우", "parent_phone": "010-5678-9012",
+                    "item_title": "2026년 9월 고3 국어 정규반 수강료",
+                    "amount": 450000, "discount": 0, "final": 450000, "due": "2026-09-25",
+                    "status": "SENT", "paid_at": None, "method": None, "card": None,
+                    "split_saas": 14850, "split_sms": 15, "split_payout": 435135
+                },
+                {
+                    "student_id": 6, "student_name": "최서윤", "parent_phone": "010-6789-0123",
+                    "item_title": "2026년 8월분 수강료 및 특별교재비 (연체)",
+                    "amount": 450000, "discount": 0, "final": 450000, "due": "2026-08-25",
+                    "status": "OVERDUE", "paid_at": None, "method": None, "card": None,
+                    "split_saas": 14850, "split_sms": 15, "split_payout": 435135
+                }
+            ]
+            for idx, inv in enumerate(sample_invoices, 1):
+                inv_code = f"INV-202609-{idx:04d}"
+                db.add(models.BillingInvoice(
+                    invoice_code=inv_code,
+                    tenant_code="ILWON-2027",
+                    student_id=inv["student_id"],
+                    student_name=inv["student_name"],
+                    parent_phone=inv["parent_phone"],
+                    item_title=inv["item_title"],
+                    billing_month="2026-09",
+                    amount=inv["amount"],
+                    discount_amount=inv["discount"],
+                    final_amount=inv["final"],
+                    due_date=inv["due"],
+                    status=inv["status"],
+                    send_channel="ALIMTALK",
+                    paid_at=inv["paid_at"],
+                    payment_method=inv["method"],
+                    card_company=inv["card"],
+                    split_saas_fee=inv["split_saas"],
+                    split_sms_fee=inv["split_sms"],
+                    split_payout_amount=inv["split_payout"],
+                    submall_id="SM_ILWON_2027",
+                    payment_key=f"toss_submall_{inv_code}" if inv["status"] == "PAID" else None,
+                    receipt_url=f"https://dashboard.tosspayments.com/receipt/mock_{inv_code}" if inv["status"] == "PAID" else None,
+                    deleted_at=None
+                ))
+            db.commit()
+            print("[AUTO_SEED] Initialized sample 결제선생 Billing Invoices successfully.")
+    except Exception as inv_err:
+        db.rollback()
+        print(f"[AUTO_SEED] Billing invoice seed note: {inv_err}")
 
     # 1.6 Scan and synchronize authentic exam materials from static/downloads folder structure
     try:

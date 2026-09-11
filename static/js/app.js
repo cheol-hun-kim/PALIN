@@ -17514,3 +17514,134 @@ async function handleStudentSeatAction(action, seatId, seatNum) {
     }
 }
 window.handleStudentSeatAction = handleStudentSeatAction;
+
+// ============================================================================
+// 🎨 테마 초기화 & 적용 (Enterprise God-mode Theme Persistence)
+// ============================================================================
+function initAppTheme() {
+    try {
+        const savedTheme = localStorage.getItem('palin_theme') || 'classic';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        console.log(`[PALIN OS] Applied theme: ${savedTheme}`);
+    } catch (e) {
+        console.warn('initAppTheme error:', e);
+    }
+}
+window.initAppTheme = initAppTheme;
+
+// ============================================================================
+// 🚨 결제선생 수강료 미납 인질 프로토콜(Hostage Protocol) 상태 조회 및 잠금/해제 처리
+// ============================================================================
+let currentActiveOverdueInvoice = null;
+
+async function checkStudentTuitionLockStatus(studentId) {
+    if (!studentId) {
+        const stored = localStorage.getItem("studentId") || (window.currentStudent && window.currentStudent.id);
+        studentId = stored || 1;
+    }
+    
+    try {
+        const res = await fetch(`/api/billing/student-lock-status/${studentId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        
+        const banner = document.getElementById("tuition-overdue-lock-banner");
+        const bannerMsg = document.getElementById("hostage-lock-banner-msg");
+        
+        if (data.is_locked && data.overdue_invoices && data.overdue_invoices.length > 0) {
+            currentActiveOverdueInvoice = data.overdue_invoices[0];
+            if (banner) {
+                banner.style.display = "flex";
+            }
+            if (bannerMsg) {
+                bannerMsg.innerText = `[${currentActiveOverdueInvoice.item_title}] 수강료 ₩${currentActiveOverdueInvoice.final_amount.toLocaleString()}원이 미납되어 학습 기능이 일시 제한되었습니다.`;
+            }
+            window.isStudentTuitionLocked = true;
+        } else {
+            currentActiveOverdueInvoice = null;
+            if (banner) {
+                banner.style.display = "none";
+            }
+            window.isStudentTuitionLocked = false;
+        }
+    } catch (e) {
+        console.warn("checkStudentTuitionLockStatus error:", e);
+    }
+}
+window.checkStudentTuitionLockStatus = checkStudentTuitionLockStatus;
+
+function openTuitionPaymentModal(invoice) {
+    const inv = invoice || currentActiveOverdueInvoice || {
+        id: 1,
+        invoice_code: "INV-2026-0001",
+        tenant_code: "ILWON-2027",
+        item_title: "9월 수능 파이널 정규반 수강료",
+        student_name: (window.currentStudent && window.currentStudent.name) || "김학생",
+        due_date: "2026-09-10",
+        final_amount: 450000
+    };
+    
+    currentActiveOverdueInvoice = inv;
+    
+    const modal = document.getElementById("tuition-payment-modal");
+    if (!modal) return;
+    
+    const codeEl = document.getElementById("tuition-modal-code");
+    const tenantEl = document.getElementById("tuition-modal-tenant");
+    const titleEl = document.getElementById("tuition-modal-title");
+    const studentEl = document.getElementById("tuition-modal-student");
+    const dueEl = document.getElementById("tuition-modal-due");
+    const amountEl = document.getElementById("tuition-modal-amount");
+    
+    if (codeEl) codeEl.innerText = inv.invoice_code || "INV-2026-0001";
+    if (tenantEl) tenantEl.innerText = inv.tenant_code === "ILWON-2027" ? "일원학원 대치본원" : (inv.tenant_code || "가맹학원");
+    if (titleEl) titleEl.innerText = inv.item_title || "수강료 청구서";
+    if (studentEl) studentEl.innerText = inv.student_name || "수험생";
+    if (dueEl) dueEl.innerText = `${inv.due_date || '납부기한'} (미납)`;
+    if (amountEl) amountEl.innerText = `₩${(inv.final_amount || 450000).toLocaleString()}`;
+    
+    modal.style.display = "flex";
+}
+window.openTuitionPaymentModal = openTuitionPaymentModal;
+
+function closeTuitionPaymentModal() {
+    const modal = document.getElementById("tuition-payment-modal");
+    if (modal) modal.style.display = "none";
+}
+window.closeTuitionPaymentModal = closeTuitionPaymentModal;
+
+async function handleTuitionPaymentSubmit(method) {
+    const inv = currentActiveOverdueInvoice;
+    const invoiceId = inv ? inv.id : 1;
+    
+    try {
+        const res = await fetch(`/api/billing/invoices/${invoiceId}/pay`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                payment_method: method === "EASY_PAY" ? "KAKAOPAY" : "CARD",
+                card_company: method === "EASY_PAY" ? "카카오페이머니" : "신한카드"
+            })
+        });
+        
+        const data = await res.json();
+        if (res.ok) {
+            alert(`🎉 [수납 및 인질 잠금 해제 완료!]\n\n수강료 ₩${data.invoice.final_amount.toLocaleString()}원이 결제되었습니다.\n결제선생 서브몰 정산 및 AI 멘토/프리미엄 기능이 즉시 정상 복구되었습니다.`);
+            closeTuitionPaymentModal();
+            const studentId = (window.currentStudent && window.currentStudent.id) || localStorage.getItem("studentId") || 1;
+            checkStudentTuitionLockStatus(studentId);
+        } else {
+            alert(data.detail || "결제 승인 처리 중 오류가 발생했습니다.");
+        }
+    } catch (e) {
+        console.error("handleTuitionPaymentSubmit error:", e);
+        alert("결제 통신 중 오류가 발생했습니다.");
+    }
+}
+window.handleTuitionPaymentSubmit = handleTuitionPaymentSubmit;
+
+// 자동 초기화 리스너 등록
+document.addEventListener("DOMContentLoaded", () => {
+    initAppTheme();
+    checkStudentTuitionLockStatus();
+});

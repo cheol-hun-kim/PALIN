@@ -8248,4 +8248,562 @@ def get_cache_statistics():
         "stats": cache_manager.get_stats()
     }
 
+
+# ==============================================================================
+# 💸 17. 결제선생 시스템 이식: 비대면 모바일 청구서 & 서브몰 분할 정산 & 인질 프로토콜 API
+# ==============================================================================
+
+from app.payments import calculate_split_settlement, confirm_submall_in_app_payment
+
+class SingleInvoiceCreatePayload(BaseModel):
+    tenant_code: str = "ILWON-2027"
+    student_id: int
+    item_title: str
+    amount: int
+    discount_amount: int = 0
+    due_date: str # YYYY-MM-DD
+    billing_month: Optional[str] = None # YYYY-MM
+    send_channel: Optional[str] = "ALIMTALK"
+    memo: Optional[str] = None
+
+class BatchInvoiceCreatePayload(BaseModel):
+    tenant_code: str = "ILWON-2027"
+    student_ids: Optional[List[int]] = None
+    item_title: str = "2026년 9월 정규반 수강료 & 교재비"
+    tuition_amount: int = 450000
+    textbook_amount: int = 50000
+    due_date: str = "2026-09-25"
+    billing_month: Optional[str] = "2026-09"
+    send_alimtalk: bool = True
+    enable_hostage_lock: bool = True
+
+class SettlementAccountUpdatePayload(BaseModel):
+    tenant_code: str = "ILWON-2027"
+    business_reg_number: str
+    settlement_bank: str
+    settlement_account_number: str
+    settlement_account_holder: str
+    submall_id: Optional[str] = "SM_ILWON_2027"
+    tuition_due_day: Optional[int] = 25
+
+class TossSubmallWebhookPayload(BaseModel):
+    paymentKey: Optional[str] = None
+    orderId: Optional[str] = None
+    amount: Optional[int] = None
+    status: Optional[str] = "DONE"
+    submallId: Optional[str] = None
+    method: Optional[str] = "카드"
+    receiptUrl: Optional[str] = None
+    eventType: Optional[str] = None
+    data: Optional[Dict[str, Any]] = None
+
+class InAppInvoicePayPayload(BaseModel):
+    payment_method: str = "CARD"
+    card_company: Optional[str] = "신한카드 (개인일시불)"
+    is_test_bypass: bool = True
+
+
+@app.get("/api/billing/invoices")
+def get_billing_invoices(
+    tenant_code: str = "ILWON-2027",
+    status: Optional[str] = None,
+    month: Optional[str] = None,
+    student_name: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    """
+    결제선생 ERP 3단 탭 및 원장 청구서 데이터 조회 API
+    """
+    query = db.query(models.BillingInvoice).filter(
+        models.BillingInvoice.deleted_at == None,
+        models.BillingInvoice.tenant_code == tenant_code
+    )
+    if status and status != "ALL":
+        query = query.filter(models.BillingInvoice.status == status)
+    if month:
+        query = query.filter(models.BillingInvoice.billing_month == month)
+    if student_name:
+        query = query.filter(models.BillingInvoice.student_name.ilike(f"%{student_name}%"))
+
+    invoices = query.order_by(models.BillingInvoice.id.desc()).all()
+
+    # Total aggregate calculation for cockpit summary
+    all_invoices = db.query(models.BillingInvoice).filter(
+        models.BillingInvoice.deleted_at == None,
+        models.BillingInvoice.tenant_code == tenant_code
+    ).all()
+
+    total_sent_count = len(all_invoices)
+    total_sent_amount = sum(inv.final_amount for inv in all_invoices)
+    
+    paid_invs = [inv for inv in all_invoices if inv.status == "PAID"]
+    paid_count = len(paid_invs)
+    paid_amount = sum(inv.final_amount for inv in paid_invs)
+    
+    overdue_invs = [inv for inv in all_invoices if inv.status == "OVERDUE" or (inv.status == "SENT" and inv.due_date < date.today().isoformat())]
+    overdue_count = len(overdue_invs)
+    overdue_amount = sum(inv.final_amount for inv in overdue_invs)
+
+    collection_rate = round((paid_amount / total_sent_amount * 100), 1) if total_sent_amount > 0 else 100.0
+    total_saas_fee_deducted = sum(inv.split_saas_fee for inv in paid_invs)
+    total_sms_fee_deducted = sum(inv.split_sms_fee for inv in paid_invs)
+    total_payout_amount = sum(inv.split_payout_amount for inv in paid_invs)
+
+    tenant = db.query(models.Tenant).filter(models.Tenant.code == tenant_code).first()
+    settlement_info = {
+        "tenant_code": tenant_code,
+        "academy_name": tenant.name if tenant else "일원 대입전문학원",
+        "business_reg_number": tenant.business_reg_number if tenant and tenant.business_reg_number else "128-86-23861",
+        "settlement_bank": tenant.settlement_bank if tenant and tenant.settlement_bank else "신한은행",
+        "settlement_account_number": tenant.settlement_account_number if tenant and tenant.settlement_account_number else "110-384-928192",
+        "settlement_account_holder": tenant.settlement_account_holder if tenant and tenant.settlement_account_holder else "김철훈(일원학원)",
+        "submall_id": tenant.submall_id if tenant and tenant.submall_id else "SM_ILWON_2027",
+        "submall_status": tenant.submall_status if tenant and tenant.submall_status else "APPROVED",
+        "saas_fee_rate": tenant.saas_fee_rate if tenant and tenant.saas_fee_rate else 3.3,
+        "tuition_due_day": tenant.tuition_due_day if tenant and tenant.tuition_due_day else 25
+    }
+
+    inv_list = []
+    for inv in invoices:
+        inv_list.append({
+            "id": inv.id,
+            "invoice_code": inv.invoice_code,
+            "tenant_code": inv.tenant_code,
+            "student_id": inv.student_id,
+            "student_name": inv.student_name,
+            "parent_phone": inv.parent_phone,
+            "item_title": inv.item_title,
+            "billing_month": inv.billing_month,
+            "amount": inv.amount,
+            "discount_amount": inv.discount_amount,
+            "final_amount": inv.final_amount,
+            "due_date": inv.due_date,
+            "status": inv.status,
+            "send_channel": inv.send_channel,
+            "paid_at": inv.paid_at.isoformat() if inv.paid_at else None,
+            "payment_method": inv.payment_method,
+            "card_company": inv.card_company,
+            "split_saas_fee": inv.split_saas_fee,
+            "split_sms_fee": inv.split_sms_fee,
+            "split_payout_amount": inv.split_payout_amount,
+            "submall_id": inv.submall_id,
+            "receipt_url": inv.receipt_url,
+            "created_at": inv.created_at.isoformat() if inv.created_at else None
+        })
+
+    return {
+        "status": "ok",
+        "summary": {
+            "total_sent_count": total_sent_count,
+            "total_sent_amount": total_sent_amount,
+            "paid_count": paid_count,
+            "paid_amount": paid_amount,
+            "overdue_count": overdue_count,
+            "overdue_amount": overdue_amount,
+            "collection_rate": collection_rate,
+            "total_saas_fee_deducted": total_saas_fee_deducted,
+            "total_sms_fee_deducted": total_sms_fee_deducted,
+            "total_payout_amount": total_payout_amount
+        },
+        "settlement_info": settlement_info,
+        "invoices": inv_list
+    }
+
+
+@app.post("/api/billing/invoices")
+def create_single_billing_invoice(payload: SingleInvoiceCreatePayload, db: Session = Depends(get_db)):
+    """
+    단건 비대면 모바일 청구서 발행
+    """
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생 정보를 찾을 수 없습니다.")
+
+    parent = db.query(models.Parent).filter(models.Parent.id == student.parent_id).first() if student.parent_id else None
+    parent_phone = parent.phone if parent and parent.phone else (student.phone or "010-0000-0000")
+
+    final_amt = max(0, payload.amount - payload.discount_amount)
+    split = calculate_split_settlement(final_amt, saas_fee_rate=3.3)
+
+    today_tag = datetime.now().strftime("%Y%m")
+    inv_count = db.query(models.BillingInvoice).count() + 1
+    inv_code = f"INV-{today_tag}-{inv_count:04d}"
+
+    invoice = models.BillingInvoice(
+        invoice_code=inv_code,
+        tenant_code=payload.tenant_code,
+        student_id=student.id,
+        student_name=student.name,
+        parent_phone=parent_phone,
+        item_title=payload.item_title,
+        billing_month=payload.billing_month or datetime.now().strftime("%Y-%m"),
+        amount=payload.amount,
+        discount_amount=payload.discount_amount,
+        final_amount=final_amt,
+        due_date=payload.due_date,
+        status="SENT",
+        send_channel=payload.send_channel or "ALIMTALK",
+        split_saas_fee=split["saas_fee"],
+        split_sms_fee=split["sms_fee"],
+        split_payout_amount=split["payout_amount"],
+        submall_id="SM_ILWON_2027",
+        memo=payload.memo,
+        deleted_at=None
+    )
+    db.add(invoice)
+
+    # Kakao Alimtalk Logging
+    alimtalk_msg = f"[결제선생 청구서] {student.name} 학생의 {payload.item_title} 청구서가 발행되었습니다. 납부금액: {final_amt:,}원 (납부기한: {payload.due_date})"
+    db.add(models.KakaoAlimtalkLog(
+        recipient_phone=parent_phone,
+        template_code="INVOICE_BILLING_V1",
+        title=f"[청구서] {payload.item_title}",
+        message_body=alimtalk_msg,
+        button_url=f"/pay/{inv_code}",
+        status="SUCCESS",
+        cost_krw=8.0
+    ))
+    db.commit()
+    db.refresh(invoice)
+
+    return {
+        "status": "ok",
+        "message": f"[{student.name}] 학생의 모바일 청구서({inv_code})가 성공적으로 발송되었습니다.",
+        "invoice_code": inv_code,
+        "final_amount": final_amt,
+        "invoice": {
+            "id": invoice.id,
+            "invoice_code": invoice.invoice_code,
+            "tenant_code": invoice.tenant_code,
+            "student_id": invoice.student_id,
+            "item_title": invoice.item_title,
+            "billing_month": invoice.billing_month,
+            "amount": invoice.amount,
+            "discount_amount": invoice.discount_amount,
+            "final_amount": invoice.final_amount,
+            "due_date": invoice.due_date,
+            "status": invoice.status,
+            "split_saas_fee": invoice.split_saas_fee,
+            "split_sms_fee": invoice.split_sms_fee,
+            "split_payout_amount": invoice.split_payout_amount
+        }
+    }
+
+
+@app.post("/api/billing/invoices/batch")
+def create_batch_billing_invoices(payload: BatchInvoiceCreatePayload, db: Session = Depends(get_db)):
+    """
+    재원생 일괄 청구서 생성 및 카카오 알림톡 일괄 발송
+    """
+    if payload.student_ids and len(payload.student_ids) > 0:
+        students = db.query(models.Student).filter(
+            models.Student.id.in_(payload.student_ids),
+            models.Student.deleted_at == None
+        ).all()
+    else:
+        # Default all students for this tenant
+        students = db.query(models.Student).filter(
+            models.Student.deleted_at == None
+        ).limit(50).all()
+
+    total_amt = payload.tuition_amount + payload.textbook_amount
+    split = calculate_split_settlement(total_amt, saas_fee_rate=3.3)
+    today_tag = datetime.now().strftime("%Y%m")
+
+    created_count = 0
+    base_inv_count = db.query(models.BillingInvoice).count()
+
+    for idx, student in enumerate(students, 1):
+        parent = db.query(models.Parent).filter(models.Parent.id == student.parent_id).first() if student.parent_id else None
+        parent_phone = parent.phone if parent and parent.phone else (student.phone or "010-0000-0000")
+        inv_code = f"INV-{today_tag}-{(base_inv_count + idx):04d}"
+
+        invoice = models.BillingInvoice(
+            invoice_code=inv_code,
+            tenant_code=payload.tenant_code,
+            student_id=student.id,
+            student_name=student.name,
+            parent_phone=parent_phone,
+            item_title=payload.item_title,
+            billing_month=payload.billing_month or datetime.now().strftime("%Y-%m"),
+            amount=total_amt,
+            discount_amount=0,
+            final_amount=total_amt,
+            due_date=payload.due_date,
+            status="SENT",
+            send_channel="ALIMTALK",
+            split_saas_fee=split["saas_fee"],
+            split_sms_fee=split["sms_fee"],
+            split_payout_amount=split["payout_amount"],
+            submall_id="SM_ILWON_2027",
+            deleted_at=None
+        )
+        db.add(invoice)
+
+        if payload.send_alimtalk:
+            alimtalk_msg = f"[결제선생 청구서] {student.name} 학생의 {payload.item_title} 청구서가 도착했습니다. 납부금액: {total_amt:,}원 (납부기한: {payload.due_date})"
+            db.add(models.KakaoAlimtalkLog(
+                recipient_phone=parent_phone,
+                template_code="INVOICE_BILLING_V1",
+                title=f"[청구서] {payload.item_title}",
+                message_body=alimtalk_msg,
+                button_url=f"/pay/{inv_code}",
+                status="SUCCESS",
+                cost_krw=8.0
+            ))
+        created_count += 1
+
+    db.commit()
+    return {
+        "status": "ok",
+        "created_count": created_count,
+        "message": f"총 {created_count}명의 재원생에게 모바일 청구서가 일괄 생성 및 발송되었습니다."
+    }
+
+
+@app.post("/api/billing/invoices/{invoice_id}/resend")
+def resend_billing_invoice(invoice_id: int, db: Session = Depends(get_db)):
+    """
+    청구서 카카오 알림톡/SMS 재발송
+    """
+    inv = db.query(models.BillingInvoice).filter(models.BillingInvoice.id == invoice_id).first()
+    if not inv:
+        raise HTTPException(status_code=404, detail="청구서를 찾을 수 없습니다.")
+
+    db.add(models.KakaoAlimtalkLog(
+        recipient_phone=inv.parent_phone,
+        template_code="INVOICE_REMINDER_V1",
+        title=f"[재발송 알림] {inv.item_title}",
+        message_body=f"[결제선생 재발송] {inv.student_name} 학생의 {inv.item_title} 미납 청구서가 재발송되었습니다. (금액: {inv.final_amount:,}원)",
+        button_url=f"/pay/{inv.invoice_code}",
+        status="SUCCESS",
+        cost_krw=8.0
+    ))
+    db.commit()
+    return {"status": "ok", "message": f"[{inv.student_name}] 학생 학부모님께 카카오 알림톡이 성공적으로 재발송되었습니다."}
+
+
+@app.post("/api/billing/invoices/{invoice_id}/cancel")
+def cancel_billing_invoice(invoice_id: int, db: Session = Depends(get_db)):
+    """
+    청구서 취소 처리
+    """
+    inv = db.query(models.BillingInvoice).filter(models.BillingInvoice.id == invoice_id).first()
+    if not inv:
+        raise HTTPException(status_code=404, detail="청구서를 찾을 수 없습니다.")
+
+    inv.status = "CANCELLED"
+    db.commit()
+    return {"status": "ok", "message": f"청구서 {inv.invoice_code}가 정상 취소되었습니다."}
+
+
+@app.post("/api/billing/invoices/{invoice_id}/manual-mark-paid")
+def manual_mark_invoice_paid(invoice_id: int, db: Session = Depends(get_db)):
+    """
+    원장님 직권 수납 확인 (현금/계좌이체 직수납 시 0.1초 인질 해제)
+    """
+    inv = db.query(models.BillingInvoice).filter(models.BillingInvoice.id == invoice_id).first()
+    if not inv:
+        raise HTTPException(status_code=404, detail="청구서를 찾을 수 없습니다.")
+
+    inv.status = "PAID"
+    inv.paid_at = datetime.now()
+    inv.payment_method = "DIRECT_CASH"
+    inv.card_company = "학원 직수납(현금/계좌)"
+    inv.receipt_url = f"https://dashboard.tosspayments.com/receipt/manual_{inv.invoice_code}"
+
+    # Instantly unlock student tuition status
+    student = db.query(models.Student).filter(models.Student.id == inv.student_id).first()
+    if student:
+        student.tuition_paid = True
+
+    db.commit()
+    return {"status": "ok", "message": f"[{inv.student_name}] 학생의 수납 처리가 완료되었으며, 인질 잠금이 즉시 해제되었습니다."}
+
+
+@app.post("/api/billing/invoices/{invoice_id}/pay")
+def pay_billing_invoice_in_app(invoice_id: int, payload: InAppInvoicePayPayload, db: Session = Depends(get_db)):
+    """
+    학생/학부모 인앱 모바일 수강료 결제 승인 API (Hostage Protocol 0.1초 즉시 해제)
+    """
+    inv = db.query(models.BillingInvoice).filter(models.BillingInvoice.id == invoice_id).first()
+    if not inv:
+        raise HTTPException(status_code=404, detail="청구서를 찾을 수 없습니다.")
+
+    toss_res = confirm_submall_in_app_payment(
+        invoice_code=inv.invoice_code,
+        amount=inv.final_amount,
+        submall_id=inv.submall_id or "SM_ILWON_2027",
+        payment_method=payload.payment_method
+    )
+
+    inv.status = "PAID"
+    inv.paid_at = datetime.now()
+    inv.payment_method = payload.payment_method
+    inv.card_company = payload.card_company or "신한카드 (개인일시불)"
+    inv.payment_key = toss_res["paymentKey"]
+    inv.receipt_url = toss_res["receiptUrl"]
+
+    # Instantly unlock student
+    student = db.query(models.Student).filter(models.Student.id == inv.student_id).first()
+    if student:
+        student.tuition_paid = True
+
+    # Platform revenue split log
+    db.add(models.PlatformRevenueLog(
+        category="B2B_SUBMALL_FEE",
+        title=f"[수강료 분할 정산] {inv.student_name} - {inv.item_title}",
+        amount=inv.final_amount,
+        net_margin=inv.split_saas_fee,
+        tenant_code=inv.tenant_code,
+        student_id=inv.student_id,
+        payment_method=payload.payment_method,
+        status="PAID"
+    ))
+
+    # Toss payment log
+    db.add(models.TossPaymentLog(
+        payment_key=toss_res["paymentKey"],
+        order_id=inv.invoice_code,
+        order_name=inv.item_title,
+        amount=inv.final_amount,
+        payment_type="B2B_TUITION_SUBMALL",
+        status="CONFIRMED",
+        method=payload.payment_method,
+        tenant_code=inv.tenant_code,
+        student_id=inv.student_id,
+        receipt_url=toss_res["receiptUrl"]
+    ))
+
+    db.commit()
+    db.refresh(inv)
+
+    return {
+        "status": "SUCCESS",
+        "message": f"수강료 {inv.final_amount:,}원 결제가 완료되었습니다. 인질 프로토콜이 0.1초 내 즉시 해제되었습니다!",
+        "paid_amount": inv.final_amount,
+        "receipt_url": inv.receipt_url,
+        "student_unlocked": True,
+        "invoice": {
+            "id": inv.id,
+            "invoice_code": inv.invoice_code,
+            "status": inv.status,
+            "final_amount": inv.final_amount,
+            "paid_at": inv.paid_at.isoformat() if inv.paid_at else None,
+            "payment_method": inv.payment_method,
+            "card_company": inv.card_company,
+            "receipt_url": inv.receipt_url
+        }
+    }
+
+
+@app.post("/api/payment/toss-submall-webhook")
+def handle_toss_submall_webhook(payload: TossSubmallWebhookPayload, db: Session = Depends(get_db)):
+    """
+    토스페이먼츠 / 포트원 복수 가맹점(서브몰) 결제 완료 웹훅 리스너
+    """
+    pk = payload.paymentKey or (payload.data.get("paymentKey") if payload.data else None)
+    oid = payload.orderId or (payload.data.get("orderId") if payload.data else None)
+    meth = payload.method or (payload.data.get("method") if payload.data else "CARD")
+    rec = payload.receiptUrl or (payload.data.get("receiptUrl") if payload.data else None)
+    if pk and not rec:
+        rec = f"https://dashboard.tosspayments.com/receipt/{pk}"
+
+    inv = None
+    if oid:
+        inv = db.query(models.BillingInvoice).filter(models.BillingInvoice.invoice_code == oid).first()
+    if not inv and pk:
+        inv = db.query(models.BillingInvoice).filter(models.BillingInvoice.payment_key == pk).first()
+
+    if inv:
+        inv.status = "PAID"
+        inv.paid_at = datetime.now()
+        inv.payment_key = pk
+        inv.payment_method = meth or "CARD"
+        inv.receipt_url = rec
+
+        student = db.query(models.Student).filter(models.Student.id == inv.student_id).first()
+        if student:
+            student.tuition_paid = True
+
+        db.add(models.PlatformRevenueLog(
+            category="B2B_SUBMALL_FEE",
+            title=f"[서브몰 웹훅 정산] {inv.student_name} - {inv.item_title}",
+            amount=inv.final_amount,
+            net_margin=inv.split_saas_fee,
+            tenant_code=inv.tenant_code,
+            student_id=inv.student_id,
+            status="PAID"
+        ))
+        db.commit()
+        return {"status": "SUCCESS", "message": f"Webhook processed: Invoice {inv.invoice_code} marked PAID and student unlocked."}
+
+    return {"status": "ACK", "message": "Invoice not found, ignored."}
+
+
+@app.get("/api/billing/student-lock-status/{student_id}")
+def check_student_hostage_lock_status(student_id: int, db: Session = Depends(get_db)):
+    """
+    학생 수강료 연체 및 인질 프로토콜 잠금 상태 확인 API
+    """
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+
+    today_str = date.today().isoformat()
+    overdue_invoices = db.query(models.BillingInvoice).filter(
+        models.BillingInvoice.student_id == student_id,
+        models.BillingInvoice.deleted_at == None,
+        (models.BillingInvoice.status == "OVERDUE") | ((models.BillingInvoice.status == "SENT") & (models.BillingInvoice.due_date < today_str))
+    ).all()
+
+    is_locked = len(overdue_invoices) > 0
+    
+    overdue_list = []
+    for o in overdue_invoices:
+        overdue_list.append({
+            "id": o.id,
+            "invoice_code": o.invoice_code,
+            "item_title": o.item_title,
+            "final_amount": o.final_amount,
+            "due_date": o.due_date,
+            "status": o.status
+        })
+
+    return {
+        "status": "ok",
+        "is_locked": is_locked,
+        "student_id": student.id,
+        "student_name": student.name,
+        "academy_code": student.academy_code,
+        "overdue_invoices": overdue_list
+    }
+
+
+@app.post("/api/billing/tenant/settlement-account")
+def update_tenant_settlement_account(payload: SettlementAccountUpdatePayload, db: Session = Depends(get_db)):
+    """
+    학원장 토스페이먼츠 서브몰 정산 계좌 등록/수정 API
+    """
+    tenant = db.query(models.Tenant).filter(models.Tenant.code == payload.tenant_code).first()
+    if not tenant:
+        raise HTTPException(status_code=404, detail="학원 테넌트를 찾을 수 없습니다.")
+
+    tenant.business_reg_number = payload.business_reg_number
+    tenant.settlement_bank = payload.settlement_bank
+    tenant.settlement_account_number = payload.settlement_account_number
+    tenant.settlement_account_holder = payload.settlement_account_holder
+    tenant.submall_id = payload.submall_id or f"SM_{payload.tenant_code.replace('-', '_')}"
+    tenant.submall_status = "APPROVED"
+    if payload.tuition_due_day:
+        tenant.tuition_due_day = payload.tuition_due_day
+
+    db.commit()
+    return {
+        "status": "ok",
+        "message": f"[{tenant.name}] 정산 계좌 및 서브몰(MID: {tenant.submall_id}) 등록이 완료되었습니다."
+    }
+
+
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
+

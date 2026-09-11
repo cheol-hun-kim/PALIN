@@ -126,6 +126,7 @@ class Student(Base):
     feedbacks = relationship("Feedback", back_populates="student")
     # 1:1 관계 추가 (학생이 대학 합격 시 과외 프로필 연동)
     tutor_profile = relationship("TutorProfile", back_populates="student", uselist=False)
+    invoices = relationship("BillingInvoice", back_populates="student")
 
     @property
     def golden_tickets_count(self):
@@ -689,6 +690,16 @@ class Tenant(Base):
     seat_layout_json = Column(Text, default="[]")                 # 독서실/스터디카페 2D 좌석 매트릭스 배치 및 점유 현황 JSON
     target_schools_json = Column(Text, default="[]")              # 중등/초등 주요 타깃 학교 및 특목고 진학 목표 JSON
     
+    # 💳 토스페이먼츠/포트원 서브몰(복수 가맹점) 정산 계좌 및 SaaS 분할 정산 필드
+    business_reg_number = Column(String, nullable=True)           # 사업자등록번호 (예: 128-86-23861)
+    settlement_bank = Column(String, default="신한은행")           # 정산 은행
+    settlement_account_number = Column(String, nullable=True)     # 정산 계좌번호
+    settlement_account_holder = Column(String, nullable=True)     # 예금주
+    submall_id = Column(String, nullable=True)                    # 토스페이먼츠 서브몰 ID (MID)
+    submall_status = Column(String, default="APPROVED")           # UNREGISTERED | READY | APPROVED | REJECTED
+    tuition_due_day = Column(Integer, default=25)                 # 매월 정기 청구일 (기본 25일)
+    saas_fee_rate = Column(Float, default=3.3)                    # 본사 SaaS 분할 정산 수수료율 (%)
+    
     # 🧠 B2B 커스텀 뇌 이식 (Custom Brain Injection) 필드
     bot_name = Column(String, default="PALIN AI 멘토")            # AI 챗봇 이름
     bot_tone = Column(String, default="VERY_STRICT")              # 말투/톤앤매너
@@ -946,6 +957,43 @@ class SystemConfig(Base):
     config_value = Column(Text, nullable=False)
     description = Column(String, nullable=True)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), default=func.now())
+
+
+# === 💸 15. 결제선생 이식: 모바일 청구서 & 분할 정산 원장 & 인질 프로토콜 모델 ===
+
+class BillingInvoice(Base):
+    """결제선생형 비대면 모바일 청구서 & 서브몰 분할 정산 원장 모델"""
+    __tablename__ = "billing_invoices"
+
+    id = Column(Integer, primary_key=True, index=True)
+    invoice_code = Column(String, unique=True, index=True, nullable=False) # 고유 청구서 번호 (예: INV-202609-0012)
+    tenant_code = Column(String, nullable=False, index=True)              # 학원 테넌트 코드 (예: ILWON-2027)
+    student_id = Column(Integer, ForeignKey("students.id"), nullable=False, index=True)
+    student_name = Column(String, nullable=False)                         # 학생 성명
+    parent_phone = Column(String, nullable=False)                         # 학부모 청구서 수신 번호
+    item_title = Column(String, nullable=False)                           # 청구 항목 (예: 2026년 9월 정규반 수강료 & 교재비)
+    billing_month = Column(String, default="2026-09")                     # 청구 월 (YYYY-MM)
+    amount = Column(Integer, default=0)                                   # 기본 청구 원금 (원)
+    discount_amount = Column(Integer, default=0)                          # 할인 금액 (원)
+    final_amount = Column(Integer, default=0)                             # 최종 결제 청구액 (원)
+    due_date = Column(String, nullable=False)                             # 납부 마감 기한 (YYYY-MM-DD)
+    status = Column(String, default="SENT")                               # 'UNSENT' | 'SENT' | 'PAID' | 'OVERDUE' | 'CANCELLED'
+    send_channel = Column(String, default="ALIMTALK")                     # 'ALIMTALK' | 'SMS' | 'APP_PUSH'
+    paid_at = Column(DateTime(timezone=True), nullable=True)              # 실결제 완료 시각
+    payment_method = Column(String, nullable=True)                        # 'CARD' | 'EASY_PAY' | 'BANK_TRANSFER' | 'DIRECT_CASH'
+    card_company = Column(String, nullable=True)                          # 승인 카드사 / 간편결제사
+    split_saas_fee = Column(Integer, default=0)                           # 본사 SaaS 자동공제 로열티 (원)
+    split_sms_fee = Column(Integer, default=0)                            # 알림톡/SMS 실비 자동공제 (원)
+    split_payout_amount = Column(Integer, default=0)                      # 학원장 실입금 정산액 (원)
+    submall_id = Column(String, nullable=True)                            # 정산 적용 서브몰 MID
+    payment_key = Column(String, nullable=True)                           # 토스페이먼츠 승인 Key
+    receipt_url = Column(String, nullable=True)                           # 모바일 영수증/매출전표 URL
+    memo = Column(Text, nullable=True)                                    # 원장 메모
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True)          # Soft Delete
+
+    student = relationship("Student", back_populates="invoices")
+
 
 
 

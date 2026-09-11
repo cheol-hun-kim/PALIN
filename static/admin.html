@@ -558,109 +558,174 @@
                 </div>
             </div>
 
-            <!-- TAB 3: 💰 3. 수업료 & 수납ERP -->
+            <!-- TAB 3: 💰 3. 수업료 & 결제선생 Fintech 수납ERP (5-Screen System) -->
             <div id="tab-finance" class="cockpit-tab-view" style="display: none;">
-                <!-- 🏢 Phase 8: B2B 학원 SaaS 라이선스 & SMS 크레딧 관리 -->
-                <div style="background: rgba(99, 102, 241, 0.08); border: 1.5px solid rgba(99, 102, 241, 0.35); border-radius: 14px; padding: 16px; margin-bottom: 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                
+                <!-- 🏢 Screen 1: 청구서 관리 & 분할 정산 대시보드 KPI -->
+                <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(16, 185, 129, 0.08)); border: 1.5px solid rgba(99, 102, 241, 0.35); border-radius: 16px; padding: 18px; margin-bottom: 18px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <span class="material-symbols-rounded" style="color: #818cf8;">corporate_fare</span>
-                            <span style="font-weight: 800; font-size: 0.95rem; color: #ffffff;">B2B 인프라 & SMS 종량제 관리</span>
+                            <span class="material-symbols-rounded" style="color: #818cf8; font-size: 1.4rem;">account_balance_wallet</span>
+                            <div>
+                                <span style="font-weight: 900; font-size: 1.05rem; color: #ffffff;">결제선생 비대면 모바일 수납 & 분할 정산 ERP</span>
+                                <div style="font-size: 0.76rem; color: #94a3b8;">복수 가맹점(서브몰) 토스페이먼츠 자동 정산 · 0.1초 인질 프로토콜 연동</div>
+                            </div>
                         </div>
-                        <span id="tenant-license-badge" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #000000; padding: 4px 10px; border-radius: 20px; font-weight: 900; font-size: 0.75rem;">Tier 3 무제한 라이선스</span>
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                            <button onclick="openBatchInvoiceModal()" class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 900; padding: 9px 14px; font-size: 0.8rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(245,158,11,0.35);">
+                                ⚡ 재원생 일괄 청구서 생성
+                            </button>
+                            <button onclick="openSingleInvoiceModal()" class="btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; font-weight: 800; padding: 9px 14px; font-size: 0.8rem; border-radius: 8px;">
+                                + 단건 청구서 발행
+                            </button>
+                            <button onclick="openSettlementAccountModal()" class="btn btn-secondary" style="padding: 9px 12px; font-size: 0.8rem; color: #38bdf8; border-color: rgba(56,189,248,0.4);">
+                                🏦 정산 계좌 설정
+                            </button>
+                        </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 12px;">
-                        <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
-                            <div style="font-size: 0.72rem; color: #94a3b8;">알림톡/SMS 잔여 크레딧</div>
-                            <div id="tenant-sms-credits" style="font-size: 1.25rem; font-weight: 900; color: #34d399; margin-top: 4px;">0원</div>
-                            <div id="tenant-sms-count-hint" style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;">(발송 잔여: 0건)</div>
+                    <!-- 4대 요약 KPI 카드 (총 청구 / 수납완료 / 미납-인질 / 원장 정산 예정액) -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                        <div style="background: rgba(0,0,0,0.4); padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+                            <div style="font-size: 0.74rem; color: #94a3b8; font-weight: 700;">📨 당월 총 청구액</div>
+                            <div id="billing-kpi-total-amount" style="font-size: 1.45rem; font-weight: 900; color: #ffffff; margin-top: 4px;">₩0</div>
+                            <div id="billing-kpi-total-count" style="font-size: 0.72rem; color: #a5b4fc; margin-top: 2px;">총 0건 발송</div>
                         </div>
-                        <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
-                            <div style="font-size: 0.72rem; color: #94a3b8;">VOD 스토리지 사용량</div>
-                            <div id="tenant-vod-storage" style="font-size: 1.25rem; font-weight: 900; color: #a5b4fc; margin-top: 4px;">0.0 GB <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 500;">/ 50 GB</span></div>
-                            <div style="font-size: 0.68rem; color: #34d399; margin-top: 2px;">기본 용량 내 안전</div>
+                        <div style="background: rgba(0,0,0,0.4); padding: 14px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                            <div style="font-size: 0.74rem; color: #34d399; font-weight: 700;">💳 실시간 수납완료</div>
+                            <div id="billing-kpi-paid-amount" style="font-size: 1.45rem; font-weight: 900; color: #34d399; margin-top: 4px;">₩0</div>
+                            <div id="billing-kpi-paid-count" style="font-size: 0.72rem; color: #6ee7b7; margin-top: 2px;">수납 0건 (수납률: 0.0%)</div>
                         </div>
-                    </div>
-
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <button onclick="handleChargeSMSCredit(30000)" class="btn" style="flex: 1; padding: 10px; font-size: 0.8rem; background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: 800; border-radius: 8px; cursor: pointer;">
-                            📨 SMS 크레딧 충전 (+30,000원)
-                        </button>
-                        <button onclick="handleUpgradeLicenseTier()" class="btn" style="flex: 1; padding: 10px; font-size: 0.8rem; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; font-weight: 800; border-radius: 8px; cursor: pointer;">
-                            🚀 라이선스 플랜 업그레이드
-                        </button>
+                        <div style="background: rgba(0,0,0,0.4); padding: 14px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                            <div style="font-size: 0.74rem; color: #f87171; font-weight: 700;">🚨 미납 / 인질 잠김</div>
+                            <div id="billing-kpi-overdue-amount" style="font-size: 1.45rem; font-weight: 900; color: #f87171; margin-top: 4px;">₩0</div>
+                            <div id="billing-kpi-overdue-count" style="font-size: 0.72rem; color: #fca5a5; margin-top: 2px;">미납 0명 (서비스 제한)</div>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.4); padding: 14px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.3);">
+                            <div style="font-size: 0.74rem; color: #fbbf24; font-weight: 700;">🏦 원장 실입금 정산액</div>
+                            <div id="billing-kpi-payout-amount" style="font-size: 1.45rem; font-weight: 900; color: #fbbf24; margin-top: 4px;">₩0</div>
+                            <div id="billing-kpi-saas-deduction" style="font-size: 0.72rem; color: #fde68a; margin-top: 2px;">본사 SaaS 3.3% 자동공제 후</div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="kpi-card" style="border: 1.5px solid rgba(234, 179, 8, 0.4);">
-                    <div class="section-title" style="color: #fbbf24;">
-                        <span class="material-symbols-rounded">payments</span>
-                        <span>💰 재원생 재무/수납 관리 ERP</span>
-                    </div>
-
-                    <!-- 🔍 수납 필터 버튼 바 (통일된 2x2 테마 그리드) -->
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px;">
-                        <!-- Row 1: 전체 보기 (인디고) & 전액 완납 (골드) -->
-                        <button type="button" onclick="filterFinanceTable('ALL')" id="btn-fin-filter-all" class="btn" style="padding: 11px 6px; font-size: 0.82rem; font-weight: 800; background: #6366f1; color: #ffffff; border: 1.5px solid #6366f1; text-align: center; width: 100%; border-radius: 8px; box-sizing: border-box; cursor: pointer;">
-                            📋 전체 보기
-                        </button>
-                        <button type="button" onclick="filterFinanceTable('ALL_PAID')" id="btn-fin-filter-all-paid" class="btn btn-secondary" style="padding: 11px 6px; font-size: 0.82rem; font-weight: 800; color: #cbd5e1; border: 1.5px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.06); text-align: center; width: 100%; border-radius: 8px; box-sizing: border-box; cursor: pointer;">
-                            ✨ 전액 완납
-                        </button>
-                        <!-- Row 2: 수강료 미납 (에메랄드 그린) & 교재비 미납 (로열 퍼플) -->
-                        <button type="button" onclick="filterFinanceTable('TUITION_UNPAID')" id="btn-fin-filter-tuition-unpaid" class="btn btn-secondary" style="padding: 11px 6px; font-size: 0.82rem; font-weight: 800; color: #cbd5e1; border: 1.5px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.06); text-align: center; width: 100%; border-radius: 8px; box-sizing: border-box; cursor: pointer;">
-                            🚨 수강료 미납
-                        </button>
-                        <button type="button" onclick="filterFinanceTable('TEXTBOOK_UNPAID')" id="btn-fin-filter-textbook-unpaid" class="btn btn-secondary" style="padding: 11px 6px; font-size: 0.82rem; font-weight: 800; color: #cbd5e1; border: 1.5px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.06); text-align: center; width: 100%; border-radius: 8px; box-sizing: border-box; cursor: pointer;">
-                            📦 교재비 미납
-                        </button>
-                    </div>
-
-                    <!-- 일괄 수납 처리 액션 바 (상단 필터와 1:1 위치 & 색상 일치 2x2 그리드) -->
-                    <div style="background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 12px; margin-bottom: 14px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 800; color: #f8fafc; cursor: pointer;">
-                                <input type="checkbox" onchange="toggleSelectAllFinance(this.checked)" style="width: 18px; height: 18px; accent-color: #6366f1; cursor: pointer;">
-                                <span>선택 대상 전체선택</span>
-                            </label>
-                            <span style="font-size: 0.72rem; color: #94a3b8;">체크된 학생 1-클릭 일괄 처리</span>
+                <!-- 📑 Screen 2: 청구서 발송·수납·미납 3단 탭 테이블 -->
+                <div class="kpi-card" style="border: 1.5px solid rgba(255,255,255,0.12); margin-bottom: 18px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                        <!-- 3단 서브 탭 버튼 그룹 -->
+                        <div style="display: flex; gap: 6px; background: rgba(0,0,0,0.4); padding: 4px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
+                            <button onclick="switchBillingSubTab('ALL')" id="billing-subtab-all" class="btn" style="padding: 7px 14px; font-size: 0.8rem; font-weight: 900; background: #6366f1; color: white; border-radius: 7px;">
+                                📋 전체 청구서
+                            </button>
+                            <button onclick="switchBillingSubTab('PAID')" id="billing-subtab-paid" class="btn btn-secondary" style="padding: 7px 14px; font-size: 0.8rem; font-weight: 800; color: #34d399; border-radius: 7px;">
+                                ✨ 수납완료
+                            </button>
+                            <button onclick="switchBillingSubTab('OVERDUE')" id="billing-subtab-overdue" class="btn btn-secondary" style="padding: 7px 14px; font-size: 0.8rem; font-weight: 800; color: #f87171; border-radius: 7px;">
+                                🚨 미납 / 연체
+                            </button>
                         </div>
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
-                            <!-- Row 1: 전액 완납 (골드) & 미납 전환 (다크 레드) -->
-                            <button onclick="handleBatchFinanceSubmit('both', true)" class="btn" style="padding: 11px 8px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; border-radius: 8px; width: 100%; box-sizing: border-box; cursor: pointer; box-shadow: 0 2px 8px rgba(245,158,11,0.3);">
-                                ✨ 전액 완납
-                            </button>
-                            <button onclick="handleBatchFinanceSubmit('both', false)" class="btn btn-secondary" style="padding: 11px 8px; font-size: 0.82rem; font-weight: 800; color: #f87171; border: 1.5px solid rgba(239,68,68,0.5); background: rgba(239,68,68,0.08); border-radius: 8px; width: 100%; box-sizing: border-box; cursor: pointer;">
-                                🔄 미납 전환
-                            </button>
-                            <!-- Row 2: 수강료 일괄완납 (그린) & 교재비 일괄완납 (퍼플) -->
-                            <button onclick="handleBatchFinanceSubmit('tuition', true)" class="btn" style="padding: 11px 8px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border-radius: 8px; width: 100%; box-sizing: border-box; cursor: pointer; box-shadow: 0 2px 8px rgba(16,185,129,0.3);">
-                                ✅ 수강료 일괄완납
-                            </button>
-                            <button onclick="handleBatchFinanceSubmit('textbook', true)" class="btn" style="padding: 11px 8px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #a855f7, #7e22ce); color: #ffffff; border-radius: 8px; width: 100%; box-sizing: border-box; cursor: pointer; box-shadow: 0 2px 8px rgba(168,85,247,0.3);">
-                                📦 교재비 일괄완납
+
+                        <!-- 검색 및 월 선택기 -->
+                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                            <input type="text" id="billing-search-input" placeholder="학생명 검색..." oninput="filterBillingTableBySearch()" class="form-input" style="width: 140px; height: 36px; padding: 6px 10px; font-size: 0.8rem;">
+                            <button onclick="loadBillingInvoices()" class="btn btn-secondary" style="padding: 7px 12px; font-size: 0.78rem;">
+                                🔄 갱신
                             </button>
                         </div>
                     </div>
 
-                    <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px;">
-                        <table class="data-table" style="min-width: 580px; width: 100%;">
+                    <!-- 일괄 액션 바 -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 10px 14px; border-radius: 8px; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; border: 1px solid rgba(255,255,255,0.06);">
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; color: #f8fafc; cursor: pointer;">
+                            <input type="checkbox" onchange="toggleSelectAllBillingInvoices(this.checked)" id="billing-select-all-checkbox" style="width: 16px; height: 16px; accent-color: #6366f1;">
+                            <span>선택 대상 일괄 처리</span>
+                        </label>
+                        <div style="display: flex; gap: 6px;">
+                            <button onclick="handleBatchResendAlimtalk()" class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.75rem; color: #fbbf24; border-color: rgba(251,191,36,0.3);">
+                                📨 선택 청구서 알림톡 재발송
+                            </button>
+                            <button onclick="handleBatchManualMarkPaid()" class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.75rem; color: #34d399; border-color: rgba(52,211,153,0.3);">
+                                ✅ 선택 수납 완료 처리
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 3단 탭 청구서 마스터 테이블 -->
+                    <div class="table-responsive">
+                        <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 40px; text-align: center; white-space: nowrap;">선택</th>
-                                    <th style="white-space: nowrap; min-width: 90px;">학생명 (ID)</th>
-                                    <th style="white-space: nowrap; min-width: 90px;">고교 / 학년</th>
-                                    <th style="white-space: nowrap; min-width: 50px; text-align: center;">학적</th>
-                                    <th style="white-space: nowrap; min-width: 85px; text-align: center;">수강료 상태</th>
-                                    <th style="white-space: nowrap; min-width: 85px; text-align: center;">교재비 상태</th>
-                                    <th style="text-align: center; white-space: nowrap; min-width: 140px;">납부 상태 변경</th>
+                                    <th style="width: 36px; text-align: center;">선택</th>
+                                    <th>청구코드</th>
+                                    <th>학생명</th>
+                                    <th>학부모 연락처</th>
+                                    <th>청구 항목</th>
+                                    <th style="text-align: right;">청구액</th>
+                                    <th>납부기한</th>
+                                    <th style="text-align: center;">수납 상태</th>
+                                    <th style="text-align: center;">발송 채널</th>
+                                    <th style="text-align: center;">관리 액션</th>
                                 </tr>
                             </thead>
-                            <tbody id="financial-erp-tbody"></tbody>
+                            <tbody id="billing-invoices-tbody">
+                                <!-- JS 동적 렌더링 -->
+                            </tbody>
                         </table>
                     </div>
                 </div>
+
+                <!-- 🏦 Screen 3 & 4: 결제내역 원장 & 월간 분할 정산 현황 -->
+                <div class="grid-two-col">
+                    <!-- Screen 3: 실시간 결제 승인 원장 (Payment Ledger) -->
+                    <div class="kpi-card" style="border: 1.5px solid rgba(16, 185, 129, 0.35);">
+                        <div class="section-title" style="color: #34d399;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span class="material-symbols-rounded">receipt_long</span>
+                                <span>실시간 결제 승인 원장 & 영수증</span>
+                            </div>
+                        </div>
+                        <div id="billing-payment-ledger-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto;">
+                            <!-- 결제 승인 로그 동적 렌더링 -->
+                        </div>
+                    </div>
+
+                    <!-- Screen 4: 월간 매출 & 서브몰 분할 정산 정보 (Split Settlement) -->
+                    <div class="kpi-card" style="border: 1.5px solid rgba(56, 189, 248, 0.35);">
+                        <div class="section-title" style="color: #38bdf8; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span class="material-symbols-rounded">account_balance</span>
+                                <span>서브몰 정산 계좌 & 수수료 정책</span>
+                            </div>
+                            <button onclick="openSettlementAccountModal()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.72rem; color: #38bdf8;">수정</button>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 14px; margin-bottom: 10px;">
+                            <div style="display: grid; grid-template-columns: 100px 1fr; gap: 6px; font-size: 0.8rem; margin-bottom: 4px;">
+                                <span style="color: #94a3b8;">정산 은행:</span>
+                                <strong id="settle-disp-bank" style="color: #ffffff;">신한은행</strong>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 100px 1fr; gap: 6px; font-size: 0.8rem; margin-bottom: 4px;">
+                                <span style="color: #94a3b8;">계좌 번호:</span>
+                                <strong id="settle-disp-account" style="color: #38bdf8;">110-384-928192</strong>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 100px 1fr; gap: 6px; font-size: 0.8rem; margin-bottom: 4px;">
+                                <span style="color: #94a3b8;">예금주:</span>
+                                <strong id="settle-disp-holder" style="color: #ffffff;">김철훈(일원학원)</strong>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 100px 1fr; gap: 6px; font-size: 0.8rem; margin-bottom: 4px;">
+                                <span style="color: #94a3b8;">서브몰 MID:</span>
+                                <strong id="settle-disp-mid" style="color: #34d399;">SM_ILWON_2027 (승인완료)</strong>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 100px 1fr; gap: 6px; font-size: 0.8rem;">
+                                <span style="color: #94a3b8;">정산 주기:</span>
+                                <span style="color: #f8fafc;">익영업일(D+1) 자동 입금</span>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.72rem; color: #94a3b8; line-height: 1.4;">
+                            • 토스페이먼츠 PG 정산 에스크로 연동으로 결제 즉시 본사 SaaS 수수료(3.3%) 및 알림톡 실비가 자동차감된 후 원장님 계좌로 실시간 송금됩니다.
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- TAB 4: 📢 4. 수업관리 -->
@@ -1850,6 +1915,209 @@
                         🧹 소독/청소 완료 (빈자리 전환)
                     </button>
                 </div>
+            </div>
+        </div>
+
+        <!-- ⚡ 1. 재원생 일괄 청구서 생성 모달 -->
+        <div id="batch-invoice-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center; padding: 16px;">
+            <div class="modal-content" style="background: #0f111a; border: 1.5px solid #f59e0b; border-radius: 18px; width: 100%; max-width: 580px; padding: 22px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); box-sizing: border-box; max-height: 90vh; overflow-y: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid rgba(245, 158, 11, 0.3); padding-bottom: 10px;">
+                    <div style="font-weight: 900; font-size: 1.1rem; color: #fbbf24; display: flex; align-items: center; gap: 8px;">
+                        <span class="material-symbols-rounded">forward_to_inbox</span>
+                        <span>⚡ 재원생 일괄 청구서 생성 & 카카오 알림톡 발송</span>
+                    </div>
+                    <button type="button" onclick="closeBatchInvoiceModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.3rem; cursor: pointer;">✕</button>
+                </div>
+
+                <form onsubmit="handleBatchInvoiceSubmit(event)" style="display: flex; flex-direction: column; gap: 12px;">
+                    <div>
+                        <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">청구 항목명</label>
+                        <input type="text" id="batch-item-title" value="2026년 9월 정규반 수강료 & 교재비" required class="form-input" style="height: 42px;">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">기본 수업료 (원)</label>
+                            <input type="number" id="batch-tuition-amount" value="450000" step="10000" required class="form-input" style="height: 42px;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">교재비/자료비 (원)</label>
+                            <input type="number" id="batch-textbook-amount" value="50000" step="5000" required class="form-input" style="height: 42px;">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">청구 대상 월</label>
+                            <input type="text" id="batch-billing-month" value="2026-09" required class="form-input" style="text-align: center; font-weight: 800; height: 42px;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">납부 마감 기한</label>
+                            <input type="date" id="batch-due-date" required class="form-input" style="height: 42px; color-scheme: dark;">
+                        </div>
+                    </div>
+
+                    <!-- 토글 옵션 -->
+                    <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 800; color: #f8fafc; cursor: pointer;">
+                            <input type="checkbox" id="batch-send-alimtalk" checked style="width: 18px; height: 18px; accent-color: #f59e0b;">
+                            <span>📲 카카오톡 비즈메시지(알림톡)로 모바일 청구서 즉시 발송</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 800; color: #f87171; cursor: pointer;">
+                            <input type="checkbox" id="batch-enable-hostage" checked style="width: 18px; height: 18px; accent-color: #ef4444;">
+                            <span>🚨 납부기한 초과 시 학생 AI 멘토/VOD 권한 자동 잠금 (인질 프로토콜)</span>
+                        </label>
+                    </div>
+
+                    <div style="font-size: 0.74rem; color: #94a3b8; line-height: 1.4;">
+                        * 일괄 생성 시 등록된 재원생 전원에게 1-Click 청구서가 발행되며, 학부모 결제 완료 시 0.1초 내 자동 수납 처리 및 정산 원장에 반영됩니다.
+                    </div>
+
+                    <div style="display: flex; gap: 8px; margin-top: 6px;">
+                        <button type="submit" class="btn" style="flex: 2; padding: 12px; font-size: 0.9rem; font-weight: 900; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; border-radius: 10px; cursor: pointer;">
+                            ⚡ 청구서 일괄 발행 & 카카오톡 발송
+                        </button>
+                        <button type="button" onclick="closeBatchInvoiceModal()" class="btn btn-secondary" style="flex: 1; padding: 12px; font-size: 0.85rem; border-radius: 10px;">
+                            취소
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 📑 2. 단건 개별 청구서 발행 모달 -->
+        <div id="single-invoice-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center; padding: 16px;">
+            <div class="modal-content" style="background: #0f111a; border: 1.5px solid #6366f1; border-radius: 18px; width: 100%; max-width: 520px; padding: 22px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); box-sizing: border-box; max-height: 90vh; overflow-y: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid rgba(99, 102, 241, 0.3); padding-bottom: 10px;">
+                    <div style="font-weight: 900; font-size: 1.1rem; color: #818cf8; display: flex; align-items: center; gap: 8px;">
+                        <span class="material-symbols-rounded">receipt</span>
+                        <span>+ 단건 청구서 발행 (개별 학생)</span>
+                    </div>
+                    <button type="button" onclick="closeSingleInvoiceModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.3rem; cursor: pointer;">✕</button>
+                </div>
+
+                <form onsubmit="handleSingleInvoiceSubmit(event)" style="display: flex; flex-direction: column; gap: 12px;">
+                    <div>
+                        <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">청구 대상 학생 선택</label>
+                        <select id="single-student-select" required class="form-input" style="height: 42px; font-weight: 800;">
+                            <!-- JS에서 재원생 목록 채움 -->
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">청구 항목명</label>
+                        <input type="text" id="single-item-title" placeholder="예: 2026년 9월 고3 수능국어 정규반 수강료" required class="form-input" style="height: 42px;">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">청구 원금 (원)</label>
+                            <input type="number" id="single-amount" value="500000" step="10000" required class="form-input" style="height: 42px;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">할인/장학 차감 (원)</label>
+                            <input type="number" id="single-discount" value="0" step="5000" class="form-input" style="height: 42px;">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">납부 마감 기한</label>
+                            <input type="date" id="single-due-date" required class="form-input" style="height: 42px; color-scheme: dark;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">발송 채널</label>
+                            <select id="single-send-channel" class="form-input" style="height: 42px;">
+                                <option value="ALIMTALK">카카오 알림톡</option>
+                                <option value="SMS">문자메시지 (SMS)</option>
+                                <option value="APP_PUSH">앱 푸시</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">원장 메모 (선택사항)</label>
+                        <input type="text" id="single-memo" placeholder="예: 첫달 형제 할인 10% 적용" class="form-input" style="height: 42px;">
+                    </div>
+
+                    <div style="display: flex; gap: 8px; margin-top: 6px;">
+                        <button type="submit" class="btn" style="flex: 2; padding: 12px; font-size: 0.9rem; font-weight: 900; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; border-radius: 10px; cursor: pointer;">
+                            + 청구서 발행 및 발송
+                        </button>
+                        <button type="button" onclick="closeSingleInvoiceModal()" class="btn btn-secondary" style="flex: 1; padding: 12px; font-size: 0.85rem; border-radius: 10px;">
+                            취소
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 🏦 3. 서브몰 정산 계좌 설정 모달 -->
+        <div id="settlement-account-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center; padding: 16px;">
+            <div class="modal-content" style="background: #0f111a; border: 1.5px solid #38bdf8; border-radius: 18px; width: 100%; max-width: 500px; padding: 22px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); box-sizing: border-box;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid rgba(56, 189, 248, 0.3); padding-bottom: 10px;">
+                    <div style="font-weight: 900; font-size: 1.1rem; color: #38bdf8; display: flex; align-items: center; gap: 8px;">
+                        <span class="material-symbols-rounded">account_balance</span>
+                        <span>🏦 토스페이먼츠 서브몰 정산 계좌 등록</span>
+                    </div>
+                    <button type="button" onclick="closeSettlementAccountModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.3rem; cursor: pointer;">✕</button>
+                </div>
+
+                <form onsubmit="handleSettlementAccountSubmit(event)" style="display: flex; flex-direction: column; gap: 12px;">
+                    <div>
+                        <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">사업자등록번호</label>
+                        <input type="text" id="settle-input-bizno" value="128-86-23861" required class="form-input" style="height: 42px; font-weight: 800;">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 140px 1fr; gap: 10px;">
+                        <div>
+                            <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">정산 은행</label>
+                            <select id="settle-input-bank" required class="form-input" style="height: 42px; font-weight: 800;">
+                                <option value="신한은행">신한은행</option>
+                                <option value="국민은행">국민은행</option>
+                                <option value="우리은행">우리은행</option>
+                                <option value="하나은행">하나은행</option>
+                                <option value="농협은행">농협은행</option>
+                                <option value="기업은행">기업은행</option>
+                                <option value="카카오뱅크">카카오뱅크</option>
+                                <option value="토스뱅크">토스뱅크</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">계좌 번호</label>
+                            <input type="text" id="settle-input-account" value="110-384-928192" required class="form-input" style="height: 42px;">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">예금주명</label>
+                            <input type="text" id="settle-input-holder" value="김철훈(일원학원)" required class="form-input" style="height: 42px;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">매월 정기 청구일</label>
+                            <select id="settle-input-dueday" class="form-input" style="height: 42px;">
+                                <option value="25">매월 25일 (기본)</option>
+                                <option value="20">매월 20일</option>
+                                <option value="1">매월 1일</option>
+                                <option value="10">매월 10일</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 0.74rem; color: #94a3b8; line-height: 1.4;">
+                        * 입력하신 계좌로 토스페이먼츠 서브몰(복수가맹점) 정산 승인이 실시간 연동되며, 학부모 결제 수강료가 익일 자동 입금됩니다.
+                    </div>
+
+                    <div style="display: flex; gap: 8px; margin-top: 6px;">
+                        <button type="submit" class="btn" style="flex: 2; padding: 12px; font-size: 0.9rem; font-weight: 900; background: linear-gradient(135deg, #38bdf8, #0284c7); color: #fff; border-radius: 10px; cursor: pointer;">
+                            💾 정산 계좌 저장
+                        </button>
+                        <button type="button" onclick="closeSettlementAccountModal()" class="btn btn-secondary" style="flex: 1; padding: 12px; font-size: 0.85rem; border-radius: 10px;">
+                            취소
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -3103,10 +3371,429 @@
                 if (res.ok) {
                     alert(`🎉 ${data.message}`);
                     fetchDashboardData(); updateMasterBtnVisibility();
+                    loadBillingInvoices();
                 } else {
                     alert(data.detail || "일괄 수납 처리 실패");
                 }
             } catch(e) { alert("서버 통신 오류"); }
+        }
+
+        // ==========================================
+        // 💸 결제선생 Fintech In-App Billing ERP 스크립트
+        // ==========================================
+        let currentBillingSubTab = 'ALL';
+        let allBillingInvoicesCache = [];
+
+        async function loadBillingInvoices() {
+            try {
+                const res = await fetch(`/api/billing/invoices?tenant_code=${currentTenantCode}`);
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!data) return;
+
+                allBillingInvoicesCache = data.invoices || [];
+
+                // 1. KPI 대시보드 갱신
+                const s = data.summary || {};
+                const kpiTotalAmt = document.getElementById("billing-kpi-total-amount");
+                const kpiTotalCnt = document.getElementById("billing-kpi-total-count");
+                const kpiPaidAmt = document.getElementById("billing-kpi-paid-amount");
+                const kpiPaidCnt = document.getElementById("billing-kpi-paid-count");
+                const kpiOverdueAmt = document.getElementById("billing-kpi-overdue-amount");
+                const kpiOverdueCnt = document.getElementById("billing-kpi-overdue-count");
+                const kpiPayoutAmt = document.getElementById("billing-kpi-payout-amount");
+                const kpiSaasDed = document.getElementById("billing-kpi-saas-deduction");
+
+                if (kpiTotalAmt) kpiTotalAmt.innerText = `₩${(s.total_sent_amount || 0).toLocaleString()}`;
+                if (kpiTotalCnt) kpiTotalCnt.innerText = `총 ${s.total_sent_count || 0}건 발송`;
+                if (kpiPaidAmt) kpiPaidAmt.innerText = `₩${(s.paid_amount || 0).toLocaleString()}`;
+                if (kpiPaidCnt) kpiPaidCnt.innerText = `수납 ${s.paid_count || 0}건 (수납률: ${s.collection_rate || 0}%)`;
+                if (kpiOverdueAmt) kpiOverdueAmt.innerText = `₩${(s.overdue_amount || 0).toLocaleString()}`;
+                if (kpiOverdueCnt) kpiOverdueCnt.innerText = `미납 ${s.overdue_count || 0}명 (서비스 제한)`;
+                if (kpiPayoutAmt) kpiPayoutAmt.innerText = `₩${(s.total_payout_amount || 0).toLocaleString()}`;
+                if (kpiSaasDed) kpiSaasDed.innerText = `본사 SaaS 3.3%(₩${(s.total_saas_fee_deducted || 0).toLocaleString()}) 차감 후`;
+
+                // 2. 정산 계좌 정보 갱신
+                const setInfo = data.settlement_info || {};
+                const bEl = document.getElementById("settle-disp-bank");
+                const aEl = document.getElementById("settle-disp-account");
+                const hEl = document.getElementById("settle-disp-holder");
+                const mEl = document.getElementById("settle-disp-mid");
+                if (bEl) bEl.innerText = setInfo.settlement_bank || "신한은행";
+                if (aEl) aEl.innerText = setInfo.settlement_account_number || "110-384-928192";
+                if (hEl) hEl.innerText = setInfo.settlement_account_holder || "김철훈(일원학원)";
+                if (mEl) mEl.innerText = `${setInfo.submall_id || 'SM_ILWON_2027'} (${setInfo.submall_status === 'APPROVED' ? '승인완료' : '등록대기'})`;
+
+                // 3. 테이블 렌더링
+                renderBillingInvoicesTable();
+                renderPaymentLedgerList();
+            } catch(e) {
+                console.warn("loadBillingInvoices error:", e);
+            }
+        }
+
+        function switchBillingSubTab(tab) {
+            currentBillingSubTab = tab;
+            const subtabs = {
+                'ALL': document.getElementById('billing-subtab-all'),
+                'PAID': document.getElementById('billing-subtab-paid'),
+                'OVERDUE': document.getElementById('billing-subtab-overdue')
+            };
+            Object.keys(subtabs).forEach(k => {
+                const btn = subtabs[k];
+                if (!btn) return;
+                if (k === tab) {
+                    btn.classList.add('active');
+                    btn.style.background = (k === 'PAID' ? '#10b981' : (k === 'OVERDUE' ? '#ef4444' : '#6366f1'));
+                    btn.style.color = '#ffffff';
+                } else {
+                    btn.classList.remove('active');
+                    btn.style.background = 'transparent';
+                    btn.style.color = (k === 'PAID' ? '#34d399' : (k === 'OVERDUE' ? '#f87171' : '#cbd5e1'));
+                }
+            });
+            renderBillingInvoicesTable();
+        }
+
+        function filterBillingTableBySearch() {
+            renderBillingInvoicesTable();
+        }
+
+        function renderBillingInvoicesTable() {
+            const tbody = document.getElementById("billing-invoices-tbody");
+            if (!tbody) return;
+
+            const searchKeyword = (document.getElementById("billing-search-input")?.value || "").trim().toLowerCase();
+
+            let list = allBillingInvoicesCache;
+            if (currentBillingSubTab === 'PAID') {
+                list = list.filter(inv => inv.status === 'PAID');
+            } else if (currentBillingSubTab === 'OVERDUE') {
+                list = list.filter(inv => inv.status === 'OVERDUE' || (inv.status === 'SENT' && inv.due_date < new Date().toISOString().slice(0, 10)));
+            }
+
+            if (searchKeyword) {
+                list = list.filter(inv => (inv.student_name && inv.student_name.toLowerCase().includes(searchKeyword)) || (inv.invoice_code && inv.invoice_code.toLowerCase().includes(searchKeyword)));
+            }
+
+            if (list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; color: #94a3b8; padding: 24px;">해당 조건의 청구서 내역이 없습니다.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = list.map(inv => {
+                let statusBadge = '<span class="invoice-status-pill invoice-pill-sent">📨 발송완료</span>';
+                if (inv.status === 'PAID') {
+                    statusBadge = '<span class="invoice-status-pill invoice-pill-paid">✅ 수납완료</span>';
+                } else if (inv.status === 'OVERDUE' || (inv.status === 'SENT' && inv.due_date < new Date().toISOString().slice(0, 10))) {
+                    statusBadge = '<span class="invoice-status-pill invoice-pill-overdue">🚨 미납-인질잠김</span>';
+                } else if (inv.status === 'CANCELLED') {
+                    statusBadge = '<span class="invoice-status-pill invoice-pill-cancelled">⚪ 취소됨</span>';
+                }
+
+                const channelBadge = inv.send_channel === 'ALIMTALK' 
+                    ? '<span style="background: rgba(234, 179, 8, 0.15); color: #fbbf24; padding: 2px 6px; border-radius: 4px; font-size: 0.72rem; font-weight: 800;">💛 알림톡</span>'
+                    : '<span style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; padding: 2px 6px; border-radius: 4px; font-size: 0.72rem; font-weight: 800;">📱 SMS</span>';
+
+                return `
+                    <tr>
+                        <td style="text-align: center;">
+                            <input type="checkbox" class="billing-item-checkbox" value="${inv.id}" style="width: 16px; height: 16px; accent-color: #6366f1;">
+                        </td>
+                        <td style="font-family: monospace; font-weight: 800; color: #818cf8;">${inv.invoice_code}</td>
+                        <td style="font-weight: 800; color: #ffffff;">${inv.student_name}</td>
+                        <td style="font-size: 0.78rem; color: #cbd5e1;">${inv.parent_phone}</td>
+                        <td style="font-size: 0.8rem; color: #f8fafc; font-weight: 700;">${inv.item_title}</td>
+                        <td style="text-align: right; font-weight: 900; color: #ffffff;">₩${inv.final_amount.toLocaleString()}</td>
+                        <td style="font-size: 0.78rem; color: #cbd5e1;">${inv.due_date}</td>
+                        <td style="text-align: center;">${statusBadge}</td>
+                        <td style="text-align: center;">${channelBadge}</td>
+                        <td style="text-align: center;">
+                            <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;">
+                                ${inv.status !== 'PAID' ? `
+                                    <button onclick="resendInvoiceAlimtalk(${inv.id})" class="btn" style="padding: 4px 8px; font-size: 0.72rem; font-weight: 800; background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);">
+                                        재발송
+                                    </button>
+                                    <button onclick="manualMarkInvoicePaid(${inv.id})" class="btn" style="padding: 4px 8px; font-size: 0.72rem; font-weight: 800; background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);">
+                                        수납확인
+                                    </button>
+                                    <button onclick="cancelInvoice(${inv.id})" class="btn" style="padding: 4px 6px; font-size: 0.72rem; background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);">
+                                        취소
+                                    </button>
+                                ` : `
+                                    <a href="${inv.receipt_url || '#'}" target="_blank" class="btn" style="padding: 4px 8px; font-size: 0.72rem; font-weight: 800; background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); text-decoration: none;">
+                                        📄 영수증
+                                    </a>
+                                `}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderPaymentLedgerList() {
+            const listEl = document.getElementById("billing-payment-ledger-list");
+            if (!listEl) return;
+
+            const paidList = allBillingInvoicesCache.filter(inv => inv.status === 'PAID');
+            if (paidList.length === 0) {
+                listEl.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.8rem; padding:16px;">수납 완료된 결제 승인 원장이 없습니다.</div>';
+                return;
+            }
+
+            listEl.innerHTML = paidList.map(inv => `
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                    <div>
+                        <div style="font-weight: 800; font-size: 0.85rem; color: #ffffff;">
+                            ${inv.student_name} · <span style="color: #34d399;">₩${inv.final_amount.toLocaleString()}</span>
+                        </div>
+                        <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">
+                            ${inv.card_company || '신한카드'} · ${inv.paid_at ? inv.paid_at.slice(0, 16).replace('T', ' ') : '-'} (정산입금: ₩${(inv.split_payout_amount || 0).toLocaleString()})
+                        </div>
+                    </div>
+                    <a href="${inv.receipt_url || '#'}" target="_blank" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.72rem; text-decoration: none; color: #38bdf8;">
+                        영수증 ↗
+                    </a>
+                </div>
+            `).join('');
+        }
+
+        function toggleSelectAllBillingInvoices(checked) {
+            document.querySelectorAll(".billing-item-checkbox").forEach(cb => cb.checked = checked);
+        }
+
+        function openBatchInvoiceModal() {
+            const modal = document.getElementById("batch-invoice-modal");
+            if (modal) {
+                modal.style.display = "flex";
+                const today = new Date();
+                const dueDate = new Date(today.getFullYear(), today.getMonth(), 25).toISOString().slice(0, 10);
+                const dueInput = document.getElementById("batch-due-date");
+                if (dueInput) dueInput.value = dueDate;
+            }
+        }
+
+        function closeBatchInvoiceModal() {
+            const modal = document.getElementById("batch-invoice-modal");
+            if (modal) modal.style.display = "none";
+        }
+
+        async function handleBatchInvoiceSubmit(e) {
+            e.preventDefault();
+            const title = document.getElementById("batch-item-title").value.trim();
+            const tuition = parseInt(document.getElementById("batch-tuition-amount").value, 10) || 450000;
+            const textbook = parseInt(document.getElementById("batch-textbook-amount").value, 10) || 50000;
+            const month = document.getElementById("batch-billing-month").value.trim() || "2026-09";
+            const due = document.getElementById("batch-due-date").value;
+            const sendAlim = document.getElementById("batch-send-alimtalk").checked;
+            const hostage = document.getElementById("batch-enable-hostage").checked;
+
+            try {
+                const res = await fetch("/api/billing/invoices/batch", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        tenant_code: currentTenantCode,
+                        item_title: title,
+                        tuition_amount: tuition,
+                        textbook_amount: textbook,
+                        billing_month: month,
+                        due_date: due,
+                        send_alimtalk: sendAlim,
+                        enable_hostage_lock: hostage
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`⚡ ${data.message}`);
+                    closeBatchInvoiceModal();
+                    loadBillingInvoices();
+                    fetchDashboardData();
+                } else {
+                    alert(data.detail || "일괄 청구서 발행 실패");
+                }
+            } catch(e) {
+                alert("서버 연결 실패");
+            }
+        }
+
+        function openSingleInvoiceModal() {
+            const modal = document.getElementById("single-invoice-modal");
+            const selectEl = document.getElementById("single-student-select");
+            if (modal && selectEl) {
+                selectEl.innerHTML = allStudentsCache.map(s => `
+                    <option value="${s.id}">${s.name} (${s.high_school || '고교'} ${s.grade || 3}학년 - ${s.phone || '연락처'})</option>
+                `).join('');
+                const today = new Date();
+                const dueDate = new Date(today.getFullYear(), today.getMonth(), 25).toISOString().slice(0, 10);
+                const dueInput = document.getElementById("single-due-date");
+                if (dueInput) dueInput.value = dueDate;
+                modal.style.display = "flex";
+            }
+        }
+
+        function closeSingleInvoiceModal() {
+            const modal = document.getElementById("single-invoice-modal");
+            if (modal) modal.style.display = "none";
+        }
+
+        async function handleSingleInvoiceSubmit(e) {
+            e.preventDefault();
+            const studentId = parseInt(document.getElementById("single-student-select").value, 10);
+            const title = document.getElementById("single-item-title").value.trim();
+            const amount = parseInt(document.getElementById("single-amount").value, 10) || 500000;
+            const discount = parseInt(document.getElementById("single-discount").value, 10) || 0;
+            const due = document.getElementById("single-due-date").value;
+            const channel = document.getElementById("single-send-channel").value;
+            const memo = document.getElementById("single-memo").value.trim();
+
+            try {
+                const res = await fetch("/api/billing/invoices", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        tenant_code: currentTenantCode,
+                        student_id: studentId,
+                        item_title: title,
+                        amount: amount,
+                        discount_amount: discount,
+                        due_date: due,
+                        send_channel: channel,
+                        memo: memo
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`✓ ${data.message}`);
+                    closeSingleInvoiceModal();
+                    loadBillingInvoices();
+                } else {
+                    alert(data.detail || "청구서 발행 실패");
+                }
+            } catch(e) {
+                alert("서버 연결 실패");
+            }
+        }
+
+        function openSettlementAccountModal() {
+            const modal = document.getElementById("settlement-account-modal");
+            if (modal) modal.style.display = "flex";
+        }
+
+        function closeSettlementAccountModal() {
+            const modal = document.getElementById("settlement-account-modal");
+            if (modal) modal.style.display = "none";
+        }
+
+        async function handleSettlementAccountSubmit(e) {
+            e.preventDefault();
+            const bizno = document.getElementById("settle-input-bizno").value.trim();
+            const bank = document.getElementById("settle-input-bank").value;
+            const account = document.getElementById("settle-input-account").value.trim();
+            const holder = document.getElementById("settle-input-holder").value.trim();
+            const dueDay = parseInt(document.getElementById("settle-input-dueday").value, 10) || 25;
+
+            try {
+                const res = await fetch("/api/billing/tenant/settlement-account", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        tenant_code: currentTenantCode,
+                        business_reg_number: bizno,
+                        settlement_bank: bank,
+                        settlement_account_number: account,
+                        settlement_account_holder: holder,
+                        tuition_due_day: dueDay
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`✓ ${data.message}`);
+                    closeSettlementAccountModal();
+                    loadBillingInvoices();
+                } else {
+                    alert(data.detail || "정산 계좌 등록 실패");
+                }
+            } catch(e) {
+                alert("서버 통신 실패");
+            }
+        }
+
+        async function resendInvoiceAlimtalk(invoiceId) {
+            if (!confirm("카카오 알림톡으로 모바일 청구서를 즉시 재발송하시겠습니까?")) return;
+            try {
+                const res = await fetch(`/api/billing/invoices/${invoiceId}/resend`, { method: "POST" });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`📲 ${data.message}`);
+                } else {
+                    alert(data.detail || "재발송 실패");
+                }
+            } catch(e) {
+                alert("통신 오류");
+            }
+        }
+
+        async function cancelInvoice(invoiceId) {
+            if (!confirm("이 청구서를 취소하시겠습니까?")) return;
+            try {
+                const res = await fetch(`/api/billing/invoices/${invoiceId}/cancel`, { method: "POST" });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`✓ ${data.message}`);
+                    loadBillingInvoices();
+                } else {
+                    alert(data.detail || "취소 실패");
+                }
+            } catch(e) {
+                alert("통신 오류");
+            }
+        }
+
+        async function manualMarkInvoicePaid(invoiceId) {
+            if (!confirm("학생이 학원에 직접 수납(현금/이체) 완료했음을 확인하고, 인질 잠금을 즉시 해제하시겠습니까?")) return;
+            try {
+                const res = await fetch(`/api/billing/invoices/${invoiceId}/manual-mark-paid`, { method: "POST" });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`✨ ${data.message}`);
+                    loadBillingInvoices();
+                    fetchDashboardData();
+                } else {
+                    alert(data.detail || "수납 확인 처리 실패");
+                }
+            } catch(e) {
+                alert("통신 오류");
+            }
+        }
+
+        async function handleBatchResendAlimtalk() {
+            const selected = Array.from(document.querySelectorAll(".billing-item-checkbox:checked")).map(cb => parseInt(cb.value, 10));
+            if (selected.length === 0) {
+                alert("재발송할 청구서를 1건 이상 선택해 주세요.");
+                return;
+            }
+            if (!confirm(`선택한 ${selected.length}건의 청구서 알림톡을 일괄 재발송하시겠습니까?`)) return;
+            for (const id of selected) {
+                await fetch(`/api/billing/invoices/${id}/resend`, { method: "POST" });
+            }
+            alert(`📲 ${selected.length}건의 카카오 알림톡이 일괄 재발송되었습니다.`);
+        }
+
+        async function handleBatchManualMarkPaid() {
+            const selected = Array.from(document.querySelectorAll(".billing-item-checkbox:checked")).map(cb => parseInt(cb.value, 10));
+            if (selected.length === 0) {
+                alert("수납 처리할 청구서를 1건 이상 선택해 주세요.");
+                return;
+            }
+            if (!confirm(`선택한 ${selected.length}건의 청구서를 일괄 [수납완료] 처리하고 인질 잠금을 해제하시겠습니까?`)) return;
+            for (const id of selected) {
+                await fetch(`/api/billing/invoices/${id}/manual-mark-paid`, { method: "POST" });
+            }
+            alert(`✨ ${selected.length}건의 수납 처리가 완료되었습니다.`);
+            loadBillingInvoices();
+            fetchDashboardData();
         }
 
         async function handleCreateFeed(e) {

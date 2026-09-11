@@ -739,6 +739,24 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
         <!-- 3. 메인 뷰포트 (페이지 변경) -->
         <main>
+            <!-- 🚨 결제선생 수강료 미납 인질 프로토콜(Hostage Protocol) 상단 긴급 배너 -->
+            <div id="tuition-overdue-lock-banner" class="hostage-lock-banner" style="display: none; margin: 8px 12px 14px; padding: 12px 16px; background: rgba(239, 68, 68, 0.12); border: 1.5px solid #ef4444; border-radius: 14px; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 4px 20px rgba(239, 68, 68, 0.25);">
+                <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
+                    <span class="material-symbols-rounded" style="font-size: 1.5rem; color: #f87171; flex-shrink: 0;">lock_clock</span>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-weight: 800; font-size: 0.84rem; color: #fecaca; display: flex; align-items: center; gap: 6px;">
+                            <span>수강료 납부 기한 경과</span>
+                            <span class="invoice-pill-overdue" style="font-size: 0.65rem; padding: 1px 6px;">학습 기능 일시 제한</span>
+                        </div>
+                        <div style="font-size: 0.73rem; color: #fca5a5; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="hostage-lock-banner-msg">
+                            수강료 미납으로 인해 프리미엄 학습 기능(AI 멘토 등)이 잠금 상태입니다.
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn" onclick="openTuitionPaymentModal()" style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; font-weight: 800; font-size: 0.78rem; padding: 8px 14px; border-radius: 10px; white-space: nowrap; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); border: 1px solid #f87171; cursor: pointer; flex-shrink: 0;">
+                    💳 즉시 수납 / 잠금 해제
+                </button>
+            </div>
             
             <!-- ============================================================================
                  🎯 고등 전용 관제 화면 (기존 원형 100% 보존)
@@ -4702,6 +4720,75 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <button type="button" onclick="openB2BContactModal()" class="btn btn-gold" style="flex: 1; padding: 10px; font-size: 0.82rem; font-weight: 800;">
                     🏢 우리 학원 도입 문의
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 💳 결제선생 비대면 모바일 수강료 결제 & 인질 해제 모달 -->
+    <div id="tuition-payment-modal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 10005; backdrop-filter: blur(8px);">
+        <div class="modal-content" style="background: var(--card-bg, #0f172a); border: 1.5px solid #6366f1; border-radius: 20px; width: 90%; max-width: 440px; padding: 22px; box-sizing: border-box; box-shadow: 0 20px 50px rgba(0,0,0,0.7); max-height: 90vh; overflow-y: auto;">
+            <!-- 모달 상단 헤더 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #6366f1, #4f46e5); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 4px 12px rgba(99,102,241,0.4);">💳</div>
+                    <div>
+                        <div style="font-size: 1.05rem; font-weight: 900; color: #ffffff; letter-spacing: -0.3px;">수강료 모바일 결제</div>
+                        <div style="font-size: 0.72rem; color: #94a3b8;">결제선생 서브몰 다이렉트 정산 시스템</div>
+                    </div>
+                </div>
+                <button type="button" onclick="closeTuitionPaymentModal()" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.82rem; border-radius: 8px; cursor: pointer;">✕</button>
+            </div>
+
+            <!-- 청구서 상세 내역 카드 -->
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 16px; margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <span style="font-size: 0.75rem; color: #94a3b8;">청구서 번호</span>
+                    <span id="tuition-modal-code" style="font-size: 0.8rem; font-weight: 800; color: #818cf8; font-family: monospace;">INV-2026-0000</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span style="font-size: 0.78rem; color: #cbd5e1;">수납처(가맹학원)</span>
+                    <span id="tuition-modal-tenant" style="font-size: 0.82rem; font-weight: 700; color: #f8fafc;">일원학원 대치본원</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span style="font-size: 0.78rem; color: #cbd5e1;">청구 항목</span>
+                    <span id="tuition-modal-title" style="font-size: 0.85rem; font-weight: 800; color: #ffffff;">9월 수능 파이널 종합반</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span style="font-size: 0.78rem; color: #cbd5e1;">납부 대상자</span>
+                    <span id="tuition-modal-student" style="font-size: 0.82rem; font-weight: 700; color: #e2e8f0;">김학생 (수험생)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span style="font-size: 0.78rem; color: #cbd5e1;">납부 기한</span>
+                    <span id="tuition-modal-due" style="font-size: 0.8rem; font-weight: 700; color: #f87171;">2026-09-10 (연체)</span>
+                </div>
+                <div style="border-top: 1px dashed rgba(255,255,255,0.12); margin: 12px 0 10px; padding-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.9rem; font-weight: 800; color: #ffffff;">최종 결제 금액</span>
+                    <span id="tuition-modal-amount" style="font-size: 1.25rem; font-weight: 900; color: #38bdf8;">₩450,000</span>
+                </div>
+            </div>
+
+            <!-- 결제 수단 선택 -->
+            <div style="margin-bottom: 16px;">
+                <label style="font-size: 0.75rem; color: #cbd5e1; font-weight: 700; display: block; margin-bottom: 8px;">결제 수단 선택</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button type="button" class="btn" onclick="handleTuitionPaymentSubmit('CARD')" style="padding: 12px 8px; font-size: 0.82rem; font-weight: 800; background: rgba(99,102,241,0.15); border: 1.5px solid #6366f1; color: #c7d2fe; border-radius: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;">
+                        <span style="font-size: 1.2rem;">💳</span>
+                        <span>신용/체크카드</span>
+                    </button>
+                    <button type="button" class="btn" onclick="handleTuitionPaymentSubmit('EASY_PAY')" style="padding: 12px 8px; font-size: 0.82rem; font-weight: 800; background: rgba(251,191,36,0.15); border: 1.5px solid #f59e0b; color: #fde68a; border-radius: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;">
+                        <span style="font-size: 1.2rem;">⚡</span>
+                        <span>간편결제 (카카오/토스)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 빠른 원클릭 즉시 수납 (Hostage 0.1s 즉시 해제 테스트 및 결제) -->
+            <button type="button" onclick="handleTuitionPaymentSubmit('ONE_CLICK')" class="btn" style="width: 100%; padding: 14px 0; font-size: 0.95rem; font-weight: 900; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border-radius: 12px; box-shadow: 0 4px 18px rgba(16, 185, 129, 0.4); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <span>🔓 즉시 수납 및 기능 잠금 해제</span>
+            </button>
+
+            <div style="text-align: center; margin-top: 12px; font-size: 0.72rem; color: #94a3b8; line-height: 1.4;">
+                🔒 Toss Payments 서브몰 분할 정산 연동 | 결제 즉시 수강 권한이 자동 복구됩니다.
             </div>
         </div>
     </div>
