@@ -80,6 +80,17 @@ def init_db_schema():
         except Exception as pg_err:
             print(f"[INIT ERROR] PostgreSQL schema sync note ({pg_err}). Strict PostgreSQL mode maintained (NO SILENT FALLBACK).")
 
+    # 3. Cleanse any legacy mock/sample exam records across all database engines
+    for eng in [database.sqlite_engine, database.engine]:
+        try:
+            with eng.connect() as conn:
+                conn.execute(text("DELETE FROM exam_source_answers WHERE is_alumni_tutor = 1 OR author_name IN ('연세대 의예과 튜터', '서울대 수리과학부 멘토', '낙생고 졸업생 전교1등', '카이스트 수리멘토', '고려대 국문과 선배', '포스텍 멘토', '의대 재학생 튜터', '서울대 의대 멘토', '대원외고 34기 졸업생');"))
+                conn.execute(text("DELETE FROM exam_source_questions WHERE author_name IN ('낙생고 수험생', '재원생 수험생');"))
+                conn.execute(text("DELETE FROM exam_source_tracer_items;"))
+                conn.commit()
+        except Exception:
+            pass
+
 try:
     init_db_schema()
 except Exception as e:

@@ -1320,6 +1320,15 @@ assert bible_after_data.get("verified_count") == init_verified_count + 1, "Verif
 recent_titles = [r["question_num"] for r in bible_after_data.get("recent_verified", [])]
 assert "객관식 15번" in recent_titles, "Adopted question must appear in recent_verified feed"
 
+# 7. Clean up test artifacts to keep DB at clean zero-state
+db_cleanup = database.SessionLocal()
+try:
+    db_cleanup.query(models.ExamSourceAnswer).filter(models.ExamSourceAnswer.id == ans_id).delete()
+    db_cleanup.query(models.ExamSourceQuestion).filter(models.ExamSourceQuestion.id == q_id).delete()
+    db_cleanup.commit()
+finally:
+    db_cleanup.close()
+
 print("[GATE 7.16 PASS] Crowdsourced Exam Source Q&A, Tutor Adoption & School Bible Real-Time Aggregation 100% Verified!")
 
 
