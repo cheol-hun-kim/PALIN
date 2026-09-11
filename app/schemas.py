@@ -472,10 +472,17 @@ class StudentRegisterRequest(BaseModel):
     name: str
     phone: str
     grade: int
-    region: str
-    high_school: str
-    target_univ: str
-    baseline_univ: str
+    region: Optional[str] = "-"
+    high_school: Optional[str] = "-"
+    school_name: Optional[str] = None
+    school_level: Optional[str] = "HIGH"
+    target_high_school: Optional[str] = None
+    target_high_school_type: Optional[str] = None
+    baseline_high_school: Optional[str] = None
+    dream_job: Optional[str] = None
+    pet_type: Optional[str] = "cat"
+    target_univ: Optional[str] = "-"
+    baseline_univ: Optional[str] = "-"
     parent_name: Optional[str] = None
     parent_phone: Optional[str] = None
     referred_by: Optional[str] = None

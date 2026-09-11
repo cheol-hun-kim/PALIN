@@ -5387,35 +5387,30 @@ async function handleStudentLoginSubmit(e) {
 
         });
 
-        const data = await res.json();
+        let data;
+        try {
+            data = await res.json();
+        } catch (jsonErr) {
+            data = { detail: `서버 응답 파싱 실패 (상태코드: ${res.status})` };
+        }
 
         if (!res.ok) {
-
-            alert(data.detail || "로그인 실패");
-
+            alert(data.detail || `로그인 실패 (오류코드: ${res.status})`);
             return;
-
         }
 
         // 🛡️ 데모 잔상 및 이전 세션 상태 완전 초기화
         resetSessionState();
 
         // Check if Master Account logged in via student form
-
         if (email.toLowerCase() === '1286orbital21@gmail.com' || data.role === 'SUPER_ADMIN') {
-
             localStorage.setItem('userRole', 'SUPER_ADMIN');
-
             sessionStorage.setItem('palin_super_admin', 'true');
-
         } else {
-
             localStorage.setItem('userRole', 'STUDENT');
-
         }
 
         localStorage.setItem("studentId", data.student_id || 1);
-
         localStorage.setItem("jwtToken", data.token);
 
         const regOverlay = document.getElementById("register-overlay");
@@ -5425,17 +5420,14 @@ async function handleStudentLoginSubmit(e) {
         applyRolePermissions(localStorage.getItem('userRole'));
 
         if (data.must_set_password) {
-
             promptInitialPasswordSetup(data.student_id, "STUDENT");
-
         }
 
         fetchStudentInfo(data.student_id || 1);
 
     } catch(err) {
-
-        alert("서버 연결 실패");
-
+        console.error("Student login error:", err);
+        alert(err.detail || err.message || "서버 통신 중 오류가 발생했습니다.");
     }
 
 }
@@ -5651,22 +5643,22 @@ async function handleStudentRegisterSubmit(e) {
             })
         });
 
-        const data = await res.json();
+        let data;
+        try {
+            data = await res.json();
+        } catch (jsonErr) {
+            data = { detail: `서버 응답 파싱 실패 (상태코드: ${res.status})` };
+        }
 
         if (!res.ok) {
-
-            alert(data.detail || "회원가입 실패");
-
+            alert(data.detail || `회원가입 실패 (오류코드: ${res.status})`);
             return;
-
         }
 
         alert("🎉 회원가입이 완료되었습니다! 100P가 지급되었습니다.");
 
         localStorage.setItem("userRole", "STUDENT");
-
         localStorage.setItem("studentId", data.student_id);
-
         localStorage.setItem("jwtToken", data.token);
 
         const regOverlay = document.getElementById("register-overlay");
@@ -5674,13 +5666,11 @@ async function handleStudentRegisterSubmit(e) {
         hideOverlay("register-overlay");
 
         applyRolePermissions("STUDENT");
-
         fetchStudentInfo(data.student_id);
 
     } catch(err) {
-
-        alert("서버 연결 실패");
-
+        console.error("Student registration error:", err);
+        alert(err.detail || err.message || "서버 통신 중 오류가 발생했습니다.");
     }
 
 }
@@ -6120,86 +6110,7 @@ function applyRolePermissions(role) {
 }
 
 async function handleRegister(e) {
-
-    e.preventDefault();
-
-    const email = document.getElementById("reg-email").value.trim();
-
-    const password = document.getElementById("reg-password")?.value.trim() || "";
-
-    const name = document.getElementById("reg-name").value.trim();
-
-    const phone = document.getElementById("reg-phone").value.trim();
-
-    const grade = parseInt(document.getElementById("reg-grade").value, 10);
-
-    const targetUniv = document.getElementById("reg-target-univ").value;
-
-    const targetDept = document.getElementById("reg-target-dept").value;
-
-    const baselineUniv = document.getElementById("reg-baseline-univ").value;
-
-    const baselineDept = document.getElementById("reg-baseline-dept").value;
-
-    const sidoVal = document.getElementById("reg-sido")?.value || "경기도";
-
-    const sigunguVal = document.getElementById("reg-sigungu")?.value || "성남시 분당구";
-
-    const fullRegion = `${sidoVal} ${sigunguVal}`.trim();
-
-    const schoolName = document.getElementById("reg-school")?.value || "낙생고등학교";
-
-    const pname = document.getElementById("reg-pname").value.trim();
-    const pphone = document.getElementById("reg-pphone").value.trim();
-    const referredBy = (document.getElementById("reg-referred-by")?.value || "").trim().toUpperCase() || null;
-    const academyCode = (document.getElementById("reg-academy-code")?.value || "").trim().toUpperCase() || null;
-
-    try {
-        const res = await fetch("/api/auth/register/student", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                email: email, password: password, name: name, phone: phone, grade: grade,
-                region: fullRegion, high_school: schoolName,
-                target_univ: `${targetUniv} ${targetDept}`,
-                baseline_univ: `${baselineUniv} ${baselineDept}`,
-                parent_name: pname, parent_phone: pphone, referred_by: referredBy,
-                academy_code: academyCode
-            })
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-
-            alert(data.detail || "회원가입 실패");
-
-            return;
-
-        }
-
-        alert("🎉 회원가입이 완료되었습니다! 100P가 지급되었습니다.");
-
-        localStorage.setItem("userRole", "STUDENT");
-
-        localStorage.setItem("studentId", data.student_id);
-
-        localStorage.setItem("jwtToken", data.token);
-
-        const regOverlay = document.getElementById("register-overlay");
-        if (regOverlay) regOverlay.style.display = "none";
-        hideOverlay("register-overlay");
-
-        applyRolePermissions("STUDENT");
-
-        fetchStudentInfo(data.student_id);
-
-    } catch(err) {
-
-        alert("서버 연결 실패");
-
-    }
-
+    return handleStudentRegisterSubmit(e);
 }
 
 // 학부모 결제 토글

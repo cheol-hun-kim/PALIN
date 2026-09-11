@@ -701,6 +701,8 @@ def handle_student_register_auth(payload: schemas.StudentRegisterRequest, db: Se
         default_wake = "07:00"
         default_sleep = "23:00"
 
+    pw_hash = models.hash_password(payload.password.strip()) if getattr(payload, 'password', None) and payload.password.strip() else None
+
     student = models.Student(
         email=clean_email,
         password_hash=pw_hash,
