@@ -4898,55 +4898,36 @@ function toggleAccordion(bodyId, iconId) {
 // PALIN OS 타임라인 기반 자동 테마 전환 엔진 (06시~21시: 데이 모드, 21시~06시: 딥 블랙 야간 모드)
 
 function initPALINThemeEngine() {
-
     const hour = new Date().getHours();
-
     const savedTheme = localStorage.getItem("palinTheme");
-
     const isDay = savedTheme === "day" || (savedTheme === null && hour >= 6 && hour < 21);
 
     if (isDay) {
-
         document.body.classList.add("day-mode");
-
+        document.documentElement.classList.add("day-mode");
     } else {
-
         document.body.classList.remove("day-mode");
-
+        document.documentElement.classList.remove("day-mode");
     }
-
     updateThemeToggleIcon(isDay);
-
 }
 
 function updateThemeToggleIcon(isDay) {
-
     const iconEl = document.getElementById("theme-toggle-icon");
-
     if (iconEl) {
-
         iconEl.innerText = isDay ? "☀️" : "🌙";
-
     }
-
 }
 
 function togglePALINTheme() {
-
     document.body.classList.toggle("day-mode");
-
+    document.documentElement.classList.toggle("day-mode");
     const isDay = document.body.classList.contains("day-mode");
-
     localStorage.setItem("palinTheme", isDay ? "day" : "night");
-
     updateThemeToggleIcon(isDay);
-
     if (currentStudent) {
-
         updateTargetBanner();
-
     }
-
 }
 
 async function fetchUnivData() {
@@ -17520,7 +17501,7 @@ window.handleStudentSeatAction = handleStudentSeatAction;
 // ============================================================================
 function initAppTheme() {
     try {
-        const savedTheme = localStorage.getItem('palin_theme') || 'classic';
+        const savedTheme = localStorage.getItem('palin_theme') || 'original';
         document.documentElement.setAttribute('data-theme', savedTheme);
         console.log(`[PALIN OS] Applied theme: ${savedTheme}`);
     } catch (e) {

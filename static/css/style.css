@@ -104,66 +104,230 @@ div[style*="grid-template-columns"] > div {
 
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
 
+/* ============================================================================
+   🎨 PALIN OS 6-Theme Adaptive Matrix & Enterprise Premium UI Engine
+   ============================================================================ */
+
+/* 1. Theme 1: original / classic (PALIN Classic Cyber Navy) */
 :root,
+html[data-theme="original"],
 html[data-theme="classic"] {
     --bg-primary: #0a0b0e;
     --bg-secondary: #12141d;
+    --surface-card: #12141d;
     --glass-bg: rgba(18, 20, 29, 0.75);
     --glass-border: rgba(255, 255, 255, 0.1);
     --text-primary: #f8fafc;
     --text-secondary: #94a3b8;
-    
+    --text-disabled: #64748b;
     --color-accent: #6366f1; /* Indigo */
     --color-accent-glow: rgba(99, 102, 241, 0.4);
     --color-success: #10b981; /* Emerald */
     --color-success-glow: rgba(16, 185, 129, 0.3);
     --color-warning: #f59e0b; /* Amber */
     --color-danger: #ef4444; /* Rose */
-    
     --font-app: 'Outfit', 'Noto Sans KR', sans-serif;
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 🎨 Theme 2: Enterprise Minimalism (Clean Flat Daylight Style) */
-html[data-theme="enterprise-minimal"] body {
-    --bg-primary: #f8fafc;
-    --bg-secondary: #ffffff;
-    --glass-bg: rgba(255, 255, 255, 0.98);
-    --glass-border: rgba(15, 23, 42, 0.12);
-    --text-primary: #090a0f;
-    --text-secondary: #334155;
-    --color-accent: #2563eb;
-    --color-accent-glow: rgba(37, 99, 235, 0.25);
-    background-color: #f1f5f9;
-    color: #090a0f;
-}
-
-/* 🎨 Theme 3: Fintech Clean (Toss/Stripe Style Crisp Modern UI) */
-html[data-theme="fintech-clean"] body {
-    --bg-primary: #f0f4f8;
-    --bg-secondary: #ffffff;
-    --glass-bg: rgba(255, 255, 255, 0.96);
-    --glass-border: #cbd5e1;
-    --text-primary: #0f172a;
-    --text-secondary: #475569;
-    --color-accent: #0064ff;
-    --color-accent-glow: rgba(0, 100, 255, 0.3);
-    background-color: #e2e8f0;
-    color: #0f172a;
-}
-
-/* 🎨 Theme 4: Deep Academic (Ivy League Deep Navy & Rich Gold) */
-html[data-theme="deep-academic"] body {
-    --bg-primary: #060913;
-    --bg-secondary: #0d1322;
-    --glass-bg: rgba(13, 19, 34, 0.85);
-    --glass-border: rgba(99, 102, 241, 0.25);
-    --text-primary: #f8fafc;
+/* 2. Theme 2: minimal-5color (5-Color Strict High-Contrast Zero-Emoji) */
+html[data-theme="minimal-5color"] {
+    --bg-primary: #0a0b0e;
+    --bg-secondary: #16181d;
+    --surface-card: #16181d;
+    --glass-bg: #16181d;
+    --glass-border: #272a30;
+    --text-primary: #ffffff;
     --text-secondary: #94a3b8;
-    --color-accent: #3b82f6;
-    --color-accent-glow: rgba(59, 130, 246, 0.4);
-    background-color: #04060d;
-    color: #f8fafc;
+    --text-disabled: #64748b;
+    --color-accent: var(--univ-primary, #6366f1);
+    --color-accent-glow: rgba(255, 255, 255, 0.1);
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-danger: #ef4444;
+}
+html[data-theme="minimal-5color"].day-mode,
+html[data-theme="minimal-5color"] body.day-mode {
+    --bg-primary: #f8f9fa;
+    --bg-secondary: #ffffff;
+    --surface-card: #ffffff;
+    --glass-bg: #ffffff;
+    --glass-border: #e5e7eb;
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --text-disabled: #9ca3af;
+    background-color: #f8f9fa !important;
+    color: #111827 !important;
+}
+
+/* 3. Theme 3: enterprise-gemini (Phase 10.3 Gemini Adaptive Matrix & Negative Space) */
+html[data-theme="enterprise-gemini"] {
+    --bg-primary: #121212;
+    --bg-secondary: #1e1e1e;
+    --surface-card: #1e1e1e;
+    --glass-bg: #1e1e1e;
+    --glass-border: transparent;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --text-disabled: rgba(255, 255, 255, 0.4);
+    --color-accent: var(--univ-primary, #6366f1);
+    --color-accent-glow: transparent;
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-danger: #ef4444;
+}
+html[data-theme="enterprise-gemini"] .card,
+html[data-theme="enterprise-gemini"] .section-box,
+html[data-theme="enterprise-gemini"] .modal-content {
+    border: none !important;
+    background: #1e1e1e !important;
+}
+html[data-theme="enterprise-gemini"].day-mode,
+html[data-theme="enterprise-gemini"] body.day-mode {
+    --bg-primary: #f8f9fa;
+    --bg-secondary: #ffffff;
+    --surface-card: #ffffff;
+    --glass-bg: #ffffff;
+    --glass-border: transparent;
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --text-disabled: #9ca3af;
+    background-color: #f8f9fa !important;
+    color: #111827 !important;
+}
+html[data-theme="enterprise-gemini"].day-mode .card,
+html[data-theme="enterprise-gemini"].day-mode .section-box,
+html[data-theme="enterprise-gemini"] body.day-mode .card,
+html[data-theme="enterprise-gemini"] body.day-mode .section-box {
+    border: none !important;
+    background: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* 4. Theme 4: linear-obsidian (Benchmark 1: Linear Precision Obsidian Dark) */
+html[data-theme="linear-obsidian"] {
+    --bg-primary: #08090a;
+    --bg-secondary: #111215;
+    --surface-card: #111215;
+    --glass-bg: rgba(17, 18, 21, 0.9);
+    --glass-border: rgba(255, 255, 255, 0.07);
+    --text-primary: #ededef;
+    --text-secondary: #8a8f98;
+    --text-disabled: #54575e;
+    --color-accent: var(--univ-primary, #5e6ad2);
+    --color-accent-glow: rgba(94, 106, 210, 0.3);
+    --color-success: #4cb782;
+    --color-warning: #f2994a;
+    --color-danger: #eb5757;
+}
+html[data-theme="linear-obsidian"] body {
+    background-color: #08090a;
+    color: #ededef;
+}
+html[data-theme="linear-obsidian"] .card,
+html[data-theme="linear-obsidian"] .section-box {
+    background: #111215;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+}
+
+/* 5. Theme 5: stripe-fintech (Benchmark 2: Stripe Modern Slate & Aurora Fintech) */
+html[data-theme="stripe-fintech"] {
+    --bg-primary: #0a2540;
+    --bg-secondary: #103258;
+    --surface-card: #103258;
+    --glass-bg: rgba(16, 50, 88, 0.95);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --text-primary: #ffffff;
+    --text-secondary: #8898aa;
+    --text-disabled: #525f7f;
+    --color-accent: var(--univ-primary, #635bff);
+    --color-accent-glow: rgba(99, 91, 255, 0.35);
+    --color-success: #00d924;
+    --color-warning: #ffc107;
+    --color-danger: #e22525;
+}
+html[data-theme="stripe-fintech"] body {
+    background-color: #0a2540;
+    color: #ffffff;
+}
+html[data-theme="stripe-fintech"].day-mode,
+html[data-theme="stripe-fintech"] body.day-mode {
+    --bg-primary: #f6f9fc;
+    --bg-secondary: #ffffff;
+    --surface-card: #ffffff;
+    --glass-bg: #ffffff;
+    --glass-border: #e3e8ee;
+    --text-primary: #0a2540;
+    --text-secondary: #425466;
+    --text-disabled: #8898aa;
+    background-color: #f6f9fc !important;
+    color: #0a2540 !important;
+}
+html[data-theme="stripe-fintech"].day-mode .card,
+html[data-theme="stripe-fintech"] body.day-mode .card {
+    background: #ffffff !important;
+    border: 1px solid #e3e8ee !important;
+    box-shadow: 0 4px 16px rgba(50, 50, 93, 0.08) !important;
+}
+
+/* 6. Theme 6: apple-cupertino (Benchmark 3: Apple Spatial Glass & Clean Human Interface) */
+html[data-theme="apple-cupertino"] {
+    --bg-primary: #000000;
+    --bg-secondary: rgba(28, 28, 30, 0.85);
+    --surface-card: rgba(28, 28, 30, 0.85);
+    --glass-bg: rgba(28, 28, 30, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --text-primary: #ffffff;
+    --text-secondary: #8e8e93;
+    --text-disabled: #48484a;
+    --color-accent: var(--univ-primary, #0071e3);
+    --color-accent-glow: rgba(0, 113, 227, 0.3);
+    --color-success: #34c759;
+    --color-warning: #ff9500;
+    --color-danger: #ff3b30;
+}
+html[data-theme="apple-cupertino"] body {
+    background-color: #000000;
+    color: #ffffff;
+}
+html[data-theme="apple-cupertino"] .card,
+html[data-theme="apple-cupertino"] .section-box {
+    background: rgba(28, 28, 30, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+}
+html[data-theme="apple-cupertino"].day-mode,
+html[data-theme="apple-cupertino"] body.day-mode {
+    --bg-primary: #f2f2f7;
+    --bg-secondary: rgba(255, 255, 255, 0.88);
+    --surface-card: rgba(255, 255, 255, 0.88);
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(0, 0, 0, 0.08);
+    --text-primary: #000000;
+    --text-secondary: #6c6c70;
+    --text-disabled: #aeaeb2;
+    background-color: #f2f2f7 !important;
+    color: #000000 !important;
+}
+html[data-theme="apple-cupertino"].day-mode .card,
+html[data-theme="apple-cupertino"] body.day-mode .card {
+    background: rgba(255, 255, 255, 0.88) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border-radius: 18px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 🎯 Sanctuary: Target University Dynamic Theme Priority 1 */
+html[data-theme] .univ-banner,
+html[data-theme] #univ-target-banner,
+html[data-theme] #univ-slogan-container,
+html[data-theme] .target-univ-accent {
+    transition: var(--transition-smooth);
 }
 
 /* 💸 결제선생 Fintech In-App Billing UI & Status Badges */

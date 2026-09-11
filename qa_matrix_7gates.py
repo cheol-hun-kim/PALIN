@@ -468,17 +468,22 @@ assert 'b2c_subscription_tier' in models_py_content, "Missing b2c_subscription_t
 
 print("[GATE 4.5 PASS] Strict Dual-Tier Rule Verified: B2C is strictly Tier 1~3, B2B Tier 4 is exclusively Ilwon Academy!")
 
-# Gate 4.6: God-Mode Multi-Theme Suite & Design Token Integrity Defense
-assert 'html[data-theme="classic"]' in css_content, "Missing classic theme CSS declaration"
-assert 'html[data-theme="enterprise-minimal"]' in css_content, "Missing enterprise-minimal theme CSS declaration"
-assert 'html[data-theme="fintech-clean"]' in css_content, "Missing fintech-clean theme CSS declaration"
-assert 'html[data-theme="deep-academic"]' in css_content, "Missing deep-academic theme CSS declaration"
+# Gate 4.6: God-Mode 6-Theme Adaptive Matrix & Enterprise UI Integrity Defense
+assert 'html[data-theme="original"]' in css_content or 'html[data-theme="classic"]' in css_content, "Missing original/classic theme declaration"
+assert 'html[data-theme="minimal-5color"]' in css_content, "Missing minimal-5color theme declaration"
+assert 'html[data-theme="enterprise-gemini"]' in css_content, "Missing enterprise-gemini theme declaration"
+assert 'html[data-theme="linear-obsidian"]' in css_content, "Missing linear-obsidian theme declaration"
+assert 'html[data-theme="stripe-fintech"]' in css_content, "Missing stripe-fintech theme declaration"
+assert 'html[data-theme="apple-cupertino"]' in css_content, "Missing apple-cupertino theme declaration"
 
+assert '--surface-card' in css_content, "Missing --surface-card CSS token"
+assert '--text-disabled' in css_content, "Missing --text-disabled CSS token"
 assert '.invoice-pill-paid' in css_content and '.invoice-pill-overdue' in css_content and '.invoice-pill-sent' in css_content, "Missing invoice status badge CSS classes"
 assert '.hostage-lock-banner' in css_content, "Missing hostage-lock-banner CSS class"
 assert 'applyGodModeTheme' in master_html_content, "Missing applyGodModeTheme in master.html"
+assert 'linear-obsidian' in master_html_content and 'stripe-fintech' in master_html_content and 'apple-cupertino' in master_html_content, "Missing benchmark themes in master.html"
 
-print("[GATE 4.6 PASS] God-Mode Multi-Theme Suite & Billing ERP Design Tokens 100% Verified!")
+print("[GATE 4.6 PASS] God-Mode 6-Theme Adaptive Matrix & Enterprise Design Tokens 100% Verified!")
 
 # ==============================================================================
 # GATE 5: Backend / Frontend Syntax Compiles
