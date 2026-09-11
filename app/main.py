@@ -1520,9 +1520,9 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
                         is_unlimited = True
                     elif getattr(student, 'has_unlimited_chat', False):
                         is_unlimited = True
-                    elif getattr(student, 'b2c_subscription_tier', '') in ('TIER_2_PARENT', 'TIER_3_MASTER', 'TIER_4_ILWON', 'TIER_4_MASTER', 'TIER_4_ACADEMY'):
+                    elif getattr(student, 'b2c_subscription_tier', '') in ('TIER_3_MASTER', 'TIER_4_ILWON', 'TIER_4_MASTER', 'TIER_4_ACADEMY', 'TIER_3_ACADEMY', 'TIER_2_ACADEMY'):
                         is_unlimited = True
-                    elif is_academy_approved and tier >= 3:
+                    elif is_academy_approved and tier >= 2:
                         is_unlimited = True
 
                     if is_unlimited:

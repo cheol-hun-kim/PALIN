@@ -5289,8 +5289,12 @@ function resetSessionState() {
     if (typeof chatHistory !== 'undefined') chatHistory = [];
     const chatInp = document.getElementById("chat-input");
     if (chatInp) chatInp.value = "";
-    const chatLim = document.getElementById("chat-limit-label");
-    if (chatLim) chatLim.innerText = "오늘 남은 무료 대화: 5회";
+    if (typeof updateChatTierAndTokens === 'function' && typeof currentStudent !== 'undefined' && currentStudent) {
+        updateChatTierAndTokens(currentStudent);
+    } else {
+        const chatLim = document.getElementById("chat-limit-label");
+        if (chatLim) chatLim.innerText = "오늘 남은 무료 대화: 5회";
+    }
     
     // 2. 정시 합격예측 폼 및 결과 컨테이너 완전 초기화 & 입력 잠금 해제
     const gy = document.getElementById("pred-gyeyeol");
@@ -6327,31 +6331,97 @@ function updateHeaderUI() {
 
     if (sleepLabel) sleepLabel.innerText = `취침 미션 (${currentStudent.sleep_target_time || "23:30"})`;
 
-    // 🤖 AI 챗봇 대화 잔여 토큰 실시간 렌더링
-    const chatLim = document.getElementById("chat-limit-label");
-    const mypageTok = document.getElementById("mypage-token-count");
-    const isApprovedAcademy = (currentStudent.academy_approval_status === "APPROVED" || (currentStudent.academy_code && currentStudent.academy_approval_status !== "REJECTED" && currentStudent.academy_approval_status !== "PENDING"));
-    const isUnlimited = isApprovedAcademy ||
-                        Boolean(currentStudent.has_unlimited_chat) ||
-                        (currentStudent.parent && currentStudent.parent.is_premium_subscribed) ||
-                        ['TIER_2_PARENT', 'TIER_3_MASTER', 'TIER_2_ACADEMY', 'TIER_3_ACADEMY'].includes(currentStudent.b2c_subscription_tier);
+// 🤖 7단계 AI 티어 및 잔여 대화 토큰 실시간 UI 동기화
+function updateChatTierAndTokens(student, customRemaining = null) {
+    if (!student) return;
+    const b2cTier = (student.b2c_subscription_tier || "TIER_1_FREE").toUpperCase();
+    const isApprovedAcademy = (student.academy_approval_status === "APPROVED" || (student.academy_code && student.academy_approval_status !== "REJECTED" && student.academy_approval_status !== "PENDING"));
+    const academyName = student.academy_code || "가맹학원";
 
-    if (chatLim) {
-        if (isUnlimited) {
-            chatLim.innerText = "⚡ 무제한 마스터 AI 대화 패스 활성화 중";
-            chatLim.style.color = "#34d399";
-            chatLim.style.fontWeight = "700";
+    let tierLabel = "🌱 B2C Tier 1 (무료)";
+    let tierColor = "#94a3b8";
+    let tierBg = "rgba(148, 163, 184, 0.15)";
+    let isUnlimited = false;
+    let descText = "🌱 B2C Tier 1 (무료 체험)";
+
+    if (b2cTier === "TIER_4_ILWON" || (isApprovedAcademy && academyName.toUpperCase().includes("ILWON")) || student.id === 1) {
+        tierLabel = "👑 B2B Tier 4 (일원직영)";
+        tierColor = "#fbbf24";
+        tierBg = "rgba(245, 158, 11, 0.25)";
+        descText = "👑 B2B Tier 4 · 김철훈 대표원장 직강 RAG 무제한";
+        isUnlimited = true;
+    } else if (b2cTier === "TIER_3_ACADEMY" || (isApprovedAcademy && student.ai_level === "B2B_MASTER_AI")) {
+        tierLabel = `🏢 B2B Tier 3 (${academyName})`;
+        tierColor = "#34d399";
+        tierBg = "rgba(16, 185, 129, 0.2)";
+        descText = `⚡ B2B Tier 3 (${academyName}) · 백서 지식 무제한 AI 활성화`;
+        isUnlimited = true;
+    } else if (b2cTier === "TIER_2_ACADEMY" || (isApprovedAcademy && student.ai_level === "B2B_CUSTOM_BRAIN")) {
+        tierLabel = `🏢 B2B Tier 2 (${academyName})`;
+        tierColor = "#60a5fa";
+        tierBg = "rgba(59, 130, 246, 0.2)";
+        descText = `⚡ B2B Tier 2 (${academyName}) · 원장 맞춤 뇌 무제한 활성화`;
+        isUnlimited = true;
+    } else if (b2cTier === "TIER_1_ACADEMY" || (isApprovedAcademy && student.ai_level === "B2B_BASIC")) {
+        tierLabel = `🏢 B2B Tier 1 (${academyName})`;
+        tierColor = "#cbd5e1";
+        tierBg = "rgba(148, 163, 184, 0.2)";
+        descText = `🏢 B2B Tier 1 (${academyName}) · 학원 기본 코칭`;
+        isUnlimited = false;
+    } else if (b2cTier.includes("TIER_3_MASTER")) {
+        tierLabel = "👑 B2C Tier 3 (마스터)";
+        tierColor = "#c084fc";
+        tierBg = "rgba(168, 85, 247, 0.2)";
+        descText = "⚡ B2C Tier 3 (마스터) · 백서 지식 100% 무제한 AI 활성화";
+        isUnlimited = true;
+    } else if (b2cTier.includes("TIER_2")) {
+        tierLabel = "🎯 B2C Tier 2 (스탠다드 · 1/10 답변)";
+        tierColor = "#818cf8";
+        tierBg = "rgba(99, 102, 241, 0.2)";
+        descText = "🎯 B2C Tier 2 (스탠다드 · 1/10 요약 코칭)";
+        isUnlimited = false;
+    } else {
+        tierLabel = "🌱 B2C Tier 1 (무료)";
+        tierColor = "#94a3b8";
+        tierBg = "rgba(148, 163, 184, 0.15)";
+        descText = "🌱 B2C Tier 1 (무료 체험)";
+        isUnlimited = false;
+    }
+
+    if (student.parent && student.parent.is_premium_subscribed) {
+        isUnlimited = true;
+        descText = "👑 프리미엄 회원 (부모 연동) · 무제한 대화";
+    } else if (student.has_unlimited_chat) {
+        isUnlimited = true;
+    }
+
+    const pill = document.getElementById("chat-tier-status-pill");
+    if (pill) {
+        pill.innerText = tierLabel;
+        pill.style.color = tierColor;
+        pill.style.background = tierBg;
+        pill.style.borderColor = tierColor;
+    }
+
+    const toks = customRemaining !== null ? customRemaining : ((student.chat_tokens !== undefined && student.chat_tokens !== null) ? student.chat_tokens : 5);
+    const limitLabel = document.getElementById("chat-limit-label");
+    if (limitLabel) {
+        if (isUnlimited || toks >= 900) {
+            limitLabel.innerHTML = `<span style="color: ${tierColor}; font-weight: 800;">⚡ ${descText}</span>`;
         } else {
-            const toks = (currentStudent.chat_tokens !== undefined && currentStudent.chat_tokens !== null) ? currentStudent.chat_tokens : 5;
-            chatLim.innerText = `오늘 남은 무료 대화: ${toks}회`;
-            chatLim.style.color = "var(--text-secondary)";
-            chatLim.style.fontWeight = "normal";
+            limitLabel.innerHTML = `${descText} · 잔여 대화: <b style="color: #38bdf8;">${toks}회</b>`;
+            limitLabel.style.color = "var(--text-secondary)";
+            limitLabel.style.fontWeight = "normal";
         }
     }
+
+    const mypageTok = document.getElementById("mypage-token-count");
     if (mypageTok) {
-        const toks = (currentStudent.chat_tokens !== undefined && currentStudent.chat_tokens !== null) ? currentStudent.chat_tokens : 5;
-        mypageTok.innerText = toks;
+        mypageTok.innerText = isUnlimited ? "무제한" : toks;
     }
+}
+
+updateChatTierAndTokens(currentStudent);
 
     const premiumBtn = document.getElementById("premium-toggle-btn");
 
@@ -8921,22 +8991,7 @@ async function sendChatMessage() {
             currentStudent.chat_tokens = data.remaining_chats;
         }
 
-        const limitLabel = document.getElementById("chat-limit-label");
-        const mypageTok = document.getElementById("mypage-token-count");
-        if (limitLabel) {
-            if (data.remaining_chats >= 900) {
-                limitLabel.innerText = "⚡ 무제한 마스터 AI 대화 패스 활성화 중";
-                limitLabel.style.color = "#34d399";
-                limitLabel.style.fontWeight = "700";
-            } else {
-                limitLabel.innerText = `오늘 남은 무료 대화: ${data.remaining_chats}회`;
-                limitLabel.style.color = "var(--text-secondary)";
-                limitLabel.style.fontWeight = "normal";
-            }
-        }
-        if (mypageTok && data.remaining_chats < 900) {
-            mypageTok.innerText = data.remaining_chats;
-        }
+        updateChatTierAndTokens(currentStudent, data.remaining_chats);
 
     } catch (e) {
 
