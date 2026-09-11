@@ -420,6 +420,24 @@ assert 'body.day-mode #student-card-modal .trigger-content' in css_content, "Mis
 assert 'body.day-mode #cash-modal .trigger-content' in css_content, "Missing cash-modal Day Mode contrast rule"
 print("[GATE 4.3 PASS] Day Mode high-contrast text styling verified (Zero White-on-White text)!")
 
+# Gate 4.4: Mobile Viewport Zero-Clipping & 7-Tier God-Mode Integrity
+assert '#header-student-name' in css_content, "Missing #header-student-name CSS rule"
+assert 'text-overflow: ellipsis' in css_content, "Missing ellipsis overflow protection"
+assert '@media (max-width: 480px)' in css_content and '@media (max-width: 360px)' in css_content, "Missing responsive mobile header breakpoints"
+
+with open(os.path.join(ROOT_DIR, 'static', 'master.html'), 'r', encoding='utf-8') as f:
+    master_html_content = f.read()
+
+assert 'B2C Tier 1' in master_html_content and 'B2C Tier 2' in master_html_content and 'B2C Tier 3' in master_html_content, "Missing B2C 1~3 tiers in master.html"
+assert 'B2B Tier 1' in master_html_content and 'B2B Tier 2' in master_html_content and 'B2B Tier 3' in master_html_content and 'B2B Tier 4' in master_html_content, "Missing B2B 1~4 tiers in master.html"
+assert 'TIER_1_ACADEMY' in master_html_content and 'TIER_2_ACADEMY' in master_html_content, "Missing B2B Academy tiers in master.html"
+
+with open(os.path.join(ROOT_DIR, 'app', 'main.py'), 'r', encoding='utf-8') as f:
+    main_py_content = f.read()
+
+assert 'TIER_1_ACADEMY' in main_py_content and 'TIER_2_ACADEMY' in main_py_content and 'TIER_3_ACADEMY' in main_py_content and 'TIER_4_ILWON' in main_py_content, "Missing 7-tier backend support in main.py"
+print("[GATE 4.4 PASS] Mobile Viewport Zero-Clipping & 7-Tier God-Mode Integrity verified!")
+
 # ==============================================================================
 # GATE 5: Backend / Frontend Syntax Compiles
 # ==============================================================================

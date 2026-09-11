@@ -702,24 +702,24 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
         <!-- 2. 공통 헤더 (초깔끔 미니멀 헤더) -->
         <header>
-            <div class="logo-container" style="display: flex; align-items: baseline; gap: 6px;">
-                <span class="logo-text" style="font-weight: 900; letter-spacing: -0.5px;">PASS MATE</span>
-                <span style="font-size: 0.65rem; color: #818cf8; font-weight: 800; letter-spacing: 0.5px;">by PALIN</span>
+            <div class="logo-container">
+                <span class="logo-text">PASS MATE</span>
+                <span class="logo-subtext">by PALIN</span>
             </div>
-            <div class="user-status" style="display: flex; align-items: center; gap: 8px;">
+            <div class="user-status">
                 <!-- 🌓 테마 모드 전환 버튼 -->
-                <button type="button" onclick="togglePALINTheme()" class="btn btn-secondary" style="padding: 6px 8px; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 1rem;" title="라이트/다크 모드 전환">
+                <button type="button" onclick="togglePALINTheme()" class="btn btn-secondary header-theme-btn" title="라이트/다크 모드 전환">
                     <span id="theme-toggle-icon">🌓</span>
                 </button>
                 <!-- 🔥 듀오링고 연속 출석 불꽃 (명확한 연속일수 안내) -->
-                <div class="streak-badge" id="header-streak-badge" title="연속 학습 미션 성공 기록 (클릭하여 주간 현황 확인)" style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 0 10px; height: 34px; line-height: 1; border-radius: 20px; box-sizing: border-box; vertical-align: middle;">
-                    <span style="display: inline-flex; align-items: center; line-height: 1; font-size: 0.95rem;">🔥</span>
-                    <span id="header-streak-count" style="font-weight: 800; font-size: 0.8rem; line-height: 1; display: inline-flex; align-items: center;">연속 8일</span>
+                <div class="streak-badge" id="header-streak-badge" title="연속 학습 미션 성공 기록 (클릭하여 주간 현황 확인)">
+                    <span>🔥</span>
+                    <span id="header-streak-count">연속 8일</span>
                 </div>
                 <!-- 👤 마이페이지 & 자산 관리 버튼 -->
-                <button id="header-mypage-btn" onclick="openMyPageModal()" class="header-user-btn" style="padding: 0 12px; height: 34px; font-size: 0.82rem; display: inline-flex; align-items: center; justify-content: center; gap: 5px; border-radius: 20px; cursor: pointer; line-height: 1; box-sizing: border-box;">
-                    <span class="material-symbols-rounded header-user-icon" style="font-size: 1.15rem; line-height: 1;">account_circle</span>
-                    <span id="header-student-name" style="font-weight: 800; letter-spacing: -0.2px; line-height: 1;">내 정보</span>
+                <button id="header-mypage-btn" onclick="openMyPageModal()" class="header-user-btn">
+                    <span class="material-symbols-rounded header-user-icon">account_circle</span>
+                    <span id="header-student-name">내 정보</span>
                 </button>
             </div>
         </header>
