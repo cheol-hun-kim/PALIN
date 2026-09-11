@@ -3733,7 +3733,7 @@ body.day-mode #mypage-modal #mypage-edit-toggle-icon {
     color: #3730a3 !important;
 }
 
-/* ☀️ High-Contrast Day-Mode for Academy Administrative Request Modals */
+/* ☀️ High-Contrast & Strict Semantic Color Parity for Academy Administrative Request Modals */
 body.day-mode #academy-request-modal .trigger-content,
 body.day-mode #academy-leave-modal .trigger-content,
 body.day-mode #academy-withdraw-modal .trigger-content {
@@ -3742,24 +3742,116 @@ body.day-mode #academy-withdraw-modal .trigger-content {
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15) !important;
 }
 
-body.day-mode #academy-request-modal #req-modal-title {
+/* Default Dark Mode Semantic Modal Rules */
+#academy-request-modal[data-req-type="VOD"] .trigger-content {
+    border-color: #6366f1;
+}
+#academy-request-modal[data-req-type="VOD"] #req-modal-title {
+    color: #818cf8;
+}
+#academy-request-modal[data-req-type="VOD"] #req-modal-notice {
+    background: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    color: #a5b4fc;
+}
+#academy-request-modal[data-req-type="VOD"] #req-modal-submit-btn {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: #ffffff;
+}
+
+#academy-request-modal[data-req-type="ATTENDANCE"] .trigger-content {
+    border-color: #10b981;
+}
+#academy-request-modal[data-req-type="ATTENDANCE"] #req-modal-title {
+    color: #34d399;
+}
+#academy-request-modal[data-req-type="ATTENDANCE"] #req-modal-notice {
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    color: #6ee7b7;
+}
+#academy-request-modal[data-req-type="ATTENDANCE"] #req-modal-submit-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+}
+
+#academy-request-modal[data-req-type="CLASS_CHANGE"] .trigger-content {
+    border-color: #f59e0b;
+}
+#academy-request-modal[data-req-type="CLASS_CHANGE"] #req-modal-title {
+    color: #fbbf24;
+}
+#academy-request-modal[data-req-type="CLASS_CHANGE"] #req-modal-notice {
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    color: #fde68a;
+}
+#academy-request-modal[data-req-type="CLASS_CHANGE"] #req-modal-submit-btn {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #000000;
+    font-weight: 900;
+}
+
+/* Day Mode Semantic Modal Overrides */
+body.day-mode #academy-request-modal[data-req-type="VOD"] #req-modal-title {
+    color: #4338ca !important;
+}
+body.day-mode #academy-request-modal[data-req-type="VOD"] .trigger-content {
+    border-color: #6366f1 !important;
+}
+body.day-mode #academy-request-modal[data-req-type="VOD"] #req-modal-notice {
+    background: #eef2ff !important;
+    border: 1px solid #c7d2fe !important;
     color: #3730a3 !important;
+}
+body.day-mode #academy-request-modal[data-req-type="VOD"] #req-modal-submit-btn {
+    background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+    color: #ffffff !important;
+}
+
+body.day-mode #academy-request-modal[data-req-type="ATTENDANCE"] #req-modal-title {
+    color: #065f46 !important;
+}
+body.day-mode #academy-request-modal[data-req-type="ATTENDANCE"] .trigger-content {
+    border-color: #10b981 !important;
+}
+body.day-mode #academy-request-modal[data-req-type="ATTENDANCE"] #req-modal-notice {
+    background: #ecfdf5 !important;
+    border: 1px solid #a7f3d0 !important;
+    color: #065f46 !important;
+}
+body.day-mode #academy-request-modal[data-req-type="ATTENDANCE"] #req-modal-submit-btn {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+    color: #ffffff !important;
+}
+
+body.day-mode #academy-request-modal[data-req-type="CLASS_CHANGE"] #req-modal-title {
+    color: #92400e !important;
+}
+body.day-mode #academy-request-modal[data-req-type="CLASS_CHANGE"] .trigger-content {
+    border-color: #f59e0b !important;
+}
+body.day-mode #academy-request-modal[data-req-type="CLASS_CHANGE"] #req-modal-notice {
+    background: #fffbeb !important;
+    border: 1px solid #fde68a !important;
+    color: #92400e !important;
+}
+body.day-mode #academy-request-modal[data-req-type="CLASS_CHANGE"] #req-modal-submit-btn {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    color: #000000 !important;
     font-weight: 900 !important;
 }
 
-body.day-mode #academy-request-modal [style*="color: #a5b4fc"] {
-    color: #3730a3 !important;
+body.day-mode #academy-leave-modal .trigger-content {
+    border-color: #ef4444 !important;
 }
-
-body.day-mode #academy-request-modal [style*="background: rgba(99,102,241,0.08)"] {
-    background: #f8fafc !important;
-    border: 1px solid #cbd5e1 !important;
+body.day-mode #academy-leave-modal div[style*="color: #f87171"] {
+    color: #b91c1c !important;
 }
-
 body.day-mode #academy-leave-modal #leave-auto-ment-box {
-    background: #f8fafc !important;
-    border: 1px solid #cbd5e1 !important;
-    color: #334155 !important;
+    background: #fef2f2 !important;
+    border: 1px solid #fecaca !important;
+    color: #991b1b !important;
 }
 
 body.day-mode #academy-withdraw-modal [style*="background: rgba(245,158,11,0.08)"] {
@@ -4555,5 +4647,190 @@ body.day-mode #mypage-tier-pending-badge {
     background: #fef3c7 !important;
     border: 1.5px solid #d97706 !important;
     color: #78350f !important;
+}
+
+/* ==========================================================================
+   🐣 Elementary (초등) & 🎓 Middle (중등) High-Contrast Day & Dark Mode Rules
+   ========================================================================== */
+
+/* Dark Mode Defaults for Elementary */
+.elem-pet-card {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(236, 72, 153, 0.1) 100%);
+    color: #ffffff;
+}
+#elem-pet-name {
+    color: #ffffff;
+}
+.elem-pet-talk-box {
+    color: #fde68a;
+}
+.elem-pet-snack-btn {
+    padding: 9px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    background: rgba(239, 68, 68, 0.25);
+    border: 1px solid #ef4444;
+    color: #fee2e2;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.elem-pet-snack-btn .elem-pet-btn-sub {
+    font-size: 0.68rem;
+    color: #fca5a5;
+}
+.elem-pet-praise-btn {
+    padding: 9px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    background: rgba(245, 158, 11, 0.25);
+    border: 1px solid #f59e0b;
+    color: #fef3c7;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.elem-pet-praise-btn .elem-pet-btn-sub {
+    font-size: 0.68rem;
+    color: #fde68a;
+}
+.elem-sticker-item {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1.5px solid #f59e0b;
+    border-radius: 12px;
+    padding: 12px 4px;
+}
+.elem-sticker-label {
+    color: #fde68a;
+    font-weight: 800;
+}
+
+/* Day Mode Overrides for Elementary */
+body.day-mode .elem-pet-card {
+    background: #fffbeb !important;
+    border: 1.5px solid #f59e0b !important;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.12) !important;
+    color: #0f172a !important;
+}
+body.day-mode #elem-pet-name {
+    color: #0f172a !important;
+}
+body.day-mode .elem-pet-talk-box {
+    color: #78350f !important;
+    font-weight: 700 !important;
+}
+body.day-mode .elem-pet-snack-btn {
+    background: #fee2e2 !important;
+    border: 1.5px solid #ef4444 !important;
+    color: #991b1b !important;
+}
+body.day-mode .elem-pet-snack-btn .elem-pet-btn-sub {
+    color: #b91c1c !important;
+}
+body.day-mode .elem-pet-praise-btn {
+    background: #fef3c7 !important;
+    border: 1.5px solid #d97706 !important;
+    color: #78350f !important;
+}
+body.day-mode .elem-pet-praise-btn .elem-pet-btn-sub {
+    color: #92400e !important;
+}
+body.day-mode #elem-pet-exp-bg {
+    background: #e2e8f0 !important;
+}
+body.day-mode #elem-pet-exp-container {
+    color: #475569 !important;
+}
+body.day-mode .elem-routine-card {
+    background: #f8fafc !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+body.day-mode .elem-routine-card div {
+    color: #0f172a !important;
+}
+body.day-mode .elem-routine-card div[style*="color: var(--text-secondary)"] {
+    color: #475569 !important;
+}
+body.day-mode .elem-sticker-item {
+    background: #fffbeb !important;
+    border: 1.5px solid #f59e0b !important;
+}
+body.day-mode .elem-sticker-label {
+    color: #78350f !important;
+    font-weight: 800 !important;
+}
+body.day-mode #elem-chat-box {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+}
+body.day-mode #elem-chat-box .chat-bubble.bot {
+    background: #fce7f3 !important;
+    border: 1px solid #fbcfe8 !important;
+    color: #831843 !important;
+}
+body.day-mode #elem-quiz-question {
+    color: #0f172a !important;
+}
+body.day-mode #elem-page4 .card {
+    background: #fffbeb !important;
+    border: 1.5px solid #f59e0b !important;
+    color: #0f172a !important;
+}
+body.day-mode #elem-page4 .card div[style*="color: #ffffff"] {
+    color: #0f172a !important;
+}
+
+/* Middle School Day Mode Overrides */
+body.day-mode .mid-subject-grade-box {
+    background: #eef2ff !important;
+    border: 1px solid #a5b4fc !important;
+}
+body.day-mode .mid-subject-label {
+    color: #3730a3 !important;
+    font-weight: 800 !important;
+}
+body.day-mode .mid-subject-grade {
+    color: #15803d !important;
+    font-weight: 900 !important;
+}
+body.day-mode #mid-chat-box {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+}
+body.day-mode #mid-chat-box .chat-bubble.bot {
+    background: #eef2ff !important;
+    border: 1px solid #c7d2fe !important;
+    color: #312e81 !important;
+}
+body.day-mode #mid-page4 .card {
+    background: #eef2ff !important;
+    border: 1.5px solid #a5b4fc !important;
+    color: #0f172a !important;
+}
+body.day-mode #mid-page4 .card div[style*="color: #ffffff"] {
+    color: #0f172a !important;
+}
+
+/* Hostage Banner & Micro Pledge Day-Mode Contrast Rules */
+body.day-mode #tuition-overdue-lock-banner {
+    background: #fef2f2 !important;
+    border: 1.5px solid #ef4444 !important;
+    color: #991b1b !important;
+}
+body.day-mode #tuition-overdue-lock-banner div[style*="color: #fecaca"] {
+    color: #991b1b !important;
+}
+body.day-mode #hostage-lock-banner-msg {
+    color: #b91c1c !important;
+}
+body.day-mode #pledge-target-text {
+    background: #fee2e2 !important;
+    border: 1px dashed #ef4444 !important;
+    color: #991b1b !important;
 }
 

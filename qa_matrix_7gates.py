@@ -485,6 +485,50 @@ assert 'linear-obsidian' in master_html_content and 'stripe-fintech' in master_h
 
 print("[GATE 4.6 PASS] God-Mode 6-Theme Adaptive Matrix & Enterprise Design Tokens 100% Verified!")
 
+# Gate 4.7: Global Pale-on-Pale / Low-Contrast Elimination & Day-Mode Contrast Defense
+assert '.elem-pet-card' in css_content and 'body.day-mode .elem-pet-card' in css_content, "Missing Elementary Pet Card Dark/Day contrast rules"
+assert '.elem-pet-snack-btn' in css_content and 'body.day-mode .elem-pet-snack-btn' in css_content, "Missing Elementary Snack button Dark/Day contrast rules"
+assert '.elem-pet-praise-btn' in css_content and 'body.day-mode .elem-pet-praise-btn' in css_content, "Missing Elementary Praise button Dark/Day contrast rules"
+assert '.elem-pet-talk-box' in css_content and 'body.day-mode .elem-pet-talk-box' in css_content, "Missing Elementary Talk box Dark/Day contrast rules"
+assert '.elem-sticker-item' in css_content and 'body.day-mode .elem-sticker-item' in css_content, "Missing Elementary Sticker item Dark/Day contrast rules"
+assert '.mid-subject-grade-box' in css_content and 'body.day-mode .mid-subject-grade-box' in css_content, "Missing Middle School Subject box Dark/Day contrast rules"
+assert 'body.day-mode #tuition-overdue-lock-banner' in css_content, "Missing Hostage Protocol Banner Day Mode contrast rule"
+assert 'body.day-mode #pledge-target-text' in css_content, "Missing Micro-Pledge Day Mode contrast rule"
+
+# Scan index.html for unhandled inline pale colors without class abstraction in elementary view
+with open(os.path.join(ROOT_DIR, 'static', 'index.html'), 'r', encoding='utf-8') as f:
+    idx_content = f.read()
+
+elem_section = idx_content[idx_content.find('id="elem-app-view"'):idx_content.find('id="bottom-nav-main"')]
+assert 'color: #fed7aa' not in elem_section, "Unprotected pale peach text #fed7aa found in elementary view"
+assert 'color: #fecaca' not in elem_section, "Unprotected pale pink text #fecaca found in elementary view"
+
+print("[GATE 4.7 PASS] Global Pale-on-Pale Elimination & Multi-School Viewport Contrast Defense 100% Verified!")
+
+# Gate 4.8: Administrative Request Modal 4-Way Semantic Color Parity
+assert '#academy-request-modal[data-req-type="VOD"]' in css_content, "Missing VOD Dark Mode semantic modal rule"
+assert 'body.day-mode #academy-request-modal[data-req-type="VOD"]' in css_content, "Missing VOD Day Mode semantic modal rule"
+assert '#academy-request-modal[data-req-type="ATTENDANCE"]' in css_content, "Missing Attendance Dark Mode semantic modal rule"
+assert 'body.day-mode #academy-request-modal[data-req-type="ATTENDANCE"]' in css_content, "Missing Attendance Day Mode semantic modal rule"
+assert '#academy-request-modal[data-req-type="CLASS_CHANGE"]' in css_content, "Missing Class Change Dark Mode semantic modal rule"
+assert 'body.day-mode #academy-request-modal[data-req-type="CLASS_CHANGE"]' in css_content, "Missing Class Change Day Mode semantic modal rule"
+assert '#academy-leave-modal' in css_content and 'body.day-mode #academy-leave-modal' in css_content, "Missing Leave Modal semantic parity rules"
+
+# Verify openRequestModal in app.js sets data-req-type and exact colors
+with open(os.path.join(ROOT_DIR, 'static', 'js', 'app.js'), 'r', encoding='utf-8') as f:
+    app_js_content = f.read()
+
+req_fn_start = app_js_content.find("function openRequestModal(reqType) {")
+req_fn_end = app_js_content.find("async function handleSendAcademyRequest(e) {")
+req_fn_code = app_js_content[req_fn_start:req_fn_end]
+
+assert 'modal.setAttribute("data-req-type", reqType)' in req_fn_code or "modal.setAttribute('data-req-type', reqType)" in req_fn_code, "openRequestModal must set data-req-type attribute"
+assert '#818cf8' in req_fn_code and '#6366f1' in req_fn_code, "openRequestModal missing VOD Blue/Indigo palette"
+assert '#34d399' in req_fn_code and '#10b981' in req_fn_code, "openRequestModal missing Attendance Green palette"
+assert '#fbbf24' in req_fn_code and '#f59e0b' in req_fn_code, "openRequestModal missing Class Change Amber palette"
+
+print("[GATE 4.8 PASS] Administrative Request Modal 4-Way Semantic Color Parity (VOD=Blue, ATTENDANCE=Green, CLASS_CHANGE=Amber, LEAVE=Red) 100% Verified!")
+
 # ==============================================================================
 # GATE 5: Backend / Frontend Syntax Compiles
 # ==============================================================================

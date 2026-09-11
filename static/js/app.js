@@ -14286,59 +14286,82 @@ async function loadAcademyHubView() {
 }
 
 function openRequestModal(reqType) {
-
     const modal = document.getElementById("academy-request-modal");
+    if (!modal) return;
 
+    const contentEl = document.getElementById("req-modal-content") || modal.querySelector(".trigger-content");
     const titleEl = document.getElementById("req-modal-title");
-
     const dateLabelEl = document.getElementById("req-date-label");
-
     const typeInput = document.getElementById("req-type-input");
-
     const detailsInput = document.getElementById("req-details-input");
-
     const dateInput = document.getElementById("req-date-input");
+    const noticeEl = document.getElementById("req-modal-notice");
+    const submitBtn = document.getElementById("req-modal-submit-btn");
 
-    
-
+    modal.setAttribute("data-req-type", reqType);
     typeInput.value = reqType;
-
     detailsInput.value = "";
-
     dateInput.value = new Date().toISOString().split("T")[0];
 
-    
+    const isDay = document.body.classList.contains("day-mode");
 
     if (reqType === "VOD") {
-
-        titleEl.innerText = "🎬 복습 VOD 신청";
-
-        dateLabelEl.innerText = "수강 희망 강의 일자";
-
-        detailsInput.placeholder = "복습이 필요한 주차 및 단원명을 입력해 주세요 (예: 3주차 고난도 비문학 구조독해)";
-
+        if (titleEl) {
+            titleEl.innerHTML = '<span class="material-symbols-rounded">play_circle</span><span>🎬 복습 VOD 신청</span>';
+            titleEl.style.color = isDay ? "#4338ca" : "#818cf8";
+        }
+        if (dateLabelEl) dateLabelEl.innerText = "수강 희망 강의 일자";
+        if (detailsInput) detailsInput.placeholder = "복습이 필요한 주차 및 단원명을 입력해 주세요 (예: 3주차 고난도 비문학 구조독해)";
+        if (contentEl) contentEl.style.borderColor = "#6366f1";
+        if (noticeEl) {
+            noticeEl.style.background = isDay ? "#eef2ff" : "rgba(99,102,241,0.08)";
+            noticeEl.style.borderColor = isDay ? "#c7d2fe" : "rgba(99,102,241,0.25)";
+            noticeEl.style.color = isDay ? "#3730a3" : "#a5b4fc";
+        }
+        if (submitBtn) {
+            submitBtn.style.background = "linear-gradient(135deg, #6366f1, #4f46e5)";
+            submitBtn.style.color = "#ffffff";
+            submitBtn.style.fontWeight = "800";
+        }
     } else if (reqType === "ATTENDANCE") {
-
-        titleEl.innerText = "📝 단기 결석 및 보강 신청";
-
-        dateLabelEl.innerText = "결석 예정 일자";
-
-        detailsInput.placeholder = "결석 사유 및 희망 보강 일시를 입력해 주세요 (사전 승인 시 출결 패널티 면제)";
-
+        if (titleEl) {
+            titleEl.innerHTML = '<span class="material-symbols-rounded">event_busy</span><span>📝 단기 결석 및 보강 신청</span>';
+            titleEl.style.color = isDay ? "#065f46" : "#34d399";
+        }
+        if (dateLabelEl) dateLabelEl.innerText = "결석 예정 일자";
+        if (detailsInput) detailsInput.placeholder = "결석 사유 및 희망 보강 일시를 입력해 주세요 (사전 승인 시 출결 패널티 면제)";
+        if (contentEl) contentEl.style.borderColor = "#10b981";
+        if (noticeEl) {
+            noticeEl.style.background = isDay ? "#ecfdf5" : "rgba(16,185,129,0.08)";
+            noticeEl.style.borderColor = isDay ? "#a7f3d0" : "rgba(16,185,129,0.25)";
+            noticeEl.style.color = isDay ? "#065f46" : "#6ee7b7";
+        }
+        if (submitBtn) {
+            submitBtn.style.background = "linear-gradient(135deg, #10b981, #059669)";
+            submitBtn.style.color = "#ffffff";
+            submitBtn.style.fontWeight = "800";
+        }
     } else if (reqType === "CLASS_CHANGE") {
-
-        titleEl.innerText = "🔄 정규 반 변경 신청";
-
-        dateLabelEl.innerText = "변경 희망 적용 일자";
-
-        detailsInput.placeholder = "현재 수강 반 및 변경을 희망하는 요일/시간대를 입력해 주세요";
-
+        if (titleEl) {
+            titleEl.innerHTML = '<span class="material-symbols-rounded">swap_horiz</span><span>🔄 정규 반 변경 신청</span>';
+            titleEl.style.color = isDay ? "#92400e" : "#fbbf24";
+        }
+        if (dateLabelEl) dateLabelEl.innerText = "변경 희망 적용 일자";
+        if (detailsInput) detailsInput.placeholder = "현재 수강 반 및 변경을 희망하는 요일/시간대를 입력해 주세요";
+        if (contentEl) contentEl.style.borderColor = "#f59e0b";
+        if (noticeEl) {
+            noticeEl.style.background = isDay ? "#fffbeb" : "rgba(245,158,11,0.08)";
+            noticeEl.style.borderColor = isDay ? "#fde68a" : "rgba(245,158,11,0.25)";
+            noticeEl.style.color = isDay ? "#92400e" : "#fde68a";
+        }
+        if (submitBtn) {
+            submitBtn.style.background = "linear-gradient(135deg, #f59e0b, #d97706)";
+            submitBtn.style.color = "#000000";
+            submitBtn.style.fontWeight = "900";
+        }
     }
 
-    
-
     modal.style.display = "flex";
-
 }
 
 async function handleSendAcademyRequest(e) {
