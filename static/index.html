@@ -1984,12 +1984,21 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <div id="p3-ranking" class="subtab-view-p3" style="display: none;">
                     <div class="card" style="background: linear-gradient(135deg, rgba(234, 179, 8, 0.08), rgba(245, 158, 11, 0.04)); border: 1.5px solid rgba(234, 179, 8, 0.3);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <div style="font-weight: 800; font-size: 0.95rem; color: #fbbf24;">🏆 마이크로 실시간 랭킹</div>
+                            <div style="font-weight: 800; font-size: 0.95rem; color: #fbbf24; display: flex; align-items: center; gap: 6px;">
+                                <span>🏆 마이크로 실시간 랭킹</span>
+                                <span class="live-pulse-badge" id="live-league-indicator" style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.65rem; background: rgba(34, 197, 94, 0.15); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); padding: 2px 7px; border-radius: 12px; font-weight: 800;">
+                                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #22c55e; display: inline-block;"></span>
+                                    LIVE
+                                </span>
+                            </div>
                             <span style="font-size: 0.68rem; background: rgba(234, 179, 8, 0.2); color: #fbbf24; padding: 2px 7px; border-radius: 10px; font-weight: 800;">매주 월 00:00 리셋</span>
                         </div>
-                        <p style="font-size: 0.76rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4;">
-                            전국 수십만 명이 아닌, <b>내가 사는 동네와 우리 학교 친구들 사이의 실시간 순위</b>입니다.
-                        </p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <p style="font-size: 0.76rem; color: var(--text-secondary); margin: 0; line-height: 1.4;">
+                                내가 사는 동네와 우리 학교 친구들 사이의 실시간 순위입니다.
+                            </p>
+                            <span id="live-active-studying-badge" style="font-size: 0.72rem; color: #f97316; font-weight: 800; white-space: nowrap; margin-left: 8px;">🔥 동네 6명 열공 중</span>
+                        </div>
 
                         <!-- 개인전 vs 학교 대항전 토글 버튼 -->
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px;">

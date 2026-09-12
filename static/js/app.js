@@ -13701,6 +13701,11 @@ async function loadMicroRankings() {
             if (regPosEl) regPosEl.innerText = data.region_pos_str || "-";
             if (schPosEl) schPosEl.innerText = data.school_pos_str || "-";
 
+            const liveActiveBadge = document.getElementById("live-active-studying-badge");
+            if (liveActiveBadge && data.live_active_count) {
+                liveActiveBadge.innerText = `🔥 동네 ${data.live_active_count}명 열공 중`;
+            }
+
             listEl.innerHTML = "";
             (data.rankers || []).forEach(r => {
                 const medal = (r.studySeconds && r.studySeconds > 0)
