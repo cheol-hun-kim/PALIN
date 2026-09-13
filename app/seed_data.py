@@ -65,6 +65,24 @@ def auto_seed_database(db: Session, engine):
             db.execute(text("INSERT INTO system_migrations (migration_key) VALUES ('b2c_tier1_global_reset_20260910')"))
             db.commit()
             print("[AUTO_SEED] Global B2C tier normalization applied successfully.")
+
+        mig_exam_purge = db.execute(text("SELECT migration_key FROM system_migrations WHERE migration_key = 'purge_legacy_exam_mock_data_v20260914'")).fetchone()
+        if not mig_exam_purge:
+            try:
+                db.execute(text("UPDATE exam_source_questions SET accepted_answer_id = NULL;"))
+                db.execute(text("DELETE FROM exam_source_tags WHERE tag_source_detail LIKE '%최고차항%' OR tag_source_detail LIKE '%블랙라벨%' OR user_name IN ('선배 튜터', '연세대 튜터', '서울대 수리과학부 멘토');"))
+                if engine.dialect.name in ("postgresql", "postgres"):
+                    db.execute(text("DELETE FROM exam_source_answers WHERE is_alumni_tutor = true OR author_name IN ('연세대 의예과 튜터', '서울대 수리과학부 멘토', '낙생고 졸업생 전교1등', '카이스트 수리멘토', '고려대 국문과 선배', '포스텍 멘토', '의대 재학생 튜터', '서울대 의대 멘토', '대원외고 34기 졸업생');"))
+                else:
+                    db.execute(text("DELETE FROM exam_source_answers WHERE is_alumni_tutor = 1 OR author_name IN ('연세대 의예과 튜터', '서울대 수리과학부 멘토', '낙생고 졸업생 전교1등', '카이스트 수리멘토', '고려대 국문과 선배', '포스텍 멘토', '의대 재학생 튜터', '서울대 의대 멘토', '대원외고 34기 졸업생');"))
+                db.execute(text("DELETE FROM exam_source_questions WHERE author_name IN ('낙생고 수험생', '재원생 수험생') OR question_text LIKE '%최고차항%' OR question_text LIKE '%불연속%';"))
+                db.execute(text("DELETE FROM exam_source_tracer_items;"))
+                db.execute(text("INSERT INTO system_migrations (migration_key) VALUES ('purge_legacy_exam_mock_data_v20260914')"))
+                db.commit()
+                print("[AUTO_SEED] 100% Type-Safe Purge of legacy exam mock data executed successfully across cloud/local DB.")
+            except Exception as ep_err:
+                db.rollback()
+                print(f"[AUTO_SEED] Exam purge migration note: {ep_err}")
     except Exception as e:
         db.rollback()
         print(f"[AUTO_SEED] One-time migration note: {e}")

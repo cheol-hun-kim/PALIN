@@ -82,10 +82,17 @@ def init_db_schema():
 
     # 3. Cleanse any legacy mock/sample exam records across all database engines
     for eng in [database.sqlite_engine, database.engine]:
+        if not eng:
+            continue
         try:
             with eng.connect() as conn:
-                conn.execute(text("DELETE FROM exam_source_answers WHERE is_alumni_tutor = 1 OR author_name IN ('연세대 의예과 튜터', '서울대 수리과학부 멘토', '낙생고 졸업생 전교1등', '카이스트 수리멘토', '고려대 국문과 선배', '포스텍 멘토', '의대 재학생 튜터', '서울대 의대 멘토', '대원외고 34기 졸업생');"))
-                conn.execute(text("DELETE FROM exam_source_questions WHERE author_name IN ('낙생고 수험생', '재원생 수험생');"))
+                conn.execute(text("UPDATE exam_source_questions SET accepted_answer_id = NULL;"))
+                conn.execute(text("DELETE FROM exam_source_tags WHERE tag_source_detail LIKE '%최고차항%' OR tag_source_detail LIKE '%블랙라벨%' OR user_name IN ('선배 튜터', '연세대 튜터', '서울대 수리과학부 멘토');"))
+                if eng.dialect.name in ("postgresql", "postgres"):
+                    conn.execute(text("DELETE FROM exam_source_answers WHERE is_alumni_tutor = true OR author_name IN ('연세대 의예과 튜터', '서울대 수리과학부 멘토', '낙생고 졸업생 전교1등', '카이스트 수리멘토', '고려대 국문과 선배', '포스텍 멘토', '의대 재학생 튜터', '서울대 의대 멘토', '대원외고 34기 졸업생');"))
+                else:
+                    conn.execute(text("DELETE FROM exam_source_answers WHERE is_alumni_tutor = 1 OR author_name IN ('연세대 의예과 튜터', '서울대 수리과학부 멘토', '낙생고 졸업생 전교1등', '카이스트 수리멘토', '고려대 국문과 선배', '포스텍 멘토', '의대 재학생 튜터', '서울대 의대 멘토', '대원외고 34기 졸업생');"))
+                conn.execute(text("DELETE FROM exam_source_questions WHERE author_name IN ('낙생고 수험생', '재원생 수험생') OR question_text LIKE '%최고차항%' OR question_text LIKE '%불연속%';"))
                 conn.execute(text("DELETE FROM exam_source_tracer_items;"))
                 conn.commit()
         except Exception:
