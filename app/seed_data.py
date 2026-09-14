@@ -83,6 +83,44 @@ def auto_seed_database(db: Session, engine):
             except Exception as ep_err:
                 db.rollback()
                 print(f"[AUTO_SEED] Exam purge migration note: {ep_err}")
+
+        mig_approve = db.execute(text("SELECT migration_key FROM system_migrations WHERE migration_key = 'batch_approve_pending_academy_students_v20260915'")).fetchone()
+        if not mig_approve:
+            try:
+                # Batch approve all enrolled/pending students who have an academy code or are in PENDING
+                pending_stus = db.query(models.Student).filter(
+                    models.Student.academy_approval_status == "PENDING"
+                ).all()
+                for s in pending_stus:
+                    s.academy_approval_status = "APPROVED"
+                    s.academy_code = s.pending_tenant_code or s.academy_code or "ILWON-2027"
+                    s.pending_tenant_code = None
+                    s.enrollment_status = "ENROLLED"
+                    is_ilwon = "ILWON" in str(s.academy_code).upper()
+                    s.ai_level = "TIER_4_ILWON" if is_ilwon else "B2B_MASTER_AI"
+                    s.has_unlimited_chat = True
+                    s.chat_tokens = 999
+
+                db.query(models.Student).filter(
+                    models.Student.academy_code.isnot(None),
+                    models.Student.academy_code != "",
+                    models.Student.academy_code != "NONE",
+                    models.Student.academy_code != "-",
+                    models.Student.academy_approval_status != "APPROVED"
+                ).update({
+                    models.Student.academy_approval_status: "APPROVED",
+                    models.Student.ai_level: "TIER_4_ILWON",
+                    models.Student.has_unlimited_chat: True,
+                    models.Student.chat_tokens: 999,
+                    models.Student.enrollment_status: "ENROLLED"
+                }, synchronize_session=False)
+
+                db.execute(text("INSERT INTO system_migrations (migration_key) VALUES ('batch_approve_pending_academy_students_v20260915')"))
+                db.commit()
+                print(f"[AUTO_SEED] Batch approved all pending students into Tier 4 Ilwon Academy.")
+            except Exception as ap_err:
+                db.rollback()
+                print(f"[AUTO_SEED] Batch approval migration note: {ap_err}")
     except Exception as e:
         db.rollback()
         print(f"[AUTO_SEED] One-time migration note: {e}")
@@ -403,70 +441,6 @@ def auto_seed_database(db: Session, engine):
                     db.commit()
             except Exception:
                 db.rollback()
-
-    # STEP C: Ensure Study Sessions exist for students in the current active week
-    try:
-        now = datetime.now()
-        week_start = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
-        days_passed = max(1, now.weekday() + 1)
-        
-        for st in db.query(models.Student).all():
-            curr_week_count = db.query(models.StudySession).filter(
-                models.StudySession.student_id == st.id,
-                models.StudySession.created_at >= week_start,
-                models.StudySession.deleted_at == None
-            ).count()
-            
-            # Seed sessions if none exist for current week (exclude student 1 if already active)
-            if curr_week_count == 0:
-                total_sec = 0
-                for d in range(days_passed):
-                    sessions_today = random.randint(1, 3)
-                    for s_idx in range(sessions_today):
-                        hour_offset = 8 + s_idx * 4 + random.randint(0, 2)
-                        start_dt = (week_start + timedelta(days=d, hours=hour_offset, minutes=random.randint(0, 40)))
-                        if start_dt > now:
-                            start_dt = now - timedelta(hours=random.randint(1, 4), minutes=random.randint(5, 30))
-                        dur_sec = random.randint(35, 110) * 60
-                        end_dt = start_dt + timedelta(seconds=dur_sec)
-                        total_sec += dur_sec
-                        db.add(models.StudySession(
-                            student_id=st.id,
-                            start_time=start_dt,
-                            end_time=end_dt,
-                            duration_sec=dur_sec,
-                            is_distracted=False,
-                            created_at=start_dt,
-                            deleted_at=None
-                        ))
-                total_mins = total_sec // 60
-                try:
-                    curr_ds = int(st.diligence_score or 0)
-                except Exception:
-                    curr_ds = 0
-                try:
-                    curr_wdp = int(st.weekly_diligence_points or 0)
-                except Exception:
-                    curr_wdp = 0
-                st.diligence_score = curr_ds + total_mins
-                st.weekly_diligence_points = curr_wdp + total_mins
-                try:
-                    curr_streak = int(st.streak_days or 0)
-                except Exception:
-                    curr_streak = 0
-                if curr_streak < 3:
-                    st.streak_days = random.randint(4, 18)
-                try:
-                    curr_max = int(st.max_streak_days or 0)
-                except Exception:
-                    curr_max = 0
-                if curr_max < st.streak_days:
-                    st.max_streak_days = max(st.streak_days, random.randint(st.streak_days, st.streak_days + 5))
-                st.last_streak_date = now.date()
-        db.commit()
-    except Exception as se_err:
-        db.rollback()
-        print(f"[AUTO_SEED] Study session seed warning: {se_err}")
 
     print("[AUTO_SEED] Seeding completed.")
 

@@ -7451,83 +7451,6 @@ def reject_student_enrollment(student_id: int, db: Session = Depends(get_db)):
 
 
 
-def sync_peer_live_study_sessions(db: Session, peer_students: List[models.Student], week_start: datetime, now: datetime):
-    """
-    On-Demand Live League Smart Sync Engine
-    - Simulates realistic high school study sessions for peers between their latest session and current time.
-    - Zero server background overhead; executes in <5ms.
-    - Persists authentic StudySession rows in DB with full lifecycle compliance (Gate 1.1 & 6.2).
-    """
-    if not peer_students:
-        return
-        
-    changed = False
-    for p in peer_students:
-        # Find latest session for this peer in the current week
-        latest_sess = db.query(models.StudySession).filter(
-            models.StudySession.student_id == p.id,
-            models.StudySession.created_at >= week_start,
-            models.StudySession.deleted_at == None
-        ).order_by(models.StudySession.created_at.desc()).first()
-        
-        last_time = latest_sess.end_time if (latest_sess and latest_sess.end_time) else (latest_sess.created_at if latest_sess else week_start)
-        if last_time and last_time.tzinfo is not None:
-            last_time = last_time.replace(tzinfo=None)
-            
-        # If last session was more than 2 hours ago and within current active week
-        if (now - last_time).total_seconds() > 2 * 3600:
-            cur_cursor = last_time + timedelta(hours=random.randint(1, 2))
-            added_sec = 0
-            while cur_cursor < now:
-                # High school study window: 07:30 ~ 23:45
-                if 7 <= cur_cursor.hour <= 23:
-                    if random.random() < 0.75:
-                        dur_mins = random.randint(25, 75)
-                        dur_sec = dur_mins * 60
-                        sess_end = cur_cursor + timedelta(seconds=dur_sec)
-                        if sess_end > now:
-                            dur_sec = max(300, int((now - cur_cursor).total_seconds()))
-                            sess_end = now
-                        
-                        db.add(models.StudySession(
-                            student_id=p.id,
-                            start_time=cur_cursor,
-                            end_time=sess_end,
-                            duration_sec=dur_sec,
-                            is_distracted=False,
-                            created_at=cur_cursor,
-                            deleted_at=None
-                        ))
-                        added_sec += dur_sec
-                        cur_cursor = sess_end + timedelta(minutes=random.randint(20, 60))
-                    else:
-                        cur_cursor += timedelta(hours=random.randint(1, 3))
-                else:
-                    if cur_cursor.hour > 23:
-                        cur_cursor = (cur_cursor + timedelta(days=1)).replace(hour=7, minute=30, second=0, microsecond=0)
-                    else:
-                        cur_cursor = cur_cursor.replace(hour=7, minute=30, second=0, microsecond=0)
-            
-            if added_sec > 0:
-                added_mins = added_sec // 60
-                try:
-                    p.diligence_score = int(p.diligence_score or 0) + added_mins
-                except Exception:
-                    p.diligence_score = added_mins
-                try:
-                    p.weekly_diligence_points = int(p.weekly_diligence_points or 0) + added_mins
-                except Exception:
-                    p.weekly_diligence_points = added_mins
-                p.last_streak_date = now.date()
-                changed = True
-                
-    if changed:
-        try:
-            db.commit()
-        except Exception:
-            db.rollback()
-
-
 @app.get("/api/gamification/micro-rankings")
 def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == student_id).first()
@@ -7580,9 +7503,7 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
         ).limit(10).all()
         peer_students.extend(more_peers)
 
-    # 🚀 Zero-Overhead Live League Smart On-Demand Sync for peer students
-    sync_peer_live_study_sessions(db, peer_students, week_start, now)
-
+    # 100% Genuine real-time study measurements (Zero fake generation)
     week_sessions = db.query(models.StudySession).filter(
         models.StudySession.student_id == student.id,
         models.StudySession.created_at >= week_start,
