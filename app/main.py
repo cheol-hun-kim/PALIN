@@ -8032,11 +8032,11 @@ def get_user_titles(student_id: int, db: Session = Depends(get_db)):
                     is_equipped=(not has_equipped and mt["condition_code"] == "STARTER_TIER")
                 )
                 db.add(new_t)
-                db.commit()
-                db.refresh(new_t)
                 existing_map[mt["condition_code"]] = new_t
                 if new_t.is_equipped:
                     has_equipped = True
+
+    db.commit()
 
     refreshed_titles = db.query(models.UserTitle).filter(models.UserTitle.student_id == student.id).all()
     refreshed_map = {t.condition_code: t for t in refreshed_titles}

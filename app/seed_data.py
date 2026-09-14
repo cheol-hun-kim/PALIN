@@ -122,22 +122,79 @@ def auto_seed_database(db: Session, engine):
                 db.rollback()
                 print(f"[AUTO_SEED] Batch approval migration note: {ap_err}")
 
-        # 1.4 PALIN OS Phase 11: Create user_titles and user_notifications tables if not exist
+        # 1.4 PALIN OS Phase 11: Create user_titles and user_notifications tables & retroactively backfill all 100 titles
         try:
             models.Base.metadata.create_all(bind=engine, tables=[models.UserTitle.__table__, models.UserNotification.__table__])
             db.commit()
             
-            # Ensure student 1 has starter title
-            starter = db.query(models.UserTitle).filter(models.UserTitle.student_id == 1, models.UserTitle.condition_code == "STARTER_TIER").first()
-            if not starter:
-                starter = models.UserTitle(
-                    student_id=1,
-                    title_name="[콘크리트 1등급]",
-                    condition_code="STARTER_TIER",
-                    is_equipped=True
-                )
-                db.add(starter)
-                db.commit()
+            from app.title_catalog import get_all_master_titles
+            master_titles = get_all_master_titles()
+            from datetime import timedelta
+            now = datetime.now()
+            week_start = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+
+            def safe_num(val, default=0):
+                try:
+                    return int(val)
+                except (ValueError, TypeError):
+                    return default
+
+            students = db.query(models.Student).all()
+            for s in students:
+                all_sessions = db.query(models.StudySession).filter(
+                    models.StudySession.student_id == s.id,
+                    models.StudySession.deleted_at == None
+                ).all()
+                total_seconds = sum((sess.duration_sec or 0) for sess in all_sessions)
+                total_hours = total_seconds / 3600.0
+                streak = s.streak_days or 0
+                target_univ = (s.target_univ or '').strip()
+                
+                week_sessions = [sess for sess in all_sessions if sess.created_at and sess.created_at >= week_start]
+                week_hours = sum((sess.duration_sec or 0) for sess in week_sessions) / 3600.0
+                
+                try:
+                    omr_count = db.query(models.ExamOMRSubmission).filter(models.ExamOMRSubmission.student_id == s.id).count()
+                except Exception:
+                    omr_count = 0
+                    
+                points = safe_num(getattr(s, 'weekly_diligence_points', 0)) + safe_num(s.diligence_score) + safe_num(s.current_points)
+                is_vip = bool(getattr(s, 'is_vip', False)) or (streak >= 15)
+                
+                existing_titles = db.query(models.UserTitle).filter(models.UserTitle.student_id == s.id).all()
+                existing_map = {t.condition_code: t for t in existing_titles}
+                has_equipped = any(t.is_equipped for t in existing_titles)
+                
+                for mt in master_titles:
+                    is_eligible = False
+                    try:
+                        is_eligible = mt['check'](s, total_hours, streak, week_hours, target_univ, omr_count, points, is_vip)
+                    except Exception:
+                        is_eligible = (mt['condition_code'] == 'STARTER_TIER')
+                        
+                    if is_eligible and mt['condition_code'] not in existing_map:
+                        new_t = models.UserTitle(
+                            student_id=s.id,
+                            title_name=mt['title_name'],
+                            condition_code=mt['condition_code'],
+                            is_equipped=False
+                        )
+                        db.add(new_t)
+                        existing_map[mt['condition_code']] = new_t
+
+                if not has_equipped:
+                    pick_code = 'STARTER_TIER'
+                    for pref in ['SKY_LEGION', 'SNU_ASPIRANT', 'YONSEI_BLUE', 'KOREA_CRIMSON', 'MEDICAL_WHITE', 'DAETCHIDONG_HEIR', 'MIDNIGHT_EMPEROR', 'STUDY_100H', 'STREAK_14D', 'STREAK_7D']:
+                        if pref in existing_map:
+                            pick_code = pref
+                            break
+                    if pick_code in existing_map:
+                        existing_map[pick_code].is_equipped = True
+                    elif 'STARTER_TIER' in existing_map:
+                        existing_map['STARTER_TIER'].is_equipped = True
+
+            db.commit()
+            print(f"[AUTO_SEED] Phase 11 100-Title Master Matrix synced for all {len(students)} students.")
         except Exception as p11_err:
             db.rollback()
             print(f"[AUTO_SEED] Phase 11 title initialization note: {p11_err}")

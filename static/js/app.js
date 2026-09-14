@@ -18283,6 +18283,16 @@ async function loadUserTitles() {
     const listEl = document.getElementById("mypage-titles-list");
     const progressEl = document.getElementById("mypage-titles-progress");
     const sid = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem("studentId") || "1", 10);
+    
+    if (listEl && (!window._masterTitlesCache || window._masterTitlesCache.length === 0)) {
+        listEl.innerHTML = `
+            <div style="text-align:center; padding:24px 10px; font-size:0.75rem; color:var(--text-secondary); display:flex; align-items:center; justify-content:center; gap:8px;">
+                <i class="fas fa-spinner fa-spin" style="color:#818cf8;"></i>
+                <span>100-Title 마스터 도감을 동기화하고 있습니다...</span>
+            </div>
+        `;
+    }
+
     try {
         const res = await fetch(`/api/gamification/titles/${sid}`);
         if (res.ok) {
@@ -18300,6 +18310,11 @@ async function loadUserTitles() {
 
             if (progressEl) {
                 progressEl.innerText = `해금 ${data.unlocked_count || 0} / ${data.total_count || 100} (${data.unlocked_rate || 0}%)`;
+            }
+
+            const unTab = document.getElementById("mypage-tab-unlocked");
+            if (unTab) {
+                unTab.innerText = `해금됨 (${data.unlocked_count || 0})`;
             }
 
             window._masterTitlesCache = data.titles || [];
@@ -18337,54 +18352,70 @@ function renderTitlesList() {
 
     const cat = window._activeTitleCategory || "ALL";
     const allTitles = window._masterTitlesCache || [];
-    let filtered = allTitles;
 
+    if (!allTitles || allTitles.length === 0) {
+        listEl.innerHTML = `
+            <div style="text-align:center; padding:24px 10px; font-size:0.75rem; color:var(--text-secondary); display:flex; align-items:center; justify-content:center; gap:8px;">
+                <i class="fas fa-spinner fa-spin" style="color:#818cf8;"></i>
+                <span>수능 칭호 목록을 불러오는 중입니다...</span>
+            </div>
+        `;
+        return;
+    }
+
+    let filtered = allTitles;
     if (cat === "UNLOCKED") {
         filtered = allTitles.filter(t => t.is_unlocked);
     } else if (cat !== "ALL") {
-        filtered = allTitles.filter(t => t.category === cat);
+        filtered = allTitles.filter(t => 
+            t.category === cat || 
+            (t.category && t.category.includes(cat)) || 
+            (cat && cat.includes(t.category)) ||
+            (t.category && cat && t.category.slice(0, 2) === cat.slice(0, 2))
+        );
     }
 
     if (filtered.length === 0) {
-        listEl.innerHTML = `<div style="text-align:center; padding:15px; font-size:0.75rem; color:var(--text-secondary);">해당 카테고리에 칭호가 없습니다.</div>`;
+        listEl.innerHTML = `<div style="text-align:center; padding:20px; font-size:0.75rem; color:var(--text-secondary);">해당 카테고리에 조건에 맞는 칭호가 없습니다.</div>`;
         return;
     }
 
     const isDayMode = document.body.classList.contains('day-mode');
     filtered.forEach(t => {
         const bg = t.is_equipped 
-            ? (isDayMode ? "#ede9fe" : "rgba(99, 102, 241, 0.12)") 
-            : (isDayMode ? "#f8fafc" : "rgba(255, 255, 255, 0.02)");
+            ? (isDayMode ? "#ede9fe" : "rgba(99, 102, 241, 0.14)") 
+            : (isDayMode ? "#ffffff" : "rgba(255, 255, 255, 0.03)");
         const border = t.is_equipped 
-            ? "1px solid #818cf8" 
-            : (isDayMode ? "1px solid #e2e8f0" : "1px solid rgba(255, 255, 255, 0.05)");
+            ? "1.5px solid #818cf8" 
+            : (isDayMode ? "1px solid #e2e8f0" : "1px solid rgba(255, 255, 255, 0.06)");
 
         let tierColor = "#94a3b8";
         let tierBg = "rgba(255,255,255,0.06)";
-        if (t.tier === "입문") { tierColor = "#94a3b8"; tierBg = "rgba(148, 163, 184, 0.12)"; }
-        else if (t.tier === "일반") { tierColor = "#38bdf8"; tierBg = "rgba(56, 189, 248, 0.12)"; }
-        else if (t.tier === "레어") { tierColor = "#818cf8"; tierBg = "rgba(129, 140, 248, 0.12)"; }
-        else if (t.tier === "에픽") { tierColor = "#c084fc"; tierBg = "rgba(192, 132, 252, 0.12)"; }
-        else if (t.tier === "레전드") { tierColor = "#fbbf24"; tierBg = "rgba(251, 191, 36, 0.15)"; }
-        else if (t.tier === "신화") { tierColor = "#f43f5e"; tierBg = "rgba(244, 63, 94, 0.15)"; }
+        if (t.tier === "입문") { tierColor = "#94a3b8"; tierBg = isDayMode ? "#f1f5f9" : "rgba(148, 163, 184, 0.12)"; }
+        else if (t.tier === "일반") { tierColor = "#38bdf8"; tierBg = isDayMode ? "#e0f2fe" : "rgba(56, 189, 248, 0.12)"; }
+        else if (t.tier === "레어") { tierColor = "#818cf8"; tierBg = isDayMode ? "#e0e7ff" : "rgba(129, 140, 248, 0.12)"; }
+        else if (t.tier === "에픽") { tierColor = "#c084fc"; tierBg = isDayMode ? "#f3e8ff" : "rgba(192, 132, 252, 0.12)"; }
+        else if (t.tier === "레전드") { tierColor = "#fbbf24"; tierBg = isDayMode ? "#fef3c7" : "rgba(251, 191, 36, 0.15)"; }
+        else if (t.tier === "신화") { tierColor = "#f43f5e"; tierBg = isDayMode ? "#ffe4e6" : "rgba(244, 63, 94, 0.15)"; }
 
         let actionBtn = "";
         if (t.is_equipped) {
-            actionBtn = `<span style="font-size: 0.65rem; font-weight: 800; color: #818cf8; background: rgba(99, 102, 241, 0.15); padding: 2px 7px; border-radius: 4px; white-space:nowrap;">장착 중</span>`;
+            actionBtn = `<span style="font-size: 0.68rem; font-weight: 800; color: #818cf8; background: rgba(99, 102, 241, 0.18); border: 1px solid #818cf8; padding: 2px 8px; border-radius: 4px; white-space:nowrap; display:inline-flex; align-items:center; gap:3px;"><i class="fas fa-check"></i> 장착 중</span>`;
         } else if (t.is_unlocked) {
-            actionBtn = `<button type="button" class="btn" onclick="equipUserTitle('${t.condition_code}')" style="padding: 3px 8px; font-size: 0.68rem; font-weight: 700; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; cursor: pointer; color: var(--text-primary); white-space:nowrap;">장착</button>`;
+            actionBtn = `<button type="button" class="btn" onclick="equipUserTitle('${t.condition_code}')" style="padding: 3px 9px; font-size: 0.68rem; font-weight: 700; background: #818cf8; color:#ffffff; border: none; border-radius: 4px; cursor: pointer; white-space:nowrap; transition:all 0.2s ease;">장착</button>`;
         } else {
-            actionBtn = `<span style="font-size: 0.65rem; color: var(--text-secondary); opacity: 0.65; white-space:nowrap;">${t.condition_desc}</span>`;
+            actionBtn = `<span style="font-size: 0.65rem; color: var(--text-secondary); opacity: 0.75; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;"><i class="fas fa-lock" style="font-size:0.6rem;"></i> ${t.condition_desc}</span>`;
         }
 
         listEl.innerHTML += `
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 7px 9px; background: ${bg}; border: ${border}; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: ${bg}; border: ${border}; border-radius: 8px; transition: all 0.2s ease;">
                 <div style="min-width: 0; flex: 1; padding-right: 8px;">
-                    <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
-                        <span style="font-size: 0.6rem; font-weight: 800; color: ${tierColor}; background: ${tierBg}; padding: 1px 4px; border-radius: 3px;">${t.tier || '일반'}</span>
+                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                        <span style="font-size: 0.6rem; font-weight: 800; color: ${tierColor}; background: ${tierBg}; padding: 1px 5px; border-radius: 3px;">${t.tier || '일반'}</span>
                         <span style="font-size: 0.8rem; font-weight: 700; color: ${t.is_unlocked ? 'var(--text-primary)' : 'var(--text-secondary)'};">
                             ${t.title_name}
                         </span>
+                        <span style="font-size: 0.62rem; color: var(--text-secondary); opacity: 0.7;">· ${t.category}</span>
                     </div>
                     <div style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                         ${t.description}
@@ -18408,9 +18439,20 @@ async function equipUserTitle(conditionCode) {
         });
         const data = await res.json();
         if (res.ok) {
+            if (window.currentStudent) {
+                window.currentStudent.equipped_title = data.equipped_title;
+            }
+            const tag2 = document.getElementById("mypage-user-title-tag");
+            const disp = document.getElementById("mypage-equipped-title-display");
+            if (tag2) tag2.innerText = data.equipped_title;
+            if (disp) disp.innerText = data.equipped_title;
+
             await loadUserTitles();
             if (typeof loadMicroRankings === "function") {
                 loadMicroRankings();
+            }
+            if (typeof showToast === "function") {
+                showToast(`🎉 ${data.equipped_title} 칭호가 장착되었습니다!`);
             }
         } else {
             alert(data.detail || "칭호 장착에 실패했습니다.");
