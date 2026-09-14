@@ -5105,6 +5105,37 @@ body.day-mode .user-title-tag {
     border: 1px solid rgba(79, 70, 229, 0.2) !important;
 }
 
+.title-tab {
+    padding: 3px 8px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    border-radius: 6px;
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.title-tab.active {
+    background: #818cf8;
+    color: #ffffff;
+    border-color: #818cf8;
+}
+
+body.day-mode .title-tab {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    color: #64748b;
+}
+
+body.day-mode .title-tab.active {
+    background: #4f46e5;
+    color: #ffffff;
+    border-color: #4f46e5;
+}
+
 /* 4. 목표·마지노선 대학 순공 벤치마크 (초슬림 바 & 3단계 상태 진단) */
 .campus-occupation-wrapper {
     background: rgba(255, 255, 255, 0.02);

@@ -7980,6 +7980,9 @@ def get_user_titles(student_id: int, db: Session = Depends(get_db)):
     if not student:
         raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
 
+    now = datetime.now()
+    week_start = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+
     all_sessions = db.query(models.StudySession).filter(
         models.StudySession.student_id == student.id,
         models.StudySession.deleted_at == None
@@ -7989,50 +7992,38 @@ def get_user_titles(student_id: int, db: Session = Depends(get_db)):
     streak = student.streak_days or 0
     target_univ = (student.target_univ or "").strip()
 
-    master_titles = [
-        {
-            "condition_code": "STARTER_TIER",
-            "title_name": "[콘크리트 1등급]",
-            "description": "PALIN OS 몰입 시작 기본 칭호",
-            "condition_desc": "회원가입 완료",
-            "is_eligible": True
-        },
-        {
-            "condition_code": "STREAK_7D",
-            "title_name": "[새벽의 지배자]",
-            "description": "7일 연속 기상/자습 미션 달성",
-            "condition_desc": "연속 7일 달성",
-            "is_eligible": (streak >= 7)
-        },
-        {
-            "condition_code": "STUDY_50H",
-            "title_name": "[불꽃의 수험생]",
-            "description": "순공 누적 50시간 돌파",
-            "condition_desc": "순공 50시간 누적",
-            "is_eligible": (total_hours >= 50.0 or streak >= 5)
-        },
-        {
-            "condition_code": "STUDY_100H",
-            "title_name": "[고독한 완주자]",
-            "description": "순공 누적 100시간 극강 몰입",
-            "condition_desc": "순공 100시간 누적",
-            "is_eligible": (total_hours >= 100.0)
-        },
-        {
-            "condition_code": "SKY_LEGION",
-            "title_name": "[SKY 결사대]",
-            "description": "서울대·연세대·고려대·의예과 목표",
-            "condition_desc": "목표대학 설정",
-            "is_eligible": any(u in target_univ for u in ["서울", "연세", "고려", "의예", "의대", "SNU", "KAIST", "포스텍"])
-        }
-    ]
+    week_sessions = [s for s in all_sessions if s.created_at and s.created_at >= week_start]
+    week_hours = sum((s.duration_sec or 0) for s in week_sessions) / 3600.0
+
+    try:
+        omr_count = db.query(models.ExamOMRSubmission).filter(models.ExamOMRSubmission.student_id == student.id).count()
+    except Exception:
+        omr_count = 0
+
+    def safe_num(val, default=0):
+        try:
+            return int(val)
+        except (ValueError, TypeError):
+            return default
+
+    points = safe_num(getattr(student, 'weekly_diligence_points', 0)) + safe_num(student.diligence_score) + safe_num(student.current_points)
+    is_vip = bool(getattr(student, 'is_vip', False)) or (streak >= 15)
+
+    from app.title_catalog import get_all_master_titles
+    master_titles = get_all_master_titles()
 
     existing_titles = db.query(models.UserTitle).filter(models.UserTitle.student_id == student.id).all()
     existing_map = {t.condition_code: t for t in existing_titles}
     has_equipped = any(t.is_equipped for t in existing_titles)
 
     for mt in master_titles:
-        if mt["is_eligible"]:
+        is_eligible = False
+        try:
+            is_eligible = mt["check"](student, total_hours, streak, week_hours, target_univ, omr_count, points, is_vip)
+        except Exception:
+            is_eligible = (mt["condition_code"] == "STARTER_TIER")
+
+        if is_eligible:
             if mt["condition_code"] not in existing_map:
                 new_t = models.UserTitle(
                     student_id=student.id,
@@ -8057,16 +8048,21 @@ def get_user_titles(student_id: int, db: Session = Depends(get_db)):
     equipped_title_name = next((t.title_name for t in refreshed_titles if t.is_equipped), "[콘크리트 1등급]")
 
     result_list = []
+    unlocked_count = 0
     for mt in master_titles:
         db_rec = refreshed_map.get(mt["condition_code"])
         is_unlocked = db_rec is not None
+        if is_unlocked:
+            unlocked_count += 1
         is_eq = db_rec.is_equipped if db_rec else False
         result_list.append({
             "id": db_rec.id if db_rec else None,
             "condition_code": mt["condition_code"],
+            "category": mt.get("category", "일반"),
             "title_name": mt["title_name"],
             "description": mt["description"],
             "condition_desc": mt["condition_desc"],
+            "tier": mt.get("tier", "일반"),
             "is_unlocked": is_unlocked,
             "is_equipped": is_eq
         })
@@ -8074,6 +8070,9 @@ def get_user_titles(student_id: int, db: Session = Depends(get_db)):
     return {
         "student_id": student.id,
         "equipped_title": equipped_title_name,
+        "total_count": len(master_titles),
+        "unlocked_count": unlocked_count,
+        "unlocked_rate": round((unlocked_count / len(master_titles)) * 100, 1),
         "titles": result_list
     }
 

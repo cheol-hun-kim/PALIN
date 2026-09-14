@@ -18275,9 +18275,13 @@ async function loadCampusOccupation() {
 }
 window.loadCampusOccupation = loadCampusOccupation;
 
-// 4. 수능 칭호 매트릭스 (Titles Matrix)
+// 4. 수능 칭호 도감 (100-Title Master Matrix)
+window._masterTitlesCache = [];
+window._activeTitleCategory = "ALL";
+
 async function loadUserTitles() {
     const listEl = document.getElementById("mypage-titles-list");
+    const progressEl = document.getElementById("mypage-titles-progress");
     const sid = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem("studentId") || "1", 10);
     try {
         const res = await fetch(`/api/gamification/titles/${sid}`);
@@ -18288,58 +18292,111 @@ async function loadUserTitles() {
             const tag2 = document.getElementById("mypage-user-title-tag");
             const disp = document.getElementById("mypage-equipped-title-display");
 
-            if (tag2) {
-                tag2.innerText = equippedTitle;
-            }
-            if (disp) {
-                disp.innerText = equippedTitle;
-            }
+            if (tag2) tag2.innerText = equippedTitle;
+            if (disp) disp.innerText = equippedTitle;
             if (window.currentStudent) {
                 window.currentStudent.equipped_title = equippedTitle;
             }
 
-            if (!listEl) return;
-            listEl.innerHTML = "";
-            (data.titles || []).forEach(t => {
-                const isDayMode = document.body.classList.contains('day-mode');
-                const bg = t.is_equipped 
-                    ? (isDayMode ? "#ede9fe" : "rgba(99, 102, 241, 0.12)") 
-                    : (isDayMode ? "#f8fafc" : "rgba(255, 255, 255, 0.02)");
-                const border = t.is_equipped 
-                    ? "1px solid #818cf8" 
-                    : (isDayMode ? "1px solid #e2e8f0" : "1px solid rgba(255, 255, 255, 0.05)");
+            if (progressEl) {
+                progressEl.innerText = `해금 ${data.unlocked_count || 0} / ${data.total_count || 100} (${data.unlocked_rate || 0}%)`;
+            }
 
-                let actionBtn = "";
-                if (t.is_equipped) {
-                    actionBtn = `<span style="font-size: 0.68rem; font-weight: 800; color: #818cf8; background: rgba(99, 102, 241, 0.15); padding: 2px 7px; border-radius: 4px;">장착 중</span>`;
-                } else if (t.is_unlocked) {
-                    actionBtn = `<button type="button" class="btn" onclick="equipUserTitle('${t.condition_code}')" style="padding: 3px 8px; font-size: 0.7rem; font-weight: 700; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; cursor: pointer; color: var(--text-primary);">장착</button>`;
-                } else {
-                    actionBtn = `<span style="font-size: 0.68rem; color: var(--text-secondary); opacity: 0.6;">${t.condition_desc}</span>`;
-                }
-
-                listEl.innerHTML += `
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: ${bg}; border: ${border}; border-radius: 8px;">
-                        <div>
-                            <div style="font-size: 0.82rem; font-weight: 700; color: ${t.is_unlocked ? 'var(--text-primary)' : 'var(--text-secondary)'};">
-                                ${t.title_name}
-                            </div>
-                            <div style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 1px;">
-                                ${t.description}
-                            </div>
-                        </div>
-                        <div>
-                            ${actionBtn}
-                        </div>
-                    </div>
-                `;
-            });
+            window._masterTitlesCache = data.titles || [];
+            renderTitlesList();
         }
     } catch (e) {
         console.warn("loadUserTitles error:", e);
     }
 }
 window.loadUserTitles = loadUserTitles;
+
+function filterTitlesByCategory(cat) {
+    window._activeTitleCategory = cat;
+    const tabContainer = document.getElementById("mypage-title-category-tabs");
+    if (tabContainer) {
+        const btns = tabContainer.querySelectorAll(".title-tab");
+        btns.forEach(b => {
+            if ((cat === "ALL" && b.innerText.startsWith("전체")) ||
+                (cat === "UNLOCKED" && b.innerText.startsWith("해금됨")) ||
+                (b.innerText.includes(cat.slice(0, 2)))) {
+                b.classList.add("active");
+            } else {
+                b.classList.remove("active");
+            }
+        });
+    }
+    renderTitlesList();
+}
+window.filterTitlesByCategory = filterTitlesByCategory;
+
+function renderTitlesList() {
+    const listEl = document.getElementById("mypage-titles-list");
+    if (!listEl) return;
+    listEl.innerHTML = "";
+
+    const cat = window._activeTitleCategory || "ALL";
+    const allTitles = window._masterTitlesCache || [];
+    let filtered = allTitles;
+
+    if (cat === "UNLOCKED") {
+        filtered = allTitles.filter(t => t.is_unlocked);
+    } else if (cat !== "ALL") {
+        filtered = allTitles.filter(t => t.category === cat);
+    }
+
+    if (filtered.length === 0) {
+        listEl.innerHTML = `<div style="text-align:center; padding:15px; font-size:0.75rem; color:var(--text-secondary);">해당 카테고리에 칭호가 없습니다.</div>`;
+        return;
+    }
+
+    const isDayMode = document.body.classList.contains('day-mode');
+    filtered.forEach(t => {
+        const bg = t.is_equipped 
+            ? (isDayMode ? "#ede9fe" : "rgba(99, 102, 241, 0.12)") 
+            : (isDayMode ? "#f8fafc" : "rgba(255, 255, 255, 0.02)");
+        const border = t.is_equipped 
+            ? "1px solid #818cf8" 
+            : (isDayMode ? "1px solid #e2e8f0" : "1px solid rgba(255, 255, 255, 0.05)");
+
+        let tierColor = "#94a3b8";
+        let tierBg = "rgba(255,255,255,0.06)";
+        if (t.tier === "입문") { tierColor = "#94a3b8"; tierBg = "rgba(148, 163, 184, 0.12)"; }
+        else if (t.tier === "일반") { tierColor = "#38bdf8"; tierBg = "rgba(56, 189, 248, 0.12)"; }
+        else if (t.tier === "레어") { tierColor = "#818cf8"; tierBg = "rgba(129, 140, 248, 0.12)"; }
+        else if (t.tier === "에픽") { tierColor = "#c084fc"; tierBg = "rgba(192, 132, 252, 0.12)"; }
+        else if (t.tier === "레전드") { tierColor = "#fbbf24"; tierBg = "rgba(251, 191, 36, 0.15)"; }
+        else if (t.tier === "신화") { tierColor = "#f43f5e"; tierBg = "rgba(244, 63, 94, 0.15)"; }
+
+        let actionBtn = "";
+        if (t.is_equipped) {
+            actionBtn = `<span style="font-size: 0.65rem; font-weight: 800; color: #818cf8; background: rgba(99, 102, 241, 0.15); padding: 2px 7px; border-radius: 4px; white-space:nowrap;">장착 중</span>`;
+        } else if (t.is_unlocked) {
+            actionBtn = `<button type="button" class="btn" onclick="equipUserTitle('${t.condition_code}')" style="padding: 3px 8px; font-size: 0.68rem; font-weight: 700; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; cursor: pointer; color: var(--text-primary); white-space:nowrap;">장착</button>`;
+        } else {
+            actionBtn = `<span style="font-size: 0.65rem; color: var(--text-secondary); opacity: 0.65; white-space:nowrap;">${t.condition_desc}</span>`;
+        }
+
+        listEl.innerHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 7px 9px; background: ${bg}; border: ${border}; border-radius: 8px;">
+                <div style="min-width: 0; flex: 1; padding-right: 8px;">
+                    <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
+                        <span style="font-size: 0.6rem; font-weight: 800; color: ${tierColor}; background: ${tierBg}; padding: 1px 4px; border-radius: 3px;">${t.tier || '일반'}</span>
+                        <span style="font-size: 0.8rem; font-weight: 700; color: ${t.is_unlocked ? 'var(--text-primary)' : 'var(--text-secondary)'};">
+                            ${t.title_name}
+                        </span>
+                    </div>
+                    <div style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        ${t.description}
+                    </div>
+                </div>
+                <div>
+                    ${actionBtn}
+                </div>
+            </div>
+        `;
+    });
+}
 
 async function equipUserTitle(conditionCode) {
     const sid = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem("studentId") || "1", 10);
