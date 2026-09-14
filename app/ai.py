@@ -232,7 +232,7 @@ def load_univ_cuts():
         return {}
 
 KEY_FILE_PATH = os.path.join(os.path.dirname(__file__), "..", "gemini_key.txt")
-DEFAULT_FALLBACK_KEY_B64 = "QVEuQWI4Uk42SkNobmRfOXZ4UjV1Z3U5RllQU0c3N1hmcHBONXJHTS1OU2RVRS1WUDZ5LWc="
+DEFAULT_FALLBACK_KEY_B64 = "QVEuQWI4Uk42Skt3MVgxLVpnVVFvSDRfT0FRMUtUaVZtZlQ4QVFPV1ZZbHM5c0lVSTFPcFE="
 
 def get_saved_api_key():
     if os.path.exists(KEY_FILE_PATH):
