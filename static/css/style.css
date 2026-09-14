@@ -5101,7 +5101,7 @@ body.day-mode .user-title-tag {
     opacity: 0.85 !important;
 }
 
-/* 4. 캠퍼스 점령전 (4~6px 초슬림 바 & 목표대학 색상 성역화) */
+/* 4. 목표·마지노선 대학 순공 벤치마크 (초슬림 바 & 3단계 상태 진단) */
 .campus-occupation-wrapper {
     background: rgba(255, 255, 255, 0.02);
     border-radius: 12px;
@@ -5115,8 +5115,27 @@ body.day-mode .campus-occupation-wrapper {
     border: 1px solid #e2e8f0 !important;
 }
 
+.benchmark-status-badge {
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 6px;
+    letter-spacing: -0.2px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.benchmark-alert-box {
+    transition: all 0.3s ease;
+}
+
+body.day-mode .benchmark-alert-box {
+    background: rgba(0, 0, 0, 0.04) !important;
+}
+
 .campus-item-row {
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .campus-item-row:last-child {
@@ -5131,19 +5150,30 @@ body.day-mode .campus-occupation-wrapper {
 }
 
 .campus-name-text {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 700;
     color: var(--text-primary, #ffffff);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+body.day-mode .campus-name-text {
+    color: #0f172a !important;
 }
 
 .campus-hours-text {
     font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--text-secondary, #94a3b8);
+    font-weight: 800;
+    color: var(--text-primary, #ffffff);
+}
+
+body.day-mode .campus-hours-text {
+    color: #0f172a !important;
 }
 
 .campus-bar-track {
-    height: 5px;
+    height: 6px;
     background: rgba(255, 255, 255, 0.08);
     border-radius: 3px;
     overflow: hidden;

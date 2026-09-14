@@ -1365,12 +1365,17 @@ read_res = client.post(f"/api/notifications/{target_peer_id}/read", json={
 assert read_res.status_code == 200
 assert read_res.json().get("marked_read_count", 0) >= 1, "Must mark notification as read"
 
-# 3. Campus Occupation Aggregation Test
+# 3. Target & Baseline University Benchmark & Status Test
 campus_res = client.get("/api/gamification/campus-occupation?student_id=1")
 assert campus_res.status_code == 200, f"Campus occupation failed: {campus_res.text}"
 campus_data = campus_res.json()
 assert "campuses" in campus_data, "Campus occupation missing campuses"
 assert "my_target_univ" in campus_data, "Campus occupation missing my_target_univ"
+assert "target_info" in campus_data, "Campus benchmark missing target_info"
+assert "baseline_info" in campus_data, "Campus benchmark missing baseline_info"
+assert "my_study_info" in campus_data, "Campus benchmark missing my_study_info"
+assert campus_data["my_study_info"]["status"] in ["DANGER", "ON_TRACK", "SAFE"], "Invalid benchmark status"
+assert "alert_message" in campus_data["my_study_info"], "Missing alert_message"
 assert len(campus_data["campuses"]) >= 1, "Campuses list must not be empty"
 for c in campus_data["campuses"]:
     assert "univ_name" in c and "total_hours" in c and "color" in c and "is_my_target" in c

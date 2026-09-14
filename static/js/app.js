@@ -18165,10 +18165,12 @@ function dismissToast(id) {
 }
 window.dismissToast = dismissToast;
 
-// 3. 캠퍼스 점령전 (Campus Occupation Chart)
+// 3. 목표·마지노선 대학 순공 벤치마크 (Target & Baseline Benchmark Chart)
 async function loadCampusOccupation() {
     const listEl = document.getElementById("campus-occupation-list");
     const hoursEl = document.getElementById("campus-network-total-hours");
+    const badgeEl = document.getElementById("benchmark-status-badge");
+    const alertBox = document.getElementById("benchmark-alert-box");
     if (!listEl) return;
 
     const sid = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem("studentId") || "1", 10);
@@ -18178,35 +18180,90 @@ async function loadCampusOccupation() {
             const data = await res.json();
             if (hoursEl) hoursEl.innerText = `주간 ${data.total_network_hours || 0}시간 집계`;
 
-            listEl.innerHTML = "";
-            const campuses = data.campuses || [];
-            if (campuses.length === 0) {
-                listEl.innerHTML = '<div style="text-align:center; font-size:0.75rem; color:var(--text-secondary); padding:10px;">목표대학 데이터가 집계 중입니다.</div>';
-                return;
+            const targetInfo = data.target_info;
+            const baselineInfo = data.baseline_info;
+            const myInfo = data.my_study_info;
+
+            // 1. 상태 진단 뱃지 갱신
+            if (badgeEl && myInfo) {
+                badgeEl.style.display = "inline-flex";
+                badgeEl.innerText = `${myInfo.status_label} (${myInfo.status_sub})`;
+                badgeEl.style.color = myInfo.status_color;
+                badgeEl.style.background = myInfo.status == "DANGER" ? "rgba(239, 68, 68, 0.15)" : (myInfo.status == "ON_TRACK" ? "rgba(245, 158, 11, 0.15)" : "rgba(16, 185, 129, 0.15)");
+                badgeEl.style.border = `1px solid ${myInfo.status_color}55`;
             }
 
-            const maxHours = Math.max(...campuses.map(c => c.total_hours), 1);
+            // 2. 위기감 진단 알림 배너 갱신
+            if (alertBox && myInfo) {
+                alertBox.style.display = "block";
+                alertBox.innerText = myInfo.alert_message;
+                alertBox.style.borderLeft = `3px solid ${myInfo.status_color}`;
+                alertBox.style.background = myInfo.status == "DANGER" ? "rgba(239, 68, 68, 0.08)" : (myInfo.status == "ON_TRACK" ? "rgba(245, 158, 11, 0.08)" : "rgba(16, 185, 129, 0.08)");
+            }
 
-            campuses.forEach(c => {
-                const widthPct = Math.max((c.total_hours / maxHours) * 100, 6);
-                const isDayMode = document.body.classList.contains('day-mode');
-                
-                // Sanctified University Color Rule: Highlight ONLY target univ, rival is muted monochrome
-                const barColor = c.is_my_target ? c.color : (isDayMode ? "#94a3b8" : "rgba(255, 255, 255, 0.2)");
-                const textColor = c.is_my_target ? (isDayMode ? "#0f172a" : "#ffffff") : "var(--text-secondary)";
-                const targetTag = c.is_my_target ? `<span style="font-size: 0.65rem; background: ${c.color}; color: #ffffff; padding: 1px 5px; border-radius: 4px; font-weight: 800; margin-left: 4px;">MY</span>` : '';
+            // 3. 3단 비교 바 렌더링
+            listEl.innerHTML = "";
+            const isDayMode = document.body.classList.contains('day-mode');
+            const maxHours = Math.max(
+                targetInfo ? targetInfo.avg_hours : 1,
+                baselineInfo ? baselineInfo.avg_hours : 1,
+                myInfo ? myInfo.my_hours : 1,
+                1
+            );
+
+            const items = [];
+            if (targetInfo) {
+                items.push({
+                    type: "TARGET",
+                    prefix: "🎯 1지망 목표",
+                    name: targetInfo.univ_name,
+                    hours: targetInfo.avg_hours,
+                    hoursStr: `주간 평균 ${targetInfo.avg_hours}시간`,
+                    color: targetInfo.color || "#2563eb",
+                    tag: `<span style="font-size:0.65rem; background:${targetInfo.color || '#2563eb'}; color:#fff; padding:1px 5px; border-radius:4px; font-weight:800;">1지망</span>`
+                });
+            }
+            if (baselineInfo) {
+                items.push({
+                    type: "BASELINE",
+                    prefix: "🛡️ 마지노선",
+                    name: baselineInfo.univ_name,
+                    hours: baselineInfo.avg_hours,
+                    hoursStr: `주간 평균 ${baselineInfo.avg_hours}시간`,
+                    color: baselineInfo.color || "#0369a1",
+                    tag: `<span style="font-size:0.65rem; background:rgba(255,255,255,0.1); color:var(--text-secondary); padding:1px 5px; border-radius:4px; font-weight:700;">마지노선</span>`
+                });
+            }
+            if (myInfo) {
+                items.push({
+                    type: "ME",
+                    prefix: "👤 나의 순공",
+                    name: (window.currentStudent && window.currentStudent.name) ? `${window.currentStudent.name} 학생` : "내 공부시간",
+                    hours: myInfo.my_hours,
+                    hoursStr: `이번 주 ${myInfo.my_hours}시간`,
+                    color: myInfo.status_color || "#818cf8",
+                    tag: `<span style="font-size:0.65rem; background:${myInfo.status_color}; color:#fff; padding:1px 5px; border-radius:4px; font-weight:800;">MY</span>`
+                });
+            }
+
+            items.forEach(it => {
+                const widthPct = Math.max(Math.min((it.hours / maxHours) * 100, 100), 6);
+                const textColor = it.type === "ME" 
+                    ? (isDayMode ? "#0f172a" : "#ffffff") 
+                    : (isDayMode ? "#334155" : "var(--text-primary)");
+                const borderHighlight = it.type === "ME" ? `background: ${isDayMode ? 'rgba(99,102,241,0.06)' : 'rgba(255,255,255,0.03)'}; padding: 8px 10px; border-radius: 8px; border: 1px solid ${myInfo.status_color}33;` : '';
 
                 listEl.innerHTML += `
-                    <div class="campus-item-row">
+                    <div class="campus-item-row" style="${borderHighlight}">
                         <div class="campus-info-header">
                             <div class="campus-name-text" style="color: ${textColor};">
-                                <span>${c.rank}위 ${c.univ_name}</span>
-                                ${targetTag}
+                                <span>${it.prefix}: <strong>${it.name}</strong></span>
+                                ${it.tag}
                             </div>
-                            <div class="campus-hours-text">${c.total_hours_str}</div>
+                            <div class="campus-hours-text" style="color: ${it.color};">${it.hoursStr}</div>
                         </div>
                         <div class="campus-bar-track">
-                            <div class="campus-bar-fill" style="width: ${widthPct}%; background: ${barColor};"></div>
+                            <div class="campus-bar-fill" style="width: ${widthPct}%; background: ${it.color};"></div>
                         </div>
                     </div>
                 `;

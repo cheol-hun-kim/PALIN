@@ -2051,14 +2051,21 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             <div style="display: flex; flex-direction: column; gap: 6px;" id="p3-school-guild-list"></div>
                         </div>
 
-                        <!-- Phase 11: 캠퍼스 점령전 (Campus Occupation Chart) -->
+                        <!-- Phase 11.2: 목표·마지노선 대학 순공 벤치마크 및 위기감 진단 엔진 -->
                         <div id="campus-occupation-card" class="campus-occupation-wrapper">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                 <div style="font-weight: 800; font-size: 0.86rem; color: var(--text-primary); letter-spacing: -0.2px;">
-                                    목표대학 캠퍼스 점령전
+                                    목표·마지노선 순공 벤치마크
                                 </div>
-                                <span style="font-size: 0.7rem; color: var(--text-secondary);" id="campus-network-total-hours">주간 0시간 집계</span>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-size: 0.68rem; color: var(--text-secondary);" id="campus-network-total-hours">주간 0시간</span>
+                                    <span id="benchmark-status-badge" class="benchmark-status-badge" style="display: none;">진단 중</span>
+                                </div>
                             </div>
+                            <!-- 위기감 진단 알림 배너 -->
+                            <div id="benchmark-alert-box" class="benchmark-alert-box" style="display: none; margin-bottom: 10px; font-size: 0.74rem; line-height: 1.45; padding: 8px 10px; border-radius: 8px;">
+                            </div>
+                            <!-- 3단 비교 바 리스트 (목표대 평균, 마지노선 평균, 내 공부시간) -->
                             <div id="campus-occupation-list" style="display: flex; flex-direction: column; gap: 10px;">
                                 <!-- Rendered dynamically by JS -->
                             </div>
