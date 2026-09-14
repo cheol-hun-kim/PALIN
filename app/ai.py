@@ -234,20 +234,37 @@ def load_univ_cuts():
 KEY_FILE_PATH = os.path.join(os.path.dirname(__file__), "..", "gemini_key.txt")
 DEFAULT_FALLBACK_KEY_B64 = "QVEuQWI4Uk42Skt3MVgxLVpnVVFvSDRfT0FRMUtUaVZtZlQ4QVFPV1ZZbHM5c0lVSTFPcFE="
 
-def get_saved_api_key():
+def get_available_api_keys():
+    """Retrieve all available Gemini API keys with priority on the active working key"""
+    keys = []
+    # 1. Active newly-issued key embedded in code
+    try:
+        decoded_default = base64.b64decode(DEFAULT_FALLBACK_KEY_B64).decode('utf-8').strip()
+        if decoded_default and decoded_default not in keys:
+            keys.append(decoded_default)
+    except Exception:
+        pass
+
+    # 2. Local explicit key file if present
     if os.path.exists(KEY_FILE_PATH):
         try:
             with open(KEY_FILE_PATH, "r", encoding="utf-8") as f:
                 k = f.read().strip()
-                if k: return k
+                if k and k not in keys:
+                    keys.insert(0, k)
         except Exception:
             pass
-    env_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-    if env_key: return env_key
-    try:
-        return base64.b64decode(DEFAULT_FALLBACK_KEY_B64).decode('utf-8')
-    except Exception:
-        return ''
+
+    # 3. Environment variables (Render / System)
+    env_key = (os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY") or "").strip()
+    if env_key and env_key not in keys:
+        keys.append(env_key)
+
+    return keys
+
+def get_saved_api_key():
+    keys = get_available_api_keys()
+    return keys[0] if keys else ''
 
 def set_gemini_api_key(key: str) -> bool:
     try:
@@ -258,8 +275,8 @@ def set_gemini_api_key(key: str) -> bool:
         print(f"Error saving Gemini key: {e}")
         return False
 
-def get_gemini_client():
-    key = get_saved_api_key()
+def get_gemini_client(api_key: str = None):
+    key = api_key or get_saved_api_key()
     if key:
         try:
             return genai.Client(api_key=key)
@@ -582,24 +599,32 @@ def ask_ai_chatbot(
         if not contents:
             contents = [{'role': 'user', 'parts': [{'text': message}]}]
 
-        # Standard Google GenAI model hierarchy
+        # Standard Google GenAI model hierarchy & Multi-Key Failover
+        available_keys = get_available_api_keys()
         candidate_models = ['gemini-3.6-flash', 'gemini-2.5-flash', 'gemini-2.0-flash']
-        for mod_name in candidate_models:
+        
+        for api_k in available_keys:
             try:
-                response = client.models.generate_content(
-                    model=mod_name,
-                    contents=contents,
-                    config={
-                        'system_instruction': system_prompt,
-                        'temperature': 0.6,
-                        'max_output_tokens': 8192,
-                    }
-                )
-                if response.text and response.text.strip():
-                    cleaned = response.text.replace('###', '').replace('##', '').replace('#', '').replace('**', '').replace('* ', '')
-                    return cleaned
-            except Exception as ex:
-                print(f"CHATBOT MODEL NOTE ({mod_name}): {ex}")
+                active_client = genai.Client(api_key=api_k)
+                for mod_name in candidate_models:
+                    try:
+                        response = active_client.models.generate_content(
+                            model=mod_name,
+                            contents=contents,
+                            config={
+                                'system_instruction': system_prompt,
+                                'temperature': 0.6,
+                                'max_output_tokens': 8192,
+                            }
+                        )
+                        if response.text and response.text.strip():
+                            cleaned = response.text.replace('###', '').replace('##', '').replace('#', '').replace('**', '').replace('* ', '')
+                            return cleaned
+                    except Exception as mod_ex:
+                        print(f"CHATBOT MODEL NOTE ({mod_name} with key {api_k[:8]}...): {mod_ex}")
+                        continue
+            except Exception as client_ex:
+                print(f"CHATBOT CLIENT INIT NOTE (key {api_k[:8]}...): {client_ex}")
                 continue
 
         # Intelligent Offline/Local Knowledge Fallback Engine (Zero-Breakdown Guarantee)
@@ -613,42 +638,54 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
     """
     Intelligent Local Knowledge Fallback Engine
     - Synthesizes authentic responses directly from 『실패의 원리』(knowledge.txt), Student Manual & Admission Data.
-    - Guarantees 0ms immediate, rich, deeply tailored coaching even when external API credits are depleted.
+    - Guarantees immediate, rich, deeply tailored coaching in genuine banmal persona even during network outages.
     """
     msg_clean = (message or "").strip().lower()
     
-    # 1. 오답 정리 / 오답 노트 관련 질문
+    # 1. 내신 기간 / 내신 언제까지 / 수시 내신 질문
+    if any(k in msg_clean for k in ["내신", "중간고사", "기말고사", "학점", "생기부", "세특", "수행평가"]):
+        return (
+            "수시를 노리는 수험생이라면 고등학교 3학년 1학기 기말고사까지의 내신이 핵심 반영 대상이야. "
+            "하지만 여기서 진짜 중요한 기준은 단순히 기간이 아니라, 내 현재 내신 등급과 목표 대학 사이의 냉정한 합격 가능성 판단에 달려 있어.\n\n"
+            "만약 3학년 1학기 내신으로 수시 6장 카드 중 의미 있는 상위권 대학 학종이나 교과 카드를 쓸 수 있는 위치라면, 이번 1학기 기말고사 마지막 순간까지 사력을 다해 챙겨야 해. "
+            "반대로 이미 1~2학년 내신 평균이 목표 대학의 수시 컷에서 완전히 멀어졌다면, 내신 챙긴답시고 수능 공부 시간과 타이머를 통째로 날려버리는 우를 범해서는 절대 안 돼.\n\n"
+            "수시를 끝까지 가져가더라도 시험 3~4주 전 내신 집중 기간을 제외한 모든 평상시 호흡은 수능 정시 모드로 꽉 잡혀 있어야 해. "
+            "PASS-MATE [정시 합격 예측기]에서 현재 내 모의고사 백분위로 지원 가능한 정시 라인을 먼저 확인하고, 수시와 정시의 황금 비율을 똑똑하게 배분해봐!"
+        )
+
+    # 2. 오답 정리 / 오답 노트 관련 질문
     if any(k in msg_clean for k in ["오답", "오답노트", "틀린 문제", "틀렸", "오답정리", "복습"]):
         return (
-            "오답 정리는 단순히 해설지를 베껴 쓰거나 풀이를 암기하는 작업이 결코 아닙니다. "
-            "『실패의 원리』에서 강조하는 시험 성적을 즉각 올려주는 가장 확실한 3단계 오답 정복 원칙을 실천해보세요.\n\n"
+            "오답 정리는 단순히 해설지를 베껴 쓰거나 풀이를 암기하는 작업이 결코 아니야. "
+            "『실패의 원리』에서 강조하는 시험 성적을 즉각 올려주는 가장 확실한 3단계 오답 정복 원칙을 실천해봐.\n\n"
             "1. 틀린 원인 3분류 명시하기\n"
-            "문제를 틀렸을 때 왜 틀렸는지 스스로 명확히 규정해야 합니다:\n"
+            "문제를 틀렸을 때 왜 틀렸는지 스스로 명확히 규정해야 해:\n"
             "- ① 개념/공식 누락 (해당 단원 기본 개념 1회독 복습)\n"
             "- ② 발문 독해 실패/조건 간과 (문제의 제약조건과 출제 의도 분석 훈련)\n"
             "- ③ 계산 실수/풀이 호흡 끊김 (집중도 및 단계별 식 전개 훈련)\n\n"
             "2. '발상 복기' 한 줄 작성\n"
-            "해설지의 긴 풀이를 옮겨 쓰지 말고, '시험장에서 나는 왜 이 생각을 떠올리지 못했는가?'를 한 줄로 적으세요. "
-            "그리고 문제 발문에서 첫 단추를 꿰는 핵심 단서에 밑줄을 긋고, 그 단서에서 개념으로 이어지는 생각의 연결 고리를 메모합니다.\n\n"
+            "해설지의 긴 풀이를 옮겨 쓰지 말고, '시험장에서 나는 왜 이 생각을 떠올리지 못했는가?'를 한 줄로 적어. "
+            "그리고 문제 발문에서 첫 단추를 꿰는 핵심 단서에 밑줄을 긋고, 그 단서에서 개념으로 이어지는 생각의 연결 고리를 메모하는 거야.\n\n"
             "3. 3일 후 '백지 재풀이' 검증\n"
-            "오답 정리를 한 직후에는 풀이가 눈에 익어 다 아는 것처럼 느껴집니다. "
-            "반드시 3일 뒤 백지 상태의 빈 시험지에 문제 번호만 보고 스스로 처음부터 끝까지 100% 손으로 풀어낼 수 있는지 검증하세요.\n\n"
-            "오답은 나의 약점을 가감 없이 드러내 주는 가장 귀한 나침반입니다. 틀린 문제를 두려워하지 말고 위의 3단계로 완벽히 내 것으로 체화해보세요!"
+            "오답 정리를 한 직후에는 풀이가 눈에 익어 다 아는 것처럼 느껴져. "
+            "반드시 3일 뒤 백지 상태의 빈 시험지에 문제 번호만 보고 스스로 처음부터 끝까지 100% 손으로 풀어낼 수 있는지 검증해봐.\n\n"
+            "오답은 나의 약점을 가감 없이 드러내 주는 가장 귀한 나침반이야. 틀린 문제를 두려워하지 말고 위의 3단계로 완벽히 네 것으로 만들어봐!"
         )
 
-    # 2. 수시 / 정시 / 최저 / 원서 / 입시 전략 질문
+    # 3. 수시 / 정시 / 최저 / 원서 / 입시 전략 질문
     if any(k in msg_clean for k in ["수시", "정시", "최저", "수능최저", "원서", "학종", "논술", "입시", "대입", "합격"]):
         return (
-            "대입 입시에서 가장 중요한 대원칙은 '정시 기준선을 단단히 확보한 상태에서 수시를 공격적으로 설계하는 것'입니다.\n\n"
+            "대입 입시에서 가장 중요한 대원칙은 '정시 기준선을 단단히 확보한 상태에서 수시를 공격적으로 설계하는 것'이야.\n\n"
             "1. 수능 최저학력기준의 결정력\n"
-            "수시 논술이나 학생부종합에서 실질 경쟁률을 1/5~1/10 수준으로 떨어뜨리는 가장 강력한 무기는 바로 '수능 최저 충족'입니다. "
-            "최저를 안정적으로 맞출 수 있는 2~3개 전략 과목에 우선 집중하세요.\n\n"
+            "수시 논술이나 학생부종합에서 실질 경쟁률을 1/5~1/10 수준으로 떨어뜨리는 가장 강력한 무기는 바로 '수능 최저 충족'이야. "
+            "최저를 안정적으로 맞출 수 있는 2~3개 전략 과목에 우선 집중해봐.\n\n"
             "2. 수시 납치 방지\n"
-            "나의 6월/9월 모의평가 백분위 기준 정시로 충분히 갈 수 있는 대학보다 낮은 대학에 수시로 덜컥 합격해 버리는 '수시 납치'를 철저히 경계해야 합니다.\n\n"
+            "나의 6월/9월 모의평가 백분위 기준 정시로 충분히 갈 수 있는 대학보다 낮은 대학에 수시로 덜컥 합격해 버리는 '수시 납치'를 철저히 경계해야 해.\n\n"
             "3. 학습 시간 배분\n"
-            "내신 기간(시험 전 4주)에는 학교 내신 기출과 출제 바이블에 100% 몰입하되, 평상시에는 수능 킬러/준킬러 기출 분석과 자습 밀도를 꾸준히 유지하는 것이 합격의 지름길입니다.\n\n"
-            "궁금한 대학이나 학과가 있다면 PASS-MATE [2. 학습공간] -> [정시 합격 예측기]에서 내 성적으로 전국 11,688개 대학의 적정/소신 판정을 실시간으로 확인해보세요!"
+            "내신 기간(시험 전 4주)에는 학교 내신 기출과 출제 바이블에 100% 몰입하되, 평상시에는 수능 킬러/준킬러 기출 분석과 자습 밀도를 꾸준히 유지하는 것이 합격의 지름길이야.\n\n"
+            "궁금한 대학이나 학과가 있다면 PASS-MATE [2. 학습공간] -> [정시 합격 예측기]에서 내 성적으로 전국 11,688개 대학의 적정/소신 판정을 실시간으로 확인해봐!"
         )
+
 
     # 3. 집중력 / 슬럼프 / 공부법 / 계획 / 생활관리 질문
     if any(k in msg_clean for k in ["집중", "슬럼프", "공부법", "계획", "잠", "기상", "피곤", "의지", "멘탈", "불안", "시작"]):
