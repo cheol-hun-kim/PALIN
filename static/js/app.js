@@ -6583,13 +6583,8 @@ function updateHeaderUI() {
         streakEl.innerText = count > 0 ? `연속 ${count}일` : "연속 8일";
     }
 
-    // 수능 칭호 태그 갱신
+    // 수능 칭호 태그 갱신 (마이페이지 모달)
     const eqTitle = currentStudent.equipped_title || "[콘크리트 1등급]";
-    const hTitleTag = document.getElementById("header-user-title-tag");
-    if (hTitleTag) {
-        hTitleTag.innerText = eqTitle;
-        hTitleTag.style.display = "inline-block";
-    }
     const myTitleTag = document.getElementById("mypage-user-title-tag");
     if (myTitleTag) {
         myTitleTag.innerText = eqTitle;
@@ -18233,14 +18228,9 @@ async function loadUserTitles() {
             const data = await res.json();
             const equippedTitle = data.equipped_title || "[콘크리트 1등급]";
 
-            const tag1 = document.getElementById("header-user-title-tag");
             const tag2 = document.getElementById("mypage-user-title-tag");
             const disp = document.getElementById("mypage-equipped-title-display");
 
-            if (tag1) {
-                tag1.innerText = equippedTitle;
-                tag1.style.display = "inline-block";
-            }
             if (tag2) {
                 tag2.innerText = equippedTitle;
             }
