@@ -1393,7 +1393,7 @@ equip_res = client.post("/api/gamification/titles/1/equip", json={
     "condition_code": "STARTER_TIER"
 })
 assert equip_res.status_code == 200, f"Equip title failed: {equip_res.text}"
-assert equip_res.json().get("equipped_title") == "[콘크리트 1등급]"
+assert equip_res.json().get("equipped_title") == "[트랙 인: 1열 탑승자]"
 
 # 5. ASMR Cross-Traffic Curation Test
 asmr_res = client.get("/api/study/asmr-curation?student_id=1")

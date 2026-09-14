@@ -6584,7 +6584,7 @@ function updateHeaderUI() {
     }
 
     // 수능 칭호 태그 갱신 (마이페이지 모달)
-    const eqTitle = currentStudent.equipped_title || "[콘크리트 1등급]";
+    const eqTitle = currentStudent.equipped_title || "[트랙 인: 1열 탑승자]";
     const myTitleTag = document.getElementById("mypage-user-title-tag");
     if (myTitleTag) {
         myTitleTag.innerText = eqTitle;
@@ -18297,7 +18297,7 @@ async function loadUserTitles() {
         const res = await fetch(`/api/gamification/titles/${sid}`);
         if (res.ok) {
             const data = await res.json();
-            const equippedTitle = data.equipped_title || "[콘크리트 1등급]";
+            const equippedTitle = data.equipped_title || "[트랙 인: 1열 탑승자]";
 
             const tag2 = document.getElementById("mypage-user-title-tag");
             const disp = document.getElementById("mypage-equipped-title-display");

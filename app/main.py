@@ -1195,7 +1195,7 @@ def get_student(student_id: int, db: Session = Depends(get_db)):
         "textbook_paid": bool(getattr(student, 'textbook_paid', False)),
         "textbooks_distributed": getattr(student, 'textbooks_distributed', '') or "",
         "enrollment_status": getattr(student, 'enrollment_status', 'ENROLLED') or "ENROLLED",
-        "equipped_title": student.equipped_title_name or "[콘크리트 1등급]",
+        "equipped_title": student.equipped_title_name or "[트랙 인: 1열 탑승자]",
     }
 
 @app.get("/api/student/{student_id}/parent", response_model=schemas.ParentResponse)
@@ -7566,14 +7566,14 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
         if st and st.equipped_title_name:
             return st.equipped_title_name
         if streak >= 14:
-            return "[불꽃 수험생]"
+            return "[대치동 페이스메이커]"
         elif streak >= 7 or study_sec >= 18000:
-            return "[콘크리트 1등급]"
+            return "[새벽 6시의 공기]"
         elif study_sec >= 7200:
             return "[심야의 지배자]"
         elif streak >= 3:
-            return "[수능 도전자]"
-        return "[콘크리트 1등급]"
+            return "[작심삼일 소멸자]"
+        return "[트랙 인: 1열 탑승자]"
 
     my_eq_title = resolve_student_title(student, my_seconds, student.streak_days or 0)
     rankers = []
@@ -7978,6 +7978,9 @@ def get_campus_occupation(student_id: Optional[int] = None, db: Session = Depend
 def get_user_titles(student_id: int, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == student_id).first()
     if not student:
+        # Fallback to student 1 or first student for demo/visitor modes
+        student = db.query(models.Student).filter(models.Student.id == 1).first() or db.query(models.Student).first()
+    if not student:
         raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
 
     now = datetime.now()
@@ -8011,11 +8014,18 @@ def get_user_titles(student_id: int, db: Session = Depends(get_db)):
 
     from app.title_catalog import get_all_master_titles
     master_titles = get_all_master_titles()
+    master_map = {mt["condition_code"]: mt for mt in master_titles}
 
     existing_titles = db.query(models.UserTitle).filter(models.UserTitle.student_id == student.id).all()
-    existing_map = {t.condition_code: t for t in existing_titles}
-    has_equipped = any(t.is_equipped for t in existing_titles)
+    existing_map = {}
+    for t in existing_titles:
+        if t.condition_code in master_map:
+            t.title_name = master_map[t.condition_code]["title_name"]
+            existing_map[t.condition_code] = t
+        else:
+            db.delete(t)
 
+    new_unlocked = []
     for mt in master_titles:
         is_eligible = False
         try:
@@ -8023,29 +8033,40 @@ def get_user_titles(student_id: int, db: Session = Depends(get_db)):
         except Exception:
             is_eligible = (mt["condition_code"] == "STARTER_TIER")
 
-        if is_eligible:
-            if mt["condition_code"] not in existing_map:
-                new_t = models.UserTitle(
-                    student_id=student.id,
-                    title_name=mt["title_name"],
-                    condition_code=mt["condition_code"],
-                    is_equipped=(not has_equipped and mt["condition_code"] == "STARTER_TIER")
-                )
-                db.add(new_t)
-                existing_map[mt["condition_code"]] = new_t
-                if new_t.is_equipped:
-                    has_equipped = True
+        if is_eligible and mt["condition_code"] not in existing_map:
+            new_t = models.UserTitle(
+                student_id=student.id,
+                title_name=mt["title_name"],
+                condition_code=mt["condition_code"],
+                is_equipped=False
+            )
+            db.add(new_t)
+            existing_map[mt["condition_code"]] = new_t
+            new_unlocked.append(mt)
 
     db.commit()
 
     refreshed_titles = db.query(models.UserTitle).filter(models.UserTitle.student_id == student.id).all()
     refreshed_map = {t.condition_code: t for t in refreshed_titles}
 
-    if not any(t.is_equipped for t in refreshed_titles) and "STARTER_TIER" in refreshed_map:
-        refreshed_map["STARTER_TIER"].is_equipped = True
+    # 👑 칭호 획득 시 획득 난이도(등급) 높은 순으로 자동 대표 칭호 업데이트 (Tier Priority Auto-Equip Engine)
+    unlocked_mts = [master_map[t.condition_code] for t in refreshed_titles if t.condition_code in master_map]
+    unlocked_mts.sort(key=lambda x: (x.get("tier_weight", 100), x.get("difficulty_weight", 1)), reverse=True)
+
+    current_eq = next((t for t in refreshed_titles if t.is_equipped), None)
+    current_eq_mt = master_map.get(current_eq.condition_code) if current_eq else None
+    current_prestige = (current_eq_mt.get("tier_weight", 0), current_eq_mt.get("difficulty_weight", 0)) if current_eq_mt else (0, 0)
+
+    highest_mt = unlocked_mts[0] if unlocked_mts else None
+    highest_prestige = (highest_mt.get("tier_weight", 0), highest_mt.get("difficulty_weight", 0)) if highest_mt else (0, 0)
+
+    # If no title equipped, or if highest unlocked title is strictly higher prestige than current equipped title
+    if highest_mt and (not current_eq or highest_prestige > current_prestige):
+        for t in refreshed_titles:
+            t.is_equipped = (t.condition_code == highest_mt["condition_code"])
         db.commit()
 
-    equipped_title_name = next((t.title_name for t in refreshed_titles if t.is_equipped), "[콘크리트 1등급]")
+    equipped_title_name = next((t.title_name for t in refreshed_titles if t.is_equipped), "[트랙 인: 1열 탑승자]")
 
     result_list = []
     unlocked_count = 0
@@ -8063,6 +8084,8 @@ def get_user_titles(student_id: int, db: Session = Depends(get_db)):
             "description": mt["description"],
             "condition_desc": mt["condition_desc"],
             "tier": mt.get("tier", "일반"),
+            "tier_weight": mt.get("tier_weight", 100),
+            "difficulty_weight": mt.get("difficulty_weight", 1),
             "is_unlocked": is_unlocked,
             "is_equipped": is_eq
         })
@@ -8081,6 +8104,8 @@ def get_user_titles(student_id: int, db: Session = Depends(get_db)):
 def equip_user_title(student_id: int, payload: TitleEquipRequestPayload, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == student_id).first()
     if not student:
+        student = db.query(models.Student).filter(models.Student.id == 1).first() or db.query(models.Student).first()
+    if not student:
         raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
 
     target_title = None
@@ -8096,7 +8121,20 @@ def equip_user_title(student_id: int, payload: TitleEquipRequestPayload, db: Ses
         ).first()
 
     if not target_title:
-        raise HTTPException(status_code=404, detail="해금되지 않았거나 존재하지 않는 칭호입니다.")
+        from app.title_catalog import get_title_by_code
+        mt = get_title_by_code(payload.condition_code or "")
+        if mt:
+            target_title = models.UserTitle(
+                student_id=student.id,
+                title_name=mt["title_name"],
+                condition_code=mt["condition_code"],
+                is_equipped=True
+            )
+            db.add(target_title)
+            db.commit()
+            db.refresh(target_title)
+        else:
+            raise HTTPException(status_code=404, detail="해금되지 않았거나 존재하지 않는 칭호입니다.")
 
     db.query(models.UserTitle).filter(models.UserTitle.student_id == student.id).update({models.UserTitle.is_equipped: False})
     target_title.is_equipped = True

@@ -161,10 +161,17 @@ def auto_seed_database(db: Session, engine):
                 points = safe_num(getattr(s, 'weekly_diligence_points', 0)) + safe_num(s.diligence_score) + safe_num(s.current_points)
                 is_vip = bool(getattr(s, 'is_vip', False)) or (streak >= 15)
                 
+                master_map = {mt["condition_code"]: mt for mt in master_titles}
                 existing_titles = db.query(models.UserTitle).filter(models.UserTitle.student_id == s.id).all()
-                existing_map = {t.condition_code: t for t in existing_titles}
-                has_equipped = any(t.is_equipped for t in existing_titles)
+                existing_map = {}
+                for t in existing_titles:
+                    if t.condition_code in master_map:
+                        t.title_name = master_map[t.condition_code]["title_name"]
+                        existing_map[t.condition_code] = t
+                    else:
+                        db.delete(t)
                 
+                unlocked_mts = []
                 for mt in master_titles:
                     is_eligible = False
                     try:
@@ -172,26 +179,24 @@ def auto_seed_database(db: Session, engine):
                     except Exception:
                         is_eligible = (mt['condition_code'] == 'STARTER_TIER')
                         
-                    if is_eligible and mt['condition_code'] not in existing_map:
-                        new_t = models.UserTitle(
-                            student_id=s.id,
-                            title_name=mt['title_name'],
-                            condition_code=mt['condition_code'],
-                            is_equipped=False
-                        )
-                        db.add(new_t)
-                        existing_map[mt['condition_code']] = new_t
+                    if is_eligible:
+                        unlocked_mts.append(mt)
+                        if mt['condition_code'] not in existing_map:
+                            new_t = models.UserTitle(
+                                student_id=s.id,
+                                title_name=mt['title_name'],
+                                condition_code=mt['condition_code'],
+                                is_equipped=False
+                            )
+                            db.add(new_t)
+                            existing_map[mt['condition_code']] = new_t
 
-                if not has_equipped:
-                    pick_code = 'STARTER_TIER'
-                    for pref in ['SKY_LEGION', 'SNU_ASPIRANT', 'YONSEI_BLUE', 'KOREA_CRIMSON', 'MEDICAL_WHITE', 'DAETCHIDONG_HEIR', 'MIDNIGHT_EMPEROR', 'STUDY_100H', 'STREAK_14D', 'STREAK_7D']:
-                        if pref in existing_map:
-                            pick_code = pref
-                            break
-                    if pick_code in existing_map:
-                        existing_map[pick_code].is_equipped = True
-                    elif 'STARTER_TIER' in existing_map:
-                        existing_map['STARTER_TIER'].is_equipped = True
+                # Auto-equip highest prestige title
+                unlocked_mts.sort(key=lambda x: (x.get('tier_weight', 100), x.get('difficulty_weight', 1)), reverse=True)
+                if unlocked_mts:
+                    best_code = unlocked_mts[0]['condition_code']
+                    for t in existing_map.values():
+                        t.is_equipped = (t.condition_code == best_code)
 
             db.commit()
             print(f"[AUTO_SEED] Phase 11 100-Title Master Matrix synced for all {len(students)} students.")
