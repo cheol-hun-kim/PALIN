@@ -1331,9 +1331,93 @@ finally:
 
 print("[GATE 7.16 PASS] Crowdsourced Exam Source Q&A, Tutor Adoption & School Bible Real-Time Aggregation 100% Verified!")
 
+# --- GATE 7.17: PALIN OS Phase 11 Psychological Lock-in Engine & Cross-Traffic Pipeline ---
+# 1. Anonymous Poke Test
+db_check_p11 = database.SessionLocal()
+try:
+    peer_st = db_check_p11.query(models.Student).filter(models.Student.id != 1, models.Student.deleted_at == None).first()
+    target_peer_id = peer_st.id if peer_st else 3
+finally:
+    db_check_p11.close()
+
+poke_res = client.post("/api/gamification/poke", json={
+    "sender_id": 1,
+    "recipient_id": target_peer_id
+})
+assert poke_res.status_code == 200, f"Poke failed: {poke_res.text}"
+poke_data = poke_res.json()
+assert poke_data.get("status") == "success", "Poke response must be success"
+poke_notif_id = poke_data.get("notification_id")
+assert poke_notif_id is not None, "Poke notification ID must be returned"
+
+# 2. Recipient Notifications Fetch & Mark Read Test
+notif_res = client.get(f"/api/notifications/{target_peer_id}")
+assert notif_res.status_code == 200, f"Notifications fetch failed: {notif_res.text}"
+notif_data = notif_res.json()
+unread_notifs = notif_data.get("notifications", [])
+found_poke = next((n for n in unread_notifs if n["id"] == poke_notif_id), None)
+assert found_poke is not None, "Sent poke notification must appear in recipient's notifications"
+assert "당신의 멈춘 타이머를 추월했습니다" in found_poke["message"], "Poke message format mismatch"
+
+read_res = client.post(f"/api/notifications/{target_peer_id}/read", json={
+    "notification_ids": [poke_notif_id]
+})
+assert read_res.status_code == 200
+assert read_res.json().get("marked_read_count", 0) >= 1, "Must mark notification as read"
+
+# 3. Campus Occupation Aggregation Test
+campus_res = client.get("/api/gamification/campus-occupation?student_id=1")
+assert campus_res.status_code == 200, f"Campus occupation failed: {campus_res.text}"
+campus_data = campus_res.json()
+assert "campuses" in campus_data, "Campus occupation missing campuses"
+assert "my_target_univ" in campus_data, "Campus occupation missing my_target_univ"
+assert len(campus_data["campuses"]) >= 1, "Campuses list must not be empty"
+for c in campus_data["campuses"]:
+    assert "univ_name" in c and "total_hours" in c and "color" in c and "is_my_target" in c
+
+# 4. CSAT Titles Matrix & Auto-Unlock / Equip Test
+titles_res = client.get("/api/gamification/titles/1")
+assert titles_res.status_code == 200, f"Titles fetch failed: {titles_res.text}"
+titles_data = titles_res.json()
+assert "titles" in titles_data, "Titles response missing titles array"
+assert "equipped_title" in titles_data, "Titles response missing equipped_title"
+assert len(titles_data["titles"]) >= 4, "Must have all master titles registered"
+
+# Equip a title
+equip_res = client.post("/api/gamification/titles/1/equip", json={
+    "condition_code": "STARTER_TIER"
+})
+assert equip_res.status_code == 200, f"Equip title failed: {equip_res.text}"
+assert equip_res.json().get("equipped_title") == "[콘크리트 1등급]"
+
+# 5. ASMR Cross-Traffic Curation Test
+asmr_res = client.get("/api/study/asmr-curation?student_id=1")
+assert asmr_res.status_code == 200, f"ASMR curation failed: {asmr_res.text}"
+asmr_data = asmr_res.json()
+assert "youtube_url" in asmr_data and "title" in asmr_data and "duration_label" in asmr_data
+
+# 6. Micro-Rankings Enhancement Test (equipped_title & can_poke)
+micro_res = client.get("/api/gamification/micro-rankings?student_id=1")
+assert micro_res.status_code == 200, f"Micro rankings failed: {micro_res.text}"
+micro_data = micro_res.json()
+assert len(micro_data.get("rankers", [])) >= 1
+for r in micro_data["rankers"]:
+    assert "equipped_title" in r, "Ranker missing equipped_title"
+    assert "can_poke" in r, "Ranker missing can_poke"
+
+# 7. Clean up test notification
+db_cleanup_p11 = database.SessionLocal()
+try:
+    db_cleanup_p11.query(models.UserNotification).filter(models.UserNotification.id == poke_notif_id).delete()
+    db_cleanup_p11.commit()
+finally:
+    db_cleanup_p11.close()
+
+print("[GATE 7.17 PASS] PALIN OS Phase 11 Psychological Lock-in Engine & Cross-Traffic Pipeline 100% Verified!")
+
 
 print("\n" + "=" * 70)
-print("[100% PROOF] ALL 7 GATES (43/43 SUB-GATES) PASSED WITH ZERO DEFECTS!")
+print("[100% PROOF] ALL 7 GATES (44/44 SUB-GATES) PASSED WITH ZERO DEFECTS!")
 print("=" * 70 + "\n")
 
 

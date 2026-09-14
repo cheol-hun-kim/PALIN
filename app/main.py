@@ -1195,6 +1195,7 @@ def get_student(student_id: int, db: Session = Depends(get_db)):
         "textbook_paid": bool(getattr(student, 'textbook_paid', False)),
         "textbooks_distributed": getattr(student, 'textbooks_distributed', '') or "",
         "enrollment_status": getattr(student, 'enrollment_status', 'ENROLLED') or "ENROLLED",
+        "equipped_title": student.equipped_title_name or "[콘크리트 1등급]",
     }
 
 @app.get("/api/student/{student_id}/parent", response_model=schemas.ParentResponse)
@@ -7561,6 +7562,7 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
         region_pos_str = f"자습 {region_rank}위 {medal_r}".strip()
         school_pos_str = f"전교 {school_rank}위 {medal_s}".strip()
 
+    my_eq_title = student.equipped_title_name or ""
     rankers = []
     rankers.append({
         "id": student.id,
@@ -7570,7 +7572,9 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
         "studySeconds": my_seconds,
         "studyHours": my_time_str,
         "streak": student.streak_days or 0,
-        "isMe": True
+        "isMe": True,
+        "can_poke": False,
+        "equipped_title": my_eq_title
     })
 
     for p in peer_students:
@@ -7586,6 +7590,7 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
         p_time_str = f"{p_h}시간 {p_rm}분" if p_h > 0 else f"{p_rm}분"
 
         masked_name = p.name[0] + "*" + (p.name[2:] if len(p.name) > 2 else "") if len(p.name) > 1 else p.name
+        p_eq_title = p.equipped_title_name or ""
         rankers.append({
             "id": p.id,
             "name": masked_name,
@@ -7594,7 +7599,9 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
             "studySeconds": p_sec,
             "studyHours": p_time_str,
             "streak": p.streak_days or 0,
-            "isMe": False
+            "isMe": False,
+            "can_poke": (p_sec == 0),
+            "equipped_title": p_eq_title
         })
 
     rankers.sort(key=lambda r: (r["studySeconds"], r["streak"]), reverse=True)
@@ -7623,6 +7630,398 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
         "is_live_league": True,
         "rankers": rankers[:5]
     }
+
+
+# ==============================================================================
+# 🎮 PALIN OS Phase 11: 심리적 락인(Lock-in) 엔진 & 크로스 트래픽 파이프라인 API
+# ==============================================================================
+
+class PokeRequestPayload(BaseModel):
+    sender_id: int
+    recipient_id: int
+
+class NotificationReadRequestPayload(BaseModel):
+    notification_ids: Optional[List[int]] = None
+
+class TitleEquipRequestPayload(BaseModel):
+    title_id: Optional[int] = None
+    condition_code: Optional[str] = None
+
+
+@app.post("/api/gamification/poke")
+def send_anonymous_poke(payload: PokeRequestPayload, db: Session = Depends(get_db)):
+    sender = db.query(models.Student).filter(models.Student.id == payload.sender_id).first()
+    recipient = db.query(models.Student).filter(models.Student.id == payload.recipient_id).first()
+    if not recipient:
+        raise HTTPException(status_code=404, detail="상대 학생을 찾을 수 없습니다.")
+
+    # Extract sender district (e.g. "경기도 성남시 분당구" -> "분당구")
+    reg_clean = (sender.region or "").strip() if sender else ""
+    tokens = [t.strip() for t in reg_clean.split() if len(t.strip()) > 1]
+    district = tokens[-1] if tokens else "인근 동네"
+
+    # Exact message according to master specification
+    poke_msg = f"{district}의 누군가가 당신의 멈춘 타이머를 추월했습니다."
+
+    notif = models.UserNotification(
+        recipient_id=recipient.id,
+        sender_id=sender.id if sender else None,
+        sender_region=district,
+        notification_type="POKE",
+        message=poke_msg,
+        is_read=False
+    )
+    db.add(notif)
+    db.commit()
+    db.refresh(notif)
+
+    return {
+        "status": "success",
+        "message": f"[{recipient.name}] 학생에게 익명 콕 찌르기를 전송했습니다.",
+        "notification_id": notif.id
+    }
+
+
+@app.get("/api/notifications/{student_id}")
+def get_user_notifications(student_id: int, unread_only: bool = True, db: Session = Depends(get_db)):
+    query = db.query(models.UserNotification).filter(models.UserNotification.recipient_id == student_id)
+    if unread_only:
+        query = query.filter(models.UserNotification.is_read == False)
+    notifications = query.order_by(models.UserNotification.created_at.desc()).limit(20).all()
+    return {
+        "student_id": student_id,
+        "unread_count": len([n for n in notifications if not n.is_read]),
+        "notifications": [
+            {
+                "id": n.id,
+                "sender_region": n.sender_region,
+                "notification_type": n.notification_type,
+                "message": n.message,
+                "is_read": n.is_read,
+                "created_at": n.created_at.isoformat() if n.created_at else None
+            }
+            for n in notifications
+        ]
+    }
+
+
+@app.post("/api/notifications/{student_id}/read")
+def mark_notifications_as_read(student_id: int, payload: Optional[NotificationReadRequestPayload] = None, db: Session = Depends(get_db)):
+    query = db.query(models.UserNotification).filter(models.UserNotification.recipient_id == student_id)
+    if payload and payload.notification_ids:
+        query = query.filter(models.UserNotification.id.in_(payload.notification_ids))
+    updated_count = query.update({models.UserNotification.is_read: True}, synchronize_session=False)
+    db.commit()
+    return {
+        "status": "success",
+        "marked_read_count": updated_count
+    }
+
+
+@app.get("/api/gamification/campus-occupation")
+def get_campus_occupation(student_id: Optional[int] = None, db: Session = Depends(get_db)):
+    now = datetime.now()
+    week_start = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    current_student = None
+    if student_id:
+        current_student = db.query(models.Student).filter(models.Student.id == student_id).first()
+
+    my_target_raw = (current_student.target_univ or "") if current_student else ""
+
+    def get_canonical_univ(raw_name: str):
+        if not raw_name:
+            return "기타 대학", "#6366f1", "기타"
+        name = raw_name.strip()
+        if "연세" in name or "연대" in name:
+            return "연세대학교", "#2563eb", "연세대"
+        elif "서울" in name or "SNU" in name.upper():
+            return "서울대학교", "#1e3a8a", "서울대"
+        elif "고려" in name or "고대" in name:
+            return "고려대학교", "#dc2626", "고려대"
+        elif "성균관" in name or "성대" in name:
+            return "성균관대학교", "#059669", "성균관대"
+        elif "한양" in name:
+            return "한양대학교", "#0284c7", "한양대"
+        elif "카이스트" in name or "KAIST" in name.upper():
+            return "KAIST", "#0284c7", "KAIST"
+        elif "포스텍" in name or "POSTECH" in name.upper():
+            return "POSTECH", "#dc2626", "POSTECH"
+        elif "의예" in name or "의대" in name or "의학" in name:
+            return "메디컬 의예과", "#0ea5e9", "메디컬"
+        else:
+            first_word = name.split()[0] if name.split() else name
+            return first_word, "#6366f1", first_word
+
+    my_canonical_univ, my_univ_color, _ = get_canonical_univ(my_target_raw)
+
+    # 1. Fetch all active students
+    students = db.query(models.Student).filter(
+        models.Student.deleted_at == None,
+        models.Student.target_univ.isnot(None),
+        models.Student.target_univ != ""
+    ).all()
+
+    # 2. Base mapping for TOP target campuses
+    univ_map = {}
+    for default_univ, default_col, short_n in [
+        ("연세대학교", "#2563eb", "연세대"),
+        ("서울대학교", "#1e3a8a", "서울대"),
+        ("고려대학교", "#dc2626", "고려대"),
+        ("성균관대학교", "#059669", "성균관대")
+    ]:
+        univ_map[default_univ] = {
+            "univ_name": default_univ,
+            "short_name": short_n,
+            "color": default_col,
+            "total_seconds": 0,
+            "student_count": 0
+        }
+
+    for st in students:
+        canon_name, col, short_n = get_canonical_univ(st.target_univ)
+        if canon_name not in univ_map:
+            univ_map[canon_name] = {
+                "univ_name": canon_name,
+                "short_name": short_n,
+                "color": col,
+                "total_seconds": 0,
+                "student_count": 0
+            }
+        univ_map[canon_name]["student_count"] += 1
+        
+        # Calculate weekly study seconds
+        sess = db.query(models.StudySession).filter(
+            models.StudySession.student_id == st.id,
+            models.StudySession.created_at >= week_start,
+            models.StudySession.deleted_at == None
+        ).all()
+        st_sec = sum((s.duration_sec or 0) for s in sess)
+        univ_map[canon_name]["total_seconds"] += st_sec
+
+    campus_list = list(univ_map.values())
+    total_network_seconds = sum(c["total_seconds"] for c in campus_list)
+    total_network_hours = round(total_network_seconds / 3600.0, 1)
+
+    campus_list.sort(key=lambda x: (x["total_seconds"], x["student_count"]), reverse=True)
+
+    formatted_campuses = []
+    for idx, c in enumerate(campus_list):
+        hrs = round(c["total_seconds"] / 3600.0, 1)
+        pct = round((c["total_seconds"] / total_network_seconds * 100), 1) if total_network_seconds > 0 else (25.0 if idx < 4 else 0.0)
+        is_my = (c["univ_name"] == my_canonical_univ or c["short_name"] in my_target_raw)
+        formatted_campuses.append({
+            "rank": idx + 1,
+            "univ_name": c["univ_name"],
+            "short_name": c["short_name"],
+            "total_hours": hrs,
+            "total_hours_str": f"{hrs}시간",
+            "student_count": c["student_count"],
+            "color": c["color"],
+            "is_my_target": is_my,
+            "percentage": pct
+        })
+
+    return {
+        "my_target_univ": my_canonical_univ,
+        "my_target_color": my_univ_color,
+        "total_network_hours": total_network_hours,
+        "campuses": formatted_campuses[:5]
+    }
+
+
+@app.get("/api/gamification/titles/{student_id}")
+def get_user_titles(student_id: int, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+
+    all_sessions = db.query(models.StudySession).filter(
+        models.StudySession.student_id == student.id,
+        models.StudySession.deleted_at == None
+    ).all()
+    total_seconds = sum((s.duration_sec or 0) for s in all_sessions)
+    total_hours = total_seconds / 3600.0
+    streak = student.streak_days or 0
+    target_univ = (student.target_univ or "").strip()
+
+    master_titles = [
+        {
+            "condition_code": "STARTER_TIER",
+            "title_name": "[콘크리트 1등급]",
+            "description": "PALIN OS 몰입 시작 기본 칭호",
+            "condition_desc": "회원가입 완료",
+            "is_eligible": True
+        },
+        {
+            "condition_code": "STREAK_7D",
+            "title_name": "[새벽의 지배자]",
+            "description": "7일 연속 기상/자습 미션 달성",
+            "condition_desc": "연속 7일 달성",
+            "is_eligible": (streak >= 7)
+        },
+        {
+            "condition_code": "STUDY_50H",
+            "title_name": "[불꽃의 수험생]",
+            "description": "순공 누적 50시간 돌파",
+            "condition_desc": "순공 50시간 누적",
+            "is_eligible": (total_hours >= 50.0 or streak >= 5)
+        },
+        {
+            "condition_code": "STUDY_100H",
+            "title_name": "[고독한 완주자]",
+            "description": "순공 누적 100시간 극강 몰입",
+            "condition_desc": "순공 100시간 누적",
+            "is_eligible": (total_hours >= 100.0)
+        },
+        {
+            "condition_code": "SKY_LEGION",
+            "title_name": "[SKY 결사대]",
+            "description": "서울대·연세대·고려대·의예과 목표",
+            "condition_desc": "목표대학 설정",
+            "is_eligible": any(u in target_univ for u in ["서울", "연세", "고려", "의예", "의대", "SNU", "KAIST", "포스텍"])
+        }
+    ]
+
+    existing_titles = db.query(models.UserTitle).filter(models.UserTitle.student_id == student.id).all()
+    existing_map = {t.condition_code: t for t in existing_titles}
+    has_equipped = any(t.is_equipped for t in existing_titles)
+
+    for mt in master_titles:
+        if mt["is_eligible"]:
+            if mt["condition_code"] not in existing_map:
+                new_t = models.UserTitle(
+                    student_id=student.id,
+                    title_name=mt["title_name"],
+                    condition_code=mt["condition_code"],
+                    is_equipped=(not has_equipped and mt["condition_code"] == "STARTER_TIER")
+                )
+                db.add(new_t)
+                db.commit()
+                db.refresh(new_t)
+                existing_map[mt["condition_code"]] = new_t
+                if new_t.is_equipped:
+                    has_equipped = True
+
+    refreshed_titles = db.query(models.UserTitle).filter(models.UserTitle.student_id == student.id).all()
+    refreshed_map = {t.condition_code: t for t in refreshed_titles}
+
+    if not any(t.is_equipped for t in refreshed_titles) and "STARTER_TIER" in refreshed_map:
+        refreshed_map["STARTER_TIER"].is_equipped = True
+        db.commit()
+
+    equipped_title_name = next((t.title_name for t in refreshed_titles if t.is_equipped), "[콘크리트 1등급]")
+
+    result_list = []
+    for mt in master_titles:
+        db_rec = refreshed_map.get(mt["condition_code"])
+        is_unlocked = db_rec is not None
+        is_eq = db_rec.is_equipped if db_rec else False
+        result_list.append({
+            "id": db_rec.id if db_rec else None,
+            "condition_code": mt["condition_code"],
+            "title_name": mt["title_name"],
+            "description": mt["description"],
+            "condition_desc": mt["condition_desc"],
+            "is_unlocked": is_unlocked,
+            "is_equipped": is_eq
+        })
+
+    return {
+        "student_id": student.id,
+        "equipped_title": equipped_title_name,
+        "titles": result_list
+    }
+
+
+@app.post("/api/gamification/titles/{student_id}/equip")
+def equip_user_title(student_id: int, payload: TitleEquipRequestPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+
+    target_title = None
+    if payload.title_id:
+        target_title = db.query(models.UserTitle).filter(
+            models.UserTitle.id == payload.title_id,
+            models.UserTitle.student_id == student.id
+        ).first()
+    elif payload.condition_code:
+        target_title = db.query(models.UserTitle).filter(
+            models.UserTitle.condition_code == payload.condition_code,
+            models.UserTitle.student_id == student.id
+        ).first()
+
+    if not target_title:
+        raise HTTPException(status_code=404, detail="해금되지 않았거나 존재하지 않는 칭호입니다.")
+
+    db.query(models.UserTitle).filter(models.UserTitle.student_id == student.id).update({models.UserTitle.is_equipped: False})
+    target_title.is_equipped = True
+    db.commit()
+
+    return {
+        "status": "success",
+        "message": f"[{target_title.title_name}] 칭호가 장착되었습니다.",
+        "equipped_title": target_title.title_name
+    }
+
+
+@app.get("/api/study/asmr-curation")
+def get_study_asmr_curation(student_id: int = 1, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    target_univ = (student.target_univ or "").strip() if student else ""
+
+    if "연세" in target_univ or "연대" in target_univ:
+        return {
+            "univ_name": "연세대학교",
+            "title": "연세대학교 백양로 집중 빗소리 백색소음 [콘크리트 에디션]",
+            "youtube_url": "https://www.youtube.com/watch?v=5qap5aO4i9A",
+            "duration_label": "3시간 연속 루프",
+            "edition_tag": "연세대 독수리 에디션",
+            "univ_color": "#2563eb",
+            "bg_gradient": "linear-gradient(135deg, rgba(37,99,235,0.15), rgba(30,58,138,0.25))"
+        }
+    elif "서울" in target_univ or "SNU" in target_univ.upper():
+        return {
+            "univ_name": "서울대학교",
+            "title": "서울대학교 관악캠퍼스 중앙도서관 심야 집중 ASMR [콘크리트 에디션]",
+            "youtube_url": "https://www.youtube.com/watch?v=jfKfPfyJRdk",
+            "duration_label": "4시간 몰입 루프",
+            "edition_tag": "서울대 관악 에디션",
+            "univ_color": "#1e3a8a",
+            "bg_gradient": "linear-gradient(135deg, rgba(30,58,138,0.15), rgba(15,23,42,0.25))"
+        }
+    elif "고려" in target_univ or "고대" in target_univ:
+        return {
+            "univ_name": "고려대학교",
+            "title": "고려대학교 중앙광장 지하열람실 딥포커스 ASMR [콘크리트 에디션]",
+            "youtube_url": "https://www.youtube.com/watch?v=DWcJFNfaw9c",
+            "duration_label": "3시간 몰입 루프",
+            "edition_tag": "고려대 호랑이 에디션",
+            "univ_color": "#dc2626",
+            "bg_gradient": "linear-gradient(135deg, rgba(220,38,38,0.15), rgba(136,19,55,0.25))"
+        }
+    elif "의예" in target_univ or "의대" in target_univ or "의학" in target_univ:
+        return {
+            "univ_name": "메디컬 의예과",
+            "title": "메디컬 1등급 심야 해부학실 극강 몰입 빗소리 ASMR [콘크리트 에디션]",
+            "youtube_url": "https://www.youtube.com/watch?v=lTRiuFIWV54",
+            "duration_label": "3시간 집중 루프",
+            "edition_tag": "메디컬 콘크리트 에디션",
+            "univ_color": "#0ea5e9",
+            "bg_gradient": "linear-gradient(135deg, rgba(14,165,233,0.15), rgba(3,105,161,0.25))"
+        }
+    else:
+        return {
+            "univ_name": "콘크리트 1등급",
+            "title": "전국 상위 0.1% 콘크리트 몰입 화이트 노이즈 [PALIN 에디션]",
+            "youtube_url": "https://www.youtube.com/watch?v=5qap5aO4i9A",
+            "duration_label": "3시간 집중 루프",
+            "edition_tag": "PALIN 콘크리트 에디션",
+            "univ_color": "#6366f1",
+            "bg_gradient": "linear-gradient(135deg, rgba(99,102,241,0.15), rgba(79,70,229,0.25))"
+        }
+
 
 # ==============================================================================
 # 📝 14. 주차별 실전 모의고사 & 교육과정별 디지털 OMR & 원장 등급컷 / AI 진단서 API

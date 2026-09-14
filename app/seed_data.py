@@ -121,6 +121,26 @@ def auto_seed_database(db: Session, engine):
             except Exception as ap_err:
                 db.rollback()
                 print(f"[AUTO_SEED] Batch approval migration note: {ap_err}")
+
+        # 1.4 PALIN OS Phase 11: Create user_titles and user_notifications tables if not exist
+        try:
+            models.Base.metadata.create_all(bind=engine, tables=[models.UserTitle.__table__, models.UserNotification.__table__])
+            db.commit()
+            
+            # Ensure student 1 has starter title
+            starter = db.query(models.UserTitle).filter(models.UserTitle.student_id == 1, models.UserTitle.condition_code == "STARTER_TIER").first()
+            if not starter:
+                starter = models.UserTitle(
+                    student_id=1,
+                    title_name="[콘크리트 1등급]",
+                    condition_code="STARTER_TIER",
+                    is_equipped=True
+                )
+                db.add(starter)
+                db.commit()
+        except Exception as p11_err:
+            db.rollback()
+            print(f"[AUTO_SEED] Phase 11 title initialization note: {p11_err}")
     except Exception as e:
         db.rollback()
         print(f"[AUTO_SEED] One-time migration note: {e}")

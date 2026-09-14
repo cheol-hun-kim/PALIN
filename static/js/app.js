@@ -6583,16 +6583,24 @@ function updateHeaderUI() {
         streakEl.innerText = count > 0 ? `연속 ${count}일` : "연속 8일";
     }
 
+    // 수능 칭호 태그 갱신
+    const eqTitle = currentStudent.equipped_title || "[콘크리트 1등급]";
+    const hTitleTag = document.getElementById("header-user-title-tag");
+    if (hTitleTag) {
+        hTitleTag.innerText = eqTitle;
+        hTitleTag.style.display = "inline-block";
+    }
+    const myTitleTag = document.getElementById("mypage-user-title-tag");
+    if (myTitleTag) {
+        myTitleTag.innerText = eqTitle;
+    }
+
     // 마이페이지 모달 정보 갱신
-
     const fullname = document.getElementById("mypage-student-fullname");
-
     if (fullname) fullname.innerText = `${currentStudent.name} 학생`;
 
     const sub = document.getElementById("mypage-student-sub");
-
     const gradeText = currentStudent.grade === 4 ? "N수생" : currentStudent.grade === 0 ? "기타" : `${currentStudent.grade}학년`;
-
     if (sub) sub.innerText = `${currentStudent.high_school || "학교미설정"} ${gradeText} | ${currentStudent.region || "지역미설정"}`;
 
     const tracerBadge = document.getElementById("tracer-my-school-badge");
@@ -7766,6 +7774,10 @@ function openMyPageModal() {
         const sub = document.getElementById("mypage-student-sub");
         const gradeText = currentStudent.grade === 4 ? "N수생" : currentStudent.grade === 0 ? "기타" : `${currentStudent.grade}학년`;
         if (sub) sub.innerText = `${currentStudent.high_school || "일반고"} ${gradeText} | ${currentStudent.region || "경기도 성남시 분당구"}`;
+
+        if (typeof loadUserTitles === "function") {
+            loadUserTitles();
+        }
 
         const hsInput = document.getElementById("edit-high-school");
         if (hsInput) hsInput.value = currentStudent.high_school || "";
@@ -13719,24 +13731,39 @@ async function loadMicroRankings() {
                     ? "1.5px solid #eab308" 
                     : (isDayMode ? "1px solid #cbd5e1" : "1px solid rgba(255,255,255,0.06)");
 
+                const titleTag = r.equipped_title ? `<span class="user-title-tag">${r.equipped_title}</span>` : '';
+                const pokeBtn = (r.can_poke && !r.isMe) 
+                    ? `<button type="button" class="btn-poke" onclick="event.stopPropagation(); pokeStudent(${r.id}, '${r.name}')">콕 찌르기</button>` 
+                    : '';
+
                 listEl.innerHTML += `
                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: ${bg}; border-radius: 8px; border: ${border}; margin-bottom: 4px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
                             <span style="font-weight: 800; font-size: 0.95rem; min-width: 24px;">${medal}</span>
-                            <div>
-                                <div style="font-weight: 700; font-size: 0.85rem; color: var(--text-primary);">
-                                    ${r.name} ${r.isMe ? '<span style="background: #fbbf24; color: #000; font-size: 0.65rem; padding: 1px 5px; border-radius: 4px; font-weight: 900;">ME</span>' : ''}
+                            <div style="min-width: 0;">
+                                <div style="font-weight: 700; font-size: 0.85rem; color: var(--text-primary); display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+                                    <span>${r.name}</span>
+                                    ${r.isMe ? '<span style="background: #fbbf24; color: #000; font-size: 0.65rem; padding: 1px 5px; border-radius: 4px; font-weight: 900;">ME</span>' : ''}
+                                    ${titleTag}
                                 </div>
                                 <div style="font-size: 0.72rem; color: var(--text-secondary);">${r.school} · ${r.region}</div>
                             </div>
                         </div>
-                        <div style="text-align: right;">
-                            <div style="font-weight: 800; font-size: 0.85rem; color: #fbbf24;">${r.studyHours}</div>
-                            <div style="font-size: 0.7rem; color: #f97316; font-weight: 700;">연속 ${r.streak}일 달성</div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            ${pokeBtn}
+                            <div style="text-align: right;">
+                                <div style="font-weight: 800; font-size: 0.85rem; color: #fbbf24;">${r.studyHours}</div>
+                                <div style="font-size: 0.7rem; color: #f97316; font-weight: 700;">연속 ${r.streak}일 달성</div>
+                            </div>
                         </div>
                     </div>
                 `;
             });
+
+            // Trigger Campus Occupation Loading
+            if (typeof loadCampusOccupation === "function") {
+                loadCampusOccupation();
+            }
         }
     } catch(e) {
         console.warn("loadMicroRankings error:", e);
@@ -18043,8 +18070,288 @@ async function handleTuitionPaymentSubmit(method) {
 }
 window.handleTuitionPaymentSubmit = handleTuitionPaymentSubmit;
 
+// ==============================================================================
+// 🎮 PALIN OS Phase 11: 심리적 락인 엔진 & 크로스 트래픽 파이프라인 함수
+// ==============================================================================
+
+// 1. 익명 콕 찌르기 (Anonymous Poke)
+async function pokeStudent(recipientId, recipientName) {
+    const senderId = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem("studentId") || "1", 10);
+    try {
+        const res = await fetch("/api/gamification/poke", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                sender_id: senderId,
+                recipient_id: recipientId
+            })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(`[${recipientName}] 학생에게 익명 콕 찌르기를 전송했습니다.\n"당신의 멈춘 타이머를 추월했습니다."`);
+        } else {
+            alert(data.detail || "콕 찌르기 전송에 실패했습니다.");
+        }
+    } catch (e) {
+        console.error("pokeStudent error:", e);
+        alert("통신 오류가 발생했습니다.");
+    }
+}
+window.pokeStudent = pokeStudent;
+
+// 2. 알림 폴링 및 토스트 노출 (Poll Notifications & Minimal Toast)
+let shownNotificationIds = new Set();
+async function pollNotifications() {
+    const sid = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem("studentId") || "1", 10);
+    if (!sid) return;
+
+    try {
+        const res = await fetch(`/api/notifications/${sid}?unread_only=true`);
+        if (res.ok) {
+            const data = await res.json();
+            const notifs = data.notifications || [];
+            notifs.forEach(n => {
+                if (!shownNotificationIds.has(n.id)) {
+                    shownNotificationIds.add(n.id);
+                    showMinimalToast(n);
+                }
+            });
+        }
+    } catch (e) {
+        console.warn("pollNotifications note:", e);
+    }
+}
+window.pollNotifications = pollNotifications;
+
+function showMinimalToast(notif) {
+    const container = document.getElementById("palin-toast-container");
+    if (!container) return;
+
+    const toast = document.createElement("div");
+    toast.className = "palin-toast";
+    toast.id = `palin-toast-${notif.id}`;
+    
+    // Strict Phase 10.3 Premium Minimalism: Lucide Bell SVG (No emojis), Clean monochrome
+    toast.innerHTML = `
+        <div class="palin-toast-content">
+            <svg class="palin-toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
+            </svg>
+            <span class="palin-toast-text">${notif.message}</span>
+        </div>
+        <button class="palin-toast-close" onclick="dismissToast(${notif.id})">&times;</button>
+    `;
+
+    container.appendChild(toast);
+
+    const sid = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem("studentId") || "1", 10);
+    fetch(`/api/notifications/${sid}/read`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notification_ids: [notif.id] })
+    }).catch(() => {});
+
+    setTimeout(() => {
+        dismissToast(notif.id);
+    }, 6000);
+}
+window.showMinimalToast = showMinimalToast;
+
+function dismissToast(id) {
+    const toast = document.getElementById(`palin-toast-${id}`);
+    if (toast) {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(-15px) scale(0.95)";
+        setTimeout(() => {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 300);
+    }
+}
+window.dismissToast = dismissToast;
+
+// 3. 캠퍼스 점령전 (Campus Occupation Chart)
+async function loadCampusOccupation() {
+    const listEl = document.getElementById("campus-occupation-list");
+    const hoursEl = document.getElementById("campus-network-total-hours");
+    if (!listEl) return;
+
+    const sid = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem("studentId") || "1", 10);
+    try {
+        const res = await fetch(`/api/gamification/campus-occupation?student_id=${sid}`);
+        if (res.ok) {
+            const data = await res.json();
+            if (hoursEl) hoursEl.innerText = `주간 ${data.total_network_hours || 0}시간 집계`;
+
+            listEl.innerHTML = "";
+            const campuses = data.campuses || [];
+            if (campuses.length === 0) {
+                listEl.innerHTML = '<div style="text-align:center; font-size:0.75rem; color:var(--text-secondary); padding:10px;">목표대학 데이터가 집계 중입니다.</div>';
+                return;
+            }
+
+            const maxHours = Math.max(...campuses.map(c => c.total_hours), 1);
+
+            campuses.forEach(c => {
+                const widthPct = Math.max((c.total_hours / maxHours) * 100, 6);
+                const isDayMode = document.body.classList.contains('day-mode');
+                
+                // Sanctified University Color Rule: Highlight ONLY target univ, rival is muted monochrome
+                const barColor = c.is_my_target ? c.color : (isDayMode ? "#94a3b8" : "rgba(255, 255, 255, 0.2)");
+                const textColor = c.is_my_target ? (isDayMode ? "#0f172a" : "#ffffff") : "var(--text-secondary)";
+                const targetTag = c.is_my_target ? `<span style="font-size: 0.65rem; background: ${c.color}; color: #ffffff; padding: 1px 5px; border-radius: 4px; font-weight: 800; margin-left: 4px;">MY</span>` : '';
+
+                listEl.innerHTML += `
+                    <div class="campus-item-row">
+                        <div class="campus-info-header">
+                            <div class="campus-name-text" style="color: ${textColor};">
+                                <span>${c.rank}위 ${c.univ_name}</span>
+                                ${targetTag}
+                            </div>
+                            <div class="campus-hours-text">${c.total_hours_str}</div>
+                        </div>
+                        <div class="campus-bar-track">
+                            <div class="campus-bar-fill" style="width: ${widthPct}%; background: ${barColor};"></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    } catch (e) {
+        console.warn("loadCampusOccupation error:", e);
+    }
+}
+window.loadCampusOccupation = loadCampusOccupation;
+
+// 4. 수능 칭호 매트릭스 (Titles Matrix)
+async function loadUserTitles() {
+    const listEl = document.getElementById("mypage-titles-list");
+    const sid = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem("studentId") || "1", 10);
+    try {
+        const res = await fetch(`/api/gamification/titles/${sid}`);
+        if (res.ok) {
+            const data = await res.json();
+            const equippedTitle = data.equipped_title || "[콘크리트 1등급]";
+
+            const tag1 = document.getElementById("header-user-title-tag");
+            const tag2 = document.getElementById("mypage-user-title-tag");
+            const disp = document.getElementById("mypage-equipped-title-display");
+
+            if (tag1) {
+                tag1.innerText = equippedTitle;
+                tag1.style.display = "inline-block";
+            }
+            if (tag2) {
+                tag2.innerText = equippedTitle;
+            }
+            if (disp) {
+                disp.innerText = equippedTitle;
+            }
+            if (window.currentStudent) {
+                window.currentStudent.equipped_title = equippedTitle;
+            }
+
+            if (!listEl) return;
+            listEl.innerHTML = "";
+            (data.titles || []).forEach(t => {
+                const isDayMode = document.body.classList.contains('day-mode');
+                const bg = t.is_equipped 
+                    ? (isDayMode ? "#ede9fe" : "rgba(99, 102, 241, 0.12)") 
+                    : (isDayMode ? "#f8fafc" : "rgba(255, 255, 255, 0.02)");
+                const border = t.is_equipped 
+                    ? "1px solid #818cf8" 
+                    : (isDayMode ? "1px solid #e2e8f0" : "1px solid rgba(255, 255, 255, 0.05)");
+
+                let actionBtn = "";
+                if (t.is_equipped) {
+                    actionBtn = `<span style="font-size: 0.68rem; font-weight: 800; color: #818cf8; background: rgba(99, 102, 241, 0.15); padding: 2px 7px; border-radius: 4px;">장착 중</span>`;
+                } else if (t.is_unlocked) {
+                    actionBtn = `<button type="button" class="btn" onclick="equipUserTitle('${t.condition_code}')" style="padding: 3px 8px; font-size: 0.7rem; font-weight: 700; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; cursor: pointer; color: var(--text-primary);">장착</button>`;
+                } else {
+                    actionBtn = `<span style="font-size: 0.68rem; color: var(--text-secondary); opacity: 0.6;">${t.condition_desc}</span>`;
+                }
+
+                listEl.innerHTML += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: ${bg}; border: ${border}; border-radius: 8px;">
+                        <div>
+                            <div style="font-size: 0.82rem; font-weight: 700; color: ${t.is_unlocked ? 'var(--text-primary)' : 'var(--text-secondary)'};">
+                                ${t.title_name}
+                            </div>
+                            <div style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 1px;">
+                                ${t.description}
+                            </div>
+                        </div>
+                        <div>
+                            ${actionBtn}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    } catch (e) {
+        console.warn("loadUserTitles error:", e);
+    }
+}
+window.loadUserTitles = loadUserTitles;
+
+async function equipUserTitle(conditionCode) {
+    const sid = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem("studentId") || "1", 10);
+    try {
+        const res = await fetch(`/api/gamification/titles/${sid}/equip`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ condition_code: conditionCode })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            await loadUserTitles();
+            if (typeof loadMicroRankings === "function") {
+                loadMicroRankings();
+            }
+        } else {
+            alert(data.detail || "칭호 장착에 실패했습니다.");
+        }
+    } catch (e) {
+        console.error("equipUserTitle error:", e);
+    }
+}
+window.equipUserTitle = equipUserTitle;
+
+// 5. 고음질 ASMR 크로스 트래픽 (ASMR Curation Card)
+async function loadAsmrCurationCard() {
+    const card = document.getElementById("palin-asmr-loop-card");
+    if (!card) return;
+
+    const sid = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem("studentId") || "1", 10);
+    try {
+        const res = await fetch(`/api/study/asmr-curation?student_id=${sid}`);
+        if (res.ok) {
+            const data = await res.json();
+            const tag = document.getElementById("asmr-univ-tag");
+            const durationBadge = document.getElementById("asmr-duration-badge");
+            const title = document.getElementById("asmr-curation-title");
+            const link = document.getElementById("asmr-curation-link");
+            const linkText = document.getElementById("asmr-link-text");
+
+            if (tag) tag.innerText = data.edition_tag || "목표대학 몰입 사운드";
+            if (durationBadge) durationBadge.innerText = data.duration_label || "3시간 연속 루프";
+            if (title) title.innerText = data.title;
+            if (link) link.href = data.youtube_url;
+            if (linkText) linkText.innerText = `${data.univ_name} 심야 집중 ASMR 열기`;
+        }
+    } catch (e) {
+        console.warn("loadAsmrCurationCard error:", e);
+    }
+}
+window.loadAsmrCurationCard = loadAsmrCurationCard;
+
 // 자동 초기화 리스너 등록
 document.addEventListener("DOMContentLoaded", () => {
     initAppTheme();
     checkStudentTuitionLockStatus();
+    loadAsmrCurationCard();
+    loadUserTitles();
+    pollNotifications();
+    setInterval(pollNotifications, 30000);
 });
+

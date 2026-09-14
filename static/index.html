@@ -133,6 +133,8 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 </style>
 </head>
 <body>
+    <!-- Phase 11: 익명 콕 찌르기 & 시스템 알림 슬라이드 다운 토스트 컨테이너 -->
+    <div id="palin-toast-container"></div>
 
     <div class="mobile-frame">
         
@@ -720,6 +722,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <button id="header-mypage-btn" onclick="openMyPageModal()" class="header-user-btn">
                     <span class="material-symbols-rounded header-user-icon">account_circle</span>
                     <span id="header-student-name">내 정보</span>
+                    <span id="header-user-title-tag" class="user-title-tag" style="display: none;">[콘크리트 1등급]</span>
                 </button>
             </div>
         </header>
@@ -1145,6 +1148,24 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             <div id="recent-mission-logs" style="display:flex; flex-direction:column; gap:4px;"></div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Phase 11: 고음질 목표대학 ASMR 크로스 트래픽 파이프라인 (보더리스 프리미엄 미니멀리즘) -->
+                <div id="palin-asmr-loop-card" class="asmr-curation-box">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span id="asmr-univ-tag" style="font-size: 0.72rem; font-weight: 800; color: #818cf8; letter-spacing: 0.5px; text-transform: uppercase;">목표대학 몰입 사운드</span>
+                        <span id="asmr-duration-badge" style="font-size: 0.68rem; color: var(--text-secondary); background: rgba(255,255,255,0.06); padding: 2px 7px; border-radius: 6px;">3시간 연속 루프</span>
+                    </div>
+                    <div id="asmr-curation-title" style="font-size: 0.86rem; font-weight: 700; color: var(--text-primary); margin-bottom: 10px; line-height: 1.4;">
+                        당신의 목표를 위한 집중력 제어: 콘크리트 에디션
+                    </div>
+                    <a id="asmr-curation-link" href="https://www.youtube.com/watch?v=5qap5aO4i9A" target="_blank" rel="noopener noreferrer" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(255,255,255,0.04); border-radius: 8px; text-decoration: none; border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s ease;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-rounded" style="font-size: 1.1rem; color: #f43f5e;">play_circle</span>
+                            <span id="asmr-link-text" style="font-size: 0.78rem; font-weight: 700; color: var(--text-primary);">심야 집중 ASMR 스트리밍 열기</span>
+                        </div>
+                        <span class="material-symbols-rounded" style="font-size: 0.95rem; color: var(--text-secondary);">open_in_new</span>
+                    </a>
                 </div>
             </div>
 
@@ -2029,6 +2050,19 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <div id="p3-rank-guild-view" style="display: none;">
                             <div style="font-size: 0.75rem; color: #a5b4fc; font-weight: 700; margin-bottom: 8px;">🏫 고등학교별 주간 총합 자습 순위</div>
                             <div style="display: flex; flex-direction: column; gap: 6px;" id="p3-school-guild-list"></div>
+                        </div>
+
+                        <!-- Phase 11: 캠퍼스 점령전 (Campus Occupation Chart) -->
+                        <div id="campus-occupation-card" class="campus-occupation-wrapper">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <div style="font-weight: 800; font-size: 0.86rem; color: var(--text-primary); letter-spacing: -0.2px;">
+                                    목표대학 캠퍼스 점령전
+                                </div>
+                                <span style="font-size: 0.7rem; color: var(--text-secondary);" id="campus-network-total-hours">주간 0시간 집계</span>
+                            </div>
+                            <div id="campus-occupation-list" style="display: flex; flex-direction: column; gap: 10px;">
+                                <!-- Rendered dynamically by JS -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -3233,7 +3267,10 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             </div>
             
             <div style="background: rgba(255,255,255,0.04); padding: 14px; border-radius: 16px; margin-bottom: 12px;">
-                <div style="font-size: 1rem; font-weight: 700; color: var(--text-primary);" id="mypage-student-fullname">내 정보</div>
+                <div style="display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap;">
+                    <span style="font-size: 1rem; font-weight: 700; color: var(--text-primary);" id="mypage-student-fullname">내 정보</span>
+                    <span id="mypage-user-title-tag" class="user-title-tag">[콘크리트 1등급]</span>
+                </div>
                 <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px;" id="mypage-student-sub">낙생고 3학년 | 경기도 성남시 분당구</div>
                 <div style="margin-top: 10px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                     <span style="font-size: 0.78rem; color: var(--text-secondary);">성실도 리그:</span>
@@ -3262,6 +3299,15 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <div id="mypage-tier-pending-badge" style="display: none; background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; border-radius: 8px; padding: 6px 10px; font-size: 0.76rem; font-weight: 800; color: #fbbf24;">
                         ⏳ <span id="mypage-pending-academy-name">학원</span> 가맹 승인 대기 중 (원장님 승인 대기)
                     </div>
+                </div>
+
+                <!-- Phase 11: 수능 칭호 매트릭스 (Titles Matrix Section) -->
+                <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 0.78rem; font-weight: 800; color: var(--text-primary);">수능 칭호 매트릭스</span>
+                        <span id="mypage-equipped-title-display" style="font-size: 0.72rem; color: #818cf8; font-weight: 700;">[콘크리트 1등급]</span>
+                    </div>
+                    <div id="mypage-titles-list" style="display: flex; flex-direction: column; gap: 5px;"></div>
                 </div>
             </div>
 

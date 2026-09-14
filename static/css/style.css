@@ -4960,4 +4960,230 @@ body.day-mode .bible-book-bar-container {
     background: #e2e8f0 !important;
 }
 
+/* ==============================================================================
+   🎮 PALIN OS Phase 11: 심리적 락인 엔진 & 크로스 트래픽 프리미엄 미니멀리즘 스타일
+   ============================================================================== */
+
+/* 1. 익명 콕 찌르기 슬라이드 다운 토스트 */
+#palin-toast-container {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 440px;
+    z-index: 10000;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.palin-toast {
+    pointer-events: auto;
+    background: #111827;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 13px 16px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(99, 102, 241, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    animation: palinToastSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+@keyframes palinToastSlideDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.96);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.palin-toast-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+.palin-toast-icon {
+    width: 20px;
+    height: 20px;
+    color: #fbbf24;
+    flex-shrink: 0;
+}
+
+.palin-toast-text {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #f8fafc;
+    line-height: 1.4;
+    word-break: keep-all;
+}
+
+.palin-toast-close {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.palin-toast-close:hover {
+    color: #ffffff;
+}
+
+body.day-mode .palin-toast {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
+}
+
+body.day-mode .palin-toast-text {
+    color: #0f172a !important;
+}
+
+/* 2. 콕 찌르기 버튼 */
+.btn-poke {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #94a3b8;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-poke:hover {
+    background: rgba(234, 179, 8, 0.15);
+    border-color: #f59e0b;
+    color: #fbbf24;
+}
+
+body.day-mode .btn-poke {
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #475569 !important;
+}
+
+body.day-mode .btn-poke:hover {
+    background: #fef3c7 !important;
+    border-color: #f59e0b !important;
+    color: #b45309 !important;
+}
+
+/* 3. 수능 칭호 매트릭스 텍스트 태그 (무그래픽, 0.82rem, 70% opacity) */
+.user-title-tag {
+    display: inline-block;
+    font-size: 0.82rem;
+    color: var(--text-secondary, #94a3b8);
+    opacity: 0.75;
+    font-weight: 700;
+    margin-left: 4px;
+    letter-spacing: -0.3px;
+    vertical-align: middle;
+}
+
+body.day-mode .user-title-tag {
+    color: #475569 !important;
+    opacity: 0.85 !important;
+}
+
+/* 4. 캠퍼스 점령전 (4~6px 초슬림 바 & 목표대학 색상 성역화) */
+.campus-occupation-wrapper {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    padding: 14px;
+    margin-top: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+body.day-mode .campus-occupation-wrapper {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+.campus-item-row {
+    margin-bottom: 12px;
+}
+
+.campus-item-row:last-child {
+    margin-bottom: 0;
+}
+
+.campus-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+}
+
+.campus-name-text {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-primary, #ffffff);
+}
+
+.campus-hours-text {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary, #94a3b8);
+}
+
+.campus-bar-track {
+    height: 5px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+    overflow: hidden;
+    width: 100%;
+}
+
+body.day-mode .campus-bar-track {
+    background: #e2e8f0 !important;
+}
+
+.campus-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 5. 고음질 ASMR 크로스 트래픽 카드 */
+.asmr-curation-box {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-top: 14px;
+    transition: all 0.25s ease;
+}
+
+.asmr-curation-box:hover {
+    border-color: rgba(99, 102, 241, 0.35);
+    transform: translateY(-1px);
+}
+
+body.day-mode .asmr-curation-box {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+body.day-mode .asmr-curation-box:hover {
+    border-color: #818cf8 !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.08) !important;
+}
+
+
 

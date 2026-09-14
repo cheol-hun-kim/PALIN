@@ -127,6 +127,18 @@ class Student(Base):
     # 1:1 관계 추가 (학생이 대학 합격 시 과외 프로필 연동)
     tutor_profile = relationship("TutorProfile", back_populates="student", uselist=False)
     invoices = relationship("BillingInvoice", back_populates="student")
+    titles = relationship("UserTitle", back_populates="student", cascade="all, delete-orphan")
+    received_notifications = relationship("UserNotification", foreign_keys="[UserNotification.recipient_id]", back_populates="recipient", cascade="all, delete-orphan")
+
+    @property
+    def equipped_title_name(self):
+        try:
+            for t in self.titles:
+                if t.is_equipped:
+                    return t.title_name
+            return None
+        except Exception:
+            return None
 
     @property
     def golden_tickets_count(self):
@@ -1038,6 +1050,41 @@ class BillingInvoice(Base):
     deleted_at = Column(DateTime(timezone=True), nullable=True)          # Soft Delete
 
     student = relationship("Student", back_populates="invoices")
+
+
+# === 🎮 16. PALIN OS Phase 11: 심리적 락인 엔진 & 크로스 트래픽 모델 ===
+
+class UserTitle(Base):
+    """수능 칭호 매트릭스 모델 (7일 연속, 50시간 순공 등 자동 해금 텍스트 칭호)"""
+    __tablename__ = "user_titles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    student_id = Column(Integer, ForeignKey("students.id", ondelete="CASCADE"), nullable=False, index=True)
+    title_name = Column(String, nullable=False)           # 예: "[새벽의 지배자]", "[불꽃의 수험생]", "[고독한 완주자]"
+    condition_code = Column(String, nullable=False)       # 예: 'STREAK_7D', 'STUDY_50H', 'STUDY_100H', 'SKY_LEGION', 'STARTER_TIER'
+    is_equipped = Column(Boolean, default=False)          # 현재 프로필 장착 여부
+    unlocked_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    student = relationship("Student", back_populates="titles")
+
+
+class UserNotification(Base):
+    """익명 콕 찌르기 및 시스템 알림 모델 (Phase 11 심리적 락인 엔진)"""
+    __tablename__ = "user_notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    recipient_id = Column(Integer, ForeignKey("students.id", ondelete="CASCADE"), nullable=False, index=True)
+    sender_id = Column(Integer, ForeignKey("students.id", ondelete="SET NULL"), nullable=True, index=True)
+    sender_region = Column(String, default="성남시 분당구")
+    notification_type = Column(String, default="POKE")    # 'POKE' | 'TITLE_UNLOCK' | 'SYSTEM'
+    message = Column(Text, nullable=False)                # 예: "분당구의 누군가가 당신의 멈춘 타이머를 추월했습니다."
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    recipient = relationship("Student", foreign_keys=[recipient_id], back_populates="received_notifications")
+    sender = relationship("Student", foreign_keys=[sender_id])
+
 
 
 
