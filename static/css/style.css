@@ -5084,21 +5084,25 @@ body.day-mode .btn-poke:hover {
     color: #b45309 !important;
 }
 
-/* 3. 수능 칭호 매트릭스 텍스트 태그 (무그래픽, 0.82rem, 70% opacity) */
+/* 3. 수능 칭호 매트릭스 텍스트 태그 (무그래픽, 미니멀리즘 틴트 뱃지) */
 .user-title-tag {
     display: inline-block;
-    font-size: 0.82rem;
-    color: var(--text-secondary, #94a3b8);
-    opacity: 0.75;
+    font-size: 0.72rem;
+    color: #818cf8;
+    background: rgba(129, 140, 248, 0.12);
+    border: 1px solid rgba(129, 140, 248, 0.25);
+    border-radius: 4px;
+    padding: 1px 6px;
     font-weight: 700;
-    margin-left: 4px;
-    letter-spacing: -0.3px;
+    margin-left: 5px;
+    letter-spacing: -0.2px;
     vertical-align: middle;
 }
 
 body.day-mode .user-title-tag {
-    color: #475569 !important;
-    opacity: 0.85 !important;
+    color: #4f46e5 !important;
+    background: rgba(79, 70, 229, 0.08) !important;
+    border: 1px solid rgba(79, 70, 229, 0.2) !important;
 }
 
 /* 4. 목표·마지노선 대학 순공 벤치마크 (초슬림 바 & 3단계 상태 진단) */

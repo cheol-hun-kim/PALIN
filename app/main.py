@@ -7562,7 +7562,20 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
         region_pos_str = f"자습 {region_rank}위 {medal_r}".strip()
         school_pos_str = f"전교 {school_rank}위 {medal_s}".strip()
 
-    my_eq_title = student.equipped_title_name or ""
+    def resolve_student_title(st, study_sec, streak):
+        if st and st.equipped_title_name:
+            return st.equipped_title_name
+        if streak >= 14:
+            return "[불꽃 수험생]"
+        elif streak >= 7 or study_sec >= 18000:
+            return "[콘크리트 1등급]"
+        elif study_sec >= 7200:
+            return "[심야의 지배자]"
+        elif streak >= 3:
+            return "[수능 도전자]"
+        return "[콘크리트 1등급]"
+
+    my_eq_title = resolve_student_title(student, my_seconds, student.streak_days or 0)
     rankers = []
     rankers.append({
         "id": student.id,
@@ -7590,7 +7603,7 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
         p_time_str = f"{p_h}시간 {p_rm}분" if p_h > 0 else f"{p_rm}분"
 
         masked_name = p.name[0] + "*" + (p.name[2:] if len(p.name) > 2 else "") if len(p.name) > 1 else p.name
-        p_eq_title = p.equipped_title_name or ""
+        p_eq_title = resolve_student_title(p, p_sec, p.streak_days or 0)
         rankers.append({
             "id": p.id,
             "name": masked_name,
