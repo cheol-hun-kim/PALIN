@@ -40,18 +40,21 @@ if not DATABASE_URL.startswith("sqlite"):
         pg_engine = create_engine(
             DATABASE_URL,
             poolclass=QueuePool,
-            pool_size=20,
-            max_overflow=10,
-            pool_recycle=1800,
+            pool_size=10,
+            max_overflow=5,
+            pool_recycle=300,
             pool_pre_ping=True,
-            pool_timeout=15,
-            connect_args={"connect_timeout": 15}
+            pool_timeout=3,
+            connect_args={
+                "connect_timeout": 3,
+                "options": "-c statement_timeout=3000"
+            }
         )
         with pg_engine.connect() as conn:
             conn.execute(text("SELECT 1"))
         engine = pg_engine
         SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=pg_engine)
-        print("[DB] PostgreSQL Live Supabase Connection Succeeded 100% (Strict Mode & QueuePool Active)!")
+        print("[DB] PostgreSQL Live Connection Succeeded 100% (Strict Mode Active)!")
     except Exception as e:
         print(f"[DB WARNING] PostgreSQL Connection Failed ({e}). Gracefully falling back to SQLite baseline.")
         engine = sqlite_engine

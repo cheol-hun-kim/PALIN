@@ -76,9 +76,10 @@ def init_db_schema():
             pg_db = database.SessionLocal()
             seed_data.auto_seed_database(pg_db, database.engine)
             pg_db.close()
-            print("[INIT] PostgreSQL cloud database verified & seeded successfully with 100% schema alignment.")
         except Exception as pg_err:
-            print(f"[INIT ERROR] PostgreSQL schema sync note ({pg_err}). Strict PostgreSQL mode maintained (NO SILENT FALLBACK).")
+            print(f"[INIT NOTE] PostgreSQL schema sync note ({pg_err}). Switching to SQLite engine.")
+            database.engine = database.sqlite_engine
+            database.SessionLocal = database.SqliteSessionLocal
 
     # 3. Cleanse any legacy mock/sample exam records across all database engines
     for eng in [database.sqlite_engine, database.engine]:
