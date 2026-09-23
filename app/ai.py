@@ -503,8 +503,8 @@ def ask_ai_chatbot(
                 elif tenant_tier == 4:
                     # Tier 4 Founder Edition (일원학원 수강생 전용 비매품 👑: 김철훈 대표원장 수능국어 철학 및 8주 방법론 100% 탑재)
                     knowledge = get_expert_knowledge()
-                    if len(knowledge) > 60000:
-                        knowledge = knowledge[:60000]
+                    if len(knowledge) > 15000:
+                        knowledge = knowledge[:15000]
 
                     system_prompt = (
                         "You are PALIN BOT - Ilwon Founder & CSAT Korean Master (Kim Cheol-hoon, 김철훈 원장). Respond ONLY in Korean.\n\n"
@@ -536,8 +536,8 @@ def ask_ai_chatbot(
                 else:
                     # Tier 3 Master Director (B2B 가맹학원 & 마스터 플래그십: 범용 수석 입시 마스터 디렉터)
                     knowledge = get_expert_knowledge()
-                    if len(knowledge) > 60000:
-                        knowledge = knowledge[:60000]
+                    if len(knowledge) > 15000:
+                        knowledge = knowledge[:15000]
 
                     system_prompt = (
                         "You are PALIN BOT - Master Admissions Director. Respond ONLY in Korean.\n\n"
@@ -602,7 +602,7 @@ def ask_ai_chatbot(
 
         # Standard Google GenAI model hierarchy & Multi-Key Failover
         available_keys = get_available_api_keys()
-        candidate_models = ['gemini-3.6-flash', 'gemini-3-flash-preview', 'gemini-3.5-flash', 'gemini-3.7-flash', 'gemini-3.8-flash', 'gemini-flash-latest']
+        candidate_models = ['gemini-3-flash-preview', 'gemini-3.6-flash', 'gemini-3.5-flash']
         
         for api_k in available_keys:
             try:
@@ -615,7 +615,7 @@ def ask_ai_chatbot(
                             config={
                                 'system_instruction': system_prompt,
                                 'temperature': 0.6,
-                                'max_output_tokens': 8192,
+                                'max_output_tokens': 2048,
                             }
                         )
                         if response.text and response.text.strip():
