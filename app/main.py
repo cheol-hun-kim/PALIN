@@ -1511,6 +1511,7 @@ def handle_ai_chat(payload: schemas.AIChatRequest, db: Session = Depends(get_db)
     is_active = True
     remaining = 5
     user_role = (payload.user_role or "STUDENT").upper().strip()
+    student = None
 
     try:
         if payload.student_id:

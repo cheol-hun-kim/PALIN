@@ -217,8 +217,11 @@ import os
 import json
 import base64
 import time
+import concurrent.futures
 from google import genai
 from google.genai.errors import APIError
+
+_genai_pool = concurrent.futures.ThreadPoolExecutor(max_workers=8)
 
 UNIV_CUTS_PATH = os.path.join(os.path.dirname(__file__), "univ_cuts.json")
 
@@ -592,7 +595,8 @@ def ask_ai_chatbot(
         if not contents:
             contents = [{'role': 'user', 'parts': [{'text': message}]}]
 
-        # Standard Google GenAI model hierarchy & Multi-Key Failover
+        # Standard Google GenAI model hierarchy & Multi-Key Failover with 7.5s Hard Latency Guarantee
+        import concurrent.futures
         available_keys = get_available_api_keys()
         candidate_models = [
             'gemini-3.5-flash-lite',
@@ -602,30 +606,43 @@ def ask_ai_chatbot(
             'gemini-3.6-flash',
             'gemini-3.5-flash'
         ]
-        
-        for api_k in available_keys:
-            try:
-                active_client = genai.Client(api_key=api_k)
-                for mod_name in candidate_models:
-                    try:
-                        response = active_client.models.generate_content(
-                            model=mod_name,
-                            contents=contents,
-                            config={
-                                'system_instruction': system_prompt,
-                                'temperature': 0.6,
-                                'max_output_tokens': 450,
-                            }
-                        )
-                        if response.text and response.text.strip():
-                            cleaned = response.text.replace('###', '').replace('##', '').replace('#', '').replace('**', '').replace('* ', '')
-                            return cleaned
-                    except Exception as mod_ex:
-                        print(f"CHATBOT MODEL NOTE ({mod_name} with key {api_k[:8]}...): {mod_ex}")
-                        continue
-            except Exception as client_ex:
-                print(f"CHATBOT CLIENT INIT NOTE (key {api_k[:8]}...): {client_ex}")
-                continue
+
+        def _execute_cloud_generation():
+            for api_k in available_keys:
+                try:
+                    active_client = genai.Client(api_key=api_k)
+                    for mod_name in candidate_models:
+                        try:
+                            response = active_client.models.generate_content(
+                                model=mod_name,
+                                contents=contents,
+                                config={
+                                    'system_instruction': system_prompt,
+                                    'temperature': 0.6,
+                                    'max_output_tokens': 450,
+                                }
+                            )
+                            if response.text and response.text.strip():
+                                cleaned = response.text.replace('###', '').replace('##', '').replace('#', '').replace('**', '').replace('* ', '')
+                                return cleaned
+                        except Exception as mod_ex:
+                            print(f"CHATBOT MODEL NOTE ({mod_name} with key {api_k[:8]}...): {mod_ex}")
+                            continue
+                except Exception as client_ex:
+                    print(f"CHATBOT CLIENT INIT NOTE (key {api_k[:8]}...): {client_ex}")
+                    continue
+            return None
+
+        # Enforce 7.5s timeout: if Google API hangs or hits 503/429 latency spikes, fallback immediately
+        future = _genai_pool.submit(_execute_cloud_generation)
+        try:
+            cloud_reply = future.result(timeout=7.5)
+            if cloud_reply:
+                return cloud_reply
+        except concurrent.futures.TimeoutError:
+            print("Cloud Gemini call timed out (>7.5s) -> Seamlessly switching to High-Quality Local Knowledge Engine")
+        except Exception as thread_ex:
+            print(f"Cloud execution thread exception: {thread_ex}")
 
         # Intelligent Offline/Local Knowledge Fallback Engine (Zero-Breakdown Guarantee)
         return _generate_local_knowledge_reply(message, history, user_role_upper, school_level_upper)

@@ -579,7 +579,7 @@ stdlib_modules = set(list(sys.builtin_module_names) + [
     "typing", "math", "random", "base64", "urllib", "collections", "itertools", "functools",
     "dataclasses", "enum", "pathlib", "copy", "uuid", "abc", "asyncio", "bisect", "socket",
     "ssl", "logging", "tempfile", "traceback", "inspect", "html", "subprocess", "csv", "string",
-    "smtplib", "email"
+    "smtplib", "email", "concurrent"
 ])
 
 # Normalize package name mapping
