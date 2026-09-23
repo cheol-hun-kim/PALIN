@@ -232,33 +232,25 @@ def load_univ_cuts():
         return {}
 
 KEY_FILE_PATH = os.path.join(os.path.dirname(__file__), "..", "gemini_key.txt")
-DEFAULT_FALLBACK_KEY_B64 = "QVEuQWI4Uk42Skt3MVgxLVpnVVFvSDRfT0FRMUtUaVZtZlQ4QVFPV1ZZbHM5c0lVSTFPcFE="
 
 def get_available_api_keys():
-    """Retrieve all available Gemini API keys with priority on the active working key"""
+    """Retrieve all available Gemini API keys with priority on environment variables"""
     keys = []
-    # 1. Active newly-issued key embedded in code
-    try:
-        decoded_default = base64.b64decode(DEFAULT_FALLBACK_KEY_B64).decode('utf-8').strip()
-        if decoded_default and decoded_default not in keys:
-            keys.append(decoded_default)
-    except Exception:
-        pass
+    # 1. Environment variables (Render / System) - TOP PRIORITY
+    env_key = (os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY") or "").strip()
+    if env_key and env_key not in keys:
+        keys.append(env_key)
 
     # 2. Local explicit key file if present
     if os.path.exists(KEY_FILE_PATH):
         try:
             with open(KEY_FILE_PATH, "r", encoding="utf-8") as f:
-                k = f.read().strip()
-                if k and k not in keys:
-                    keys.insert(0, k)
+                for line in f:
+                    k = line.strip()
+                    if k and not k.startswith("#") and k not in keys:
+                        keys.append(k)
         except Exception:
             pass
-
-    # 3. Environment variables (Render / System)
-    env_key = (os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY") or "").strip()
-    if env_key and env_key not in keys:
-        keys.append(env_key)
 
     return keys
 
@@ -601,7 +593,7 @@ def ask_ai_chatbot(
 
         # Standard Google GenAI model hierarchy & Multi-Key Failover
         available_keys = get_available_api_keys()
-        candidate_models = ['gemini-3.6-flash', 'gemini-2.5-flash', 'gemini-2.0-flash']
+        candidate_models = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro']
         
         for api_k in available_keys:
             try:
@@ -725,7 +717,7 @@ def test_sandbox_prompt(system_prompt: str, user_message: str) -> str:
     if not client:
         return "Gemini 클라이언트 연결 실패"
 
-    candidate_models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash']
+    candidate_models = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro']
     for mod_name in candidate_models:
         try:
             response = client.models.generate_content(

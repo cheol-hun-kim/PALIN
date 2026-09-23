@@ -1864,7 +1864,7 @@ def ocr_trace_exam_source(payload: schemas.ExamOcrTraceRequest, db: Session = De
             )
             part = types.Part.from_bytes(data=image_bytes, mime_type=mime_type)
             response = client.models.generate_content(
-                model="gemini-3.6-flash",
+                model="gemini-2.0-flash",
                 contents=[prompt, part]
             )
             extracted_text = (response.text or "").strip()
