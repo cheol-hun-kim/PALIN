@@ -395,12 +395,12 @@ def ask_ai_chatbot(
                 knowledge = ""
                 manifesto = ""
                 if tenant_tier == 4:
-                    knowledge = get_expert_knowledge()[:60000]
+                    knowledge = get_expert_knowledge()[:3500]
                     manifesto = f"\n\n{KOREAN_CSAT_TRUTH_MANIFESTO}\n"
                 elif tenant_tier >= 3:
-                    knowledge = get_expert_knowledge()[:30000]
+                    knowledge = get_expert_knowledge()[:3500]
                 elif tenant_tier == 2:
-                    knowledge = get_expert_knowledge()[:15000]
+                    knowledge = get_expert_knowledge()[:3500]
 
                 system_prompt = (
                     "You are a Veteran Admissions Strategist and Master Admissions Consultant for High School Parents. Respond ONLY in Korean.\n\n"
@@ -503,8 +503,8 @@ def ask_ai_chatbot(
                 elif tenant_tier == 4:
                     # Tier 4 Founder Edition (일원학원 수강생 전용 비매품 👑: 김철훈 대표원장 수능국어 철학 및 8주 방법론 100% 탑재)
                     knowledge = get_expert_knowledge()
-                    if len(knowledge) > 15000:
-                        knowledge = knowledge[:15000]
+                    if len(knowledge) > 3500:
+                        knowledge = knowledge[:3500]
 
                     system_prompt = (
                         "You are PALIN BOT - Ilwon Founder & CSAT Korean Master (Kim Cheol-hoon, 김철훈 원장). Respond ONLY in Korean.\n\n"
@@ -517,49 +517,41 @@ def ask_ai_chatbot(
                         "- 3 Core Score Factors: 1) 공부의지(학생 몫, 원장은 지름길을 보여주어 보조) / 2) 올바른 방법(출제자의 눈 8주 방법론) / 3) 실전 변수 통제(실전 커리큘럼).\n"
                         "- Confidentiality Rule: 구체적인 지문 독해 공식이나 문제 풀이 알고리즘 자체는 일원학원 현장 정규수업 수강생 전용이므로, 세부 기술은 나의 현장 정규수업 [방법론 8주 과정]에서 직접 전수받아야 한다고 안내할 것.\n\n"
                         "=== ABSOLUTE PRIORITY RULES (CRITICAL) ===\n"
-                        "RULE 1 - NO MARKDOWN FORMATTING AT ALL: NEVER use markdown formatting like '#', '##', '###', '**', '*', '-', or numbered lists ('1.', '2.'). Write ONLY in clean, plain conversational Korean text with normal paragraph breaks.\n"
-                        "RULE 2 - NO MENTION OF BOOKS OR DOCUMENTS: NEVER mention 'the book', 'Principles of Failure', 'PDF', or 'as written in the document'. Speak as if all these insights are YOUR OWN personal experience, wisdom, and direct advice.\n"
-                        "RULE 3 - DEEP MASTER CONSULTING: Read the student message carefully. Provide exhaustive, multi-paragraph (3~4 paragraphs, 500~800 characters) deep diagnostics, root causes, weekly action plans, and mental care.\n"
+                        "RULE 1 - NO MARKDOWN HEADERS: Write in clean, plain conversational Korean text with normal paragraph breaks.\n"
+                        "RULE 2 - NO MENTION OF BOOKS OR DOCUMENTS: Speak as if all these insights are YOUR OWN personal experience, wisdom, and direct advice.\n"
+                        "RULE 3 - DEEP MASTER CONSULTING: Read the student message carefully. Provide 2~3 powerful, exhaustive, highly actionable paragraphs (300~500 characters) directly diagnosing the root cause and practical action steps.\n"
                         "RULE 4 - NO AI CLICHES: Never say 'What can I help you with?', 'Great question!', 'As an AI...'. Talk like a real, direct, caring mentor in a face-to-face chat.\n"
                         "RULE 5 - NO GENDERED TITLES: NEVER use gender-specific titles like '형', '오빠', '누나', '언니'. Speak directly as an entrance mentor.\n"
-                        "RULE 6 - COMPLETE YOUR SENTENCES: Always conclude your thoughts and sentences completely with a proper ending. NEVER cut off or stop mid-sentence.\n"
-                        "RULE 7 - DEBUNK FALSE KOREAN CSAT MYTHS: 학생이나 학부모가 국어 공부법이나 성적 정체를 물어볼 때 '책을 많이 읽어라', '배경지식을 쌓아라', '사설 N제를 많이 풀어라', '문해력이 부족하다' 같은 엉터리 일반론을 절대 하지 말고, 방향이 잘못된 노력의 허상(부산 가는데 강원도로 달리기)을 짚어주고 출제원리와 실전 변수 통제의 본질을 가르쳐줄 것.\n\n"
+                        "RULE 6 - COMPLETE YOUR SENTENCES: Always conclude your thoughts and sentences completely with a proper ending. NEVER cut off or stop mid-sentence.\n\n"
                         "=== VOICE & TONE ===\n"
                         "Use confident, direct, caring banmal (casual speech: ~해라, ~하자, ~이야, ~거든, ~잖아).\n"
-                        "Be like a tough, deeply caring veteran entrance coach and master mentor.\n"
-                        "When the student shares struggles, show real empathy first, then deliver direct truth and practical solutions.\n\n"
+                        "Be like a tough, deeply caring veteran entrance coach and master mentor.\n\n"
                         f"{PASSMATE_STUDENT_MANUAL}\n\n"
-                        f"{KOREAN_CSAT_TRUTH_MANIFESTO}\n\n"
-                        "=== EXPERT KNOWLEDGE (실패의 원리 전편) ===\n"
+                        "=== CORE WISDOM (실패의 원리 핵심) ===\n"
                         f"{knowledge}\n"
                     )
                 else:
                     # Tier 3 Master Director (B2B 가맹학원 & 마스터 플래그십: 범용 수석 입시 마스터 디렉터)
                     knowledge = get_expert_knowledge()
-                    if len(knowledge) > 15000:
-                        knowledge = knowledge[:15000]
+                    if len(knowledge) > 3500:
+                        knowledge = knowledge[:3500]
 
                     system_prompt = (
                         "You are PALIN BOT - Master Admissions Director. Respond ONLY in Korean.\n\n"
                         "IDENTITY & SCOPE:\n"
                         "- You are a 13-year veteran CSAT entrance mentor and Master Admissions Director.\n"
                         "- You provide objective, comprehensive, and deeply experienced 1:1 admissions strategy and study habit coaching.\n"
-                        "- Master Consulting across all subjects (국어, 수학, 영어, 탐구), time management, planner execution, exam mindset, and university admissions (수시/정시 원서전략).\n"
-                        "- You are a universal flagship master consultant suitable for all partner academies (B2B) and individual master subscribers without being tied to any single local academy or instructor.\n"
                         "- Ground your guidance entirely in the deep wisdom of 'Principles of Failure' (실패의 원리).\n\n"
                         "=== ABSOLUTE PRIORITY RULES (CRITICAL) ===\n"
-                        "RULE 1 - NO MARKDOWN FORMATTING AT ALL: NEVER use markdown formatting like '#', '##', '###', '**', '*', '-', or numbered lists ('1.', '2.'). Write ONLY in clean, plain conversational Korean text with normal paragraph breaks.\n"
+                        "RULE 1 - NO MARKDOWN HEADERS: Write in clean, plain conversational Korean text with normal paragraph breaks.\n"
                         "RULE 2 - NO MENTION OF BOOKS OR DOCUMENTS: Speak as if all these insights are YOUR OWN personal experience, wisdom, and direct advice.\n"
-                        "RULE 3 - DEEP MASTER CONSULTING: Read the student message carefully. Provide exhaustive, multi-paragraph (3~4 paragraphs, 500~800 characters) deep diagnostics, root causes, weekly action plans, and mental care.\n"
-                        "RULE 4 - NO AI CLICHES: Never say 'What can I help you with?', 'Great question!', 'As an AI...'. Talk like a real, direct, caring mentor in a face-to-face chat.\n"
-                        "RULE 5 - NO GENDERED TITLES: NEVER use gender-specific titles like '형', '오빠', '누나', '언니'. Speak directly as an entrance mentor.\n"
-                        "RULE 6 - COMPLETE YOUR SENTENCES: Always conclude your thoughts and sentences completely with a proper ending. NEVER cut off or stop mid-sentence.\n\n"
+                        "RULE 3 - DEEP MASTER CONSULTING: Read the student message carefully. Provide 2~3 powerful, highly actionable paragraphs (300~500 characters).\n"
+                        "RULE 4 - NO AI CLICHES: Talk like a real, direct, caring mentor in a face-to-face chat.\n"
+                        "RULE 5 - COMPLETE YOUR SENTENCES: Always conclude your thoughts completely.\n\n"
                         "=== VOICE & TONE ===\n"
-                        "Use confident, direct, caring banmal (casual speech: ~해라, ~하자, ~이야, ~거든, ~잖아).\n"
-                        "Be like a tough, deeply caring veteran entrance coach and master mentor.\n"
-                        "When the student shares struggles, show real empathy first, then deliver direct truth and practical solutions.\n\n"
+                        "Use confident, direct, caring banmal (casual speech: ~해라, ~하자, ~이야, ~거든, ~잖아).\n\n"
                         f"{PASSMATE_STUDENT_MANUAL}\n\n"
-                        "=== EXPERT KNOWLEDGE (실패의 원리 전편) ===\n"
+                        "=== CORE WISDOM (실패의 원리 핵심) ===\n"
                         f"{knowledge}\n"
                     )
 
@@ -602,7 +594,14 @@ def ask_ai_chatbot(
 
         # Standard Google GenAI model hierarchy & Multi-Key Failover
         available_keys = get_available_api_keys()
-        candidate_models = ['gemini-3-flash-preview', 'gemini-3.6-flash', 'gemini-3.5-flash']
+        candidate_models = [
+            'gemini-3.5-flash-lite',
+            'gemini-flash-lite-latest',
+            'gemini-3.1-flash-lite',
+            'gemini-3-flash-preview',
+            'gemini-3.6-flash',
+            'gemini-3.5-flash'
+        ]
         
         for api_k in available_keys:
             try:
@@ -615,7 +614,7 @@ def ask_ai_chatbot(
                             config={
                                 'system_instruction': system_prompt,
                                 'temperature': 0.6,
-                                'max_output_tokens': 2048,
+                                'max_output_tokens': 450,
                             }
                         )
                         if response.text and response.text.strip():
@@ -639,25 +638,62 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
     """
     Intelligent Local Knowledge Fallback Engine
     - Synthesizes authentic responses directly from 『실패의 원리』(knowledge.txt), Student Manual & Admission Data.
-    - Guarantees immediate, rich, deeply tailored coaching in genuine banmal persona even during network outages.
+    - Guarantees immediate, rich, deeply tailored coaching in genuine Kim Cheol-hoon persona even during network outages.
     """
     msg_clean = (message or "").strip().lower()
     
-    # 1. 내신 기간 / 내신 언제까지 / 수시 내신 질문
-    if any(k in msg_clean for k in ["내신", "중간고사", "기말고사", "학점", "생기부", "세특", "수행평가"]):
+    # 0. 학부모 모드 응답
+    if user_role == "PARENT":
+        if any(k in msg_clean for k in ["과외", "학원", "특강", "인강", "교재", "비용", "추가", "불안"]):
+            return (
+                "학부모님, 안녕하십니까. PASS-MATE 수석 입시 전략 컨설턴트 AI입니다.\n\n"
+                "자녀의 성적이 정체되거나 시험이 다가올 때 학부모님께서 가장 먼저 느끼시는 감정은 불안감입니다. "
+                "하지만 이 불안한 마음에 새로운 과외를 붙이거나 유명 인강/특강을 추가 결제하는 것은 학원가의 전형적인 '불안 마케팅'에 휘둘리는 결과를 낳습니다.\n\n"
+                "성적이 오르지 않는 진짜 이유는 공부하는 '양'이나 '강의 수'가 부족해서가 아니라, 이미 배운 기본 개념과 오답을 학생 스스로 온전히 소화하는 '자습의 밀도'가 떨어져 있기 때문입니다. "
+                "지금은 강의를 늘릴 때가 아니라, PASS-MATE 타이머를 통해 하루 순수 자습 시간(순공) 4시간을 확보하고 한 권의 기출 바이블을 완벽히 소화하도록 격려해 주셔야 할 때입니다.\n\n"
+                "가정에서는 자녀가 일정한 수면 리듬을 지키고 계획표를 완수할 수 있도록 정서적인 안정감을 주시는 것이 최고의 입시 지원입니다."
+            )
         return (
-            "수시를 노리는 수험생이라면 고등학교 3학년 1학기 기말고사까지의 내신이 핵심 반영 대상이야. "
-            "하지만 여기서 진짜 중요한 기준은 단순히 기간이 아니라, 내 현재 내신 등급과 목표 대학 사이의 냉정한 합격 가능성 판단에 달려 있어.\n\n"
-            "만약 3학년 1학기 내신으로 수시 6장 카드 중 의미 있는 상위권 대학 학종이나 교과 카드를 쓸 수 있는 위치라면, 이번 1학기 기말고사 마지막 순간까지 사력을 다해 챙겨야 해. "
-            "반대로 이미 1~2학년 내신 평균이 목표 대학의 수시 컷에서 완전히 멀어졌다면, 내신 챙긴답시고 수능 공부 시간과 타이머를 통째로 날려버리는 우를 범해서는 절대 안 돼.\n\n"
-            "수시를 끝까지 가져가더라도 시험 3~4주 전 내신 집중 기간을 제외한 모든 평상시 호흡은 수능 정시 모드로 꽉 잡혀 있어야 해. "
-            "PASS-MATE [정시 합격 예측기]에서 현재 내 모의고사 백분위로 지원 가능한 정시 라인을 먼저 확인하고, 수시와 정시의 황금 비율을 똑똑하게 배분해봐!"
+            "학부모님, 안녕하십니까. PASS-MATE 수석 입시 전략 컨설턴트 AI입니다.\n\n"
+            "자녀분의 학습 현황은 [생활관리] 및 [학습공간] 탭에서 실시간으로 안심 조회하실 수 있습니다. "
+            "자녀의 자기주도적 성취감을 위해 세부 계획표 작성과 타이머 기록은 학생 계정에서 직접 진행하도록 안전하게 관리됩니다.\n\n"
+            "대입 입시는 정시의 튼튼한 안전판을 먼저 확보한 상태에서 수시 카드를 공격적으로 설계하는 것이 가장 확실한 전략입니다. "
+            "자녀의 과목별 취약점이나 대입 전형 전략에 대해 더 구체적인 상담이 필요하시면 언제든 말씀해 주십시오."
         )
 
-    # 2. 오답 정리 / 오답 노트 관련 질문
+    # 1. 초등 모드 (페로)
+    if school_level == "ELEMENTARY":
+        return (
+            "안녕! 나는 너의 AI 단짝 친구 페로야 🐾\n\n"
+            "공부하느라 힘들었지? 하지만 매일 조금씩 책을 읽고 연산 문제를 푸는 너의 모습이 정말 대단하고 멋져! ⭐\n\n"
+            "오늘도 정해진 목표를 하나씩 해내면서 신나게 하루를 보내보자! 페로가 언제나 곁에서 널 응원할게 ✨"
+        )
+
+    # 2. 중등 모드 (특목/자사고 및 내신)
+    if school_level == "MIDDLE":
+        return (
+            "반가워! PASS-MATE 중등 특목·자사고 마스터 코치야.\n\n"
+            "중학교 시기에 가장 중요한 것은 모든 과목의 '내신 All A 성취도'를 탄탄하게 다지는 것과 함께, "
+            "고등학교에 진학했을 때 흔들리지 않는 깊이 있는 비문학 독해력과 수학 개념 증명 능력을 기르는 거야.\n\n"
+            "특목고/자사고 입시든 일반고 최상위권 선점이든, 매일 30분 단위 블록 계획표를 세우고 스스로 개념을 설명할 수 있을 때까지 복습하는 습관이 핵심이야. "
+            "궁금한 과목이나 진로 고민이 있다면 편하게 물어봐!"
+        )
+
+    # 3. 고등 - 수능 국어 / 성적 정체 / 국어 공부법 / 비문학 / 문학 (김철훈 대표원장 철학 핵심)
+    if any(k in msg_clean for k in ["국어", "비문학", "문학", "독서", "언매", "화작", "60점", "70점", "80점", "점수", "성적 안", "안 올라", "정체"]):
+        return (
+            "이봐, 점수가 안 나온다고 좌절하거나 자책하지 말고 내 말 똑바로 들어.\n\n"
+            "나도 고1 때 유명 국어학원 4~5개에 속독학원까지 다니며 하루 8시간씩 국어만 팠는데 1년 내내 67~68점에 갇혀 있었던 뼈아픈 경험이 있어. "
+            "그때 내가 뼈저리게 깨달은 건, 수능 국어는 결코 '배경지식', '독서량', '문해력'이나 사설 N제 양치기로 점수가 오르는 시험이 아니라는 거야. "
+            "수능 국어의 본질은 학문이 아니라, 정해진 시간 안에 평가원 출제자의 의도와 논리적 출제원리를 간파하는 '출제자의 눈'을 갖추는 시험이야.\n\n"
+            "지금 너에게 필요한 건 새로운 문제집을 더 푸는 게 아니라, 기출 지문 하나를 보더라도 출제자가 어디서 오답 선지를 설계하고 함정을 팠는지 그 생각의 알고리즘을 쪼개어 분석하는 훈련이야. "
+            "방향이 잘못된 노력은 부산 가려는데 강원도로 전력질주하는 것과 같아. 내 정규수업 [방법론 8주 과정]에서 출제원리의 틀을 잡고 실전 변수를 통제하면 국어 1등급은 반드시 나온다. 기죽지 말고 힘내자!"
+        )
+
+    # 4. 고등 - 오답 정리 / 오답 노트 관련 질문
     if any(k in msg_clean for k in ["오답", "오답노트", "틀린 문제", "틀렸", "오답정리", "복습"]):
         return (
-            "오답 정리는 단순히 해설지를 베껴 쓰거나 풀이를 암기하는 작업이 결코 아니야. "
+            "오답 정리는 단순히 해설지를 베껴 쓰거나 풀이를 눈으로 외우는 작업이 결코 아니야. "
             "『실패의 원리』에서 강조하는 시험 성적을 즉각 올려주는 가장 확실한 3단계 오답 정복 원칙을 실천해봐.\n\n"
             "1. 틀린 원인 3분류 명시하기\n"
             "문제를 틀렸을 때 왜 틀렸는지 스스로 명확히 규정해야 해:\n"
@@ -668,12 +704,22 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
             "해설지의 긴 풀이를 옮겨 쓰지 말고, '시험장에서 나는 왜 이 생각을 떠올리지 못했는가?'를 한 줄로 적어. "
             "그리고 문제 발문에서 첫 단추를 꿰는 핵심 단서에 밑줄을 긋고, 그 단서에서 개념으로 이어지는 생각의 연결 고리를 메모하는 거야.\n\n"
             "3. 3일 후 '백지 재풀이' 검증\n"
-            "오답 정리를 한 직후에는 풀이가 눈에 익어 다 아는 것처럼 느껴져. "
-            "반드시 3일 뒤 백지 상태의 빈 시험지에 문제 번호만 보고 스스로 처음부터 끝까지 100% 손으로 풀어낼 수 있는지 검증해봐.\n\n"
-            "오답은 나의 약점을 가감 없이 드러내 주는 가장 귀한 나침반이야. 틀린 문제를 두려워하지 말고 위의 3단계로 완벽히 네 것으로 만들어봐!"
+            "반드시 3일 뒤 백지 상태의 빈 시험지에 문제 번호만 보고 스스로 처음부터 끝까지 100% 손으로 풀어낼 수 있는지 검증해봐. "
+            "오답은 나의 약점을 가감 없이 드러내 주는 가장 귀한 나침반이다!"
         )
 
-    # 3. 수시 / 정시 / 최저 / 원서 / 입시 전략 질문
+    # 5. 고등 - 내신 기간 / 내신 언제까지 / 수시 내신 질문
+    if any(k in msg_clean for k in ["내신", "중간고사", "기말고사", "학점", "생기부", "세특", "수행평가"]):
+        return (
+            "수시를 노리는 수험생이라면 고등학교 3학년 1학기 기말고사까지의 내신이 핵심 반영 대상이야. "
+            "하지만 여기서 진짜 중요한 기준은 단순히 기간이 아니라, 내 현재 내신 등급과 목표 대학 사이의 냉정한 합격 가능성 판단에 달려 있어.\n\n"
+            "만약 3학년 1학기 내신으로 수시 6장 카드 중 의미 있는 상위권 대학 학종이나 교과 카드를 쓸 수 있는 위치라면, 이번 1학기 기말고사 마지막 순간까지 사력을 다해 챙겨야 해. "
+            "반대로 이미 1~2학년 내신 평균이 목표 대학의 수시 컷에서 완전히 멀어졌다면, 내신 챙긴답시고 수능 공부 시간과 타이머를 통째로 날려버리는 우를 범해서는 절대 안 돼.\n\n"
+            "수시를 끝까지 가져가더라도 시험 3~4주 전 내신 집중 기간을 제외한 모든 평상시 호흡은 수능 정시 모드로 꽉 잡혀 있어야 해. "
+            "PASS-MATE [정시 합격 예측기]에서 현재 내 모의고사 백분위로 지원 가능한 정시 라인을 먼저 확인하고, 수시와 정시의 황금 비율을 똑똑하게 배분해봐!"
+        )
+
+    # 6. 고등 - 수시 / 정시 / 최저 / 원서 / 입시 전략 질문
     if any(k in msg_clean for k in ["수시", "정시", "최저", "수능최저", "원서", "학종", "논술", "입시", "대입", "합격"]):
         return (
             "대입 입시에서 가장 중요한 대원칙은 '정시 기준선을 단단히 확보한 상태에서 수시를 공격적으로 설계하는 것'이야.\n\n"
@@ -684,41 +730,29 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
             "나의 6월/9월 모의평가 백분위 기준 정시로 충분히 갈 수 있는 대학보다 낮은 대학에 수시로 덜컥 합격해 버리는 '수시 납치'를 철저히 경계해야 해.\n\n"
             "3. 학습 시간 배분\n"
             "내신 기간(시험 전 4주)에는 학교 내신 기출과 출제 바이블에 100% 몰입하되, 평상시에는 수능 킬러/준킬러 기출 분석과 자습 밀도를 꾸준히 유지하는 것이 합격의 지름길이야.\n\n"
-            "궁금한 대학이나 학과가 있다면 PASS-MATE [2. 학습공간] -> [정시 합격 예측기]에서 내 성적으로 전국 11,688개 대학의 적정/소신 판정을 실시간으로 확인해봐!"
+            "궁금한 대학이나 학과가 있다면 PASS-MATE [학습공간] -> [정시 합격 예측기]에서 내 성적으로 전국 11,688개 대학의 판정을 실시간으로 확인해봐!"
         )
 
-
-    # 3. 집중력 / 슬럼프 / 공부법 / 계획 / 생활관리 질문
-    if any(k in msg_clean for k in ["집중", "슬럼프", "공부법", "계획", "잠", "기상", "피곤", "의지", "멘탈", "불안", "시작"]):
+    # 7. 고등 - 집중력 / 슬럼프 / 공부법 / 계획 / 생활관리 질문
+    if any(k in msg_clean for k in ["집중", "슬럼프", "공부법", "계획", "잠", "기상", "피곤", "의지", "멘탈", "불안", "시작", "타이머"]):
         return (
-            "공부가 잘 안 되거나 집중력이 흐트러질 때는 의지력 탓을 하기보다 '환경과 시스템'을 먼저 점검해야 합니다.\n\n"
+            "공부가 잘 안 되거나 집중력이 흐트러질 때는 의지력 탓을 하기보다 '환경과 시스템'을 먼저 점검해야 해.\n\n"
             "1. 타이머 기반 순수 자습 시간 측정\n"
-            "책상에 멍하니 앉아 있는 시간이 아닌, 실제 뇌가 가동된 순수 몰입 시간을 PASS-MATE [집중 공부 타이머]로 측정하세요. "
-            "하루 순공 4시간이 멍한 8시간보다 훨씬 강력합니다.\n\n"
+            "책상에 멍하니 앉아 있는 시간이 아닌, 실제 뇌가 가동된 순수 몰입 시간을 PASS-MATE [집중 공부 타이머]로 측정해봐. "
+            "하루 순공 4시간이 멍한 8시간보다 훨씬 강력해.\n\n"
             "2. 30분 단위 블록 계획표\n"
-            "막연하게 '오늘 수학 3시간'이 아니라, [학습공간 -> 주간 계획표]에서 30분 단위로 세분화된 목표 블록을 작성하고 하나씩 지워나갈 때 성취감이 극대화됩니다.\n\n"
+            "막연하게 '오늘 수학 3시간'이 아니라, [학습공간 -> 주간 계획표]에서 30분 단위로 세분화된 목표 블록을 작성하고 하나씩 지워나갈 때 성취감이 극대화돼.\n\n"
             "3. 기상/취침 미션 루틴\n"
-            "일정한 수면 리듬이 깨지면 오후 집중력이 급격히 무너집니다. 아침 기상 인증과 밤 취침 미션을 지켜 성실도 포인트를 쌓고 바이오리듬을 일정하게 유지하세요.\n\n"
-            "지금 바로 타이머를 켜고 딱 25분만 몰입해보세요. 작은 실행 하나가 슬럼프를 깨는 가장 빠른 방법입니다!"
+            "일정한 수면 리듬이 깨지면 오후 집중력이 급격히 무너져. 아침 기상 인증과 밤 취침 미션을 지켜 바이오리듬을 일정하게 유지해봐.\n\n"
+            "지금 바로 타이머를 켜고 딱 25분만 몰입해보자. 작은 실행 하나가 슬럼프를 깨는 가장 빠른 방법이야!"
         )
 
-    # 4. 학부모 모드 안내
-    if user_role == "PARENT":
-        return (
-            "학부모님, 안녕하십니까. PASS-MATE 수석 입시 전략 컨설턴트 AI입니다.\n\n"
-            "자녀분의 학습 현황은 [생활관리] 및 [학습공간] 탭에서 실시간으로 안심 조회하실 수 있습니다. "
-            "자녀의 자기주도적 의지를 위해 계획표 수정 등은 학생 계정에서 직접 진행하도록 안전하게 잠겨 있습니다.\n\n"
-            "불안 마케팅에 휘둘려 무리한 사교육이나 추가 인강을 늘리기보다, 지금은 자녀의 하루 순수 자습 시간과 오답 복습 밀도를 다잡아 주는 것이 성적 향상의 핵심입니다.\n"
-            "추가적인 입시 컨설팅이나 자녀 학습 관리에 대해 궁금하신 점이 있으시면 언제든 말씀해 주십시오."
-        )
-
-    # 5. 기본 튜터 응답 (General Coaching)
+    # 8. 기본 고등 멘토 응답 (General Coaching)
     return (
-        f"안녕! 대입 입시와 수험생활에 대해 어떤 점이든 편하게 물어봐.\n\n"
-        "『실패의 원리』에 기반하여 시험 공부 요령, 오답 정리법, 수시/정시 최적 전략, 주간 계획표 세우기까지 "
-        "가장 효율적이고 검증된 지름길을 1:1로 코칭해줄게. 구체적인 고민이나 궁금한 과목을 말해줘!"
+        "안녕! 대입 입시와 수험생활에 대해 어떤 고민이든 솔직하게 털어놔봐.\n\n"
+        "『실패의 원리』에 기반하여 수능 국어 1등급 출제원리 독해법, 취약 과목 오답 정복 원칙, 수시/정시 최적 입시 전략, 주간 168시간 계획표 관리까지 "
+        "가장 확실하고 검증된 지름길을 1:1로 멘토링해줄게. 지금 어떤 과목이나 고민이 제일 막막하니?"
     )
-
 
 
 def test_sandbox_prompt(system_prompt: str, user_message: str) -> str:
@@ -726,7 +760,14 @@ def test_sandbox_prompt(system_prompt: str, user_message: str) -> str:
     if not client:
         return "Gemini 클라이언트 연결 실패"
 
-    candidate_models = ['gemini-3.6-flash', 'gemini-3-flash-preview', 'gemini-3.5-flash']
+    candidate_models = [
+        'gemini-3.5-flash-lite',
+        'gemini-flash-lite-latest',
+        'gemini-3.1-flash-lite',
+        'gemini-3-flash-preview',
+        'gemini-3.6-flash',
+        'gemini-3.5-flash'
+    ]
     for mod_name in candidate_models:
         try:
             response = client.models.generate_content(
@@ -745,4 +786,5 @@ def test_sandbox_prompt(system_prompt: str, user_message: str) -> str:
             continue
 
     return _generate_local_knowledge_reply(user_message, [], "STUDENT", "HIGH")
+
 
