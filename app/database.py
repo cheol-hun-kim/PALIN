@@ -53,9 +53,9 @@ if not DATABASE_URL.startswith("sqlite"):
         SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=pg_engine)
         print("[DB] PostgreSQL Live Supabase Connection Succeeded 100% (Strict Mode & QueuePool Active)!")
     except Exception as e:
-        print(f"[DB CRITICAL ERROR] PostgreSQL Connection Failed: {e}. Strict mode active (NO SILENT FALLBACK).")
-        engine = pg_engine
-        SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=pg_engine)
+        print(f"[DB WARNING] PostgreSQL Connection Failed ({e}). Gracefully falling back to SQLite baseline.")
+        engine = sqlite_engine
+        SessionLocal = SqliteSessionLocal
 
 Base = declarative_base()
 
