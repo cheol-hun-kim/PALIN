@@ -121,6 +121,15 @@ async def add_anti_cache_headers(request: Request, call_next):
         response.headers["Expires"] = "0"
     return response
 
+@app.get("/api/health")
+def handle_health():
+    db_type = "sqlite" if database.engine.dialect.name == "sqlite" else "postgresql"
+    return {"status": "ok", "engine": db_type, "timestamp": int(time.time()), "version": "v2.5.4"}
+
+@app.get("/api/version")
+def handle_version():
+    return {"version": "v2.5.4", "ai_model_priority": ["gemini-3.5-flash-lite", "gemini-flash-lite-latest", "local-knowledge-engine"]}
+
 try:
     from app.sms import send_sms, check_aligo_remain, save_sms_settings, load_sms_settings
 except Exception as _sms_err:
