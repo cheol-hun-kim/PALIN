@@ -7,7 +7,46 @@ from sqlalchemy import text, func
 def auto_seed_database(db: Session, engine):
     from app import models
     
-    # 1. Ensure deleted_at and new elective columns exist across all tables
+    # 1. Ensure deleted_at and all new columns exist across all tables
+    student_cols_def = [
+        ("deleted_at", "TIMESTAMP WITH TIME ZONE", "DATETIME"),
+        ("school_level", "VARCHAR(50) DEFAULT 'HIGH'", "VARCHAR(50) DEFAULT 'HIGH'"),
+        ("school_name", "VARCHAR(150)", "VARCHAR(150)"),
+        ("target_high_school", "VARCHAR(150)", "VARCHAR(150)"),
+        ("target_high_school_type", "VARCHAR(50)", "VARCHAR(50)"),
+        ("baseline_high_school", "VARCHAR(150)", "VARCHAR(150)"),
+        ("dream_job", "VARCHAR(150)", "VARCHAR(150)"),
+        ("pet_type", "VARCHAR(50) DEFAULT 'cat'", "VARCHAR(50) DEFAULT 'cat'"),
+        ("pet_level", "INTEGER DEFAULT 1", "INTEGER DEFAULT 1"),
+        ("pet_exp", "INTEGER DEFAULT 0", "INTEGER DEFAULT 0"),
+        ("elem_routine_status", "TEXT DEFAULT '{}'", "TEXT DEFAULT '{}'"),
+        ("paid_cash", "INTEGER DEFAULT 0", "INTEGER DEFAULT 0"),
+        ("free_report_tickets", "INTEGER DEFAULT 0", "INTEGER DEFAULT 0"),
+        ("referral_code", "VARCHAR(100)", "VARCHAR(100)"),
+        ("referred_by", "VARCHAR(100)", "VARCHAR(100)"),
+        ("has_unlimited_chat", "BOOLEAN DEFAULT FALSE", "BOOLEAN DEFAULT 0"),
+        ("chat_tokens", "INTEGER DEFAULT 5", "INTEGER DEFAULT 5"),
+        ("b2c_subscription_tier", "VARCHAR(50) DEFAULT 'TIER_1_FREE'", "VARCHAR(50) DEFAULT 'TIER_1_FREE'"),
+        ("weekly_diligence_points", "INTEGER DEFAULT 0", "INTEGER DEFAULT 0"),
+        ("is_vip_this_week", "BOOLEAN DEFAULT FALSE", "BOOLEAN DEFAULT 0"),
+        ("previous_b2c_tier", "VARCHAR(50) DEFAULT 'B2C_FREE'", "VARCHAR(50) DEFAULT 'B2C_FREE'"),
+        ("academy_code", "VARCHAR(100)", "VARCHAR(100)"),
+        ("academy_approval_status", "VARCHAR(50) DEFAULT 'NONE'", "VARCHAR(50) DEFAULT 'NONE'"),
+        ("pending_tenant_code", "VARCHAR(100)", "VARCHAR(100)"),
+        ("ai_level", "VARCHAR(50) DEFAULT 'B2C_FREE'", "VARCHAR(50) DEFAULT 'B2C_FREE'"),
+        ("tuition_paid", "BOOLEAN DEFAULT FALSE", "BOOLEAN DEFAULT 0"),
+        ("textbook_paid", "BOOLEAN DEFAULT FALSE", "BOOLEAN DEFAULT 0"),
+        ("textbooks_distributed", "TEXT DEFAULT ''", "TEXT DEFAULT ''"),
+        ("enrollment_status", "VARCHAR(50) DEFAULT 'ENROLLED'", "VARCHAR(50) DEFAULT 'ENROLLED'"),
+        ("leave_reason", "VARCHAR(255)", "VARCHAR(255)"),
+        ("assigned_seat_number", "INTEGER", "INTEGER"),
+        ("seat_checkin_time", "TIMESTAMP WITH TIME ZONE", "DATETIME"),
+        ("seat_status", "VARCHAR(50) DEFAULT 'NONE'", "VARCHAR(50) DEFAULT 'NONE'"),
+        ("parent_invite_code", "VARCHAR(100)", "VARCHAR(100)"),
+        ("medical_symbol", "VARCHAR(50) DEFAULT 'GENERAL'", "VARCHAR(50) DEFAULT 'GENERAL'"),
+        ("last_streak_date", "DATE", "DATE")
+    ]
+
     try:
         if engine.dialect.name == "sqlite":
             tables = ["students", "parents", "tenants", "exam_materials", "vod_library", "attendance_logs", "tutor_profiles", "planner_blocks", "administrative_requests", "exam_paper_masters", "exam_omr_submissions"]
@@ -17,6 +56,13 @@ def auto_seed_database(db: Session, engine):
                     if cols:
                         if "deleted_at" not in cols:
                             db.execute(text(f"ALTER TABLE {t} ADD COLUMN deleted_at DATETIME"))
+                        if t == "students":
+                            for col_name, _, sqlite_type in student_cols_def:
+                                if col_name not in cols:
+                                    try:
+                                        db.execute(text(f"ALTER TABLE students ADD COLUMN {col_name} {sqlite_type}"))
+                                    except Exception:
+                                        pass
                         if t in ["exam_paper_masters", "exam_omr_submissions"]:
                             if "curriculum_era" not in cols:
                                 db.execute(text(f"ALTER TABLE {t} ADD COLUMN curriculum_era VARCHAR(50) DEFAULT '2022_2027'"))
@@ -30,6 +76,12 @@ def auto_seed_database(db: Session, engine):
             for t in tables:
                 try:
                     db.execute(text(f"ALTER TABLE {t} ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP WITH TIME ZONE;"))
+                    if t == "students":
+                        for col_name, pg_type, _ in student_cols_def:
+                            try:
+                                db.execute(text(f"ALTER TABLE students ADD COLUMN IF NOT EXISTS {col_name} {pg_type};"))
+                            except Exception:
+                                pass
                     if t in ["exam_paper_masters", "exam_omr_submissions"]:
                         db.execute(text(f"ALTER TABLE {t} ADD COLUMN IF NOT EXISTS curriculum_era VARCHAR(50) DEFAULT '2022_2027';"))
                         db.execute(text(f"ALTER TABLE {t} ADD COLUMN IF NOT EXISTS elective_subject VARCHAR(100);"))
@@ -84,7 +136,7 @@ def auto_seed_database(db: Session, engine):
                 db.rollback()
                 print(f"[AUTO_SEED] Exam purge migration note: {ep_err}")
 
-        mig_approve = db.execute(text("SELECT migration_key FROM system_migrations WHERE migration_key = 'sync_academy_cohorts_v20260924'")).fetchone()
+        mig_approve = db.execute(text("SELECT migration_key FROM system_migrations WHERE migration_key = 'sync_academy_cohorts_v20260924_r2'")).fetchone()
         if not mig_approve:
             try:
                 # 1. Master Account (ID 1, 김철훈, 1286orbital21@gmail.com)
@@ -189,7 +241,7 @@ def auto_seed_database(db: Session, engine):
                         else:
                             s.b2c_subscription_tier = "TIER_1_FREE"
 
-                db.execute(text("INSERT INTO system_migrations (migration_key) VALUES ('sync_academy_cohorts_v20260924')"))
+                db.execute(text("INSERT INTO system_migrations (migration_key) VALUES ('sync_academy_cohorts_v20260924_r2')"))
                 db.commit()
                 print(f"[AUTO_SEED] Full B2B/B2C Academy Cohort Synchronization v20260924 applied successfully for {len(all_stus)} students.")
             except Exception as ap_err:
