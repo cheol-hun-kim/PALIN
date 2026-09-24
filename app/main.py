@@ -6366,10 +6366,126 @@ def answer_master_b2b_ticket(ticket_id: int, payload: B2BSupportTicketAnswerPayl
  
 @app.post("/api/master/sync-cohorts")
 def force_sync_master_cohorts(db: Session = Depends(get_db)):
-    from app.seed_data import auto_seed_database
     from app.database import engine
-    auto_seed_database(db, engine)
-    return {"status": "success", "message": "전국 학원 코호트 및 수강생 정보 동기화가 성공적으로 완료되었습니다."}
+    is_pg = engine.dialect.name in ("postgresql", "postgres")
+    b_true = "TRUE" if is_pg else "1"
+    b_false = "FALSE" if is_pg else "0"
+
+    total_before = db.execute(text("SELECT count(*) FROM students")).scalar()
+
+    # 1. Update Student 1 (Master)
+    db.execute(text(f"""
+        UPDATE students SET 
+            academy_code = 'ILWON-2027', 
+            academy_approval_status = 'APPROVED', 
+            b2c_subscription_tier = 'TIER_3_MASTER', 
+            previous_b2c_tier = 'TIER_3_MASTER', 
+            ai_level = 'TIER_4_ILWON', 
+            has_unlimited_chat = {b_true}, 
+            chat_tokens = 999, 
+            enrollment_status = 'ENROLLED', 
+            tuition_paid = {b_true}, 
+            textbook_paid = {b_true}, 
+            streak_days = 8 
+        WHERE id = 1 OR lower(email) LIKE '%1286orbital21@gmail.com%';
+    """))
+
+    # 2. Update ~60% to ILWON-2027 Approved
+    r_ilwon = db.execute(text(f"""
+        UPDATE students SET
+            academy_code = 'ILWON-2027',
+            academy_approval_status = 'APPROVED',
+            ai_level = 'TIER_4_ILWON',
+            has_unlimited_chat = {b_true},
+            chat_tokens = 999,
+            enrollment_status = 'ENROLLED',
+            tuition_paid = {b_true},
+            textbook_paid = {b_true}
+        WHERE id != 1 AND (id % 20) IN (0, 1, 2, 3, 4, 5, 6, 7, 8);
+    """)).rowcount
+
+    # 3. Pending
+    r_pending = db.execute(text(f"""
+        UPDATE students SET
+            academy_code = 'ILWON-2027',
+            academy_approval_status = 'PENDING',
+            pending_tenant_code = 'ILWON-2027',
+            ai_level = 'B2C_FREE'
+        WHERE id != 1 AND (id % 20) = 11;
+    """)).rowcount
+
+    # 4. Graduated
+    r_grad = db.execute(text(f"""
+        UPDATE students SET
+            academy_code = 'ILWON-2027',
+            academy_approval_status = 'APPROVED',
+            enrollment_status = 'GRADUATED',
+            is_alumni = {b_true},
+            ai_level = 'TIER_4_ILWON'
+        WHERE id != 1 AND (id % 20) = 10;
+    """)).rowcount
+
+    # 5. Study Cafe
+    r_cafe = db.execute(text(f"""
+        UPDATE students SET
+            academy_code = 'CAFE-STUDY01',
+            academy_approval_status = 'APPROVED',
+            ai_level = 'B2B_BASIC',
+            enrollment_status = 'ENROLLED'
+        WHERE id != 1 AND (id % 20) IN (12, 13);
+    """)).rowcount
+
+    # 6. Middle Academy
+    r_mid = db.execute(text(f"""
+        UPDATE students SET
+            academy_code = 'MID-TOP01',
+            school_level = 'MID',
+            academy_approval_status = 'APPROVED',
+            ai_level = 'B2B_CUSTOM_BRAIN',
+            enrollment_status = 'ENROLLED'
+        WHERE id != 1 AND (id % 20) = 14;
+    """)).rowcount
+
+    # 7. Elementary Academy
+    r_elem = db.execute(text(f"""
+        UPDATE students SET
+            academy_code = 'ELEM-PET01',
+            school_level = 'ELEM',
+            academy_approval_status = 'APPROVED',
+            ai_level = 'B2B_CUSTOM_BRAIN',
+            enrollment_status = 'ENROLLED'
+        WHERE id != 1 AND (id % 20) = 15;
+    """)).rowcount
+
+    # 8. B2C
+    r_b2c = db.execute(text(f"""
+        UPDATE students SET
+            academy_code = NULL,
+            academy_approval_status = 'NONE',
+            pending_tenant_code = NULL,
+            ai_level = 'B2C_FREE',
+            enrollment_status = 'ENROLLED',
+            b2c_subscription_tier = 'TIER_1_FREE'
+        WHERE id != 1 AND (id % 20) IN (9, 16, 17, 18, 19);
+    """)).rowcount
+
+    db.commit()
+
+    approved_count = db.execute(text("SELECT count(*) FROM students WHERE academy_code = 'ILWON-2027' AND academy_approval_status = 'APPROVED'")).scalar()
+
+    return {
+        "status": "success",
+        "engine": engine.dialect.name,
+        "total_students": total_before,
+        "updated_ilwon": r_ilwon,
+        "updated_pending": r_pending,
+        "updated_grad": r_grad,
+        "updated_cafe": r_cafe,
+        "updated_mid": r_mid,
+        "updated_elem": r_elem,
+        "updated_b2c": r_b2c,
+        "ilwon_approved_total": approved_count
+    }
 
 
 
