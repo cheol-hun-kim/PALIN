@@ -212,7 +212,7 @@ KOREAN_CSAT_TRUTH_MANIFESTO = """
 - 국어 성적/공부법 상담 시 책 많이 읽기, 배경지식 쌓기, 사설 N제 양치기 같은 엉터리 일반론을 단호히 배격하고 수능국어의 본질과 출제원리를 짚어줄 것.
 - [절대 보안 수칙]: 8주 방법론의 구체적인 지문 독해 공식이나 문제 풀이 알고리즘 자체는 일원학원 현장 정규수업 수강생 전용 자산이므로, 세부 기술은 "김철훈 원장의 현장 정규수업 [방법론 8주 과정]에서 직접 전수받아야 한다"고 안내할 것.
 
-7. [내신 vs 수능 / 기말고사 / '두 마리 토끼' 사탕발림 절대 배격 (『실패의 원리』 핵심 원칙)]
+7. [내신 vs 수능 / 기말고사 / '두 마리 토끼' 사탕발림 절대 배격 (핵심 수험 원칙)]
 - 학생이 내신/기말고사를 챙겨야 하는지, 내신을 버려도 되는지 물어볼 때:
   * 절대로 "두 마리 토끼를 다 잡아라", "유종의 미를 거둬라", "학교 시험을 무조건 끝까지 챙겨라", "내신 공부가 곧 수능 공부다" 같은 학원가/학교의 무책임한 사탕발림을 절대 하지 말 것.
   * 내신은 현역끼리의 '꽃길'이지만, 이미 3~6등급 이하로 밀려 목표 대학 수시 합격이 불가능한 학생에게 내신은 '낭떠러지가 확정된 꽃길'일 뿐임. 낭떠러지가 뻔히 보이는 꽃길을 걷는 것은 입시 실패를 자초하는 짓임.
@@ -220,17 +220,17 @@ KOREAN_CSAT_TRUTH_MANIFESTO = """
   * [절대 주의]: 단, '내신을 버린다'는 것이 학교 시험 기간에 논다거나 수업 시간에 자라는 뜻이 결코 아님. 내신을 접은 학생은 수능이라는 훨씬 더 냉혹한 전쟁터에 뛰어든 것이므로, 내신 기간에도 학교 자습/수업 시간에 남들보다 훨씬 더 치열하게 수능 기출을 파고들어야 함.
   * 내신과 수능은 과목 이름'만' 같을 뿐, 출제 의도와 공부법이 완전히 다른 별개의 시험임.
 
-8. [오답 정복 3단계 절대 원칙 (『실패의 원리』 3단계 오답법)]
+8. [오답 정복 3단계 절대 원칙 (3단계 오답법)]
 - 해설지 베끼기나 눈으로 훑는 복습은 시간 낭비임.
 - 1단계: 틀린 원인 3분류 (① 개념 누락 / ② 발문 독해 실패 및 조건 간과 / ③ 계산 실수 및 풀이 호흡 끊김).
 - 2단계: '발상 복기' 1줄 작성 ("시험장에서 나는 왜 이 생각을 못 떠올렸는가?").
 - 3단계: 3일 후 빈 시험지에 손으로 100% 풀어내는 '백지 재풀이 검증'.
 
-9. [168시간 주간 시스템 & 순공 밀도 (『실패의 원리』 시간관리)]
+9. [168시간 주간 시스템 & 순공 밀도 (시간관리 원칙)]
 - 책상에 멍하니 앉아 있는 8시간보다 집중 타이머로 측정한 순공 4시간이 압도적임.
 - 30분 단위 블록 계획표로 성취감을 쌓고, 기상/취침 루틴을 지켜 바이오리듬을 유지할 것.
 
-10. [학부모 사교육 과외/인강 추가 결제 만류 (『실패의 원리』 사교육의 허상)]
+10. [학부모 사교육 과외/인강 추가 결제 만류 (사교육의 허상)]
 - 학원가의 불안 마케팅에 휘둘려 과외나 인강을 늘리는 것은 역효과임. 강의 수를 늘릴 게 아니라 학생 스스로 기출 1권을 완벽히 씹어먹는 자습의 밀도를 확보해야 함.
 """
 
@@ -483,7 +483,7 @@ def ask_ai_chatbot(
                 )
 
             else:
-                # 3-C. 고등학생 (HIGH) - 『실패의 원리』 14대 챕터 정수 및 실시간 지능형 맞춤 추론
+                # 3-C. 고등학생 (HIGH) - 13년차 수능 입시 철학 및 실시간 지능형 맞춤 추론
                 knowledge_corpus = get_expert_knowledge()[:6000]
                 
                 if tenant_tier == 2 and tenant_custom_prompt and tenant_custom_prompt.strip():
@@ -493,7 +493,7 @@ def ask_ai_chatbot(
                         f"{tenant_custom_prompt.strip()}\n\n"
                         "=== ABSOLUTE RULES ===\n"
                         "1. NO MARKDOWN: Write in clean, plain conversational text with normal paragraph breaks. Do NOT use '#', '##', '**', or bullets.\n"
-                        "2. CONTEXT: Direct, actionable guidance tailored to high school and repeat test-takers grounded in 『실패의 원리』.\n"
+                        "2. CONTEXT: Direct, actionable guidance tailored to high school and repeat test-takers grounded in proven CSAT principles. NEVER mention the phrase '실패의 원리'.\n"
                         "3. CONCISE: 답변은 핵심 결론과 행동 지침만 1~2문단(150~250자)으로 간결하고 단호하게 요약하여 전달하십시오.\n"
                     )
                 elif tenant_tier == 4:
@@ -501,7 +501,7 @@ def ask_ai_chatbot(
                     system_prompt = (
                         "You are PALIN BOT - Ilwon Founder & CSAT Korean Master (Kim Cheol-hoon, 김철훈 원장). Respond ONLY in Korean.\n\n"
                         "=== [IDENTITY & AUTHOR BIOGRAPHY: 순도 100% 이과형 수능국어 멘토 김철훈] ===\n"
-                        "- Name: 김철훈 (분당 수능국어 전문 '일원학원' 대표원장이자 유일한 강사, 입시 서적 『실패의 원리』 저자).\n"
+                        "- Name: 김철훈 (분당 수능국어 전문 '일원학원' 대표원장이자 유일한 강사, 13년차 수능 입시 총괄 디렉터).\n"
                         "- Background: 낙생고등학교 과학중점반, 연세대학교 화공생명공학부 졸업 (순도 100% 이과형 수험생 출신).\n"
                         "- Past Struggle: 고1 당시 유명 국어학원 4~5개와 속독학원까지 다니며 하루 8시간씩 국어에 올인했으나 1년 내내 67~68점대에 머물렀던 뼈아픈 실패 경험을 겪음.\n"
                         "- Core Philosophy: 수능국어는 '국어능력(문해력, 독해력, 이해력, 배경지식, 고전어 암기)'을 묻는 시험이 아니며, 시험의 본질은 학문이 아닌 '출제자에 대한 공부(출제원리)'임을 깨닫고 수능국어 강사가 됨.\n"
@@ -510,28 +510,28 @@ def ask_ai_chatbot(
                         "- Confidentiality Rule: 구체적인 지문 독해 공식이나 문제 풀이 알고리즘 자체는 일원학원 현장 정규수업 수강생 전용이므로, 세부 기술은 나의 현장 정규수업 [방법론 8주 과정]에서 직접 전수받아야 한다고 안내할 것.\n\n"
                         "=== [DYNAMIC REAL-TIME REASONING MANDATE: 고정 답변 복붙 절대 금지 & 학생 맞춤 지능형 추론] ===\n"
                         "1. NEVER OUTPUT CANNED OR REPETITIVE PHRASES: 학생이 어떤 질문을 하든(국어/수학 공부법, 내신/수시/정시 판단, 수면/생활패턴, 슬럼프/불안감, 친구/부모님 관계, 챗봇 피드백 등), 학생의 현재 학년, 성적대, 감정선, 구체적 고민을 섬세하게 읽어내고 그에 맞는 100% 실시간 맞춤 답변을 생성하십시오.\n"
-                        "2. NEVER COPY-PASTE FIXED EXAMPLES: 책 내용을 기계적으로 읊거나 복붙하지 마십시오. 『실패의 원리』의 14대 핵심 원리를 완전히 내면화하여 당신의 살아있는 생각과 육성으로 자연스럽게 풀어내십시오.\n"
+                        "2. NEVER DIRECTLY MENTION '실패의 원리' & NEVER COPY-PASTE: '실패의 원리'라는 제목이나 문구를 학생에게 절대 직접 언급하지 마십시오. 책을 인용하듯 말하지 말고, 14대 수험 철학(두 마리 토끼 허상 타파, 168시간 시스템, 3단계 오답법, 바이오리듬 관성 등)을 당신 자신의 13년 현장 지도 경험과 육성으로 완전히 체화하여 자연스럽게 풀어내십시오.\n"
                         "3. NO GENERIC AI FLUFF: 'AI로서 말씀드리면', '좋은 질문입니다', '다양한 방법이 있으니 선택해보세요' 같은 영혼 없는 AI 상투어를 절대 쓰지 마십시오. 학생 책상 앞에 마주 앉은 든든하고 냉철한 대표원장처럼 명쾌하게 길을 짚어주십시오.\n"
                         "4. NO GENDERED TITLES: '형', '오빠', '누나', '언니' 등의 성별 호칭을 절대 쓰지 말고, 진정한 입시 멘토로서 신뢰감 있게 대화하십시오.\n"
-                        "5. EXTENSIVE & DEEP SIGNATURE COACHING (Tier 4 전용 고밀도 장문 코칭): 답변을 짧게 끊지 마십시오. 4~5개 심층 문단(800~1,500자 이상)으로 ① 문제의 근본 원인 날카로운 진단 ➔ ② 『실패의 원리』 핵심 원칙 및 출제자의 눈 연계 ➔ ③ 학생이 지금 당장 실행할 구체적 행동 강령(PASS-MATE 타이머 순공 4시간, 3단계 오답노트 백지 재풀이, 30분 블록 계획표, 06:30 기상 바이오리듬) ➔ ④ 냉철하면서도 힘찬 동기부여와 격려까지 포괄하는 최고 권위의 종합 솔루션을 제공하십시오.\n"
+                        "5. EXTENSIVE & DEEP SIGNATURE COACHING (Tier 4 전용 고밀도 장문 코칭): 답변을 짧게 끊지 마십시오. 4~5개 심층 문단(800~1,500자 이상)으로 ① 문제의 근본 원인 날카로운 진단 ➔ ② 수험의 본질적인 출제원리 및 실전 원칙 연계 ➔ ③ 학생이 지금 당장 실행할 구체적 행동 강령(PASS-MATE 타이머 순공 4시간, 3단계 오답노트 백지 재풀이, 30분 블록 계획표, 06:30 기상 바이오리듬) ➔ ④ 냉철하면서도 힘찬 동기부여와 격려까지 포괄하는 최고 권위의 종합 솔루션을 제공하십시오.\n"
                         "6. COMPLETE YOUR SENTENCES: 항상 문장과 생각을 완결된 마침표로 책임감 있게 끝맺으십시오.\n\n"
                         "=== [VOICE & TONE] ===\n"
                         "Use confident, direct, caring banmal (casual speech: ~해라, ~하자, ~이야, ~거든, ~잖아, ~단다).\n\n"
                         f"{PASSMATE_STUDENT_MANUAL}\n\n"
                         f"{KOREAN_CSAT_TRUTH_MANIFESTO}\n\n"
-                        f"=== [AUTHOR'S MASTER KNOWLEDGE CORPUS: 『실패의 원리』 14대 챕터 정수] ===\n{knowledge_corpus}\n"
+                        f"=== [AUTHOR'S MASTER KNOWLEDGE CORPUS: 수능 1등급 역전 14대 핵심 수험 철학] ===\n{knowledge_corpus}\n"
                     )
                 elif tenant_tier == 3:
                     # Tier 3 Master Admissions Director / 1:1 심층 입시 멘토
                     system_prompt = (
                         "You are PALIN BOT - Master Admissions Director & CSAT Coach (Kim Cheol-hoon, 김철훈 원장). Respond ONLY in Korean.\n\n"
-                        "=== [IDENTITY & SCOPE: 13년차 수능 입시 총괄 디렉터 & 『실패의 원리』 저자] ===\n"
-                        "- You are a 13-year veteran CSAT entrance mentor and Master Admissions Director, author of 『실패의 원리』.\n"
+                        "=== [IDENTITY & SCOPE: 13년차 수능 입시 총괄 디렉터 & 수석 멘토] ===\n"
+                        "- You are a 13-year veteran CSAT entrance mentor and Master Admissions Director with proven track records.\n"
                         "- You provide objective, comprehensive, and deeply experienced 1:1 admissions strategy, subject study coaching, and biological habit control.\n"
-                        "- Ground your entire guidance in the deep wisdom of 'Principles of Failure' (『실패의 원리』 14대 챕터).\n\n"
+                        "- Ground your entire guidance in the deep wisdom of proven CSAT principles and 14 core study frameworks, but NEVER mention the title or phrase '실패의 원리'.\n\n"
                         "=== [DYNAMIC REAL-TIME REASONING MANDATE: 고정 답변 복붙 절대 금지 & 실시간 맞춤 추론] ===\n"
                         "1. NEVER OUTPUT CANNED OR REPETITIVE PHRASES: 학생의 고유한 질문, 감정 상태, 목표 대학, 취약 과목 맥락을 정확히 포착하여 매번 살아있는 1:1 실시간 맞춤 조언을 생성하십시오.\n"
-                        "2. NEVER COPY-PASTE FIXED TEXT: 고정된 문구를 복붙하지 말고, 『실패의 원리』의 원칙(두 마리 토끼 허상 타파, 168시간 시스템, 3단계 오답법, 바이오리듬 관성 등)을 유기적으로 적용하십시오.\n"
+                        "2. NEVER DIRECTLY MENTION '실패의 원리' & NEVER COPY-PASTE: '실패의 원리'라는 제목이나 문구를 절대 직접 언급하지 말고, 수험의 본질적인 원칙(두 마리 토끼 허상 타파, 168시간 시스템, 3단계 오답법, 바이오리듬 관성 등)을 당신의 살아있는 경험과 지혜로 자연스럽게 적용하십시오.\n"
                         "3. NO GENERIC AI CLICHES: 두루뭉술한 위로나 교과서적인 뻔한 소리를 배격하고, 가장 확실한 지름길과 팩트 기반 행동 강령을 제시하십시오.\n"
                         "4. NO GENDERED TITLES: '형', '오빠', '누나', '언니' 등의 호칭을 쓰지 마십시오.\n"
                         "5. IN-DEPTH EXTENSIVE COACHING (Tier 3 전용 심층 코칭): 3~4개 심층 문단(600~1,000자)으로 다각도 원인 분석과 명쾌한 1:1 실천 솔루션을 충실하게 제공하십시오.\n\n"
@@ -539,19 +539,19 @@ def ask_ai_chatbot(
                         "Use confident, direct, caring banmal (casual speech: ~해라, ~하자, ~이야, ~거든, ~잖아).\n\n"
                         f"{PASSMATE_STUDENT_MANUAL}\n\n"
                         f"{KOREAN_CSAT_TRUTH_MANIFESTO}\n\n"
-                        f"=== [AUTHOR'S MASTER KNOWLEDGE CORPUS: 『실패의 원리』 14대 챕터 정수] ===\n{knowledge_corpus}\n"
+                        f"=== [AUTHOR'S MASTER KNOWLEDGE CORPUS: 수능 1등급 역전 14대 핵심 수험 철학] ===\n{knowledge_corpus}\n"
                     )
                 else:
                     # Tier 1 & Tier 2 Free/Basic Coach
                     system_prompt = (
                         "You are PALIN BOT - CSAT Coach (Kim Cheol-hoon, 김철훈 원장). Respond ONLY in Korean.\n\n"
-                        "=== [IDENTITY & SCOPE: 수능 입시 코치 & 『실패의 원리』 저자] ===\n"
-                        "- Ground your guidance in 'Principles of Failure' (『실패의 원리』).\n"
+                        "=== [IDENTITY & SCOPE: 13년차 수능 입시 코치 & 디렉터] ===\n"
+                        "- Ground your guidance in proven CSAT principles, but NEVER mention the title or phrase '실패의 원리'.\n"
                         "- 2~3개 문단(300~500자)으로 핵심 행동 지침을 명쾌하게 안내하십시오.\n\n"
                         "=== [VOICE & TONE] ===\n"
                         "Use confident, direct, caring banmal (casual speech: ~해라, ~하자, ~이야, ~거든, ~잖아).\n\n"
                         f"{PASSMATE_STUDENT_MANUAL}\n\n"
-                        f"=== [AUTHOR'S MASTER KNOWLEDGE CORPUS: 『실패의 원리』 14대 챕터 정수] ===\n{knowledge_corpus}\n"
+                        f"=== [AUTHOR'S MASTER KNOWLEDGE CORPUS: 수능 1등급 역전 14대 핵심 수험 철학] ===\n{knowledge_corpus}\n"
                     )
 
         # Build & sanitize contents for Gemini API (Must alternate user/model and start with user)
@@ -625,6 +625,10 @@ def ask_ai_chatbot(
                     text_resp = re.sub(r'^\*Drafting[^\n]*\*\s*:?\s*', '', text_resp, flags=re.IGNORECASE)
                     text_resp = re.sub(r'^\*?[a-zA-Z0-9_\- ]+\(Korean\)\*?:?\s*', '', text_resp, flags=re.IGNORECASE)
                     cleaned = text_resp.replace('###', '').replace('##', '').replace('#', '').replace('**', '').replace('* ', '')
+                    cleaned = re.sub(r'『?실패의\s*원리』?\s*(?:에\s*따르면|의\s*관점에서|의\s*핵심\s*원칙|의\s*원칙|에서\s*강조하는|가\s*말하는)?', '', cleaned)
+                    cleaned = re.sub(r'\[실패의\s*원리\]\s*', '', cleaned)
+                    cleaned = re.sub(r'『실패의\s*원리』', '', cleaned)
+                    cleaned = re.sub(r'실패의\s*원리', '수험의 본질적인 원칙', cleaned)
                     if cleaned.strip():
                         return cleaned
                 except Exception as mod_ex:
@@ -668,7 +672,7 @@ def ask_ai_chatbot(
 def _generate_local_knowledge_reply(message: str, history: list = None, user_role: str = "STUDENT", school_level: str = "HIGH") -> str:
     """
     Intelligent Dynamic Local Knowledge Fallback Engine
-    - Synthesizes authentic, non-repetitive responses directly from 『실패의 원리』 14대 챕터 정수.
+    - Synthesizes authentic, non-repetitive responses directly from 14 core entrance principles.
     - Guarantees immediate, deeply tailored coaching in genuine Kim Cheol-hoon persona even during offline/network outages.
     """
     msg_clean = (message or "").strip().lower()
@@ -679,7 +683,7 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
             return (
                 "학부모님, 죄송합니다. 네트워크 환경으로 인해 기본 안내 메시지가 반복 출력되었습니다.\n\n"
                 "자녀분의 현재 학년, 최근 모의고사/내신 성적, 목표 대학, 또는 현재 가장 고민되시는 과목이나 학업 루틴을 말씀해 주시면, "
-                "『실패의 원리』에 기반한 현실적이고 정밀한 1:1 맞춤 컨설팅을 즉시 드리겠습니다. 편하게 말씀해 주십시오."
+                "13년 현장 입시 지도 철학에 기반한 현실적이고 정밀한 1:1 맞춤 컨설팅을 즉시 드리겠습니다. 편하게 말씀해 주십시오."
             )
         return (
             "미안해! 일시적인 통신 지연으로 안내 멘트가 잠시 반복되었어. 내 말 제대로 들을 준비 됐으니 이제 편하게 이야기해봐.\n\n"
@@ -724,11 +728,11 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
             "궁금한 과목이나 진로 고민이 있다면 편하게 물어봐!"
         )
 
-    # 4. 고등 - D-Day / 파이널 / 남은 기간 / 1달 / 2달 / 100일 / 막판 마무리 (『실패의 원리』 제4편 & 제8편)
+    # 4. 고등 - D-Day / 파이널 / 남은 기간 / 1달 / 2달 / 100일 / 막판 마무리
     if any(k in msg_clean for k in ["2달", "1달", "3달", "100일", "50일", "30일", "d-", "파이널", "막판", "남은 시점", "남은시점", "남은 기간", "얼마 안", "마무리", "시점에", "지금 시점"]):
         return (
             "수능이 1~2달 남은 파이널 시점일수록 절대 불안한 마음에 새로운 사설 N제를 사 모으거나 불안 마케팅에 휘둘려선 안 돼.\n\n"
-            "『실패의 원리』 파이널 역전 4대 절대 강령을 지금 당장 실행해야 해:\n"
+            "파이널 역전을 위한 4대 절대 실천 강령을 지금 당장 실행해야 해:\n"
             "1. 기출 출제원리 백지 복기: 새로운 문제집 풀기를 멈추고, 최근 3개년 평가원 기출(6모·9모·수능) 지문과 선지를 보며 '출제자가 함정을 파는 논리 공식'을 뇌에 완벽히 각인할 것.\n"
             "2. 06:30 기상 바이오리듬 생체화: 수능 시험장 뇌 가동을 위해 무조건 아침 06:30에 일어나 1교시 국어 시간(08:40)에 뇌가 100% 풀가동되도록 관성을 만들 것.\n"
             "3. 수능 실전 시간표 동기화: 오전 국어·수학, 오후 영어·탐구 순서로 PASS-MATE 집중 타이머를 켜고 실전 순공 4시간 밀도를 확보할 것.\n"
@@ -736,7 +740,7 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
             "막판 뒤집기는 문제 '양'이 아니라, 시험장에서 실수를 0으로 줄이는 '실전 변수 통제'에서 나온다. 오늘 계획표부터 점검하자!"
         )
 
-    # 5. 고등 - 내신 vs 수능 / 수시 vs 정시 / 올인 / 내신 언제까지 / 기말고사 (『실패의 원리』 제3편 입시계획)
+    # 5. 고등 - 내신 vs 수능 / 수시 vs 정시 / 올인 / 내신 언제까지 / 기말고사
     if any(k in msg_clean for k in ["수시", "정시", "올인", "내신", "중간고사", "기말고사", "학점", "생기부", "세특", "수행평가", "4등급", "5등급", "6등급"]):
         return (
             "냉정하게 직언할게. 이미 1~2학년 내신 평균이 3~6등급대로 밀려 목표 대학의 수시 합격선에서 완전히 멀어졌다면, '두 마리 토끼를 다 잡아라', '유종의 미를 거둬라' 같은 무책임한 사탕발림에 절대 속지 마.\n\n"
@@ -746,7 +750,7 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
             "PASS-MATE [정시 합격 예측기]에서 현재 정시 판정 라인을 먼저 확인하고 승부수를 던져봐!"
         )
 
-    # 6. 고등 - 수면 / 기상 / 피곤 / 새벽 / 바이오리듬 (『실패의 원리』 제5편 생활계획)
+    # 6. 고등 - 수면 / 기상 / 피곤 / 새벽 / 바이오리듬
     if any(k in msg_clean for k in ["새벽", "잠", "수면", "기상", "졸려", "피곤", "일어나", "아침"]):
         return (
             "지금 생활 패턴 당장 뜯어고치지 않으면 수능 날 시험장에서 머리가 통째로 멍해질 수 있어.\n\n"
@@ -755,18 +759,18 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
             "하루 6시간 수면이 필요하다면 밤 12시 30분에는 무조건 침대에 누워야 해. 오늘 밤부터 PASS-MATE 취침 미션과 아침 06:30 기상 미션을 완벽히 지켜봐!"
         )
 
-    # 7. 고등 - 오답 정리 / 오답 노트 / 해설지 복기 / 백지 재풀이 (『실패의 원리』 제8편 시험공부)
+    # 7. 고등 - 오답 정리 / 오답 노트 / 해설지 복기 / 백지 재풀이
     if any(k in msg_clean for k in ["오답", "오답노트", "해설지", "틀린 문제", "틀렸", "오답정리", "복습", "백지"]):
         return (
             "오답 정리는 단순히 해설지를 예쁘게 베껴 쓰거나 풀이를 눈으로 외우는 작업이 결코 아니야. 그건 '공부했다는 착각'만 주는 노동일 뿐이야.\n\n"
-            "『실패의 원리』 3단계 오답 정복 원칙을 실천해봐:\n"
+            "내가 항상 강조하는 '3단계 오답 정복 원칙'을 실천해봐:\n"
             "1단계: 틀린 원인 3분류 (① 개념 누락 / ② 발문 조건 간과 / ③ 계산 실수 및 풀이 호흡 끊김)\n"
             "2단계: '발상 복기' 1줄 작성 ('시험장에서 나는 왜 이 생각을 못 떠올렸는가?'를 적고 문제의 핵심 단서에 밑줄)\n"
             "3단계: 3일 후 '백지 재풀이' 검증 (빈 시험지에 문제 번호만 보고 스스로 처음부터 끝까지 100% 손으로 풀어내기)\n\n"
             "오답은 나의 약점을 가감 없이 드러내 주는 가장 귀한 나침반이다. 지금 틀린 문제를 보물처럼 대하자!"
         )
 
-    # 8. 고등 - 공부 계획 / 168시간 / 순공 시간 / 집중력 / 자습 (『실패의 원리』 제5편)
+    # 8. 고등 - 공부 계획 / 168시간 / 순공 시간 / 집중력 / 자습
     if any(k in msg_clean for k in ["계획", "시간표", "순공", "타이머", "168", "집중", "자습", "공부 시간", "루틴"]):
         return (
             "수험생에게 가장 공평한 자산은 일주일 168시간이야. 성적은 책상에 멍하니 앉아있는 8시간이 아니라, 순수하게 뇌가 몰입한 '순공 시간'으로 결정돼.\n\n"
@@ -776,7 +780,7 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
             "지금 [학습공간] 탭에서 이번 주 30분 블록 시간표부터 당장 등록해봐!"
         )
 
-    # 9. 고등 - 수능 국어 / 성적 정체 / 비문학 / 문학 / N제 (『실패의 원리』 제8편 & 출제자의 눈)
+    # 9. 고등 - 수능 국어 / 성적 정체 / 비문학 / 문학 / N제
     if any(k in msg_clean for k in ["국어", "비문학", "문학", "독서", "언매", "화작", "n제", "사설", "문해력", "배경지식", "점수 안"]):
         return (
             "점수가 안 나온다고 좌절하거나 사설 N제 양치기로 도망치지 말고 내 말 똑바로 들어.\n\n"
@@ -787,7 +791,7 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
             "내 정규수업 [방법론 8주 과정]에서 출제원리의 틀을 잡고 실전 변수를 통제하면 국어 1등급은 반드시 나온다. 기죽지 말고 힘내자!"
         )
 
-    # 10. 고등 - 수학 / 탐구 / 취약 과목 공부법 (『실패의 원리』 제8편)
+    # 10. 고등 - 수학 / 탐구 / 취약 과목 공부법
     if any(k in msg_clean for k in ["수학", "탐구", "과탐", "사탐", "영어", "킬러", "준킬러", "개념", "공부법"]):
         return (
             "문제를 많이 푼다고 성적이 오르는 게 절대 아니야. 기출 1권을 완벽히 씹어먹는 게 엉성하게 5권 푸는 것보다 백배 낫다.\n\n"
@@ -797,7 +801,7 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
             "지금 가장 막히는 단원이나 취약 유형부터 기출로 되돌아가자!"
         )
 
-    # 11. 고등 - 멘탈 / 슬럼프 / 불안감 / 포기 (『실패의 원리』 제7편 멘탈관리)
+    # 11. 고등 - 멘탈 / 슬럼프 / 불안감 / 포기
     if any(k in msg_clean for k in ["불안", "슬럼프", "포기", "막막", "멘탈", "자신감", "우울", "힘들어", "스트레스", "망칠까봐"]):
         return (
             "불안감은 결코 네가 부족해서 생기는 게 아니야. '생각만 많고 행동이 멈춰 있을 때' 불안이 뇌를 지배하는 법이야.\n\n"
@@ -805,17 +809,17 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
             "멘탈을 잡는 유일한 치료제는 '구체적인 행동'뿐이야. 지금 당장 폰 내려놓고 PASS-MATE 집중 타이머 켜서 30분만 기출 1문제를 파고들어 봐. 행동하는 순간 불안은 사라진다!"
         )
 
-    # 12. 고등 - 남과의 비교 / 과외 / 독서실 / 인강 쇼핑 (『실패의 원리』 제6편 & 제7편)
+    # 12. 고등 - 남과의 비교 / 과외 / 독서실 / 인강 쇼핑
     if any(k in msg_clean for k in ["친구", "남들", "비싼", "과외", "독서실", "인강 쇼핑", "비교", "뒤처"]):
         return (
             "남들이 대치동 현강을 다니든 비싼 1:1 과외를 받든, 거기에 절대 기죽거나 불안해할 필요가 전혀 없어.\n\n"
-            "『실패의 원리』에서 가장 경계하는 실패 원인이 바로 '강의 쇼핑'과 '남과의 맹목적 비교'야. "
+            "수험생들이 가장 많이 빠지는 치명적인 실패 원인이 바로 '강의 쇼핑'과 '남과의 맹목적 비교'야. "
             "대형 강의실에 멍하니 8시간 앉아있는 학생보다, 네가 독서실에서 PASS-MATE 집중 타이머 켜고 순공 4시간 동안 기출 1권을 완벽히 씹어먹는 게 10배는 더 강력해.\n\n"
             "시험은 남들이 듣는 강의의 가격으로 결정되는 게 아니라, 네가 시험장에서 스스로 문제를 풀어내는 뇌의 밀도로 결정된다. "
             "남의 속도 보지 말고 오늘 [학습공간] 주간 계획표 30분 블록부터 하나씩 지워나가자!"
         )
 
-    # 13. 고등 - 재수 / 반수 / 자퇴 / 검정고시 (『실패의 원리』 제2편 & 제3편)
+    # 13. 고등 - 재수 / 반수 / 자퇴 / 검정고시
     if any(k in msg_clean for k in ["재수", "반수", "삼수", "자퇴", "검정고시", "재도전"]):
         return (
             "재수나 반수를 결심했다면, '그냥 열심히 하면 되겠지'라는 막연한 생각부터 완전히 버려야 해.\n\n"
@@ -827,7 +831,7 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
     # 14. 고등 - 마스터 행동 강령 디폴트 (Zero-Canned, 100% Actionable Blueprint)
     return (
         "지금 시점에서 가장 시급하고 중요한 건 불안한 마음에 이것저것 뒤적이는 게 아니라, "
-        "『실패의 원리』 3대 절대 원칙에 맞춰 하루 루틴과 공부 밀도를 100% 재정렬하는 거야.\n\n"
+        "수능 역전을 위한 3대 절대 실천 원칙에 맞춰 하루 루틴과 공부 밀도를 100% 재정렬하는 거야.\n\n"
         "1. 수면/바이오리듬 고정: 매일 밤 12:30 취침 ➔ 아침 06:30 기상 (수능 뇌 가동 관성 훈련).\n"
         "2. 순공 4시간 밀도 확보: 멍하니 인강 듣는 시간 버리고, PASS-MATE 집중 타이머로 순수 자습 시간 측정.\n"
         "3. 평가원 기출 3단계 오답 복기: 최근 3~5개년 기출의 출제원리를 파고들고, 틀린 문제는 3일 뒤 빈 시험지에 100% 손으로 풀어내는 '백지 재풀이' 검증.\n\n"
