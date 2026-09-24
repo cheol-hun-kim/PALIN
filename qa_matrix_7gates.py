@@ -1132,6 +1132,21 @@ assert st_rank_res.status_code == 200, f"Student rank endpoint failed: {st_rank_
 st_rank_json = st_rank_res.json()
 assert st_rank_json.get("status") == "ok", "Student rank status must be ok"
 assert st_rank_json.get("rank_info", {}).get("rank") == 1, "Top student rank mismatch"
+
+# Teardown: Safely cleanup QA test session so student #1's live study time is not polluted
+from app.database import SessionLocal
+qa_db = SessionLocal()
+try:
+    qa_sess = qa_db.query(models.StudySession).filter(
+        models.StudySession.student_id == 1,
+        models.StudySession.duration_sec == 3600
+    ).order_by(models.StudySession.id.desc()).first()
+    if qa_sess:
+        qa_db.delete(qa_sess)
+        qa_db.commit()
+finally:
+    qa_db.close()
+
 print("[GATE 7.11 PASS] PostgreSQL Strict Mode & Redis Distributed Cache (Sub-millisecond Latency) 100% Verified!")
 
 # --- GATE 7.12: Master God-Mode Single Genuine Tenant & Ground Truth Finance Verification ---

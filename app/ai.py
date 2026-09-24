@@ -612,16 +612,15 @@ def ask_ai_chatbot(
         if not contents:
             contents = [{'role': 'user', 'parts': [{'text': message}]}]
 
-        # Standard Google GenAI model hierarchy & Multi-Key Failover with 7.5s Hard Latency Guarantee
+        # Standard Google GenAI model hierarchy & Multi-Key Failover with 10s Hard Latency Guarantee
         import concurrent.futures
         available_keys = get_available_api_keys()
         candidate_models = [
+            'gemini-3.5-flash',
             'gemini-3.5-flash-lite',
-            'gemini-flash-lite-latest',
-            'gemini-3.1-flash-lite',
-            'gemini-3-flash-preview',
             'gemini-3.6-flash',
-            'gemini-3.5-flash'
+            'gemini-3.8-flash',
+            'gemini-3.1-flash-lite'
         ]
 
         def _execute_cloud_generation():
@@ -635,12 +634,16 @@ def ask_ai_chatbot(
                                 contents=contents,
                                 config={
                                     'system_instruction': system_prompt,
-                                    'temperature': 0.6,
-                                    'max_output_tokens': 450,
+                                    'temperature': 0.7,
+                                    'max_output_tokens': 600,
                                 }
                             )
-                            if response.text and response.text.strip():
-                                cleaned = response.text.replace('###', '').replace('##', '').replace('#', '').replace('**', '').replace('* ', '')
+                            text_resp = response.text.strip()
+                            import re
+                            text_resp = re.sub(r'^\*Drafting[^\n]*\*\s*:?\s*', '', text_resp, flags=re.IGNORECASE)
+                            text_resp = re.sub(r'^\*?[a-zA-Z0-9_\- ]+\(Korean\)\*?:?\s*', '', text_resp, flags=re.IGNORECASE)
+                            cleaned = text_resp.replace('###', '').replace('##', '').replace('#', '').replace('**', '').replace('* ', '')
+                            if cleaned.strip():
                                 return cleaned
                         except Exception as mod_ex:
                             print(f"CHATBOT MODEL NOTE ({mod_name} with key {api_k[:8]}...): {mod_ex}")
@@ -650,14 +653,14 @@ def ask_ai_chatbot(
                     continue
             return None
 
-        # Enforce 7.5s timeout: if Google API hangs or hits 503/429 latency spikes, fallback immediately
+        # Enforce 10s timeout: if Google API hangs or hits 503/429 latency spikes, fallback immediately
         future = _genai_pool.submit(_execute_cloud_generation)
         try:
-            cloud_reply = future.result(timeout=7.5)
+            cloud_reply = future.result(timeout=10.0)
             if cloud_reply:
                 return cloud_reply
         except concurrent.futures.TimeoutError:
-            print("Cloud Gemini call timed out (>7.5s) -> Seamlessly switching to High-Quality Local Knowledge Engine")
+            print("Cloud Gemini call timed out (>10s) -> Seamlessly switching to High-Quality Local Knowledge Engine")
         except Exception as thread_ex:
             print(f"Cloud execution thread exception: {thread_ex}")
 
@@ -676,7 +679,21 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
     """
     msg_clean = (message or "").strip().lower()
     
-    # 0. 학부모 모드 응답
+    # 0. 메타 질문 및 피드백 대응 (반복/버그/답변 이상 호소)
+    if any(k in msg_clean for k in ["반복", "똑같", "같은말", "같은 말", "왜그래", "왜 그래", "이상해", "버그", "에러", "로봇", "ai", "챗봇"]):
+        if user_role == "PARENT":
+            return (
+                "학부모님, 죄송합니다. 네트워크 환경으로 인해 기본 안내 메시지가 반복 출력되었습니다.\n\n"
+                "자녀분의 현재 학년, 최근 모의고사/내신 성적, 목표 대학, 또는 현재 가장 고민되시는 과목이나 학업 루틴을 말씀해 주시면, "
+                "『실패의 원리』에 기반한 현실적이고 정밀한 1:1 맞춤 컨설팅을 즉시 드리겠습니다. 편하게 말씀해 주십시오."
+            )
+        return (
+            "미안해! 일시적인 통신 지연으로 안내 멘트가 잠시 반복되었어. 내 말 제대로 들을 준비 됐으니 이제 편하게 이야기해봐.\n\n"
+            "너의 현재 학년, 최근 모의고사나 내신 등급, 목표 대학, 혹은 지금 제일 안 풀리는 과목이나 공부 고민을 구체적으로 털어놔줘. "
+            "두루뭉술한 위로 대신 네게 지금 당장 필요한 가장 날카롭고 확실한 행동 전략을 1:1로 짚어줄게!"
+        )
+
+    # 1. 학부모 모드 응답
     if user_role == "PARENT":
         if any(k in msg_clean for k in ["과외", "학원", "특강", "인강", "교재", "비용", "추가", "불안"]):
             return (
@@ -695,7 +712,7 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
             "자녀의 과목별 취약점이나 대입 전형 전략에 대해 더 구체적인 상담이 필요하시면 언제든 말씀해 주십시오."
         )
 
-    # 1. 초등 모드 (페로)
+    # 2. 초등 모드 (페로)
     if school_level == "ELEMENTARY":
         return (
             "안녕! 나는 너의 AI 단짝 친구 페로야 🐾\n\n"
@@ -703,7 +720,7 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
             "오늘도 정해진 목표를 하나씩 해내면서 신나게 하루를 보내보자! 페로가 언제나 곁에서 널 응원할게 ✨"
         )
 
-    # 2. 중등 모드 (특목/자사고 및 내신)
+    # 3. 중등 모드 (특목/자사고 및 내신)
     if school_level == "MIDDLE":
         return (
             "반가워! PASS-MATE 중등 특목·자사고 마스터 코치야.\n\n"
@@ -713,7 +730,7 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
             "궁금한 과목이나 진로 고민이 있다면 편하게 물어봐!"
         )
 
-    # 3. 고등 - 수능 국어 / 성적 정체 / 국어 공부법 / 비문학 / 문학 (김철훈 대표원장 철학 핵심)
+    # 4. 고등 - 수능 국어 / 성적 정체 / 국어 공부법 / 비문학 / 문학 (김철훈 대표원장 철학 핵심)
     if any(k in msg_clean for k in ["국어", "비문학", "문학", "독서", "언매", "화작", "60점", "70점", "80점", "점수", "성적 안", "안 올라", "정체"]):
         return (
             "이봐, 점수가 안 나온다고 좌절하거나 자책하지 말고 내 말 똑바로 들어.\n\n"
@@ -724,7 +741,7 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
             "방향이 잘못된 노력은 부산 가려는데 강원도로 전력질주하는 것과 같아. 내 정규수업 [방법론 8주 과정]에서 출제원리의 틀을 잡고 실전 변수를 통제하면 국어 1등급은 반드시 나온다. 기죽지 말고 힘내자!"
         )
 
-    # 4. 고등 - 오답 정리 / 오답 노트 관련 질문
+    # 5. 고등 - 오답 정리 / 오답 노트 관련 질문
     if any(k in msg_clean for k in ["오답", "오답노트", "틀린 문제", "틀렸", "오답정리", "복습"]):
         return (
             "오답 정리는 단순히 해설지를 베껴 쓰거나 풀이를 눈으로 외우는 작업이 결코 아니야. "
@@ -742,7 +759,7 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
             "오답은 나의 약점을 가감 없이 드러내 주는 가장 귀한 나침반이다!"
         )
 
-    # 5. 고등 - 내신 기간 / 내신 언제까지 / 수시 내신 질문
+    # 6. 고등 - 내신 기간 / 내신 언제까지 / 수시 내신 질문
     if any(k in msg_clean for k in ["내신", "중간고사", "기말고사", "학점", "생기부", "세특", "수행평가"]):
         return (
             "수시를 노리는 수험생이라면 고등학교 3학년 1학기 기말고사까지의 내신이 핵심 반영 대상이야. "
@@ -753,7 +770,7 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
             "PASS-MATE [정시 합격 예측기]에서 현재 내 모의고사 백분위로 지원 가능한 정시 라인을 먼저 확인하고, 수시와 정시의 황금 비율을 똑똑하게 배분해봐!"
         )
 
-    # 6. 고등 - 수시 / 정시 / 최저 / 원서 / 입시 전략 질문
+    # 7. 고등 - 수시 / 정시 / 최저 / 원서 / 입시 전략 질문
     if any(k in msg_clean for k in ["수시", "정시", "최저", "수능최저", "원서", "학종", "논술", "입시", "대입", "합격"]):
         return (
             "대입 입시에서 가장 중요한 대원칙은 '정시 기준선을 단단히 확보한 상태에서 수시를 공격적으로 설계하는 것'이야.\n\n"
@@ -767,7 +784,7 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
             "궁금한 대학이나 학과가 있다면 PASS-MATE [학습공간] -> [정시 합격 예측기]에서 내 성적으로 전국 11,688개 대학의 판정을 실시간으로 확인해봐!"
         )
 
-    # 7. 고등 - 집중력 / 슬럼프 / 공부법 / 계획 / 생활관리 질문
+    # 8. 고등 - 집중력 / 슬럼프 / 공부법 / 계획 / 생활관리 질문
     if any(k in msg_clean for k in ["집중", "슬럼프", "공부법", "계획", "잠", "기상", "피곤", "의지", "멘탈", "불안", "시작", "타이머"]):
         return (
             "공부가 잘 안 되거나 집중력이 흐트러질 때는 의지력 탓을 하기보다 '환경과 시스템'을 먼저 점검해야 해.\n\n"
@@ -781,7 +798,7 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
             "지금 바로 타이머를 켜고 딱 25분만 몰입해보자. 작은 실행 하나가 슬럼프를 깨는 가장 빠른 방법이야!"
         )
 
-    # 8. 기본 고등 멘토 응답 (General Coaching)
+    # 9. 기본 고등 멘토 응답 (General Coaching)
     return (
         "안녕! 대입 입시와 수험생활에 대해 어떤 고민이든 솔직하게 털어놔봐.\n\n"
         "『실패의 원리』에 기반하여 수능 국어 1등급 출제원리 독해법, 취약 과목 오답 정복 원칙, 수시/정시 최적 입시 전략, 주간 168시간 계획표 관리까지 "
