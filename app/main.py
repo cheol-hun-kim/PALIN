@@ -5037,6 +5037,83 @@ def save_registered_academy_codes(codes_dict):
     except Exception as e:
         print("save_registered_academy_codes error:", e)
 
+class AdminScheduleCreate(BaseModel):
+    category: str = "교재주문"
+    schedule_date: Optional[str] = None
+    target_date: Optional[str] = None
+    title: str
+    week_number: Optional[int] = 3
+    notify_director: Optional[bool] = True
+
+class AdminScheduleUpdate(BaseModel):
+    title: Optional[str] = None
+    schedule_date: Optional[str] = None
+    category: Optional[str] = None
+
+@app.get("/api/admin/schedules")
+def get_admin_schedules(db: Session = Depends(get_db)):
+    schedules = db.query(models.AdminSchedule).filter(
+        models.AdminSchedule.deleted_at == None
+    ).order_by(models.AdminSchedule.schedule_date.asc(), models.AdminSchedule.id.asc()).all()
+    return [
+        {
+            "id": s.id,
+            "title": s.title,
+            "schedule_date": s.schedule_date,
+            "category": s.category or "행정일반",
+            "is_completed": bool(s.is_completed),
+            "created_at": s.created_at.strftime("%Y-%m-%d %H:%M") if s.created_at else ""
+        }
+        for s in schedules
+    ]
+
+@app.post("/api/admin/schedules")
+def create_admin_schedule(payload: AdminScheduleCreate, db: Session = Depends(get_db)):
+    target_d = payload.schedule_date or payload.target_date or datetime.now().strftime("%Y-%m-%d")
+    new_s = models.AdminSchedule(
+        title=payload.title,
+        schedule_date=target_d,
+        category=payload.category,
+        is_completed=False,
+        deleted_at=None
+    )
+    db.add(new_s)
+    db.commit()
+    db.refresh(new_s)
+    return {
+        "status": "success",
+        "message": f"[{new_s.title}] 스케줄이 성공적으로 등록되었습니다.",
+        "schedule": {
+            "id": new_s.id,
+            "title": new_s.title,
+            "schedule_date": new_s.schedule_date,
+            "category": new_s.category
+        }
+    }
+
+@app.patch("/api/admin/schedules/{schedule_id}")
+def update_admin_schedule(schedule_id: int, payload: AdminScheduleUpdate, db: Session = Depends(get_db)):
+    s = db.query(models.AdminSchedule).filter(models.AdminSchedule.id == schedule_id, models.AdminSchedule.deleted_at == None).first()
+    if not s:
+        raise HTTPException(status_code=404, detail="스케줄을 찾을 수 없습니다.")
+    if payload.title is not None:
+        s.title = payload.title
+    if payload.schedule_date is not None:
+        s.schedule_date = payload.schedule_date
+    if payload.category is not None:
+        s.category = payload.category
+    db.commit()
+    return {"status": "success", "message": "스케줄이 성공적으로 수정되었습니다."}
+
+@app.delete("/api/admin/schedules/{schedule_id}")
+def delete_admin_schedule(schedule_id: int, db: Session = Depends(get_db)):
+    s = db.query(models.AdminSchedule).filter(models.AdminSchedule.id == schedule_id).first()
+    if not s:
+        raise HTTPException(status_code=404, detail="스케줄을 찾을 수 없습니다.")
+    s.deleted_at = func.now()
+    db.commit()
+    return {"status": "success", "message": "스케줄이 삭제되었습니다."}
+
 class AcademyCodePayload(BaseModel):
     academy_code: str
     academy_name: str
@@ -8438,10 +8515,12 @@ def get_user_titles(student_id: int, db: Session = Depends(get_db)):
             ).all()
             total_seconds = sum((s.duration_sec or 0) for s in all_sessions)
             total_hours = total_seconds / 3600.0
-            streak = student.streak_days or 0
-            target_univ = (student.target_univ or "").strip()
+            def make_naive(dt):
+                if dt is None:
+                    return None
+                return dt.replace(tzinfo=None) if getattr(dt, 'tzinfo', None) is not None else dt
 
-            week_sessions = [s for s in all_sessions if s.created_at and s.created_at >= week_start]
+            week_sessions = [s for s in all_sessions if s.created_at and make_naive(s.created_at) >= week_start]
             week_hours = sum((s.duration_sec or 0) for s in week_sessions) / 3600.0
 
             try:

@@ -7,7 +7,8 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_DB_PATH = os.path.join(BASE_DIR, "palin_data.db").replace(os.sep, "/")
-DATABASE_URL = os.environ.get("DATABASE_URL", f"sqlite:///{DEFAULT_DB_PATH}")
+DEFAULT_SUPABASE_URL = "postgresql://postgres.yppfffwhemwdbbibbtda:12Yonsei21*@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres?sslmode=require"
+DATABASE_URL = os.environ.get("DATABASE_URL", DEFAULT_SUPABASE_URL)
 
 # 1. postgres:// -> postgresql:// 변환 (Heroku / Render 호환)
 if DATABASE_URL.startswith("postgres://"):
