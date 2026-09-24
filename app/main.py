@@ -7565,12 +7565,12 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
     school_rank = next((idx + 1 for idx, (sid, _) in enumerate(school_scores) if sid == student.id), 1)
 
     if my_seconds == 0:
-        region_pos_str = "자습 0분 (기록 없음)"
-        school_pos_str = "자습 0분 (기록 없음)"
+        region_pos_str = "기록 대기 (타이머 시작 시 진입)"
+        school_pos_str = "기록 대기 (타이머 시작 시 진입)"
     else:
         medal_r = "🥇" if region_rank == 1 else ("🥈" if region_rank == 2 else ("🥉" if region_rank == 3 else ""))
         medal_s = "🥇" if school_rank == 1 else ("🥈" if school_rank == 2 else ("🥉" if school_rank == 3 else ""))
-        region_pos_str = f"자습 {region_rank}위 {medal_r}".strip()
+        region_pos_str = f"동네 {region_rank}위 {medal_r}".strip()
         school_pos_str = f"전교 {school_rank}위 {medal_s}".strip()
 
     def resolve_student_title(st, study_sec, streak):
@@ -7594,7 +7594,7 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
         "school": my_school,
         "region": my_region,
         "studySeconds": my_seconds,
-        "studyHours": my_time_str,
+        "studyHours": my_time_str if my_seconds > 0 else "0분 (측정 대기)",
         "streak": student.streak_days or 0,
         "isMe": True,
         "can_poke": False,

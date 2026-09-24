@@ -524,5 +524,46 @@ def auto_seed_database(db: Session, engine):
             except Exception:
                 db.rollback()
 
+        # STEP C: Ensure active current-week study sessions for peer cohort rankers
+        try:
+            week_sess_count = db.query(models.StudySession).filter(
+                models.StudySession.created_at >= week_start,
+                models.StudySession.deleted_at == None
+            ).count()
+            if week_sess_count < 15:
+                peer_samples = [
+                    (2, 18.5, 1),
+                    (3, 15.2, 2),
+                    (4, 12.8, 1),
+                    (5, 10.5, 3),
+                    (6, 8.2, 2),
+                    (7, 7.0, 1),
+                    (8, 5.5, 2),
+                    (9, 4.2, 3),
+                    (10, 3.8, 1),
+                    (11, 14.5, 2),
+                    (12, 11.2, 1),
+                    (13, 9.8, 3),
+                    (14, 6.5, 2),
+                ]
+                for sid, hrs, d_ago in peer_samples:
+                    target_st = db.query(models.Student).filter(models.Student.id == sid).first()
+                    if target_st:
+                        sess_time = now - timedelta(days=d_ago, hours=3)
+                        db.add(models.StudySession(
+                            student_id=sid,
+                            start_time=sess_time,
+                            end_time=sess_time + timedelta(hours=hrs),
+                            duration_sec=int(hrs * 3600),
+                            is_distracted=False,
+                            created_at=sess_time,
+                            deleted_at=None
+                        ))
+                db.commit()
+        except Exception as sess_seed_err:
+            print(f"[AUTO_SEED] Study session seed note: {sess_seed_err}")
+            db.rollback()
+
     print("[AUTO_SEED] Seeding completed.")
+
 
