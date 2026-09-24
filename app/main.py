@@ -6542,6 +6542,7 @@ def force_sync_master_cohorts(db: Session = Depends(get_db)):
         for fs in fake_students:
             db.query(models.StudySession).filter(models.StudySession.student_id == fs.id).delete(synchronize_session=False)
             db.query(models.UserTitle).filter(models.UserTitle.student_id == fs.id).delete(synchronize_session=False)
+            db.query(models.UserNotification).filter(models.UserNotification.recipient_id == fs.id).delete(synchronize_session=False)
             db.delete(fs)
         db.commit()
 
