@@ -2827,8 +2827,7 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
                 return;
             }
 
-            tbody.innerHTML = "";
-            students.forEach(s => {
+            tbody.innerHTML = students.map(s => {
                 const tr = document.createElement("tr");
                 const isBanned = Boolean(s.is_banned);
                 const isGraduated = s.enrollment_status === 'GRADUATED' || Boolean(s.is_alumni);

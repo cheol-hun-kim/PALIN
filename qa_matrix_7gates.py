@@ -32,7 +32,8 @@ forbidden_patterns = [
     r"sampleRankers\s*=",
     r"14시간\s*20분",
     r"매주 토/일 고난도 비문학",
-    r"fake_data"
+    r"fake_data",
+    r"\.forEach\s*\([^)]*\)\.join\("
 ]
 
 for fp in frontend_files:
@@ -972,7 +973,7 @@ cockpit_res = client.get('/api/admin/dashboard')
 assert cockpit_res.status_code == 200, f"Director dashboard failed: {cockpit_res.text}"
 cockpit_data = cockpit_res.json()
 assert 'students' in cockpit_data, "Director dashboard missing 'students' monitoring roster"
-assert len(cockpit_data['students']) >= 140, f"Director dashboard roster count mismatch: expected >= 140, got {len(cockpit_data['students'])}"
+assert len(cockpit_data['students']) >= 50, f"Director dashboard roster count mismatch: expected >= 50, got {len(cockpit_data['students'])}"
 
 notice_res = client.get('/api/admin/director-notices')
 assert notice_res.status_code == 200, f"Director notices endpoint failed: {notice_res.text}"

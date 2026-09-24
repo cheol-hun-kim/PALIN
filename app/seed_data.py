@@ -84,43 +84,117 @@ def auto_seed_database(db: Session, engine):
                 db.rollback()
                 print(f"[AUTO_SEED] Exam purge migration note: {ep_err}")
 
-        mig_approve = db.execute(text("SELECT migration_key FROM system_migrations WHERE migration_key = 'batch_approve_pending_academy_students_v20260915'")).fetchone()
+        mig_approve = db.execute(text("SELECT migration_key FROM system_migrations WHERE migration_key = 'sync_academy_cohorts_v20260924'")).fetchone()
         if not mig_approve:
             try:
-                # Batch approve all enrolled/pending students who have an academy code or are in PENDING
-                pending_stus = db.query(models.Student).filter(
-                    models.Student.academy_approval_status == "PENDING"
-                ).all()
-                for s in pending_stus:
-                    s.academy_approval_status = "APPROVED"
-                    s.academy_code = s.pending_tenant_code or s.academy_code or "ILWON-2027"
-                    s.pending_tenant_code = None
-                    s.enrollment_status = "ENROLLED"
-                    is_ilwon = "ILWON" in str(s.academy_code).upper()
-                    s.ai_level = "TIER_4_ILWON" if is_ilwon else "B2B_MASTER_AI"
-                    s.has_unlimited_chat = True
-                    s.chat_tokens = 999
+                # 1. Master Account (ID 1, 김철훈, 1286orbital21@gmail.com)
+                master_s = db.query(models.Student).filter(
+                    (models.Student.id == 1) | (models.Student.email == "1286orbital21@gmail.com")
+                ).first()
+                if master_s:
+                    master_s.academy_code = "ILWON-2027"
+                    master_s.academy_approval_status = "APPROVED"
+                    master_s.b2c_subscription_tier = "TIER_3_MASTER"
+                    master_s.previous_b2c_tier = "TIER_3_MASTER"
+                    master_s.ai_level = "TIER_4_ILWON"
+                    master_s.has_unlimited_chat = True
+                    master_s.chat_tokens = 999
+                    master_s.enrollment_status = "ENROLLED"
+                    master_s.tuition_paid = True
+                    master_s.textbook_paid = True
+                    master_s.streak_days = max(8, master_s.streak_days or 8)
 
-                db.query(models.Student).filter(
-                    models.Student.academy_code.isnot(None),
-                    models.Student.academy_code != "",
-                    models.Student.academy_code != "NONE",
-                    models.Student.academy_code != "-",
-                    models.Student.academy_approval_status != "APPROVED"
-                ).update({
-                    models.Student.academy_approval_status: "APPROVED",
-                    models.Student.ai_level: "TIER_4_ILWON",
-                    models.Student.has_unlimited_chat: True,
-                    models.Student.chat_tokens: 999,
-                    models.Student.enrollment_status: "ENROLLED"
-                }, synchronize_session=False)
+                # 2. Synchronize all students into authentic cohorts across B2B tenants and B2C
+                all_stus = db.query(models.Student).all()
+                for s in all_stus:
+                    if s.id == 1 or (s.email and "1286orbital21@gmail.com" in s.email.lower()):
+                        continue
 
-                db.execute(text("INSERT INTO system_migrations (migration_key) VALUES ('batch_approve_pending_academy_students_v20260915')"))
+                    h_school = s.high_school or ""
+                    g = s.grade or 3
+
+                    # Elementary school
+                    if getattr(s, "school_level", None) == "ELEM" or "초등" in h_school or "초" in h_school:
+                        s.school_level = "ELEM"
+                        s.academy_code = "ELEM-PET01"
+                        s.academy_approval_status = "APPROVED"
+                        s.ai_level = "B2B_CUSTOM_BRAIN"
+                        s.enrollment_status = "ENROLLED"
+                        s.b2c_subscription_tier = "TIER_1_FREE"
+                        continue
+
+                    # Middle school
+                    if getattr(s, "school_level", None) == "MID" or "중학" in h_school or "중등" in h_school:
+                        s.school_level = "MID"
+                        s.academy_code = "MID-TOP01"
+                        s.academy_approval_status = "APPROVED"
+                        s.ai_level = "B2B_CUSTOM_BRAIN"
+                        s.enrollment_status = "ENROLLED"
+                        s.b2c_subscription_tier = "TIER_1_FREE"
+                        continue
+
+                    # High school & Repeat students (ILWON-2027: 60%, Study Cafe: 10%, Mid: 5%, Elem: 5%, B2C: 20%)
+                    mod = s.id % 20
+                    if mod in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]:
+                        s.academy_code = "ILWON-2027"
+                        if mod == 11:
+                            s.academy_approval_status = "PENDING"
+                            s.pending_tenant_code = "ILWON-2027"
+                            s.ai_level = "B2C_FREE"
+                        elif mod == 10:
+                            s.academy_approval_status = "APPROVED"
+                            s.enrollment_status = "GRADUATED"
+                            s.is_alumni = True
+                            s.ai_level = "TIER_4_ILWON"
+                        elif mod == 9:
+                            s.academy_approval_status = "NONE"
+                            s.enrollment_status = "WITHDRAWN"
+                            s.leave_reason = "ILWON-2027 사유: 타지역 전학"
+                            s.ai_level = "B2C_FREE"
+                        else:
+                            s.academy_approval_status = "APPROVED"
+                            s.ai_level = "TIER_4_ILWON"
+                            s.has_unlimited_chat = True
+                            s.chat_tokens = 999
+                            s.enrollment_status = "ENROLLED"
+                            s.tuition_paid = True
+                            s.textbook_paid = True
+                    elif mod in [12, 13]:
+                        s.academy_code = "CAFE-STUDY01"
+                        s.academy_approval_status = "APPROVED"
+                        s.ai_level = "B2B_BASIC"
+                        s.enrollment_status = "ENROLLED"
+                    elif mod == 14:
+                        s.academy_code = "MID-TOP01"
+                        s.school_level = "MID"
+                        s.academy_approval_status = "APPROVED"
+                        s.ai_level = "B2B_CUSTOM_BRAIN"
+                        s.enrollment_status = "ENROLLED"
+                    elif mod == 15:
+                        s.academy_code = "ELEM-PET01"
+                        s.school_level = "ELEM"
+                        s.academy_approval_status = "APPROVED"
+                        s.ai_level = "B2B_CUSTOM_BRAIN"
+                        s.enrollment_status = "ENROLLED"
+                    else:
+                        s.academy_code = None
+                        s.academy_approval_status = "NONE"
+                        s.pending_tenant_code = None
+                        s.ai_level = "B2C_FREE"
+                        s.enrollment_status = "ENROLLED"
+                        if mod == 18:
+                            s.b2c_subscription_tier = "TIER_2_PARENT"
+                        elif mod == 19:
+                            s.b2c_subscription_tier = "TIER_3_MASTER"
+                        else:
+                            s.b2c_subscription_tier = "TIER_1_FREE"
+
+                db.execute(text("INSERT INTO system_migrations (migration_key) VALUES ('sync_academy_cohorts_v20260924')"))
                 db.commit()
-                print(f"[AUTO_SEED] Batch approved all pending students into Tier 4 Ilwon Academy.")
+                print(f"[AUTO_SEED] Full B2B/B2C Academy Cohort Synchronization v20260924 applied successfully for {len(all_stus)} students.")
             except Exception as ap_err:
                 db.rollback()
-                print(f"[AUTO_SEED] Batch approval migration note: {ap_err}")
+                print(f"[AUTO_SEED] Academy cohort sync note: {ap_err}")
 
         # 1.4 PALIN OS Phase 11: Create user_titles and user_notifications tables & retroactively backfill all 100 titles
         try:
@@ -496,6 +570,7 @@ def auto_seed_database(db: Session, engine):
                         if not p_match:
                             p_id = None
                     
+                    is_ilwon = (s.get("academy_code") == "ILWON-2027" or s["id"] == 1)
                     db.add(models.Student(
                         id=s["id"],
                         email=s.get("email", f"student_{s['id']}@palin.com"),
@@ -516,7 +591,18 @@ def auto_seed_database(db: Session, engine):
                         dday_title=s.get("dday_title", "2027 수능"),
                         parent_id=p_id,
                         referral_code=s.get("referral_code"),
-                        has_unlimited_chat=s.get("has_unlimited_chat", False),
+                        has_unlimited_chat=s.get("has_unlimited_chat", is_ilwon),
+                        chat_tokens=999 if is_ilwon else s.get("chat_tokens", 5),
+                        academy_code="ILWON-2027" if is_ilwon else s.get("academy_code"),
+                        academy_approval_status="APPROVED" if is_ilwon else s.get("academy_approval_status", "NONE"),
+                        ai_level="TIER_4_ILWON" if is_ilwon else s.get("ai_level", "B2C_FREE"),
+                        b2c_subscription_tier="TIER_3_MASTER" if s["id"] == 1 else s.get("b2c_subscription_tier", "TIER_1_FREE"),
+                        previous_b2c_tier="TIER_3_MASTER" if s["id"] == 1 else s.get("previous_b2c_tier", "B2C_FREE"),
+                        streak_days=s.get("streak_days", 8 if s["id"] == 1 else 0),
+                        max_streak_days=s.get("max_streak_days", 8 if s["id"] == 1 else 0),
+                        tuition_paid=s.get("tuition_paid", is_ilwon),
+                        textbook_paid=s.get("textbook_paid", is_ilwon),
+                        enrollment_status=s.get("enrollment_status", "ENROLLED"),
                         role="STUDENT",
                         deleted_at=None
                     ))
@@ -526,12 +612,15 @@ def auto_seed_database(db: Session, engine):
 
         # STEP C: Ensure active current-week study sessions for peer cohort rankers
         try:
+            now_dt = datetime.now()
+            curr_week_start = (now_dt - timedelta(days=now_dt.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
             week_sess_count = db.query(models.StudySession).filter(
-                models.StudySession.created_at >= week_start,
+                models.StudySession.created_at >= curr_week_start,
                 models.StudySession.deleted_at == None
             ).count()
             if week_sess_count < 15:
                 peer_samples = [
+                    (1, 16.5, 0),
                     (2, 18.5, 1),
                     (3, 15.2, 2),
                     (4, 12.8, 1),
@@ -549,7 +638,7 @@ def auto_seed_database(db: Session, engine):
                 for sid, hrs, d_ago in peer_samples:
                     target_st = db.query(models.Student).filter(models.Student.id == sid).first()
                     if target_st:
-                        sess_time = now - timedelta(days=d_ago, hours=3)
+                        sess_time = now_dt - timedelta(days=d_ago, hours=3)
                         db.add(models.StudySession(
                             student_id=sid,
                             start_time=sess_time,
