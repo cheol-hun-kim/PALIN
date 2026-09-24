@@ -6363,6 +6363,13 @@ def answer_master_b2b_ticket(ticket_id: int, payload: B2BSupportTicketAnswerPayl
     db.commit()
     db.refresh(ticket)
     return {"status": "success", "message": "\ud2f0\ucf13 \ub2f5\ubcc0\uc774 \ub4f1\ub85d\ub418\uc5c8\uc2b5\ub2c8\ub2e4.", "ticket": ticket}
+ 
+@app.post("/api/master/sync-cohorts")
+def force_sync_master_cohorts(db: Session = Depends(get_db)):
+    from app.seed_data import auto_seed_database
+    from app.database import engine
+    auto_seed_database(db, engine)
+    return {"status": "success", "message": "전국 학원 코호트 및 수강생 정보 동기화가 성공적으로 완료되었습니다."}
 
 
 
