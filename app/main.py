@@ -10,7 +10,9 @@ import os
 import shutil
 import re
 import base64
+import time
 
+from app import database
 from app.database import get_db, engine
 from app import models, schemas, ai, predict, sms
 from app.alimtalk import send_kakao_alimtalk
