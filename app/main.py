@@ -994,7 +994,7 @@ def update_student_streak(student: models.Student, db: Session):
         is_master = (student.id == 1 or (student.email and "1286orbital21@gmail.com" in student.email.lower()))
 
         if not student.last_streak_date:
-            student.streak_days = 8 if is_master else max(1, student.streak_days or 1)
+            student.streak_days = 26 if is_master else max(1, student.streak_days or 1)
             student.last_streak_date = today
         else:
             last_date = student.last_streak_date
@@ -1012,14 +1012,14 @@ def update_student_streak(student: models.Student, db: Session):
 
             diff = (today - last_date).days
             if diff == 0:
-                if is_master and (student.streak_days or 0) < 8:
-                    student.streak_days = 8
+                if is_master and (student.streak_days or 0) < 26:
+                    student.streak_days = 26
             elif diff == 1:
                 student.streak_days = (student.streak_days or 0) + 1
                 student.last_streak_date = today
             elif diff > 1:
                 if is_master:
-                    student.streak_days = max(8, (student.streak_days or 0))
+                    student.streak_days = max(26, (student.streak_days or 0))
                 else:
                     student.streak_days = 1
                 student.last_streak_date = today
@@ -3983,7 +3983,7 @@ def get_admin_admission_report_detail(report_id: int, db: Session = Depends(get_
 
 @app.get("/api/admin/consulting-requests")
 def get_admin_consulting_requests(db: Session = Depends(get_db)):
-    reqs = db.query(models.ConsultingRequest).order_by(models.ConsultingRequest.created_at.desc()).all()
+    reqs = db.query(models.ConsultingRequest).filter(models.ConsultingRequest.deleted_at == None).order_by(models.ConsultingRequest.created_at.desc()).all()
     res = []
     for q in reqs:
         res.append({
@@ -3991,15 +3991,179 @@ def get_admin_consulting_requests(db: Session = Depends(get_db)):
             "student_id": q.student_id,
             "student_name": q.student_name or (q.student.name if q.student else "수험생"),
             "student_phone": q.student_phone or (q.student.phone if q.student else "-"),
+            "phone": q.student_phone or (q.student.phone if q.student else "-"),
             "parent_phone": q.parent_phone or "-",
             "consulting_type": q.consulting_type,
             "target_univ": q.target_univ or (q.student.target_univ if q.student else "-"),
             "price": q.price,
             "note": q.note,
             "status": q.status,
+            "preferred_date": q.created_at.strftime("%Y-%m-%d %H:%M") if q.created_at else "협의",
             "created_at": q.created_at.strftime("%Y-%m-%d %H:%M") if q.created_at else ""
         })
     return res
+
+class ConsultingStatusPayload(BaseModel):
+    status: str
+
+@app.patch("/api/admin/consulting-requests/{req_id}")
+@app.put("/api/admin/consulting-requests/{req_id}")
+def update_consulting_status(req_id: int, payload: ConsultingStatusPayload, db: Session = Depends(get_db)):
+    req = db.query(models.ConsultingRequest).filter(models.ConsultingRequest.id == req_id).first()
+    if not req:
+        raise HTTPException(status_code=404, detail="상담 신청 내역을 찾을 수 없습니다.")
+    req.status = payload.status
+    db.commit()
+    return {"status": "success", "id": req.id, "new_status": req.status}
+
+class VIPConsultingPayload(BaseModel):
+    student_id: int
+    is_in_person: bool = False
+    preferred_phone: Optional[str] = None
+    memo: Optional[str] = "VIP 직접 컨설팅 신청"
+
+@app.post("/api/consulting/vip-request")
+def request_vip_consulting(payload: VIPConsultingPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="수험생 정보를 찾을 수 없습니다.")
+    cost = 500000 if payload.is_in_person else 300000
+    consult_type = "원장 집무실 1:1 대면 상담 (50분)" if payload.is_in_person else "유선 심층 전화 상담 (30~40분)"
+    
+    # Check paid cash
+    if (student.paid_cash or 0) >= cost:
+        student.paid_cash -= cost
+    
+    new_req = models.ConsultingRequest(
+        student_id=student.id,
+        student_name=student.name,
+        student_phone=payload.preferred_phone or student.phone,
+        parent_phone=student.parent.phone if student.parent else None,
+        consulting_type=consult_type,
+        target_univ=student.target_univ,
+        status="접수대기",
+        price=cost,
+        note=payload.memo,
+        created_at=datetime.now(),
+        deleted_at=None
+    )
+    db.add(new_req)
+    db.commit()
+    db.refresh(new_req)
+    return {"status": "success", "request_id": new_req.id, "remaining_cash": student.paid_cash or 0}
+
+# === 🆘 B2B 헬프데스크 티켓 API ===
+
+@app.get("/api/master/b2b-tickets")
+def get_master_b2b_tickets(db: Session = Depends(get_db)):
+    tickets = db.query(models.B2BSupportTicket).filter(models.B2BSupportTicket.deleted_at == None).order_by(models.B2BSupportTicket.created_at.desc()).all()
+    res = []
+    for t in tickets:
+        res.append({
+            "id": t.id,
+            "tenant_code": t.tenant_code,
+            "tenant_name": t.tenant_name or t.tenant_code,
+            "author_name": t.author_name or "학원장",
+            "title": t.title,
+            "content": t.content,
+            "answer": t.answer,
+            "status": t.status,
+            "created_at": t.created_at.strftime("%Y-%m-%d %H:%M") if t.created_at else ""
+        })
+    return res
+
+class TicketAnswerPayload(BaseModel):
+    answer: str
+    status: Optional[str] = "답변완료"
+
+@app.post("/api/master/b2b-tickets/{ticket_id}/answer")
+def answer_b2b_ticket(ticket_id: int, payload: TicketAnswerPayload, db: Session = Depends(get_db)):
+    ticket = db.query(models.B2BSupportTicket).filter(models.B2BSupportTicket.id == ticket_id).first()
+    if not ticket:
+        raise HTTPException(status_code=404, detail="티켓을 찾을 수 없습니다.")
+    ticket.answer = payload.answer
+    ticket.status = payload.status or "답변완료"
+    db.commit()
+    return {"status": "success", "ticket_id": ticket.id, "answer": ticket.answer}
+
+class CreateTicketPayload(BaseModel):
+    tenant_code: str = "ILWON-2027"
+    tenant_name: Optional[str] = "일원 대입전문학원"
+    author_name: Optional[str] = "김철훈 원장"
+    title: str
+    content: str
+
+@app.post("/api/admin/b2b-tickets")
+def create_b2b_ticket(payload: CreateTicketPayload, db: Session = Depends(get_db)):
+    new_t = models.B2BSupportTicket(
+        tenant_code=payload.tenant_code,
+        tenant_name=payload.tenant_name or payload.tenant_code,
+        author_name=payload.author_name or "학원장",
+        title=payload.title,
+        content=payload.content,
+        status="접수대기",
+        created_at=datetime.now(),
+        deleted_at=None
+    )
+    db.add(new_t)
+    db.commit()
+    db.refresh(new_t)
+    return {"status": "success", "ticket": {"id": new_t.id, "title": new_t.title}}
+
+# === 💬 VOC 및 학생 불편사항 / 아이디어 건의함 API ===
+
+@app.get("/api/admin/feedbacks")
+def get_admin_feedbacks(db: Session = Depends(get_db)):
+    fbs = db.query(models.Feedback).filter(models.Feedback.deleted_at == None).order_by(models.Feedback.created_at.desc()).all()
+    res = []
+    for f in fbs:
+        st_name = f.student.name if f.student else "수험생"
+        res.append({
+            "id": f.id,
+            "student_id": f.student_id,
+            "student_name": st_name,
+            "user_email": f.user_email or (f.student.email if f.student else ""),
+            "category": f.category or "불편사항",
+            "content": f.content,
+            "status": f.status or "접수됨",
+            "created_at": f.created_at.strftime("%Y-%m-%d %H:%M") if f.created_at else ""
+        })
+    return res
+
+class FeedbackStatusPayload(BaseModel):
+    status: str
+
+@app.put("/api/admin/feedbacks/{fb_id}/status")
+@app.patch("/api/admin/feedbacks/{fb_id}/status")
+def update_feedback_status(fb_id: int, payload: FeedbackStatusPayload, db: Session = Depends(get_db)):
+    fb = db.query(models.Feedback).filter(models.Feedback.id == fb_id).first()
+    if not fb:
+        raise HTTPException(status_code=404, detail="건의사항을 찾을 수 없습니다.")
+    fb.status = payload.status
+    db.commit()
+    return {"status": "success", "id": fb.id, "status": fb.status}
+
+class FeedbackCreatePayload(BaseModel):
+    student_id: Optional[int] = None
+    user_email: Optional[str] = None
+    category: str = "불편사항"
+    content: str
+
+@app.post("/api/feedback")
+def submit_student_feedback(payload: FeedbackCreatePayload, db: Session = Depends(get_db)):
+    new_fb = models.Feedback(
+        student_id=payload.student_id,
+        user_email=payload.user_email,
+        category=payload.category,
+        content=payload.content,
+        status="접수됨",
+        created_at=datetime.now(),
+        deleted_at=None
+    )
+    db.add(new_fb)
+    db.commit()
+    db.refresh(new_fb)
+    return {"status": "success", "feedback_id": new_fb.id}
 
 # === 📍 전국 시군구 & 고등학교 표준 데이터 API ===
 
@@ -6369,6 +6533,25 @@ def force_sync_master_cohorts(db: Session = Depends(get_db)):
     from app.database import engine
     from app.students_data_builtin import BUILTIN_STUDENTS_LIST, BUILTIN_PARENTS_LIST
 
+    auth_student_ids = set(s["id"] for s in BUILTIN_STUDENTS_LIST)
+    auth_parent_ids = set(p["id"] for p in BUILTIN_PARENTS_LIST)
+
+    # 0. Purge dummy / QA test students from test runs
+    try:
+        fake_students = db.query(models.Student).filter(~models.Student.id.in_(auth_student_ids)).all()
+        for fs in fake_students:
+            db.query(models.StudySession).filter(models.StudySession.student_id == fs.id).delete(synchronize_session=False)
+            db.query(models.UserTitle).filter(models.UserTitle.student_id == fs.id).delete(synchronize_session=False)
+            db.delete(fs)
+        db.commit()
+
+        fake_parents = db.query(models.Parent).filter(~models.Parent.id.in_(auth_parent_ids)).all()
+        for fp in fake_parents:
+            db.delete(fp)
+        db.commit()
+    except Exception:
+        db.rollback()
+
     # 1. Parents Sync
     for p in BUILTIN_PARENTS_LIST:
         pid = p["id"]
@@ -6404,6 +6587,8 @@ def force_sync_master_cohorts(db: Session = Depends(get_db)):
             acad_status = s.get("academy_approval_status", "APPROVED" if is_ilwon else "NONE")
             ai_lvl = "TIER_4_ILWON" if is_ilwon else s.get("ai_level", "B2C_FREE")
             b2c_tier = "TIER_3_MASTER" if sid == 1 else s.get("b2c_subscription_tier", "TIER_1_FREE")
+            s_streak = 26 if sid == 1 else s.get("streak_days", 0)
+            s_max_streak = 26 if sid == 1 else s.get("max_streak_days", 0)
 
             if is_ilwon:
                 ilwon_count += 1
@@ -6438,8 +6623,9 @@ def force_sync_master_cohorts(db: Session = Depends(get_db)):
                     ai_level=ai_lvl,
                     b2c_subscription_tier=b2c_tier,
                     previous_b2c_tier="TIER_3_MASTER" if sid == 1 else s.get("previous_b2c_tier", "B2C_FREE"),
-                    streak_days=s.get("streak_days", 8 if sid == 1 else 0),
-                    max_streak_days=s.get("max_streak_days", 8 if sid == 1 else 0),
+                    streak_days=s_streak,
+                    max_streak_days=s_max_streak,
+                    last_streak_date=datetime.now().date() if s_streak > 0 else None,
                     tuition_paid=s.get("tuition_paid", is_ilwon),
                     textbook_paid=s.get("textbook_paid", is_ilwon),
                     enrollment_status=s.get("enrollment_status", "ENROLLED"),
@@ -6458,10 +6644,127 @@ def force_sync_master_cohorts(db: Session = Depends(get_db)):
                 s_exist.enrollment_status = s.get("enrollment_status", "ENROLLED")
                 if sid == 1:
                     s_exist.previous_b2c_tier = "TIER_3_MASTER"
-                    s_exist.streak_days = max(8, s_exist.streak_days or 8)
+                    s_exist.streak_days = 26
+                    s_exist.max_streak_days = max(26, s_exist.max_streak_days or 26)
+                    s_exist.last_streak_date = datetime.now().date()
         except Exception:
             db.rollback()
     db.commit()
+
+    # 3. Seed Consulting, B2B Tickets, and Feedbacks if empty
+    try:
+        if db.query(models.ConsultingRequest).count() == 0:
+            sample_consultings = [
+                {
+                    "student_id": 11, "student_name": "마서연", "student_phone": "010-9413-2157", "parent_phone": "010-9413-5678",
+                    "consulting_type": "원장 집무실 1:1 대면 상담 (50분)", "target_univ": "서울대학교 경영대학",
+                    "status": "접수대기", "price": 500000,
+                    "note": "9월 모의평가 성적 기반 수시 6장 최종 조합 및 정시 의약학/경영 포트폴리오 분석 요청",
+                    "created_at": datetime.now() - timedelta(days=2)
+                },
+                {
+                    "student_id": 41, "student_name": "박현유", "student_phone": "010-3025-9131", "parent_phone": "010-3025-5678",
+                    "consulting_type": "유선 심층 전화 상담 (30~40분)", "target_univ": "연세대학교 의예과",
+                    "status": "상담일정확정", "price": 300000,
+                    "note": "수능국어 비문학 과학지문 킬러문항 타임어택 극복 및 메디컬 정시 환산점수 상담",
+                    "created_at": datetime.now() - timedelta(days=4)
+                },
+                {
+                    "student_id": 85, "student_name": "이도윤", "student_phone": "010-2093-7940", "parent_phone": "010-2093-5678",
+                    "consulting_type": "원장 집무실 1:1 대면 상담 (50분)", "target_univ": "한국항공대학교 항공운항학과",
+                    "status": "완료", "price": 500000,
+                    "note": "항공운항학과 신체검사 및 수능 최저기준 충족 전략 1차 상담 완료",
+                    "created_at": datetime.now() - timedelta(days=9)
+                }
+            ]
+            for sc in sample_consultings:
+                db.add(models.ConsultingRequest(
+                    student_id=sc["student_id"],
+                    student_name=sc["student_name"],
+                    student_phone=sc["student_phone"],
+                    parent_phone=sc["parent_phone"],
+                    consulting_type=sc["consulting_type"],
+                    target_univ=sc["target_univ"],
+                    status=sc["status"],
+                    price=sc["price"],
+                    note=sc["note"],
+                    created_at=sc["created_at"],
+                    deleted_at=None
+                ))
+            db.commit()
+
+        if db.query(models.B2BSupportTicket).count() == 0:
+            sample_tickets = [
+                {
+                    "tenant_code": "ILWON-2027", "tenant_name": "일원 대입전문학원", "author_name": "김철훈 원장",
+                    "title": "2027학년도 9월 모의평가 OMR 등급컷 및 원점수 기준 자동 산출 요청",
+                    "content": "이번 9월 모평 국어 난이도가 높게 출제되어 원점수 88점 1등급컷 기준으로 OMR 성적표 일괄 리포트 생성 부탁드립니다.",
+                    "answer": "본사 데이터베이스에 9평 확정 등급컷(1등급 88점, 2등급 80점)이 실시간 반영되었습니다. 원장 관제실 OMR 탭에서 일괄 재채점 및 학부모 알림톡 발송이 가능합니다.",
+                    "status": "답변완료",
+                    "created_at": datetime.now() - timedelta(days=3)
+                },
+                {
+                    "tenant_code": "MID-TOP01", "tenant_name": "대치 탑클래스 중등학원", "author_name": "박중등 원장",
+                    "title": "중3 2학기 중간고사 대비 특목고 진학 커리큘럼 추가",
+                    "content": "외대부고/하나고 대비 중등 심화 문항 DB 및 VOD 일괄 배포 일정 문의드립니다.",
+                    "answer": "중등 5대과목 올A 대비 킬러 문항 및 특목자사고 대비 모의고사가 이번 주 금요일 정기 업데이트로 자동 활성화됩니다.",
+                    "status": "답변완료",
+                    "created_at": datetime.now() - timedelta(days=2)
+                },
+                {
+                    "tenant_code": "ILWON-2027", "tenant_name": "일원 대입전문학원", "author_name": "김철훈 원장",
+                    "title": "결제선생 9월분 학원비 정기 청구 알림톡 일괄 발송 확인",
+                    "content": "9월 25일 정기 납부일 대상 151명 전원 알림톡 청구서 발송 현황 확인 요청",
+                    "answer": "알림톡 청구서 151건 전송 완료되었으며 결제 즉시 호스테이지 프로토콜로 수강권이 자동 연장됩니다.",
+                    "status": "답변완료",
+                    "created_at": datetime.now() - timedelta(days=1)
+                }
+            ]
+            for st in sample_tickets:
+                db.add(models.B2BSupportTicket(
+                    tenant_code=st["tenant_code"],
+                    tenant_name=st["tenant_name"],
+                    author_name=st["author_name"],
+                    title=st["title"],
+                    content=st["content"],
+                    answer=st["answer"],
+                    status=st["status"],
+                    created_at=st["created_at"],
+                    deleted_at=None
+                ))
+            db.commit()
+
+        if db.query(models.Feedback).count() == 0:
+            sample_feedbacks = [
+                {
+                    "student_id": 85, "user_email": "doyunn221@gmail.com", "category": "아이디어",
+                    "content": "4번 문항 2x2+1 배치 너무 좋습니다! 수능 실전 모의고사 타이머에 10분 남았을 때 알림 기능도 추가해주시면 감사하겠습니다.",
+                    "status": "접수됨", "created_at": datetime.now() - timedelta(days=3)
+                },
+                {
+                    "student_id": 41, "user_email": "hyunyou0529@naver.com", "category": "기능제안",
+                    "content": "플래너 타이머 일시정지 후 백그라운드 재개 기능 요청합니다. 모바일 브라우저 전환 시에도 측정이 유지되면 좋겠습니다.",
+                    "status": "검토중", "created_at": datetime.now() - timedelta(days=5)
+                },
+                {
+                    "student_id": 11, "user_email": "lucy10144@goedu.kr", "category": "불편사항",
+                    "content": "모의고사 성적표 PDF 출력 시 여백 잘림 현상이 있었는데 빠른 패치 감사드립니다.",
+                    "status": "반영완료", "created_at": datetime.now() - timedelta(days=7)
+                }
+            ]
+            for sf in sample_feedbacks:
+                db.add(models.Feedback(
+                    student_id=sf["student_id"],
+                    user_email=sf["user_email"],
+                    category=sf["category"],
+                    content=sf["content"],
+                    status=sf["status"],
+                    created_at=sf["created_at"],
+                    deleted_at=None
+                ))
+            db.commit()
+    except Exception:
+        db.rollback()
 
     total_after = db.query(models.Student).filter(models.Student.deleted_at == None).count()
     ilwon_total = db.query(models.Student).filter(

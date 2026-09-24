@@ -968,6 +968,18 @@ link_res = client.post('/api/academy/link', json={
 assert link_res.status_code in (200, 404), f"Facility link endpoint error: {link_res.text}"
 print("[GATE 7.7 PASS] Facility Link API communication verified!")
 
+# Clean up temporary test student and prevent database pollution
+db_clean = database.SessionLocal()
+try:
+    db_clean.query(models.StudySession).filter(models.StudySession.student_id == qa_st_id).delete(synchronize_session=False)
+    db_clean.query(models.UserTitle).filter(models.UserTitle.student_id == qa_st_id).delete(synchronize_session=False)
+    db_clean.query(models.UserNotification).filter(models.UserNotification.recipient_id == qa_st_id).delete(synchronize_session=False)
+    db_clean.query(models.Student).filter(models.Student.id == qa_st_id).delete(synchronize_session=False)
+    db_clean.query(models.Parent).filter(models.Parent.name == '학부모QA').delete(synchronize_session=False)
+    db_clean.commit()
+finally:
+    db_clean.close()
+
 # 7.8 Director Cockpit (원장 관제실) Live Synchronization & Telemetry Verification
 cockpit_res = client.get('/api/admin/dashboard')
 assert cockpit_res.status_code == 200, f"Director dashboard failed: {cockpit_res.text}"

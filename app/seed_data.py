@@ -51,7 +51,7 @@ def auto_seed_database(db: Session, engine):
 
     try:
         if engine.dialect.name == "sqlite":
-            tables = ["students", "parents", "tenants", "exam_materials", "vod_library", "attendance_logs", "tutor_profiles", "planner_blocks", "administrative_requests", "exam_paper_masters", "exam_omr_submissions"]
+            tables = ["students", "parents", "tenants", "exam_materials", "vod_library", "attendance_logs", "tutor_profiles", "planner_blocks", "administrative_requests", "exam_paper_masters", "exam_omr_submissions", "b2b_support_tickets", "feedbacks", "consulting_requests"]
             for t in tables:
                 try:
                     cols = [row[1] for row in db.execute(text(f"PRAGMA table_info({t})")).fetchall()]
@@ -65,6 +65,9 @@ def auto_seed_database(db: Session, engine):
                                         db.execute(text(f"ALTER TABLE students ADD COLUMN {col_name} {sqlite_type}"))
                                     except Exception:
                                         pass
+                        if t == "b2b_support_tickets":
+                            if "author_name" not in cols:
+                                db.execute(text("ALTER TABLE b2b_support_tickets ADD COLUMN author_name VARCHAR"))
                         if t in ["exam_paper_masters", "exam_omr_submissions"]:
                             if "curriculum_era" not in cols:
                                 db.execute(text(f"ALTER TABLE {t} ADD COLUMN curriculum_era VARCHAR(50) DEFAULT '2022_2027'"))
@@ -74,7 +77,7 @@ def auto_seed_database(db: Session, engine):
                 except Exception:
                     db.rollback()
         elif engine.dialect.name in ("postgresql", "postgres"):
-            tables = ["students", "parents", "tenants", "exam_materials", "vod_library", "attendance_logs", "tutor_profiles", "planner_blocks", "administrative_requests", "exam_paper_masters", "exam_omr_submissions"]
+            tables = ["students", "parents", "tenants", "exam_materials", "vod_library", "attendance_logs", "tutor_profiles", "planner_blocks", "administrative_requests", "exam_paper_masters", "exam_omr_submissions", "b2b_support_tickets", "feedbacks", "consulting_requests"]
             for t in tables:
                 try:
                     db.execute(text(f"ALTER TABLE {t} ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP WITH TIME ZONE;"))
@@ -84,6 +87,11 @@ def auto_seed_database(db: Session, engine):
                                 db.execute(text(f"ALTER TABLE students ADD COLUMN IF NOT EXISTS {col_name} {pg_type};"))
                             except Exception:
                                 pass
+                    if t == "b2b_support_tickets":
+                        try:
+                            db.execute(text("ALTER TABLE b2b_support_tickets ADD COLUMN IF NOT EXISTS author_name VARCHAR;"))
+                        except Exception:
+                            pass
                     if t in ["exam_paper_masters", "exam_omr_submissions"]:
                         db.execute(text(f"ALTER TABLE {t} ADD COLUMN IF NOT EXISTS curriculum_era VARCHAR(50) DEFAULT '2022_2027';"))
                         db.execute(text(f"ALTER TABLE {t} ADD COLUMN IF NOT EXISTS elective_subject VARCHAR(100);"))
@@ -163,7 +171,7 @@ def auto_seed_database(db: Session, engine):
                         st.enrollment_status = s.get("enrollment_status", "ENROLLED")
                         if sid == 1:
                             st.previous_b2c_tier = "TIER_3_MASTER"
-                            st.streak_days = max(8, st.streak_days or 8)
+                            st.streak_days = max(26, st.streak_days or 26)
                 db.execute(text("INSERT INTO system_migrations (migration_key) VALUES ('sync_authentic_ilwon_208_v20260924')"))
                 db.commit()
                 print("[AUTO_SEED] Full 208 authentic students (151 Ilwon) synchronization migration applied.")
@@ -497,11 +505,28 @@ def auto_seed_database(db: Session, engine):
         scan_and_sync_downloads(db)
     except Exception as em_err:
         db.rollback()
-        print(f"[AUTO_SEED] Exam folder sync note: {em_err}")
-
     # 2. Synchronize all 208 authentic students and 203 parents into database
     print("[AUTO_SEED] Synchronizing 208 authentic students and 203 parents into database...")
     from app.students_data_builtin import BUILTIN_STUDENTS_LIST, BUILTIN_PARENTS_LIST
+    auth_student_ids = set(s["id"] for s in BUILTIN_STUDENTS_LIST)
+    auth_parent_ids = set(p["id"] for p in BUILTIN_PARENTS_LIST)
+
+    # STEP 0: Purge dummy / QA test students that accumulated from test runs
+    try:
+        fake_students = db.query(models.Student).filter(~models.Student.id.in_(auth_student_ids)).all()
+        for fs in fake_students:
+            db.query(models.StudySession).filter(models.StudySession.student_id == fs.id).delete(synchronize_session=False)
+            db.query(models.UserTitle).filter(models.UserTitle.student_id == fs.id).delete(synchronize_session=False)
+            db.delete(fs)
+        db.commit()
+
+        fake_parents = db.query(models.Parent).filter(~models.Parent.id.in_(auth_parent_ids)).all()
+        for fp in fake_parents:
+            db.delete(fp)
+        db.commit()
+    except Exception as purge_err:
+        db.rollback()
+        print(f"[AUTO_SEED] Test student purge note: {purge_err}")
 
     # STEP A: Insert/Update Parents
     for p in BUILTIN_PARENTS_LIST:
@@ -536,7 +561,10 @@ def auto_seed_database(db: Session, engine):
             acad_code = "ILWON-2027" if is_ilwon else s.get("academy_code")
             acad_status = "APPROVED" if is_ilwon else s.get("academy_approval_status", "NONE")
             ai_lvl = "TIER_4_ILWON" if is_ilwon else s.get("ai_level", "B2C_FREE")
-            b2c_tier = "TIER_3_MASTER" if sid == 1 else s.get("b2c_subscription_tier", "TIER_1_FREE")
+            b2c_raw = s.get("b2c_subscription_tier")
+            b2c_tier = "TIER_3_MASTER" if sid == 1 else ("TIER_2_PARENT" if b2c_raw == "TIER_2_PARENT" else "TIER_1_FREE")
+            s_streak = 26 if sid == 1 else s.get("streak_days", 0)
+            s_max_streak = 26 if sid == 1 else s.get("max_streak_days", 0)
 
             if not s_exist:
                 p_id = s.get("parent_id")
@@ -572,8 +600,9 @@ def auto_seed_database(db: Session, engine):
                     ai_level=ai_lvl,
                     b2c_subscription_tier=b2c_tier,
                     previous_b2c_tier="TIER_3_MASTER" if sid == 1 else s.get("previous_b2c_tier", "B2C_FREE"),
-                    streak_days=s.get("streak_days", 8 if sid == 1 else 0),
-                    max_streak_days=s.get("max_streak_days", 8 if sid == 1 else 0),
+                    streak_days=s_streak,
+                    max_streak_days=s_max_streak,
+                    last_streak_date=datetime.now().date() if s_streak > 0 else None,
                     tuition_paid=s.get("tuition_paid", is_ilwon),
                     textbook_paid=s.get("textbook_paid", is_ilwon),
                     enrollment_status=s.get("enrollment_status", "ENROLLED"),
@@ -582,6 +611,7 @@ def auto_seed_database(db: Session, engine):
                 ))
                 db.commit()
             else:
+                s_exist.b2c_subscription_tier = b2c_tier
                 if is_ilwon:
                     s_exist.academy_code = "ILWON-2027"
                     s_exist.academy_approval_status = "APPROVED"
@@ -594,53 +624,187 @@ def auto_seed_database(db: Session, engine):
                 if sid == 1:
                     s_exist.b2c_subscription_tier = "TIER_3_MASTER"
                     s_exist.previous_b2c_tier = "TIER_3_MASTER"
-                    s_exist.streak_days = max(8, s_exist.streak_days or 8)
+                    s_exist.streak_days = 26
+                    s_exist.max_streak_days = max(26, s_exist.max_streak_days or 26)
+                    s_exist.last_streak_date = datetime.now().date()
                 db.commit()
         except Exception:
             db.rollback()
 
-        # STEP C: Ensure active current-week study sessions for peer cohort rankers
-        try:
-            now_dt = datetime.now()
-            curr_week_start = (now_dt - timedelta(days=now_dt.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
-            week_sess_count = db.query(models.StudySession).filter(
-                models.StudySession.created_at >= curr_week_start,
-                models.StudySession.deleted_at == None
-            ).count()
-            if week_sess_count < 15:
-                peer_samples = [
-                    (1, 16.5, 0),
-                    (2, 18.5, 1),
-                    (3, 15.2, 2),
-                    (4, 12.8, 1),
-                    (5, 10.5, 3),
-                    (6, 8.2, 2),
-                    (7, 7.0, 1),
-                    (8, 5.5, 2),
-                    (9, 4.2, 3),
-                    (10, 3.8, 1),
-                    (11, 14.5, 2),
-                    (12, 11.2, 1),
-                    (13, 9.8, 3),
-                    (14, 6.5, 2),
-                ]
-                for sid, hrs, d_ago in peer_samples:
-                    target_st = db.query(models.Student).filter(models.Student.id == sid).first()
-                    if target_st:
-                        sess_time = now_dt - timedelta(days=d_ago, hours=3)
-                        db.add(models.StudySession(
-                            student_id=sid,
-                            start_time=sess_time,
-                            end_time=sess_time + timedelta(hours=hrs),
-                            duration_sec=int(hrs * 3600),
-                            is_distracted=False,
-                            created_at=sess_time,
-                            deleted_at=None
-                        ))
-                db.commit()
-        except Exception as sess_seed_err:
-            print(f"[AUTO_SEED] Study session seed note: {sess_seed_err}")
-            db.rollback()
+    # STEP C: Ensure active current-week study sessions for peer cohort rankers
+    try:
+        now_dt = datetime.now()
+        curr_week_start = (now_dt - timedelta(days=now_dt.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+        week_sess_count = db.query(models.StudySession).filter(
+            models.StudySession.created_at >= curr_week_start,
+            models.StudySession.deleted_at == None
+        ).count()
+        if week_sess_count < 15:
+            peer_samples = [
+                (1, 16.5, 0),
+                (2, 18.5, 1),
+                (3, 15.2, 2),
+                (4, 12.8, 1),
+                (5, 10.5, 3),
+                (6, 8.2, 2),
+                (7, 7.0, 1),
+                (8, 5.5, 2),
+                (9, 4.2, 3),
+                (10, 3.8, 1),
+                (11, 14.5, 2),
+                (12, 11.2, 1),
+                (13, 9.8, 3),
+                (14, 6.5, 2),
+            ]
+            for sid, hrs, d_ago in peer_samples:
+                target_st = db.query(models.Student).filter(models.Student.id == sid).first()
+                if target_st:
+                    sess_time = now_dt - timedelta(days=d_ago, hours=3)
+                    db.add(models.StudySession(
+                        student_id=sid,
+                        start_time=sess_time,
+                        end_time=sess_time + timedelta(hours=hrs),
+                        duration_sec=int(hrs * 3600),
+                        is_distracted=False,
+                        created_at=sess_time,
+                        deleted_at=None
+                    ))
+            db.commit()
+    except Exception as sess_seed_err:
+        print(f"[AUTO_SEED] Study session seed note: {sess_seed_err}")
+        db.rollback()
+
+    # STEP D: Seed Authentic Consulting Requests if empty
+    try:
+        consulting_cnt = db.query(models.ConsultingRequest).count()
+        if consulting_cnt == 0:
+            sample_consultings = [
+                {
+                    "student_id": 11, "student_name": "마서연", "student_phone": "010-9413-2157", "parent_phone": "010-9413-5678",
+                    "consulting_type": "원장 집무실 1:1 대면 상담 (50분)", "target_univ": "서울대학교 경영대학",
+                    "status": "접수대기", "price": 500000,
+                    "note": "9월 모의평가 성적 기반 수시 6장 최종 조합 및 정시 의약학/경영 포트폴리오 분석 요청",
+                    "created_at": datetime.now() - timedelta(days=2)
+                },
+                {
+                    "student_id": 41, "student_name": "박현유", "student_phone": "010-3025-9131", "parent_phone": "010-3025-5678",
+                    "consulting_type": "유선 심층 전화 상담 (30~40분)", "target_univ": "연세대학교 의예과",
+                    "status": "상담일정확정", "price": 300000,
+                    "note": "수능국어 비문학 과학지문 킬러문항 타임어택 극복 및 메디컬 정시 환산점수 상담",
+                    "created_at": datetime.now() - timedelta(days=4)
+                },
+                {
+                    "student_id": 85, "student_name": "이도윤", "student_phone": "010-2093-7940", "parent_phone": "010-2093-5678",
+                    "consulting_type": "원장 집무실 1:1 대면 상담 (50분)", "target_univ": "한국항공대학교 항공운항학과",
+                    "status": "완료", "price": 500000,
+                    "note": "항공운항학과 신체검사 및 수능 최저기준 충족 전략 1차 상담 완료",
+                    "created_at": datetime.now() - timedelta(days=9)
+                }
+            ]
+            for sc in sample_consultings:
+                db.add(models.ConsultingRequest(
+                    student_id=sc["student_id"],
+                    student_name=sc["student_name"],
+                    student_phone=sc["student_phone"],
+                    parent_phone=sc["parent_phone"],
+                    consulting_type=sc["consulting_type"],
+                    target_univ=sc["target_univ"],
+                    status=sc["status"],
+                    price=sc["price"],
+                    note=sc["note"],
+                    created_at=sc["created_at"],
+                    deleted_at=None
+                ))
+            db.commit()
+            print("[AUTO_SEED] Initialized authentic Consulting Requests successfully.")
+    except Exception as c_err:
+        db.rollback()
+        print(f"[AUTO_SEED] Consulting seed note: {c_err}")
+
+    # STEP E: Seed Authentic B2B Support Tickets if empty
+    try:
+        ticket_cnt = db.query(models.B2BSupportTicket).count()
+        if ticket_cnt == 0:
+            sample_tickets = [
+                {
+                    "tenant_code": "ILWON-2027", "tenant_name": "일원 대입전문학원", "author_name": "김철훈 원장",
+                    "title": "2027학년도 9월 모의평가 OMR 등급컷 및 원점수 기준 자동 산출 요청",
+                    "content": "이번 9월 모평 국어 난이도가 높게 출제되어 원점수 88점 1등급컷 기준으로 OMR 성적표 일괄 리포트 생성 부탁드립니다.",
+                    "answer": "본사 데이터베이스에 9평 확정 등급컷(1등급 88점, 2등급 80점)이 실시간 반영되었습니다. 원장 관제실 OMR 탭에서 일괄 재채점 및 학부모 알림톡 발송이 가능합니다.",
+                    "status": "답변완료",
+                    "created_at": datetime.now() - timedelta(days=3)
+                },
+                {
+                    "tenant_code": "MID-TOP01", "tenant_name": "대치 탑클래스 중등학원", "author_name": "박중등 원장",
+                    "title": "중3 2학기 중간고사 대비 특목고 진학 커리큘럼 추가",
+                    "content": "외대부고/하나고 대비 중등 심화 문항 DB 및 VOD 일괄 배포 일정 문의드립니다.",
+                    "answer": "중등 5대과목 올A 대비 킬러 문항 및 특목자사고 대비 모의고사가 이번 주 금요일 정기 업데이트로 자동 활성화됩니다.",
+                    "status": "답변완료",
+                    "created_at": datetime.now() - timedelta(days=2)
+                },
+                {
+                    "tenant_code": "ILWON-2027", "tenant_name": "일원 대입전문학원", "author_name": "김철훈 원장",
+                    "title": "결제선생 9월분 학원비 정기 청구 알림톡 일괄 발송 확인",
+                    "content": "9월 25일 정기 납부일 대상 151명 전원 알림톡 청구서 발송 현황 확인 요청",
+                    "answer": "알림톡 청구서 151건 전송 완료되었으며 결제 즉시 호스테이지 프로토콜로 수강권이 자동 연장됩니다.",
+                    "status": "답변완료",
+                    "created_at": datetime.now() - timedelta(days=1)
+                }
+            ]
+            for st in sample_tickets:
+                db.add(models.B2BSupportTicket(
+                    tenant_code=st["tenant_code"],
+                    tenant_name=st["tenant_name"],
+                    author_name=st["author_name"],
+                    title=st["title"],
+                    content=st["content"],
+                    answer=st["answer"],
+                    status=st["status"],
+                    created_at=st["created_at"],
+                    deleted_at=None
+                ))
+            db.commit()
+            print("[AUTO_SEED] Initialized authentic B2B Support Tickets successfully.")
+    except Exception as t_err:
+        db.rollback()
+        print(f"[AUTO_SEED] Ticket seed note: {t_err}")
+
+    # STEP F: Seed Authentic VOC Feedbacks if empty
+    try:
+        feedback_cnt = db.query(models.Feedback).count()
+        if feedback_cnt == 0:
+            sample_feedbacks = [
+                {
+                    "student_id": 85, "user_email": "doyunn221@gmail.com", "category": "아이디어",
+                    "content": "4번 문항 2x2+1 배치 너무 좋습니다! 수능 실전 모의고사 타이머에 10분 남았을 때 알림 기능도 추가해주시면 감사하겠습니다.",
+                    "status": "접수됨", "created_at": datetime.now() - timedelta(days=3)
+                },
+                {
+                    "student_id": 41, "user_email": "hyunyou0529@naver.com", "category": "기능제안",
+                    "content": "플래너 타이머 일시정지 후 백그라운드 재개 기능 요청합니다. 모바일 브라우저 전환 시에도 측정이 유지되면 좋겠습니다.",
+                    "status": "검토중", "created_at": datetime.now() - timedelta(days=5)
+                },
+                {
+                    "student_id": 11, "user_email": "lucy10144@goedu.kr", "category": "불편사항",
+                    "content": "모의고사 성적표 PDF 출력 시 여백 잘림 현상이 있었는데 빠른 패치 감사드립니다.",
+                    "status": "반영완료", "created_at": datetime.now() - timedelta(days=7)
+                }
+            ]
+            for sf in sample_feedbacks:
+                db.add(models.Feedback(
+                    student_id=sf["student_id"],
+                    user_email=sf["user_email"],
+                    category=sf["category"],
+                    content=sf["content"],
+                    status=sf["status"],
+                    created_at=sf["created_at"],
+                    deleted_at=None
+                ))
+            db.commit()
+            print("[AUTO_SEED] Initialized authentic Feedbacks (VOC) successfully.")
+    except Exception as f_err:
+        db.rollback()
+        print(f"[AUTO_SEED] Feedback seed note: {f_err}")
 
     print("[AUTO_SEED] Seeding completed.")
 

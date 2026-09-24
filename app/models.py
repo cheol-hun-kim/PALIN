@@ -733,6 +733,7 @@ class B2BSupportTicket(Base):
     id = Column(Integer, primary_key=True, index=True)
     tenant_code = Column(String, nullable=False, index=True)
     tenant_name = Column(String, nullable=False)
+    author_name = Column(String, default="김철훈 원장", nullable=True)
     category = Column(String, default="기능오류") # '기능오류' | '백서로직' | '정산결제' | '기타'
     title = Column(String, nullable=False)
     content = Column(Text, nullable=False)
