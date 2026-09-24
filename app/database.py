@@ -33,10 +33,10 @@ SqliteSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=sqlite
 engine = sqlite_engine
 SessionLocal = SqliteSessionLocal
 
-# 5. PostgreSQL Strict Mode & Connection Pooling
+# 5. PostgreSQL Strict Mode & Connection Pooling with 2.5s Hard Failover Deadline
 if not DATABASE_URL.startswith("sqlite"):
     try:
-        # High-concurrency QueuePool for Supabase/PostgreSQL
+        import concurrent.futures
         pg_engine = create_engine(
             DATABASE_URL,
             poolclass=QueuePool,
@@ -44,19 +44,26 @@ if not DATABASE_URL.startswith("sqlite"):
             max_overflow=5,
             pool_recycle=300,
             pool_pre_ping=True,
-            pool_timeout=3,
+            pool_timeout=2,
             connect_args={
-                "connect_timeout": 3,
-                "options": "-c statement_timeout=3000"
+                "connect_timeout": 2,
+                "options": "-c statement_timeout=2000"
             }
         )
-        with pg_engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
+        def _test_pg_conn():
+            with pg_engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+            return True
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(_test_pg_conn)
+            future.result(timeout=2.5)
+
         engine = pg_engine
         SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=pg_engine)
         print("[DB] PostgreSQL Live Connection Succeeded 100% (Strict Mode Active)!")
     except Exception as e:
-        print(f"[DB WARNING] PostgreSQL Connection Failed ({e}). Gracefully falling back to SQLite baseline.")
+        print(f"[DB WARNING] PostgreSQL Connection/Timeout Note ({e}). Gracefully falling back to SQLite baseline.")
         engine = sqlite_engine
         SessionLocal = SqliteSessionLocal
 
