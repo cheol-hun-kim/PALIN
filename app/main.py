@@ -6367,124 +6367,120 @@ def answer_master_b2b_ticket(ticket_id: int, payload: B2BSupportTicketAnswerPayl
 @app.post("/api/master/sync-cohorts")
 def force_sync_master_cohorts(db: Session = Depends(get_db)):
     from app.database import engine
-    is_pg = engine.dialect.name in ("postgresql", "postgres")
-    b_true = "TRUE" if is_pg else "1"
-    b_false = "FALSE" if is_pg else "0"
+    from app.students_data_builtin import BUILTIN_STUDENTS_LIST, BUILTIN_PARENTS_LIST
 
-    total_before = db.execute(text("SELECT count(*) FROM students")).scalar()
-
-    # 1. Update Student 1 (Master)
-    db.execute(text(f"""
-        UPDATE students SET 
-            academy_code = 'ILWON-2027', 
-            academy_approval_status = 'APPROVED', 
-            b2c_subscription_tier = 'TIER_3_MASTER', 
-            previous_b2c_tier = 'TIER_3_MASTER', 
-            ai_level = 'TIER_4_ILWON', 
-            has_unlimited_chat = {b_true}, 
-            chat_tokens = 999, 
-            enrollment_status = 'ENROLLED', 
-            tuition_paid = {b_true}, 
-            textbook_paid = {b_true}, 
-            streak_days = 8 
-        WHERE id = 1 OR lower(email) LIKE '%1286orbital21@gmail.com%';
-    """))
-
-    # 2. Update ~60% to ILWON-2027 Approved
-    r_ilwon = db.execute(text(f"""
-        UPDATE students SET
-            academy_code = 'ILWON-2027',
-            academy_approval_status = 'APPROVED',
-            ai_level = 'TIER_4_ILWON',
-            has_unlimited_chat = {b_true},
-            chat_tokens = 999,
-            enrollment_status = 'ENROLLED',
-            tuition_paid = {b_true},
-            textbook_paid = {b_true}
-        WHERE id != 1 AND (id % 20) IN (0, 1, 2, 3, 4, 5, 6, 7, 8);
-    """)).rowcount
-
-    # 3. Pending
-    r_pending = db.execute(text(f"""
-        UPDATE students SET
-            academy_code = 'ILWON-2027',
-            academy_approval_status = 'PENDING',
-            pending_tenant_code = 'ILWON-2027',
-            ai_level = 'B2C_FREE'
-        WHERE id != 1 AND (id % 20) = 11;
-    """)).rowcount
-
-    # 4. Graduated
-    r_grad = db.execute(text(f"""
-        UPDATE students SET
-            academy_code = 'ILWON-2027',
-            academy_approval_status = 'APPROVED',
-            enrollment_status = 'GRADUATED',
-            is_alumni = {b_true},
-            ai_level = 'TIER_4_ILWON'
-        WHERE id != 1 AND (id % 20) = 10;
-    """)).rowcount
-
-    # 5. Study Cafe
-    r_cafe = db.execute(text(f"""
-        UPDATE students SET
-            academy_code = 'CAFE-STUDY01',
-            academy_approval_status = 'APPROVED',
-            ai_level = 'B2B_BASIC',
-            enrollment_status = 'ENROLLED'
-        WHERE id != 1 AND (id % 20) IN (12, 13);
-    """)).rowcount
-
-    # 6. Middle Academy
-    r_mid = db.execute(text(f"""
-        UPDATE students SET
-            academy_code = 'MID-TOP01',
-            school_level = 'MID',
-            academy_approval_status = 'APPROVED',
-            ai_level = 'B2B_CUSTOM_BRAIN',
-            enrollment_status = 'ENROLLED'
-        WHERE id != 1 AND (id % 20) = 14;
-    """)).rowcount
-
-    # 7. Elementary Academy
-    r_elem = db.execute(text(f"""
-        UPDATE students SET
-            academy_code = 'ELEM-PET01',
-            school_level = 'ELEM',
-            academy_approval_status = 'APPROVED',
-            ai_level = 'B2B_CUSTOM_BRAIN',
-            enrollment_status = 'ENROLLED'
-        WHERE id != 1 AND (id % 20) = 15;
-    """)).rowcount
-
-    # 8. B2C
-    r_b2c = db.execute(text(f"""
-        UPDATE students SET
-            academy_code = NULL,
-            academy_approval_status = 'NONE',
-            pending_tenant_code = NULL,
-            ai_level = 'B2C_FREE',
-            enrollment_status = 'ENROLLED',
-            b2c_subscription_tier = 'TIER_1_FREE'
-        WHERE id != 1 AND (id % 20) IN (9, 16, 17, 18, 19);
-    """)).rowcount
-
+    # 1. Parents Sync
+    for p in BUILTIN_PARENTS_LIST:
+        pid = p["id"]
+        try:
+            p_exist = db.query(models.Parent).filter(models.Parent.id == pid).first()
+            if not p_exist:
+                db.add(models.Parent(
+                    id=pid,
+                    name=p.get("name") or f"학부모{pid}",
+                    phone=p.get("phone") or f"010-{pid:04d}-5678",
+                    is_premium_subscribed=bool(p.get("is_premium_subscribed", True)),
+                    email=p.get("email"),
+                    role="PARENT",
+                    wallet_balance=p.get("wallet_balance", 0),
+                    deleted_at=None
+                ))
+            else:
+                p_exist.name = p.get("name") or p_exist.name
+                p_exist.phone = p.get("phone") or p_exist.phone
+        except Exception:
+            pass
     db.commit()
 
-    approved_count = db.execute(text("SELECT count(*) FROM students WHERE academy_code = 'ILWON-2027' AND academy_approval_status = 'APPROVED'")).scalar()
+    # 2. Students Sync from Authentic 208 BUILTIN_STUDENTS_LIST
+    ilwon_count = 0
+    b2c_count = 0
+    for s in BUILTIN_STUDENTS_LIST:
+        sid = s["id"]
+        try:
+            s_exist = db.query(models.Student).filter(models.Student.id == sid).first()
+            is_ilwon = (s.get("academy_code") == "ILWON-2027" or sid == 1)
+            acad_code = "ILWON-2027" if is_ilwon else s.get("academy_code")
+            acad_status = s.get("academy_approval_status", "APPROVED" if is_ilwon else "NONE")
+            ai_lvl = "TIER_4_ILWON" if is_ilwon else s.get("ai_level", "B2C_FREE")
+            b2c_tier = "TIER_3_MASTER" if sid == 1 else s.get("b2c_subscription_tier", "TIER_1_FREE")
+
+            if is_ilwon:
+                ilwon_count += 1
+            else:
+                b2c_count += 1
+
+            if not s_exist:
+                db.add(models.Student(
+                    id=sid,
+                    email=s.get("email") or f"student_{sid}@palin.com",
+                    name=s.get("name") or f"학생{sid}",
+                    phone=s.get("phone") or f"010-0000-{sid:04d}",
+                    grade=s.get("grade", 3),
+                    region=s.get("region", "경기도 성남시 분당구"),
+                    high_school=s.get("high_school", "낙생고등학교"),
+                    target_univ=s.get("target_univ", "연세대학교 의예과"),
+                    baseline_univ=s.get("baseline_univ", "고려대학교 의과대학"),
+                    wake_target_time=s.get("wake_target_time", "06:30"),
+                    sleep_target_time=s.get("sleep_target_time", "23:30"),
+                    current_points=s.get("current_points", 100),
+                    league_tier=s.get("league_tier", "BRONZE"),
+                    point_multiplier=s.get("point_multiplier", 1),
+                    diligence_score=s.get("diligence_score", 0),
+                    dday_date=s.get("dday_date", "2026-11-19"),
+                    dday_title=s.get("dday_title", "2027 수능"),
+                    parent_id=s.get("parent_id"),
+                    referral_code=s.get("referral_code"),
+                    has_unlimited_chat=s.get("has_unlimited_chat", is_ilwon),
+                    chat_tokens=999 if is_ilwon else s.get("chat_tokens", 5),
+                    academy_code=acad_code,
+                    academy_approval_status=acad_status,
+                    ai_level=ai_lvl,
+                    b2c_subscription_tier=b2c_tier,
+                    previous_b2c_tier="TIER_3_MASTER" if sid == 1 else s.get("previous_b2c_tier", "B2C_FREE"),
+                    streak_days=s.get("streak_days", 8 if sid == 1 else 0),
+                    max_streak_days=s.get("max_streak_days", 8 if sid == 1 else 0),
+                    tuition_paid=s.get("tuition_paid", is_ilwon),
+                    textbook_paid=s.get("textbook_paid", is_ilwon),
+                    enrollment_status=s.get("enrollment_status", "ENROLLED"),
+                    role="STUDENT",
+                    deleted_at=None
+                ))
+            else:
+                s_exist.academy_code = acad_code
+                s_exist.academy_approval_status = acad_status
+                s_exist.ai_level = ai_lvl
+                s_exist.b2c_subscription_tier = b2c_tier
+                s_exist.has_unlimited_chat = s.get("has_unlimited_chat", is_ilwon)
+                s_exist.chat_tokens = 999 if is_ilwon else s.get("chat_tokens", 5)
+                s_exist.tuition_paid = s.get("tuition_paid", is_ilwon)
+                s_exist.textbook_paid = s.get("textbook_paid", is_ilwon)
+                s_exist.enrollment_status = s.get("enrollment_status", "ENROLLED")
+                if sid == 1:
+                    s_exist.previous_b2c_tier = "TIER_3_MASTER"
+                    s_exist.streak_days = max(8, s_exist.streak_days or 8)
+        except Exception:
+            db.rollback()
+    db.commit()
+
+    total_after = db.query(models.Student).filter(models.Student.deleted_at == None).count()
+    ilwon_total = db.query(models.Student).filter(
+        models.Student.academy_code == "ILWON-2027",
+        models.Student.deleted_at == None
+    ).count()
+    ilwon_approved = db.query(models.Student).filter(
+        models.Student.academy_code == "ILWON-2027",
+        models.Student.academy_approval_status == "APPROVED",
+        models.Student.deleted_at == None
+    ).count()
 
     return {
         "status": "success",
         "engine": engine.dialect.name,
-        "total_students": total_before,
-        "updated_ilwon": r_ilwon,
-        "updated_pending": r_pending,
-        "updated_grad": r_grad,
-        "updated_cafe": r_cafe,
-        "updated_mid": r_mid,
-        "updated_elem": r_elem,
-        "updated_b2c": r_b2c,
-        "ilwon_approved_total": approved_count
+        "total_students": total_after,
+        "ilwon_total": ilwon_total,
+        "ilwon_approved_total": ilwon_approved,
+        "b2c_total": b2c_count
     }
 
 

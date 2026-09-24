@@ -138,145 +138,35 @@ def auto_seed_database(db: Session, engine):
                 db.rollback()
                 print(f"[AUTO_SEED] Exam purge migration note: {ep_err}")
 
-        mig_approve = db.execute(text("SELECT migration_key FROM system_migrations WHERE migration_key = 'sync_academy_cohorts_v20260924_r4'")).fetchone()
+        mig_approve = db.execute(text("SELECT migration_key FROM system_migrations WHERE migration_key = 'sync_authentic_ilwon_208_v20260924'")).fetchone()
         if not mig_approve:
             try:
-                is_pg = engine.dialect.name in ("postgresql", "postgres")
-                b_true = "TRUE" if is_pg else "1"
-                b_false = "FALSE" if is_pg else "0"
-
-                # 1. Master Account
-                db.execute(text(f"""
-                    UPDATE students SET 
-                        academy_code = 'ILWON-2027', 
-                        academy_approval_status = 'APPROVED', 
-                        b2c_subscription_tier = 'TIER_3_MASTER', 
-                        previous_b2c_tier = 'TIER_3_MASTER', 
-                        ai_level = 'TIER_4_ILWON', 
-                        has_unlimited_chat = {b_true}, 
-                        chat_tokens = 999, 
-                        enrollment_status = 'ENROLLED', 
-                        tuition_paid = {b_true}, 
-                        textbook_paid = {b_true}, 
-                        streak_days = 8 
-                    WHERE id = 1 OR lower(email) LIKE '%1286orbital21@gmail.com%';
-                """))
-
-                # 2. High school / Repeat Ilwon students (~60%)
-                db.execute(text(f"""
-                    UPDATE students SET
-                        academy_code = 'ILWON-2027',
-                        academy_approval_status = 'APPROVED',
-                        ai_level = 'TIER_4_ILWON',
-                        has_unlimited_chat = {b_true},
-                        chat_tokens = 999,
-                        enrollment_status = 'ENROLLED',
-                        tuition_paid = {b_true},
-                        textbook_paid = {b_true}
-                    WHERE id != 1 AND (id % 20) IN (0, 1, 2, 3, 4, 5, 6, 7, 8);
-                """))
-
-                # 3. Pending Ilwon students
-                db.execute(text(f"""
-                    UPDATE students SET
-                        academy_code = 'ILWON-2027',
-                        academy_approval_status = 'PENDING',
-                        pending_tenant_code = 'ILWON-2027',
-                        ai_level = 'B2C_FREE'
-                    WHERE id != 1 AND (id % 20) = 11;
-                """))
-
-                # 4. Graduated alumni
-                db.execute(text(f"""
-                    UPDATE students SET
-                        academy_code = 'ILWON-2027',
-                        academy_approval_status = 'APPROVED',
-                        enrollment_status = 'GRADUATED',
-                        is_alumni = {b_true},
-                        ai_level = 'TIER_4_ILWON'
-                    WHERE id != 1 AND (id % 20) = 10;
-                """))
-
-                # 5. Withdrawn students
-                db.execute(text(f"""
-                    UPDATE students SET
-                        academy_code = 'ILWON-2027',
-                        academy_approval_status = 'NONE',
-                        enrollment_status = 'WITHDRAWN',
-                        leave_reason = 'ILWON-2027 사유: 타지역 전학',
-                        ai_level = 'B2C_FREE'
-                    WHERE id != 1 AND (id % 20) = 9;
-                """))
-
-                # 6. Study Cafe (~10%)
-                db.execute(text(f"""
-                    UPDATE students SET
-                        academy_code = 'CAFE-STUDY01',
-                        academy_approval_status = 'APPROVED',
-                        ai_level = 'B2B_BASIC',
-                        enrollment_status = 'ENROLLED'
-                    WHERE id != 1 AND (id % 20) IN (12, 13);
-                """))
-
-                # 7. Middle school academy (~5%)
-                db.execute(text(f"""
-                    UPDATE students SET
-                        academy_code = 'MID-TOP01',
-                        school_level = 'MID',
-                        academy_approval_status = 'APPROVED',
-                        ai_level = 'B2B_CUSTOM_BRAIN',
-                        enrollment_status = 'ENROLLED'
-                    WHERE id != 1 AND (id % 20) = 14;
-                """))
-
-                # 8. Elementary academy (~5%)
-                db.execute(text(f"""
-                    UPDATE students SET
-                        academy_code = 'ELEM-PET01',
-                        school_level = 'ELEM',
-                        academy_approval_status = 'APPROVED',
-                        ai_level = 'B2B_CUSTOM_BRAIN',
-                        enrollment_status = 'ENROLLED'
-                    WHERE id != 1 AND (id % 20) = 15;
-                """))
-
-                # 9. B2C Pure (~20%)
-                db.execute(text(f"""
-                    UPDATE students SET
-                        academy_code = NULL,
-                        academy_approval_status = 'NONE',
-                        pending_tenant_code = NULL,
-                        ai_level = 'B2C_FREE',
-                        enrollment_status = 'ENROLLED',
-                        b2c_subscription_tier = 'TIER_1_FREE'
-                    WHERE id != 1 AND (id % 20) IN (16, 17);
-                """))
-
-                db.execute(text(f"""
-                    UPDATE students SET
-                        academy_code = NULL,
-                        academy_approval_status = 'NONE',
-                        pending_tenant_code = NULL,
-                        ai_level = 'B2C_FREE',
-                        enrollment_status = 'ENROLLED',
-                        b2c_subscription_tier = 'TIER_2_PARENT'
-                    WHERE id != 1 AND (id % 20) = 18;
-                """))
-
-                db.execute(text(f"""
-                    UPDATE students SET
-                        academy_code = NULL,
-                        academy_approval_status = 'NONE',
-                        pending_tenant_code = NULL,
-                        ai_level = 'B2C_FREE',
-                        enrollment_status = 'ENROLLED',
-                        b2c_subscription_tier = 'TIER_3_MASTER'
-                    WHERE id != 1 AND (id % 20) = 19;
-                """))
-
-                db.execute(text("INSERT INTO system_migrations (migration_key) VALUES ('sync_academy_cohorts_v20260924_r4')"))
+                from app.students_data_builtin import BUILTIN_STUDENTS_LIST
+                for s in BUILTIN_STUDENTS_LIST:
+                    sid = s["id"]
+                    is_ilwon = (s.get("academy_code") == "ILWON-2027" or sid == 1)
+                    acad_code = "ILWON-2027" if is_ilwon else s.get("academy_code")
+                    acad_status = s.get("academy_approval_status", "APPROVED" if is_ilwon else "NONE")
+                    ai_lvl = "TIER_4_ILWON" if is_ilwon else s.get("ai_level", "B2C_FREE")
+                    b2c_tier = "TIER_3_MASTER" if sid == 1 else s.get("b2c_subscription_tier", "TIER_1_FREE")
+                    
+                    st = db.query(models.Student).filter(models.Student.id == sid).first()
+                    if st:
+                        st.academy_code = acad_code
+                        st.academy_approval_status = acad_status
+                        st.ai_level = ai_lvl
+                        st.b2c_subscription_tier = b2c_tier
+                        st.has_unlimited_chat = s.get("has_unlimited_chat", is_ilwon)
+                        st.chat_tokens = 999 if is_ilwon else s.get("chat_tokens", 5)
+                        st.tuition_paid = s.get("tuition_paid", is_ilwon)
+                        st.textbook_paid = s.get("textbook_paid", is_ilwon)
+                        st.enrollment_status = s.get("enrollment_status", "ENROLLED")
+                        if sid == 1:
+                            st.previous_b2c_tier = "TIER_3_MASTER"
+                            st.streak_days = max(8, st.streak_days or 8)
+                db.execute(text("INSERT INTO system_migrations (migration_key) VALUES ('sync_authentic_ilwon_208_v20260924')"))
                 db.commit()
-                print("[AUTO_SEED] Full B2B/B2C Academy Cohort Synchronization v20260924_r3 applied via atomic SQL.")
+                print("[AUTO_SEED] Full 208 authentic students (151 Ilwon) synchronization migration applied.")
             except Exception as ap_err:
                 db.rollback()
                 print(f"[AUTO_SEED] Academy cohort sync note: {ap_err}")
