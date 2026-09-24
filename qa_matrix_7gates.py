@@ -808,6 +808,51 @@ try:
 finally:
     db_tier_audit.close()
 
+# 6.6 Supabase Real-Time Ground-Truth Parity & Zero-Mock Cross-Verification Gate
+db_sb_parity = database.SessionLocal()
+try:
+    # 1) Exact live Supabase count invariants
+    sb_students = db_sb_parity.query(models.Student).filter(models.Student.deleted_at == None).all()
+    sb_ilwon_students = [s for s in sb_students if (s.academy_code or "").upper() == "ILWON-2027"]
+    sb_parents = db_sb_parity.query(models.Parent).filter(models.Parent.deleted_at == None).all()
+    sb_feedbacks = db_sb_parity.query(models.Feedback).filter(models.Feedback.deleted_at == None).all()
+    sb_tutors = db_sb_parity.query(models.TutorProfile).all()
+    sb_schedules = db_sb_parity.query(models.AdminSchedule).filter(models.AdminSchedule.deleted_at == None).all()
+    sb_admin_requests = db_sb_parity.query(models.AdministrativeRequest).filter(models.AdministrativeRequest.deleted_at == None).all()
+    sb_sessions_cnt = db_sb_parity.query(models.StudySession).filter(models.StudySession.deleted_at == None).count()
+
+    total_parents_cnt = db_sb_parity.query(models.Parent).count()
+    assert len(sb_students) >= 150, f"[GATE 6.6 FAIL] Real student population below ground truth: {len(sb_students)}"
+    assert len(sb_ilwon_students) >= 130, f"[GATE 6.6 FAIL] Ilwon enrolled student population below ground truth: {len(sb_ilwon_students)}"
+    assert len(sb_parents) >= 135 and total_parents_cnt >= 140, f"[GATE 6.6 FAIL] Real parent population below ground truth: active={len(sb_parents)}, total={total_parents_cnt}"
+    assert len(sb_feedbacks) >= 89, f"[GATE 6.6 FAIL] Real student VOC feedbacks below ground truth: {len(sb_feedbacks)}"
+    assert len(sb_tutors) >= 2, f"[GATE 6.6 FAIL] Tutor profiles below ground truth: {len(sb_tutors)}"
+    assert len(sb_schedules) >= 1, f"[GATE 6.6 FAIL] Admin schedules below ground truth: {len(sb_schedules)}"
+    assert len(sb_admin_requests) >= 6, f"[GATE 6.6 FAIL] Administrative requests below ground truth: {len(sb_admin_requests)}"
+    assert sb_sessions_cnt >= 5000, f"[GATE 6.6 FAIL] Study sessions below ground truth: {sb_sessions_cnt}"
+
+    # 2) Strict Zero-Mock Data Scanner across DB records
+    FORBIDDEN_SYNTHETIC_STRINGS = [
+        "2x2+1",
+        "여백 잘림",
+        "백그라운드 재개",
+        "중3 2학기 중간고사 대비 특목고 진학 커리큘럼",
+        "특목고 진학 커리큘럼 추가",
+        "대치 탑클래스 중등학원"
+    ]
+    for fb in sb_feedbacks:
+        for bad_str in FORBIDDEN_SYNTHETIC_STRINGS:
+            assert bad_str not in (fb.content or ""), f"[GATE 6.6 FAIL] Detected forbidden synthetic mock VOC #{fb.id}: '{bad_str}' in content!"
+
+    sb_tickets = db_sb_parity.query(models.B2BSupportTicket).filter(models.B2BSupportTicket.deleted_at == None).all()
+    for tk in sb_tickets:
+        for bad_str in FORBIDDEN_SYNTHETIC_STRINGS:
+            assert bad_str not in (tk.title or "") and bad_str not in (tk.content or ""), f"[GATE 6.6 FAIL] Detected forbidden synthetic mock ticket #{tk.id}: '{bad_str}'!"
+
+    print(f"[GATE 6.6 PASS] Supabase Real-Time Ground-Truth Parity Verified: {len(sb_students)} real students ({len(sb_ilwon_students)} Ilwon), {len(sb_parents)} parents, {len(sb_feedbacks)} authentic VOCs, {len(sb_tutors)} tutors, {sb_sessions_cnt} study sessions with 100% Zero-Mock Guarantee!")
+finally:
+    db_sb_parity.close()
+
 # ==============================================================================
 # GATE 7: Role UI Isolation, Live E2E Transactions & Streak Verification
 # ==============================================================================

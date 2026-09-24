@@ -4112,24 +4112,6 @@ def create_b2b_ticket(payload: CreateTicketPayload, db: Session = Depends(get_db
 
 # === 💬 VOC 및 학생 불편사항 / 아이디어 건의함 API ===
 
-@app.get("/api/admin/feedbacks")
-def get_admin_feedbacks(db: Session = Depends(get_db)):
-    fbs = db.query(models.Feedback).filter(models.Feedback.deleted_at == None).order_by(models.Feedback.created_at.desc()).all()
-    res = []
-    for f in fbs:
-        st_name = f.student.name if f.student else "수험생"
-        res.append({
-            "id": f.id,
-            "student_id": f.student_id,
-            "student_name": st_name,
-            "user_email": f.user_email or (f.student.email if f.student else ""),
-            "category": f.category or "불편사항",
-            "content": f.content,
-            "status": f.status or "접수됨",
-            "created_at": f.created_at.strftime("%Y-%m-%d %H:%M") if f.created_at else ""
-        })
-    return res
-
 class FeedbackStatusPayload(BaseModel):
     status: str
 
@@ -4253,7 +4235,7 @@ def delete_admin_knowledge(item_id: int, db: Session = Depends(get_db)):
 
 @app.get("/api/admin/feedbacks")
 def get_admin_feedbacks_all(status_filter: Optional[str] = None, db: Session = Depends(get_db)):
-    query = db.query(models.Feedback)
+    query = db.query(models.Feedback).filter(models.Feedback.deleted_at == None)
     if status_filter and status_filter != "전체":
         query = query.filter(models.Feedback.status == status_filter)
     feedbacks = query.order_by(models.Feedback.created_at.desc()).all()
@@ -6728,121 +6710,6 @@ def force_sync_master_cohorts(db: Session = Depends(get_db)):
         except Exception:
             db.rollback()
     db.commit()
-
-    # 3. Seed Consulting, B2B Tickets, and Feedbacks if empty
-    try:
-        if db.query(models.ConsultingRequest).count() == 0:
-            sample_consultings = [
-                {
-                    "student_id": 11, "student_name": "마서연", "student_phone": "010-9413-2157", "parent_phone": "010-9413-5678",
-                    "consulting_type": "원장 집무실 1:1 대면 상담 (50분)", "target_univ": "서울대학교 경영대학",
-                    "status": "접수대기", "price": 500000,
-                    "note": "9월 모의평가 성적 기반 수시 6장 최종 조합 및 정시 의약학/경영 포트폴리오 분석 요청",
-                    "created_at": datetime.now() - timedelta(days=2)
-                },
-                {
-                    "student_id": 41, "student_name": "박현유", "student_phone": "010-3025-9131", "parent_phone": "010-3025-5678",
-                    "consulting_type": "유선 심층 전화 상담 (30~40분)", "target_univ": "연세대학교 의예과",
-                    "status": "상담일정확정", "price": 300000,
-                    "note": "수능국어 비문학 과학지문 킬러문항 타임어택 극복 및 메디컬 정시 환산점수 상담",
-                    "created_at": datetime.now() - timedelta(days=4)
-                },
-                {
-                    "student_id": 85, "student_name": "이도윤", "student_phone": "010-2093-7940", "parent_phone": "010-2093-5678",
-                    "consulting_type": "원장 집무실 1:1 대면 상담 (50분)", "target_univ": "한국항공대학교 항공운항학과",
-                    "status": "완료", "price": 500000,
-                    "note": "항공운항학과 신체검사 및 수능 최저기준 충족 전략 1차 상담 완료",
-                    "created_at": datetime.now() - timedelta(days=9)
-                }
-            ]
-            for sc in sample_consultings:
-                db.add(models.ConsultingRequest(
-                    student_id=sc["student_id"],
-                    student_name=sc["student_name"],
-                    student_phone=sc["student_phone"],
-                    parent_phone=sc["parent_phone"],
-                    consulting_type=sc["consulting_type"],
-                    target_univ=sc["target_univ"],
-                    status=sc["status"],
-                    price=sc["price"],
-                    note=sc["note"],
-                    created_at=sc["created_at"],
-                    deleted_at=None
-                ))
-            db.commit()
-
-        if db.query(models.B2BSupportTicket).count() == 0:
-            sample_tickets = [
-                {
-                    "tenant_code": "ILWON-2027", "tenant_name": "일원 대입전문학원", "author_name": "김철훈 원장",
-                    "title": "2027학년도 9월 모의평가 OMR 등급컷 및 원점수 기준 자동 산출 요청",
-                    "content": "이번 9월 모평 국어 난이도가 높게 출제되어 원점수 88점 1등급컷 기준으로 OMR 성적표 일괄 리포트 생성 부탁드립니다.",
-                    "answer": "본사 데이터베이스에 9평 확정 등급컷(1등급 88점, 2등급 80점)이 실시간 반영되었습니다. 원장 관제실 OMR 탭에서 일괄 재채점 및 학부모 알림톡 발송이 가능합니다.",
-                    "status": "답변완료",
-                    "created_at": datetime.now() - timedelta(days=3)
-                },
-                {
-                    "tenant_code": "MID-TOP01", "tenant_name": "대치 탑클래스 중등학원", "author_name": "박중등 원장",
-                    "title": "중3 2학기 중간고사 대비 특목고 진학 커리큘럼 추가",
-                    "content": "외대부고/하나고 대비 중등 심화 문항 DB 및 VOD 일괄 배포 일정 문의드립니다.",
-                    "answer": "중등 5대과목 올A 대비 킬러 문항 및 특목자사고 대비 모의고사가 이번 주 금요일 정기 업데이트로 자동 활성화됩니다.",
-                    "status": "답변완료",
-                    "created_at": datetime.now() - timedelta(days=2)
-                },
-                {
-                    "tenant_code": "ILWON-2027", "tenant_name": "일원 대입전문학원", "author_name": "김철훈 원장",
-                    "title": "결제선생 9월분 학원비 정기 청구 알림톡 일괄 발송 확인",
-                    "content": "9월 25일 정기 납부일 대상 151명 전원 알림톡 청구서 발송 현황 확인 요청",
-                    "answer": "알림톡 청구서 151건 전송 완료되었으며 결제 즉시 호스테이지 프로토콜로 수강권이 자동 연장됩니다.",
-                    "status": "답변완료",
-                    "created_at": datetime.now() - timedelta(days=1)
-                }
-            ]
-            for st in sample_tickets:
-                db.add(models.B2BSupportTicket(
-                    tenant_code=st["tenant_code"],
-                    tenant_name=st["tenant_name"],
-                    author_name=st["author_name"],
-                    title=st["title"],
-                    content=st["content"],
-                    answer=st["answer"],
-                    status=st["status"],
-                    created_at=st["created_at"],
-                    deleted_at=None
-                ))
-            db.commit()
-
-        if db.query(models.Feedback).count() == 0:
-            sample_feedbacks = [
-                {
-                    "student_id": 85, "user_email": "doyunn221@gmail.com", "category": "아이디어",
-                    "content": "4번 문항 2x2+1 배치 너무 좋습니다! 수능 실전 모의고사 타이머에 10분 남았을 때 알림 기능도 추가해주시면 감사하겠습니다.",
-                    "status": "접수됨", "created_at": datetime.now() - timedelta(days=3)
-                },
-                {
-                    "student_id": 41, "user_email": "hyunyou0529@naver.com", "category": "기능제안",
-                    "content": "플래너 타이머 일시정지 후 백그라운드 재개 기능 요청합니다. 모바일 브라우저 전환 시에도 측정이 유지되면 좋겠습니다.",
-                    "status": "검토중", "created_at": datetime.now() - timedelta(days=5)
-                },
-                {
-                    "student_id": 11, "user_email": "lucy10144@goedu.kr", "category": "불편사항",
-                    "content": "모의고사 성적표 PDF 출력 시 여백 잘림 현상이 있었는데 빠른 패치 감사드립니다.",
-                    "status": "반영완료", "created_at": datetime.now() - timedelta(days=7)
-                }
-            ]
-            for sf in sample_feedbacks:
-                db.add(models.Feedback(
-                    student_id=sf["student_id"],
-                    user_email=sf["user_email"],
-                    category=sf["category"],
-                    content=sf["content"],
-                    status=sf["status"],
-                    created_at=sf["created_at"],
-                    deleted_at=None
-                ))
-            db.commit()
-    except Exception:
-        db.rollback()
 
     total_after = db.query(models.Student).filter(models.Student.deleted_at == None).count()
     ilwon_total = db.query(models.Student).filter(
@@ -10312,9 +10179,11 @@ def pay_billing_invoice_in_app(invoice_id: int, payload: InAppInvoicePayPayload,
     ))
 
     # Toss payment log
+    import uuid
+    unique_order_id = f"{inv.invoice_code}_{uuid.uuid4().hex[:6]}"
     db.add(models.TossPaymentLog(
         payment_key=toss_res["paymentKey"],
-        order_id=inv.invoice_code,
+        order_id=unique_order_id,
         order_name=inv.item_title,
         amount=inv.final_amount,
         payment_type="B2B_TUITION_SUBMALL",
