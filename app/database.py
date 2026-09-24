@@ -45,10 +45,10 @@ if not DATABASE_URL.startswith("sqlite"):
             max_overflow=5,
             pool_recycle=300,
             pool_pre_ping=True,
-            pool_timeout=2,
+            pool_timeout=10,
             connect_args={
-                "connect_timeout": 2,
-                "options": "-c statement_timeout=2000"
+                "connect_timeout": 10,
+                "options": "-c statement_timeout=10000"
             }
         )
         def _test_pg_conn():
@@ -58,7 +58,7 @@ if not DATABASE_URL.startswith("sqlite"):
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
             future = executor.submit(_test_pg_conn)
-            future.result(timeout=2.5)
+            future.result(timeout=12.0)
 
         engine = pg_engine
         SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=pg_engine)
