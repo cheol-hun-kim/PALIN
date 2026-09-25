@@ -18,22 +18,106 @@
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --border-color: rgba(245, 158, 11, 0.2);
+            --font-family-base: 'Pretendard', sans-serif;
+            --bg-radial: radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.08) 0%, transparent 60%);
         }
+
+        /* 2. Palantir Cyber-Ops (NASA/SpaceX 젯블랙 + 형광 에메랄드 + 모노스페이스) */
+        [data-theme="palantir-cyber"] {
+            --master-bg: #020408;
+            --master-card: #060e17;
+            --master-gold: #00ff9d;
+            --master-gold-glow: rgba(0, 255, 157, 0.35);
+            --master-red: #ff3366;
+            --master-indigo: #00e5ff;
+            --text-primary: #e6fff4;
+            --text-secondary: #528070;
+            --border-color: rgba(0, 255, 157, 0.28);
+            --font-family-base: 'JetBrains Mono', 'SF Mono', monospace, 'Pretendard';
+            --bg-radial: radial-gradient(circle at 50% 0%, rgba(0, 255, 157, 0.12) 0%, transparent 65%);
+        }
+
+        /* 3. Neo-Swiss Editorial (Arc & Notion & Monocle 웜 오트밀 크림 라이트) */
+        [data-theme="neo-swiss"] {
+            --master-bg: #f6f4ee;
+            --master-card: #ffffff;
+            --master-gold: #e05a47;
+            --master-gold-glow: rgba(224, 90, 71, 0.2);
+            --master-red: #dc2626;
+            --master-indigo: #1e293b;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border-color: rgba(15, 23, 42, 0.12);
+            --font-family-base: 'Pretendard', -apple-system, sans-serif;
+            --bg-radial: radial-gradient(circle at 50% 0%, rgba(224, 90, 71, 0.05) 0%, transparent 60%);
+        }
+        [data-theme="neo-swiss"] .kpi-value {
+            color: #0f172a !important;
+        }
+        [data-theme="neo-swiss"] strong {
+            color: #0f172a !important;
+        }
+
+        /* 4. Vercel Hyper-Monochrome (Vercel & Raycast 100% 흑백 극단 고대비) */
+        [data-theme="vercel-mono"] {
+            --master-bg: #000000;
+            --master-card: #0a0a0a;
+            --master-gold: #ffffff;
+            --master-gold-glow: rgba(255, 255, 255, 0.2);
+            --master-red: #ef4444;
+            --master-indigo: #e5e5e5;
+            --text-primary: #ffffff;
+            --text-secondary: #7e7e7e;
+            --border-color: #222222;
+            --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --bg-radial: none;
+        }
+
+        /* 5. Nordic Pine & Champagne Gold (Brex / Carta / Rolex 헤리티지 딥 포레스트) */
+        [data-theme="nordic-gold"] {
+            --master-bg: #030d09;
+            --master-card: #081a13;
+            --master-gold: #d4af37;
+            --master-gold-glow: rgba(212, 175, 55, 0.3);
+            --master-red: #e63946;
+            --master-indigo: #2a9d8f;
+            --text-primary: #f4f9f6;
+            --text-secondary: #6f9483;
+            --border-color: rgba(212, 175, 55, 0.22);
+            --font-family-base: 'Pretendard', sans-serif;
+            --bg-radial: radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 60%);
+        }
+
+        /* 6. Tokyo Synthwave Neon (Cyberpunk 2077 / Steam Deck 마젠타 네온) */
+        [data-theme="tokyo-synthwave"] {
+            --master-bg: #0b031a;
+            --master-card: #150730;
+            --master-gold: #ff007f;
+            --master-gold-glow: rgba(255, 0, 127, 0.35);
+            --master-red: #ff3366;
+            --master-indigo: #00e5ff;
+            --text-primary: #fdf2f8;
+            --text-secondary: #c084fc;
+            --border-color: rgba(255, 0, 127, 0.3);
+            --font-family-base: 'Pretendard', sans-serif;
+            --bg-radial: radial-gradient(circle at 50% 0%, rgba(255, 0, 127, 0.12) 0%, transparent 65%);
+        }
+
         * {
             box-sizing: border-box;
         }
         html, body {
             background-color: var(--master-bg);
             color: var(--text-primary);
-            font-family: 'Pretendard', sans-serif;
+            font-family: var(--font-family-base);
             margin: 0;
             padding: 0;
-            background-image: radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.08) 0%, transparent 60%);
+            background-image: var(--bg-radial);
             min-height: 100vh;
             width: 100%;
             overflow-x: hidden;
-        
             display: block !important;
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
         .master-container {
             max-width: 1440px;
@@ -476,62 +560,62 @@
                             <span style="font-size: 0.7rem; background: #6366f1; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 800;">원형</span>
                         </div>
                         <div style="font-size: 0.73rem; color: #94a3b8; line-height: 1.4;">
-                            오리지널 네오브루탈리즘 다크 & 인디고 네온 글로우
+                            네오브루탈리즘 다크 & 인디고 네온 글로우
                         </div>
                     </div>
 
-                    <!-- Theme 2: minimal-5color -->
-                    <div onclick="applyGodModeTheme('minimal-5color')" id="theme-card-minimal-5color" style="background: #16181d; border: 2px solid #272a30; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s ease; color: #ffffff;">
+                    <!-- Theme 2: Palantir Cyber-Ops -->
+                    <div onclick="applyGodModeTheme('palantir-cyber')" id="theme-card-palantir-cyber" style="background: #020408; border: 2px solid #00ff9d; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s ease; color: #e6fff4;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-weight: 900; font-size: 0.88rem; color: #ffffff;">2. 5-컬러 미니멀</span>
-                            <span style="font-size: 0.7rem; background: #334155; color: #f8fafc; padding: 2px 6px; border-radius: 4px; font-weight: 800;">이모지 0%</span>
+                            <span style="font-weight: 900; font-size: 0.88rem; color: #00ff9d; font-family: monospace;">2. 팔란티어 사이버-옵스</span>
+                            <span style="font-size: 0.7rem; background: #00ff9d; color: #020408; padding: 2px 6px; border-radius: 4px; font-weight: 900;">Palantir</span>
                         </div>
-                        <div style="font-size: 0.73rem; color: #94a3b8; line-height: 1.4;">
-                            이모지 완전 멸절, 딱 5색상 한정 초고대비 텍스트
+                        <div style="font-size: 0.73rem; color: #528070; line-height: 1.4;">
+                            NASA/SpaceX급 젯블랙 & 포스포 에메랄드 시안 레이더
                         </div>
                     </div>
 
-                    <!-- Theme 3: enterprise-gemini -->
-                    <div onclick="applyGodModeTheme('enterprise-gemini')" id="theme-card-enterprise-gemini" style="background: #1e1e1e; border: 2px solid #475569; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s ease; color: #ffffff;">
+                    <!-- Theme 3: Neo-Swiss Editorial -->
+                    <div onclick="applyGodModeTheme('neo-swiss')" id="theme-card-neo-swiss" style="background: #f6f4ee; border: 2px solid #e05a47; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s ease; color: #0f172a;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-weight: 900; font-size: 0.88rem; color: #ffffff;">3. 제미나이 10.3</span>
-                            <span style="font-size: 0.7rem; background: #2563eb; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 800;">음의 여백</span>
+                            <span style="font-weight: 900; font-size: 0.88rem; color: #0f172a;">3. 네오 스위스 에디토리얼</span>
+                            <span style="font-size: 0.7rem; background: #e05a47; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 800;">Arc & Notion</span>
                         </div>
-                        <div style="font-size: 0.73rem; color: #cbd5e1; line-height: 1.4;">
-                            테두리 철거, 1.5px 벡터, 무채색 바다 & 대학 성역화
+                        <div style="font-size: 0.73rem; color: #64748b; line-height: 1.4;">
+                            눈의 피로를 덜어주는 웜 오트밀 크림 라이트 & 테라코타
                         </div>
                     </div>
 
-                    <!-- Theme 4: linear-obsidian -->
-                    <div onclick="applyGodModeTheme('linear-obsidian')" id="theme-card-linear-obsidian" style="background: #08090a; border: 2px solid #222326; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s ease; color: #ededef;">
+                    <!-- Theme 4: Vercel Hyper-Monochrome -->
+                    <div onclick="applyGodModeTheme('vercel-mono')" id="theme-card-vercel-mono" style="background: #000000; border: 2px solid #ffffff; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s ease; color: #ffffff;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-weight: 900; font-size: 0.88rem; color: #ededef;">4. 리니어 옵시디언</span>
-                            <span style="font-size: 0.7rem; background: #5e6ad2; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 800;">Linear</span>
+                            <span style="font-weight: 900; font-size: 0.88rem; color: #ffffff;">4. 버셀 하이퍼 모노</span>
+                            <span style="font-size: 0.7rem; background: #ffffff; color: #000000; padding: 2px 6px; border-radius: 4px; font-weight: 900;">Vercel</span>
                         </div>
-                        <div style="font-size: 0.73rem; color: #8a8f98; line-height: 1.4;">
-                            심연의 흑요석 블랙, 1px 헤어라인, 수험생 초몰입 다크
+                        <div style="font-size: 0.73rem; color: #888888; line-height: 1.4;">
+                            순도 100% 흑백 극단 고대비 & 1px 레이저 헤어라인
                         </div>
                     </div>
 
-                    <!-- Theme 5: stripe-fintech -->
-                    <div onclick="applyGodModeTheme('stripe-fintech')" id="theme-card-stripe-fintech" style="background: #0a2540; border: 2px solid #635bff; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s ease; color: #ffffff;">
+                    <!-- Theme 5: Nordic Pine & Champagne Gold -->
+                    <div onclick="applyGodModeTheme('nordic-gold')" id="theme-card-nordic-gold" style="background: #030d09; border: 2px solid #d4af37; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s ease; color: #f4f9f6;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-weight: 900; font-size: 0.88rem; color: #ffffff;">5. 스트라이프 핀테크</span>
-                            <span style="font-size: 0.7rem; background: #635bff; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 800;">Stripe</span>
+                            <span style="font-weight: 900; font-size: 0.88rem; color: #d4af37;">5. 노르딕 파인 & 골드</span>
+                            <span style="font-size: 0.7rem; background: #d4af37; color: #030d09; padding: 2px 6px; border-radius: 4px; font-weight: 900;">Brex & Luxury</span>
                         </div>
-                        <div style="font-size: 0.73rem; color: #8898aa; line-height: 1.4;">
-                            쿨 슬레이트 캔버스, 금융 결제선생 수납 원장 최적화
+                        <div style="font-size: 0.73rem; color: #6f9483; line-height: 1.4;">
+                            대치동 상위 1% VIP 웰스 라운지 딥 포레스트 그린 & 금박
                         </div>
                     </div>
 
-                    <!-- Theme 6: apple-cupertino -->
-                    <div onclick="applyGodModeTheme('apple-cupertino')" id="theme-card-apple-cupertino" style="background: rgba(28,28,30,0.9); border: 2px solid rgba(255,255,255,0.2); border-radius: 18px; padding: 12px; cursor: pointer; transition: all 0.2s ease; color: #ffffff;">
+                    <!-- Theme 6: Tokyo Synthwave Neon -->
+                    <div onclick="applyGodModeTheme('tokyo-synthwave')" id="theme-card-tokyo-synthwave" style="background: #0b031a; border: 2px solid #ff007f; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s ease; color: #fdf2f8;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-weight: 900; font-size: 0.88rem; color: #ffffff;">6. 애플 쿠퍼티노</span>
-                            <span style="font-size: 0.7rem; background: #0071e3; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 800;">Apple HIG</span>
+                            <span style="font-weight: 900; font-size: 0.88rem; color: #ff007f;">6. 네오 도쿄 신스웨이브</span>
+                            <span style="font-size: 0.7rem; background: #ff007f; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 900;">Cyberpunk</span>
                         </div>
-                        <div style="font-size: 0.73rem; color: #8e8e93; line-height: 1.4;">
-                            스페이셜 프로스티드 글래스, 18px 스쿼클 곡률
+                        <div style="font-size: 0.73rem; color: #c084fc; line-height: 1.4;">
+                            심해 바이올렛 & 마젠타 핑크 레이저 네온 게이미피케이션
                         </div>
                     </div>
                 </div>
@@ -3095,29 +3179,28 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
 
         // --- 🎨 갓모드 6대 멀티 테마 스위처 함수 ---
         function applyGodModeTheme(themeName) {
-            const validThemes = ['original', 'classic', 'minimal-5color', 'enterprise-gemini', 'linear-obsidian', 'stripe-fintech', 'apple-cupertino'];
+            const validThemes = ['original', 'palantir-cyber', 'neo-swiss', 'vercel-mono', 'nordic-gold', 'tokyo-synthwave'];
             if (!validThemes.includes(themeName)) themeName = 'original';
 
             document.documentElement.setAttribute('data-theme', themeName);
             localStorage.setItem('palin_theme', themeName);
 
             const labels = {
-                'original': '오리지널 클래식',
-                'classic': '오리지널 클래식',
-                'minimal-5color': '5-컬러 미니멀',
-                'enterprise-gemini': '제미나이 10.3',
-                'linear-obsidian': '리니어 옵시디언',
-                'stripe-fintech': '스트라이프 핀테크',
-                'apple-cupertino': '애플 쿠퍼티노'
+                'original': '1. 오리지널 클래식',
+                'palantir-cyber': '2. 팔란티어 사이버-옵스',
+                'neo-swiss': '3. 네오 스위스 에디토리얼',
+                'vercel-mono': '4. 버셀 하이퍼 모노',
+                'nordic-gold': '5. 노르딕 파인 & 골드',
+                'tokyo-synthwave': '6. 네오 도쿄 신스웨이브'
             };
 
             const badge = document.getElementById('active-theme-badge');
             if (badge) badge.innerText = `현재 테마: ${labels[themeName] || themeName}`;
 
-            ['original', 'minimal-5color', 'enterprise-gemini', 'linear-obsidian', 'stripe-fintech', 'apple-cupertino'].forEach(t => {
+            ['original', 'palantir-cyber', 'neo-swiss', 'vercel-mono', 'nordic-gold', 'tokyo-synthwave'].forEach(t => {
                 const card = document.getElementById(`theme-card-${t}`);
                 if (card) {
-                    if (t === themeName || (t === 'original' && themeName === 'classic')) {
+                    if (t === themeName) {
                         card.style.outline = '3px solid #38bdf8';
                         card.style.transform = 'scale(1.02)';
                     } else {
