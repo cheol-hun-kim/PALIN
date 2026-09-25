@@ -486,17 +486,7 @@ def ask_ai_chatbot(
                 # 3-C. 고등학생 (HIGH) - 13년차 수능 입시 철학 및 실시간 지능형 맞춤 추론
                 knowledge_corpus = get_expert_knowledge()[:6000]
                 
-                if tenant_tier == 2 and tenant_custom_prompt and tenant_custom_prompt.strip():
-                    bot_name = tenant_bot_name or "PALIN AI 멘토"
-                    system_prompt = (
-                        f"You are {bot_name}. Respond ONLY in Korean.\n\n"
-                        f"{tenant_custom_prompt.strip()}\n\n"
-                        "=== ABSOLUTE RULES ===\n"
-                        "1. NO MARKDOWN: Write in clean, plain conversational text with normal paragraph breaks. Do NOT use '#', '##', '**', or bullets.\n"
-                        "2. CONTEXT: Direct, actionable guidance tailored to high school and repeat test-takers grounded in proven CSAT principles. NEVER mention the phrase '실패의 원리'.\n"
-                        "3. CONCISE: 답변은 핵심 결론과 행동 지침만 1~2문단(150~250자)으로 간결하고 단호하게 요약하여 전달하십시오.\n"
-                    )
-                elif tenant_tier == 4:
+                if tenant_tier == 4:
                     # Tier 4 Founder Edition (일원학원 수강생 전용 비매품 👑: 김철훈 대표원장 수능국어 철학 및 8주 방법론 100% 탑재)
                     system_prompt = (
                         "You are PALIN BOT - Ilwon Founder & CSAT Korean Master (Kim Cheol-hoon, 김철훈 원장). Respond ONLY in Korean.\n\n"
@@ -513,7 +503,7 @@ def ask_ai_chatbot(
                         "2. NEVER DIRECTLY MENTION '실패의 원리' & NEVER COPY-PASTE: '실패의 원리'라는 제목이나 문구를 학생에게 절대 직접 언급하지 마십시오. 책을 인용하듯 말하지 말고, 14대 수험 철학(두 마리 토끼 허상 타파, 168시간 시스템, 3단계 오답법, 바이오리듬 관성 등)을 당신 자신의 13년 현장 지도 경험과 육성으로 완전히 체화하여 자연스럽게 풀어내십시오.\n"
                         "3. NO GENERIC AI FLUFF: 'AI로서 말씀드리면', '좋은 질문입니다', '다양한 방법이 있으니 선택해보세요' 같은 영혼 없는 AI 상투어를 절대 쓰지 마십시오. 학생 책상 앞에 마주 앉은 든든하고 냉철한 대표원장처럼 명쾌하게 길을 짚어주십시오.\n"
                         "4. NO GENDERED TITLES: '형', '오빠', '누나', '언니' 등의 성별 호칭을 절대 쓰지 말고, 진정한 입시 멘토로서 신뢰감 있게 대화하십시오.\n"
-                        "5. EXTENSIVE & DEEP SIGNATURE COACHING (Tier 4 전용 고밀도 장문 코칭): 답변을 짧게 끊지 마십시오. 4~5개 심층 문단(800~1,500자 이상)으로 ① 문제의 근본 원인 날카로운 진단 ➔ ② 수험의 본질적인 출제원리 및 실전 원칙 연계 ➔ ③ 학생이 지금 당장 실행할 구체적 행동 강령(PASS-MATE 타이머 순공 4시간, 3단계 오답노트 백지 재풀이, 30분 블록 계획표, 06:30 기상 바이오리듬) ➔ ④ 냉철하면서도 힘찬 동기부여와 격려까지 포괄하는 최고 권위의 종합 솔루션을 제공하십시오.\n"
+                        "5. EXTENSIVE & DEEP SIGNATURE COACHING (Tier 4 전용 초고밀도 장문 코칭): 답변을 짧게 끊지 마십시오. 4~5개 심층 문단(800~1,500자 이상)으로 ① 문제의 근본 원인 날카로운 진단 ➔ ② 수험의 본질적인 출제원리 및 실전 원칙 연계 ➔ ③ 학생이 지금 당장 실행할 구체적 행동 강령(PASS-MATE 타이머 순공 4시간, 3단계 오답노트 백지 재풀이, 30분 블록 계획표, 06:30 기상 바이오리듬) ➔ ④ 냉철하면서도 힘찬 동기부여와 격려까지 포괄하는 최고 권위의 종합 솔루션을 제공하십시오.\n"
                         "6. COMPLETE YOUR SENTENCES: 항상 문장과 생각을 완결된 마침표로 책임감 있게 끝맺으십시오.\n\n"
                         "=== [VOICE & TONE] ===\n"
                         "Use confident, direct, caring banmal (casual speech: ~해라, ~하자, ~이야, ~거든, ~잖아, ~단다).\n\n"
@@ -522,12 +512,11 @@ def ask_ai_chatbot(
                         f"=== [AUTHOR'S MASTER KNOWLEDGE CORPUS: 수능 1등급 역전 14대 핵심 수험 철학] ===\n{knowledge_corpus}\n"
                     )
                 elif tenant_tier == 3:
-                    # Tier 3 Master Admissions Director / 1:1 심층 입시 멘토
+                    # Tier 3 Master Admissions Director (B2B 프리미엄 가맹 학원)
                     system_prompt = (
                         "You are PALIN BOT - Master Admissions Director & CSAT Coach (Kim Cheol-hoon, 김철훈 원장). Respond ONLY in Korean.\n\n"
                         "=== [IDENTITY & SCOPE: 13년차 수능 입시 총괄 디렉터 & 수석 멘토] ===\n"
                         "- You are a 13-year veteran CSAT entrance mentor and Master Admissions Director with proven track records.\n"
-                        "- You provide objective, comprehensive, and deeply experienced 1:1 admissions strategy, subject study coaching, and biological habit control.\n"
                         "- Ground your entire guidance in the deep wisdom of proven CSAT principles and 14 core study frameworks, but NEVER mention the title or phrase '실패의 원리'.\n\n"
                         "=== [DYNAMIC REAL-TIME REASONING MANDATE: 고정 답변 복붙 절대 금지 & 실시간 맞춤 추론] ===\n"
                         "1. NEVER OUTPUT CANNED OR REPETITIVE PHRASES: 학생의 고유한 질문, 감정 상태, 목표 대학, 취약 과목 맥락을 정확히 포착하여 매번 살아있는 1:1 실시간 맞춤 조언을 생성하십시오.\n"
@@ -541,17 +530,35 @@ def ask_ai_chatbot(
                         f"{KOREAN_CSAT_TRUTH_MANIFESTO}\n\n"
                         f"=== [AUTHOR'S MASTER KNOWLEDGE CORPUS: 수능 1등급 역전 14대 핵심 수험 철학] ===\n{knowledge_corpus}\n"
                     )
-                else:
-                    # Tier 1 & Tier 2 Free/Basic Coach
+                elif tenant_tier == 2:
+                    # Tier 2 (B2C 유료 구독 회원 / B2B 기본) - 실패의 원리 14대 수험 철학 기반이되 1/10 수준 (150~250자) 초간결 요약
+                    bot_name = (tenant_bot_name if tenant_bot_name else None) or "PALIN AI 멘토"
+                    custom_inject = f"{tenant_custom_prompt.strip()}\n\n" if (tenant_custom_prompt and tenant_custom_prompt.strip()) else ""
                     system_prompt = (
-                        "You are PALIN BOT - CSAT Coach (Kim Cheol-hoon, 김철훈 원장). Respond ONLY in Korean.\n\n"
-                        "=== [IDENTITY & SCOPE: 13년차 수능 입시 코치 & 디렉터] ===\n"
-                        "- Ground your guidance in proven CSAT principles, but NEVER mention the title or phrase '실패의 원리'.\n"
-                        "- 2~3개 문단(300~500자)으로 핵심 행동 지침을 명쾌하게 안내하십시오.\n\n"
+                        f"You are {bot_name} - CSAT Coach. Respond ONLY in Korean.\n\n"
+                        f"{custom_inject}"
+                        "=== [IDENTITY & SCOPE: 14대 수험 철학 기반 콤팩트 멘토 (Tier 2)] ===\n"
+                        "- Ground your guidance in 14 core entrance principles, but NEVER mention the title or phrase '실패의 원리'.\n"
+                        "- [COMPACT LENGTH RULE (Tier 2 전용 요약 모드)]:\n"
+                        "  * 긴 서론이나 배경 이야기를 생략하고, 딱 2개의 짧은 문단 (총 150~250자 내외)으로 작성하십시오.\n"
+                        "  * 문단 1: 문제의 핵심 원인 날카로운 진단 (1~2문장)\n"
+                        "  * 문단 2: 지금 당장 실천할 구체적 행동 강령 (1~2문장)\n\n"
                         "=== [VOICE & TONE] ===\n"
-                        "Use confident, direct, caring banmal (casual speech: ~해라, ~하자, ~이야, ~거든, ~잖아).\n\n"
+                        "Use confident, direct, caring banmal (~해라, ~하자, ~이야, ~거든).\n\n"
                         f"{PASSMATE_STUDENT_MANUAL}\n\n"
                         f"=== [AUTHOR'S MASTER KNOWLEDGE CORPUS: 수능 1등급 역전 14대 핵심 수험 철학] ===\n{knowledge_corpus}\n"
+                    )
+                else:
+                    # Tier 1 (B2C 완전 무료 회원) - '실패의 원리' 지식베이스 완전 배제 (0% 주입), 일반 순수 Gemini 학습 코치
+                    system_prompt = (
+                        "You are PASS-MATE AI Assistant - General High School Study Coach. Respond ONLY in Korean.\n\n"
+                        "=== [IDENTITY & SCOPE: 일반 학습 도우미 (Tier 1 Free)] ===\n"
+                        "- You are a polite, helpful general high school study assistant.\n"
+                        "- Do NOT mention or use any proprietary CSAT methodology or proprietary entrance philosophy.\n"
+                        "- Provide standard, friendly study tips and PASS-MATE app guide in 2 concise paragraphs (150~250 characters).\n\n"
+                        "=== [VOICE & TONE] ===\n"
+                        "Use polite, supportive Korean (~해요, ~해보세요, ~입니다).\n\n"
+                        f"{PASSMATE_STUDENT_MANUAL}\n"
                     )
 
         # Build & sanitize contents for Gemini API (Must alternate user/model and start with user)
@@ -591,21 +598,25 @@ def ask_ai_chatbot(
         if not contents:
             contents = [{'role': 'user', 'parts': [{'text': message}]}]
 
-        # Dynamic max token calculation based on tier and role
-        tier_token_limit = 2048 if tenant_tier == 4 else (1500 if tenant_tier == 3 or user_role_upper == "PARENT" else 800)
+        # Dynamic max token calculation with thinking headroom
+        if user_role_upper == "PARENT":
+            tier_token_limit = 3500
+        elif tenant_tier == 4:
+            tier_token_limit = 4096  # Tier 4 Founder Edition: 1,000~1,500+자 장문 심층
+        elif tenant_tier == 3:
+            tier_token_limit = 3500  # Tier 3 Master Admissions: 600~1,000자
+        elif tenant_tier == 2:
+            tier_token_limit = 2500  # Tier 2: 1/10 콤팩트 모드 (150~250자)
+        else:
+            tier_token_limit = 2500  # Tier 1: 무료 일반 학습 코치 (150~250자)
 
-        # Standard Google GenAI model hierarchy & Multi-Key Failover with Fast Concurrent Resolution
-        import concurrent.futures
+        # Model hierarchy optimized per tier
+        if tenant_tier == 1:
+            candidate_models = ['gemini-3.5-flash-lite', 'gemini-flash-latest', 'gemini-3.8-flash']
+        else:
+            candidate_models = ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-3.5-flash-lite']
+
         available_keys = get_available_api_keys()
-        candidate_models = [
-            'gemini-3.8-flash',
-            'gemini-3.6-flash',
-            'gemini-3.5-flash-lite',
-            'gemini-flash-latest',
-            'gemini-3.1-flash-lite',
-            'gemini-3.7-flash',
-            'gemini-3.5-flash'
-        ]
 
         def _execute_cloud_generation():
             def _try_single_call(api_key_str, model_name):
@@ -642,31 +653,42 @@ def ask_ai_chatbot(
                         return res
             return None
 
-        # Enforce 15.0s timeout: if Google API hangs, fallback immediately
+        # Enforce 22.0s timeout: if Google API hangs, fallback immediately
         future = _genai_pool.submit(_execute_cloud_generation)
         try:
-            cloud_reply = future.result(timeout=15.0)
+            cloud_reply = future.result(timeout=22.0)
             if cloud_reply:
                 return cloud_reply
         except concurrent.futures.TimeoutError:
-            print("Cloud Gemini call timed out (>12.0s) -> Seamlessly switching to High-Quality Local Knowledge Engine")
+            print("Cloud Gemini call timed out (>22.0s) -> Seamlessly switching to High-Quality Local Knowledge Engine")
         except Exception as thread_ex:
             print(f"Cloud execution thread exception: {thread_ex}")
 
         # Intelligent Offline/Local Knowledge Fallback Engine (Zero-Breakdown Guarantee)
-        return _generate_local_knowledge_reply(message, history, user_role_upper, school_level_upper)
+        return _generate_local_knowledge_reply(message, history, user_role_upper, school_level_upper, tenant_tier)
     except Exception as e:
         print(f"CHATBOT UNEXPECTED ERROR: {e}")
-        return _generate_local_knowledge_reply(message, history, "STUDENT", "HIGH")
+        return _generate_local_knowledge_reply(message, history, "STUDENT", "HIGH", tenant_tier)
 
 
-def _generate_local_knowledge_reply(message: str, history: list = None, user_role: str = "STUDENT", school_level: str = "HIGH") -> str:
+def _generate_local_knowledge_reply(message: str, history: list = None, user_role: str = "STUDENT", school_level: str = "HIGH", tenant_tier: int = 3) -> str:
     """
     Intelligent Dynamic Local Knowledge Fallback Engine
-    - Synthesizes authentic, non-repetitive responses directly from 14 core entrance principles.
-    - Guarantees immediate, deeply tailored coaching in genuine Kim Cheol-hoon persona even during offline/network outages.
+    - Synthesizes authentic, non-repetitive responses.
+    - Tier 1: General study guidance without proprietary 14 principles.
+    - Tier 2: 1/10 length compact summary.
+    - Tier 3/4: Full extensive coaching.
     """
     msg_clean = (message or "").strip().lower()
+    
+    # Tier 1 (Free) Fallback: General Study Coach (Zero Proprietary Knowledge)
+    if tenant_tier == 1 and user_role != "PARENT":
+        return (
+            "안녕하세요! PASS-MATE 학습 도우미 AI입니다.\n\n"
+            "효율적인 공부를 위해서는 [생활관리] 탭에서 집중 타이머로 순수 자습 시간을 측정하고, "
+            "[학습공간] 탭의 주간 계획표를 활용해 30분 단위로 학습 목표를 실천하는 것이 좋습니다. "
+            "궁금한 과목이나 사용법이 있다면 언제든 편하게 물어보세요!"
+        )
     
     # 0. 메타 질문 및 피드백 대응 (반복/버그/답변 이상 호소)
     if any(k in msg_clean for k in ["반복", "똑같", "같은말", "같은 말", "왜그래", "왜 그래", "이상해", "버그", "에러", "로봇", "ai", "챗봇"]):
