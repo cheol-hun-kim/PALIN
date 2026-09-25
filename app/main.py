@@ -4564,6 +4564,7 @@ def debug_db_status():
         from app.database import engine, DATABASE_URL
         from sqlalchemy import text
         info["database_url_type"] = "postgres" if "postgres" in DATABASE_URL else "sqlite"
+        info["db_host"] = DATABASE_URL.split("@")[-1].split("/")[0] if "@" in DATABASE_URL else "local_or_sqlite"
         info["engine_dialect"] = engine.dialect.name
         
         # Test direct engine connection
