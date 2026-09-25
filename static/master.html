@@ -1628,7 +1628,7 @@
                 const statsRes = await fetch("/api/master/macro-stats");
                 if (statsRes.ok) {
                     const stats = await statsRes.json();
-                    document.getElementById("stat-total-tenants").innerText = `${stats.total_tenants}개 학원`;
+                    document.getElementById("stat-total-tenants").innerHTML = `<span style="font-size:1.3rem;">${stats.total_tenants}개</span> <span style="font-size:0.75rem; color:#94a3b8; font-weight:normal;">(데모 시뮬레이터 ${stats.demo_tenants_count || 0}개)</span>`;
                     document.getElementById("stat-total-students").innerText = `${stats.total_students}명`;
                     document.getElementById("stat-study-growth").innerText = stats.avg_study_growth;
                     document.getElementById("stat-total-escrow").innerText = `${(stats.total_escrow_deductions || 0).toLocaleString()}원`;
@@ -1839,9 +1839,10 @@
                     <tr style="${!isActive ? 'opacity: 0.55;' : ''}">
                         <td><span style="font-family:monospace; font-weight:900; background:rgba(255,255,255,0.06); padding:3px 8px; border-radius:4px; color:#fbbf24;">${t.code}</span></td>
                         <td>
-                            <div style="display: flex; align-items: center; gap: 6px;">
+                            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                                 ${bizBadge}
                                 <strong style="color:white; font-size:0.9rem;">${t.name}</strong>
+                                ${t.is_demo ? '<span style="background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid rgba(239,68,68,0.3); font-size:0.65rem; padding:1px 6px; border-radius:4px; font-weight:800;">🎮 시뮬레이터</span>' : '<span style="background:rgba(16,185,129,0.15); color:#6ee7b7; border:1px solid rgba(16,185,129,0.3); font-size:0.65rem; padding:1px 6px; border-radius:4px; font-weight:800;">👑 실운영 본점</span>'}
                             </div>
                             <div style="font-size:0.72rem; color:#94a3b8; display:flex; align-items:center; gap:4px; margin-top:2px; flex-wrap:wrap;">
                                 <span>${t.director_name}</span> · 

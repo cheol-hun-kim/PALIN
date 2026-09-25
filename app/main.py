@@ -6335,7 +6335,16 @@ def get_master_macro_stats(db: Session = Depends(get_db)):
     tier1_cnt = 0
     tier2_cnt = 0
     tier3_cnt = 0
+    real_tenants_cnt = 0
+    demo_tenants_cnt = 0
+    
     for t in tenants:
+        is_demo = t.code in ["MID-TOP01", "ELEM-PET01", "CAFE-STUDY01"]
+        if is_demo:
+            demo_tenants_cnt += 1
+        else:
+            real_tenants_cnt += 1
+
         if t.tier == 1: tier1_cnt += 1
         elif t.tier == 2: tier2_cnt += 1
         elif t.tier >= 3: tier3_cnt += 1
@@ -6348,7 +6357,9 @@ def get_master_macro_stats(db: Session = Depends(get_db)):
 
     return {
         "status": "success",
-        "total_tenants": len(tenants),
+        "total_tenants": real_tenants_cnt,
+        "demo_tenants_count": demo_tenants_cnt,
+        "total_all_tenants": len(tenants),
         "total_students": students_count,
         "avg_study_growth": growth_str,
         "total_escrow_deductions": escrow_total,
@@ -6389,12 +6400,13 @@ def get_master_tenants(db: Session = Depends(get_db)):
 
     result = []
     for t in tenants:
-        # 실시간 소속 및 승인 대기 재원생 수 집계
+        # 실시간 해당 학원 고유 소속 재원생 수 정확히 집계
         st_count = db.query(models.Student).filter(
             models.Student.deleted_at == None,
-            (models.Student.academy_code == t.code) | (models.Student.academy_approval_status.in_(["APPROVED", "PENDING"]))
+            models.Student.academy_code == t.code
         ).count()
 
+        is_demo = t.code in ["MID-TOP01", "ELEM-PET01", "CAFE-STUDY01"]
         est_royalty = int((t.monthly_revenue or 0) * (t.royalty_rate or 15.0) / 100)
         result.append({
             "id": t.id,
@@ -6409,6 +6421,7 @@ def get_master_tenants(db: Session = Depends(get_db)):
             "seat_layout_json": getattr(t, "seat_layout_json", "[]") or "[]",
             "max_students": t.max_students,
             "is_active": t.is_active,
+            "is_demo": is_demo,
             "logo_url": t.logo_url,
             "brand_color": t.brand_color,
             "royalty_rate": t.royalty_rate,
