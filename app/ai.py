@@ -256,7 +256,7 @@ def load_univ_cuts():
         return {}
 
 KEY_FILE_PATH = os.path.join(os.path.dirname(__file__), "..", "gemini_key.txt")
-DEFAULT_FALLBACK_KEY_B64 = "QVEuQWI4Uk42S1JZU3ExbmJnZmpfZGZIYTBIMmZ0U1FjOC1aTTFBdjQzLUZxcUtnSE5HakE="
+DEFAULT_FALLBACK_KEY_B64 = "QVEuQWI4Uk42Smlod241c19kZHhEMkN2dVdCeU94SGpRRE5xeUJlSmpXbXBZNTYzSzRCVnc="
 
 def get_available_api_keys():
     """Retrieve all available Gemini API keys with priority on environment variables"""
