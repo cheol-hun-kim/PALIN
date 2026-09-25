@@ -598,12 +598,12 @@ def ask_ai_chatbot(
         import concurrent.futures
         available_keys = get_available_api_keys()
         candidate_models = [
+            'gemini-3.8-flash',
             'gemini-3.6-flash',
             'gemini-3.5-flash-lite',
-            'gemini-3.8-flash',
+            'gemini-flash-latest',
             'gemini-3.1-flash-lite',
             'gemini-3.7-flash',
-            'gemini-flash-lite-latest',
             'gemini-3.5-flash'
         ]
 
@@ -635,30 +635,21 @@ def ask_ai_chatbot(
                     print(f"CHATBOT MODEL NOTE ({model_name} with key {api_key_str[:8]}...): {mod_ex}")
                 return None
 
-            tasks = []
             for api_k in available_keys:
-                for mod_name in candidate_models:
-                    tasks.append((api_k, mod_name))
-
-            if not tasks:
-                return None
-
-            with concurrent.futures.ThreadPoolExecutor(max_workers=min(len(tasks), 8)) as local_pool:
-                fut_to_task = {local_pool.submit(_try_single_call, ak, mn): (ak, mn) for ak, mn in tasks}
-                for fut in concurrent.futures.as_completed(fut_to_task):
-                    res = fut.result()
+                for mod_name in candidate_models[:3]:
+                    res = _try_single_call(api_k, mod_name)
                     if res:
                         return res
             return None
 
-        # Enforce 5.0s timeout: if Google API hangs or hits quota exhaustion, fallback immediately
+        # Enforce 15.0s timeout: if Google API hangs, fallback immediately
         future = _genai_pool.submit(_execute_cloud_generation)
         try:
-            cloud_reply = future.result(timeout=5.0)
+            cloud_reply = future.result(timeout=15.0)
             if cloud_reply:
                 return cloud_reply
         except concurrent.futures.TimeoutError:
-            print("Cloud Gemini call timed out (>5.0s) -> Seamlessly switching to High-Quality Local Knowledge Engine")
+            print("Cloud Gemini call timed out (>12.0s) -> Seamlessly switching to High-Quality Local Knowledge Engine")
         except Exception as thread_ex:
             print(f"Cloud execution thread exception: {thread_ex}")
 
