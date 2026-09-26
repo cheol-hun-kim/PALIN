@@ -396,6 +396,11 @@ class QAPostCreate(BaseModel):
     content: str
     reward_points: int
     is_anonymous: Optional[bool] = False
+    target_type: Optional[str] = "ALL" # ALL | HIGH_SCHOOL | TARGET_UNIV | DIRECT_TUTOR
+    target_high_school: Optional[str] = None
+    target_university: Optional[str] = None
+    target_major: Optional[str] = None
+    target_tutor_id: Optional[int] = None
 
 class QACommentCreate(BaseModel):
     student_id: int
@@ -425,6 +430,13 @@ class QAPostResponse(BaseModel):
     reward_points: int
     is_resolved: bool
     is_anonymous: Optional[bool] = False
+    target_type: Optional[str] = "ALL"
+    target_high_school: Optional[str] = None
+    target_university: Optional[str] = None
+    target_major: Optional[str] = None
+    target_tutor_id: Optional[int] = None
+    is_pinned_for_viewer: Optional[bool] = False
+    viewer_target_match_reason: Optional[str] = None
     created_at: datetime
     comments: List[QACommentResponse] = []
 

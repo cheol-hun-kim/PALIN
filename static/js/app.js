@@ -6933,20 +6933,11 @@ function updateTargetBanner() {
 
     if (ddayTitleEl) ddayTitleEl.innerText = formatDDayTitle(activeTitle);
 
-    // 🌲 포레스트 목표 대학 로고 & 엠블럼 렌더링
-
+    // D-Day 및 목표 대학 타이틀 동기화
     if (currentStudent) {
-
-        const emblemEl = document.getElementById("target-symbol-emblem");
-
         const logoNameEl = document.getElementById("target-logo-name");
-
-        if (emblemEl) emblemEl.innerText = getMedicalSymbolIcon(currentStudent.medical_symbol);
-
-        if (logoNameEl) logoNameEl.innerText = `${currentStudent.target_univ || "목표 대학"} 수호 중`;
-
+        if (logoNameEl) logoNameEl.innerText = `${currentStudent.target_univ || "목표 대학"}`;
     }
-
 }
 
 // 💥 포레스트 균열(Crack) 애니메이션 및 딴짓 타격감 발동
@@ -10785,9 +10776,43 @@ function toggleQAPostDetail(postId) {
     }
 }
 
+function selectQATargetType(type, btn) {
+    document.querySelectorAll('.qa-target-btn').forEach(b => {
+        b.classList.remove('btn-primary');
+        b.classList.add('btn-secondary');
+        b.style.background = '';
+        b.style.color = '';
+    });
+    if (btn) {
+        btn.classList.remove('btn-secondary');
+        btn.style.background = '#6366f1';
+        btn.style.color = 'white';
+    }
+    const hidden = document.getElementById("qa-selected-target-type");
+    if (hidden) hidden.value = type;
+
+    const detailBox = document.getElementById("qa-target-detail-box");
+    const detailText = document.getElementById("qa-target-detail-text");
+    if (!detailBox || !detailText) return;
+
+    if (type === 'ALL') {
+        detailBox.style.display = "none";
+    } else if (type === 'HIGH_SCHOOL') {
+        const sch = (window.currentStudent && window.currentStudent.high_school) || "내 등록 고교";
+        detailText.innerText = `[${sch}] 출신 선배들의 피드 최상단에 이 질문이 우선 노출됩니다.`;
+        detailBox.style.display = "block";
+    } else if (type === 'TARGET_UNIV') {
+        const univ = (window.currentStudent && window.currentStudent.target_univ) || "내 목표 대학";
+        detailText.innerText = `[${univ}] 합격/재학 선배들의 피드 최상단에 이 질문이 우선 노출됩니다.`;
+        detailBox.style.display = "block";
+    }
+}
+window.selectQATargetType = selectQATargetType;
+
 async function loadQAPosts() {
     try {
-        const res = await fetch("/api/qa/posts");
+        const sid = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem('studentId') || '0', 10);
+        const res = await fetch("/api/qa/posts" + (sid ? `?viewer_student_id=${sid}` : ""));
         if (!res.ok) return;
         const posts = await res.json();
         window.qaPostsCache = posts;
@@ -10838,7 +10863,7 @@ function renderQAPosts() {
     
     filtered.forEach(post => {
         const isResolved = Boolean(post.is_resolved);
-        const resolvedText = isResolved ? "✅ 채택완료" : "🔥 질문중";
+        const resolvedText = isResolved ? "채택완료" : "질문중";
         const resolvedBg = isResolved ? "rgba(16, 185, 129, 0.15)" : "rgba(245, 158, 11, 0.15)";
         const resolvedColor = isResolved ? "#34d399" : "#fbbf24";
         const resolvedBorder = isResolved ? "rgba(16, 185, 129, 0.3)" : "rgba(245, 158, 11, 0.3)";
@@ -10852,17 +10877,27 @@ function renderQAPosts() {
 
         const actionBtns = canModify ? `
             <div style="display: flex; gap: 4px; align-items: center;" onclick="event.stopPropagation();">
-                <button class="btn btn-secondary" style="padding: 2px 7px; font-size: 0.7rem; border-radius: 6px; cursor: pointer;" onclick="openEditQAModal(${post.id})">✏️ 수정</button>
-                <button class="btn btn-secondary" style="padding: 2px 7px; font-size: 0.7rem; border-radius: 6px; color: #ef4444; border-color: rgba(239, 68, 68, 0.4); cursor: pointer;" onclick="deleteQAPost(${post.id})">🗑️ 삭제</button>
+                <button class="btn btn-secondary" style="padding: 2px 7px; font-size: 0.7rem; border-radius: 6px; cursor: pointer;" onclick="openEditQAModal(${post.id})">수정</button>
+                <button class="btn btn-secondary" style="padding: 2px 7px; font-size: 0.7rem; border-radius: 6px; color: #ef4444; border-color: rgba(239, 68, 68, 0.4); cursor: pointer;" onclick="deleteQAPost(${post.id})">삭제</button>
             </div>
         ` : '';
+
+        // 선배 타깃팅 및 핀 뱃지
+        let targetBadgeHtml = "";
+        if (post.is_pinned_for_viewer) {
+            targetBadgeHtml = `<span style="background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; box-shadow: 0 0 10px rgba(236,72,153,0.3); display: inline-flex; align-items: center; gap: 3px;"><span class="material-symbols-rounded" style="font-size: 0.85rem;">push_pin</span> ${post.viewer_target_match_reason || '선배 맞춤 질문'}</span>`;
+        } else if (post.target_type === 'HIGH_SCHOOL' && post.target_high_school) {
+            targetBadgeHtml = `<span style="background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; font-weight: 700;">모교 ${post.target_high_school} 지정</span>`;
+        } else if (post.target_type === 'TARGET_UNIV' && post.target_university) {
+            targetBadgeHtml = `<span style="background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; font-weight: 700;">목표 ${post.target_university} 지정</span>`;
+        }
         
         let commentsHtml = "";
         if (post.comments && post.comments.length > 0) {
             post.comments.forEach(c => {
                 const acceptBtn = (!isResolved && post.student_id === currentStudent?.id) 
-                    ? `<button class="btn" style="padding: 3px 8px; font-size: 0.7rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 6px;" onclick="acceptQAComment(${c.id})">🏆 채택하기</button>` 
-                    : (c.is_accepted ? `<span style="color:#10b981; font-weight:800; font-size: 0.72rem; background: rgba(16,185,129,0.15); padding: 2px 6px; border-radius: 4px; border: 1px solid #10b981;">👑 채택된 답변</span>` : '');
+                    ? `<button class="btn" style="padding: 3px 8px; font-size: 0.7rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 6px;" onclick="acceptQAComment(${c.id})">채택하기</button>` 
+                    : (c.is_accepted ? `<span style="color:#10b981; font-weight:800; font-size: 0.72rem; background: rgba(16,185,129,0.15); padding: 2px 6px; border-radius: 4px; border: 1px solid #10b981;">채택된 답변</span>` : '');
                 
                 commentsHtml += `
                     <div style="background: ${c.is_accepted ? 'rgba(16,185,129,0.06)' : 'rgba(255,255,255,0.03)'}; border: 1px solid ${c.is_accepted ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)'}; padding: 10px 12px; border-radius: 8px; margin-top: 6px; font-size: 0.82rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
@@ -10889,8 +10924,11 @@ function renderQAPosts() {
         };
         const sIcon = subjectIcons[post.subject] || "💬";
 
+        const pinBorder = post.is_pinned_for_viewer ? "1.5px solid #ec4899" : "1.5px solid rgba(255,255,255,0.08)";
+        const pinBg = post.is_pinned_for_viewer ? "rgba(236,72,153,0.04)" : "rgba(255,255,255,0.03)";
+
         container.innerHTML += `
-            <div class="forum-item" id="qa-post-${post.id}" style="cursor: pointer; margin-bottom: 10px; padding: 14px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1.5px solid rgba(255,255,255,0.08); transition: all 0.2s ease;" onclick="toggleQAPostDetail(${post.id})">
+            <div class="forum-item" id="qa-post-${post.id}" style="cursor: pointer; margin-bottom: 10px; padding: 14px; border-radius: 12px; background: ${pinBg}; border: ${pinBorder}; transition: all 0.2s ease;" onclick="toggleQAPostDetail(${post.id})">
                 <!-- 상단 태그 행 -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
                     <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
@@ -10901,13 +10939,14 @@ function renderQAPosts() {
                             ${resolvedText}
                         </span>
                         <span style="background: rgba(245,158,11,0.12); color: #fbbf24; padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 800; border: 1px solid rgba(245,158,11,0.25);">
-                            💰 ${post.reward_points}P
+                            보상 ${post.reward_points}P
                         </span>
+                        ${targetBadgeHtml}
                     </div>
                     ${actionBtns}
                 </div>
 
-                <!-- 질문 제목 (컴팩트 리스트 뷰 핵심) -->
+                <!-- 질문 제목 -->
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
                     <div class="forum-title" style="font-size: 0.95rem; font-weight: 800; color: #ffffff; line-height: 1.35; flex: 1;">
                         ${post.title || (post.content.length > 35 ? post.content.slice(0, 35) + '...' : post.content)}
@@ -10921,7 +10960,7 @@ function renderQAPosts() {
                 <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-secondary); margin-top: 6px;">
                     <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; margin-right: 8px;">${post.student_name} · ${post.created_at ? post.created_at.slice(0, 16).replace('T', ' ') : ''}</span>
                     <span style="font-weight: 800; color: ${post.comments.length > 0 ? '#38bdf8' : '#94a3b8'}; white-space: nowrap; flex-shrink: 0;">
-                        💬 답변 ${post.comments.length}개
+                        답변 ${post.comments.length}개
                     </span>
                 </div>
 
@@ -10932,7 +10971,7 @@ function renderQAPosts() {
                     </div>
 
                     <div style="font-size: 0.78rem; font-weight: 800; color: #a5b4fc; margin-bottom: 6px;">
-                        💬 답변 목록 (${post.comments.length})
+                        답변 목록 (${post.comments.length})
                     </div>
                     ${commentsHtml}
 
@@ -11129,31 +11168,25 @@ async function createQAPost() {
     }
 
     const isAnonymous = document.getElementById("qa-post-anonymous")?.checked || false;
+    const targetType = document.getElementById("qa-selected-target-type")?.value || "ALL";
+    const targetHighSchool = (targetType === "HIGH_SCHOOL") ? (currentStudent.high_school || null) : null;
+    const targetUniv = (targetType === "TARGET_UNIV") ? (currentStudent.target_univ || null) : null;
 
     try {
-
         const res = await fetch("/api/qa/post", {
-
             method: "POST",
-
             headers: { "Content-Type": "application/json" },
-
             body: JSON.stringify({
-
                 student_id: currentStudent.id,
-
                 subject,
-
                 title,
-
                 content,
-
                 reward_points: reward,
-
-                is_anonymous: isAnonymous
-
+                is_anonymous: isAnonymous,
+                target_type: targetType,
+                target_high_school: targetHighSchool,
+                target_university: targetUniv
             })
-
         });
 
         if (res.ok) {
@@ -15790,7 +15823,15 @@ function demoIssueRedCard(studentId, studentName) {
 window.demoIssueRedCard = demoIssueRedCard;
 
 async function loadParentWeeklyDossier() {
-    const sid = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem('studentId') || '1', 10);
+    let sid = null;
+    if (window.currentStudent && window.currentStudent.id) {
+        sid = window.currentStudent.id;
+    } else if (window.currentParent && (window.currentParent.student_id || (window.currentParent.children && window.currentParent.children[0]))) {
+        sid = window.currentParent.student_id || window.currentParent.children[0].id;
+    } else {
+        sid = parseInt(localStorage.getItem('studentId') || '1', 10);
+    }
+
     try {
         const res = await fetch(`/api/student/${sid}/parent-weekly-dossier`);
         if (res.ok) {
@@ -15803,9 +15844,12 @@ async function loadParentWeeklyDossier() {
             const nextBillEl = document.getElementById("parent-dossier-next-billing");
             const hoursEl = document.getElementById("parent-dossier-study-hours");
             const benchStatusEl = document.getElementById("parent-dossier-benchmark-status");
+            const benchLabelEl = document.getElementById("parent-dossier-bench-label");
             const attRateEl = document.getElementById("parent-dossier-attendance-rate");
+            const attDescEl = document.getElementById("parent-dossier-attendance-desc");
             const examScoreEl = document.getElementById("parent-dossier-exam-score");
             const examSumEl = document.getElementById("parent-dossier-exam-summary");
+            const examRankEl = document.getElementById("parent-dossier-exam-rank");
             const hwRateEl = document.getElementById("parent-dossier-homework-rate");
             const routineRateEl = document.getElementById("parent-dossier-routine-rate");
             const strengthsEl = document.getElementById("parent-dossier-strengths");
@@ -15813,8 +15857,11 @@ async function loadParentWeeklyDossier() {
             const milestonesEl = document.getElementById("parent-dossier-milestones");
             const parentGuideEl = document.getElementById("parent-dossier-parent-guide");
 
+            const deptStr = data.student.target_dept ? ` ${data.student.target_dept}` : "";
+            const baseDeptStr = data.student.baseline_dept ? ` ${data.student.baseline_dept}` : "";
+
             if (stNameEl) stNameEl.innerText = `${data.student.name} (${data.student.school} ${data.student.grade}학년)`;
-            if (targetsEl) targetsEl.innerText = `목표: ${data.student.target_univ} ${data.student.target_dept} · 마지노선: ${data.student.baseline_univ} ${data.student.baseline_dept}`;
+            if (targetsEl) targetsEl.innerText = `목표: ${data.student.target_univ}${deptStr} · 마지노선: ${data.student.baseline_univ}${baseDeptStr}`;
             if (tierBadge) {
                 tierBadge.innerText = data.tier_info.tier_name;
                 if (data.tier_info.tier_num === 4) {
@@ -15825,17 +15872,24 @@ async function loadParentWeeklyDossier() {
                     tierBadge.style.background = "rgba(255,255,255,0.15)";
                 }
             }
-            if (percentileEl) percentileEl.innerText = data.study_telemetry.percentile || "상위 2.4%";
+            if (percentileEl) percentileEl.innerText = data.study_telemetry.percentile;
             if (cycleEl) cycleEl.innerText = data.tuition_cycle.label;
             if (nextBillEl) nextBillEl.innerText = data.tuition_cycle.next_billing_date;
             if (hoursEl) hoursEl.innerText = data.study_telemetry.weekly_hours_label;
             if (benchStatusEl) benchStatusEl.innerText = data.study_telemetry.benchmark_status;
-            if (attRateEl) attRateEl.innerText = `${data.attendance_telemetry.attendance_rate} (${data.attendance_telemetry.checkin_count}회)`;
+            if (benchLabelEl) benchLabelEl.innerText = `${data.study_telemetry.benchmark_label} (${data.study_telemetry.benchmark_hours}h)`;
+            if (attRateEl) attRateEl.innerText = data.attendance_telemetry.attendance_rate;
+            if (attDescEl) attDescEl.innerText = data.attendance_telemetry.status_label;
             
             if (data.exams && data.exams.length > 0) {
                 const latestExam = data.exams[0];
+                if (examRankEl) examRankEl.innerText = "최근 응시";
                 if (examScoreEl) examScoreEl.innerText = `${latestExam.score}점 (${latestExam.grade}등급)`;
                 if (examSumEl) examSumEl.innerText = `오답: ${latestExam.wrong_count}문항 (실전 ${latestExam.subject})`;
+            } else {
+                if (examRankEl) examRankEl.innerText = "응시 대기";
+                if (examScoreEl) examScoreEl.innerText = "미응시";
+                if (examSumEl) examSumEl.innerText = "최근 30일간 정규 모의고사 기록 없음";
             }
 
             if (hwRateEl) hwRateEl.innerText = data.homework_and_habits.homework_rate;

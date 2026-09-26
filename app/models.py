@@ -310,6 +310,13 @@ class QAPost(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
+    # 선배 멘토링 타깃 지정 필드 (전체 / 모교 선배 / 목표대학 선배 / 1:1 지목)
+    target_type = Column(String, default="ALL") # ALL | HIGH_SCHOOL | TARGET_UNIV | DIRECT_TUTOR
+    target_high_school = Column(String, nullable=True) # 예: 휘문고등학교
+    target_university = Column(String, nullable=True)  # 예: 연세대학교
+    target_major = Column(String, nullable=True)       # 예: 의예과
+    target_tutor_id = Column(Integer, nullable=True)   # 특정 튜터 지정
+
     student = relationship("Student", back_populates="qa_posts")
     comments = relationship("QAComment", back_populates="post")
 
