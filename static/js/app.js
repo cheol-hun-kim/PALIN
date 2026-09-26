@@ -15789,11 +15789,75 @@ function demoIssueRedCard(studentId, studentName) {
 }
 window.demoIssueRedCard = demoIssueRedCard;
 
-function demoOpenWeeklyReport() {
+async function loadParentWeeklyDossier() {
+    const sid = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem('studentId') || '1', 10);
+    try {
+        const res = await fetch(`/api/student/${sid}/parent-weekly-dossier`);
+        if (res.ok) {
+            const data = await res.json();
+            const stNameEl = document.getElementById("parent-dossier-student-name");
+            const targetsEl = document.getElementById("parent-dossier-targets");
+            const tierBadge = document.getElementById("parent-dossier-tier-badge");
+            const percentileEl = document.getElementById("parent-dossier-percentile");
+            const cycleEl = document.getElementById("parent-dossier-tuition-cycle");
+            const nextBillEl = document.getElementById("parent-dossier-next-billing");
+            const hoursEl = document.getElementById("parent-dossier-study-hours");
+            const benchStatusEl = document.getElementById("parent-dossier-benchmark-status");
+            const attRateEl = document.getElementById("parent-dossier-attendance-rate");
+            const examScoreEl = document.getElementById("parent-dossier-exam-score");
+            const examSumEl = document.getElementById("parent-dossier-exam-summary");
+            const hwRateEl = document.getElementById("parent-dossier-homework-rate");
+            const routineRateEl = document.getElementById("parent-dossier-routine-rate");
+            const strengthsEl = document.getElementById("parent-dossier-strengths");
+            const weaknessesEl = document.getElementById("parent-dossier-weaknesses");
+            const milestonesEl = document.getElementById("parent-dossier-milestones");
+            const parentGuideEl = document.getElementById("parent-dossier-parent-guide");
+
+            if (stNameEl) stNameEl.innerText = `${data.student.name} (${data.student.school} ${data.student.grade}학년)`;
+            if (targetsEl) targetsEl.innerText = `목표: ${data.student.target_univ} ${data.student.target_dept} · 마지노선: ${data.student.baseline_univ} ${data.student.baseline_dept}`;
+            if (tierBadge) {
+                tierBadge.innerText = data.tier_info.tier_name;
+                if (data.tier_info.tier_num === 4) {
+                    tierBadge.style.background = "linear-gradient(135deg, #10b981, #059669)";
+                } else if (data.tier_info.tier_num === 3) {
+                    tierBadge.style.background = "linear-gradient(135deg, #6366f1, #8b5cf6)";
+                } else {
+                    tierBadge.style.background = "rgba(255,255,255,0.15)";
+                }
+            }
+            if (percentileEl) percentileEl.innerText = data.study_telemetry.percentile || "상위 2.4%";
+            if (cycleEl) cycleEl.innerText = data.tuition_cycle.label;
+            if (nextBillEl) nextBillEl.innerText = data.tuition_cycle.next_billing_date;
+            if (hoursEl) hoursEl.innerText = data.study_telemetry.weekly_hours_label;
+            if (benchStatusEl) benchStatusEl.innerText = data.study_telemetry.benchmark_status;
+            if (attRateEl) attRateEl.innerText = `${data.attendance_telemetry.attendance_rate} (${data.attendance_telemetry.checkin_count}회)`;
+            
+            if (data.exams && data.exams.length > 0) {
+                const latestExam = data.exams[0];
+                if (examScoreEl) examScoreEl.innerText = `${latestExam.score}점 (${latestExam.grade}등급)`;
+                if (examSumEl) examSumEl.innerText = `오답: ${latestExam.wrong_count}문항 (실전 ${latestExam.subject})`;
+            }
+
+            if (hwRateEl) hwRateEl.innerText = data.homework_and_habits.homework_rate;
+            if (routineRateEl) routineRateEl.innerText = `기상 ${data.homework_and_habits.wake_up_rate} / 취침 ${data.homework_and_habits.sleep_rate}`;
+            if (strengthsEl) strengthsEl.innerText = data.diagnosis.strengths;
+            if (weaknessesEl) weaknessesEl.innerText = data.diagnosis.weaknesses;
+            if (milestonesEl) milestonesEl.innerText = data.diagnosis.milestones;
+            if (parentGuideEl) parentGuideEl.innerText = data.diagnosis.parent_guide;
+        }
+    } catch (e) {
+        console.warn("loadParentWeeklyDossier error:", e);
+    }
+}
+window.loadParentWeeklyDossier = loadParentWeeklyDossier;
+
+async function openParentWeeklyDossierModal() {
+    await loadParentWeeklyDossier();
     const modal = document.getElementById("demo-parent-weekly-report-modal");
     if (modal) modal.style.display = "flex";
 }
-window.demoOpenWeeklyReport = demoOpenWeeklyReport;
+window.openParentWeeklyDossierModal = openParentWeeklyDossierModal;
+window.demoOpenWeeklyReport = openParentWeeklyDossierModal;
 
 function closeDemoParentReportModal() {
     const modal = document.getElementById("demo-parent-weekly-report-modal");

@@ -205,6 +205,8 @@ def auto_seed_database(db: Session, engine):
                 total_seconds = sum((sess.duration_sec or 0) for sess in all_sessions)
                 total_hours = total_seconds / 3600.0
                 streak = s.streak_days or 0
+                if streak > 0 and s.last_streak_date is None:
+                    s.last_streak_date = date.today()
                 target_univ = (s.target_univ or '').strip()
 
                 def make_naive(dt):

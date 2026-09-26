@@ -1117,35 +1117,19 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 </div>
             </div>
 
-                <!-- 부모님 전송 주간 리포트 (아코디언 드롭다운 - 평소 기본 숨김) -->
-                <div class="card" id="parent-sms-dashboard-card" style="border: 1px dashed var(--color-accent); display: none; background: rgba(99, 102, 241, 0.04); margin-bottom: 20px;">
-                    <div class="card-title" onclick="toggleAccordion('parent-dashboard-body', 'parent-dashboard-icon')" style="color: #a78bfa; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; margin-bottom: 0;">
-                        <div style="display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            <span class="material-symbols-rounded" style="font-size: 1.2rem;">assessment</span>
-                            <span style="font-size: 0.86rem; font-weight: 700;">학부모 관리 대시보드 (SMS)</span>
-                        </div>
-                        <span class="material-symbols-rounded accordion-toggle-icon" id="parent-dashboard-icon" style="transition: transform 0.25s ease; color: #a78bfa; flex-shrink: 0;">expand_more</span>
-                    </div>
-                    
-                    <div id="parent-dashboard-body" style="display: none; margin-top: 12px;">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                            <div style="background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; text-align: center;">
-                                <div style="font-size: 0.75rem; color: var(--text-secondary);">주간 총 공부시간</div>
-                                <div id="report-study-hours" style="font-size: 1.3rem; font-weight: 800; color: var(--text-primary); margin-top: 4px;">0시간</div>
-                            </div>
-                            <div style="background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; text-align: center;">
-                                <div style="font-size: 0.75rem; color: var(--text-secondary);">미션 성공률</div>
-                                <div id="report-mission-rate" style="font-size: 1.3rem; font-weight: 800; color: var(--text-primary); margin-top: 4px;">0%</div>
+                <!-- 👨‍👩‍👧 학부모 전용 뷰: 주간 안심 정밀 리포트 바로보기 바 (학부모 모드 시에만 노출) -->
+                <div id="parent-sms-dashboard-card" style="display: none; margin-bottom: 20px;">
+                    <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(99, 102, 241, 0.15)); border: 1.5px solid #10b981; border-radius: 14px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.15);">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="material-symbols-rounded" style="color: #34d399; font-size: 1.6rem;">analytics</span>
+                            <div>
+                                <div style="font-size: 0.92rem; font-weight: 900; color: #ffffff;">📊 이번 주 학부모 안심 정밀 진단 리포트</div>
+                                <div style="font-size: 0.74rem; color: #cbd5e1; margin-top: 2px;">4주 수업 주기 · 순공/출결 텔레메트리 · 시험 성적 · AI 정밀 피드백</div>
                             </div>
                         </div>
-                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
-                            <span>총 측정 횟수: <span id="report-total-sessions" style="color: var(--text-primary); font-weight: 700;">0회</span></span>
-                            <button class="btn btn-secondary" id="premium-toggle-btn" style="padding: 4px 8px; font-size:0.65rem;" onclick="togglePremium()">⚡ 프리미엄 구독 상태 전환 (부모결제)</button>
-                        </div>
-                        <div style="margin-top: 14px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
-                            <div style="font-size: 0.8rem; font-weight:600; margin-bottom: 8px;">최근 인증 이력</div>
-                            <div id="recent-mission-logs" style="display:flex; flex-direction:column; gap:4px;"></div>
-                        </div>
+                        <button type="button" onclick="openParentWeeklyDossierModal()" class="btn" style="padding: 8px 16px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 8px; white-space: nowrap; cursor: pointer; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);">
+                            리포트 상세 보기 →
+                        </button>
                     </div>
                 </div>
 
@@ -4678,68 +4662,148 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <!-- 👨‍👩‍👧 [DEMO] 학부모 주간 심층 입시/학습 리포트 샘플 모달 -->
+    <!-- 👨‍👩‍👧 PALIN 올인원 학부모 주간 정밀 인텔리전스 안심 리포트 모달 -->
     <div class="modal" id="demo-parent-weekly-report-modal" style="display: none; align-items: center; justify-content: center; z-index: 10004; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);">
-        <div class="modal-content" style="max-width: 520px; width: 94%; max-height: 88vh; overflow-y: auto; background: #0f172a; border: 2px solid #10b981; border-radius: 20px; padding: 22px; box-shadow: 0 25px 60px rgba(0,0,0,0.9); text-align: left;">
+        <div class="modal-content" style="max-width: 580px; width: 94%; max-height: 88vh; overflow-y: auto; background: #0f172a; border: 2px solid #10b981; border-radius: 20px; padding: 22px; box-shadow: 0 25px 60px rgba(0,0,0,0.9); text-align: left;">
+            
+            <!-- 모달 헤더 & 티어 뱃지 -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
-                <div style="font-size: 1.05rem; font-weight: 900; color: #34d399; display: flex; align-items: center; gap: 6px;">
-                    <span class="material-symbols-rounded">analytics</span>
-                    <span>팰린 마스터 학원 9월 1주차 AI 심층 정기 리포트</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="material-symbols-rounded" style="color: #34d399; font-size: 1.4rem;">analytics</span>
+                    <div>
+                        <div style="font-size: 1.05rem; font-weight: 900; color: #34d399;" id="parent-dossier-title">PALIN OS 주간 인텔리전스 학부모 안심 정밀 리포트</div>
+                        <div style="font-size: 0.72rem; color: #94a3b8;" id="parent-dossier-date">2026년 9월 4주차 정기 리포트</div>
+                    </div>
                 </div>
                 <button onclick="closeDemoParentReportModal()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.85rem; border: none; cursor: pointer;">&times;</button>
             </div>
 
-            <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
+            <!-- 학생 기본 프로필 & AI 티어 뱃지 -->
+            <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); border-radius: 14px; padding: 14px; margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap;">
                     <div>
-                        <div style="font-size: 0.95rem; font-weight: 800; color: #ffffff;">김학생 (고3 수험생)</div>
-                        <div style="font-size: 0.72rem; color: #a7f3d0; margin-top: 2px;">목표: 성균관대학교 인문과학계열 · 마지노선: 건국대학교 자유전공학부(문과대학)</div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 1.05rem; font-weight: 900; color: #ffffff;" id="parent-dossier-student-name">김학생 (고3 수험생)</span>
+                            <span id="parent-dossier-tier-badge" style="background: linear-gradient(135deg, #10b981, #059669); color: white; font-size: 0.7rem; font-weight: 900; padding: 2px 8px; border-radius: 12px;">Tier 4 실패의 원리 VIP AI</span>
+                        </div>
+                        <div style="font-size: 0.74rem; color: #a7f3d0; margin-top: 3px;" id="parent-dossier-targets">목표: 연세대학교 의예과 · 마지노선: 성균관대학교 의예과</div>
                     </div>
                     <div style="text-align: right;">
-                        <div style="font-size: 0.72rem; color: #94a3b8;">주간 성실도</div>
-                        <div style="font-size: 1.15rem; font-weight: 900; color: #34d399;">상위 3.8%</div>
+                        <div style="font-size: 0.7rem; color: #94a3b8;">주간 성실도</div>
+                        <div style="font-size: 1.15rem; font-weight: 900; color: #34d399;" id="parent-dossier-percentile">상위 2.4%</div>
+                    </div>
+                </div>
+
+                <!-- 💳 4주 수강 주기 트래커 -->
+                <div style="margin-top: 10px; padding: 10px 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span class="material-symbols-rounded" style="font-size: 1.1rem; color: #fbbf24;">date_range</span>
+                        <div>
+                            <div style="font-size: 0.78rem; font-weight: 800; color: #fde68a;" id="parent-dossier-tuition-cycle">4주 정규 과정 중 3주차 (잔여 1주)</div>
+                            <div style="font-size: 0.68rem; color: #94a3b8;">다음 수강료 결제 예정일: <span id="parent-dossier-next-billing" style="color: #cbd5e1; font-weight: 700;">2026년 10월 08일</span></div>
+                        </div>
+                    </div>
+                    <span style="font-size: 0.72rem; color: #34d399; font-weight: 800; background: rgba(16,185,129,0.2); padding: 2px 8px; border-radius: 6px;">수업 정상 진행 중</span>
+                </div>
+            </div>
+
+            <!-- 4대 정량 텔레메트리 요약 그리드 -->
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px;">
+                <!-- 1. 순공 시간 & 목표대 부합도 -->
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px;">
+                    <div style="font-size: 0.7rem; color: #94a3b8; display: flex; justify-content: space-between;">
+                        <span>⏱️ 주간 순공 시간</span>
+                        <span style="color: #38bdf8; font-weight: 700;" id="parent-dossier-benchmark-status">+3.5h 초과 달성</span>
+                    </div>
+                    <div style="font-size: 1.15rem; font-weight: 900; color: #60a5fa; margin-top: 2px;" id="parent-dossier-study-hours">48.5시간</div>
+                    <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;">의대/SKY 기준선(45h) 상회</div>
+                </div>
+
+                <!-- 2. 출결 신뢰도 -->
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px;">
+                    <div style="font-size: 0.7rem; color: #94a3b8; display: flex; justify-content: space-between;">
+                        <span>📅 학원 출결 신뢰도</span>
+                        <span style="color: #34d399; font-weight: 700;">지각 0회</span>
+                    </div>
+                    <div style="font-size: 1.15rem; font-weight: 900; color: #34d399; margin-top: 2px;" id="parent-dossier-attendance-rate">100% (5/5회)</div>
+                    <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;">등하원 전일 정상 체크인</div>
+                </div>
+
+                <!-- 3. 실전 모의고사 성적 -->
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px;">
+                    <div style="font-size: 0.7rem; color: #94a3b8; display: flex; justify-content: space-between;">
+                        <span>📝 주간 모의고사</span>
+                        <span style="color: #fbbf24; font-weight: 800;">학원 2위</span>
+                    </div>
+                    <div style="font-size: 1.15rem; font-weight: 900; color: #fbbf24; margin-top: 2px;" id="parent-dossier-exam-score">94점 (1등급)</div>
+                    <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;" id="parent-dossier-exam-summary">오답: 독서 킬러 2문항</div>
+                </div>
+
+                <!-- 4. 과제 & 기상/취침 루틴 -->
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px;">
+                    <div style="font-size: 0.7rem; color: #94a3b8; display: flex; justify-content: space-between;">
+                        <span>📋 과제 & 수면 루틴</span>
+                        <span style="color: #a78bfa; font-weight: 700;">과제 100%</span>
+                    </div>
+                    <div style="font-size: 1.15rem; font-weight: 900; color: #a78bfa; margin-top: 2px;" id="parent-dossier-homework-rate">과제 4/4 완료</div>
+                    <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;" id="parent-dossier-routine-rate">기상·취침 85.7% 달성</div>
+                </div>
+            </div>
+
+            <!-- 3대 AI 정밀 진단 피드백 -->
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px;">
+                <!-- 1. 잘하고 있는 점 -->
+                <div style="background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.2); border-radius: 12px; padding: 12px;">
+                    <div style="font-size: 0.8rem; font-weight: 800; color: #34d399; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                        <span>🌟</span> <span>이번 주 가장 잘하고 있는 점 (Strengths)</span>
+                    </div>
+                    <div style="font-size: 0.76rem; color: #cbd5e1; line-height: 1.55;" id="parent-dossier-strengths">
+                        기상 및 취침 루틴 준수율이 90%에 육박하며, 목표 대학 합격선 기준 주간 순공 시간을 안정적으로 상회하고 있습니다.
+                    </div>
+                </div>
+
+                <!-- 2. 즉각 개선해야 할 점 (실패의 원리 직격) -->
+                <div style="background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.25); border-radius: 12px; padding: 12px;">
+                    <div style="font-size: 0.8rem; font-weight: 800; color: #f87171; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                        <span>⚠️</span> <span>즉각 교정해야 할 학습 약점 (Action Items)</span>
+                    </div>
+                    <div style="font-size: 0.76rem; color: #cbd5e1; line-height: 1.55;" id="parent-dossier-weaknesses">
+                        오답 발생 시 단순 해설지 정독으로 넘어가는 미세 회피 습관이 포착되었습니다. 왜 매력적 오답에 끌렸는지 본인의 사고 구조를 분해하는 백지 복기를 진행해야 합니다.
+                    </div>
+                </div>
+
+                <!-- 3. 차주 중요 입시/학원 일정 -->
+                <div style="background: rgba(99,102,241,0.05); border: 1px solid rgba(99,102,241,0.25); border-radius: 12px; padding: 12px;">
+                    <div style="font-size: 0.8rem; font-weight: 800; color: #818cf8; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                        <span>📅</span> <span>차주 중요 입시 & 학원 일정 (D-Day Milestones)</span>
+                    </div>
+                    <div style="font-size: 0.76rem; color: #cbd5e1; line-height: 1.55;" id="parent-dossier-milestones">
+                        D-52 9월 모의평가 오답 심층 복기 완료 마감, 차주 수능 원서 접수 확인 및 목표 대학 수시/정시 원서 라인업 최종 점검.
+                    </div>
+                </div>
+
+                <!-- 4. 학부모 사교육 과소비 방지 & 가정 지도 가이드 -->
+                <div style="background: rgba(245,158,11,0.05); border: 1px solid rgba(245,158,11,0.25); border-radius: 12px; padding: 12px;">
+                    <div style="font-size: 0.8rem; font-weight: 800; color: #fbbf24; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                        <span>💡</span> <span>학부모 사교육 과소비 방지 & 가정 지도 가이드</span>
+                    </div>
+                    <div style="font-size: 0.76rem; color: #cbd5e1; line-height: 1.55;" id="parent-dossier-parent-guide">
+                        어머님, 지금 시점에 불안감으로 무리한 단기 파이널 특강을 추가하시면 오히려 자습 밸런스가 무너집니다. 지금은 학원 수업과 자습 복습의 황금 비율을 지키는 것이 수능 대박의 열쇠입니다.
                     </div>
                 </div>
             </div>
 
-            <!-- 학습 통계 요약 -->
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; text-align: center;">
-                <div style="background: rgba(255,255,255,0.04); border-radius: 10px; padding: 8px;">
-                    <div style="font-size: 0.68rem; color: #94a3b8;">순수 자습 시간</div>
-                    <div style="font-size: 0.95rem; font-weight: 800; color: #60a5fa; margin-top: 2px;">48시간 15분</div>
-                </div>
-                <div style="background: rgba(255,255,255,0.04); border-radius: 10px; padding: 8px;">
-                    <div style="font-size: 0.68rem; color: #94a3b8;">미션 달성률</div>
-                    <div style="font-size: 0.95rem; font-weight: 800; color: #34d399; margin-top: 2px;">100% (7/7일)</div>
-                </div>
-                <div style="background: rgba(255,255,255,0.04); border-radius: 10px; padding: 8px;">
-                    <div style="font-size: 0.68rem; color: #94a3b8;">학원 출석률</div>
-                    <div style="font-size: 0.95rem; font-weight: 800; color: #fbbf24; margin-top: 2px;">100% (지각 0)</div>
-                </div>
-            </div>
-
-            <!-- 원장 코멘트 -->
-            <div class="card" style="margin-bottom: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 12px;">
-                <div style="font-size: 0.82rem; font-weight: 800; color: #fbbf24; margin-bottom: 4px;">👨‍🏫 대표 원장 직강 총평</div>
-                <div style="font-size: 0.78rem; color: #cbd5e1; line-height: 1.55;">
-                    "김학생 학생은 9월 모의고사 비문학 고난도 킬러 지문에서 만점을 기록하며 독해 안정권에 진입했습니다. 현재 모의고사 지표로 볼 때 성균관대는 소신/위험권이나, 건국대는 매우 안정적이므로 수학 백분위를 2~3%만 더 끌어올리면 성균관대 진입이 유력합니다."
-                </div>
-            </div>
-
-            <!-- 안심 컨설팅 코멘트 -->
-            <div class="card" style="margin-bottom: 14px; background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.25); padding: 12px;">
-                <div style="font-size: 0.82rem; font-weight: 800; color: #34d399; margin-bottom: 4px;">🛡️ 사교육 과소비 방지 안심 가이드</div>
-                <div style="font-size: 0.78rem; color: #cbd5e1; line-height: 1.55;">
-                    "어머님, 지금 시점에 불안감으로 무리한 단기 파이널 특강을 추가하시면 오히려 자습 밸런스가 무너집니다. 지금은 학원 수업과 자습 복습의 황금 비율을 지키는 것이 수능 대박의 열쇠입니다."
-                </div>
-            </div>
-
+            <!-- 하단 액션 버튼 바 -->
             <div style="display: flex; gap: 8px;">
                 <button type="button" onclick="closeDemoParentReportModal()" class="btn btn-secondary" style="flex: 1; padding: 10px; font-size: 0.82rem; font-weight: 800;">
                     닫기
                 </button>
+                <button type="button" onclick="window.print()" class="btn btn-secondary" style="padding: 10px 14px; font-size: 0.82rem; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;">
+                    <span class="material-symbols-rounded" style="font-size: 1.05rem;">print</span>
+                    <span>인쇄/PDF</span>
+                </button>
                 <button type="button" onclick="openB2BContactModal()" class="btn btn-gold" style="flex: 1; padding: 10px; font-size: 0.82rem; font-weight: 800;">
-                    🏢 우리 학원 도입 문의
+                    🏢 가맹 솔루션 도입 문의
                 </button>
             </div>
         </div>
