@@ -2913,10 +2913,11 @@
 
                     const dualTierHtml = `<div style="display:flex; flex-direction:column; gap:2px; align-items:center;">${b2cTierBadge}${b2bTierBadge}</div>`;
 
-                    const safeName = (s.name || '').replace(/'/g, "\\'");
+                    const safeSchool = (s.high_school || s.school_name || '').replace(/'/g, "\\'");
+                    const safeTarget = (s.target_univ || '').replace(/'/g, "\\'");
                     const graduateBtn = !isGraduated
-                        ? `<button type="button" onclick="singleGraduateStudent(${s.id}, '${safeName}')" class="btn" style="padding: 4px 7px; font-size: 0.72rem; font-weight: 800; background: rgba(52,211,153,0.15); color: #34d399; border: 1px solid rgba(52,211,153,0.35); border-radius: 6px; cursor: pointer; white-space: nowrap;" title="정규 졸업 처리">🎓 졸업</button>`
-                        : '';
+                        ? `<button type="button" onclick="singleGraduateStudent(${s.id}, '${safeName}', '${safeSchool}', '${safeTarget}')" class="btn" style="padding: 4px 7px; font-size: 0.72rem; font-weight: 800; background: rgba(52,211,153,0.15); color: #34d399; border: 1px solid rgba(52,211,153,0.35); border-radius: 6px; cursor: pointer; white-space: nowrap;" title="합격 실적 등록 및 멘토 전환">졸업·합격</button>`
+                        : '<span style="font-size:0.7rem; color:#94a3b8; padding:2px 4px; font-weight:800;">졸업완료</span>';
 
                     const suspendBtn = isBanned
                         ? `<button type="button" onclick="toggleSuspendStudent(${s.id}, '${safeName}', true)" class="btn" style="padding: 4px 7px; font-size: 0.72rem; font-weight: 900; background: #10b981; color: white; border-radius: 6px; cursor: pointer; white-space: nowrap;" title="사용 정지 해제">🟢 해제</button>`
@@ -4482,9 +4483,96 @@
             }
         }
 
-        function singleGraduateStudent(studentId, studentName) {
-            if (confirm(`[${studentName}] 학생을 정규 졸업 처리하시겠습니까?\n(동문 선배 훈장 부여 및 튜터 자격 부여)`)) {
-                executeAdminStudentActionApi(studentId, "GRADUATE", studentName);
+        function singleGraduateStudent(studentId, studentName, highSchool, targetUniv) {
+            openStudentGraduationModal(studentId, studentName, highSchool, targetUniv);
+        }
+
+        function openStudentGraduationModal(studentId, studentName, highSchool, targetUniv) {
+            const modal = document.getElementById("student-graduation-modal");
+            if (!modal) return;
+            document.getElementById("grad-modal-student-id").value = studentId;
+            document.getElementById("grad-modal-student-info").innerText = `${studentName} 학생 (${highSchool || '고교'} / 재원생)`;
+            
+            // Auto-fill target univ/major if available
+            let defaultUniv = "";
+            let defaultMajor = "";
+            if (targetUniv && targetUniv.length > 1) {
+                const parts = targetUniv.split(" ");
+                defaultUniv = parts[0] || "";
+                defaultMajor = parts.slice(1).join(" ") || "";
+            }
+            document.getElementById("grad-modal-univ").value = defaultUniv;
+            document.getElementById("grad-modal-major").value = defaultMajor;
+            document.getElementById("grad-modal-track").value = "JEONGSI";
+            
+            const schEl = document.getElementById("grad-preview-school");
+            if (schEl) schEl.innerText = `[${(highSchool || '고교').replace('고등학교', '고')}]`;
+
+            updateGraduationPreview();
+            modal.style.display = "flex";
+        }
+
+        function closeStudentGraduationModal() {
+            const modal = document.getElementById("student-graduation-modal");
+            if (modal) modal.style.display = "none";
+        }
+
+        function updateGraduationPreview() {
+            const univ = document.getElementById("grad-modal-univ")?.value.trim() || "연세대학교";
+            const major = document.getElementById("grad-modal-major")?.value.trim() || "";
+            const trackVal = document.getElementById("grad-modal-track")?.value || "JEONGSI";
+            const trackMap = {
+                "JEONGSI": "정시",
+                "HAKJONG": "학종",
+                "GYOGWA": "교과",
+                "NONSUL": "논술",
+                "SPECIAL": "특기자"
+            };
+            const trackText = trackMap[trackVal] || "정시";
+            const majStr = major ? ` ${major}` : "";
+            
+            const univPreviewEl = document.getElementById("grad-preview-univ");
+            if (univPreviewEl) {
+                univPreviewEl.innerText = `[${univ}${majStr} · ${trackText}]`;
+            }
+        }
+
+        async function submitStudentGraduation(event) {
+            event.preventDefault();
+            const studentId = parseInt(document.getElementById("grad-modal-student-id").value, 10);
+            const univ = document.getElementById("grad-modal-univ").value.trim();
+            const major = document.getElementById("grad-modal-major").value.trim();
+            const track = document.getElementById("grad-modal-track").value;
+
+            if (!univ) {
+                alert("합격 대학교를 입력해 주세요.");
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/admin/students/${studentId}/graduate`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        passed_univ: univ,
+                        passed_major: major,
+                        admission_track: track,
+                        verify_academy: true,
+                        verify_school: true,
+                        verify_univ: true
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(data.message || "합격 실적 및 선배 멘토 등록이 완료되었습니다.");
+                    closeStudentGraduationModal();
+                    fetchDashboardData(); updateMasterBtnVisibility();
+                } else {
+                    alert(data.detail || "졸업 등록 실패");
+                }
+            } catch(e) {
+                console.error("submitStudentGraduation error:", e);
+                alert("서버 통신 오류가 발생했습니다.");
             }
         }
 
@@ -5414,6 +5502,65 @@
                     <button type="button" onclick="closeChangePinModal()" class="btn btn-secondary" style="flex: 1; padding: 11px; font-weight: 700;">취소</button>
                     <button type="submit" class="btn" style="flex: 2; padding: 11px; font-weight: 900; background: linear-gradient(135deg, #10b981, #059669); color: white;">
                         🔒 PIN 변경 저장
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 🎓 학생 합격 실적 등록 및 졸업생(선배 멘토) 전환 모달 -->
+    <div id="student-graduation-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(6px);">
+        <div class="modal-card" style="background: #0f172a; border: 1.5px solid #6366f1; border-radius: 16px; width: 100%; max-width: 480px; padding: 22px; box-sizing: border-box; box-shadow: 0 20px 50px rgba(0,0,0,0.9);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
+                <div style="font-weight: 900; font-size: 1.05rem; color: #a5b4fc; display: flex; align-items: center; gap: 6px;">
+                    <span class="material-symbols-rounded" style="color: #fbbf24;">school</span>
+                    <span>합격 실적 등록 및 선배 멘토 전환</span>
+                </div>
+                <button type="button" onclick="closeStudentGraduationModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.4rem; cursor: pointer;">&times;</button>
+            </div>
+
+            <div style="background: rgba(99,102,241,0.08); border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; font-size: 0.8rem; color: #cbd5e1;">
+                <span id="grad-modal-student-info" style="font-weight: 800; color: #ffffff;">-</span>
+            </div>
+
+            <form onsubmit="submitStudentGraduation(event)">
+                <input type="hidden" id="grad-modal-student-id">
+                
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 0.75rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">합격 대학교 *</label>
+                    <input type="text" id="grad-modal-univ" required placeholder="예: 연세대학교, 서울대학교, 카이스트" class="form-input" style="width: 100%;" oninput="updateGraduationPreview()">
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 0.75rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">합격 학과</label>
+                    <input type="text" id="grad-modal-major" placeholder="예: 의예과, 경영학과, 컴퓨터공학과" class="form-input" style="width: 100%;" oninput="updateGraduationPreview()">
+                </div>
+
+                <div style="margin-bottom: 14px;">
+                    <label style="font-size: 0.75rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">합격 전형 구분 *</label>
+                    <select id="grad-modal-track" class="form-input" style="width: 100%; font-weight: 700;" onchange="updateGraduationPreview()">
+                        <option value="JEONGSI" selected>정시 (수능위주 일반)</option>
+                        <option value="HAKJONG">학생부종합 (학종)</option>
+                        <option value="GYOGWA">학생부교과 (교과)</option>
+                        <option value="NONSUL">논술전형 (수리/인문)</option>
+                        <option value="SPECIAL">특기자/기타</option>
+                    </select>
+                </div>
+
+                <!-- 발급 뱃지 실시간 미리보기 (이모지 0%) -->
+                <div style="background: rgba(0,0,0,0.4); border: 1px dashed rgba(255,255,255,0.15); border-radius: 8px; padding: 10px 12px; margin-bottom: 16px;">
+                    <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; margin-bottom: 6px;">공인 멘토 발급 뱃지 (미리보기)</div>
+                    <div id="grad-modal-badges-preview" style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+                        <span class="badge-alumni-academy">[일원학원 인증]</span>
+                        <span class="badge-alumni-school" id="grad-preview-school">[낙생고]</span>
+                        <span class="badge-alumni-univ" id="grad-preview-univ">[연세대 의예 · 정시]</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" onclick="closeStudentGraduationModal()" class="btn btn-secondary" style="flex: 1; padding: 10px; font-weight: 700;">취소</button>
+                    <button type="submit" class="btn" style="flex: 2; padding: 10px; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">
+                        합격 실적 저장 및 멘토 등록
                     </button>
                 </div>
             </form>

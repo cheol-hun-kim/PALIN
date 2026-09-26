@@ -101,11 +101,22 @@ class Student(Base):
     tuition_paid = Column(Boolean, default=False)          # 수업료 납부 완료 여부
     textbook_paid = Column(Boolean, default=False)         # 교재비 납부 완료 여부
     textbooks_distributed = Column(Text, default="")       # 현재 지급된 교재 목록
-    enrollment_status = Column(String, default="ENROLLED") # ENROLLED(재원) | ON_LEAVE(휴강) | WITHDRAWN(퇴원)
+    enrollment_status = Column(String, default="ENROLLED") # ENROLLED(재원) | ON_LEAVE(휴강) | WITHDRAWN(퇴원) | GRADUATED(졸업)
     leave_reason = Column(String, nullable=True)           # 휴강 사유 (내신 휴강 / 개인 사유 / 상담 후 결정)
     assigned_seat_number = Column(Integer, nullable=True)  # 배정 또는 선택된 좌석 번호
     seat_checkin_time = Column(DateTime(timezone=True), nullable=True) # 입실/예약 시간
     seat_status = Column(String, default="NONE")           # NONE | OCCUPIED | RESERVED
+
+    # 🎓 Phase 12: 3대 공인 선배 멘토 인증 & 전형 구분 필드 (이모지 배제 클린 타이포그래피)
+    passed_univ = Column(String, nullable=True)             # 최종 합격 대학 (예: 연세대학교)
+    passed_major = Column(String, nullable=True)            # 최종 합격 학과 (예: 의예과)
+    admission_track = Column(String, nullable=True)         # 전형 구분: JEONGSI(정시) | HAKJONG(학종) | GYOGWA(교과) | NONSUL(논술) | SPECIAL(특기자)
+    alumni_academy_verified = Column(Boolean, default=False)# 학원 수료/졸업 공인 인증
+    alumni_school_verified = Column(Boolean, default=False) # 고교 동문 공인 인증
+    alumni_univ_verified = Column(Boolean, default=False)   # 대학/학과/전형 합격 공인 인증
+    badge_academy_equipped = Column(Boolean, default=True)  # 학원 뱃지 장착 여부
+    badge_school_equipped = Column(Boolean, default=True)   # 고교 뱃지 장착 여부
+    badge_univ_equipped = Column(Boolean, default=True)     # 대학 뱃지 장착 여부
  
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
@@ -129,6 +140,47 @@ class Student(Base):
     invoices = relationship("BillingInvoice", back_populates="student")
     titles = relationship("UserTitle", back_populates="student", cascade="all, delete-orphan")
     received_notifications = relationship("UserNotification", foreign_keys="[UserNotification.recipient_id]", back_populates="recipient", cascade="all, delete-orphan")
+
+    @property
+    def alumni_badges(self):
+        badges = []
+        track_map = {
+            "JEONGSI": "정시",
+            "HAKJONG": "학종",
+            "GYOGWA": "교과",
+            "NONSUL": "논술",
+            "SPECIAL": "특기자"
+        }
+        # 1. 학원 인증
+        if self.alumni_academy_verified:
+            t_name = "일원학원"
+            badges.append({
+                "type": "ACADEMY",
+                "label": f"[{t_name} 인증]",
+                "is_equipped": self.badge_academy_equipped,
+                "css_class": "badge-alumni-academy"
+            })
+        # 2. 고교 인증
+        if self.alumni_school_verified and (self.high_school or self.school_name):
+            sch = (self.high_school or self.school_name).replace("고등학교", "고").strip()
+            badges.append({
+                "type": "SCHOOL",
+                "label": f"[{sch}]",
+                "is_equipped": self.badge_school_equipped,
+                "css_class": "badge-alumni-school"
+            })
+        # 3. 대학 & 전형 인증
+        if self.alumni_univ_verified and self.passed_univ:
+            u_name = self.passed_univ.strip()
+            maj = f" {self.passed_major.strip()}" if self.passed_major else ""
+            trk = f" · {track_map.get(self.admission_track, self.admission_track)}" if self.admission_track else ""
+            badges.append({
+                "type": "UNIV",
+                "label": f"[{u_name}{maj}{trk}]",
+                "is_equipped": self.badge_univ_equipped,
+                "css_class": "badge-alumni-univ"
+            })
+        return badges
 
     @property
     def equipped_title_name(self):
@@ -292,6 +344,7 @@ class TutorProfile(Base):
     major = Column(String)
     admission_year = Column(Integer)
     high_school_type = Column(String)
+    admission_track = Column(String, nullable=True) # JEONGSI | HAKJONG | GYOGWA | NONSUL | SPECIAL
     bio = Column(Text)
     contact_link = Column(String)
     is_verified = Column(Boolean, default=False)

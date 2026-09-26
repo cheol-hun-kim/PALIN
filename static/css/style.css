@@ -933,12 +933,12 @@ body:not(.day-mode) .univ-banner .univ-name {
     color: #ffffff !important;
 }
 
-/* 메인 컨텐츠 영역 */
+/* 메인 컨텐츠 영역 - 플로팅 네비게이션 바(80px) + 안전 여백(40px) 완벽 확보 */
 main {
     flex: 1;
     overflow-y: auto;
     padding: 16px;
-    padding-bottom: 90px; /* 네비게이션 공간 확보 */
+    padding-bottom: 120px !important; /* 네비게이션 바에 마지막 카드/버튼 가려짐 영구 방지 */
 }
 
 /* 스크롤바 숨기기 */
@@ -5054,20 +5054,21 @@ body.day-mode .palin-toast-text {
 
 /* 2. 콕 찌르기 버튼 */
 .btn-poke {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    color: #94a3b8;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e2e8f0;
     font-size: 0.72rem;
     font-weight: 700;
     padding: 4px 8px;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s ease;
-    white-space: nowrap;
+    white-space: nowrap !important;
+    flex-shrink: 0;
 }
 
 .btn-poke:hover {
-    background: rgba(234, 179, 8, 0.15);
+    background: rgba(234, 179, 8, 0.25);
     border-color: #f59e0b;
     color: #fbbf24;
 }
@@ -5075,7 +5076,7 @@ body.day-mode .palin-toast-text {
 body.day-mode .btn-poke {
     background: #f1f5f9 !important;
     border: 1px solid #cbd5e1 !important;
-    color: #475569 !important;
+    color: #334155 !important;
 }
 
 body.day-mode .btn-poke:hover {
@@ -5084,25 +5085,101 @@ body.day-mode .btn-poke:hover {
     color: #b45309 !important;
 }
 
-/* 3. 수능 칭호 매트릭스 텍스트 태그 (무그래픽, 미니멀리즘 틴트 뱃지) */
+/* 3. 수능 칭호 매트릭스 텍스트 태그 (무그래픽, 고대비 틴트 뱃지, 줄바꿈 원천 차단) */
 .user-title-tag {
-    display: inline-block;
-    font-size: 0.72rem;
-    color: #818cf8;
-    background: rgba(129, 140, 248, 0.12);
-    border: 1px solid rgba(129, 140, 248, 0.25);
-    border-radius: 4px;
-    padding: 1px 6px;
-    font-weight: 700;
-    margin-left: 5px;
+    display: inline-flex !important;
+    align-items: center;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    font-size: 0.68rem;
+    color: #c7d2fe !important;
+    background: rgba(99, 102, 241, 0.22) !important;
+    border: 1px solid rgba(99, 102, 241, 0.45) !important;
+    border-radius: 5px;
+    padding: 2px 6px;
+    font-weight: 800;
+    margin-left: 4px;
     letter-spacing: -0.2px;
     vertical-align: middle;
+    line-height: 1.2;
 }
 
 body.day-mode .user-title-tag {
-    color: #4f46e5 !important;
-    background: rgba(79, 70, 229, 0.08) !important;
-    border: 1px solid rgba(79, 70, 229, 0.2) !important;
+    color: #4338ca !important;
+    background: rgba(79, 70, 229, 0.12) !important;
+    border: 1px solid rgba(79, 70, 229, 0.3) !important;
+}
+
+/* ========================================================================== */
+/* 🎓 Phase 12: Minimalist Typographic Alumni & Admission Track Badges (No Emojis) */
+/* ========================================================================== */
+.badge-alumni-academy {
+    display: inline-flex !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    font-size: 0.68rem !important;
+    font-weight: 800 !important;
+    color: #fde68a !important; /* Gold Amber */
+    background: rgba(245, 158, 11, 0.14) !important;
+    border: 1px solid rgba(245, 158, 11, 0.4) !important;
+    border-radius: 4px !important;
+    padding: 2px 6px !important;
+    margin-left: 4px;
+    letter-spacing: -0.2px;
+    line-height: 1.2;
+}
+
+.badge-alumni-school {
+    display: inline-flex !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    font-size: 0.68rem !important;
+    font-weight: 800 !important;
+    color: #bae6fd !important; /* Sky Blue */
+    background: rgba(2, 132, 199, 0.14) !important;
+    border: 1px solid rgba(2, 132, 199, 0.4) !important;
+    border-radius: 4px !important;
+    padding: 2px 6px !important;
+    margin-left: 4px;
+    letter-spacing: -0.2px;
+    line-height: 1.2;
+}
+
+.badge-alumni-univ {
+    display: inline-flex !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    font-size: 0.68rem !important;
+    font-weight: 800 !important;
+    color: #e9d5ff !important; /* Royal Lavender */
+    background: rgba(147, 51, 234, 0.16) !important;
+    border: 1px solid rgba(147, 51, 234, 0.45) !important;
+    border-radius: 4px !important;
+    padding: 2px 6px !important;
+    margin-left: 4px;
+    letter-spacing: -0.2px;
+    line-height: 1.2;
+}
+
+body.day-mode .badge-alumni-academy {
+    color: #92400e !important;
+    background: #fef3c7 !important;
+    border-color: #f59e0b !important;
+}
+
+body.day-mode .badge-alumni-school {
+    color: #0369a1 !important;
+    background: #e0f2fe !important;
+    border-color: #38bdf8 !important;
+}
+
+body.day-mode .badge-alumni-univ {
+    color: #6b21a8 !important;
+    background: #f3e8ff !important;
+    border-color: #c084fc !important;
 }
 
 .title-tab {

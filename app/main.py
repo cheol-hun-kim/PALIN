@@ -1131,7 +1131,12 @@ def login_student(payload: LoginPayload, db: Session = Depends(get_db)):
             "textbook_paid": bool(getattr(student, 'textbook_paid', False)),
             "textbooks_distributed": getattr(student, 'textbooks_distributed', '') or "",
             "enrollment_status": getattr(student, 'enrollment_status', 'ENROLLED') or "ENROLLED",
-            "leave_reason": getattr(student, 'leave_reason', None)
+            "leave_reason": getattr(student, 'leave_reason', None),
+            "passed_univ": getattr(student, 'passed_univ', None),
+            "passed_major": getattr(student, 'passed_major', None),
+            "admission_track": getattr(student, 'admission_track', None),
+            "alumni_badges": student.alumni_badges,
+            "is_alumni": bool(student.alumni_academy_verified or student.alumni_univ_verified or student.alumni_school_verified)
         }
     except HTTPException:
         raise
@@ -1207,6 +1212,11 @@ def get_student(student_id: int, db: Session = Depends(get_db)):
         "textbook_paid": bool(getattr(student, 'textbook_paid', False)),
         "textbooks_distributed": getattr(student, 'textbooks_distributed', '') or "",
         "enrollment_status": getattr(student, 'enrollment_status', 'ENROLLED') or "ENROLLED",
+        "passed_univ": getattr(student, 'passed_univ', None),
+        "passed_major": getattr(student, 'passed_major', None),
+        "admission_track": getattr(student, 'admission_track', None),
+        "alumni_badges": student.alumni_badges,
+        "is_alumni": bool(student.alumni_academy_verified or student.alumni_univ_verified or student.alumni_school_verified),
         "equipped_title": student.equipped_title_name or "[트랙 인: 1열 탑승자]",
     }
 
@@ -5152,6 +5162,107 @@ def batch_graduate_students(payload: BatchGraduatePayload, db: Session = Depends
         "message": f"총 {len(graduated_names)}명의 학생이 성공적으로 정규 졸업 처리되었습니다. (졸업생 훈장 부여 및 튜터 선배 자격 부여 완료)",
         "graduated_students": graduated_names
     }
+
+
+class StudentGraduatePayload(BaseModel):
+    passed_univ: str
+    passed_major: Optional[str] = ""
+    admission_track: str = "JEONGSI" # JEONGSI, HAKJONG, GYOGWA, NONSUL, SPECIAL
+    verify_academy: bool = True
+    verify_school: bool = True
+    verify_univ: bool = True
+
+
+@app.post("/api/admin/students/{student_id}/graduate")
+def graduate_student_with_alumni_badges(student_id: int, payload: StudentGraduatePayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생 계정을 찾을 수 없습니다.")
+
+    student.enrollment_status = "GRADUATED"
+    student.passed_univ = payload.passed_univ.strip()
+    student.passed_major = (payload.passed_major or "").strip()
+    student.admission_track = payload.admission_track.strip().upper()
+    student.alumni_academy_verified = payload.verify_academy
+    student.alumni_school_verified = payload.verify_school
+    student.alumni_univ_verified = payload.verify_univ
+    student.badge_academy_equipped = True
+    student.badge_school_equipped = True
+    student.badge_univ_equipped = True
+
+    # Auto sync or create TutorProfile
+    tutor = db.query(models.TutorProfile).filter(models.TutorProfile.student_id == student.id).first()
+    if not tutor:
+        tutor = models.TutorProfile(
+            student_id=student.id,
+            email=student.email,
+            name=student.name,
+            phone=student.phone or "010-0000-0000",
+            university=student.passed_univ,
+            major=student.passed_major or "일반전공",
+            admission_track=student.admission_track,
+            origin_academy_code=student.academy_code or "ILWON-2027",
+            is_verified=True,
+            tier="SSR" if any(u in student.passed_univ for u in ["서울대", "연세대", "고려대", "의예", "치의", "한의", "약학", "수의", "카이스트", "포스텍"]) else "SR"
+        )
+        db.add(tutor)
+    else:
+        tutor.university = student.passed_univ
+        tutor.major = student.passed_major or tutor.major
+        tutor.admission_track = student.admission_track
+        tutor.is_verified = True
+
+    db.commit()
+    return {
+        "status": "success",
+        "message": f"[{student.name}] 학생의 합격 실적 및 선배 멘토 인증 뱃지(3종)가 성공적으로 발급되었습니다.",
+        "badges": student.alumni_badges
+    }
+
+
+class BadgeTogglePayload(BaseModel):
+    badge_type: str # ACADEMY, SCHOOL, UNIV
+    is_equipped: bool
+
+
+@app.post("/api/student/{student_id}/badges/toggle")
+def toggle_student_alumni_badge(student_id: int, payload: BadgeTogglePayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+
+    b_type = payload.badge_type.upper().strip()
+    if b_type == "ACADEMY":
+        student.badge_academy_equipped = payload.is_equipped
+    elif b_type == "SCHOOL":
+        student.badge_school_equipped = payload.is_equipped
+    elif b_type == "UNIV":
+        student.badge_univ_equipped = payload.is_equipped
+    else:
+        raise HTTPException(status_code=400, detail="유효하지 않은 뱃지 타입입니다.")
+
+    db.commit()
+    return {
+        "status": "success",
+        "badges": student.alumni_badges
+    }
+
+
+@app.get("/api/student/{student_id}/badges")
+def get_student_alumni_badges(student_id: int, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+
+    return {
+        "status": "success",
+        "is_alumni": bool(student.alumni_academy_verified or student.alumni_univ_verified or student.alumni_school_verified),
+        "badges": student.alumni_badges,
+        "passed_univ": student.passed_univ,
+        "passed_major": student.passed_major,
+        "admission_track": student.admission_track
+    }
+
 
 @app.post("/api/admin/students/{student_id}/action")
 def execute_admin_student_action(student_id: int, payload: schemas.AdminStudentActionPayload, db: Session = Depends(get_db)):

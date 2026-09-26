@@ -3302,9 +3302,16 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             플랜 관리
                         </button>
                     </div>
-                    <div id="mypage-tier-pending-badge" style="display: none; background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; border-radius: 8px; padding: 6px 10px; font-size: 0.76rem; font-weight: 800; color: #fbbf24;">
-                        ⏳ <span id="mypage-pending-academy-name">학원</span> 가맹 승인 대기 중 (원장님 승인 대기)
+                <!-- Phase 12: 공인 멘토 인증 뱃지 관리 (탈부착 토글) -->
+                <div id="mypage-alumni-badges-section" style="display: none; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 0.82rem; font-weight: 800; color: #a5b4fc;">공인 멘토 인증 뱃지 관리</span>
+                            <span style="font-size: 0.68rem; color: #34d399; background: rgba(16,185,129,0.15); padding: 1px 6px; border-radius: 4px; font-weight: 800;">인증 완료</span>
+                        </div>
+                        <span style="font-size: 0.72rem; color: var(--text-secondary);">노출 설정</span>
                     </div>
+                    <div id="mypage-alumni-badges-list" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px;"></div>
                 </div>
 
                 <!-- Phase 11.3: 수능 칭호 도감 (100-Title Master Matrix) -->

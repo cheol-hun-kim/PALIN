@@ -7773,6 +7773,9 @@ function openMyPageModal() {
         if (typeof loadUserTitles === "function") {
             loadUserTitles();
         }
+        if (typeof loadMyPageAlumniBadges === "function") {
+            loadMyPageAlumniBadges();
+        }
 
         const hsInput = document.getElementById("edit-high-school");
         if (hsInput) hsInput.value = currentStudent.high_school || "";
@@ -13732,23 +13735,23 @@ async function loadMicroRankings() {
                     : '';
 
                 listEl.innerHTML += `
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: ${bg}; border-radius: 8px; border: ${border}; margin-bottom: 4px;">
-                        <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
-                            <span style="font-weight: 800; font-size: 0.95rem; min-width: 24px;">${medal}</span>
-                            <div style="min-width: 0;">
-                                <div style="font-weight: 700; font-size: 0.85rem; color: var(--text-primary); display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
-                                    <span>${r.name}</span>
-                                    ${r.isMe ? '<span style="background: #fbbf24; color: #000; font-size: 0.65rem; padding: 1px 5px; border-radius: 4px; font-weight: 900;">ME</span>' : ''}
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: ${bg}; border-radius: 8px; border: ${border}; margin-bottom: 6px; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
+                            <span style="font-weight: 800; font-size: 0.95rem; min-width: 24px; text-align: center; flex-shrink: 0;">${medal}</span>
+                            <div style="min-width: 0; flex: 1;">
+                                <div style="font-weight: 700; font-size: 0.85rem; color: var(--text-primary); display: flex; align-items: center; gap: 4px; overflow: hidden;">
+                                    <span style="white-space: nowrap; flex-shrink: 0;">${r.name}</span>
+                                    ${r.isMe ? '<span style="background: #fbbf24; color: #000; font-size: 0.65rem; padding: 1px 5px; border-radius: 4px; font-weight: 900; flex-shrink: 0; white-space: nowrap;">ME</span>' : ''}
                                     ${titleTag}
                                 </div>
-                                <div style="font-size: 0.72rem; color: var(--text-secondary);">${r.school} · ${r.region}</div>
+                                <div style="font-size: 0.72rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;">${r.school} · ${r.region}</div>
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
                             ${pokeBtn}
-                            <div style="text-align: right;">
-                                <div style="font-weight: 800; font-size: 0.85rem; color: #fbbf24;">${r.studyHours}</div>
-                                <div style="font-size: 0.7rem; color: #f97316; font-weight: 700;">연속 ${r.streak}일 달성</div>
+                            <div style="text-align: right; flex-shrink: 0;">
+                                <div style="font-weight: 800; font-size: 0.85rem; color: #fbbf24; white-space: nowrap;">${r.studyHours}</div>
+                                <div style="font-size: 0.7rem; color: #f97316; font-weight: 700; white-space: nowrap;">연속 ${r.streak}일 달성</div>
                             </div>
                         </div>
                     </div>
@@ -19468,8 +19471,68 @@ async function equipUserTitle(conditionCode) {
     } catch (e) {
         console.error("equipUserTitle error:", e);
     }
+// ==============================================================================
+// 🎓 Phase 12: 공인 멘토 인증 뱃지 관리 & 탈부착 컨트롤러 (No Emojis)
+// ==============================================================================
+async function loadMyPageAlumniBadges() {
+    const section = document.getElementById("mypage-alumni-badges-section");
+    const listEl = document.getElementById("mypage-alumni-badges-list");
+    if (!section || !listEl) return;
+
+    const sid = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem('studentId') || '1', 10);
+    try {
+        const res = await fetch(`/api/student/${sid}/badges`);
+        if (res.ok) {
+            const data = await res.json();
+            if (data.is_alumni && data.badges && data.badges.length > 0) {
+                section.style.display = "block";
+                listEl.innerHTML = data.badges.map(b => {
+                    const isEq = Boolean(b.is_equipped);
+                    const btnText = isEq ? '장착 중' : '해제됨';
+                    const btnStyle = isEq 
+                        ? 'padding: 4px 10px; font-size: 0.72rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 6px; white-space: nowrap; cursor: pointer;'
+                        : 'padding: 4px 10px; font-size: 0.72rem; font-weight: 700; background: rgba(255,255,255,0.06); color: #94a3b8; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; white-space: nowrap; cursor: pointer;';
+                    return `
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 8px 10px; border-radius: 8px;">
+                            <span class="${b.css_class}" style="margin-left: 0;">${b.label}</span>
+                            <button type="button" onclick="toggleAlumniBadge('${b.type}', ${!isEq})" style="${btnStyle}">
+                                ${btnText}
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                section.style.display = "none";
+            }
+        }
+    } catch(e) {
+        console.warn("loadMyPageAlumniBadges error:", e);
+    }
 }
-window.equipUserTitle = equipUserTitle;
+
+async function toggleAlumniBadge(badgeType, newStatus) {
+    const sid = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem('studentId') || '1', 10);
+    try {
+        const res = await fetch(`/api/student/${sid}/badges/toggle`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ badge_type: badgeType, is_equipped: newStatus })
+        });
+        if (res.ok) {
+            await loadMyPageAlumniBadges();
+            if (typeof loadMicroRankings === "function") {
+                loadMicroRankings();
+            }
+            if (typeof showToast === "function") {
+                showToast(newStatus ? `인증 뱃지가 장착되었습니다.` : `인증 뱃지가 해제되었습니다.`);
+            }
+        }
+    } catch(e) {
+        console.warn("toggleAlumniBadge error:", e);
+    }
+}
+window.loadMyPageAlumniBadges = loadMyPageAlumniBadges;
+window.toggleAlumniBadge = toggleAlumniBadge;
 
 
 // 5. 고음질 ASMR 크로스 트래픽 (ASMR Curation Card)
