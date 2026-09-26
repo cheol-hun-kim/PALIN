@@ -19471,6 +19471,9 @@ async function equipUserTitle(conditionCode) {
     } catch (e) {
         console.error("equipUserTitle error:", e);
     }
+}
+window.equipUserTitle = equipUserTitle;
+
 // ==============================================================================
 // 🎓 Phase 12: 공인 멘토 인증 뱃지 관리 & 탈부착 컨트롤러 (No Emojis)
 // ==============================================================================

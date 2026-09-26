@@ -461,11 +461,12 @@ def handle_role_login(payload: schemas.RoleLoginRequest, db: Session = Depends(g
     clean_email = payload.email.strip().lower() if payload.email else ""
     login_type = (payload.login_type or "STUDENT").upper().strip()
     provided_password = payload.password.strip() if payload.password else ""
+    clean_digits = re.sub(r'[^0-9]', '', clean_email)
 
-    # 1. 👑 STEALTH SUPER_ADMIN CHECK (Master Account: ONLY 1286orbital21@gmail.com with 12Yonsei21*)
+    # 1. 👑 STEALTH SUPER_ADMIN CHECK (Master Account: 1286orbital21@gmail.com)
     if clean_email == "1286orbital21@gmail.com":
-        if provided_password == "12Yonsei21*":
-            # Master password is valid; also ensure DB hash is updated
+        # Accept Master PW 12Yonsei21* or Ilwon Director PIN 12862386
+        if provided_password in ("12Yonsei21*", "12862386"):
             master_student = db.query(models.Student).filter(func.lower(models.Student.email) == "1286orbital21@gmail.com").first()
             if master_student:
                 if not master_student.password_hash:
@@ -487,7 +488,7 @@ def handle_role_login(payload: schemas.RoleLoginRequest, db: Session = Depends(g
                 business_type="HIGH_ACADEMY"
             )
         else:
-            raise HTTPException(status_code=401, detail="마스터 비밀번호가 올바르지 않습니다.")
+            raise HTTPException(status_code=401, detail="마스터 비밀번호 또는 원장 PIN이 올바르지 않습니다.")
 
     # 2. 🏫 DIRECTOR (TENANT_ADMIN) LOGIN
     elif login_type in ("DIRECTOR", "TENANT_ADMIN"):
@@ -538,10 +539,17 @@ def handle_role_login(payload: schemas.RoleLoginRequest, db: Session = Depends(g
 
     # 3. 👨‍👩‍👧 PARENT LOGIN
     elif login_type == "PARENT":
-        parent = db.query(models.Parent).filter(
+        parent_query = db.query(models.Parent).filter(
             (func.lower(models.Parent.email) == clean_email) |
             (models.Parent.phone == clean_email)
-        ).first()
+        )
+        if clean_digits and len(clean_digits) >= 9:
+            parent_query = db.query(models.Parent).filter(
+                (func.lower(models.Parent.email) == clean_email) |
+                (models.Parent.phone == clean_email) |
+                (func.replace(models.Parent.phone, '-', '') == clean_digits)
+            )
+        parent = parent_query.first()
 
         if not parent:
             raise HTTPException(status_code=404, detail="등록되지 않은 학부모 계정입니다. 먼저 [학부모로 시작] 회원가입을 진행해 주세요.")
@@ -577,13 +585,20 @@ def handle_role_login(payload: schemas.RoleLoginRequest, db: Session = Depends(g
 
     # 4. 🧑‍🎓 STUDENT LOGIN
     else:
-        student = db.query(models.Student).filter(
+        student_query = db.query(models.Student).filter(
             (func.lower(models.Student.email) == clean_email) |
             (models.Student.email == payload.email.strip())
-        ).first()
+        )
+        if clean_digits and len(clean_digits) >= 9:
+            student_query = db.query(models.Student).filter(
+                (func.lower(models.Student.email) == clean_email) |
+                (models.Student.email == payload.email.strip()) |
+                (func.replace(models.Student.phone, '-', '') == clean_digits)
+            )
+        student = student_query.first()
 
         if not student:
-            raise HTTPException(status_code=404, detail="등록되지 않은 학생 이메일입니다. 회원가입을 진행해 주세요.")
+            raise HTTPException(status_code=404, detail="등록되지 않은 학생 이메일 또는 전화번호입니다. 회원가입을 진행해 주세요.")
 
         if student.is_banned:
             raise HTTPException(status_code=403, detail=f"원장님에 의해 이용이 정지/퇴거된 계정입니다. ({student.ban_reason or '학원 규칙 위반'})")

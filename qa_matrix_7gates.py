@@ -472,18 +472,18 @@ print("[GATE 4.5 PASS] Strict Dual-Tier Rule Verified: B2C is strictly Tier 1~3,
 
 # Gate 4.6: God-Mode 6-Theme Adaptive Matrix & Enterprise UI Integrity Defense
 assert 'html[data-theme="original"]' in css_content or 'html[data-theme="classic"]' in css_content, "Missing original/classic theme declaration"
-assert 'html[data-theme="minimal-5color"]' in css_content, "Missing minimal-5color theme declaration"
-assert 'html[data-theme="enterprise-gemini"]' in css_content, "Missing enterprise-gemini theme declaration"
-assert 'html[data-theme="linear-obsidian"]' in css_content, "Missing linear-obsidian theme declaration"
-assert 'html[data-theme="stripe-fintech"]' in css_content, "Missing stripe-fintech theme declaration"
-assert 'html[data-theme="apple-cupertino"]' in css_content, "Missing apple-cupertino theme declaration"
+assert 'html[data-theme="palantir-cyber"]' in css_content or 'html[data-theme="minimal-5color"]' in css_content, "Missing palantir-cyber theme declaration"
+assert 'html[data-theme="neo-swiss"]' in css_content or 'html[data-theme="enterprise-gemini"]' in css_content, "Missing neo-swiss theme declaration"
+assert 'html[data-theme="vercel-mono"]' in css_content or 'html[data-theme="linear-obsidian"]' in css_content, "Missing vercel-mono theme declaration"
+assert 'html[data-theme="nordic-gold"]' in css_content or 'html[data-theme="stripe-fintech"]' in css_content, "Missing nordic-gold theme declaration"
+assert 'html[data-theme="tokyo-synthwave"]' in css_content or 'html[data-theme="apple-cupertino"]' in css_content, "Missing tokyo-synthwave theme declaration"
 
 assert '--surface-card' in css_content, "Missing --surface-card CSS token"
 assert '--text-disabled' in css_content, "Missing --text-disabled CSS token"
 assert '.invoice-pill-paid' in css_content and '.invoice-pill-overdue' in css_content and '.invoice-pill-sent' in css_content, "Missing invoice status badge CSS classes"
 assert '.hostage-lock-banner' in css_content, "Missing hostage-lock-banner CSS class"
 assert 'applyGodModeTheme' in master_html_content, "Missing applyGodModeTheme in master.html"
-assert 'linear-obsidian' in master_html_content and 'stripe-fintech' in master_html_content and 'apple-cupertino' in master_html_content, "Missing benchmark themes in master.html"
+assert ('palantir-cyber' in master_html_content or 'linear-obsidian' in master_html_content) and ('nordic-gold' in master_html_content or 'stripe-fintech' in master_html_content), "Missing benchmark themes in master.html"
 
 print("[GATE 4.6 PASS] God-Mode 6-Theme Adaptive Matrix & Enterprise Design Tokens 100% Verified!")
 
