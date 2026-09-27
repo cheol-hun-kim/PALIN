@@ -1375,6 +1375,15 @@ unlock_data = unlock_check_res.json()
 remaining_overdue = [inv for inv in unlock_data.get("overdue_invoices", []) if inv["id"] == overdue_inv_id]
 assert len(remaining_overdue) == 0, "Paid invoice must not appear in overdue list"
 
+# 5. Clean up test invoices and alimtalk logs to keep billing ledger at clean zero-state
+db_clean_inv = database.SessionLocal()
+try:
+    db_clean_inv.query(models.BillingInvoice).filter(models.BillingInvoice.id.in_([created_inv_id, overdue_inv_id])).delete(synchronize_session=False)
+    db_clean_inv.query(models.KakaoAlimtalkLog).filter(models.KakaoAlimtalkLog.template_code == "INVOICE_BILLING_V1").delete(synchronize_session=False)
+    db_clean_inv.commit()
+finally:
+    db_clean_inv.close()
+
 print("[GATE 7.15 PASS] 결제선생 Hostage Protocol (0.1s Instant Settlement & Feature Unlock) 100% Verified!")
 
 # --- GATE 7.16: Crowdsourced Exam Source Q&A, Peer/Tutor Adoption & School Bible Aggregation ---
