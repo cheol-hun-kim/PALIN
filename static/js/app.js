@@ -6,14 +6,13 @@ function openStreakModal() {
 
     
 
-    let count = 8;
+    let count = 0;
     if (currentStudent && currentStudent.streak_days !== undefined && currentStudent.streak_days !== null) {
         count = currentStudent.streak_days;
     }
 
     const titleEl = document.getElementById("streak-modal-title");
-
-    if (titleEl) titleEl.innerText = `🔥 ${count}일 연속 학습 달성!`;
+    if (titleEl) titleEl.innerText = `${count}일 연속 학습 달성!`;
 
     
 
@@ -4915,7 +4914,7 @@ function initPALINThemeEngine() {
 function updateThemeToggleIcon(isDay) {
     const iconEl = document.getElementById("theme-toggle-icon");
     if (iconEl) {
-        iconEl.innerText = isDay ? "☀️" : "🌙";
+        iconEl.innerText = isDay ? "light_mode" : "dark_mode";
     }
 }
 
@@ -5271,11 +5270,6 @@ async function fetchStudentInfo(studentId) {
 
         if (res.ok) {
             currentStudent = await res.json();
-            if (currentStudent && (currentStudent.id === 1 || (currentStudent.email && currentStudent.email.toLowerCase().includes('1286orbital21')))) {
-                if (!currentStudent.streak_days || currentStudent.streak_days < 8) {
-                    currentStudent.streak_days = 8;
-                }
-            }
             localStorage.setItem("studentId", currentStudent.id);
         } else {
 
@@ -6574,13 +6568,11 @@ function updateHeaderUI() {
     // 듀오링고 불꽃 (Streak) 렌더링
     const streakEl = document.getElementById("header-streak-count");
     if (streakEl) {
-        let count = 8;
-        if (currentStudent && (currentStudent.id === 1 || (currentStudent.email && currentStudent.email.toLowerCase().includes('1286orbital21')))) {
-            count = Math.max(8, currentStudent.streak_days || 8);
-        } else if (currentStudent && currentStudent.streak_days !== undefined && currentStudent.streak_days !== null) {
+        let count = 0;
+        if (currentStudent && currentStudent.streak_days !== undefined && currentStudent.streak_days !== null) {
             count = currentStudent.streak_days;
         }
-        streakEl.innerText = count > 0 ? `연속 ${count}일` : "연속 8일";
+        streakEl.innerText = count > 0 ? `연속 ${count}일` : "0일";
     }
 
     // 수능 칭호 태그 갱신 (마이페이지 모달)

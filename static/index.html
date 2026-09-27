@@ -704,12 +704,12 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             <div class="user-status">
                 <!-- 🌓 테마 모드 전환 버튼 -->
                 <button type="button" onclick="togglePALINTheme()" class="btn btn-secondary header-theme-btn" title="라이트/다크 모드 전환">
-                    <span id="theme-toggle-icon">🌓</span>
+                    <span id="theme-toggle-icon" class="material-symbols-rounded" style="font-size: 1.15rem; vertical-align: middle;">dark_mode</span>
                 </button>
                 <!-- 듀오링고 연속 출석 불꽃 (명확한 연속일수 안내) -->
                 <div class="streak-badge" id="header-streak-badge" title="연속 학습 미션 성공 기록 (클릭하여 주간 현황 확인)">
-                    <span></span>
-                    <span id="header-streak-count">연속 8일</span>
+                    <span class="material-symbols-rounded" style="font-size: 1.15rem; color: #f97316;">local_fire_department</span>
+                    <span id="header-streak-count">0일</span>
                 </div>
                 <!-- 👤 마이페이지 & 자산 관리 버튼 -->
                 <button id="header-mypage-btn" onclick="openMyPageModal()" class="header-user-btn">
@@ -3495,7 +3495,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <!-- 🔐 비밀번호 변경 섹션 (최대 12자리) -->
                     <div style="margin-top: 14px; padding: 14px 12px; background: rgba(0,0,0,0.25); border: 1px solid rgba(167,139,250,0.3); border-radius: 12px;">
                         <div style="font-size: 0.82rem; font-weight: 800; color: #a78bfa; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">
-                            <span>🔐</span> 로그인 비밀번호 변경 (4~32자리)
+                            <span class="material-symbols-rounded" style="font-size: 1rem; vertical-align: middle;">lock</span> 로그인 비밀번호 변경 (4~32자리)
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px;">
                             <input type="password" id="mypage-current-password" class="form-input" placeholder="현재 비밀번호 (기존 회원 초기 비번: 1010)" maxlength="32" style="font-size: 0.8rem;">
@@ -3509,7 +3509,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <!-- 학원 초대 코드 등록 & 가맹 승인 신청 폼 -->
                     <div style="margin-top: 14px; padding: 14px 12px; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 12px;">
                         <div style="font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
-                            <span></span> 소속 학원 초대 코드 등록
+                            <span class="material-symbols-rounded" style="font-size: 1.05rem; vertical-align: middle; color: #818cf8;">domain</span> 소속 학원 초대 코드 등록
                         </div>
                         <div style="font-size: 0.74rem; color: #cbd5e1; margin-bottom: 8px;">소속 학원의 가맹 코드를 등록하면 원장님 승인 후 해당 학원의 티어가 내 계정에 자동 연동됩니다.</div>
                         <div style="display: flex; gap: 6px;">
@@ -3525,73 +3525,85 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <!-- 1. 가상 학생증 -->
                 <div onclick="openStudentCardModal()" class="mypage-menu-row">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <div class="mypage-icon-box" style="background: rgba(99, 102, 241, 0.12); color: #818cf8;">🪪</div>
+                        <div class="mypage-icon-box mypage-icon-id">
+                            <span class="material-symbols-rounded">badge</span>
+                        </div>
                         <div>
                             <div class="mypage-menu-title">2027 목표대학 가상 학생증</div>
                             <div class="mypage-menu-desc">동기부여 & 인스타 합격 부적 공유</div>
                         </div>
                     </div>
-                    <span class="material-symbols-rounded" style="color: var(--text-secondary); font-size: 1.2rem;">chevron_right</span>
+                    <span class="material-symbols-rounded mypage-chevron">chevron_right</span>
                 </div>
 
                 <!-- 2. 친구 초대 -->
                 <div onclick="openReferralModal()" class="mypage-menu-row">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <div class="mypage-icon-box" style="background: rgba(236, 72, 153, 0.12); color: #f43f5e;">🎁</div>
+                        <div class="mypage-icon-box mypage-icon-gift">
+                            <span class="material-symbols-rounded">card_giftcard</span>
+                        </div>
                         <div>
                             <div class="mypage-menu-title">친구 초대 & 리포트 무료권</div>
                             <div class="mypage-menu-desc">친구 1명 초대 시 16,900원 리포트권 지급</div>
                         </div>
                     </div>
-                    <span class="material-symbols-rounded" style="color: var(--text-secondary); font-size: 1.2rem;">chevron_right</span>
+                    <span class="material-symbols-rounded mypage-chevron">chevron_right</span>
                 </div>
 
                 <!-- 3. 캐시 충전소 -->
                 <div onclick="openCashModal()" class="mypage-menu-row">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <div class="mypage-icon-box" style="background: rgba(59, 130, 246, 0.12); color: #60a5fa;">💎</div>
+                        <div class="mypage-icon-box mypage-icon-cash">
+                            <span class="material-symbols-rounded">payments</span>
+                        </div>
                         <div>
                             <div class="mypage-menu-title">PALIN 캐시 충전소</div>
                             <div class="mypage-menu-desc">심층 입시 리포트 및 과외 매칭 전용</div>
                         </div>
                     </div>
-                    <span class="material-symbols-rounded" style="color: var(--text-secondary); font-size: 1.2rem;">chevron_right</span>
+                    <span class="material-symbols-rounded mypage-chevron">chevron_right</span>
                 </div>
 
                 <!-- 4. 원장 전용 중앙 관제실 -->
                 <a href="/admin.html" id="mypage-admin-row" class="mypage-menu-row" style="display: none;">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <div class="mypage-icon-box" style="background: rgba(245, 158, 11, 0.12); color: #fbbf24;"></div>
+                        <div class="mypage-icon-box mypage-icon-admin">
+                            <span class="material-symbols-rounded">admin_panel_settings</span>
+                        </div>
                         <div>
                             <div class="mypage-menu-title">원장 전용 중앙 관제실</div>
                             <div class="mypage-menu-desc">재원생 궤적 & 발급 리포트 검토 (원장 PIN)</div>
                         </div>
                     </div>
-                    <span class="material-symbols-rounded" style="color: var(--text-secondary); font-size: 1.2rem;">chevron_right</span>
+                    <span class="material-symbols-rounded mypage-chevron">chevron_right</span>
                 </a>
 
                 <!-- 5. 불편사항 건의하기 -->
                 <div onclick="openFeedbackModal()" class="mypage-menu-row">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <div class="mypage-icon-box" style="background: rgba(16, 185, 129, 0.12); color: #34d399;"></div>
+                        <div class="mypage-icon-box mypage-icon-feedback">
+                            <span class="material-symbols-rounded">rate_review</span>
+                        </div>
                         <div>
                             <div class="mypage-menu-title">서비스 불편사항 & 아이디어</div>
                             <div class="mypage-menu-desc">버그 제보 및 기능 개선 건의하기</div>
                         </div>
                     </div>
-                    <span class="material-symbols-rounded" style="color: var(--text-secondary); font-size: 1.2rem;">chevron_right</span>
+                    <span class="material-symbols-rounded mypage-chevron">chevron_right</span>
                 </div>
 
                 <!-- 6. 낮/밤 테마 모드 전환 -->
                 <div id="theme-toggle-btn" class="mypage-menu-row" onclick="togglePALINTheme()" style="cursor: pointer;">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <div class="mypage-icon-box" style="background: rgba(168, 85, 247, 0.12); color: #c084fc;"></div>
+                        <div class="mypage-icon-box mypage-icon-theme">
+                            <span class="material-symbols-rounded">dark_mode</span>
+                        </div>
                         <div>
                             <div class="mypage-menu-title">화면 테마 모드 전환</div>
                             <div class="mypage-menu-desc">라이트(Day) / 다크(Night) 모드 토글</div>
                         </div>
                     </div>
-                    <span class="material-symbols-rounded" style="color: var(--text-secondary); font-size: 1.2rem;">swap_horiz</span>
+                    <span class="material-symbols-rounded mypage-chevron">swap_horiz</span>
                 </div>
             </div>
 
@@ -3662,7 +3674,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
     <div id="streak-modal" class="trigger-modal" style="display: none;">
         <div class="trigger-content" style="max-width: 380px; text-align: center; border-color: #f97316; background: #0f172a; padding: 22px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 8px;">
-                <div style="font-size: 1.2rem; font-weight: 900; color: #fb923c;" id="streak-modal-title">4일 연속 학습</div>
+                <div style="font-size: 1.2rem; font-weight: 900; color: #fb923c;" id="streak-modal-title">0일 연속 학습</div>
                 <button onclick="document.getElementById('streak-modal').style.display='none'" class="modal-close-btn" title="닫기" style="background: rgba(255, 255, 255, 0.2) !important; color: #ffffff !important; border: 1.5px solid rgba(255, 255, 255, 0.4) !important; width: 34px; height: 34px; border-radius: 50%; font-size: 1.3rem; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</button>
             </div>
             

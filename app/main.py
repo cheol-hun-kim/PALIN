@@ -1007,11 +1007,9 @@ def update_student_streak(student: models.Student, db: Session):
         from datetime import timezone
         KST = timezone(timedelta(hours=9))
         today = datetime.now(KST).date()
-        
-        is_master = (student.id == 1 or (student.email and "1286orbital21@gmail.com" in student.email.lower()))
 
         if not student.last_streak_date:
-            student.streak_days = 26 if is_master else max(1, student.streak_days or 1)
+            student.streak_days = max(1, student.streak_days or 1)
             student.last_streak_date = today
         else:
             last_date = student.last_streak_date
@@ -1029,16 +1027,15 @@ def update_student_streak(student: models.Student, db: Session):
 
             diff = (today - last_date).days
             if diff == 0:
-                if is_master and (student.streak_days or 0) < 26:
-                    student.streak_days = 26
+                # Same day: maintain current streak
+                pass
             elif diff == 1:
+                # Next consecutive day: increment streak
                 student.streak_days = (student.streak_days or 0) + 1
                 student.last_streak_date = today
             elif diff > 1:
-                if is_master:
-                    student.streak_days = max(26, (student.streak_days or 0))
-                else:
-                    student.streak_days = 1
+                # Streak broken: reset to 1
+                student.streak_days = 1
                 student.last_streak_date = today
 
         if (student.streak_days or 0) > (student.max_streak_days or 0):
@@ -6826,8 +6823,8 @@ def force_sync_master_cohorts(db: Session = Depends(get_db)):
             acad_status = s.get("academy_approval_status", "APPROVED" if is_ilwon else "NONE")
             ai_lvl = "TIER_4_ILWON" if is_ilwon else s.get("ai_level", "B2C_FREE")
             b2c_tier = "TIER_3_MASTER" if sid == 1 else s.get("b2c_subscription_tier", "TIER_1_FREE")
-            s_streak = 26 if sid == 1 else s.get("streak_days", 0)
-            s_max_streak = 26 if sid == 1 else s.get("max_streak_days", 0)
+            s_streak = s.get("streak_days", 0)
+            s_max_streak = s.get("max_streak_days", 0)
 
             if is_ilwon:
                 ilwon_count += 1
@@ -6883,9 +6880,6 @@ def force_sync_master_cohorts(db: Session = Depends(get_db)):
                 s_exist.enrollment_status = s.get("enrollment_status", "ENROLLED")
                 if sid == 1:
                     s_exist.previous_b2c_tier = "TIER_3_MASTER"
-                    s_exist.streak_days = 26
-                    s_exist.max_streak_days = max(26, s_exist.max_streak_days or 26)
-                    s_exist.last_streak_date = datetime.now().date()
         except Exception:
             db.rollback()
     db.commit()
