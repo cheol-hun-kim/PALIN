@@ -705,6 +705,10 @@
                     <span class="material-symbols-rounded" style="color: #ec4899;">science</span>
                     <span>8. 극비 R&D 전략실 (The Human Life OS & Alliance Vault)</span>
                 </button>
+                <button class="master-tab-btn" onclick="switchMasterTab('tab-coupang-partners')" style="border-color: rgba(56, 189, 248, 0.4) !important; color: #38bdf8 !important;">
+                    <span class="material-symbols-rounded" style="color: #38bdf8;">shopping_cart_checkout</span>
+                    <span>9. 쿠팡 파트너스 & B2B 커미션 관제실</span>
+                </button>
             </div>
 
             <!-- TAB 1: 1. B2B 고객사 관리 & 갓모드 -->
@@ -1628,6 +1632,80 @@
 
             </div>
 
+            <!-- TAB 9: 9. 쿠팡 파트너스 & B2B 유통 커미션 총괄 관제실 (갓모드 전용) -->
+            <div id="tab-coupang-partners" class="master-tab-view" style="display: none;">
+                <!-- 상단 KPI 카드 -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 20px;">
+                    <div class="kpi-card" style="border: 1.5px solid #38bdf8; background: rgba(56, 189, 248, 0.04);">
+                        <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 800; margin-bottom: 4px;">본사 쿠팡 파트너스 트래킹 ID</div>
+                        <div id="master-kpi-partner-id" style="font-size: 1.3rem; font-weight: 900; color: #38bdf8; font-family: monospace;">AF5491299</div>
+                        <div style="font-size: 0.72rem; color: #34d399; margin-top: 4px;">● 전 가맹점 비품/검색 트래픽 100% 자동 귀속 중</div>
+                    </div>
+                    <div class="kpi-card" style="border: 1.5px solid #10b981; background: rgba(16, 185, 129, 0.04);">
+                        <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 800; margin-bottom: 4px;">추정 B2B 비품 주문 커미션 (3%)</div>
+                        <div id="master-kpi-est-commission" style="font-size: 1.3rem; font-weight: 900; color: #34d399;">약 485,000원</div>
+                        <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px;">가맹점 원장 구매 시 본사 정산</div>
+                    </div>
+                    <div class="kpi-card" style="border: 1.5px solid #a855f7; background: rgba(168, 85, 247, 0.04);">
+                        <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 800; margin-bottom: 4px;">사설 모의고사 & 교재 발주 현황</div>
+                        <div id="master-kpi-textbook-orders" style="font-size: 1.3rem; font-weight: 900; color: #c084fc;">누적 12건</div>
+                        <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px;">대성, 이감, 시대인재 B2B 마진 정산</div>
+                    </div>
+                </div>
+
+                <!-- 쿠팡 파트너스 글로벌 설정 폼 -->
+                <div class="section-box" style="border-color: rgba(56, 189, 248, 0.4); margin-bottom: 20px;">
+                    <div class="section-header" style="color: #38bdf8; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-rounded">admin_panel_settings</span>
+                            <span>쿠팡 파트너스 글로벌 수익 귀속 설정 (원장 화면에서 완전 은닉)</span>
+                        </div>
+                        <span style="font-size: 0.75rem; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 2px 8px; border-radius: 4px; font-weight: 800;">GOD MODE ONLY</span>
+                    </div>
+                    <div style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 14px; line-height: 1.5;">
+                        모든 가맹 원장 및 학생 화면에는 쿠팡 파트너스 연동 사실이나 커미션 정보가 일체 노출되지 않으며, 비품 구매 및 링크 클릭 시 백엔드에서 자동으로 아래 파트너스 ID로 Rewrite되어 본사로 커미션(3%)이 전액 귀속됩니다.
+                    </div>
+                    <form onsubmit="handleSaveMasterCoupangConfig(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px;">
+                        <div>
+                            <label style="font-size: 0.74rem; color: #38bdf8; font-weight: 800; display: block; margin-bottom: 4px;">쿠팡 파트너스 Tracking ID</label>
+                            <input type="text" id="m-cfg-partner-id" value="AF5491299" required class="form-input" style="font-weight: 800; font-family: monospace;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.74rem; color: #cbd5e1; font-weight: 800; display: block; margin-bottom: 4px;">서브 트래킹 코드 (Sub ID)</label>
+                            <input type="text" id="m-cfg-sub-id" value="palin_b2b" class="form-input" style="font-weight: 700; font-family: monospace;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.74rem; color: #cbd5e1; font-weight: 800; display: block; margin-bottom: 4px;">쿠팡 Open API Access Key</label>
+                            <input type="text" id="m-cfg-access-key" placeholder="API Access Key" class="form-input" style="font-size: 0.75rem;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.74rem; color: #cbd5e1; font-weight: 800; display: block; margin-bottom: 4px;">쿠팡 Open API Secret Key</label>
+                            <input type="password" id="m-cfg-secret-key" placeholder="API Secret Key" class="form-input" style="font-size: 0.75rem;">
+                        </div>
+                        <div style="grid-column: 1/-1; display: flex; justify-content: flex-end;">
+                            <button type="submit" class="btn" style="background: linear-gradient(135deg, #38bdf8, #0284c7); color: white; font-weight: 900; padding: 10px 24px; font-size: 0.85rem; border-radius: 8px;">글로벌 파트너스 설정 저장</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- B2B 파트너스 링크 실시간 변환기 & 테스터 -->
+                <div class="section-box" style="border-color: rgba(168, 85, 247, 0.4);">
+                    <div class="section-header" style="color: #c084fc;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-rounded">link</span>
+                            <span>수익 링크 실시간 변환 테스트기 (URL Rewrite Test)</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+                        <input type="text" id="m-test-url-input" placeholder="테스트할 일반 쿠팡 상품 URL 또는 검색어 입력" class="form-input" style="flex: 1; min-width: 260px; margin: 0 !important;">
+                        <button type="button" onclick="testMasterAffiliateRewrite()" class="btn" style="background: #a855f7; color: white; font-weight: 800; padding: 0 18px; border-radius: 8px; font-size: 0.82rem;">수익 링크 생성</button>
+                    </div>
+                    <div id="m-test-url-result" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px; font-family: monospace; font-size: 0.78rem; color: #34d399; word-break: break-all; min-height: 40px; display: flex; align-items: center;">
+                        변환 결과가 여기에 표시됩니다.
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -1663,6 +1741,7 @@
             if (tabId === 'tab-b2b-helpdesk') { loadB2BTickets(); loadMasterFeedbacks(); }
             if (tabId === 'tab-all-members') loadMasterStudents();
             if (tabId === 'tab-secret-rnd') loadEmailSettings();
+            if (tabId === 'tab-coupang-partners') loadMasterCoupangConfig();
         }
 
         function handleMasterLogin() {
@@ -3190,10 +3269,86 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
             });
         }
 
+        // --- 9. 쿠팡 파트너스 & B2B 커미션 갓모드 관제 함수 ---
+        async function loadMasterCoupangConfig() {
+            try {
+                const res = await fetch('/api/admin/procurement/config');
+                if (res.ok) {
+                    const data = await res.json();
+                    const pId = data.partner_id || 'AF5491299';
+                    const sId = data.sub_id || 'palin_b2b';
+                    const kpi = document.getElementById('master-kpi-partner-id');
+                    if (kpi) kpi.innerText = pId;
+                    const pInp = document.getElementById('m-cfg-partner-id');
+                    if (pInp) pInp.value = pId;
+                    const sInp = document.getElementById('m-cfg-sub-id');
+                    if (sInp) sInp.value = sId;
+                    const aInp = document.getElementById('m-cfg-access-key');
+                    if (aInp) aInp.value = data.access_key || '';
+                    const secInp = document.getElementById('m-cfg-secret-key');
+                    if (secInp) secInp.value = data.secret_key || '';
+                }
+            } catch(e) {
+                console.warn("loadMasterCoupangConfig error:", e);
+            }
+        }
+
+        async function handleSaveMasterCoupangConfig(event) {
+            if (event) event.preventDefault();
+            const partner_id = document.getElementById('m-cfg-partner-id')?.value.trim() || 'AF5491299';
+            const sub_id = document.getElementById('m-cfg-sub-id')?.value.trim() || 'palin_b2b';
+            const access_key = document.getElementById('m-cfg-access-key')?.value.trim() || '';
+            const secret_key = document.getElementById('m-cfg-secret-key')?.value.trim() || '';
+
+            try {
+                const res = await fetch('/api/admin/procurement/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ partner_id, sub_id, access_key, secret_key, auto_rewrite_enabled: true })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(data.message || '쿠팡 파트너스 글로벌 설정이 저장되었습니다.');
+                    loadMasterCoupangConfig();
+                } else {
+                    alert(data.detail || '저장 실패');
+                }
+            } catch(e) {
+                alert('서버 통신 실패');
+            }
+        }
+
+        function testMasterAffiliateRewrite() {
+            const raw = document.getElementById('m-test-url-input')?.value.trim();
+            if (!raw) {
+                alert('테스트할 상품 URL이나 검색어를 입력하세요.');
+                return;
+            }
+            const pId = document.getElementById('m-cfg-partner-id')?.value.trim() || 'AF5491299';
+            const sId = document.getElementById('m-cfg-sub-id')?.value.trim() || 'palin_b2b';
+            let resUrl = '';
+            if (raw.includes('coupang.com')) {
+                try {
+                    const url = new URL(raw);
+                    url.searchParams.set('lptag', pId);
+                    url.searchParams.set('subid', sId);
+                    resUrl = url.toString();
+                } catch(e) {
+                    resUrl = `https://www.coupang.com/np/search?component=&q=${encodeURIComponent(raw)}&lptag=${pId}&subid=${sId}`;
+                }
+            } else {
+                resUrl = `https://www.coupang.com/np/search?component=&q=${encodeURIComponent(raw)}&lptag=${pId}&subid=${sId}`;
+            }
+            const resBox = document.getElementById('m-test-url-result');
+            if (resBox) {
+                resBox.innerHTML = `<a href="${resUrl}" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; text-decoration: underline;">${resUrl}</a>`;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('palin_theme') || 'original';
             applyGodModeTheme(savedTheme);
         });
-</script>
+    </script>
 </body>
 </html>

@@ -1471,17 +1471,15 @@
 
             <!-- TAB 8: 8. 학원 비품·교재 발주 & 렌탈 허브 -->
             <div id="tab-procurement" class="cockpit-tab-view" style="display: none;">
-                <!-- 1. 쿠팡 파트너스 비품 구매 관제 센터 -->
+                <!-- 1. 학원 비품 최저가 구매 센터 -->
                 <div class="kpi-card" style="border: 1.5px solid #38bdf8; background: rgba(56, 189, 248, 0.03); margin-bottom: 16px;">
                     <div class="section-title" style="color: #38bdf8; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <span class="material-symbols-rounded">shopping_cart</span>
-                            <span>학원 필수 비품·소모품 구매 센터 (쿠팡 파트너스 연동)</span>
+                            <span>학원 필수 비품·소모품 최저가 간편 구매 센터</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <span id="coupang-partner-badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 0.75rem; padding: 3px 8px; border-radius: 6px; font-weight: 800;">연동 파트너스 ID: AF5491299</span>
-                            <button onclick="openCoupangConfigModal()" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.72rem; font-weight: 800;">파트너스 설정</button>
-                            <button onclick="openAddCustomItemModal()" class="btn" style="background: linear-gradient(135deg, #38bdf8, #0284c7); color: white; padding: 4px 10px; font-size: 0.72rem; font-weight: 800;">+ 비품 직접 등록</button>
+                            <button onclick="openAddCustomItemModal()" class="btn" style="background: linear-gradient(135deg, #38bdf8, #0284c7); color: white; padding: 6px 14px; font-size: 0.78rem; font-weight: 800; border-radius: 8px;">+ 비품 직접 등록</button>
                         </div>
                     </div>
 
@@ -1496,7 +1494,7 @@
 
                     <!-- 카테고리 필터 탭 -->
                     <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px;" id="procurement-category-pills">
-                        <button onclick="filterProcurementCatalog('ALL')" class="procurement-filter-pill active" id="p-filter-all" style="padding: 5px 12px; font-size: 0.75rem; border-radius: 6px; font-weight: 800; cursor: pointer; border: 1px solid #38bdf8; background: #38bdf8; color: #020408;">전체 (21)</button>
+                        <button onclick="filterProcurementCatalog('ALL')" class="procurement-filter-pill active" id="p-filter-all" style="padding: 5px 12px; font-size: 0.75rem; border-radius: 6px; font-weight: 800; cursor: pointer; border: 1px solid #38bdf8; background: #38bdf8; color: #020408;">전체 비품</button>
                         <button onclick="filterProcurementCatalog('A4_PAPER')" class="procurement-filter-pill" id="p-filter-a4" style="padding: 5px 12px; font-size: 0.75rem; border-radius: 6px; font-weight: 800; cursor: pointer; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: #cbd5e1;">A4·복사용지</button>
                         <button onclick="filterProcurementCatalog('PRINTER_INK')" class="procurement-filter-pill" id="p-filter-ink" style="padding: 5px 12px; font-size: 0.75rem; border-radius: 6px; font-weight: 800; cursor: pointer; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: #cbd5e1;">토너·잉크</button>
                         <button onclick="filterProcurementCatalog('STUDY_DESK')" class="procurement-filter-pill" id="p-filter-desk" style="padding: 5px 12px; font-size: 0.75rem; border-radius: 6px; font-weight: 800; cursor: pointer; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: #cbd5e1;">독서실·스탠드·귀마개</button>
@@ -1618,48 +1616,7 @@
         </div>
     </div>
 
-    <!-- 팝업 모달: 쿠팡 파트너스 설정 -->
-    <div id="coupang-config-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content" style="border-color: #38bdf8; max-width: 500px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                <div style="font-size: 1.1rem; font-weight: 900; color: #38bdf8; display: flex; align-items: center; gap: 6px;">
-                    <span class="material-symbols-rounded">settings</span>
-                    <span>쿠팡 파트너스 연동 설정</span>
-                </div>
-                <button type="button" onclick="closeCoupangConfigModal()" class="btn btn-secondary" style="padding: 4px 10px;">✕</button>
-            </div>
-            <div style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 12px; line-height: 1.45;">
-                원장님의 쿠팡 파트너스 ID가 설정되면, PALIN 비품 몰 및 외부 링크를 통해 구매하는 모든 주문에서 <b>구매액의 3% 커미션</b>이 원장님 계정으로 자동 적립됩니다.
-            </div>
-            <form onsubmit="handleSaveCoupangConfig(event)" style="display: flex; flex-direction: column; gap: 10px;">
-                <div>
-                    <label style="font-size: 0.75rem; color: #38bdf8; font-weight: 800; display: block; margin-bottom: 2px;">쿠팡 파트너스 ID (Tracking ID)</label>
-                    <input type="text" id="cfg-partner-id" value="AF5491299" required class="form-input" style="font-weight: 800; font-family: monospace;">
-                </div>
-                <div>
-                    <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 800; display: block; margin-bottom: 2px;">서브 트래킹 코드 (Sub ID)</label>
-                    <input type="text" id="cfg-sub-id" value="palin_b2b" class="form-input" style="font-weight: 700; font-family: monospace;">
-                </div>
-                <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; margin-top: 4px;">
-                    <div style="font-size: 0.75rem; font-weight: 800; color: #fbbf24; margin-bottom: 6px;">선택 사항: Open API 연동 키 (실시간 단축링크/가격 연동)</div>
-                    <div style="margin-bottom: 8px;">
-                        <label style="font-size: 0.72rem; color: #94a3b8; display: block; margin-bottom: 2px;">Access Key</label>
-                        <input type="text" id="cfg-access-key" placeholder="쿠팡 파트너스 API Access Key" class="form-input" style="font-size: 0.75rem;">
-                    </div>
-                    <div>
-                        <label style="font-size: 0.72rem; color: #94a3b8; display: block; margin-bottom: 2px;">Secret Key</label>
-                        <input type="password" id="cfg-secret-key" placeholder="쿠팡 파트너스 API Secret Key" class="form-input" style="font-size: 0.75rem;">
-                    </div>
-                </div>
-                <div style="display: flex; gap: 8px; margin-top: 6px;">
-                    <button type="submit" class="btn" style="flex: 1; background: linear-gradient(135deg, #38bdf8, #0284c7); color: white; font-weight: 900; padding: 10px; font-size: 0.85rem;">설정 저장 완료</button>
-                    <button type="button" onclick="closeCoupangConfigModal()" class="btn btn-secondary" style="padding: 10px 14px; font-size: 0.85rem;">취소</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- 팝업 모달: 원장 전용 비품 직접 등록 (URL Rewrite) -->
+    <!-- 팝업 모달: 원장 전용 비품 직접 등록 -->
     <div id="add-custom-item-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="border-color: #38bdf8; max-width: 500px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
@@ -1668,6 +1625,9 @@
                     <span>우리 학원 자주 쓰는 비품 등록</span>
                 </div>
                 <button type="button" onclick="closeAddCustomItemModal()" class="btn btn-secondary" style="padding: 4px 10px;">✕</button>
+            </div>
+            <div style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 12px; line-height: 1.45;">
+                자주 주문하는 소모품이나 비품의 구매 링크를 등록해두시면, 비품이 떨어졌을 때 원클릭으로 최저가 구매처로 즉시 이동합니다.
             </div>
             <form onsubmit="handleSubmitCustomItem(event)" style="display: flex; flex-direction: column; gap: 10px;">
                 <div>
@@ -1679,11 +1639,11 @@
                     <input type="text" id="cust-item-spec" placeholder="예: 열람실 안내문 부착용 / 25mm x 5m" class="form-input" style="height: 40px;">
                 </div>
                 <div>
-                    <label style="font-size: 0.75rem; color: #cbd5e1; font-weight: 800; display: block; margin-bottom: 2px;">예상 구매 가격 (원)</label>
+                    <label style="font-size: 0.75rem; color: #cbd5e1; font-weight: 800; display: block; margin-bottom: 2px;">기준 구매 가격 (원)</label>
                     <input type="number" id="cust-item-price" placeholder="예: 12500" value="10000" required class="form-input" style="height: 40px;">
                 </div>
                 <div>
-                    <label style="font-size: 0.75rem; color: #38bdf8; font-weight: 800; display: block; margin-bottom: 2px;">쿠팡 상품 URL (자동으로 파트너스 코드가 적용됩니다)</label>
+                    <label style="font-size: 0.75rem; color: #38bdf8; font-weight: 800; display: block; margin-bottom: 2px;">구매처 상품 URL (쿠팡 또는 쇼핑몰 링크)</label>
                     <input type="text" id="cust-item-url" placeholder="https://www.coupang.com/vp/products/..." required class="form-input" style="height: 40px; font-size: 0.78rem;">
                 </div>
                 <div style="display: flex; gap: 8px; margin-top: 6px;">
@@ -6697,53 +6657,9 @@ async function loadCoupangConfig() {
         if (res.ok) {
             const data = await res.json();
             coupangConfigCache = data;
-            const badge = document.getElementById('coupang-partner-badge');
-            if (badge) badge.innerText = `연동 파트너스 ID: ${data.partner_id || 'AF5491299'}`;
-            const pInput = document.getElementById('cfg-partner-id');
-            if (pInput) pInput.value = data.partner_id || 'AF5491299';
-            const sInput = document.getElementById('cfg-sub-id');
-            if (sInput) sInput.value = data.sub_id || 'palin_b2b';
         }
     } catch(e) {
         console.warn("loadCoupangConfig error:", e);
-    }
-}
-
-function openCoupangConfigModal() {
-    loadCoupangConfig();
-    const modal = document.getElementById('coupang-config-modal');
-    if (modal) modal.style.display = 'flex';
-}
-
-function closeCoupangConfigModal() {
-    const modal = document.getElementById('coupang-config-modal');
-    if (modal) modal.style.display = 'none';
-}
-
-async function handleSaveCoupangConfig(event) {
-    if (event) event.preventDefault();
-    const pId = document.getElementById('cfg-partner-id')?.value.trim() || 'AF5491299';
-    const sId = document.getElementById('cfg-sub-id')?.value.trim() || 'palin_b2b';
-    const aKey = document.getElementById('cfg-access-key')?.value.trim() || '';
-    const sKey = document.getElementById('cfg-secret-key')?.value.trim() || '';
-
-    try {
-        const res = await fetch('/api/admin/procurement/config', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ partner_id: pId, sub_id: sId, access_key: aKey, secret_key: sKey, auto_rewrite_enabled: true })
-        });
-        const data = await res.json();
-        if (res.ok) {
-            alert(data.message || '쿠팡 파트너스 설정이 저장되었습니다.');
-            closeCoupangConfigModal();
-            loadCoupangConfig();
-            loadProcurementCatalog();
-        } else {
-            alert(data.detail || '저장 실패');
-        }
-    } catch(e) {
-        alert('서버 통신 실패');
     }
 }
 
@@ -6787,7 +6703,14 @@ function renderProcurementCatalog() {
         : procurementCatalogCache.filter(item => item.category === currentProcurementFilter);
 
     if (filtered.length === 0) {
-        container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 30px; color:#94a3b8; font-size:0.85rem;">해당 카테고리에 등록된 비품이 없습니다.</div>';
+        container.innerHTML = `
+            <div style="grid-column: 1/-1; text-align:center; padding: 40px 20px; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px;">
+                <span class="material-symbols-rounded" style="font-size: 2.2rem; color: #38bdf8; margin-bottom: 8px;">add_shopping_cart</span>
+                <div style="font-size: 0.95rem; font-weight: 800; color: #f8fafc; margin-bottom: 4px;">등록된 자주 쓰는 비품이 없습니다</div>
+                <div style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 14px;">상단의 검색창에서 쿠팡 최저가를 검색하시거나, '+ 비품 직접 등록' 버튼으로 자주 구매하는 비품을 등록하세요.</div>
+                <button onclick="openAddCustomItemModal()" class="btn" style="background: linear-gradient(135deg, #38bdf8, #0284c7); color: white; padding: 8px 16px; font-size: 0.8rem; font-weight: 800; border-radius: 8px;">+ 첫 비품 등록하기</button>
+            </div>
+        `;
         return;
     }
 
@@ -6818,7 +6741,7 @@ function renderProcurementCatalog() {
                     </div>
                     <a href="${item.affiliate_url}" target="_blank" rel="noopener noreferrer" class="btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; background: linear-gradient(135deg, #38bdf8, #0284c7); color: white; font-weight: 900; padding: 9px 0; font-size: 0.8rem; border-radius: 8px; text-decoration: none;">
                         <span class="material-symbols-rounded" style="font-size: 1rem;">open_in_new</span>
-                        <span>쿠팡에서 최저가 구매</span>
+                        <span>최저가 바로구매</span>
                     </a>
                 </div>
             </div>
@@ -7058,111 +6981,195 @@ function renderMarketingCardCanvas() {
     const mainCopy = document.getElementById('mkt-main-copy')?.value.trim() || '감으로 풀던 국어에서, 출제 원리를 꿰뚫는 만점 훈련으로!';
     const academy = currentTenantName || '일원학원';
 
-    // 1. Background
-    const bgGradient = ctx.createLinearGradient(0, 0, 1080, 1080);
-    bgGradient.addColorStop(0, '#06070a');
-    bgGradient.addColorStop(0.5, '#0f111a');
-    bgGradient.addColorStop(1, '#050814');
-    ctx.fillStyle = bgGradient;
-    ctx.fillRect(0, 0, 1080, 1080);
+    const W = 1080;
+    const H = 1080;
 
-    // Decorative Glowing Orbs
-    const rad1 = ctx.createRadialGradient(200, 200, 20, 200, 200, 400);
-    rad1.addColorStop(0, 'rgba(244, 114, 182, 0.22)');
+    // Helper: Dynamic font measurement & scaling fit
+    function fitText(text, maxWidth, maxFontSize, minFontSize, fontWeight = '800', fontFamily = 'Pretendard, sans-serif') {
+        let size = maxFontSize;
+        while (size > minFontSize) {
+            ctx.font = `${fontWeight} ${size}px ${fontFamily}`;
+            if (ctx.measureText(text).width <= maxWidth) {
+                return size;
+            }
+            size -= 2;
+        }
+        return minFontSize;
+    }
+
+    // Helper: Word wrapped text drawing
+    function drawWrappedText(text, x, y, maxWidth, lineHeight, maxLines = 2) {
+        ctx.font = '700 28px Pretendard, sans-serif';
+        const words = text.split(' ');
+        let line = '';
+        const lines = [];
+
+        for (let n = 0; n < words.length; n++) {
+            const testLine = line + (line ? ' ' : '') + words[n];
+            if (ctx.measureText(testLine).width > maxWidth && n > 0) {
+                lines.push(line);
+                line = words[n];
+            } else {
+                line = testLine;
+            }
+        }
+        if (line) lines.push(line);
+
+        const renderedLines = lines.slice(0, maxLines);
+        const startY = y - ((renderedLines.length - 1) * lineHeight) / 2;
+        renderedLines.forEach((l, idx) => {
+            ctx.fillText(l, x, startY + idx * lineHeight);
+        });
+    }
+
+    // 1. Background Luxury Deep Dark Gradient
+    const bgGradient = ctx.createLinearGradient(0, 0, W, H);
+    bgGradient.addColorStop(0, '#040711');
+    bgGradient.addColorStop(0.5, '#0b1120');
+    bgGradient.addColorStop(1, '#020617');
+    ctx.fillStyle = bgGradient;
+    ctx.fillRect(0, 0, W, H);
+
+    // Decorative Glowing Orbs (Luxury Atmosphere)
+    const rad1 = ctx.createRadialGradient(240, 200, 20, 240, 200, 480);
+    rad1.addColorStop(0, 'rgba(244, 114, 182, 0.25)');
+    rad1.addColorStop(0.6, 'rgba(244, 114, 182, 0.05)');
     rad1.addColorStop(1, 'transparent');
     ctx.fillStyle = rad1;
-    ctx.fillRect(0, 0, 1080, 1080);
+    ctx.fillRect(0, 0, W, H);
 
-    const rad2 = ctx.createRadialGradient(880, 880, 30, 880, 880, 450);
-    rad2.addColorStop(0, 'rgba(56, 189, 248, 0.2)');
+    const rad2 = ctx.createRadialGradient(860, 840, 30, 860, 840, 500);
+    rad2.addColorStop(0, 'rgba(56, 189, 248, 0.22)');
+    rad2.addColorStop(0.6, 'rgba(56, 189, 248, 0.04)');
     rad2.addColorStop(1, 'transparent');
     ctx.fillStyle = rad2;
-    ctx.fillRect(0, 0, 1080, 1080);
+    ctx.fillRect(0, 0, W, H);
 
-    // Border Frame
-    ctx.strokeStyle = 'rgba(244, 114, 182, 0.4)';
-    ctx.lineWidth = 12;
-    ctx.strokeRect(36, 36, 1008, 1008);
+    // Outer & Inner Precision Border Frames
+    ctx.strokeStyle = 'rgba(244, 114, 182, 0.45)';
+    ctx.lineWidth = 8;
+    ctx.strokeRect(36, 36, W - 72, H - 72);
 
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(50, 50, 980, 980);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(50, 50, W - 100, H - 100);
 
-    // Top Header Badge
+    // 1. Top Header Badge: Academy + Proof Slogan
     ctx.fillStyle = '#f472b6';
-    ctx.font = '900 32px Pretendard, sans-serif';
+    const academyFontSize = fitText(`${academy} · 수능 성적 역전 신화`, 800, 32, 22, '900');
+    ctx.font = `900 ${academyFontSize}px Pretendard, sans-serif`;
     ctx.textAlign = 'center';
-    ctx.fillText(`${academy} · 수능 성적 역전 신화`, 540, 120);
+    ctx.fillText(`${academy} · 수능 성적 역전 신화`, 540, 115);
 
-    // Slogan subheader
+    // Slogan Subheader
     ctx.fillStyle = '#94a3b8';
-    ctx.font = '600 24px Pretendard, sans-serif';
-    ctx.fillText(slogan, 540, 165);
+    const sloganFontSize = fitText(slogan, 800, 24, 18, '600');
+    ctx.font = `600 ${sloganFontSize}px Pretendard, sans-serif`;
+    ctx.fillText(slogan, 540, 155);
 
-    // Main Big Title
+    // 2. Main Big Impact Title
     ctx.fillStyle = '#ffffff';
-    ctx.font = '900 52px Pretendard, sans-serif';
-    ctx.fillText(`"${period} 만에 증명한 성적 수직 상승!"`, 540, 260);
+    const titleText = `"${period} 만에 증명한 성적 수직 상승!"`;
+    const titleFontSize = fitText(titleText, 880, 50, 32, '900');
+    ctx.font = `900 ${titleFontSize}px Pretendard, sans-serif`;
+    ctx.fillText(titleText, 540, 245);
 
-    // Student & Subject Pill
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+    // 3. Student & Subject Pill
+    const pillText = `${stName}  |  ${subject}`;
+    const pillFontSize = fitText(pillText, 560, 26, 18, '800');
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.07)';
     ctx.beginPath();
-    ctx.roundRect(240, 310, 600, 60, [30]);
+    ctx.roundRect(190, 290, 700, 56, [28]);
     ctx.fill();
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
     ctx.fillStyle = '#fbbf24';
-    ctx.font = '800 28px Pretendard, sans-serif';
-    ctx.fillText(`${stName}  |  ${subject}`, 540, 350);
+    ctx.font = `800 ${pillFontSize}px Pretendard, sans-serif`;
+    ctx.fillText(pillText, 540, 326);
 
-    // Score Shift Big Box
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    // 4. Score Shift Main Display Box
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
     ctx.beginPath();
-    ctx.roundRect(100, 420, 880, 260, [24]);
+    ctx.roundRect(80, 385, 920, 280, [24]);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(244, 114, 182, 0.5)';
-    ctx.lineWidth = 3;
+    ctx.strokeStyle = 'rgba(244, 114, 182, 0.45)';
+    ctx.lineWidth = 2.5;
     ctx.stroke();
 
-    // Before Box
-    ctx.fillStyle = '#f87171';
-    ctx.font = '800 28px Pretendard, sans-serif';
-    ctx.fillText('입학 전 기존 성적', 300, 490);
-    ctx.font = '900 48px Pretendard, sans-serif';
-    ctx.fillText(scoreBefore, 300, 570);
+    // Left Box: Before Score (Center: 290, Max Width: 340)
+    ctx.fillStyle = '#fca5a5';
+    ctx.font = '800 24px Pretendard, sans-serif';
+    ctx.fillText('입학 전 기존 성적', 290, 450);
 
-    // Arrow
+    const beforeParts = scoreBefore.split('(');
+    if (beforeParts.length > 1 && scoreBefore.length > 8) {
+        const gradeBefore = beforeParts[0].trim();
+        const detailBefore = '(' + beforeParts.slice(1).join('(').trim();
+        ctx.fillStyle = '#f87171';
+        ctx.font = `900 ${fitText(gradeBefore, 340, 46, 30, '900')}px Pretendard, sans-serif`;
+        ctx.fillText(gradeBefore, 290, 520);
+
+        ctx.fillStyle = '#fca5a5';
+        ctx.font = `700 ${fitText(detailBefore, 340, 26, 18, '700')}px Pretendard, sans-serif`;
+        ctx.fillText(detailBefore, 290, 575);
+    } else {
+        ctx.fillStyle = '#f87171';
+        const bfSize = fitText(scoreBefore, 340, 46, 24, '900');
+        ctx.font = `900 ${bfSize}px Pretendard, sans-serif`;
+        ctx.fillText(scoreBefore, 290, 545);
+    }
+
+    // Center Big Arrow
     ctx.fillStyle = '#ffffff';
-    ctx.font = '900 64px Pretendard, sans-serif';
-    ctx.fillText('➔', 540, 560);
+    ctx.font = '900 56px Pretendard, sans-serif';
+    ctx.fillText('➔', 540, 540);
 
-    // After Box
-    ctx.fillStyle = '#34d399';
-    ctx.font = '800 28px Pretendard, sans-serif';
-    ctx.fillText('최종 달성 성적', 780, 490);
-    ctx.font = '900 48px Pretendard, sans-serif';
-    ctx.fillText(scoreAfter, 780, 570);
+    // Right Box: After Score (Center: 790, Max Width: 350)
+    ctx.fillStyle = '#6ee7b7';
+    ctx.font = '800 24px Pretendard, sans-serif';
+    ctx.fillText('최종 달성 성적', 790, 450);
 
-    // Main Copywriting
-    ctx.fillStyle = '#e2e8f0';
-    ctx.font = '700 32px Pretendard, sans-serif';
-    ctx.fillText(mainCopy, 540, 750);
+    const afterParts = scoreAfter.split('(');
+    if (afterParts.length > 1 && scoreAfter.length > 8) {
+        const gradeAfter = afterParts[0].trim();
+        const detailAfter = '(' + afterParts.slice(1).join('(').trim();
+        ctx.fillStyle = '#34d399';
+        ctx.font = `900 ${fitText(gradeAfter, 350, 48, 32, '900')}px Pretendard, sans-serif`;
+        ctx.fillText(gradeAfter, 790, 520);
 
-    // 3 Key Bullets
+        ctx.fillStyle = '#a7f3d0';
+        ctx.font = `700 ${fitText(detailAfter, 350, 26, 18, '700')}px Pretendard, sans-serif`;
+        ctx.fillText(detailAfter, 790, 575);
+    } else {
+        ctx.fillStyle = '#34d399';
+        const afSize = fitText(scoreAfter, 350, 46, 24, '900');
+        ctx.font = `900 ${afSize}px Pretendard, sans-serif`;
+        ctx.fillText(scoreAfter, 790, 545);
+    }
+
+    // 5. Main Copywriting Box (Auto-wrapped so text NEVER overflows)
+    ctx.fillStyle = '#f1f5f9';
+    drawWrappedText(mainCopy, 540, 735, 880, 40, 2);
+
+    // 6. 3 Key Success Pillars
     ctx.fillStyle = '#cbd5e1';
-    ctx.font = '600 24px Pretendard, sans-serif';
+    ctx.font = '600 23px Pretendard, sans-serif';
     ctx.fillText('✓ 감과 독해력이 아닌 출제 의도 관통 훈련', 540, 815);
-    ctx.fillText('✓ 1:1 오답 클리닉 & 주간 순공 몰입 통제', 540, 860);
-    ctx.fillText('✓ 흔들리지 않는 실전 멘탈 & 시간 배분 완성', 540, 905);
+    ctx.fillText('✓ 1:1 오답 클리닉 & 주간 순공 몰입 통제', 540, 858);
+    ctx.fillText('✓ 흔들리지 않는 실전 멘탈 & 시간 배분 완성', 540, 901);
 
-    // Footer
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+    // 7. Premium Footer Bar
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
     ctx.fillRect(50, 960, 980, 70);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(50, 960, 980, 70);
+
     ctx.fillStyle = '#94a3b8';
-    ctx.font = '700 22px Pretendard, sans-serif';
-    ctx.fillText(`상담 문의: ${academy} 관제실  |  PALIN OS VERIFIED PROOF`, 540, 1005);
+    ctx.font = '700 21px Pretendard, sans-serif';
+    ctx.fillText(`상담 문의: ${academy} 관제실  |  PALIN OS VERIFIED PROOF`, 540, 1004);
 }
 
 function downloadMarketingCardPNG() {
@@ -7203,9 +7210,6 @@ ${stName}이 ${period} 동안 ${academy}의 철저한 관리와 함께 일궈낸
 
 // Global window attachments
 window.loadCoupangConfig = loadCoupangConfig;
-window.openCoupangConfigModal = openCoupangConfigModal;
-window.closeCoupangConfigModal = closeCoupangConfigModal;
-window.handleSaveCoupangConfig = handleSaveCoupangConfig;
 window.loadProcurementCatalog = loadProcurementCatalog;
 window.filterProcurementCatalog = filterProcurementCatalog;
 window.renderProcurementCatalog = renderProcurementCatalog;

@@ -1103,17 +1103,17 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 </div>
             </div>
 
-                <!-- 👨‍👩‍👧 학부모 전용 뷰: 주간 안심 정밀 리포트 바로보기 바 (학부모 모드 시에만 노출) -->
-                <div id="parent-sms-dashboard-card" style="display: none; margin-bottom: 20px;">
-                    <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(99, 102, 241, 0.15)); border: 1.5px solid #10b981; border-radius: 14px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.15);">
+                <!-- 학부모 전용 뷰: 주간 안심 정밀 리포트 바로보기 바 (학부모 모드 시에만 노출) -->
+                <div id="parent-sms-dashboard-card" class="parent-sms-dashboard-banner" style="display: none; margin-bottom: 20px;">
+                    <div class="parent-sms-banner-inner" style="border-radius: 14px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <span class="material-symbols-rounded" style="color: #34d399; font-size: 1.6rem;">analytics</span>
+                            <span class="material-symbols-rounded parent-sms-icon" style="font-size: 1.6rem;">analytics</span>
                             <div>
-                                <div style="font-size: 0.92rem; font-weight: 900; color: #ffffff;">이번 주 학부모 안심 정밀 진단 리포트</div>
-                                <div style="font-size: 0.74rem; color: #cbd5e1; margin-top: 2px;">4주 수업 주기 · 순공/출결 텔레메트리 · 시험 성적 · AI 정밀 피드백</div>
+                                <div class="parent-sms-banner-title" style="font-size: 0.92rem; font-weight: 900;">이번 주 학부모 안심 정밀 진단 리포트</div>
+                                <div class="parent-sms-banner-desc" style="font-size: 0.74rem; margin-top: 2px;">4주 수업 주기 · 순공/출결 텔레메트리 · 시험 성적 · AI 정밀 피드백</div>
                             </div>
                         </div>
-                        <button type="button" onclick="openParentWeeklyDossierModal()" class="btn" style="padding: 8px 16px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 8px; white-space: nowrap; cursor: pointer; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);">
+                        <button type="button" onclick="openParentWeeklyDossierModal()" class="btn parent-sms-action-btn" style="padding: 8px 16px; font-size: 0.8rem; font-weight: 800; border-radius: 8px; white-space: nowrap; cursor: pointer;">
                             리포트 상세 보기 →
                         </button>
                     </div>
@@ -1144,31 +1144,29 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             <div id="page2" class="page-view" style="display: none;">
                 <!-- 학습공간 5대 서브탭 네비게이션: AI 챗봇 단일 대형 버튼(상단) + 4대 기능 2x2 서브 그리드(하단) -->
                 <div id="p2-tabs" style="margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px;">
-                    <!-- 1. 최상단: 가장 많이 쓰는 [🤖 AI 챗봇] 단일 버튼 (높이 42px 고정) -->
+                    <!-- 1. 최상단: 가장 많이 쓰는 [AI 챗봇] 단일 버튼 (높이 42px 고정) -->
                     <button class="tab-btn subtab-main-btn active" data-sub="chat" onclick="switchSubTabPage2('chat')">
-                        <span style="font-size: 1.05rem;">🤖</span>
+                        <span class="material-symbols-rounded" style="font-size: 1.15rem;">smart_toy</span>
                         <span>수능/내신 마스터 AI 1:1 챗봇</span>
-                        <span style="font-size: 0.62rem; background: rgba(255,255,255,0.2); padding: 1px 5px; border-radius: 6px; font-weight: 800; margin-left: 2px;">HOT</span>
                     </button>
 
                     <!-- 2. 하단: 4대 핵심 서브 기능 (2x2 그리드, 높이 42px 고정) -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                         <button class="tab-btn subtab-main-btn" data-sub="predict" onclick="switchSubTabPage2('predict')">
-                            <span></span>
+                            <span class="material-symbols-rounded" style="font-size: 1.1rem;">analytics</span>
                             <span>합격 예측</span>
                         </button>
                         <button class="tab-btn subtab-main-btn" data-sub="calendar" onclick="switchSubTabPage2('calendar')">
-                            <span>📅</span>
+                            <span class="material-symbols-rounded" style="font-size: 1.1rem;">calendar_month</span>
                             <span>입시 캘린더</span>
                         </button>
                         <button class="tab-btn subtab-main-btn" data-sub="archive" onclick="switchSubTabPage2('archive')">
-                            <span>📚</span>
+                            <span class="material-symbols-rounded" style="font-size: 1.1rem;">menu_book</span>
                             <span>기출문제</span>
                         </button>
                         <button class="tab-btn subtab-main-btn" data-sub="tracer" onclick="switchSubTabPage2('tracer')">
-                            <span>🔍</span>
+                            <span class="material-symbols-rounded" style="font-size: 1.1rem;">manage_search</span>
                             <span>내신 출처추적</span>
-                            <span style="font-size: 0.62rem; background: #10b981; color: white; padding: 1px 5px; border-radius: 4px; font-weight: 900;">NEW</span>
                         </button>
                     </div>
                 </div>
@@ -1282,7 +1280,6 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 <!-- 수시/정시 통합 3-Tier 입시 전략 리포트 & VIP 컨설팅 전용 버튼 -->
 <button id="btn-report" class="btn btn-secondary" style="width: 100%; padding: 11px 0; font-size: 0.9rem; font-weight: 900; border-radius: 12px; margin-bottom: 12px; border: 1.5px solid #818cf8; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="switchAdmissionTab('report')">
     <span>2027 맞춤형 대입 전략 백서 & 1:1 컨설팅</span>
-    <span style="font-size: 0.68rem; background: linear-gradient(135deg, #ec4899, #f59e0b); color: white; padding: 2px 7px; border-radius: 10px; font-weight: 800;">HOT</span>
 </button>
 
 <!-- === 대입 전략 리포트 & 1:1 컨설팅 전용 섹션 === -->
@@ -2696,29 +2693,28 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <div id="mid-page2" class="page-view" style="display: none;">
                     <!-- 중등 학습공간 서브탭: 상단 AI 챗봇 + 2x2 서브 그리드 -->
                     <div id="mid-p2-tabs" style="margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px;">
-                        <!-- 1. 최상단: [🤖 특목·자사고 마스터 AI 1:1 코치] 단일 버튼 (높이 42px 고정) -->
+                        <!-- 1. 최상단: [특목·자사고 마스터 AI 1:1 코치] 단일 버튼 (높이 42px 고정) -->
                         <button class="tab-btn subtab-main-btn active" data-midsub="chat" onclick="switchSubTabPageMid('chat')">
-                            <span style="font-size: 1.05rem;">🤖</span>
+                            <span class="material-symbols-rounded" style="font-size: 1.15rem;">smart_toy</span>
                             <span>특목·자사고 마스터 AI 1:1 코치</span>
-                            <span style="font-size: 0.62rem; background: rgba(255,255,255,0.2); padding: 1px 5px; border-radius: 6px; font-weight: 800; margin-left: 2px;">HOT</span>
                         </button>
 
                         <!-- 2. 하단: 4대 핵심 서브 기능 (2x2 그리드, 높이 42px 고정) -->
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                             <button class="tab-btn subtab-main-btn" data-midsub="compass" onclick="switchSubTabPageMid('compass')">
-                                <span></span>
+                                <span class="material-symbols-rounded" style="font-size: 1.1rem;">explore</span>
                                 <span>특목고 나침반</span>
                             </button>
                             <button class="tab-btn subtab-main-btn" data-midsub="tracer" onclick="switchSubTabPageMid('tracer')">
-                                <span>🔍</span>
+                                <span class="material-symbols-rounded" style="font-size: 1.1rem;">manage_search</span>
                                 <span>내신 출처추적</span>
                             </button>
                             <button class="tab-btn subtab-main-btn" data-midsub="tracker" onclick="switchSubTabPageMid('tracker')">
-                                <span></span>
+                                <span class="material-symbols-rounded" style="font-size: 1.1rem;">grade</span>
                                 <span>내신 올A 진단</span>
                             </button>
                             <button class="tab-btn subtab-main-btn" data-midsub="archive" onclick="switchSubTabPageMid('archive')">
-                                <span>📚</span>
+                                <span class="material-symbols-rounded" style="font-size: 1.1rem;">menu_book</span>
                                 <span>중등 기출족보</span>
                             </button>
                         </div>
@@ -2993,29 +2989,28 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <div id="elem-page2" class="page-view" style="display: none;">
                     <!-- 초등 학습공간 서브탭: 상단 AI 챗봇 + 2x2 서브 그리드 -->
                     <div id="elem-p2-tabs" style="margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px;">
-                        <!-- 1. 최상단: [🤖 AI 친구 페로 1:1 대화] 단일 버튼 (높이 42px 고정) -->
+                        <!-- 1. 최상단: [AI 친구 페로 1:1 대화] 단일 버튼 (높이 42px 고정) -->
                         <button class="tab-btn subtab-main-btn active" data-elemsub="chat" onclick="switchSubTabPageElem('chat')">
-                            <span style="font-size: 1.05rem;">🤖</span>
+                            <span class="material-symbols-rounded" style="font-size: 1.15rem;">smart_toy</span>
                             <span>AI 단짝 친구 페로 1:1 대화</span>
-                            <span style="font-size: 0.62rem; background: rgba(255,255,255,0.2); padding: 1px 5px; border-radius: 6px; font-weight: 800; margin-left: 2px;">BEST</span>
                         </button>
 
                         <!-- 2. 하단: 4대 핵심 서브 기능 (2x2 그리드, 높이 42px 고정) -->
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                             <button class="tab-btn subtab-main-btn" data-elemsub="quiz" onclick="switchSubTabPageElem('quiz')">
-                                <span>🧩</span>
+                                <span class="material-symbols-rounded" style="font-size: 1.1rem;">extension</span>
                                 <span>두뇌 낱말 퀴즈</span>
                             </button>
                             <button class="tab-btn subtab-main-btn" data-elemsub="sticker" onclick="switchSubTabPageElem('sticker')">
-                                <span></span>
+                                <span class="material-symbols-rounded" style="font-size: 1.1rem;">stars</span>
                                 <span>칭찬 스티커판</span>
                             </button>
                             <button class="tab-btn subtab-main-btn" data-elemsub="library" onclick="switchSubTabPageElem('library')">
-                                <span>📚</span>
+                                <span class="material-symbols-rounded" style="font-size: 1.1rem;">menu_book</span>
                                 <span>추천 도서관</span>
                             </button>
                             <button class="tab-btn subtab-main-btn" data-elemsub="mathplay" onclick="switchSubTabPageElem('mathplay')">
-                                <span></span>
+                                <span class="material-symbols-rounded" style="font-size: 1.1rem;">calculate</span>
                                 <span>쏙쏙 연산놀이</span>
                             </button>
                         </div>

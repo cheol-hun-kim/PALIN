@@ -5467,5 +5467,49 @@ body.day-mode #parent-dossier-parent-guide {
     font-weight: 600 !important;
 }
 
+/* ==========================================================================
+   Parent SMS Weekly Dossier Dashboard Card (High Contrast Day/Dark Theme)
+   ========================================================================== */
+#parent-sms-dashboard-card .parent-sms-banner-inner {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(99, 102, 241, 0.15));
+    border: 1.5px solid #10b981;
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.15);
+}
+#parent-sms-dashboard-card .parent-sms-icon {
+    color: #34d399;
+}
+#parent-sms-dashboard-card .parent-sms-banner-title {
+    color: #ffffff !important;
+}
+#parent-sms-dashboard-card .parent-sms-banner-desc {
+    color: #cbd5e1 !important;
+}
+#parent-sms-dashboard-card .parent-sms-action-btn {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3) !important;
+}
+
+/* DAY MODE: Ultra-Clear High Contrast Overrides (Zero White-on-White) */
+body.day-mode #parent-sms-dashboard-card .parent-sms-banner-inner {
+    background: #ecfdf5 !important;
+    border: 1.5px solid #059669 !important;
+    box-shadow: 0 4px 14px rgba(5, 150, 105, 0.12) !important;
+}
+body.day-mode #parent-sms-dashboard-card .parent-sms-icon {
+    color: #059669 !important;
+}
+body.day-mode #parent-sms-dashboard-card .parent-sms-banner-title {
+    color: #064e3b !important; /* Deep Forest Green for AAA contrast */
+}
+body.day-mode #parent-sms-dashboard-card .parent-sms-banner-desc {
+    color: #1e293b !important; /* Slate 800 dark text */
+}
+body.day-mode #parent-sms-dashboard-card .parent-sms-action-btn {
+    background: linear-gradient(135deg, #059669, #047857) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25) !important;
+}
+
 
 
