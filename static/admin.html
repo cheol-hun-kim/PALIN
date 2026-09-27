@@ -774,8 +774,16 @@
                                 <strong id="settle-disp-holder" style="color: #ffffff;">김철훈(일원학원)</strong>
                             </div>
                             <div style="display: grid; grid-template-columns: 100px 1fr; gap: 6px; font-size: 0.8rem; margin-bottom: 4px;">
+                                <span style="color: #94a3b8;">원비 청구 주기:</span>
+                                <strong id="settle-disp-cycle" style="color: #fbbf24;">매 4주 (28일) 단위 청구</strong>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 100px 1fr; gap: 6px; font-size: 0.8rem; margin-bottom: 4px;">
+                                <span style="color: #94a3b8;">수업료 산정:</span>
+                                <strong id="settle-disp-calc-mode" style="color: #34d399;">주기별 고정 정액제</strong>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 100px 1fr; gap: 6px; font-size: 0.8rem; margin-bottom: 4px;">
                                 <span style="color: #94a3b8;">서브몰 MID:</span>
-                                <strong id="settle-disp-mid" style="color: #34d399;">SM_ILWON_2027 (승인완료)</strong>
+                                <strong id="settle-disp-mid" style="color: #a855f7;">SM_ILWON_2027 (승인완료)</strong>
                             </div>
                             <div style="display: grid; grid-template-columns: 100px 1fr; gap: 6px; font-size: 0.8rem;">
                                 <span style="color: #94a3b8;">정산 주기:</span>
@@ -2407,22 +2415,56 @@
                             <input type="text" id="settle-input-holder" value="김철훈(일원학원)" required class="form-input" style="height: 42px;">
                         </div>
                         <div>
-                            <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">매월 정기 청구일</label>
-                            <select id="settle-input-dueday" class="form-input" style="height: 42px;">
-                                <option value="25">매월 25일 (기본)</option>
-                                <option value="20">매월 20일</option>
-                                <option value="1">매월 1일</option>
-                                <option value="10">매월 10일</option>
+                            <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">수업료 산정 방식</label>
+                            <select id="settle-input-calc-mode" class="form-input" style="height: 42px; font-weight: 700;">
+                                <option value="FIXED_PERIOD">주기/회차별 고정 정액제 (기본)</option>
+                                <option value="SESSION_BASED">수업 횟수제 (주 2회 x 4주 = 8회)</option>
+                                <option value="HOURLY_BASED">시간제 (시간당 단가 x 총 시수)</option>
                             </select>
                         </div>
                     </div>
 
+                    <div style="background: rgba(56,189,248,0.06); border: 1px solid rgba(56,189,248,0.25); border-radius: 10px; padding: 12px;">
+                        <label style="font-size: 0.8rem; font-weight: 900; color: #38bdf8; display: block; margin-bottom: 6px;">
+                            📅 원비 청구 주기 (수납 사이클)
+                        </label>
+                        <select id="settle-input-cycle-type" class="form-input" style="height: 42px; font-weight: 800; width: 100%; margin-bottom: 8px;" onchange="handleBillingCycleTypeChange()">
+                            <option value="EVERY_4_WEEKS" selected>⚡ 매 4주 (28일) 단위 청구 (학원가 실무 표준)</option>
+                            <option value="EVERY_8_WEEKS">📦 매 8주 (56일 / 2개월 집중반) 단위 청구</option>
+                            <option value="EVERY_12_WEEKS">🎓 매 12주 (84일 / 분기 학기제) 단위 청구</option>
+                            <option value="MONTHLY_FIXED_DAY">📆 매월 지정일 고정 청구</option>
+                            <option value="CUSTOM_DAYS">✏️ 원장 직접 지정 주기 (N일 단위)</option>
+                        </select>
+
+                        <!-- 매월 지정일 선택기 (MONTHLY_FIXED_DAY 선택 시 표시) -->
+                        <div id="settle-dueday-container" style="display: none; margin-top: 6px;">
+                            <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 3px;">매월 정기 결제 마감일</label>
+                            <select id="settle-input-dueday" class="form-input" style="height: 40px; font-weight: 800;">
+                                <option value="25" selected>매월 25일</option>
+                                <option value="20">매월 20일</option>
+                                <option value="1">매월 1일</option>
+                                <option value="10">매월 10일</option>
+                                <option value="15">매월 15일</option>
+                                <option value="31">매월 말일</option>
+                            </select>
+                        </div>
+
+                        <!-- 직접 지정 일수 입력기 (CUSTOM_DAYS 선택 시 표시) -->
+                        <div id="settle-custom-days-container" style="display: none; margin-top: 6px;">
+                            <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 3px;">청구 주기 일수 직접 입력</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="number" id="settle-input-custom-days" value="28" min="1" max="365" class="form-input" style="height: 40px; width: 120px; font-weight: 900; text-align: center;">
+                                <span style="font-size: 0.82rem; font-weight: 800; color: #cbd5e1;">일 간격으로 자동 다음 청구일 산정</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div style="font-size: 0.74rem; color: #94a3b8; line-height: 1.4;">
-                        * 입력하신 계좌로 토스페이먼츠 서브몰(복수가맹점) 정산 승인이 실시간 연동되며, 학부모 결제 수강료가 익일 자동 입금됩니다.
+                        * 설정하신 수납 주기에 따라 청구서 일괄 발행 시 마감일 및 다음 청구 주기가 자동 계산되며, 학부모 결제 수강료는 토스페이먼츠 에스크로를 통해 익영업일 원장님 계좌로 실시간 송금됩니다.
                     </div>
 
                     <div style="display: flex; gap: 8px; margin-top: 6px;">
-                        <button type="submit" class="btn" style="flex: 2; padding: 12px; font-size: 0.9rem; font-weight: 900; background: linear-gradient(135deg, #38bdf8, #0284c7); color: #fff; border-radius: 10px; cursor: pointer;">정산 계좌 저장
+                        <button type="submit" class="btn" style="flex: 2; padding: 12px; font-size: 0.9rem; font-weight: 900; background: linear-gradient(135deg, #38bdf8, #0284c7); color: #fff; border-radius: 10px; cursor: pointer;">정산 계좌 & 청구 정책 저장
                         </button>
                         <button type="button" onclick="closeSettlementAccountModal()" class="btn btn-secondary" style="flex: 1; padding: 12px; font-size: 0.85rem; border-radius: 10px;">
                             취소
@@ -3148,6 +3190,10 @@
                 updateMasterBtnVisibility();
                 checkMandatoryNotices();
                 loadAdminSchedules();
+                try { loadAdminVodLibrary(); } catch(e) {}
+                try { loadAdminExamMaterials(); } catch(e) {}
+                try { loadAdminPrivateMaterials(); } catch(e) {}
+                try { loadBillingInvoices(); } catch(e) {}
             }
         });
 
@@ -3188,6 +3234,7 @@
                 const tbody = document.getElementById("student-table-body");
                 tbody.innerHTML = "";
                 data.students.forEach(s => {
+                    const safeName = (s.name || '').replace(/'/g, "\\'");
                     const tr = document.createElement("tr");
                     const tierClass = `league-${(s.league_tier || 'BRONZE').toLowerCase()}`;
                     const isBanned = Boolean(s.is_banned);
@@ -3252,7 +3299,7 @@
                         ? `<button type="button" onclick="disenrollStudent(${s.id}, '${safeName}')" class="btn" style="padding: 4px 7px; font-size: 0.72rem; font-weight: 800; background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.35); border-radius: 6px; cursor: pointer; white-space: nowrap;" title="학원 연동 해지(퇴원)">퇴원</button>`
                         : '';
 
-                    const deleteBtn = `<button type="button" onclick="deleteStudent(${s.id}, '${safeName}')" class="btn" style="padding: 4px 7px; font-size: 0.72rem; font-weight: 800; background: rgba(239,68,68,0.08); color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); border-radius: 6px; cursor: pointer; white-space: nowrap;" title="학생 계정 삭제"></button>`;
+                    const deleteBtn = `<button type="button" onclick="deleteStudent(${s.id}, '${safeName}')" class="btn" style="padding: 4px 7px; font-size: 0.72rem; font-weight: 800; background: rgba(239,68,68,0.08); color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); border-radius: 6px; cursor: pointer; white-space: nowrap;" title="학생 계정 삭제">삭제</button>`;
 
                     const dossierBtn = `<button type="button" onclick="openStudentDossier(${s.id})" class="btn" style="padding: 4px 8px; font-size: 0.72rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border-radius: 6px; display: inline-flex; align-items: center; gap: 2px; cursor: pointer; white-space: nowrap;">
                         <span class="material-symbols-rounded" style="font-size: 0.85rem;">analytics</span>
@@ -3765,6 +3812,19 @@
         // ==========================================
         let currentBillingSubTab = 'ALL';
         let allBillingInvoicesCache = [];
+        let currentTenantBillingCycle = 'EVERY_4_WEEKS';
+        let currentTenantBillingDays = 28;
+        let currentTenantTuitionCalcMode = 'FIXED_PERIOD';
+        let currentTenantTuitionDueDay = 25;
+
+        function handleBillingCycleTypeChange() {
+            const cycleType = document.getElementById("settle-input-cycle-type")?.value || "EVERY_4_WEEKS";
+            const dueDayContainer = document.getElementById("settle-dueday-container");
+            const customDaysContainer = document.getElementById("settle-custom-days-container");
+
+            if (dueDayContainer) dueDayContainer.style.display = (cycleType === "MONTHLY_FIXED_DAY") ? "block" : "none";
+            if (customDaysContainer) customDaysContainer.style.display = (cycleType === "CUSTOM_DAYS") ? "block" : "none";
+        }
 
         async function loadBillingInvoices() {
             try {
@@ -3795,16 +3855,50 @@
                 if (kpiPayoutAmt) kpiPayoutAmt.innerText = `₩${(s.total_payout_amount || 0).toLocaleString()}`;
                 if (kpiSaasDed) kpiSaasDed.innerText = `본사 SaaS 3.3%(₩${(s.total_saas_fee_deducted || 0).toLocaleString()}) 차감 후`;
 
-                // 2. 정산 계좌 정보 갱신
+                // 2. 정산 계좌 & 청구 정책 정보 갱신
                 const setInfo = data.settlement_info || {};
                 const bEl = document.getElementById("settle-disp-bank");
                 const aEl = document.getElementById("settle-disp-account");
                 const hEl = document.getElementById("settle-disp-holder");
                 const mEl = document.getElementById("settle-disp-mid");
+                const cEl = document.getElementById("settle-disp-cycle");
+                const cmEl = document.getElementById("settle-disp-calc-mode");
+
                 if (bEl) bEl.innerText = setInfo.settlement_bank || "신한은행";
                 if (aEl) aEl.innerText = setInfo.settlement_account_number || "110-384-928192";
                 if (hEl) hEl.innerText = setInfo.settlement_account_holder || "김철훈(일원학원)";
                 if (mEl) mEl.innerText = `${setInfo.submall_id || 'SM_ILWON_2027'} (${setInfo.submall_status === 'APPROVED' ? '승인완료' : '등록대기'})`;
+
+                currentTenantBillingCycle = setInfo.billing_cycle_type || "EVERY_4_WEEKS";
+                currentTenantBillingDays = setInfo.billing_cycle_days || 28;
+                currentTenantTuitionCalcMode = setInfo.tuition_calc_mode || "FIXED_PERIOD";
+                currentTenantTuitionDueDay = setInfo.tuition_due_day || 25;
+
+                // Cycle label formatting
+                let cycleText = "매 4주 (28일) 단위 청구";
+                if (currentTenantBillingCycle === "EVERY_8_WEEKS") cycleText = "매 8주 (56일 / 2개월) 단위 청구";
+                else if (currentTenantBillingCycle === "EVERY_12_WEEKS") cycleText = "매 12주 (84일 / 분기) 단위 청구";
+                else if (currentTenantBillingCycle === "MONTHLY_FIXED_DAY") cycleText = `매월 ${currentTenantTuitionDueDay}일 고정 청구`;
+                else if (currentTenantBillingCycle === "CUSTOM_DAYS") cycleText = `매 ${currentTenantBillingDays}일 직접 지정 주기`;
+
+                if (cEl) cEl.innerText = cycleText;
+
+                // Calc mode label formatting
+                let calcText = "주기별 고정 정액제";
+                if (currentTenantTuitionCalcMode === "SESSION_BASED") calcText = "수업 횟수제 (회차별)";
+                else if (currentTenantTuitionCalcMode === "HOURLY_BASED") calcText = "시간제 단가 산정";
+                if (cmEl) cmEl.innerText = calcText;
+
+                // Sync into modal inputs
+                const inCycle = document.getElementById("settle-input-cycle-type");
+                const inCalc = document.getElementById("settle-input-calc-mode");
+                const inCustom = document.getElementById("settle-input-custom-days");
+                const inDue = document.getElementById("settle-input-dueday");
+                if (inCycle) inCycle.value = currentTenantBillingCycle;
+                if (inCalc) inCalc.value = currentTenantTuitionCalcMode;
+                if (inCustom) inCustom.value = currentTenantBillingDays;
+                if (inDue) inDue.value = currentTenantTuitionDueDay;
+                handleBillingCycleTypeChange();
 
                 // 3. 테이블 렌더링
                 renderBillingInvoicesTable();
@@ -3948,10 +4042,22 @@
             const modal = document.getElementById("batch-invoice-modal");
             if (modal) {
                 modal.style.display = "flex";
-                const today = new Date();
-                const dueDate = new Date(today.getFullYear(), today.getMonth(), 25).toISOString().slice(0, 10);
+                
+                // Intelligently compute default due date based on the director's configured cycle!
+                let calculatedDueDate;
+                if (currentTenantBillingCycle === "MONTHLY_FIXED_DAY") {
+                    const today = new Date();
+                    const day = Math.min(Math.max(currentTenantTuitionDueDay || 25, 1), 28);
+                    calculatedDueDate = new Date(today.getFullYear(), today.getMonth(), day).toISOString().slice(0, 10);
+                } else {
+                    // 4 weeks (28d), 8 weeks (56d), 12 weeks (84d), or custom days
+                    const daysToAdd = currentTenantBillingDays || 28;
+                    const targetDate = new Date(Date.now() + (daysToAdd * 24 * 60 * 60 * 1000));
+                    calculatedDueDate = targetDate.toISOString().slice(0, 10);
+                }
+
                 const dueInput = document.getElementById("batch-due-date");
-                if (dueInput) dueInput.value = dueDate;
+                if (dueInput) dueInput.value = calculatedDueDate;
             }
         }
 
@@ -4006,10 +4112,19 @@
                 selectEl.innerHTML = allStudentsCache.map(s => `
                     <option value="${s.id}">${s.name} (${s.high_school || '고교'} ${s.grade || 3}학년 - ${s.phone || '연락처'})</option>
                 `).join('');
-                const today = new Date();
-                const dueDate = new Date(today.getFullYear(), today.getMonth(), 25).toISOString().slice(0, 10);
+                
+                let calculatedDueDate;
+                if (currentTenantBillingCycle === "MONTHLY_FIXED_DAY") {
+                    const today = new Date();
+                    const day = Math.min(Math.max(currentTenantTuitionDueDay || 25, 1), 28);
+                    calculatedDueDate = new Date(today.getFullYear(), today.getMonth(), day).toISOString().slice(0, 10);
+                } else {
+                    const daysToAdd = currentTenantBillingDays || 28;
+                    calculatedDueDate = new Date(Date.now() + (daysToAdd * 24 * 60 * 60 * 1000)).toISOString().slice(0, 10);
+                }
+
                 const dueInput = document.getElementById("single-due-date");
-                if (dueInput) dueInput.value = dueDate;
+                if (dueInput) dueInput.value = calculatedDueDate;
                 modal.style.display = "flex";
             }
         }
@@ -4059,7 +4174,10 @@
 
         function openSettlementAccountModal() {
             const modal = document.getElementById("settlement-account-modal");
-            if (modal) modal.style.display = "flex";
+            if (modal) {
+                modal.style.display = "flex";
+                handleBillingCycleTypeChange();
+            }
         }
 
         function closeSettlementAccountModal() {
@@ -4073,7 +4191,16 @@
             const bank = document.getElementById("settle-input-bank").value;
             const account = document.getElementById("settle-input-account").value.trim();
             const holder = document.getElementById("settle-input-holder").value.trim();
-            const dueDay = parseInt(document.getElementById("settle-input-dueday").value, 10) || 25;
+            const calcMode = document.getElementById("settle-input-calc-mode")?.value || "FIXED_PERIOD";
+            const cycleType = document.getElementById("settle-input-cycle-type")?.value || "EVERY_4_WEEKS";
+            const customDays = parseInt(document.getElementById("settle-input-custom-days")?.value, 10) || 28;
+            const dueDay = parseInt(document.getElementById("settle-input-dueday")?.value, 10) || 25;
+
+            let cycleDays = 28;
+            if (cycleType === "EVERY_4_WEEKS") cycleDays = 28;
+            else if (cycleType === "EVERY_8_WEEKS") cycleDays = 56;
+            else if (cycleType === "EVERY_12_WEEKS") cycleDays = 84;
+            else if (cycleType === "CUSTOM_DAYS") cycleDays = customDays;
 
             try {
                 const res = await fetch("/api/billing/tenant/settlement-account", {
@@ -4085,7 +4212,10 @@
                         settlement_bank: bank,
                         settlement_account_number: account,
                         settlement_account_holder: holder,
-                        tuition_due_day: dueDay
+                        tuition_due_day: dueDay,
+                        billing_cycle_type: cycleType,
+                        billing_cycle_days: cycleDays,
+                        tuition_calc_mode: calcMode
                     })
                 });
                 const data = await res.json();

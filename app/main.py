@@ -10173,6 +10173,9 @@ class SettlementAccountUpdatePayload(BaseModel):
     settlement_account_holder: str
     submall_id: Optional[str] = "SM_ILWON_2027"
     tuition_due_day: Optional[int] = 25
+    billing_cycle_type: Optional[str] = "EVERY_4_WEEKS"
+    billing_cycle_days: Optional[int] = 28
+    tuition_calc_mode: Optional[str] = "FIXED_PERIOD"
 
 class TossSubmallWebhookPayload(BaseModel):
     paymentKey: Optional[str] = None
@@ -10248,7 +10251,10 @@ def get_billing_invoices(
         "submall_id": tenant.submall_id if tenant and tenant.submall_id else "SM_ILWON_2027",
         "submall_status": tenant.submall_status if tenant and tenant.submall_status else "APPROVED",
         "saas_fee_rate": tenant.saas_fee_rate if tenant and tenant.saas_fee_rate else 3.3,
-        "tuition_due_day": tenant.tuition_due_day if tenant and tenant.tuition_due_day else 25
+        "tuition_due_day": tenant.tuition_due_day if tenant and tenant.tuition_due_day else 25,
+        "billing_cycle_type": tenant.billing_cycle_type if tenant and tenant.billing_cycle_type else "EVERY_4_WEEKS",
+        "billing_cycle_days": tenant.billing_cycle_days if tenant and tenant.billing_cycle_days else 28,
+        "tuition_calc_mode": tenant.tuition_calc_mode if tenant and tenant.tuition_calc_mode else "FIXED_PERIOD"
     }
 
     inv_list = []
@@ -10687,8 +10693,23 @@ def update_tenant_settlement_account(payload: SettlementAccountUpdatePayload, db
     tenant.submall_status = "APPROVED"
     if payload.tuition_due_day:
         tenant.tuition_due_day = payload.tuition_due_day
+    if payload.billing_cycle_type:
+        tenant.billing_cycle_type = payload.billing_cycle_type
+    if payload.billing_cycle_days:
+        tenant.billing_cycle_days = payload.billing_cycle_days
+    if payload.tuition_calc_mode:
+        tenant.tuition_calc_mode = payload.tuition_calc_mode
 
     db.commit()
+    return {
+        "status": "ok",
+        "message": "서브몰 정산 계좌 및 원비 청구 정책이 성공적으로 저장되었습니다.",
+        "tenant_code": tenant.code,
+        "billing_cycle_type": tenant.billing_cycle_type,
+        "billing_cycle_days": tenant.billing_cycle_days,
+        "tuition_due_day": tenant.tuition_due_day,
+        "tuition_calc_mode": tenant.tuition_calc_mode
+    }
 # === 📦 17. PALIN OS ALL-IN-ONE 파놉티콘 생태계: 비품/쿠팡 파트너스, 교재 발주, 렌탈, 마케팅, EBS 텔레메트리 ===
 from app import procurement
 

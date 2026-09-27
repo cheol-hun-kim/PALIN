@@ -770,6 +770,9 @@ class Tenant(Base):
     submall_id = Column(String, nullable=True)                    # 토스페이먼츠 서브몰 ID (MID)
     submall_status = Column(String, default="APPROVED")           # UNREGISTERED | READY | APPROVED | REJECTED
     tuition_due_day = Column(Integer, default=25)                 # 매월 정기 청구일 (기본 25일)
+    billing_cycle_type = Column(String, default="EVERY_4_WEEKS")  # EVERY_4_WEEKS (4주) | EVERY_8_WEEKS (8주) | EVERY_12_WEEKS (12주) | MONTHLY_FIXED_DAY (매월지정일) | CUSTOM_DAYS (N일직접입력)
+    billing_cycle_days = Column(Integer, default=28)               # 청구 주기 일수 (예: 28, 56, 84, 또는 원장 지정일수)
+    tuition_calc_mode = Column(String, default="FIXED_PERIOD")     # FIXED_PERIOD (주기별고정정액) | SESSION_BASED (수업횟수제) | HOURLY_BASED (시간제)
     saas_fee_rate = Column(Float, default=3.3)                    # 본사 SaaS 분할 정산 수수료율 (%)
     
     # 🧠 B2B 커스텀 뇌 이식 (Custom Brain Injection) 필드
