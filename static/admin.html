@@ -2426,14 +2426,14 @@
 
                     <div style="background: rgba(56,189,248,0.06); border: 1px solid rgba(56,189,248,0.25); border-radius: 10px; padding: 12px;">
                         <label style="font-size: 0.8rem; font-weight: 900; color: #38bdf8; display: block; margin-bottom: 6px;">
-                            📅 원비 청구 주기 (수납 사이클)
+                            원비 청구 주기 (수납 사이클)
                         </label>
                         <select id="settle-input-cycle-type" class="form-input" style="height: 42px; font-weight: 800; width: 100%; margin-bottom: 8px;" onchange="handleBillingCycleTypeChange()">
-                            <option value="EVERY_4_WEEKS" selected>⚡ 매 4주 (28일) 단위 청구 (학원가 실무 표준)</option>
-                            <option value="EVERY_8_WEEKS">📦 매 8주 (56일 / 2개월 집중반) 단위 청구</option>
-                            <option value="EVERY_12_WEEKS">🎓 매 12주 (84일 / 분기 학기제) 단위 청구</option>
-                            <option value="MONTHLY_FIXED_DAY">📆 매월 지정일 고정 청구</option>
-                            <option value="CUSTOM_DAYS">✏️ 원장 직접 지정 주기 (N일 단위)</option>
+                            <option value="EVERY_4_WEEKS" selected>매 4주 (28일) 단위 청구 (학원가 실무 표준)</option>
+                            <option value="EVERY_8_WEEKS">매 8주 (56일 / 2개월 집중반) 단위 청구</option>
+                            <option value="EVERY_12_WEEKS">매 12주 (84일 / 분기 학기제) 단위 청구</option>
+                            <option value="MONTHLY_FIXED_DAY">매월 지정일 고정 청구</option>
+                            <option value="CUSTOM_DAYS">원장 직접 지정 주기 (N일 단위)</option>
                         </select>
 
                         <!-- 매월 지정일 선택기 (MONTHLY_FIXED_DAY 선택 시 표시) -->
@@ -4093,7 +4093,7 @@
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    alert(`⚡ ${data.message}`);
+                    alert(data.message);
                     closeBatchInvoiceModal();
                     loadBillingInvoices();
                     fetchDashboardData();
@@ -4220,7 +4220,7 @@
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    alert(`✓ ${data.message}`);
+                    alert(data.message);
                     closeSettlementAccountModal();
                     loadBillingInvoices();
                 } else {
