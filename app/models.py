@@ -195,9 +195,9 @@ class Student(Base):
     @property
     def golden_tickets_count(self):
         try:
-            return len(self.golden_tickets) if self.golden_tickets else 3
+            return len(self.golden_tickets) if self.golden_tickets else 0
         except Exception:
-            return 3
+            return 0
 
 
 class GoldenTicket(Base):
@@ -224,7 +224,7 @@ class Parent(Base):
     email = Column(String, unique=True, index=True, nullable=True)
     password_hash = Column(String, nullable=True)
     role = Column(String, default="PARENT")
-    wallet_balance = Column(Integer, default=50000)
+    wallet_balance = Column(Integer, default=0)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 

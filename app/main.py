@@ -678,7 +678,7 @@ def handle_student_register_auth(payload: schemas.StudentRegisterRequest, db: Se
         clean_p_phone = payload.parent_phone.strip()
         parent = db.query(models.Parent).filter(models.Parent.phone == clean_p_phone).first()
         if not parent:
-            parent = models.Parent(name=payload.parent_name or "학부모", phone=clean_p_phone, wallet_balance=50000)
+            parent = models.Parent(name=payload.parent_name or "학부모", phone=clean_p_phone, wallet_balance=0)
             db.add(parent)
             db.commit()
             db.refresh(parent)
@@ -842,8 +842,8 @@ def handle_parent_register_auth(payload: schemas.ParentRegisterRequest, db: Sess
         parent.password_hash = pw_hash
         parent.name = payload.name.strip() or parent.name
         parent.role = "PARENT"
-        if not parent.wallet_balance:
-            parent.wallet_balance = 50000
+        if parent.wallet_balance is None:
+            parent.wallet_balance = 0
     else:
         parent = models.Parent(
             email=clean_email,
@@ -851,7 +851,7 @@ def handle_parent_register_auth(payload: schemas.ParentRegisterRequest, db: Sess
             role="PARENT",
             name=payload.name.strip(),
             phone=clean_phone,
-            wallet_balance=50000
+            wallet_balance=0
         )
         db.add(parent)
 

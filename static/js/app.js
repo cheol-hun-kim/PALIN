@@ -19708,10 +19708,10 @@ async function completeEbsStudySession() {
     const item = ebsLectureConfig[currentEbsKey] || ebsLectureConfig['KOREAN'];
     const sid = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem('studentId') || '1', 10);
     
-    let duration = 30;
+    let duration = 1;
     if (ebsSessionStartTime) {
         const elapsed = Math.round((new Date() - ebsSessionStartTime) / (1000 * 60));
-        duration = Math.max(15, elapsed);
+        duration = Math.max(1, elapsed);
     }
 
     try {
@@ -19722,8 +19722,7 @@ async function completeEbsStudySession() {
                 student_id: sid,
                 lecture_title: item.title,
                 subject: item.subject,
-                duration_minutes: duration,
-                focus_rate: 98
+                duration_minutes: duration
             })
         });
         const data = await res.json();

@@ -232,9 +232,11 @@ print("[GATE 1.7 PASS] Anti-Fabrication & Zero-Coverup Scanner Passed: Zero fake
 # Strictly prevents any hardcoded streak/metric overrides for specific accounts (e.g. is_master streak=26, Math.max(8, ...))
 full_stack_files = [
     os.path.join(ROOT_DIR, 'app', 'main.py'),
+    os.path.join(ROOT_DIR, 'app', 'models.py'),
     os.path.join(ROOT_DIR, 'static', 'js', 'app.js'),
     os.path.join(ROOT_DIR, 'static', 'index.html'),
-    os.path.join(ROOT_DIR, 'static', 'admin.html')
+    os.path.join(ROOT_DIR, 'static', 'admin.html'),
+    os.path.join(ROOT_DIR, 'static', 'master.html')
 ]
 
 forbidden_biases = [
@@ -243,7 +245,13 @@ forbidden_biases = [
     (r"Math\.max\(8,\s*currentStudent\.streak_days", "Hardcoded streak 8 floor in JS"),
     (r"currentStudent\.streak_days\s*=\s*8", "Hardcoded streak 8 assignment in JS"),
     (r"<span id=\"header-streak-count\">연속 8일</span>", "Hardcoded 8-day streak HTML placeholder"),
-    (r"id=\"streak-modal-title\">4일 연속 학습", "Hardcoded 4-day streak HTML placeholder")
+    (r"id=\"streak-modal-title\">4일 연속 학습", "Hardcoded 4-day streak HTML placeholder"),
+    (r"id=\"mypage-points\">350 P", "Hardcoded 350 P points placeholder"),
+    (r"id=\"mypage-tickets\"[^>]*>3</strong>장", "Hardcoded 3-ticket placeholder"),
+    (r"len\(self\.golden_tickets\)\s*if\s*self\.golden_tickets\s*else\s*3", "Hardcoded 3-ticket model fallback"),
+    (r"wallet_balance\s*=\s*50000", "Hardcoded 50000 wallet balance"),
+    (r"강현우 \(A06 몰입존\)", "Static study cafe mock ranker"),
+    (r"임지호 \(당일권 4시간\)", "Static study cafe mock expiring member")
 ]
 
 for target_file in full_stack_files:
