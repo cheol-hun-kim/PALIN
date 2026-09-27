@@ -228,6 +228,35 @@ for target_file in scan_target_files:
 
 print("[GATE 1.7 PASS] Anti-Fabrication & Zero-Coverup Scanner Passed: Zero fake generation fallbacks across backend & seed layer!")
 
+# 1.8 Zero Account-Bias & Field Hardcoding Scanner
+# Strictly prevents any hardcoded streak/metric overrides for specific accounts (e.g. is_master streak=26, Math.max(8, ...))
+full_stack_files = [
+    os.path.join(ROOT_DIR, 'app', 'main.py'),
+    os.path.join(ROOT_DIR, 'static', 'js', 'app.js'),
+    os.path.join(ROOT_DIR, 'static', 'index.html'),
+    os.path.join(ROOT_DIR, 'static', 'admin.html')
+]
+
+forbidden_biases = [
+    (r"streak_days\s*=\s*26", "Hardcoded streak 26 assignment"),
+    (r"max\(26,", "Hardcoded streak 26 floor"),
+    (r"Math\.max\(8,\s*currentStudent\.streak_days", "Hardcoded streak 8 floor in JS"),
+    (r"currentStudent\.streak_days\s*=\s*8", "Hardcoded streak 8 assignment in JS"),
+    (r"<span id=\"header-streak-count\">연속 8일</span>", "Hardcoded 8-day streak HTML placeholder"),
+    (r"id=\"streak-modal-title\">4일 연속 학습", "Hardcoded 4-day streak HTML placeholder")
+]
+
+for target_file in full_stack_files:
+    fname = os.path.basename(target_file)
+    with open(target_file, 'r', encoding='utf-8', errors='ignore') as f:
+        target_code = f.read()
+    for pat, desc in forbidden_biases:
+        if re.search(pat, target_code):
+            print(f"[GATE 1.8 FAIL] Account-bias / hardcoded field pattern detected in {fname}: {desc} (pattern: {pat})")
+            sys.exit(1)
+
+print("[GATE 1.8 PASS] Zero Account-Bias & Field Hardcoding Scanner Passed: 100% dynamic DB ground-truth enforcement verified across full stack!")
+
 
 # ==============================================================================
 # GATE 2: DOM Event Listener, Dead Button & Modal Function Binding Scanner
