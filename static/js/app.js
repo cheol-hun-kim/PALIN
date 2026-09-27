@@ -55,7 +55,7 @@ function openStreakModal() {
 
             const textColor = isAchieved ? '#ffffff' : (isToday ? '#fed7aa' : '#64748b');
 
-            const icon = isAchieved ? '🔥' : (idx === 6 ? '👑' : '-');
+            const icon = isAchieved ? '' : (idx === 6 ? '' : '-');
 
             const border = isToday ? '2px solid #f97316' : 'none';
 
@@ -185,13 +185,13 @@ function getUniversityInitial(univName) {
 
 // ============================================================================
 
-// 🛡️ [Phase 0: Global Architecture, Luminance Contrast & State Sync Engine]
+// [Phase 0: Global Architecture, Luminance Contrast & State Sync Engine]
 
 // ============================================================================
 
 /**
 
- * 🎨 WCAG AA+ 명도(Luminance) 계산 엔진
+ * WCAG AA+ 명도(Luminance) 계산 엔진
 
  * @param {string} colorStr - #HEX, rgb(), rgba()
 
@@ -245,7 +245,7 @@ function calculateLuminance(colorStr) {
 
 /**
 
- * 🎨 배경색에 따른 최적의 텍스트 색상(Auto-Invert) 자동 판별 (WCAG AA+ 보장)
+ * 배경색에 따른 최적의 텍스트 색상(Auto-Invert) 자동 판별 (WCAG AA+ 보장)
 
  */
 
@@ -305,7 +305,7 @@ function syncStudentState(updatedData) {
 
 }
 
-// === 🎨 목표 대학 공식 헥스 컬러 & 세리프 영문 워터마크 테마 엔진 ===
+// === 목표 대학 공식 헥스 컬러 & 세리프 영문 워터마크 테마 엔진 ===
 
 const UNIVERSITY_THEME_MAP = {
     "서울대": { code: "SNU", color: "#0F0F70", accent: "#FCD34D", bg: "linear-gradient(135deg, rgba(15, 15, 112, 0.45), rgba(201, 151, 0, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(99, 102, 241, 0.45)" },
@@ -5097,9 +5097,9 @@ function renderPreviewModeBanner(role) {
 
     }
 
-    const roleName = role === "PARENT" ? "👨‍👩‍👧 학부모 모드 (조회 전용)" : "🎓 학생 모드";
+    const roleName = role === "PARENT" ? "👨‍👩‍👧 학부모 모드 (조회 전용)" : "학생 모드";
 
-    bar.innerHTML = `<span>🎭 ${roleName} 체험 중</span> <button onclick="exitRolePreview()" style="background: rgba(239,68,68,0.3); border: 1px solid #ef4444; color: #fca5a5; border-radius: 10px; font-size: 0.7rem; padding: 2px 6px; cursor: pointer;">✕ 체험 종료</button>`;
+    bar.innerHTML = `<span>${roleName} 체험 중</span> <button onclick="exitRolePreview()" style="background: rgba(239,68,68,0.3); border: 1px solid #ef4444; color: #fca5a5; border-radius: 10px; font-size: 0.7rem; padding: 2px 6px; cursor: pointer;">체험 종료</button>`;
 
 }
 
@@ -5554,7 +5554,7 @@ function resetSessionState() {
     if (chatContainer) {
         chatContainer.innerHTML = `
             <div class="message bot-message" style="line-height: 1.6;">
-                <span style="font-size: 1.1rem;">👋</span> <b>PALIN OS 인공지능 수시/정시 입시 컨설턴트</b>입니다.<br>
+                <span style="font-size: 1.1rem;"></span> <b>PALIN OS 인공지능 수시/정시 입시 컨설턴트</b>입니다.<br>
                 수험생 백서 및 전국 11,688개 대학/학과 입결 데이터베이스 기반으로 맞춤형 입시 전략을 안내해 드립니다.<br>
                 궁금한 입시 고민이나 학습 전략을 질문해 주세요.
             </div>
@@ -5684,7 +5684,7 @@ async function handleStudentLoginSubmit(e) {
             return;
         }
 
-        // 🛡️ 데모 잔상 및 이전 세션 상태 완전 초기화
+        // 데모 잔상 및 이전 세션 상태 완전 초기화
         resetSessionState();
 
         // Check if Master Account logged in via student form
@@ -5775,7 +5775,7 @@ async function handleSendEmailOtp() {
                 clearInterval(studentOtpTimerInterval);
                 if (statusMsg) {
                     statusMsg.style.color = "#f43f5e";
-                    statusMsg.innerText = "⏱️ 인증 유효시간이 만료되었습니다. 인증코드를 재발송해 주세요.";
+                    statusMsg.innerText = "인증 유효시간이 만료되었습니다. 인증코드를 재발송해 주세요.";
                 }
             }
         }, 1000);
@@ -5865,10 +5865,10 @@ async function handleVerifyEmailOtp() {
         if (statusMsg) {
             statusMsg.style.color = "#34d399";
             statusMsg.style.fontWeight = "800";
-            statusMsg.innerHTML = "✅ 이메일 본인인증이 완료되었습니다. 나머지 가입 정보를 입력해 주세요.";
+            statusMsg.innerHTML = "이메일 본인인증이 완료되었습니다. 나머지 가입 정보를 입력해 주세요.";
         }
 
-        alert("🎉 이메일 본인인증이 성공적으로 완료되었습니다!");
+        alert("이메일 본인인증이 성공적으로 완료되었습니다!");
 
     } catch (err) {
         console.error("verify-otp error:", err);
@@ -5940,7 +5940,7 @@ async function handleStudentRegisterSubmit(e) {
             return;
         }
 
-        alert("🎉 회원가입이 완료되었습니다! 100P가 지급되었습니다.");
+        alert("회원가입이 완료되었습니다! 100P가 지급되었습니다.");
 
         localStorage.setItem("userRole", "STUDENT");
         localStorage.setItem("studentId", data.student_id);
@@ -5990,7 +5990,7 @@ async function handleParentLogin(e) {
 
         }
 
-        // 🛡️ 데모 잔상 및 이전 세션 상태 완전 초기화
+        // 데모 잔상 및 이전 세션 상태 완전 초기화
         resetSessionState();
 
         localStorage.setItem('userRole', 'PARENT');
@@ -6059,7 +6059,7 @@ async function handleParentRegister(e) {
 
         }
 
-        alert('🎉 학부모 계정이 생성되고 자녀와 1:1 매핑되었습니다!');
+        alert('학부모 계정이 생성되고 자녀와 1:1 매핑되었습니다!');
 
         localStorage.setItem('userRole', 'PARENT');
 
@@ -6103,7 +6103,7 @@ async function handleDirectorLogin(e) {
             return;
         }
 
-        // 🛡️ 데모 잔상 및 이전 세션 상태 완전 초기화
+        // 데모 잔상 및 이전 세션 상태 완전 초기화
         resetSessionState();
         localStorage.setItem('userRole', data.role);
         localStorage.setItem('jwtToken', data.token);
@@ -6116,7 +6116,7 @@ async function handleDirectorLogin(e) {
             sessionStorage.setItem('palin_super_admin', 'true');
             hideOverlay('register-overlay');
             applyRolePermissions('SUPER_ADMIN');
-            alert('👑 [총괄 제작자 마스터 계정] 인증 성공! 갓모드 툴바가 상단에 활성화되었습니다.');
+            alert('[마스터 계정] 인증 성공! 갓모드 툴바가 상단에 활성화되었습니다.');
             const sId = localStorage.getItem('studentId') || 1;
             fetchStudentInfo(sId);
         } else {
@@ -6296,11 +6296,11 @@ function previewRoleAs(targetRole) {
 
     } else if (targetRole === 'TENANT_ADMIN') {
 
-        roleNotice = "🏫 [가맹 원장 모드]로 전환되었습니다.\n\n• 학생 B2C 학습 뷰와 하단 GNB [원장관제] 탭이 활성화됩니다.";
+        roleNotice = "[가맹 원장 모드]로 전환되었습니다.\n\n• 학생 B2C 학습 뷰와 하단 GNB [원장관제] 탭이 활성화됩니다.";
 
     } else {
 
-        roleNotice = "👑 [슈퍼 어드민 갓모드]로 복귀하였습니다.\n\n• 전지전능 마스터 권한 및 전체 관제 기능이 활성화됩니다.";
+        roleNotice = "[슈퍼 어드민 갓모드]로 복귀하였습니다.\n\n• 전지전능 마스터 권한 및 전체 관제 기능이 활성화됩니다.";
 
     }
 
@@ -6509,7 +6509,7 @@ function getMedicalSymbolIcon(symbolKey) {
 }
 
 function updateHeaderUI() {
-    // 👑 갓모드(마스터 모드) 버튼 노출 제어
+    // 갓모드(마스터 모드) 버튼 노출 제어
     const godBtn = document.getElementById("header-godmode-btn");
     if (godBtn) {
         const isMaster = (currentStudent && (currentStudent.id === 1 || currentStudent.role === 'SUPER_ADMIN' || (currentStudent.email && (currentStudent.email.includes('admin') || currentStudent.email.includes('master'))))) ||
@@ -6571,7 +6571,7 @@ function updateHeaderUI() {
 
     
 
-    // 🔥 듀오링고 불꽃 (Streak) 렌더링
+    // 듀오링고 불꽃 (Streak) 렌더링
     const streakEl = document.getElementById("header-streak-count");
     if (streakEl) {
         let count = 8;
@@ -6614,10 +6614,10 @@ function updateHeaderUI() {
     const premiumBtn = document.getElementById("premium-toggle-btn");
     if (premiumBtn) {
         if (currentStudent.parent && currentStudent.parent.is_premium_subscribed) {
-            premiumBtn.innerText = "👑 프리미엄 회원 (부모 연동 완료)";
+            premiumBtn.innerText = "프리미엄 회원 (부모 연동 완료)";
             premiumBtn.style.background = "linear-gradient(135deg, #fbbf24, #d97706)";
         } else {
-            premiumBtn.innerText = "⚡ 프리미엄 구독 상태 전환 (부모결제)";
+            premiumBtn.innerText = "프리미엄 구독 상태 전환 (부모결제)";
             premiumBtn.style.background = "";
         }
     }
@@ -6627,7 +6627,7 @@ function updateHeaderUI() {
     }
 }
 
-// 🌟 [B2C 헬퍼] B2C 개인 멤버십 티어 정보 정의 (Strictly Tier 1~3)
+// [B2C 헬퍼] B2C 개인 멤버십 티어 정보 정의 (Strictly Tier 1~3)
 function getB2CTierInfo(tierNum) {
     if (tierNum === 3) {
         return {
@@ -6687,7 +6687,7 @@ function getB2CTierInfo(tierNum) {
 }
 window.getB2CTierInfo = getB2CTierInfo;
 
-// 🌟 [통합 Tier 아키텍처] 가맹 학원(B2B: 1~4) 및 개인 구독(B2C: 1~3) 동적 권한/설명 해석기
+// [통합 Tier 아키텍처] 가맹 학원(B2B: 1~4) 및 개인 구독(B2C: 1~3) 동적 권한/설명 해석기
 function getEffectiveTierInfo(student) {
     if (!student) {
         return getB2CTierInfo(1);
@@ -6903,7 +6903,7 @@ function updateTargetBanner() {
     if (targetUnivEl) targetUnivEl.innerText = target;
     if (baselineUnivEl) baselineUnivEl.innerText = baseline;
 
-    // 🏫 정시/수시 합격예측 화면의 목표 대학 & 마지노선 대학 실시간 동기화
+    // 정시/수시 합격예측 화면의 목표 대학 & 마지노선 대학 실시간 동기화
     const dispTarget = document.getElementById("disp-target-univ");
     const dispBase = document.getElementById("disp-baseline-univ");
     const predTargetInput = document.getElementById("pred-target-univ");
@@ -6913,7 +6913,7 @@ function updateTargetBanner() {
         predTargetInput.value = target.split(' ')[0] || target;
     }
 
-    // 🎨 목표 대학 상징 앰비언트 테마 & 세리프 영문 워터마크 실시간 적용
+    // 목표 대학 상징 앰비언트 테마 & 세리프 영문 워터마크 실시간 적용
 
     applyUniversityTheme(target);
 
@@ -7045,7 +7045,7 @@ function renderRankingSubTab(tab) {
         }
         let html = `<div style="display:flex; flex-direction:column; gap:6px;">`;
         schools.forEach((s, idx) => {
-            const champBadge = s.is_champion ? '<span style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; font-weight:900; padding:2px 6px; border-radius:4px; font-size:0.68rem; margin-left:4px;">🏆 1위</span>' : '';
+            const champBadge = s.is_champion ? '<span style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; font-weight:900; padding:2px 6px; border-radius:4px; font-size:0.68rem; margin-left:4px;">1위</span>' : '';
             const isDay = document.body.classList.contains('day-mode');
             const bg = idx === 0 ? (isDay ? 'background:#fef3c7; border:1px solid #f59e0b;' : 'background:rgba(245, 158, 11, 0.15); border:1px solid rgba(245, 158, 11, 0.3);') : (idx < 3 ? (isDay ? 'background:#ede9fe; border:1px solid #c7d2fe;' : 'background:rgba(99, 102, 241, 0.1); border:1px solid rgba(99, 102, 241, 0.2);') : (isDay ? 'background:#ffffff; border:1px solid #e2e8f0;' : 'background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);'));
             const rankColor = idx === 0 ? (isDay ? '#b45309' : '#fbbf24') : (idx < 3 ? (isDay ? '#4f46e5' : '#a5b4fc') : (isDay ? '#64748b' : '#cbd5e1'));
@@ -7079,7 +7079,7 @@ function renderRankingSubTab(tab) {
             html += `
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-radius:8px; ${bg}">
                     <div>
-                        <div style="font-weight:800; font-size:0.82rem; color:${titleColor};">👑 ${t.region} 제왕</div>
+                        <div style="font-weight:800; font-size:0.82rem; color:${titleColor};">${t.region} 제왕</div>
                         <div style="font-size:0.75rem; color:${leaderColor}; margin-top:2px;">${t.leader_school} ${t.leader_name}</div>
                     </div>
                     <div style="text-align:right;">
@@ -7095,8 +7095,8 @@ function renderRankingSubTab(tab) {
         const vip = cachedRankingMatrix.vip_lounge || {};
         const isAccess = vip.is_vip_access;
         const statusBadge = isAccess 
-            ? '<span style="background:#10b981; color:white; padding:4px 8px; border-radius:6px; font-weight:800; font-size:0.75rem;">👑 VIP 입장 가능</span>'
-            : '<span style="background:#ef4444; color:white; padding:4px 8px; border-radius:6px; font-weight:800; font-size:0.75rem;">🔒 입장 제한 (상위 1% 필요)</span>';
+            ? '<span style="background:#10b981; color:white; padding:4px 8px; border-radius:6px; font-weight:800; font-size:0.75rem;">VIP 입장 가능</span>'
+            : '<span style="background:#ef4444; color:white; padding:4px 8px; border-radius:6px; font-weight:800; font-size:0.75rem;">입장 제한 (상위 1% 필요)</span>';
 
         contentEl.innerHTML = `
             <div style="background:rgba(0,0,0,0.3); border-radius:10px; padding:12px; border:1px solid rgba(255,255,255,0.08);">
@@ -7181,11 +7181,11 @@ function openB2CCheckoutModal(tier = 'TIER_2_PARENT') {
     if (tier === 'TIER_3_MASTER') {
         if (nameEl) nameEl.innerText = "Tier 3 마스터 AI 풀패키지";
         if (priceEl) priceEl.innerText = "월 99,000원";
-        if (submitBtn) submitBtn.innerText = "⚡ 99,000원 정기결제 및 구독 시작";
+        if (submitBtn) submitBtn.innerText = "99,000원 정기결제 및 구독 시작";
     } else {
         if (nameEl) nameEl.innerText = "Tier 2 스탠다드 멤버십";
         if (priceEl) priceEl.innerText = "월 19,900원";
-        if (submitBtn) submitBtn.innerText = "⚡ 19,900원 정기결제 및 구독 시작";
+        if (submitBtn) submitBtn.innerText = "19,900원 정기결제 및 구독 시작";
     }
 
     const modal = document.getElementById("b2c-checkout-modal");
@@ -7231,7 +7231,7 @@ function openB2CPlanManageModal() {
                     </div>
                     <div style="font-size: 0.74rem; color: #cbd5e1; line-height: 1.4;">${tierInfo.modalDesc}</div>
                     <div style="font-size: 0.7rem; color: #94a3b8; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 6px; margin-top: 4px;">
-                        💡 <b>개인 멤버십 보유 상태:</b> ${b2cSubDesc} (학원 연동 해제 시 자동 유지 및 전환)
+                        <b>개인 멤버십 보유 상태:</b> ${b2cSubDesc} (학원 연동 해제 시 자동 유지 및 전환)
                     </div>
                 </div>
             `;
@@ -7380,8 +7380,8 @@ async function confirmB2CPayment() {
         return;
     }
 
-    // 🔒 실제 PG 전자결제 모듈 연동 심사 단계 방어 (무단 무료 승격 방지)
-    alert("📢 [PG 전자결제 모듈 연동 심사 중 안내]\n\n현재 토스페이먼츠 / KG이니시스 정기 자동결제 모듈 심사 및 연동 준비 단계입니다.\n\n정식 전자결제 서비스 오픈 전까지는 준비 중 상태로 안전하게 보호되며, 실제 과금 및 멤버십 변경이 발생하지 않습니다.\n(정식 오픈 시 전체 공지사항을 통해 안내해 드리겠습니다.)");
+    // 실제 PG 전자결제 모듈 연동 심사 단계 방어 (무단 무료 승격 방지)
+    alert("[PG 전자결제 모듈 연동 심사 중 안내]\n\n현재 토스페이먼츠 / KG이니시스 정기 자동결제 모듈 심사 및 연동 준비 단계입니다.\n\n정식 전자결제 서비스 오픈 전까지는 준비 중 상태로 안전하게 보호되며, 실제 과금 및 멤버십 변경이 발생하지 않습니다.\n(정식 오픈 시 전체 공지사항을 통해 안내해 드리겠습니다.)");
     closeB2CCheckoutModal();
 }
 
@@ -7706,7 +7706,7 @@ function renderAdmissionCalendar() {
 
         const ddayColor = isUrgent ? "background: #ef4444; color: white;" : "background: #3b82f6; color: white;";
 
-        const pinBtnText = isPinned ? "✅ 노출 중" : "📌 1페이지 노출";
+        const pinBtnText = isPinned ? "노출 중" : "📌 1페이지 노출";
 
         const pinBtnStyle = isPinned 
 
@@ -7897,7 +7897,7 @@ function switchRole(role) {
 
             document.getElementById("edit-tutor-link").value = tp.contact_link || "";
 
-            // 🎯 원장 승인 상태 실시간 반영
+            // 원장 승인 상태 실시간 반영
 
             const statusBadge = document.getElementById("tutor-verify-status-badge");
 
@@ -7905,11 +7905,11 @@ function switchRole(role) {
 
                 if (tp.is_verified) {
 
-                    statusBadge.innerHTML = `<span style="color: #10b981; font-weight: 800; background: rgba(16, 185, 129, 0.15); padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3);">✅ 인증 승인완료</span>`;
+                    statusBadge.innerHTML = `<span style="color: #10b981; font-weight: 800; background: rgba(16, 185, 129, 0.15); padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3);">인증 승인완료</span>`;
 
                 } else {
 
-                    statusBadge.innerHTML = `<span style="color: #f59e0b; font-weight: 800; background: rgba(245, 158, 11, 0.15); padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.3);">⏳ 원장 승인심사중...</span>`;
+                    statusBadge.innerHTML = `<span style="color: #f59e0b; font-weight: 800; background: rgba(245, 158, 11, 0.15); padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.3);">원장 승인심사중...</span>`;
 
                 }
 
@@ -8139,7 +8139,7 @@ function setupEventListeners() {
 
     }
 
-    // 📊 정시 예측 점수 실시간 강제 제한 (100 / 50 초과 원천 차단)
+    // 정시 예측 점수 실시간 강제 제한 (100 / 50 초과 원천 차단)
 
     ['pred-kor', 'pred-math', 'pred-eng', 'pred-tam1', 'pred-tam2'].forEach(id => {
 
@@ -8320,7 +8320,7 @@ async function updateDailyMissionUI() {
 
                 if (data.wakeup_done) {
 
-                    wakeupBtn.innerText = "✅ 오늘 완료";
+                    wakeupBtn.innerText = "오늘 완료";
 
                     wakeupBtn.style.opacity = "0.65";
 
@@ -8342,7 +8342,7 @@ async function updateDailyMissionUI() {
 
                 if (data.sleep_done) {
 
-                    sleepBtn.innerText = "✅ 오늘 완료";
+                    sleepBtn.innerText = "오늘 완료";
 
                     sleepBtn.style.opacity = "0.65";
 
@@ -8951,7 +8951,7 @@ async function addPlannerBlock(e) {
 async function deletePlannerBlock(e, blockId) {
     if (e && e.stopPropagation) e.stopPropagation();
     if (localStorage.getItem('userRole') === 'PARENT') {
-        alert("🔒 학부모 모드는 조회 전용입니다. 자녀의 계획표를 삭제할 수 없습니다.");
+        alert("학부모 모드는 조회 전용입니다. 자녀의 계획표를 삭제할 수 없습니다.");
         return;
     }
     if (!confirm("해당 계획 시간표를 삭제하시겠습니까?")) return;
@@ -9043,7 +9043,7 @@ async function verifyMission(type, triggerFail = false) {
 
 }
 
-// 🔒 마이크로 결의 서약 모달 제어
+// 마이크로 결의 서약 모달 제어
 
 function requestStartTimer() {
 
@@ -9209,7 +9209,7 @@ async function startTimer() {
 
         
 
-        // 💡 화면 꺼짐 방지(Screen Wake Lock) 즉시 활성화
+        // 화면 꺼짐 방지(Screen Wake Lock) 즉시 활성화
 
         requestScreenWakeLock();
 
@@ -9253,7 +9253,7 @@ async function stopTimerForcefully(triggeredByDistraction = false) {
 
     
 
-    // 💡 화면 꺼짐 방지 해제
+    // 화면 꺼짐 방지 해제
 
     releaseScreenWakeLock();
 
@@ -9287,7 +9287,7 @@ async function stopTimerForcefully(triggeredByDistraction = false) {
 
     timerBtn.style.backgroundColor = "var(--color-success)";
 
-    document.getElementById("timer-current-study").innerText = "🎯 대기 중: 할 일을 골라 측정을 시작하세요";
+    document.getElementById("timer-current-study").innerText = "대기 중: 할 일을 골라 측정을 시작하세요";
 
     try {
 
@@ -9432,7 +9432,7 @@ async function sendChatMessage() {
 
     }
 
-    // 🔒 [체험 모드 / 데모 챗봇 보호] 백서 지식 유출 원천 차단 및 PALIN OS 표준 소개 답변 반환
+    // [체험 모드 / 데모 챗봇 보호] 백서 지식 유출 원천 차단 및 PALIN OS 표준 소개 답변 반환
     if (isDemoMode || currentStudent?.id === 9999) {
         setTimeout(() => {
             const demoIntroResponse = `👋 안녕하세요! **PALIN OS AI 학습 멘토**입니다.\n현재 **[체험 모드(모델하우스)]**로 접속 중이십니다.\n\n🏛️ **PALIN OS 핵심 기능 안내:**\n• **168시간 자기주도 몰입 케어**: 기상/취침 미션, 초정밀 자습 타이머, 주간 루틴 관리\n• **정시 합격예측 엔진**: 전국 11,688개 대학/학과 1초 컷오프 판정\n• **학부모 안심 알림톡 연동**: 실시간 출결 및 주간 심층 AI 리포트 자동 발송\n\n✨ 정식 가입 또는 가맹 학원 원장님의 승인을 받으시면 원장님의 교육 철학과 13년 수험생 멘토링 노하우가 탑재된 **[Tier 3 마스터 AI]**의 초개인화 무제한 1:1 코칭을 이용하실 수 있습니다!\n\n도입 문의는 상단의 **[🏢 우리 학원 도입 문의]**를 이용해 주세요!`;
@@ -9660,7 +9660,7 @@ function getVerdictBgColor(verdict) {
 
 }
 
-// 📊 백분위 및 원점수 최대값(100/50) 실시간 강제 제한 헬퍼
+// 백분위 및 원점수 최대값(100/50) 실시간 강제 제한 헬퍼
 
 function validatePercentileInput(el, maxVal = 100) {
 
@@ -10610,7 +10610,7 @@ async function upgradeStudentToTutor(e) {
     e.preventDefault();
     if (!currentStudent) return;
     if (isDemoMode || currentStudent.id === 9999) {
-        alert("🔒 [모델하우스 체험 모드]\n\n선배 과외 선생님 승격 신청은 정식 회원가입/로그인 후 이용하실 수 있습니다.");
+        alert("[체험 모드]\n\n선배 과외 선생님 승격 신청은 정식 회원가입/로그인 후 이용하실 수 있습니다.");
         return;
     }
 
@@ -10641,7 +10641,7 @@ async function upgradeStudentToTutor(e) {
         });
         if (res.ok) {
             const data = await res.json();
-            alert(data.message || "🎉 과외선생님 신청이 원장님께 제출되었습니다. 원장님이 서류(합격증 및 성적표)를 별도 확인 후 최종 승인하면 프로필이 공개됩니다.");
+            alert(data.message || "과외선생님 신청이 원장님께 제출되었습니다. 원장님이 서류(합격증 및 성적표)를 별도 확인 후 최종 승인하면 프로필이 공개됩니다.");
             document.getElementById("tutor-up-bio").value = "";
             document.getElementById("tutor-up-link").value = "";
             const modal = document.getElementById("tutor-upgrade-modal");
@@ -10660,7 +10660,7 @@ async function handleUpdateTutorProfile(e) {
     e.preventDefault();
     if (!currentStudent || !currentStudent.tutor_profile) return;
     if (isDemoMode || currentStudent.id === 9999) {
-        alert("🔒 [모델하우스 체험 모드]\n\n과외 프로필 편집은 정식 회원 계정에서 이용하실 수 있습니다.");
+        alert("[체험 모드]\n\n과외 프로필 편집은 정식 회원 계정에서 이용하실 수 있습니다.");
         return;
     }
     const bio = document.getElementById("edit-tutor-bio").value.trim();
@@ -10697,7 +10697,7 @@ async function handleUpdateTutorProfile(e) {
 
         if (res.ok) {
 
-            alert("✍️ 과외 모집글이 성공적으로 수정되어 목록에 반영되었습니다.");
+            alert("과외 모집글이 성공적으로 수정되어 목록에 반영되었습니다.");
 
             fetchStudentInfo(currentStudent.id);
 
@@ -11036,7 +11036,7 @@ async function submitEditQAPost() {
             return;
         }
         
-        alert("✨ 질문이 성공적으로 수정되었습니다.");
+        alert("질문이 성공적으로 수정되었습니다.");
         closeEditQAModal();
         loadQAPosts();
     } catch(e) {
@@ -11062,7 +11062,7 @@ async function deleteQAPost(postId) {
             return;
         }
         
-        alert("🗑️ 질문이 안전하게 삭제되었습니다.");
+        alert("질문이 안전하게 삭제되었습니다.");
         if (currentStudent && typeof fetchStudentInfo === 'function') {
             fetchStudentInfo(currentStudent.id);
         }
@@ -11133,7 +11133,7 @@ async function createQAPost() {
 
     if (isDemoMode || currentStudent.id === 9999) {
 
-        alert("🔒 [모델하우스 체험 모드]\n\n실제 Q&A 질문 등록 및 보상 포인트 사용은 정식 회원가입 후 이용하실 수 있습니다.");
+        alert("[체험 모드]\n\n실제 Q&A 질문 등록 및 보상 포인트 사용은 정식 회원가입 후 이용하실 수 있습니다.");
 
         return;
 
@@ -11191,7 +11191,7 @@ async function createQAPost() {
 
         if (res.ok) {
 
-            alert(isAnonymous ? "🔒 익명으로 질문이 등록되었습니다!" : "질문이 업로드되었습니다.");
+            alert(isAnonymous ? "익명으로 질문이 등록되었습니다!" : "질문이 업로드되었습니다.");
 
             document.getElementById("qa-post-title").value = "";
 
@@ -11231,7 +11231,7 @@ async function createTutorRequest() {
 
     if (isDemoMode || currentStudent.id === 9999) {
 
-        alert("🔒 [모델하우스 체험 모드]\n\n과외 구하기 요청서 등록은 정식 회원가입 후 이용하실 수 있습니다.");
+        alert("[체험 모드]\n\n과외 구하기 요청서 등록은 정식 회원가입 후 이용하실 수 있습니다.");
 
         return;
 
@@ -11535,7 +11535,7 @@ async function sendProposalFromTutor(requestId, tutorId) {
 
         if (res.ok) {
 
-            alert("🎉 선배 제안서가 등록되었습니다! 학생의 '받은 제안서' 함에 즉시 업데이트됩니다.");
+            alert("선배 제안서가 등록되었습니다! 학생의 '받은 제안서' 함에 즉시 업데이트됩니다.");
 
             input.value = "";
 
@@ -11801,7 +11801,7 @@ function setupUnivDeptSelectors(univSelId, deptSelId, initialUniv = "", initialD
 
         customOpt.value = "__CUSTOM__";
 
-        customOpt.textContent = "✏️ 직접 입력 (예체능/자율전공 등)";
+        customOpt.textContent = "직접 입력 (예체능/자율전공 등)";
 
         deptSelect.appendChild(customOpt);
 
@@ -11855,7 +11855,7 @@ function setupUnivDeptSelectors(univSelId, deptSelId, initialUniv = "", initialD
 
         customOpt.value = "__CUSTOM__";
 
-        customOpt.textContent = "✏️ 직접 입력 (예체능/자율전공 등)";
+        customOpt.textContent = "직접 입력 (예체능/자율전공 등)";
 
         deptSelect.appendChild(customOpt);
 
@@ -11889,7 +11889,7 @@ function setupUnivDeptSelectors(univSelId, deptSelId, initialUniv = "", initialD
 
     } else {
 
-        deptSelect.innerHTML = `<option value="" disabled selected>학과 선택</option><option value="__CUSTOM__">✏️ 직접 입력 (예체능/자율전공 등)</option>`;
+        deptSelect.innerHTML = `<option value="" disabled selected>학과 선택</option><option value="__CUSTOM__">직접 입력 (예체능/자율전공 등)</option>`;
 
     }
 
@@ -12235,7 +12235,7 @@ async function submitStudentFeedback() {
 
         if (res.ok) {
 
-            alert("💡 건의해주신 소중한 의견이 원장님 및 개발팀으로 실시간 접수되었습니다. 빠르게 확인 후 반영하겠습니다!");
+            alert("건의해주신 소중한 의견이 원장님 및 개발팀으로 실시간 접수되었습니다. 빠르게 확인 후 반영하겠습니다!");
 
             if (contentEl) contentEl.value = "";
 
@@ -12467,13 +12467,13 @@ async function loadExamMaterials() {
 
             const downloadBtn = `
                 <button type="button" onclick="downloadExamMaterialFile(${m.id}, false, '${safeTitle}')" class="btn" style="padding: 10px 12px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff !important; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(99,102,241,0.3); border: none; cursor: pointer;">
-                    <span>📖</span> 문제지 다운로드
+                    <span></span> 문제지 다운로드
                 </button>
             `;
 
             const answerBtn = hasAnswer ? `
                 <button type="button" onclick="downloadExamMaterialFile(${m.id}, true, '${safeTitle}')" class="btn btn-secondary" style="padding: 10px 12px; font-size: 0.82rem; font-weight: 800; color: #10b981 !important; border: 1.5px solid #10b981; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
-                    <span>📝</span> 정답/해설지
+                    <span></span> 정답/해설지
                 </button>
             ` : '';
 
@@ -12539,7 +12539,7 @@ async function loadExamMaterials() {
 
 async function downloadExamMaterialFile(materialId, isAnswer, title) {
     if (isDemoMode) {
-        alert('🔒 [체험 모드 안내]\n정식 학원 연동 또는 프리미엄 구독 시 원본 수험 기출 및 해설지를 무제한 다운로드하실 수 있습니다.');
+        alert('[체험 모드 안내]\n정식 학원 연동 또는 프리미엄 구독 시 원본 수험 기출 및 해설지를 무제한 다운로드하실 수 있습니다.');
         return;
     }
     const endpoint = isAnswer ? `/api/materials/${materialId}/download-answer` : `/api/materials/${materialId}/download`;
@@ -12551,7 +12551,7 @@ async function downloadExamMaterialFile(materialId, isAnswer, title) {
                 const errData = await res.json();
                 if (errData.detail) errMsg = errData.detail;
             } catch(e) {}
-            alert("⚠️ " + errMsg);
+            alert("" + errMsg);
             return;
         }
         
@@ -12965,7 +12965,7 @@ function downloadStudentIDCard() {
 
 // ==========================================
 
-// 📊 3. 3-Tier 대입 전략 리포트 & VIP 1:1 직접 컨설팅
+// 3. 3-Tier 대입 전략 리포트 & VIP 1:1 직접 컨설팅
 
 // ==========================================
 
@@ -13065,7 +13065,7 @@ function updateTierModalPayAmount() {
 
         if (tickets > 0) {
 
-            payEl.innerHTML = `<span style="color:#fcd34d;">🎟️ 무료권 1장 적용 (0원 결제)</span>`;
+            payEl.innerHTML = `<span style="color:#fcd34d;">무료권 1장 적용 (0원 결제)</span>`;
 
         } else {
 
@@ -13077,7 +13077,7 @@ function updateTierModalPayAmount() {
 
         if (tickets > 0) {
 
-            payEl.innerHTML = `<span style="color:#fcd34d;">🎟️ 무료권 1장 적용 (-19,000원 할인) ➔ 10,900원</span>`;
+            payEl.innerHTML = `<span style="color:#fcd34d;">무료권 1장 적용 (-19,000원 할인) ➔ 10,900원</span>`;
 
         } else {
 
@@ -13089,7 +13089,7 @@ function updateTierModalPayAmount() {
 
         if (tickets > 0) {
 
-            payEl.innerHTML = `<span style="color:#fcd34d;">🎟️ 무료권 1장 적용 (-19,000원 할인) ➔ 15,900원</span>`;
+            payEl.innerHTML = `<span style="color:#fcd34d;">무료권 1장 적용 (-19,000원 할인) ➔ 15,900원</span>`;
 
         } else {
 
@@ -13269,11 +13269,11 @@ async function executeTierOrder() {
 
                 <div style="text-align: center; padding: 30px;">
 
-                    <div style="color: #ef4444; font-weight: 800; font-size: 1.1rem; margin-bottom: 8px;">❌ 리포트 열람 실패</div>
+                    <div style="color: #ef4444; font-weight: 800; font-size: 1.1rem; margin-bottom: 8px;">리포트 열람 실패</div>
 
                     <div style="color: #cbd5e1; font-size: 0.85rem; margin-bottom: 16px;">${err.detail || "캐시가 부족합니다."}</div>
 
-                    <button onclick="document.getElementById('deep-report-modal').style.display='none'; openCashModal();" class="btn" style="padding: 10px 20px; background: #2563eb; font-weight: 700;">💎 PALIN 캐시 충전하러 가기</button>
+                    <button onclick="document.getElementById('deep-report-modal').style.display='none'; openCashModal();" class="btn" style="padding: 10px 20px; background: #2563eb; font-weight: 700;">PALIN 캐시 충전하러 가기</button>
 
                 </div>
 
@@ -13327,9 +13327,9 @@ function renderDeepReport(report, usedTicket, chargedCost) {
 
             <div style="display: flex; justify-content: space-between; align-items: center;">
 
-                <span style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800;">🎯 총괄 전략 디렉션 (Tier ${tier})</span>
+                <span style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800;">총괄 전략 디렉션 (Tier ${tier})</span>
 
-                ${usedTicket ? '<span style="font-size:0.7rem; background:#ec4899; color:white; padding:2px 8px; border-radius:10px; font-weight:800;">🎟️ 무료권 적용</span>' : ''}
+                ${usedTicket ? '<span style="font-size:0.7rem; background:#ec4899; color:white; padding:2px 8px; border-radius:10px; font-weight:800;">무료권 적용</span>' : ''}
 
             </div>
 
@@ -13345,7 +13345,7 @@ function renderDeepReport(report, usedTicket, chargedCost) {
 
             <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px;">
 
-                <div style="font-size: 0.72rem; color: #94a3b8; margin-bottom: 4px;">🎯 목표 대학 진단</div>
+                <div style="font-size: 0.72rem; color: #94a3b8; margin-bottom: 4px;">목표 대학 진단</div>
 
                 <div style="font-size: 0.82rem; color: #fcd34d; font-weight: 700; line-height: 1.4;">${report.target_univ_diagnosis || "-"}</div>
 
@@ -13353,7 +13353,7 @@ function renderDeepReport(report, usedTicket, chargedCost) {
 
             <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px;">
 
-                <div style="font-size: 0.72rem; color: #94a3b8; margin-bottom: 4px;">🛡️ 마지노선 대학 분석</div>
+                <div style="font-size: 0.72rem; color: #94a3b8; margin-bottom: 4px;">마지노선 대학 분석</div>
 
                 <div style="font-size: 0.82rem; color: #60a5fa; font-weight: 700; line-height: 1.4;">${report.baseline_univ_diagnosis || "-"}</div>
 
@@ -13391,11 +13391,11 @@ function renderDeepReport(report, usedTicket, chargedCost) {
 
             <div style="margin-bottom: 16px; background: rgba(16, 185, 129, 0.05); padding: 16px; border-radius: 10px; border: 1px solid rgba(16, 185, 129, 0.25);">
 
-                <div style="font-size: 1rem; font-weight: 800; color: #34d399; margin-bottom: 8px;">⏰ [🥇 Tier 3 독점] 주간 168시간 순공 극대화 타임테이블</div>
+                <div style="font-size: 1rem; font-weight: 800; color: #34d399; margin-bottom: 8px;">[🥇 Tier 3 독점] 주간 168시간 순공 극대화 타임테이블</div>
 
                 <div style="font-size: 0.85rem; color: #e2e8f0; margin-bottom: 6px;">📅 <strong>평일 루틴:</strong> ${timetable.weekday || ""}</div>
 
-                <div style="font-size: 0.85rem; color: #e2e8f0; margin-bottom: 6px;">🔥 <strong>주말 몰입:</strong> ${timetable.weekend || ""}</div>
+                <div style="font-size: 0.85rem; color: #e2e8f0; margin-bottom: 6px;"><strong>주말 몰입:</strong> ${timetable.weekend || ""}</div>
 
                 <div style="font-size: 0.82rem; color: #a7f3d0; font-weight: 700;">과목별 배분: ${timetable.ratios || ""}</div>
 
@@ -13405,7 +13405,7 @@ function renderDeepReport(report, usedTicket, chargedCost) {
 
             <div style="margin-bottom: 16px; background: rgba(245, 158, 11, 0.05); padding: 16px; border-radius: 10px; border: 1px solid rgba(245, 158, 11, 0.25);">
 
-                <div style="font-size: 1rem; font-weight: 800; color: #fbbf24; margin-bottom: 10px;">📖 [🥇 Tier 3 독점] 과목별 · 시험별 만점 극대화 비법 지침</div>
+                <div style="font-size: 1rem; font-weight: 800; color: #fbbf24; margin-bottom: 10px;">[🥇 Tier 3 독점] 과목별 · 시험별 만점 극대화 비법 지침</div>
 
                 <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.6;">
 
@@ -13622,7 +13622,7 @@ function openTermsModal(type) {
 
     } else {
 
-        title.innerText = "🔒 개인정보 수집·이용 및 학부모 문자 발송 동의서";
+        title.innerText = "개인정보 수집·이용 및 학부모 문자 발송 동의서";
 
         body.innerText = `[1. 수집 항목]
 
@@ -13650,17 +13650,17 @@ function openTermsModal(type) {
 
 // ==========================================
 
-// 🎓 7. 과외선생님 1:1 매칭 신청
+// 7. 과외선생님 1:1 매칭 신청
 
 // ==========================================
 
 async function requestTutorMatch(tutorId) {
     if (!currentStudent) return;
     if (isDemoMode || currentStudent.id === 9999) {
-        alert("🔒 [모델하우스 체험 모드]\n\n실제 과외 매칭 신청은 정식 회원가입 후 이용하실 수 있습니다.");
+        alert("[체험 모드]\n\n실제 과외 매칭 신청은 정식 회원가입 후 이용하실 수 있습니다.");
         return;
     }
-    if (!confirm("🎓 해당 과외선생님에게 1:1 매칭 요청서를 발송하시겠습니까?\n(필요 캐시: 29,000 PALIN 캐시 차감)")) return;
+    if (!confirm("해당 과외선생님에게 1:1 매칭 요청서를 발송하시겠습니까?\n(필요 캐시: 29,000 PALIN 캐시 차감)")) return;
 
     try {
 
@@ -13714,7 +13714,7 @@ async function requestTutorMatch(tutorId) {
 
 // ==========================================
 
-// 🏆 8. 마이크로 지역/고교 랭킹 리더보드 (Strava 모델)
+// 8. 마이크로 지역/고교 랭킹 리더보드 (Strava 모델)
 
 // ==========================================
 
@@ -13813,7 +13813,7 @@ async function loadMicroRankings() {
                     guildListEl.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:14px;">집계된 학교 랭킹이 없습니다.</div>';
                 } else {
                     guildListEl.innerHTML = schools.map((s, idx) => {
-                        const champBadge = s.is_champion ? '<span style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; font-weight:900; padding:2px 6px; border-radius:4px; font-size:0.68rem; margin-left:4px;">🏆 1위 챔피언</span>' : '';
+                        const champBadge = s.is_champion ? '<span style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; font-weight:900; padding:2px 6px; border-radius:4px; font-size:0.68rem; margin-left:4px;">1위 챔피언</span>' : '';
                         const isDay = document.body.classList.contains('day-mode');
                         const bg = idx === 0 ? (isDay ? 'background:#fef3c7; border:1.5px solid #f59e0b;' : 'background:rgba(245, 158, 11, 0.15); border:1.5px solid rgba(245, 158, 11, 0.3);') : (idx < 3 ? (isDay ? 'background:#ede9fe; border:1px solid #c7d2fe;' : 'background:rgba(99, 102, 241, 0.12); border:1px solid rgba(99, 102, 241, 0.25);') : (isDay ? 'background:#ffffff; border:1px solid #e2e8f0;' : 'background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);'));
                         const rankColor = idx === 0 ? (isDay ? '#b45309' : '#fbbf24') : (idx < 3 ? (isDay ? '#4f46e5' : '#a5b4fc') : (isDay ? '#64748b' : '#cbd5e1'));
@@ -13862,7 +13862,7 @@ function switchP3RankingMode(mode) {
 
 // ==========================================
 
-// 👑 9. VIP 1% 블랙 라운지
+// 9. VIP 1% 블랙 라운지
 
 // ==========================================
 
@@ -13908,7 +13908,7 @@ async function loadBlackLoungePosts() {
 
                             <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: var(--text-secondary);">
 
-                                <span>✍️ ${p.author_name} (${p.author_univ_target || '의치한약수/SKY 목표'})</span>
+                                <span>${p.author_name} (${p.author_univ_target || '의치한약수/SKY 목표'})</span>
 
                                 <span style="color: #fbbf24; font-weight: 700;">멘토 피드백 대기중 💬</span>
 
@@ -13976,7 +13976,7 @@ async function submitBlackLoungePost() {
 
         if (res.ok) {
 
-            alert("👑 VIP 블랙 라운지에 질문이 등록되었습니다!");
+            alert("VIP 블랙 라운지에 질문이 등록되었습니다!");
 
             document.getElementById("black-post-title").value = "";
 
@@ -14002,7 +14002,7 @@ async function submitBlackLoungePost() {
 
 // ==========================================
 
-// 🛡️ 10. 열정 페이스메이커 약정 보증금 잔액 조회
+// 10. 열정 페이스메이커 약정 보증금 잔액 조회
 
 // ==========================================
 
@@ -14044,7 +14044,7 @@ async function deleteMyAccount() {
 
     
 
-    const confirm1 = confirm("⚠️ 정말로 회원 탈퇴를 진행하시겠습니까?\n\n탈퇴 시 모든 학습 시간, 타이머 기록, 플래너, 포인트 및 계정 정보가 영구 삭제되며 복구할 수 없습니다.");
+    const confirm1 = confirm("정말로 회원 탈퇴를 진행하시겠습니까?\n\n탈퇴 시 모든 학습 시간, 타이머 기록, 플래너, 포인트 및 계정 정보가 영구 삭제되며 복구할 수 없습니다.");
 
     if (!confirm1) return;
 
@@ -14102,7 +14102,7 @@ async function deleteMyAccount() {
 
 // ============================================================================
 
-// 🏫 [Phase 1~5] 학생용 학원 관리(Academy Hub) & 출결 & 행정 요청 JS 엔진
+// [Phase 1~5] 학생용 학원 관리(Academy Hub) & 출결 & 행정 요청 JS 엔진
 
 // ============================================================================
 
@@ -14291,7 +14291,7 @@ async function loadAcademyHubView() {
             <div style="background: rgba(239,68,68,0.1); border: 1px solid #ef4444; border-radius: 10px; padding: 12px; margin-bottom: 8px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                     <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.68rem; font-weight: 800;">🚨 특별공지</span>
+                        <span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.68rem; font-weight: 800;">특별공지</span>
                         <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-primary);">[수시/정시 원서전략 주간 안내]</span>
                     </div>
                     <span style="font-size: 0.72rem; color: var(--text-secondary);">2026-09-03</span>
@@ -14334,7 +14334,7 @@ async function loadAcademyHubView() {
                     <div style="background: ${isSpecial ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.04)'}; border: 1px solid ${isSpecial ? '#ef4444' : 'rgba(255,255,255,0.08)'}; border-radius: 10px; padding: 12px; margin-bottom: 8px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                             <div style="display: flex; align-items: center; gap: 6px;">
-                                ${isSpecial ? '<span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.68rem; font-weight: 800;">🚨 특별공지</span>' : ''}
+                                ${isSpecial ? '<span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.68rem; font-weight: 800;">특별공지</span>' : ''}
                                 <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-primary);">[${f.curriculum_name} ${f.week_number}주차]</span>
                             </div>
                             <span style="font-size: 0.72rem; color: var(--text-secondary);">${f.feed_date}</span>
@@ -14374,7 +14374,7 @@ function openRequestModal(reqType) {
 
     if (reqType === "VOD") {
         if (titleEl) {
-            titleEl.innerHTML = '<span class="material-symbols-rounded">play_circle</span><span>🎬 복습 VOD 신청</span>';
+            titleEl.innerHTML = '<span class="material-symbols-rounded">play_circle</span><span>복습 VOD 신청</span>';
             titleEl.style.color = isDay ? "#4338ca" : "#818cf8";
         }
         if (dateLabelEl) dateLabelEl.innerText = "수강 희망 강의 일자";
@@ -14392,7 +14392,7 @@ function openRequestModal(reqType) {
         }
     } else if (reqType === "ATTENDANCE") {
         if (titleEl) {
-            titleEl.innerHTML = '<span class="material-symbols-rounded">event_busy</span><span>📝 단기 결석 및 보강 신청</span>';
+            titleEl.innerHTML = '<span class="material-symbols-rounded">event_busy</span><span>단기 결석 및 보강 신청</span>';
             titleEl.style.color = isDay ? "#065f46" : "#34d399";
         }
         if (dateLabelEl) dateLabelEl.innerText = "결석 예정 일자";
@@ -14410,7 +14410,7 @@ function openRequestModal(reqType) {
         }
     } else if (reqType === "CLASS_CHANGE") {
         if (titleEl) {
-            titleEl.innerHTML = '<span class="material-symbols-rounded">swap_horiz</span><span>🔄 정규 반 변경 신청</span>';
+            titleEl.innerHTML = '<span class="material-symbols-rounded">swap_horiz</span><span>정규 반 변경 신청</span>';
             titleEl.style.color = isDay ? "#92400e" : "#fbbf24";
         }
         if (dateLabelEl) dateLabelEl.innerText = "변경 희망 적용 일자";
@@ -14438,7 +14438,7 @@ async function handleSendAcademyRequest(e) {
     if (!currentStudent || !currentStudent.id) return;
 
     if (isDemoMode || currentStudent?.id === 9999) {
-        alert("✨ [체험 모드] 가상 행정 요청이 접수되었습니다. (체험 중에는 실제 서버 DB에 전송되지 않습니다)");
+        alert("[체험 모드] 가상 행정 요청이 접수되었습니다. (체험 중에는 실제 서버 DB에 전송되지 않습니다)");
         document.getElementById("academy-request-modal").style.display = "none";
         return;
     }
@@ -14503,15 +14503,15 @@ function onLeaveReasonChanged(reason) {
 
     if (reason === "내신 휴강") {
 
-        box.innerHTML = "💡 <b>내신 휴강 안내:</b> 내신 기간 집중을 응원합니다. 신청 시 수시 6장 카드 전략 및 내신 컨설팅 VOD 가이드가 제공됩니다.";
+        box.innerHTML = "<b>내신 휴강 안내:</b> 내신 기간 집중을 응원합니다. 신청 시 수시 6장 카드 전략 및 내신 컨설팅 VOD 가이드가 제공됩니다.";
 
     } else if (reason === "개인 사유") {
 
-        box.innerHTML = "💡 <b>개인 사유 안내:</b> 학습 공백을 최소화할 수 있도록 일대일 수험 상담 및 과제 배송 케어가 지원됩니다.";
+        box.innerHTML = "<b>개인 사유 안내:</b> 학습 공백을 최소화할 수 있도록 일대일 수험 상담 및 과제 배송 케어가 지원됩니다.";
 
     } else {
 
-        box.innerHTML = "💡 <b>상담 후 결정:</b> 원장님과의 1:1 진로/수험 로드맵 상담을 통해 최적의 학습 방안을 함께 결정합니다.";
+        box.innerHTML = "<b>상담 후 결정:</b> 원장님과의 1:1 진로/수험 로드맵 상담을 통해 최적의 학습 방안을 함께 결정합니다.";
 
     }
 
@@ -14524,7 +14524,7 @@ async function handleSendAcademyLeave(e) {
     if (!currentStudent || !currentStudent.id) return;
 
     if (isDemoMode || currentStudent?.id === 9999) {
-        alert("✨ [체험 모드] 휴강 신청 시뮬레이션이 완료되었습니다. (체험 중에는 실제 서버 DB에 전송되지 않습니다)");
+        alert("[체험 모드] 휴강 신청 시뮬레이션이 완료되었습니다. (체험 중에는 실제 서버 DB에 전송되지 않습니다)");
         document.getElementById("academy-leave-modal").style.display = "none";
         return;
     }
@@ -14580,7 +14580,7 @@ function openWithdrawModal() {
 async function requestAcademyReturnNow() {
 
     if (isDemoMode || currentStudent?.id === 9999) {
-        alert("✨ [체험 모드] 학원 복귀 신청이 시뮬레이션되었습니다.");
+        alert("[체험 모드] 학원 복귀 신청이 시뮬레이션되었습니다.");
         return;
     }
 
@@ -14615,7 +14615,7 @@ async function checkInAttendanceNow() {
     if (!currentStudent || !currentStudent.id) return;
 
     if (isDemoMode || currentStudent?.id === 9999) {
-        alert("✨ [체험 모드] 출석 체크인(입실)이 완료되었습니다! (출석 포인트 +10P)");
+        alert("[체험 모드] 출석 체크인(입실)이 완료되었습니다! (출석 포인트 +10P)");
         return;
     }
 
@@ -14637,7 +14637,7 @@ async function checkInAttendanceNow() {
 
             if (data.status === "PRESENT") {
 
-                alert("📍 [출결 완료] 정상 출석으로 확인되었습니다.");
+                alert("[출결 완료] 정상 출석으로 확인되었습니다.");
 
             } else if (data.status === "LATE") {
 
@@ -14645,7 +14645,7 @@ async function checkInAttendanceNow() {
 
             } else if (data.status === "EXCUSED") {
 
-                alert("✅ 사전 승인된 사유로 출결 패널티가 면제되었습니다.");
+                alert("사전 승인된 사유로 출결 패널티가 면제되었습니다.");
 
             } else {
 
@@ -14661,7 +14661,7 @@ async function checkInAttendanceNow() {
 
 // ============================================================================
 
-// 🧭 [Phase 1~5] 학생용 학원 관리 서브탭 (피드 / VOD / 시험 / 행정) 전환 및 OMR 엔진
+// [Phase 1~5] 학생용 학원 관리 서브탭 (피드 / VOD / 시험 / 행정) 전환 및 OMR 엔진
 
 // ============================================================================
 
@@ -14704,7 +14704,7 @@ async function loadAcademyMaterials() {
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
                         <div>
                             <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-                                <span style="font-size: 0.72rem; background: rgba(56,189,248,0.2); color: #0284c7; padding: 2px 8px; border-radius: 6px; font-weight: 800;">📖 국어 · 고3/N수</span>
+                                <span style="font-size: 0.72rem; background: rgba(56,189,248,0.2); color: #0284c7; padding: 2px 8px; border-radius: 6px; font-weight: 800;">국어 · 고3/N수</span>
                                 <span style="font-size: 0.72rem; color: var(--text-secondary); font-weight: 700;">3주차 주간 워크북</span>
                             </div>
                             <div style="font-size: 0.95rem; font-weight: 900; color: var(--text-primary); line-height: 1.35;">[주간 워크북] 3주차 수능완성 연계 킬러 문항 정복 N제</div>
@@ -14712,11 +14712,11 @@ async function loadAcademyMaterials() {
                         </div>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;">
-                        <button type="button" onclick="alert('🔒 [체험 모드]\\n팰린 마스터 학원 3주차 문제지(PDF) 다운로드가 시뮬레이션되었습니다.');" class="btn" style="padding: 9px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #0284c7, #0369a1); color: white;">
-                            <span>📖 문제지 다운로드</span>
+                        <button type="button" onclick="alert('[체험 모드]\\n팰린 마스터 학원 3주차 문제지(PDF) 다운로드가 시뮬레이션되었습니다.');" class="btn" style="padding: 9px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #0284c7, #0369a1); color: white;">
+                            <span>문제지 다운로드</span>
                         </button>
-                        <button type="button" onclick="alert('🔒 [체험 모드]\\n팰린 마스터 학원 정답 및 해설지(PDF) 다운로드가 시뮬레이션되었습니다.');" class="btn btn-secondary" style="padding: 9px; font-size: 0.8rem; font-weight: 800; color: #0284c7 !important; border-color: #0284c7;">
-                            <span>📝 정답/해설지</span>
+                        <button type="button" onclick="alert('[체험 모드]\\n팰린 마스터 학원 정답 및 해설지(PDF) 다운로드가 시뮬레이션되었습니다.');" class="btn btn-secondary" style="padding: 9px; font-size: 0.8rem; font-weight: 800; color: #0284c7 !important; border-color: #0284c7;">
+                            <span>정답/해설지</span>
                         </button>
                     </div>
                 </div>
@@ -14726,7 +14726,7 @@ async function loadAcademyMaterials() {
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
                         <div>
                             <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-                                <span style="font-size: 0.72rem; background: rgba(99,102,241,0.2); color: #4338ca; padding: 2px 8px; border-radius: 6px; font-weight: 800;">📐 수학 · 고3/N수</span>
+                                <span style="font-size: 0.72rem; background: rgba(99,102,241,0.2); color: #4338ca; padding: 2px 8px; border-radius: 6px; font-weight: 800;">수학 · 고3/N수</span>
                                 <span style="font-size: 0.72rem; color: var(--text-secondary); font-weight: 700;">자체 실전 모의</span>
                             </div>
                             <div style="font-size: 0.95rem; font-weight: 900; color: var(--text-primary); line-height: 1.35;">[자체 모의고사] 팰린 파이널 현장 실전 모의고사 1회차 시험지</div>
@@ -14734,11 +14734,11 @@ async function loadAcademyMaterials() {
                         </div>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;">
-                        <button type="button" onclick="alert('🔒 [체험 모드]\\n파이널 1회차 모의고사 시험지(PDF) 다운로드가 시뮬레이션되었습니다.');" class="btn" style="padding: 9px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">
-                            <span>📖 시험지 다운로드</span>
+                        <button type="button" onclick="alert('[체험 모드]\\n파이널 1회차 모의고사 시험지(PDF) 다운로드가 시뮬레이션되었습니다.');" class="btn" style="padding: 9px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">
+                            <span>시험지 다운로드</span>
                         </button>
-                        <button type="button" onclick="alert('🔒 [체험 모드]\\n파이널 1회차 손글씨 정답/해설(PDF) 다운로드가 시뮬레이션되었습니다.');" class="btn btn-secondary" style="padding: 9px; font-size: 0.8rem; font-weight: 800; color: #6366f1 !important; border-color: #6366f1;">
-                            <span>📝 정답/해설지</span>
+                        <button type="button" onclick="alert('[체험 모드]\\n파이널 1회차 손글씨 정답/해설(PDF) 다운로드가 시뮬레이션되었습니다.');" class="btn btn-secondary" style="padding: 9px; font-size: 0.8rem; font-weight: 800; color: #6366f1 !important; border-color: #6366f1;">
+                            <span>정답/해설지</span>
                         </button>
                     </div>
                 </div>
@@ -14748,7 +14748,7 @@ async function loadAcademyMaterials() {
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
                         <div>
                             <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-                                <span style="font-size: 0.72rem; background: rgba(16,185,129,0.2); color: #065f46; padding: 2px 8px; border-radius: 6px; font-weight: 800;">💡 특강 · 전학년</span>
+                                <span style="font-size: 0.72rem; background: rgba(16,185,129,0.2); color: #065f46; padding: 2px 8px; border-radius: 6px; font-weight: 800;">특강 · 전학년</span>
                                 <span style="font-size: 0.72rem; color: var(--text-secondary); font-weight: 700;">비법 특강 분석집</span>
                             </div>
                             <div style="font-size: 0.95rem; font-weight: 900; color: var(--text-primary); line-height: 1.35;">[특강 심화 분석지] 수능 비문학 인문·철학 킬러 지문 구조도 총정리</div>
@@ -14756,8 +14756,8 @@ async function loadAcademyMaterials() {
                         </div>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 10px;">
-                        <button type="button" onclick="alert('🔒 [체험 모드]\\n특강 분석지(PDF) 다운로드가 시뮬레이션되었습니다.');" class="btn" style="padding: 9px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white;">
-                            <span>📖 분석 자료집 다운로드</span>
+                        <button type="button" onclick="alert('[체험 모드]\\n특강 분석지(PDF) 다운로드가 시뮬레이션되었습니다.');" class="btn" style="padding: 9px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white;">
+                            <span>분석 자료집 다운로드</span>
                         </button>
                     </div>
                 </div>
@@ -14801,11 +14801,11 @@ async function loadAcademyMaterials() {
                     </div>
                     <div style="display: grid; grid-template-columns: ${hasAnswer ? '1fr 1fr' : '1fr'}; gap: 8px; margin-top: 10px;">
                         <a href="/api/materials/${m.id}/download" target="_blank" download class="btn" style="padding: 10px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #0284c7, #0369a1); color: white !important; text-decoration: none; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                            <span>📖</span> 문제지 다운로드
+                            <span></span> 문제지 다운로드
                         </a>
                         ${hasAnswer ? `
                             <a href="/api/materials/${m.id}/download-answer" target="_blank" download class="btn btn-secondary" style="padding: 10px; font-size: 0.82rem; font-weight: 800; color: #38bdf8 !important; border: 1.5px solid #38bdf8; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none;">
-                                <span>📝</span> 정답/해설지
+                                <span></span> 정답/해설지
                             </a>
                         ` : ''}
                     </div>
@@ -14829,7 +14829,7 @@ async function loadStudentVods() {
             <div style="margin-bottom: 18px;">
                 <div style="font-size: 0.88rem; font-weight: 800; color: #4338ca; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
                     <span class="material-symbols-rounded" style="font-size: 1.1rem;">video_library</span>
-                    <span>📺 팰린 마스터 학원 공식 VOD 강좌 (7일 시청 락)</span>
+                    <span>팰린 마스터 학원 공식 VOD 강좌 (7일 시청 락)</span>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 10px;">
                     <div style="background: rgba(99,102,241,0.06); border: 1.5px solid rgba(99,102,241,0.3); border-radius: 12px; padding: 14px;">
@@ -14838,12 +14838,12 @@ async function loadStudentVods() {
                                 <span style="font-size: 0.7rem; background: rgba(99,102,241,0.2); color: #4338ca; padding: 2px 8px; border-radius: 4px; font-weight: 800; margin-right: 4px;">수능국어</span>
                                 <span style="font-weight: 800; font-size: 0.92rem; color: var(--text-primary);">[1주차] 비문학 고난도 인문철학 킬러 3개년 구조독해법</span>
                             </div>
-                            <span style="background: #10b981; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 800;">⏳ 남은 시간: 142시간</span>
+                            <span style="background: #10b981; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 800;">남은 시간: 142시간</span>
                         </div>
                         <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 10px;">수능 국어 1등급을 가르는 서양철학/인식론 고난도 킬러 지문 문단별 맵핑 실전 특강</div>
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; background: rgba(0,0,0,0.1); padding: 8px 12px; border-radius: 8px;">
                             <span style="font-size: 0.75rem; color: #10b981; font-weight: 800;">진도율 85% · 과제 제출 완료</span>
-                            <button onclick="alert('🎬 [체험 모드] VOD 스트리밍 플레이어 시연: 1080p 고화질 1.0배속 시청 및 7일 후 자동 만료 보안 기능이 정상 가동 중입니다.')" class="btn" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border-radius: 6px;">
+                            <button onclick="alert('[체험 모드] VOD 스트리밍 플레이어 시연: 1080p 고화질 1.0배속 시청 및 7일 후 자동 만료 보안 기능이 정상 가동 중입니다.')" class="btn" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border-radius: 6px;">
                                 ▶️ VOD 시청하기 (샘플)
                             </button>
                         </div>
@@ -14855,12 +14855,12 @@ async function loadStudentVods() {
                                 <span style="font-size: 0.7rem; background: rgba(16,185,129,0.2); color: #065f46; padding: 2px 8px; border-radius: 4px; font-weight: 800; margin-right: 4px;">EBS연계</span>
                                 <span style="font-weight: 800; font-size: 0.92rem; color: var(--text-primary);">[2주차] 9월 모의평가 연계 EBS 수능특강 고전시가 총정리</span>
                             </div>
-                            <span style="background: #10b981; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 800;">⏳ 남은 시간: 164시간</span>
+                            <span style="background: #10b981; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 800;">남은 시간: 164시간</span>
                         </div>
                         <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 10px;">수능 출제 유력 고전시가 12선 필수 구절 및 주제별 핵심 어휘 총정리</div>
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; background: rgba(0,0,0,0.1); padding: 8px 12px; border-radius: 8px;">
                             <span style="font-size: 0.75rem; color: #f59e0b; font-weight: 800;">진도율 0% · 과제 미제출</span>
-                            <button onclick="alert('🎬 [체험 모드] VOD 스트리밍 플레이어 시연: 1080p 고화질 1.0배속 시청 및 7일 후 자동 만료 보안 기능이 정상 가동 중입니다.')" class="btn" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 6px;">
+                            <button onclick="alert('[체험 모드] VOD 스트리밍 플레이어 시연: 1080p 고화질 1.0배속 시청 및 7일 후 자동 만료 보안 기능이 정상 가동 중입니다.')" class="btn" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 6px;">
                                 ▶️ VOD 시청하기 (샘플)
                             </button>
                         </div>
@@ -14872,11 +14872,10 @@ async function loadStudentVods() {
                                 <span style="font-size: 0.7rem; background: rgba(239,68,68,0.2); color: #991b1b; padding: 2px 8px; border-radius: 4px; font-weight: 800; margin-right: 4px;">수능특강</span>
                                 <span style="font-weight: 800; font-size: 0.92rem; color: var(--text-primary);">[기초특강] 확률과통계 4점 빈출 킬러 완전 정복</span>
                             </div>
-                            <span style="background: #ef4444; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 800;">🔒 7일 기한 만료</span>
+                            <span style="background: #ef4444; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 800;">7일 기한 만료</span>
                         </div>
                         <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 8px;">조건부확률 및 독립시행 고난도 기출 풀이</div>
-                        <div style="background: rgba(239,68,68,0.1); padding: 8px 12px; border-radius: 8px; text-align: center; font-size: 0.75rem; color: #ef4444; font-weight: 700;">
-                            🔒 7일 시청 기한이 종료되었습니다. 시청 연장은 [행정 신청] 탭에서 원장님께 신청하실 수 있습니다.
+                        <div style="background: rgba(239,68,68,0.1); padding: 8px 12px; border-radius: 8px; text-align: center; font-size: 0.75rem; color: #ef4444; font-weight: 700;">7일 시청 기한이 종료되었습니다. 시청 연장은 [행정 신청] 탭에서 원장님께 신청하실 수 있습니다.
                         </div>
                     </div>
                 </div>
@@ -14898,7 +14897,7 @@ async function loadStudentVods() {
                     <div style="margin-bottom: 18px;">
                         <div style="font-size: 0.88rem; font-weight: 800; color: #4338ca; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
                             <span class="material-symbols-rounded" style="font-size: 1.1rem;">video_library</span>
-                            <span>📺 학원 공식 VOD 강좌 / 복습 영상관</span>
+                            <span>학원 공식 VOD 강좌 / 복습 영상관</span>
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 10px;">
                             ${libList.map(item => `
@@ -14911,7 +14910,7 @@ async function loadStudentVods() {
                                     </div>
                                     <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; background: rgba(0,0,0,0.1); padding: 8px 12px; border-radius: 8px;">
                                         <div style="flex: 1; min-width: 0;">
-                                            ${item.password ? `<span style="font-size: 0.75rem; color: #b45309; background: rgba(245,158,11,0.15); padding: 3px 8px; border-radius: 6px; font-weight: 800; display: inline-block;">🔑 시청 비번: <b>${item.password}</b></span>` : '<span style="font-size: 0.75rem; color: #10b981; font-weight: 700;">🔓 전체 공개 영상</span>'}
+                                            ${item.password ? `<span style="font-size: 0.75rem; color: #b45309; background: rgba(245,158,11,0.15); padding: 3px 8px; border-radius: 6px; font-weight: 800; display: inline-block;">시청 비번: <b>${item.password}</b></span>` : '<span style="font-size: 0.75rem; color: #10b981; font-weight: 700;">전체 공개 영상</span>'}
                                         </div>
                                         <a href="${item.video_url}" target="_blank" class="btn" style="margin-left: auto; flex-shrink: 0; padding: 6px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #a855f7, #7e22ce); color: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
                                             ▶️ 영상 시청하기
@@ -14937,7 +14936,7 @@ async function loadStudentVods() {
                         <div style="margin-bottom: 14px;">
                             <div style="font-size: 0.88rem; font-weight: 800; color: #4338ca; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
                                 <span class="material-symbols-rounded" style="font-size: 1.1rem;">assignment</span>
-                                <span>🎬 나에게 배정된 1:1 맞춤 VOD (7일 락)</span>
+                                <span>나에게 배정된 1:1 맞춤 VOD (7일 락)</span>
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 10px;">
                                 ${vods.map(v => {
@@ -14947,7 +14946,7 @@ async function loadStudentVods() {
                                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                                 <div style="font-weight: 800; font-size: 0.9rem; color: var(--text-primary);">🎬 ${v.vod_title}</div>
                                                 <span style="background: ${isExpired ? '#ef4444' : '#6366f1'}; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 800;">
-                                                    ${isExpired ? '🔒 기한 만료' : `⏳ 남은 시간: ${v.remaining_hours}시간`}
+                                                    ${isExpired ? '기한 만료' : `⏳ 남은 시간: ${v.remaining_hours}시간`}
                                                 </span>
                                             </div>
                                             ${!isExpired ? `
@@ -14960,7 +14959,7 @@ async function loadStudentVods() {
                                                 </div>
                                             `}
                                             <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.76rem; color: var(--text-secondary);">
-                                                <div>진도율: <strong style="color: #34d399;">${v.watch_progress_pct}%</strong> ${v.is_completed ? '✅ 수강 완료' : ''}</div>
+                                                <div>진도율: <strong style="color: #34d399;">${v.watch_progress_pct}%</strong> ${v.is_completed ? '수강 완료' : ''}</div>
                                                 <div>과제 상태: <strong style="color: ${v.is_homework_verified ? '#10b981' : '#f59e0b'};">${v.is_homework_verified ? '검수 완료' : (v.is_homework_submitted ? '제출 완료 (검수중)' : '미제출')}</strong></div>
                                             </div>
                                         </div>
@@ -15003,7 +15002,7 @@ async function loadStudentExamHistory() {
                 </div>
                 <div style="text-align: right;">
                     <div style="font-weight: 800; font-size: 0.95rem; color: #10b981;">상위 3.2%</div>
-                    <div style="font-size: 0.72rem; font-weight: 700; color: #10b981;">🔺 최상위 유지</div>
+                    <div style="font-size: 0.72rem; font-weight: 700; color: #10b981;">최상위 유지</div>
                 </div>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 14px;">
@@ -15015,7 +15014,7 @@ async function loadStudentExamHistory() {
                 </div>
                 <div style="text-align: right;">
                     <div style="font-weight: 800; font-size: 0.95rem; color: #10b981;">상위 1.8%</div>
-                    <div style="font-size: 0.72rem; font-weight: 700; color: #10b981;">🔺 상승세</div>
+                    <div style="font-size: 0.72rem; font-weight: 700; color: #10b981;">상승세</div>
                 </div>
             </div>
         `;
@@ -15058,7 +15057,7 @@ async function handleUploadExamScore(e) {
     if (!currentStudent || !currentStudent.id) return;
 
     if (isDemoMode || currentStudent?.id === 9999) {
-        alert("🎉 [체험 모드] 주차별 성적 제출 시뮬레이션이 완료되었습니다! (+50P 지급)\n이어서 1:1 맞춤 문진표가 팝업됩니다.");
+        alert("[체험 모드] 주차별 성적 제출 시뮬레이션이 완료되었습니다! (+50P 지급)\n이어서 1:1 맞춤 문진표가 팝업됩니다.");
         document.getElementById("exam-score-raw").value = "";
         document.getElementById("diagnostic-survey-modal").style.display = "flex";
         return;
@@ -15200,7 +15199,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // ============================================================================
 
-// 🏢 [Multi-Facility B2B] 재학 중인 다중 학원 / 관리형 독서실 통합 스위처 엔진
+// [Multi-Facility B2B] 재학 중인 다중 학원 / 관리형 독서실 통합 스위처 엔진
 
 // ============================================================================
 
@@ -15304,7 +15303,7 @@ async function handleAddNewFacility(e) {
     if (!code) return;
 
     if (isDemoMode || currentStudent?.id === 9999) {
-        alert("✨ [체험 모드] 가상 기관 등록이 시뮬레이션되었습니다.");
+        alert("[체험 모드] 가상 기관 등록이 시뮬레이션되었습니다.");
         document.getElementById("add-facility-modal").style.display = "none";
         return;
     }
@@ -15469,7 +15468,7 @@ async function changeStudentPassword() {
 
         if (res.ok) {
 
-            alert("✓ 비밀번호가 성공적으로 변경되었습니다! 다음 로그인부터 새 비밀번호를 사용해 주세요.");
+            alert("비밀번호가 성공적으로 변경되었습니다! 다음 로그인부터 새 비밀번호를 사용해 주세요.");
 
             if (document.getElementById("mypage-current-password")) document.getElementById("mypage-current-password").value = "";
 
@@ -15670,7 +15669,7 @@ function switchDemoPersona(role) {
 
         loadTimetable();
 
-        // 🏫 정시 합격예측기 폼에 현실적인 문과 모평 성적 사전 주입 & 잠금
+        // 정시 합격예측기 폼에 현실적인 문과 모평 성적 사전 주입 & 잠금
         setTimeout(() => {
             const gy = document.getElementById("pred-gyeyeol");
             const mt = document.getElementById("pred-math-type");
@@ -15709,7 +15708,7 @@ window.switchDemoPersona = switchDemoPersona;
 function exitDemoExperience() {
     if (!confirm("모델하우스(체험 모드)를 종료하고 로그인 화면으로 돌아가시겠습니까?")) return;
 
-    // 🛡️ 데모 잔상 및 상태 완전 초기화
+    // 데모 잔상 및 상태 완전 초기화
     resetSessionState();
     currentDemoPersona = 'DIRECTOR';
 
@@ -15777,16 +15776,15 @@ function renderDemoDirectorStudents() {
         if (st.statusType === "study") {
             statusBadge = `<span style="background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; font-weight: 800;">${st.status}</span>`;
         } else if (st.statusType === "warning") {
-            statusBadge = `<span style="background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; font-weight: 800;">⚠️ ${st.status}</span>`;
+            statusBadge = `<span style="background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; font-weight: 800;">${st.status}</span>`;
         } else if (st.statusType === "danger") {
-            statusBadge = `<span style="background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; font-weight: 800;">🔒 ${st.status}</span>`;
+            statusBadge = `<span style="background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; font-weight: 800;">${st.status}</span>`;
         } else {
             statusBadge = `<span style="background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; font-weight: 800;">${st.status}</span>`;
         }
 
         const redCardBtn = `
-            <button onclick="demoIssueRedCard(${st.id}, '${st.name}')" class="btn" style="padding: 4px 8px; font-size: 0.72rem; font-weight: 800; background: #dc2626; color: white; border-radius: 6px; white-space: nowrap;">
-                🟥 레드카드
+            <button onclick="demoIssueRedCard(${st.id}, '${st.name}')" class="btn" style="padding: 4px 8px; font-size: 0.72rem; font-weight: 800; background: #dc2626; color: white; border-radius: 6px; white-space: nowrap;">레드카드
             </button>
         `;
 
@@ -15959,7 +15957,7 @@ window.demoDeleteTimetablePlan = demoDeleteTimetablePlan;
 
 
 // ==============================================================================
-// 📝 16. 주차별 디지털 OMR 직접 마킹 & 실시간 자동 채점 & 원장 등급컷 JS 엔진
+// 16. 주차별 디지털 OMR 직접 마킹 & 실시간 자동 채점 & 원장 등급컷 JS 엔진
 // ==============================================================================
 
 let currentStudentOmrMarks = {};
@@ -16161,19 +16159,19 @@ function renderDigitalOmrPad() {
     for (let i = 1; i <= totalQ; i++) {
         // Section separator headers
         if (era === "2022_2027" && sub.includes("국어")) {
-            if (i === 1) html += `<div style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 4px 0;">📌 [공통 1~34번: 독서·문학] (76점)</div>`;
-            if (i === 35) html += `<div style="background: rgba(251,191,36,0.15); color: #fbbf24; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 8px 0 4px;">🎯 [선택 35~45번: ${elec || '선택과목'}] (24점)</div>`;
+            if (i === 1) html += `<div style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 4px 0;">[공통 1~34번: 독서·문학] (76점)</div>`;
+            if (i === 35) html += `<div style="background: rgba(251,191,36,0.15); color: #fbbf24; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 8px 0 4px;">[선택 35~45번: ${elec || '선택과목'}] (24점)</div>`;
         } else if (era === "2022_2027" && sub.includes("수학")) {
-            if (i === 1) html += `<div style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 4px 0;">📌 [공통 객관식 1~15번: 수학I·II]</div>`;
-            if (i === 16) html += `<div style="background: rgba(56,189,248,0.15); color: #38bdf8; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 8px 0 4px;">✏️ [공통 단답형 주관식 16~22번: 정수 0~999]</div>`;
-            if (i === 23) html += `<div style="background: rgba(251,191,36,0.15); color: #fbbf24; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 8px 0 4px;">🎯 [선택 객관식 23~28번: ${elec || '미적분'}]</div>`;
-            if (i === 29) html += `<div style="background: rgba(244,63,94,0.15); color: #fb7185; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 8px 0 4px;">✏️ [선택 단답형 주관식 29~30번: ${elec || '미적분'} 정수 0~999]</div>`;
+            if (i === 1) html += `<div style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 4px 0;">[공통 객관식 1~15번: 수학I·II]</div>`;
+            if (i === 16) html += `<div style="background: rgba(56,189,248,0.15); color: #38bdf8; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 8px 0 4px;">[공통 단답형 주관식 16~22번: 정수 0~999]</div>`;
+            if (i === 23) html += `<div style="background: rgba(251,191,36,0.15); color: #fbbf24; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 8px 0 4px;">[선택 객관식 23~28번: ${elec || '미적분'}]</div>`;
+            if (i === 29) html += `<div style="background: rgba(244,63,94,0.15); color: #fb7185; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 8px 0 4px;">[선택 단답형 주관식 29~30번: ${elec || '미적분'} 정수 0~999]</div>`;
         } else if (era === "2021_PREV" && sub.includes("수학")) {
-            if (i === 1) html += `<div style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 4px 0;">📌 [객관식 1~21번: ${elec || '수학 가형'}] (69점)</div>`;
-            if (i === 22) html += `<div style="background: rgba(56,189,248,0.15); color: #38bdf8; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 8px 0 4px;">✏️ [단답형 주관식 22~30번: ${elec || '수학 가형'} 정수 0~999] (31점)</div>`;
+            if (i === 1) html += `<div style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 4px 0;">[객관식 1~21번: ${elec || '수학 가형'}] (69점)</div>`;
+            if (i === 22) html += `<div style="background: rgba(56,189,248,0.15); color: #38bdf8; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 8px 0 4px;">[단답형 주관식 22~30번: ${elec || '수학 가형'} 정수 0~999] (31점)</div>`;
         } else if (era === "2028_PLUS" && sub.includes("수학")) {
-            if (i === 1) html += `<div style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 4px 0;">📌 [객관식 1~21번]</div>`;
-            if (i === 22) html += `<div style="background: rgba(56,189,248,0.15); color: #38bdf8; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 8px 0 4px;">✏️ [단답형 주관식 22~30번: 정수 0~999]</div>`;
+            if (i === 1) html += `<div style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 4px 0;">[객관식 1~21번]</div>`;
+            if (i === 22) html += `<div style="background: rgba(56,189,248,0.15); color: #38bdf8; padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; margin: 8px 0 4px;">[단답형 주관식 22~30번: 정수 0~999]</div>`;
         }
 
         const isShortAnswer = (sub.includes("수학") && (
@@ -16382,7 +16380,7 @@ window.toggleOmrDetailComparison = toggleOmrDetailComparison;
 
 
 // ==============================================================================
-// 🏢 17. 원장 관제실: 시험지 & 1~4등급컷 관리 & 학부모 카카오 알림톡 발송
+// 17. 원장 관제실: 시험지 & 1~4등급컷 관리 & 학부모 카카오 알림톡 발송
 // ==============================================================================
 
 function updateGradeCutPlaceholders() {
@@ -16483,8 +16481,7 @@ async function loadAdminExamsList() {
                         <div style="font-size: 0.82rem; font-weight: 800; color: #34d399;">[${ex.exam_week}주차 ${ex.subject}] ${ex.title}</div>
                         <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">총 ${ex.total_questions}문항 · 제한시간 ${ex.time_limit_minutes}분 · 등급컷 기준: ${ex.grade_mode === 'RAW_SCORE' ? '원점수' : '틀린개수'} (1등급: ${ex.cut_1})</div>
                     </div>
-                    <button onclick="alert('📲 [카카오 알림톡 일괄 발송]\n${ex.exam_week}주차 ${ex.subject} 응시 재원생 전원의 채점 리포트 및 원장 처방전이 학부모님께 즉시 발송되었습니다.');" class="btn" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white;">
-                        📲 학부모 알림톡 발송
+                    <button onclick="alert('[카카오 알림톡 일괄 발송]\n${ex.exam_week}주차 ${ex.subject} 응시 재원생 전원의 채점 리포트 및 원장 처방전이 학부모님께 즉시 발송되었습니다.');" class="btn" style="padding: 6px 12px; font-size: 0.75rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white;">학부모 알림톡 발송
                     </button>
                 </div>
             `).join('');
@@ -16499,7 +16496,7 @@ window.switchExamSubject = switchExamSubject;
 window.switchExamYearSelect = switchExamYearSelect;
 
 // ============================================================================
-// ✨ Phase 8: 초등 / 중등 / 고등 학교급별 독립 라우팅 & 전용 기능 모듈
+// Phase 8: 초등 / 중등 / 고등 학교급별 독립 라우팅 & 전용 기능 모듈
 // ============================================================================
 
 function setSchoolLevelSignup(level) {
@@ -17109,7 +17106,7 @@ function checkElemQuiz(optionIndex) {
     feedback.style.display = 'block';
     if (optionIndex === 1) { // 설거지가 맞음
         feedback.style.color = '#22c55e';
-        feedback.innerHTML = '🎉 <b>딩동댕! 정답입니다!</b> \'설거지\'가 표준어예요! (+20 EXP 획득 🌟)';
+        feedback.innerHTML = '<b>딩동댕! 정답입니다!</b> \'설거지\'가 표준어예요! (+20 EXP 획득 🌟)';
         if (currentStudent) {
             currentStudent.pet_exp = (currentStudent.pet_exp || 0) + 20;
             refreshElemPetUI(currentStudent);
@@ -17133,19 +17130,19 @@ function handleTracerSchoolSelect(val) {
             customInp.value = '';
             customInp.focus();
         }
-        if (hint) hint.innerText = '📋 목록에서 선택';
+        if (hint) hint.innerText = '목록에서 선택';
     } else if (val === 'AUTO_MY_SCHOOL') {
         if (customInp) {
             customInp.style.display = 'none';
             customInp.value = (typeof currentStudent !== 'undefined' && currentStudent) ? (currentStudent.high_school || currentStudent.school_name || '') : '';
         }
-        if (hint) hint.innerText = '✏️ 학교명 직접 입력';
+        if (hint) hint.innerText = '학교명 직접 입력';
     } else {
         if (customInp) {
             customInp.style.display = 'none';
             customInp.value = val;
         }
-        if (hint) hint.innerText = '✏️ 학교명 직접 입력';
+        if (hint) hint.innerText = '학교명 직접 입력';
     }
 }
 window.handleTracerSchoolSelect = handleTracerSchoolSelect;
@@ -17159,12 +17156,12 @@ function toggleTracerCustomSchool() {
         customInp.style.display = 'block';
         sel.value = 'CUSTOM';
         customInp.focus();
-        if (hint) hint.innerText = '📋 목록에서 선택';
+        if (hint) hint.innerText = '목록에서 선택';
     } else {
         customInp.style.display = 'none';
         sel.value = 'AUTO_MY_SCHOOL';
         customInp.value = (typeof currentStudent !== 'undefined' && currentStudent) ? (currentStudent.high_school || currentStudent.school_name || '') : '';
-        if (hint) hint.innerText = '✏️ 학교명 직접 입력';
+        if (hint) hint.innerText = '학교명 직접 입력';
     }
 }
 window.toggleTracerCustomSchool = toggleTracerCustomSchool;
@@ -17197,7 +17194,7 @@ async function handleTracerImageUpload(event) {
         if (previewImg) previewImg.src = currentTracerImageBase64;
         if (previewArea) previewArea.style.display = 'block';
         if (ocrStatus) {
-            ocrStatus.innerHTML = '<span style="color: #818cf8;">🤖 Gemini AI Vision이 문제 지문과 수식을 실시간 텍스트로 추출 중입니다...</span>';
+            ocrStatus.innerHTML = '<span style="color: #818cf8;">Gemini AI Vision이 문제 지문과 수식을 실시간 텍스트로 추출 중입니다...</span>';
         }
 
         try {
@@ -17225,7 +17222,7 @@ async function handleTracerImageUpload(event) {
 
             const data = await res.json();
             if (ocrStatus) {
-                ocrStatus.innerHTML = '<span style="color: #10b981;">✅ AI 지문 추출 및 출처 매칭 완료!</span>';
+                ocrStatus.innerHTML = '<span style="color: #10b981;">AI 지문 추출 및 출처 매칭 완료!</span>';
             }
 
             if (data.extracted_text && queryTextarea) {
@@ -17244,7 +17241,7 @@ async function handleTracerImageUpload(event) {
             
             if (data.school_trend && trendBox) {
                 trendBox.style.display = 'block';
-                trendBox.innerHTML = `<b>📊 ${data.school_trend.school_name} 출제 경향 분석:</b><br>${data.school_trend.trend_summary}<br><span style="font-size:0.72rem; color:#a5b4fc;">EBS 연계율: ${data.school_trend.ebs_ratio}% · 평가원 변형: ${data.school_trend.past_exam_ratio}% · 시중교재: ${data.school_trend.commercial_book_ratio}%</span>`;
+                trendBox.innerHTML = `<b>${data.school_trend.school_name} 출제 경향 분석:</b><br>${data.school_trend.trend_summary}<br><span style="font-size:0.72rem; color:#a5b4fc;">EBS 연계율: ${data.school_trend.ebs_ratio}% · 평가원 변형: ${data.school_trend.past_exam_ratio}% · 시중교재: ${data.school_trend.commercial_book_ratio}%</span>`;
             }
 
             if (itemsList && typeof renderExamSourceTracerResults === 'function') {
@@ -17289,7 +17286,7 @@ async function runExamSourceTrace() {
 
     if (resultBox) {
         resultBox.style.display = 'block';
-        if (itemsList) itemsList.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-secondary);">🔍 공공 기출 DB, EBS 연계교재, 시중 대표 문제집 정밀 스캔 중...</div>';
+        if (itemsList) itemsList.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-secondary);">공공 기출 DB, EBS 연계교재, 시중 대표 문제집 정밀 스캔 중...</div>';
     }
 
     try {
@@ -17316,7 +17313,7 @@ async function runExamSourceTrace() {
 
         if (data.school_trend && trendBox) {
             trendBox.style.display = 'block';
-            trendBox.innerHTML = `<b>📊 ${data.school_trend.school_name} 출제 경향 분석:</b><br>${data.school_trend.trend_summary}<br><span style="font-size:0.72rem; color:#a5b4fc;">EBS 연계율: ${data.school_trend.ebs_ratio}% · 평가원 변형: ${data.school_trend.past_exam_ratio}% · 시중교재: ${data.school_trend.commercial_book_ratio}%</span>`;
+            trendBox.innerHTML = `<b>${data.school_trend.school_name} 출제 경향 분석:</b><br>${data.school_trend.trend_summary}<br><span style="font-size:0.72rem; color:#a5b4fc;">EBS 연계율: ${data.school_trend.ebs_ratio}% · 평가원 변형: ${data.school_trend.past_exam_ratio}% · 시중교재: ${data.school_trend.commercial_book_ratio}%</span>`;
         } else if (trendBox) {
             trendBox.style.display = 'none';
         }
@@ -17481,12 +17478,11 @@ async function loadSchoolBibleSummary(schoolName, subject) {
                                 <span style="font-size: 0.7rem; background: #6366f1; color: white; padding: 1px 6px; border-radius: 4px; font-weight: 800;">${item.subject || '공통'}</span>
                                 <span style="font-size: 0.84rem; font-weight: 800; color: #ffffff;">${item.exam_title || '시험'} ${item.question_num || ''}</span>
                             </div>
-                            <span style="font-size: 0.7rem; color: #10b981; font-weight: 800;">✓ 100% 팩트 채택</span>
+                            <span style="font-size: 0.7rem; color: #10b981; font-weight: 800;">100% 팩트 채택</span>
                         </div>
-                        <div style="font-size: 0.78rem; color: #fde68a; font-weight: 700; margin-bottom: 2px;">
-                            📚 원본 출처: ${bookName}${detail}
+                        <div style="font-size: 0.78rem; color: #fde68a; font-weight: 700; margin-bottom: 2px;">원본 출처: ${bookName}${detail}
                         </div>
-                        ${item.adaptation_notes ? `<div style="font-size: 0.74rem; color: #cbd5e1; line-height: 1.4;">📝 변형: ${item.adaptation_notes}</div>` : ''}
+                        ${item.adaptation_notes ? `<div style="font-size: 0.74rem; color: #cbd5e1; line-height: 1.4;">변형: ${item.adaptation_notes}</div>` : ''}
                     </div>
                 `;
                 }).join("");
@@ -17539,7 +17535,7 @@ async function loadExamSourceQuestionsFeed() {
         feed.innerHTML = questions.map(q => {
             const isResolved = q.is_resolved;
             const statusBadgeClass = isResolved ? "qa-status-badge resolved" : "qa-status-badge pending";
-            const statusText = isResolved ? "🌟 채택 완료" : "⏳ 답변 대기중";
+            const statusText = isResolved ? "채택 완료" : "⏳ 답변 대기중";
             const textSnippet = q.question_text ? (q.question_text.length > 80 ? q.question_text.substring(0, 80) + "..." : q.question_text) : "(사진 등록 문항)";
 
             return `
@@ -17560,7 +17556,7 @@ async function loadExamSourceQuestionsFeed() {
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: var(--text-secondary); border-top: 1px solid rgba(255,255,255,0.04); padding-top: 6px;">
                         <span>질문자: <b>${q.author_name}</b> · ${q.created_at ? q.created_at.substring(5, 16) : ''}</span>
-                        <span style="color: #38bdf8; font-weight: 700;">💬 제보 답변 ${q.answers_count}개 &gt;</span>
+                        <span style="color: #38bdf8; font-weight: 700;">제보 답변 ${q.answers_count}개 &gt;</span>
                     </div>
                 </div>
             `;
@@ -17651,7 +17647,7 @@ async function handleSendExamSourceAsk(e) {
         });
 
         if (res.ok) {
-            alert("🎉 출처 질문이 성공적으로 등록되었습니다!\n동료와 선배 튜터들이 출처를 제보하면 실시간으로 알림을 드립니다.");
+            alert("출처 질문이 성공적으로 등록되었습니다!\n동료와 선배 튜터들이 출처를 제보하면 실시간으로 알림을 드립니다.");
             closeExamSourceAskModal();
             switchTracerSubMode("qa");
             loadExamSourceQuestionsFeed();
@@ -17687,7 +17683,7 @@ async function openExamSourceDetailModal(questionId) {
         const statusBadge = document.getElementById("detail-qa-status-badge");
         if (statusBadge) {
             statusBadge.className = q.is_resolved ? "qa-status-badge resolved" : "qa-status-badge pending";
-            statusBadge.innerText = q.is_resolved ? "🌟 채택 완료" : "⏳ 답변 대기중";
+            statusBadge.innerText = q.is_resolved ? "채택 완료" : "⏳ 답변 대기중";
         }
         const schoolBadge = document.getElementById("detail-qa-school-badge");
         if (schoolBadge) schoolBadge.innerText = q.school_name;
@@ -17734,17 +17730,15 @@ async function openExamSourceDetailModal(questionId) {
                                     ${ans.is_tutor ? '<span style="font-size: 0.68rem; background: #6366f1; color: white; padding: 1px 5px; border-radius: 4px; font-weight: 800;">선배 튜터</span>' : ''}
                                     <span style="font-size: 0.7rem; color: var(--text-secondary);">${ans.created_at ? ans.created_at.substring(5, 16) : ''}</span>
                                 </div>
-                                ${isAccepted ? '<span style="font-size: 0.75rem; color: #10b981; font-weight: 900; background: rgba(16,185,129,0.15); padding: 2px 8px; border-radius: 12px; border: 1px solid #10b981;">🌟 정답 채택 완료</span>' : ''}
+                                ${isAccepted ? '<span style="font-size: 0.75rem; color: #10b981; font-weight: 900; background: rgba(16,185,129,0.15); padding: 2px 8px; border-radius: 12px; border: 1px solid #10b981;">정답 채택 완료</span>' : ''}
                             </div>
-                            <div style="font-size: 0.85rem; font-weight: 800; color: #fbbf24; margin-bottom: 4px;">
-                                📚 출처: ${ans.source_book_name} ${ans.source_detail || ''}
+                            <div style="font-size: 0.85rem; font-weight: 800; color: #fbbf24; margin-bottom: 4px;">출처: ${ans.source_book_name} ${ans.source_detail || ''}
                             </div>
-                            ${ans.adaptation_notes ? `<div style="font-size: 0.78rem; color: #cbd5e1; line-height: 1.45; margin-bottom: 8px;">📝 <b>변형 분석:</b> ${ans.adaptation_notes}</div>` : ''}
+                            ${ans.adaptation_notes ? `<div style="font-size: 0.78rem; color: #cbd5e1; line-height: 1.45; margin-bottom: 8px;"><b>변형 분석:</b> ${ans.adaptation_notes}</div>` : ''}
                             
                             ${canAdopt ? `
                                 <div style="text-align: right; margin-top: 6px;">
-                                    <button type="button" class="btn" onclick="acceptExamSourceAnswer(${q.id}, ${ans.id})" style="padding: 6px 12px; font-size: 0.76rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 6px;">
-                                        🌟 이 출처 채택하기 (+500P 지급)
+                                    <button type="button" class="btn" onclick="acceptExamSourceAnswer(${q.id}, ${ans.id})" style="padding: 6px 12px; font-size: 0.76rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 6px;">이 출처 채택하기 (+500P 지급)
                                     </button>
                                 </div>
                             ` : ''}
@@ -17792,7 +17786,7 @@ async function handleSendExamSourceAnswer(e) {
         });
 
         if (res.ok) {
-            alert("🎉 출처 제보 답변이 등록되었습니다!\n질문자가 확인 후 답변을 채택하면 +500P 현상금이 지급됩니다.");
+            alert("출처 제보 답변이 등록되었습니다!\n질문자가 확인 후 답변을 채택하면 +500P 현상금이 지급됩니다.");
             document.getElementById("answer-source-book-name").value = "";
             if (document.getElementById("answer-source-detail")) document.getElementById("answer-source-detail").value = "";
             if (document.getElementById("answer-adaptation-notes")) document.getElementById("answer-adaptation-notes").value = "";
@@ -17824,7 +17818,7 @@ async function acceptExamSourceAnswer(questionId, answerId) {
         });
 
         if (res.ok) {
-            alert("🎉 정답 채택이 완료되었습니다!\n답변자에게 500P가 지급되었으며, 우리 학교 출제 바이블 통계에 100% 검증 족보로 등록되었습니다.");
+            alert("정답 채택이 완료되었습니다!\n답변자에게 500P가 지급되었으며, 우리 학교 출제 바이블 통계에 100% 검증 족보로 등록되었습니다.");
             openExamSourceDetailModal(questionId);
             loadExamSourceQuestionsFeed();
             onBibleSchoolOrSubjectChange();
@@ -17930,7 +17924,7 @@ function renderStudentSeatUI(data) {
     if (modeBadge) {
         if (isFixed) {
             modeBadge.className = "seat-mode-badge fixed";
-            modeBadge.innerText = "🔒 원장 전담 지정좌석제";
+            modeBadge.innerText = "원장 전담 지정좌석제";
         } else {
             modeBadge.className = "seat-mode-badge";
             modeBadge.innerText = "자유선택/선착순제";
@@ -17955,7 +17949,7 @@ function renderStudentSeatUI(data) {
             `;
         } else {
             if (isFixed) {
-                mySeatText.innerHTML = `<span style="color: #f59e0b; font-weight: 800;">🔒 원장실 좌석 배정 대기 중</span>`;
+                mySeatText.innerHTML = `<span style="color: #f59e0b; font-weight: 800;">원장실 좌석 배정 대기 중</span>`;
             } else {
                 mySeatText.innerHTML = `<span class="seat-empty-title">미배정</span> <span class="seat-empty-hint">(빈 좌석 터치 시 즉시 입실)</span>`;
             }
@@ -18016,7 +18010,7 @@ function handleStudentSeatCardClick(seatId, seatNum, status) {
     }
 
     if (isFixed) {
-        alert("🔒 본 기관(독서실/학원)은 원장 전담 [지정좌석제]로 운영 중입니다.\n\n좌석 변경 및 신규 배정은 원장실에 문의해 주세요.");
+        alert("본 기관(독서실/학원)은 원장 전담 [지정좌석제]로 운영 중입니다.\n\n좌석 변경 및 신규 배정은 원장실에 문의해 주세요.");
         return;
     }
 
@@ -18062,7 +18056,7 @@ async function handleStudentSeatAction(action, seatId, seatNum) {
 window.handleStudentSeatAction = handleStudentSeatAction;
 
 // ============================================================================
-// 🎨 테마 초기화 & 적용 (Enterprise God-mode Theme Persistence)
+// 테마 초기화 & 적용 (Enterprise God-mode Theme Persistence)
 // ============================================================================
 function initAppTheme() {
     try {
@@ -18076,7 +18070,7 @@ function initAppTheme() {
 window.initAppTheme = initAppTheme;
 
 // ============================================================================
-// 🚨 결제선생 수강료 미납 인질 프로토콜(Hostage Protocol) 상태 조회 및 잠금/해제 처리
+// 결제선생 수강료 미납 인질 프로토콜(Hostage Protocol) 상태 조회 및 잠금/해제 처리
 // ============================================================================
 let currentActiveOverdueInvoice = null;
 
@@ -18336,7 +18330,7 @@ async function loadCampusOccupation() {
             if (targetInfo) {
                 items.push({
                     type: "TARGET",
-                    prefix: "🎯 1지망 목표",
+                    prefix: "1지망 목표",
                     name: targetInfo.univ_name,
                     hours: targetInfo.avg_hours,
                     hoursStr: `주간 평균 ${targetInfo.avg_hours}시간`,
@@ -18347,7 +18341,7 @@ async function loadCampusOccupation() {
             if (baselineInfo) {
                 items.push({
                     type: "BASELINE",
-                    prefix: "🛡️ 마지노선",
+                    prefix: "마지노선",
                     name: baselineInfo.univ_name,
                     hours: baselineInfo.avg_hours,
                     hoursStr: `주간 평균 ${baselineInfo.avg_hours}시간`,
@@ -19593,7 +19587,7 @@ async function equipUserTitle(conditionCode) {
 window.equipUserTitle = equipUserTitle;
 
 // ==============================================================================
-// 🎓 Phase 12: 공인 멘토 인증 뱃지 관리 & 탈부착 컨트롤러 (No Emojis)
+// Phase 12: 공인 멘토 인증 뱃지 관리 & 탈부착 컨트롤러 (No Emojis)
 // ==============================================================================
 async function loadMyPageAlumniBadges() {
     const section = document.getElementById("mypage-alumni-badges-section");
@@ -19683,6 +19677,82 @@ async function loadAsmrCurationCard() {
     }
 }
 window.loadAsmrCurationCard = loadAsmrCurationCard;
+
+// ==========================================
+// 📺 EBS 수능특강 & 인강 인앱 몰입관 & 텔레메트리 트래커
+// ==========================================
+let ebsLectureConfig = {
+    'KOREAN': { title: '2027 수능특강 국어 독서·문학 연계 총정리', subject: '국어', embed: 'https://www.youtube.com/embed/videoseries?list=PL3v6m91F-qfF_Q6G9-sJm5y9u7K6z5g-s' },
+    'MATH': { title: '2027 수능특강 수학I·수학II 고난도 기출 분석', subject: '수학', embed: 'https://www.youtube.com/embed/videoseries?list=PL3v6m91F-qfG_Q6G9-sJm5y9u7K6z5g-s' },
+    'ENGLISH': { title: '2027 수능특강 영어 직접연계 핵심 구문독해', subject: '영어', embed: 'https://www.youtube.com/embed/videoseries?list=PL3v6m91F-qfH_Q6G9-sJm5y9u7K6z5g-s' },
+    'ILWON': { title: '일원학원 수능을 관통하는 단 하나의 원리 독점 특강', subject: '국어', embed: 'https://www.youtube.com/embed/videoseries?list=PL3v6m91F-qfI_Q6G9-sJm5y9u7K6z5g-s' }
+};
+let currentEbsKey = 'KOREAN';
+let ebsSessionStartTime = null;
+
+function openEbsVodModal() {
+    const modal = document.getElementById('ebs-vod-modal');
+    if (!modal) return;
+    ebsSessionStartTime = new Date();
+    selectEbsLecture('KOREAN');
+    modal.style.display = 'flex';
+}
+
+function closeEbsVodModal() {
+    const modal = document.getElementById('ebs-vod-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function selectEbsLecture(lectureKey) {
+    currentEbsKey = lectureKey;
+    const item = ebsLectureConfig[lectureKey] || ebsLectureConfig['KOREAN'];
+    const infoEl = document.getElementById('ebs-current-lecture-info');
+    if (infoEl) infoEl.innerHTML = `현재 강좌: <b>${item.title}</b>`;
+    const iframe = document.getElementById('ebs-video-iframe');
+    if (iframe && item.embed) iframe.src = item.embed;
+}
+
+async function completeEbsStudySession() {
+    const item = ebsLectureConfig[currentEbsKey] || ebsLectureConfig['KOREAN'];
+    const sid = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem('studentId') || '1', 10);
+    
+    let duration = 30;
+    if (ebsSessionStartTime) {
+        const elapsed = Math.round((new Date() - ebsSessionStartTime) / (1000 * 60));
+        duration = Math.max(15, elapsed);
+    }
+
+    try {
+        const res = await fetch('/api/student/ebs-telemetry', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                student_id: sid,
+                lecture_title: item.title,
+                subject: item.subject,
+                duration_minutes: duration,
+                focus_rate: 98
+            })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(`🎉 ${data.message || '학습 시간이 기록되었습니다!'}`);
+            closeEbsVodModal();
+            if (typeof fetchStudentInfo === 'function') {
+                fetchStudentInfo();
+            }
+        } else {
+            alert(data.detail || '기록 실패');
+        }
+    } catch(e) {
+        alert('서버 통신 실패');
+    }
+}
+
+window.openEbsVodModal = openEbsVodModal;
+window.closeEbsVodModal = closeEbsVodModal;
+window.selectEbsLecture = selectEbsLecture;
+window.completeEbsStudySession = completeEbsStudySession;
 
 // 자동 초기화 리스너 등록
 document.addEventListener("DOMContentLoaded", () => {

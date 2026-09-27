@@ -10695,9 +10695,212 @@ def update_tenant_settlement_account(payload: SettlementAccountUpdatePayload, db
         tenant.tuition_due_day = payload.tuition_due_day
 
     db.commit()
+# === 📦 17. PALIN OS ALL-IN-ONE 파놉티콘 생태계: 비품/쿠팡 파트너스, 교재 발주, 렌탈, 마케팅, EBS 텔레메트리 ===
+from app import procurement
+
+class CoupangConfigPayload(BaseModel):
+    partner_id: str
+    sub_id: Optional[str] = "palin_b2b"
+    access_key: Optional[str] = ""
+    secret_key: Optional[str] = ""
+    auto_rewrite_enabled: Optional[bool] = True
+
+class ConvertUrlPayload(BaseModel):
+    raw_url: str
+    partner_id: Optional[str] = None
+    sub_id: Optional[str] = None
+
+class CustomProcurementItemPayload(BaseModel):
+    category: Optional[str] = "CUSTOM"
+    category_name: Optional[str] = "원장 등록 비품"
+    title: str
+    spec: Optional[str] = "원장 지정 필수 소모품"
+    price: int
+    raw_url: str
+    icon: Optional[str] = "shopping_bag"
+
+class TextbookOrderPayload(BaseModel):
+    tenant_code: Optional[str] = "ILWON-2027"
+    academy_name: Optional[str] = "일원학원"
+    publisher: str
+    textbook_name: str
+    quantity: int
+    unit_price: Optional[int] = 15000
+    delivery_address: str
+    contact_phone: str
+    notes: Optional[str] = ""
+
+class RentalInquiryPayload(BaseModel):
+    tenant_code: Optional[str] = "ILWON-2027"
+    academy_name: Optional[str] = "일원학원"
+    director_name: Optional[str] = "원장"
+    phone: str
+    items: List[str]
+    preferred_company: Optional[str] = "무관(최저가/최대지원금)"
+    notes: Optional[str] = ""
+
+class MarketingCardCopyPayload(BaseModel):
+    student_name: str
+    school: str
+    grade_or_subject: str
+    score_before: str
+    score_after: str
+    study_period: str
+    academy_name: Optional[str] = "일원학원"
+
+class EbsTelemetryPayload(BaseModel):
+    student_id: int
+    lecture_title: str
+    subject: str
+    duration_minutes: int
+    focus_rate: Optional[int] = 100
+
+@app.get("/api/admin/procurement/config")
+def get_coupang_partner_config():
+    cfg = procurement.load_coupang_config()
     return {
         "status": "ok",
-        "message": f"[{tenant.name}] 정산 계좌 및 서브몰(MID: {tenant.submall_id}) 등록이 완료되었습니다."
+        "partner_id": cfg.get("partner_id", "AF5491299"),
+        "sub_id": cfg.get("sub_id", "palin_b2b"),
+        "has_api_keys": bool(cfg.get("access_key") and cfg.get("secret_key")),
+        "auto_rewrite_enabled": cfg.get("auto_rewrite_enabled", True),
+        "updated_at": cfg.get("updated_at")
+    }
+
+@app.post("/api/admin/procurement/config")
+def update_coupang_partner_config(payload: CoupangConfigPayload):
+    cfg = procurement.load_coupang_config()
+    cfg["partner_id"] = payload.partner_id.strip() if payload.partner_id else "AF5491299"
+    if payload.sub_id:
+        cfg["sub_id"] = payload.sub_id.strip()
+    if payload.access_key is not None:
+        cfg["access_key"] = payload.access_key.strip()
+    if payload.secret_key is not None:
+        cfg["secret_key"] = payload.secret_key.strip()
+    if payload.auto_rewrite_enabled is not None:
+        cfg["auto_rewrite_enabled"] = payload.auto_rewrite_enabled
+    procurement.save_coupang_config(cfg)
+    return {
+        "status": "ok",
+        "message": f"쿠팡 파트너스 설정(ID: {cfg['partner_id']})이 정상 저장되었습니다.",
+        "config": cfg
+    }
+
+@app.get("/api/admin/procurement/catalog")
+def get_procurement_catalog_api():
+    items = procurement.get_procurement_catalog()
+    return {"status": "ok", "items": items, "total_count": len(items)}
+
+@app.post("/api/admin/procurement/convert-url")
+def convert_procurement_url(payload: ConvertUrlPayload):
+    affiliate_url = procurement.build_affiliate_url(payload.raw_url, payload.partner_id, payload.sub_id)
+    return {
+        "status": "ok",
+        "raw_url": payload.raw_url,
+        "affiliate_url": affiliate_url
+    }
+
+@app.post("/api/admin/procurement/custom-items")
+def add_custom_procurement_item(payload: CustomProcurementItemPayload):
+    item = procurement.add_custom_item(payload.dict())
+    cfg = procurement.load_coupang_config()
+    item["affiliate_url"] = procurement.build_affiliate_url(item["raw_url"], cfg.get("partner_id"), cfg.get("sub_id"))
+    return {
+        "status": "ok",
+        "message": "우리 학원 전용 비품이 추가되었습니다.",
+        "item": item
+    }
+
+@app.delete("/api/admin/procurement/custom-items/{item_id}")
+def delete_custom_procurement_item(item_id: str):
+    success = procurement.delete_custom_item(item_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="해당 비품 항목을 찾을 수 없습니다.")
+    return {"status": "ok", "message": "비품 항목이 삭제되었습니다."}
+
+@app.get("/api/admin/procurement/textbook-orders")
+def get_textbook_orders_api():
+    orders = procurement.load_textbook_orders()
+    return {"status": "ok", "orders": orders}
+
+@app.post("/api/admin/procurement/textbook-orders")
+def submit_textbook_order_api(payload: TextbookOrderPayload):
+    order = procurement.create_textbook_order(payload.dict())
+    return {
+        "status": "ok",
+        "message": f"[{payload.publisher}] {payload.textbook_name} {payload.quantity}부 발주 신청이 접수되었습니다.",
+        "order": order
+    }
+
+@app.get("/api/admin/procurement/rental-inquiries")
+def get_rental_inquiries_api():
+    inquiries = procurement.load_rental_inquiries()
+    return {"status": "ok", "inquiries": inquiries}
+
+@app.post("/api/admin/procurement/rental-inquiries")
+def submit_rental_inquiry_api(payload: RentalInquiryPayload):
+    inquiry = procurement.create_rental_inquiry(payload.dict())
+    return {
+        "status": "ok",
+        "message": f"[{', '.join(payload.items)}] 렌탈 및 최대 지원금 비교 견적 신청이 완료되었습니다.",
+        "inquiry": inquiry
+    }
+
+@app.post("/api/admin/marketing/card-copy")
+def generate_marketing_card_copy(payload: MarketingCardCopyPayload):
+    headline = f"[{payload.academy_name}] {payload.student_name} 학생, {payload.study_period} 만에 {payload.grade_or_subject} {payload.score_before} ➔ {payload.score_after} 달성!"
+    subheading = f"{payload.school} {payload.student_name} | 단 하나의 원리로 증명한 진짜 실력의 변화"
+    bullet1 = f"✓ 철저한 순공 시간 통제와 일일 루틴 관리"
+    bullet2 = f"✓ {payload.grade_or_subject} 출제 의도 관통 1:1 오답 클리닉"
+    bullet3 = f"✓ {payload.study_period} 간의 집념이 만든 기적 같은 등급 수직 상승"
+    instagram_caption = f"""[{payload.academy_name} 성적 역전 신화]
+"{payload.score_before}에서 포기하지 않고 {payload.score_after}까지!"
+
+{payload.school} {payload.student_name} 학생이 {payload.study_period} 동안 {payload.academy_name}의 철저한 관리와 함께 일궈낸 놀라운 결과입니다.
+
+수능과 내신은 감이나 요행이 아닙니다.
+원리를 이해하고 흔들리지 않는 학습 시스템에 몰입할 때 성적은 필연적으로 상승합니다.
+
+다음 성적 역전의 주인공은 바로 당신입니다.
+
+교육 상담 및 입학 문의: {payload.academy_name} 관제실
+#수능국어 #성적역전 #{payload.school.replace(' ', '')} #{payload.academy_name} #일원학원 #수능만점"""
+
+    return {
+        "status": "ok",
+        "headline": headline,
+        "subheading": subheading,
+        "bullets": [bullet1, bullet2, bullet3],
+        "instagram_caption": instagram_caption
+    }
+
+@app.post("/api/student/ebs-telemetry")
+def record_ebs_telemetry(payload: EbsTelemetryPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+
+    session = models.StudySession(
+        student_id=student.id,
+        duration_minutes=payload.duration_minutes,
+        subject=payload.subject or "EBS 수능특강",
+        session_type="EBS_VOD",
+        memo=f"[EBS 인앱 완강] {payload.lecture_title} (집중도 {payload.focus_rate}%)",
+        started_at=datetime.now() - timedelta(minutes=payload.duration_minutes),
+        ended_at=datetime.now()
+    )
+    db.add(session)
+    
+    earned_pts = max(10, payload.duration_minutes // 2)
+    student.current_points = (student.current_points or 0) + earned_pts
+    student.diligence_score = (student.diligence_score or 0) + earned_pts
+    db.commit()
+
+    return {
+        "status": "ok",
+        "message": f"[{payload.lecture_title}] {payload.duration_minutes}분 학습 완료! (+{earned_pts} 포인트 획득)",
+        "earned_points": earned_pts,
+        "total_points": student.current_points
     }
 
 
