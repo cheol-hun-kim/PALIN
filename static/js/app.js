@@ -6341,23 +6341,17 @@ function applyRolePermissions(role) {
     const mypageAdminRow = document.getElementById('mypage-admin-row');
 
     if (mypageAdminRow) {
-
-        if (userRole === 'SUPER_ADMIN' || userRole === 'TENANT_ADMIN' || (isMasterUser && userRole !== 'STUDENT' && userRole !== 'PARENT')) {
-
+        if (userRole === 'SUPER_ADMIN' || userRole === 'TENANT_ADMIN' || userRole === 'DIRECTOR' || isMasterUser) {
             mypageAdminRow.style.display = 'flex';
-
         } else {
-
             mypageAdminRow.style.display = 'none';
-
         }
-
     }
 
-    // 3. Bottom Nav Admin Tab Visibility (Only visible to SUPER_ADMIN / DIRECTOR, HIDDEN from STUDENTS & PARENTS)
+    // 3. Bottom Nav Admin Tab Visibility (Only visible to SUPER_ADMIN / DIRECTOR / MASTER, HIDDEN from 일반 STUDENTS & PARENTS)
     const adminNavBtn = document.getElementById('nav-tab-admin');
     if (adminNavBtn) {
-        if (userRole === 'SUPER_ADMIN' || userRole === 'DIRECTOR' || userRole === 'TENANT_ADMIN') {
+        if (userRole === 'SUPER_ADMIN' || userRole === 'DIRECTOR' || userRole === 'TENANT_ADMIN' || isMasterUser) {
             adminNavBtn.style.display = 'flex';
         } else {
             adminNavBtn.style.display = 'none';

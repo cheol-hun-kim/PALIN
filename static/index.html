@@ -3281,33 +3281,41 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <div id="mypage-alumni-badges-list" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px;"></div>
                 </div>
 
-                <!-- Phase 11.3: 수능 칭호 도감 (100-Title Master Matrix) -->
+                <!-- Phase 11.3: 수능 칭호 도감 (100-Title Master Matrix) - 드롭다운 아코디언 -->
                 <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <!-- 아코디언 헤더 (클릭 시 접힘/펼침 토글) -->
+                    <div onclick="toggleAccordion('mypage-titles-accordion-body', 'mypage-titles-accordion-icon')" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 6px 0; user-select: none;">
                         <div style="display: flex; align-items: center; gap: 6px;">
-                            <span style="font-size: 0.82rem; font-weight: 800; color: var(--text-primary);">수능 칭호 도감</span>
-                            <span id="mypage-titles-progress" style="font-size: 0.68rem; color: #818cf8; font-weight: 700; background: rgba(129, 140, 248, 0.12); padding: 1px 6px; border-radius: 4px;">해금 0 / 100</span>
+                            <span class="material-symbols-rounded" style="font-size: 1.05rem; color: #818cf8;">military_tech</span>
+                            <span style="font-size: 0.84rem; font-weight: 800; color: var(--text-primary);">수능 칭호 도감</span>
+                            <span id="mypage-titles-progress" style="font-size: 0.68rem; color: #818cf8; font-weight: 700; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); padding: 1px 6px; border-radius: 4px;">해금 0 / 100</span>
                         </div>
-                        <span id="mypage-equipped-title-display" style="font-size: 0.72rem; color: #818cf8; font-weight: 700;">[트랙 인: 1열 탑승자]</span>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span id="mypage-equipped-title-display" style="font-size: 0.72rem; color: #818cf8; font-weight: 700;">[트랙 인: 1열 탑승자]</span>
+                            <span class="material-symbols-rounded" id="mypage-titles-accordion-icon" style="transition: transform 0.25s ease; color: var(--text-secondary); font-size: 1.25rem;">expand_more</span>
+                        </div>
                     </div>
 
-                    <!-- 칭호 카테고리 필터 탭 -->
-                    <div id="mypage-title-category-tabs" style="display: flex; gap: 4px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 6px; scrollbar-width: none;">
-                        <button type="button" class="btn title-tab active" onclick="filterTitlesByCategory('ALL')">전체 (100)</button>
-                        <button type="button" class="btn title-tab" id="mypage-tab-unlocked" onclick="filterTitlesByCategory('UNLOCKED')">해금됨</button>
-                        <button type="button" class="btn title-tab" onclick="filterTitlesByCategory('출석루틴')">출석</button>
-                        <button type="button" class="btn title-tab" onclick="filterTitlesByCategory('순공한계')">순공</button>
-                        <button type="button" class="btn title-tab" onclick="filterTitlesByCategory('시간대')">시간대</button>
-                        <button type="button" class="btn title-tab" onclick="filterTitlesByCategory('목표대학')">목표대</button>
-                        <button type="button" class="btn title-tab" onclick="filterTitlesByCategory('OMR실전')">OMR</button>
-                        <button type="button" class="btn title-tab" onclick="filterTitlesByCategory('로컬길드')">길드</button>
-                        <button type="button" class="btn title-tab" onclick="filterTitlesByCategory('성실소셜')">소셜</button>
-                        <button type="button" class="btn title-tab" onclick="filterTitlesByCategory('멘탈의지')">멘탈</button>
-                        <button type="button" class="btn title-tab" onclick="filterTitlesByCategory('시즌특화')">시즌</button>
-                        <button type="button" class="btn title-tab" onclick="filterTitlesByCategory('히든전설')">히든</button>
-                    </div>
+                    <!-- 아코디언 본체 (기본 접힘, 클릭 시 펼침) -->
+                    <div id="mypage-titles-accordion-body" style="display: none; margin-top: 8px;">
+                        <!-- 칭호 카테고리 필터 탭 -->
+                        <div id="mypage-title-category-tabs" style="display: flex; gap: 4px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 6px; scrollbar-width: none;">
+                            <button type="button" class="btn title-tab active" onclick="filterTitlesByCategory('ALL')">전체 (100)</button>
+                            <button type="button" class="btn title-tab" id="mypage-tab-unlocked" onclick="filterTitlesByCategory('UNLOCKED')">해금됨</button>
+                            <button type="button" class="btn title-tab" onclick="filterTitlesByCategory('출석루틴')">출석</button>
+                            <button type="button" class="btn title-tab" onclick="filterTitlesByCategory('순공한계')">순공</button>
+                            <button type="button" class="btn title-tab" onclick="filterTitlesByCategory('시간대')">시간대</button>
+                            <button type="button" class="btn title-tab" onclick="filterTitlesByCategory('목표대학')">목표대</button>
+                            <button type="button" class="btn title-tab" onclick="filterTitlesByCategory('OMR실전')">OMR</button>
+                            <button type="button" class="btn title-tab" onclick="filterTitlesByCategory('로컬길드')">길드</button>
+                            <button type="button" class="btn title-tab" onclick="filterTitlesByCategory('성실소셜')">소셜</button>
+                            <button type="button" class="btn title-tab" onclick="filterTitlesByCategory('멘탈의지')">멘탈</button>
+                            <button type="button" class="btn title-tab" onclick="filterTitlesByCategory('시즌특화')">시즌</button>
+                            <button type="button" class="btn title-tab" onclick="filterTitlesByCategory('히든전설')">히든</button>
+                        </div>
 
-                    <div id="mypage-titles-list" style="display: flex; flex-direction: column; gap: 5px; max-height: 250px; overflow-y: auto; padding-right: 2px;"></div>
+                        <div id="mypage-titles-list" style="display: flex; flex-direction: column; gap: 5px; max-height: 250px; overflow-y: auto; padding-right: 2px;"></div>
+                    </div>
                 </div>
             </div>
 
@@ -3571,19 +3579,26 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <span class="material-symbols-rounded mypage-chevron">chevron_right</span>
                 </div>
 
-                <!-- 4. 원장 전용 중앙 관제실 -->
-                <a href="/admin.html" id="mypage-admin-row" class="mypage-menu-row" style="display: none;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div class="mypage-icon-box mypage-icon-admin">
-                            <span class="material-symbols-rounded">admin_panel_settings</span>
-                        </div>
-                        <div>
-                            <div class="mypage-menu-title">원장 전용 중앙 관제실</div>
-                            <div class="mypage-menu-desc">재원생 궤적 & 발급 리포트 검토 (원장 PIN)</div>
-                        </div>
+                <!-- 4. 원장 전용 중앙 관제실 & 갓모드 (마스터 관제) 바로가기 -->
+                <div id="mypage-admin-row" style="display: none; flex-direction: column; gap: 8px; margin-bottom: 8px; background: rgba(99, 102, 241, 0.08); border: 1.5px solid rgba(99, 102, 241, 0.35); border-radius: 14px; padding: 12px;">
+                    <div style="font-size: 0.78rem; font-weight: 800; color: #818cf8; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="display: flex; align-items: center; gap: 5px;">
+                            <span class="material-symbols-rounded" style="font-size: 1.05rem;">admin_panel_settings</span>
+                            관리자 & 마스터 전용 관제실
+                        </span>
+                        <span style="font-size: 0.65rem; background: #6366f1; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 800;">AUTHORIZED</span>
                     </div>
-                    <span class="material-symbols-rounded mypage-chevron">chevron_right</span>
-                </a>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px;">
+                        <a href="/admin.html" target="_blank" class="btn" style="text-decoration: none; padding: 10px 8px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(99,102,241,0.35);">
+                            <span class="material-symbols-rounded" style="font-size: 1.1rem;">shield_person</span>
+                            <span>원장 관제실</span>
+                        </a>
+                        <a href="/master.html" target="_blank" class="btn" style="text-decoration: none; padding: 10px 8px; font-size: 0.82rem; font-weight: 900; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(245,158,11,0.35); border: 1px solid #fbbf24;">
+                            <span class="material-symbols-rounded" style="font-size: 1.1rem;">bolt</span>
+                            <span>갓모드 콘솔</span>
+                        </a>
+                    </div>
+                </div>
 
                 <!-- 5. 불편사항 건의하기 -->
                 <div onclick="openFeedbackModal()" class="mypage-menu-row">
