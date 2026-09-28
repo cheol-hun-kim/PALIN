@@ -103,32 +103,39 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
     border-color: #818cf8;
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
-</style>
-<style>
+
 /* 학원 관리 2x2 서브탭 스타일 */
 .subtab-btn-hub-2x2 {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 8px;
     padding: 12px 10px;
-    border-radius: 10px;
-    font-size: 0.85rem;
+    border-radius: 12px;
+    font-size: 0.88rem;
     font-weight: 800;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
     background: rgba(255, 255, 255, 0.04);
-    color: var(--text-secondary);
+    color: #ffffff;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+.subtab-btn-hub-2x2 .material-symbols-rounded {
+    color: #818cf8;
+}
 .subtab-btn-hub-2x2:hover {
     background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(99, 102, 241, 0.3);
 }
 .subtab-btn-hub-2x2.active {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(79, 70, 229, 0.45));
-    color: #ffffff;
-    border-color: #818cf8;
-    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
+    background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+    color: #ffffff !important;
+    border-color: #818cf8 !important;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35) !important;
+}
+.subtab-btn-hub-2x2.active span,
+.subtab-btn-hub-2x2.active .material-symbols-rounded {
+    color: #ffffff !important;
 }
 </style>
 </head>
@@ -806,7 +813,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <!-- 미션 카드 -->
                 <div class="card">
                     <div class="card-title">
-                        <span class="material-symbols-rounded" style="color: var(--color-accent)">task_alt</span>
+                        <span class="material-symbols-rounded" style="color: #818cf8;">task_alt</span>
                         오늘의 생활 규칙 미션
                     </div>
                     
@@ -838,9 +845,9 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <!-- 아코디언 헤더 바 (기본 상시 노출) -->
                     <div class="accordion-header" onclick="toggleAccordion('timer-accordion-body', 'timer-accordion-icon')" style="padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: rgba(255,255,255,0.02);">
                         <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.95rem;">
-                            <span class="material-symbols-rounded" style="color: #6366f1;">hourglass_empty</span>
+                            <span class="material-symbols-rounded" style="color: #818cf8;">hourglass_empty</span>
                             <span>집중 공부 타이머</span>
-                            <span id="timer-badge-status" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 12px; background: rgba(99, 102, 241,0.15); color: #818cf8; font-weight: 800; border: 1px solid rgba(99, 102, 241,0.3);">00:00:00 대기중</span>
+                            <span id="timer-badge-status" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 12px; background: rgba(99, 102, 241, 0.15); color: #818cf8; font-weight: 800; border: 1px solid rgba(99, 102, 241, 0.3);">00:00:00 대기중</span>
                         </div>
                         <span class="material-symbols-rounded" id="timer-accordion-icon" style="transition: transform 0.3s ease; color: var(--text-secondary);">expand_more</span>
                     </div>
@@ -2161,7 +2168,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <!-- 학원/독서실 관리 6대 서브탭 (2x3 균형 그리드) -->
                     <div class="subtabs-container-hub" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;">
                         <button class="subtab-btn-hub-2x2 active" onclick="switchHubSubTab('feed')" id="hub-tab-feed" style="padding: 12px 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                            <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #6366f1;">calendar_month</span>
+                            <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #818cf8;">calendar_month</span>
                             <span style="font-size: 0.88rem; font-weight: 800;">학사일정</span>
                         </button>
                         <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('vod')" id="hub-tab-vod" style="padding: 12px 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -2177,7 +2184,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             <span style="font-size: 0.88rem; font-weight: 800;">시험·OMR</span>
                         </button>
                         <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('seat')" id="hub-tab-seat" style="padding: 12px 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                            <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #4f46e5;">chair</span>
+                            <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #818cf8;">chair</span>
                             <span style="font-size: 0.88rem; font-weight: 800;">좌석선택</span>
                         </button>
                         <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('request')" id="hub-tab-request" style="padding: 12px 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">

@@ -171,7 +171,6 @@ def auto_seed_database(db: Session, engine):
                         st.enrollment_status = s.get("enrollment_status", "ENROLLED")
                         if sid == 1:
                             st.previous_b2c_tier = "TIER_3_MASTER"
-                            st.streak_days = max(26, st.streak_days or 26)
                 db.execute(text("INSERT INTO system_migrations (migration_key) VALUES ('sync_authentic_ilwon_208_v20260924')"))
                 db.commit()
                 print("[AUTO_SEED] Full 208 authentic students (151 Ilwon) synchronization migration applied.")
@@ -490,8 +489,8 @@ def auto_seed_database(db: Session, engine):
             ai_lvl = "TIER_4_ILWON" if is_ilwon else s.get("ai_level", "B2C_FREE")
             b2c_raw = s.get("b2c_subscription_tier")
             b2c_tier = "TIER_3_MASTER" if sid == 1 else ("TIER_2_PARENT" if b2c_raw == "TIER_2_PARENT" else "TIER_1_FREE")
-            s_streak = 26 if sid == 1 else s.get("streak_days", 0)
-            s_max_streak = 26 if sid == 1 else s.get("max_streak_days", 0)
+            s_streak = s.get("streak_days", 0)
+            s_max_streak = s.get("max_streak_days", 0)
 
             if not s_exist:
                 p_id = s.get("parent_id")
@@ -551,9 +550,6 @@ def auto_seed_database(db: Session, engine):
                 if sid == 1:
                     s_exist.b2c_subscription_tier = "TIER_3_MASTER"
                     s_exist.previous_b2c_tier = "TIER_3_MASTER"
-                    s_exist.streak_days = 26
-                    s_exist.max_streak_days = max(26, s_exist.max_streak_days or 26)
-                    s_exist.last_streak_date = datetime.now().date()
                 db.commit()
         except Exception:
             db.rollback()

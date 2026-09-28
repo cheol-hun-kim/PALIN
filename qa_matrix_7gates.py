@@ -233,6 +233,7 @@ print("[GATE 1.7 PASS] Anti-Fabrication & Zero-Coverup Scanner Passed: Zero fake
 full_stack_files = [
     os.path.join(ROOT_DIR, 'app', 'main.py'),
     os.path.join(ROOT_DIR, 'app', 'models.py'),
+    os.path.join(ROOT_DIR, 'app', 'seed_data.py'),
     os.path.join(ROOT_DIR, 'static', 'js', 'app.js'),
     os.path.join(ROOT_DIR, 'static', 'index.html'),
     os.path.join(ROOT_DIR, 'static', 'admin.html'),

@@ -1002,21 +1002,22 @@ main::-webkit-scrollbar {
 }
 
 .btn {
-    background-color: var(--color-accent);
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
     color: white;
     border: none;
     padding: 8px 16px;
     border-radius: 8px;
     font-size: 0.82rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     transition: var(--transition-smooth);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
 }
 
 .btn:hover {
-    opacity: 0.9;
+    background: linear-gradient(135deg, #4f46e5, #4338ca);
     transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(99, 102, 241, 0.45);
 }
 
 .btn-secondary {
@@ -2923,19 +2924,27 @@ body.day-mode .modal-close-btn:hover, body.day-mode .btn-close:hover {
 }
 
 .subtab-btn-hub-2x2.active {
-    border-color: #6366f1 !important;
-    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25) !important;
+    background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+    border-color: #818cf8 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35) !important;
+}
+
+.subtab-btn-hub-2x2.active span,
+.subtab-btn-hub-2x2.active .material-symbols-rounded {
+    color: #ffffff !important;
 }
 
 [data-theme="dark"] .subtab-btn-hub-2x2.active {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(79, 70, 229, 0.35)) !important;
+    background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+    border-color: #818cf8 !important;
     color: #ffffff !important;
 }
 
 [data-theme="light"] .subtab-btn-hub-2x2.active {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(79, 70, 229, 0.2)) !important;
-    color: #4338ca !important;
-    border-color: #4f46e5 !important;
+    background: linear-gradient(135deg, #4f46e5, #4338ca) !important;
+    color: #ffffff !important;
+    border-color: #3730a3 !important;
 }
 
 
