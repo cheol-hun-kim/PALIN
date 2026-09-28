@@ -484,8 +484,8 @@ body.day-mode .univ-name {
    🪑 2D 좌석 매트릭스 & 배정 상태 바 (Night / Day WCAG AAA 완벽 고대비)
    ========================================================================== */
 #student-academy-seat-card {
-    border: 1.5px solid rgba(124, 58, 237, 0.35);
-    background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(99, 102, 241, 0.04));
+    border: 1.5px solid rgba(99, 102, 241, 0.35);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(99, 102, 241, 0.04));
     transition: all 0.2s ease;
 }
 
@@ -840,7 +840,7 @@ header {
     font-size: 1.1rem;
     font-weight: 900;
     letter-spacing: -0.5px;
-    background: linear-gradient(135deg, #a78bfa, var(--color-accent));
+    background: linear-gradient(135deg, #818cf8, var(--color-accent));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     white-space: nowrap;
@@ -1286,7 +1286,7 @@ main::-webkit-scrollbar {
 .color-0 { background-color: rgba(99, 102, 241, 0.9); } /* Indigo */
 .color-1 { background-color: rgba(16, 185, 129, 0.9); } /* Emerald */
 .color-2 { background-color: rgba(245, 158, 11, 0.9); } /* Amber */
-.color-3 { background-color: rgba(139, 92, 246, 0.9); } /* Violet */
+.color-3 { background-color: rgba(99, 102, 241, 0.9); } /* Violet */
 .color-4 { background-color: rgba(236, 72, 153, 0.9); } /* Pink */
 .color-5 { background-color: rgba(20, 184, 166, 0.9); } /* Teal */
 .color-6 { background-color: rgba(239, 68, 68, 0.9); }  /* Rose */
@@ -1650,7 +1650,7 @@ body.day-mode .day-column:hover {
 }
 
 .role-toggle-btn.active {
-    background: linear-gradient(135deg, #a78bfa, var(--color-accent));
+    background: linear-gradient(135deg, #818cf8, var(--color-accent));
     color: white;
     box-shadow: 0 4px 10px var(--color-accent-glow);
 }
@@ -1842,7 +1842,7 @@ div[style*="grid-template-columns"] > * {
 
 /* === 공지사항 띠 배너 === */
 .notice-banner {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2));
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(99, 102, 241, 0.2));
     border: 1px solid rgba(99, 102, 241, 0.4);
     border-radius: 12px;
     padding: 10px 14px;
@@ -2138,7 +2138,7 @@ body:not(.day-mode) #univ-target-box {
 }
 
 body:not(.day-mode) #micro-league-title {
-    color: #a78bfa !important;
+    color: #818cf8 !important;
 }
 
 body:not(.day-mode) #micro-league-content {
@@ -2198,7 +2198,7 @@ body:not(.day-mode) .header-user-btn {
 }
 
 body:not(.day-mode) .header-user-btn .header-user-icon {
-    color: #a78bfa !important;
+    color: #818cf8 !important;
 }
 
 body:not(.day-mode) .header-user-btn #header-student-name {
@@ -2709,9 +2709,9 @@ body.day-mode .mypage-menu-row:hover {
 }
 
 .mypage-icon-theme {
-    background: rgba(168, 85, 247, 0.12);
-    color: #c084fc;
-    border: 1px solid rgba(168, 85, 247, 0.25);
+    background: rgba(99, 102, 241, 0.12);
+    color: #818cf8;
+    border: 1px solid rgba(99, 102, 241, 0.25);
 }
 
 /* Day Mode Icons */
@@ -2747,7 +2747,7 @@ body.day-mode .mypage-icon-feedback {
 
 body.day-mode .mypage-icon-theme {
     background: #faf5ff !important;
-    color: #7e22ce !important;
+    color: #4f46e5 !important;
     border: 1px solid #e9d5ff !important;
 }
 
@@ -3506,16 +3506,16 @@ body.role-parent .timetable-day-column {
 }
 
 .btn-vod-filter:hover {
-    background: rgba(168, 85, 247, 0.2);
+    background: rgba(99, 102, 241, 0.2);
     color: #f8fafc;
-    border-color: rgba(168, 85, 247, 0.4);
+    border-color: rgba(99, 102, 241, 0.4);
 }
 
 .btn-vod-filter.active {
-    background: linear-gradient(135deg, #a855f7, #7e22ce) !important;
+    background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
     color: #ffffff !important;
-    border-color: #c084fc !important;
-    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.45) !important;
+    border-color: #818cf8 !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.45) !important;
 }
 
 /* ☀️ Day-Mode / Light Mode High-Contrast Rules for Modals, Demo Views & VOD Board */
@@ -3661,13 +3661,13 @@ body.day-mode #hub-curriculum-feed-list [style*="color: #ffffff"] {
     font-weight: 800 !important;
 }
 
-body.day-mode #hub-vod-list-container [style*="color: #c084fc"] {
+body.day-mode #hub-vod-list-container [style*="color: #818cf8"] {
     color: #6b21a8 !important;
 }
 
-body.day-mode #hub-vod-list-container [style*="background: rgba(168,85,247,0.25)"] {
+body.day-mode #hub-vod-list-container [style*="background: rgba(99, 102, 241,0.25)"] {
     background: #ede9fe !important;
-    border: 1px solid #c084fc !important;
+    border: 1px solid #818cf8 !important;
 }
 
 body.day-mode #hub-vod-list-container [style*="background: rgba(0,0,0,0.3)"] {
@@ -3684,9 +3684,9 @@ body.day-mode #hub-vod-list-container [style*="background: rgba(245,158,11,0.15)
     border: 1px solid #f59e0b !important;
 }
 
-body.day-mode #hub-view-feed [style*="color: #a78bfa"],
+body.day-mode #hub-view-feed [style*="color: #818cf8"],
 body.day-mode #hub-view-vod [style*="color: #818cf8"],
-body.day-mode #hub-view-exam [style*="color: #a78bfa"],
+body.day-mode #hub-view-exam [style*="color: #818cf8"],
 body.day-mode #hub-view-request [style*="color: #fbbf24"] {
     color: #3730a3 !important;
     font-weight: 900 !important;
@@ -3710,7 +3710,7 @@ body.day-mode #mypage-modal .trigger-content {
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15) !important;
 }
 
-body.day-mode #mypage-modal .trigger-content > div:first-child [style*="color: #a78bfa"] {
+body.day-mode #mypage-modal .trigger-content > div:first-child [style*="color: #818cf8"] {
     color: #3730a3 !important;
     font-weight: 900 !important;
 }
@@ -3812,7 +3812,7 @@ body.day-mode #mypage-modal [style*="background: rgba(99, 102, 241, 0.08)"] {
     border: 1.5px solid #cbd5e1 !important;
 }
 
-body.day-mode #mypage-modal [style*="color: #a78bfa"] {
+body.day-mode #mypage-modal [style*="color: #818cf8"] {
     color: #3730a3 !important;
     font-weight: 900 !important;
 }
@@ -4041,13 +4041,13 @@ body.day-mode [style*="background: rgba(251,191,36"] {
 }
 
 /* 3. Universal Purple / Lavender / Indigo -> Deep Rich Indigo (#3730a3 / #312e81 / #1e1b4b) */
-body.day-mode [style*="color: #a78bfa"],
+body.day-mode [style*="color: #818cf8"],
 body.day-mode [style*="color: #a5b4fc"],
 body.day-mode [style*="color: #818cf8"],
-body.day-mode [style*="color: #c084fc"],
+body.day-mode [style*="color: #818cf8"],
 body.day-mode [style*="color: #c7d2fe"],
 body.day-mode [style*="color: #ddd6fe"],
-body.day-mode [style*="color: #c4b5fd"],
+body.day-mode [style*="color: #c7d2fe"],
 body.day-mode [style*="color: var(--color-accent)"] {
     color: #3730a3 !important;
     font-weight: 800 !important;
@@ -5247,8 +5247,8 @@ body.day-mode .user-title-tag {
     font-size: 0.68rem !important;
     font-weight: 800 !important;
     color: #e9d5ff !important; /* Royal Lavender */
-    background: rgba(147, 51, 234, 0.16) !important;
-    border: 1px solid rgba(147, 51, 234, 0.45) !important;
+    background: rgba(99, 102, 241, 0.16) !important;
+    border: 1px solid rgba(99, 102, 241, 0.45) !important;
     border-radius: 4px !important;
     padding: 2px 6px !important;
     margin-left: 4px;
@@ -5271,7 +5271,7 @@ body.day-mode .badge-alumni-school {
 body.day-mode .badge-alumni-univ {
     color: #6b21a8 !important;
     background: #f3e8ff !important;
-    border-color: #c084fc !important;
+    border-color: #818cf8 !important;
 }
 
 .title-tab {
@@ -5488,7 +5488,7 @@ body.day-mode #parent-dossier-exam-score {
 }
 
 body.day-mode #parent-dossier-homework-rate {
-    color: #6d28d9 !important;
+    color: #4f46e5 !important;
     font-weight: 900 !important;
 }
 

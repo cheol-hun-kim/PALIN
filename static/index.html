@@ -838,9 +838,9 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <!-- 아코디언 헤더 바 (기본 상시 노출) -->
                     <div class="accordion-header" onclick="toggleAccordion('timer-accordion-body', 'timer-accordion-icon')" style="padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: rgba(255,255,255,0.02);">
                         <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.95rem;">
-                            <span class="material-symbols-rounded" style="color: #a855f7;">hourglass_empty</span>
+                            <span class="material-symbols-rounded" style="color: #6366f1;">hourglass_empty</span>
                             <span>집중 공부 타이머</span>
-                            <span id="timer-badge-status" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 12px; background: rgba(168,85,247,0.15); color: #c084fc; font-weight: 800; border: 1px solid rgba(168,85,247,0.3);">00:00:00 대기중</span>
+                            <span id="timer-badge-status" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 12px; background: rgba(99, 102, 241,0.15); color: #818cf8; font-weight: 800; border: 1px solid rgba(99, 102, 241,0.3);">00:00:00 대기중</span>
                         </div>
                         <span class="material-symbols-rounded" id="timer-accordion-icon" style="transition: transform 0.3s ease; color: var(--text-secondary);">expand_more</span>
                     </div>
@@ -874,11 +874,11 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 </select>
                             </div>
                             
-                            <div id="timer-current-study" style="font-size:0.8rem; font-weight:600; color:#a78bfa; margin-bottom:12px;">대기 중: 할 일을 선택하여 측정을 시작하세요</div>
+                            <div id="timer-current-study" style="font-size:0.8rem; font-weight:600; color:#818cf8; margin-bottom:12px;">대기 중: 할 일을 선택하여 측정을 시작하세요</div>
                             
                             <div class="timer-circle" id="timer-circle">00:00:00</div>
                             <div class="timer-controls">
-                                <button class="btn" id="timer-toggle-btn" style="background-color: #8b5cf6; box-shadow: 0 4px 14px rgba(139,92,246,0.4); padding: 10px 24px; font-size: 0.95rem; font-weight: 800; color: white;" onclick="requestStartTimer()">공부 시작</button>
+                                <button class="btn" id="timer-toggle-btn" style="background-color: #6366f1; box-shadow: 0 4px 14px rgba(99, 102, 241,0.4); padding: 10px 24px; font-size: 0.95rem; font-weight: 800; color: white;" onclick="requestStartTimer()">공부 시작</button>
                             </div>
                             
                             <div style="font-size:0.68rem; color:var(--text-secondary); margin-top:14px; line-height:1.3;">
@@ -1246,25 +1246,25 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
     <div id="univ-settings-form" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08);">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; width: 100%; box-sizing: border-box;">
             <div style="min-width: 0; width: 100%; box-sizing: border-box;">
-                <label class="input-label" style="font-size: 0.78rem; font-weight: 700; color: #a78bfa; margin-bottom: 4px; display: block;">희망 대학</label>
+                <label class="input-label" style="font-size: 0.78rem; font-weight: 700; color: #818cf8; margin-bottom: 4px; display: block;">희망 대학</label>
                 <select id="up-univ" class="form-input" style="width: 100%; padding: 8px 18px 8px 8px; font-size: 0.8rem; box-sizing: border-box;"></select>
             </div>
             <div style="min-width: 0; width: 100%; box-sizing: border-box;">
-                <label class="input-label" style="font-size: 0.78rem; font-weight: 700; color: #a78bfa; margin-bottom: 4px; display: block;">희망 학과</label>
+                <label class="input-label" style="font-size: 0.78rem; font-weight: 700; color: #818cf8; margin-bottom: 4px; display: block;">희망 학과</label>
                 <select id="up-major" class="form-input" style="width: 100%; padding: 8px 18px 8px 8px; font-size: 0.8rem; box-sizing: border-box;"></select>
             </div>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; width: 100%; box-sizing: border-box;">
             <div style="min-width: 0; width: 100%; box-sizing: border-box;">
-                <label class="input-label" style="font-size: 0.78rem; font-weight: 700; color: #a78bfa; margin-bottom: 4px; display: block;">마지노선 대학</label>
+                <label class="input-label" style="font-size: 0.78rem; font-weight: 700; color: #818cf8; margin-bottom: 4px; display: block;">마지노선 대학</label>
                 <select id="up-base-univ" class="form-input" style="width: 100%; padding: 8px 18px 8px 8px; font-size: 0.8rem; box-sizing: border-box;"></select>
             </div>
             <div style="min-width: 0; width: 100%; box-sizing: border-box;">
-                <label class="input-label" style="font-size: 0.78rem; font-weight: 700; color: #a78bfa; margin-bottom: 4px; display: block;">마지노선 학과</label>
+                <label class="input-label" style="font-size: 0.78rem; font-weight: 700; color: #818cf8; margin-bottom: 4px; display: block;">마지노선 학과</label>
                 <select id="up-base-major" class="form-input" style="width: 100%; padding: 8px 18px 8px 8px; font-size: 0.8rem; box-sizing: border-box;"></select>
             </div>
         </div>
-        <button class="btn" style="width: 100%; padding: 10px; font-size: 0.86rem; font-weight: 700; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 8px;" onclick="saveUnivSettings()">
+        <button class="btn" style="width: 100%; padding: 10px; font-size: 0.86rem; font-weight: 700; background: linear-gradient(135deg, #6366f1, #4f46e5); border-radius: 8px;" onclick="saveUnivSettings()">
             저장하기
         </button>
     </div>
@@ -1284,7 +1284,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
 <!-- === 대입 전략 리포트 & 1:1 컨설팅 전용 섹션 === -->
 <div id="report-tab-section" style="display: none;">
-    <div class="card" style="padding: 14px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.05)); border: 1.5px solid rgba(99, 102, 241, 0.4);">
+    <div class="card" style="padding: 14px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(99, 102, 241, 0.05)); border: 1.5px solid rgba(99, 102, 241, 0.4);">
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 8px;">
             <h3 style="margin: 0; color: #a5b4fc; font-size: 0.95rem; font-weight: 800; white-space: nowrap;">맞춤형 대입 전략 솔루션</h3>
             <span style="font-size: 0.68rem; background: linear-gradient(135deg, #ef4444, #f59e0b); color: white; padding: 2px 7px; border-radius: 10px; font-weight: 800; white-space: nowrap; flex-shrink: 0;">50~65% 특가</span>
@@ -1346,7 +1346,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             </div>
         </div>
 
-        <button onclick="openReportTierModal()" class="btn" style="width: 100%; padding: 12px 6px; font-size: 0.88rem; font-weight: 900; background: linear-gradient(135deg, #6366f1, #8b5cf6); box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4); border-radius: 10px; white-space: nowrap; display: flex; align-items: center; justify-content: center;">대입 전략 리포트 & 컨설팅 신청 (무료권 / 캐시)
+        <button onclick="openReportTierModal()" class="btn" style="width: 100%; padding: 12px 6px; font-size: 0.88rem; font-weight: 900; background: linear-gradient(135deg, #6366f1, #4f46e5); box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4); border-radius: 10px; white-space: nowrap; display: flex; align-items: center; justify-content: center;">대입 전략 리포트 & 컨설팅 신청 (무료권 / 캐시)
         </button>
     </div>
 </div>
@@ -1382,7 +1382,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 학생부종합 전형은 내신 외에도 <b>출신 고교, 비교과 활동</b> 등 정성적 요소가 크기 때문에 자동 진단이 어렵습니다. 아래 방법을 따라 직접 확인해보세요.
             </p>
             <div style="background: rgba(0,0,0,0.15); border-radius: 8px; padding: 10px; font-size: 0.78rem; line-height: 1.6;">
-                <div style="font-weight: 700; color: #a78bfa; margin-bottom: 4px;">확인 방법</div>
+                <div style="font-weight: 700; color: #818cf8; margin-bottom: 4px;">확인 방법</div>
                 <b>1.</b> 학교 <b>진학지도부</b>(진학상담실)를 방문하세요<br>
                 <b>2.</b> 본인과 <b>비슷한 내신(전교등수)</b>을 가진 선배들의 2~3개년 합격 데이터를 확인하세요<br>
                 <b>3.</b> 어쩌다 합격한 특이 케이스를 제외하고, <b>'주로' 합격한 대학 수준</b>을 파악하세요<br>
@@ -1510,7 +1510,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
     </div>
 
     <!-- 3-Tier 대입 리포트 & VIP 컨설팅 신청 배너 -->
-    <div class="card" style="margin-top: 12px; padding: 14px; background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1)); border: 1.5px solid rgba(99,102,241,0.4);">
+    <div class="card" style="margin-top: 12px; padding: 14px; background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(99, 102, 241,0.1)); border: 1.5px solid rgba(99,102,241,0.4);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
             <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-primary);">맞춤형 대입 전략 백서 & 1:1 컨설팅</div>
             <div style="font-size: 0.72rem; background: linear-gradient(135deg, #ec4899, #f59e0b); color: white; padding: 2px 8px; border-radius: 12px; font-weight: 800;">16,900원부터~</div>
@@ -1518,7 +1518,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         <div style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.4;">
             수시/정시 3대 전형 정밀 진단, 168시간 분 단위 시간표, 4과목 1등급 비법서 및 원장 1:1 유선/대면 상담 솔루션.
         </div>
-        <button onclick="openReportTierModal()" class="btn" style="width: 100%; padding: 11px 0; background: linear-gradient(135deg, #6366f1, #8b5cf6); font-weight: 900; font-size: 0.9rem; box-shadow: 0 4px 14px rgba(99,102,241,0.4);">대입 전략 리포트 & 컨설팅 신청하기 (무료권 / 캐시)
+        <button onclick="openReportTierModal()" class="btn" style="width: 100%; padding: 11px 0; background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 900; font-size: 0.9rem; box-shadow: 0 4px 14px rgba(99,102,241,0.4);">대입 전략 리포트 & 컨설팅 신청하기 (무료권 / 캐시)
         </button>
     </div>
     
@@ -1654,7 +1654,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <!-- 2-D: 내신 기출 출처 정밀 추적기 & 학교별 출제 바이블 (Exam Source Tracer & School Bible) -->
                 <div id="p2-tracer" class="subtab-view-p2" style="display: none; padding-bottom: 100px;">
                     <div class="card" style="padding: 16px;">
-                        <div class="card-title" style="color: #a78bfa; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between;">
+                        <div class="card-title" style="color: #818cf8; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between;">
                             <div style="display: flex; align-items: center; gap: 6px;">
                                 <span class="material-symbols-rounded" style="color: #818cf8;">travel_explore</span>
                                 <span>내신 출제 바이블 & 집단지성 추적기</span>
@@ -1745,7 +1745,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <!-- ========================================================== -->
                         <div id="tracer-submode-qa-view" style="display: none;">
                             <!-- 상단 질문 등록 트리거 배너 -->
-                            <div style="background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(168,85,247,0.15)); border: 1.5px dashed #818cf8; border-radius: 12px; padding: 14px; text-align: center; margin-bottom: 14px;">
+                            <div style="background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(99, 102, 241,0.15)); border: 1.5px dashed #818cf8; border-radius: 12px; padding: 14px; text-align: center; margin-bottom: 14px;">
                                 <div style="font-size: 0.9rem; font-weight: 800; color: #ffffff; margin-bottom: 4px;">모르는 시험 문제 출처를 질문해보세요!</div>
                                 <div style="font-size: 0.74rem; color: #cbd5e1; margin-bottom: 10px;">
                                     사진이나 텍스트를 올리면 동료 학생 및 선배 튜터들이 원본 문제집과 변형 방식을 찾아드립니다.
@@ -1937,7 +1937,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         
                         <!-- 내 과외선생 프로필 관리 카드 -->
                         <div class="card" style="border: 1px solid var(--color-accent);">
-                            <div class="card-title" style="color: #a78bfa;">
+                            <div class="card-title" style="color: #818cf8;">
                                 <span class="material-symbols-rounded">manage_accounts</span>
                                 내 과외 모집 프로필 정보 관리
                             </div>
@@ -2083,7 +2083,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             <!-- ================================================================= -->
             <div id="page4" class="page-view" style="display: none;">
                 <!-- 1. 미연동 시 노출되는 대형 학원코드 연동 카드 -->
-                <div id="hub-unlinked-card" class="card" style="display: none; text-align: center; padding: 28px 16px; margin-bottom: 14px; background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(168,85,247,0.08)); border: 1.5px solid rgba(99,102,241,0.35);">
+                <div id="hub-unlinked-card" class="card" style="display: none; text-align: center; padding: 28px 16px; margin-bottom: 14px; background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(99, 102, 241,0.08)); border: 1.5px solid rgba(99,102,241,0.35);">
                     <div id="hub-unlinked-icon-box" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(99,102,241,0.2); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: #818cf8;">
                         <span class="material-symbols-rounded" id="hub-unlinked-icon" style="font-size: 2rem;">account_balance</span>
                     </div>
@@ -2122,7 +2122,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     </div>
 
                     <!-- 학원 정보 헤더 & 원터치 Wi-Fi 출석체크 -->
-                    <div class="card" style="margin-bottom: 12px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.06)); border: 1.5px solid var(--border-color, rgba(99, 102, 241, 0.3));">
+                    <div class="card" style="margin-bottom: 12px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(99, 102, 241, 0.06)); border: 1.5px solid var(--border-color, rgba(99, 102, 241, 0.3));">
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                             <div>
                                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -2161,7 +2161,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <!-- 학원/독서실 관리 6대 서브탭 (2x3 균형 그리드) -->
                     <div class="subtabs-container-hub" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;">
                         <button class="subtab-btn-hub-2x2 active" onclick="switchHubSubTab('feed')" id="hub-tab-feed" style="padding: 12px 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                            <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #a855f7;">calendar_month</span>
+                            <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #6366f1;">calendar_month</span>
                             <span style="font-size: 0.88rem; font-weight: 800;">학사일정</span>
                         </button>
                         <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('vod')" id="hub-tab-vod" style="padding: 12px 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -2169,15 +2169,15 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             <span style="font-size: 0.88rem; font-weight: 800;">복습 VOD</span>
                         </button>
                         <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('material')" id="hub-tab-material" style="padding: 12px 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                            <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #c084fc;">folder_special</span>
+                            <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #818cf8;">folder_special</span>
                             <span style="font-size: 0.88rem; font-weight: 800;">학원자료</span>
                         </button>
                         <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('exam')" id="hub-tab-exam" style="padding: 12px 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                            <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #a78bfa;">document_scanner</span>
+                            <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #818cf8;">document_scanner</span>
                             <span style="font-size: 0.88rem; font-weight: 800;">시험·OMR</span>
                         </button>
                         <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('seat')" id="hub-tab-seat" style="padding: 12px 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                            <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #9333ea;">chair</span>
+                            <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #4f46e5;">chair</span>
                             <span style="font-size: 0.88rem; font-weight: 800;">좌석선택</span>
                         </button>
                         <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('request')" id="hub-tab-request" style="padding: 12px 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -2191,7 +2191,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <div id="hub-view-feed" class="hub-subtab-view">
                             <div class="card" style="margin-bottom: 14px;">
                                 <div class="section-header" style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                                    <div style="font-weight: 800; font-size: 0.92rem; color: #a78bfa; display: flex; align-items: center; gap: 6px;">
+                                    <div style="font-weight: 800; font-size: 0.92rem; color: #818cf8; display: flex; align-items: center; gap: 6px;">
                                         <span class="material-symbols-rounded">feed</span>
                                         <span>주차별 강의 진도 & 공지사항</span>
                                     </div>
@@ -2499,7 +2499,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             </div>
 
                             <div class="card" style="margin-bottom: 14px;">
-                                <div style="font-weight: 800; font-size: 0.92rem; color: #a78bfa; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                                <div style="font-weight: 800; font-size: 0.92rem; color: #818cf8; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
                                     <span class="material-symbols-rounded">trending_up</span>
                                     <span>내 성적 트렌드 (상위 백분위 & 등급 추이)</span>
                                 </div>
@@ -2764,7 +2764,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <!-- 중등 내신 출처 추적기 -->
                     <div id="mid-sub-tracer" class="mid-subtab-view" style="display: none;">
                         <div class="card" style="padding: 14px;">
-                            <div class="card-title" style="color: #a78bfa; margin-bottom: 6px;">
+                            <div class="card-title" style="color: #818cf8; margin-bottom: 6px;">
                                 <span class="material-symbols-rounded" style="color: #818cf8;">travel_explore</span>
                                 중등 내신 기출 출처 추적기
                             </div>
@@ -2841,7 +2841,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <!-- 3페이지: 커뮤니티 공간 -->
                 <div id="mid-page3" class="page-view" style="display: none;">
                     <div class="card" style="padding: 14px; margin-bottom: 12px;">
-                        <div class="card-title" style="color: #a78bfa;">
+                        <div class="card-title" style="color: #818cf8;">
                             <span class="material-symbols-rounded" style="color: #818cf8;">groups</span>
                             중등 커뮤니티 & 공부 Q&A
                         </div>
@@ -2879,7 +2879,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
                 <!-- 4페이지: 학원관리 화면 -->
                 <div id="mid-page4" class="page-view" style="display: none;">
-                    <div class="card" style="text-align: center; padding: 24px 16px; margin-bottom: 12px; background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(168,85,247,0.08)); border: 1.5px solid rgba(99,102,241,0.35);">
+                    <div class="card" style="text-align: center; padding: 24px 16px; margin-bottom: 12px; background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(99, 102, 241,0.08)); border: 1.5px solid rgba(99,102,241,0.35);">
                         <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(99,102,241,0.2); display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; color: #818cf8;">
                             <span class="material-symbols-rounded" style="font-size: 1.8rem;">school</span>
                         </div>
@@ -3225,9 +3225,9 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
     <!-- 6. 마이페이지 / 개인 설정 모달 -->
     <div id="mypage-modal" class="trigger-modal" style="display: none;">
-        <div class="trigger-content" style="border-color: #a78bfa; max-height: 85vh; overflow-y: auto;">
+        <div class="trigger-content" style="border-color: #818cf8; max-height: 85vh; overflow-y: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <div style="font-size: 1.2rem; font-weight: 800; color: #a78bfa;">마이페이지 & 설정</div>
+                <div style="font-size: 1.2rem; font-weight: 800; color: #818cf8;">마이페이지 & 설정</div>
                 <button onclick="closeMyPageModal()" class="modal-close-btn" title="닫기">&times;</button>
             </div>
             
@@ -3248,7 +3248,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             <span style="font-size: 0.78rem; font-weight: 800; color: #94a3b8;">Tier 1 기본 AI (무료 체험)</span>
                             <div style="font-size: 0.68rem; color: #64748b; margin-top: 1px;">일반 학습 코칭 · 잔여 토큰 <span id="mypage-token-count">5</span>회</div>
                         </div>
-                        <button type="button" onclick="openB2CMembershipModal()" class="btn" style="padding: 5px 10px; font-size: 0.72rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border-radius: 6px; white-space: nowrap;">
+                        <button type="button" onclick="openB2CMembershipModal()" class="btn" style="padding: 5px 10px; font-size: 0.72rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border-radius: 6px; white-space: nowrap;">
                             멤버십 요금제 보기
                         </button>
                     </div>
@@ -3361,13 +3361,13 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             <div style="background: rgba(99, 102, 241, 0.08); border: 1.5px solid rgba(99, 102, 241, 0.25); border-radius: 16px; margin-bottom: 16px; overflow: hidden; transition: all 0.3s ease;">
                 <!-- 아코디언 토글 헤더 -->
                 <div onclick="toggleMyPageEditSection()" style="padding: 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
-                    <div style="font-size: 0.88rem; font-weight: 800; color: #a78bfa; display: flex; align-items: center; gap: 6px;">
+                    <div style="font-size: 0.88rem; font-weight: 800; color: #818cf8; display: flex; align-items: center; gap: 6px;">
                         <span class="material-symbols-rounded" style="font-size: 1.15rem;">manage_accounts</span>
                         <span>개인정보 & 목표 입시 설정 수정</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 4px;">
                         <span id="mypage-edit-toggle-status" style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">설정 변경</span>
-                        <span id="mypage-edit-toggle-icon" class="material-symbols-rounded" style="font-size: 1.25rem; color: #a78bfa; transition: transform 0.25s;">expand_more</span>
+                        <span id="mypage-edit-toggle-icon" class="material-symbols-rounded" style="font-size: 1.25rem; color: #818cf8; transition: transform 0.25s;">expand_more</span>
                     </div>
                 </div>
                 
@@ -3466,7 +3466,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </div>
                     </div>
 
-                    <div style="font-size: 0.75rem; color: #a78bfa; font-weight: 700; margin-top: 8px; margin-bottom: 4px;">목표 희망 대학 (11,688개 대학/학과 연동)</div>
+                    <div style="font-size: 0.75rem; color: #818cf8; font-weight: 700; margin-top: 8px; margin-bottom: 4px;">목표 희망 대학 (11,688개 대학/학과 연동)</div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 4px;">
                         <select id="edit-target-univ-select" class="form-input"></select>
                         <select id="edit-target-dept-select" class="form-input" onchange="checkCustomDept(this, 'edit-target-dept-custom')"></select>
@@ -3493,8 +3493,8 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <button onclick="saveStudentProfileSettings()" class="btn" style="width: 100%; padding: 10px 0; font-size: 0.88rem; background: linear-gradient(135deg, #10b981, #059669); font-weight: 700;">변경된 개인정보 및 입시 설정 저장</button>
 
                     <!-- 🔐 비밀번호 변경 섹션 (최대 12자리) -->
-                    <div style="margin-top: 14px; padding: 14px 12px; background: rgba(0,0,0,0.25); border: 1px solid rgba(167,139,250,0.3); border-radius: 12px;">
-                        <div style="font-size: 0.82rem; font-weight: 800; color: #a78bfa; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">
+                    <div style="margin-top: 14px; padding: 14px 12px; background: rgba(0,0,0,0.25); border: 1px solid rgba(99, 102, 241,0.3); border-radius: 12px;">
+                        <div style="font-size: 0.82rem; font-weight: 800; color: #818cf8; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">
                             <span class="material-symbols-rounded" style="font-size: 1rem; vertical-align: middle;">lock</span> 로그인 비밀번호 변경 (4~32자리)
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px;">
@@ -3616,10 +3616,10 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
     <!-- 🪪 1. 27학번 가상 학생증 모달 -->
     <div id="student-card-modal" class="trigger-modal" style="display: none;">
-        <div class="trigger-content" style="max-width: 420px; max-height: 88vh; overflow-y: auto; border-color: #8b5cf6; background: #0f172a !important; color: #ffffff !important; padding: 18px; position: relative;">
+        <div class="trigger-content" style="max-width: 420px; max-height: 88vh; overflow-y: auto; border-color: #6366f1; background: #0f172a !important; color: #ffffff !important; padding: 18px; position: relative;">
             <!-- 상단 스티키 헤더 (스크롤 내려도 항상 상단 고정 노출) -->
             <div style="position: sticky; top: -4px; z-index: 20; background: #0f172a; display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.12);">
-                <div style="font-size: 1.15rem; font-weight: 800; color: #a78bfa;">2027학번 가상 학생증</div>
+                <div style="font-size: 1.15rem; font-weight: 800; color: #818cf8;">2027학번 가상 학생증</div>
                 <button onclick="document.getElementById('student-card-modal').style.display='none'" class="modal-close-btn" title="닫기" style="background: rgba(255, 255, 255, 0.2) !important; color: #ffffff !important; border: 1.5px solid rgba(255, 255, 255, 0.4) !important; width: 34px; height: 34px; border-radius: 50%; font-size: 1.3rem; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</button>
             </div>
             
@@ -3809,7 +3809,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
             <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <button onclick="window.print()" class="btn" style="flex: 1; padding: 11px 0; background: #334155; font-weight: 700;">리포트 PDF 저장 / 인쇄</button>
-                <button onclick="document.getElementById('deep-report-modal').style.display='none'" class="btn" style="flex: 1; padding: 11px 0; background: linear-gradient(135deg, #6366f1, #8b5cf6); font-weight: 800;">확인 완료</button>
+                <button onclick="document.getElementById('deep-report-modal').style.display='none'" class="btn" style="flex: 1; padding: 11px 0; background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800;">확인 완료</button>
             </div>
         </div>
     </div>
@@ -3873,12 +3873,12 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 </div>
 
                 <!-- 60,000 -->
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: rgba(139, 92, 246, 0.12); border: 1.5px solid rgba(139, 92, 246, 0.5); border-radius: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: rgba(99, 102, 241, 0.12); border: 1.5px solid rgba(99, 102, 241, 0.5); border-radius: 10px;">
                     <div>
-                        <div style="font-weight: 800; color: #c084fc; font-size: 0.95rem;">60,000 캐시 <span style="font-size: 0.68rem; background: #f59e0b; color: #1e1b4b; padding: 2px 6px; border-radius: 8px; font-weight: 800;">+20% 보너스</span></div>
+                        <div style="font-weight: 800; color: #818cf8; font-size: 0.95rem;">60,000 캐시 <span style="font-size: 0.68rem; background: #f59e0b; color: #1e1b4b; padding: 2px 6px; border-radius: 8px; font-weight: 800;">+20% 보너스</span></div>
                         <div style="font-size: 0.72rem; color: #cbd5e1;">과외 2회 + 심층리포트 풀세트</div>
                     </div>
-                    <button onclick="openPgCheckoutModal(50000, '60,000 캐시 풀세트 (+20% 보너스)', 50000)" class="btn" style="padding: 8px 16px; font-size: 0.82rem; background: linear-gradient(135deg, #7c3aed, #9333ea); font-weight: 800; border-radius: 8px;">50,000원 결제</button>
+                    <button onclick="openPgCheckoutModal(50000, '60,000 캐시 풀세트 (+20% 보너스)', 50000)" class="btn" style="padding: 8px 16px; font-size: 0.82rem; background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; border-radius: 8px;">50,000원 결제</button>
                 </div>
             </div>
             <div style="font-size: 0.72rem; color: #94a3b8; line-height: 1.4; text-align: center;">결제 전 전자상거래 표준 이용약관에 동의하는 것으로 간주됩니다.</div>
@@ -4110,10 +4110,10 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
             <!-- Slide 3: 3대 랭킹 게이미피케이션 -->
             <div id="b2b-slide-3" class="b2b-slide" style="display: none;">
-                <div style="background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(99,102,241,0.15)); border: 1px solid #a855f7; border-radius: 14px; padding: 16px; margin-bottom: 14px;">
-                    <div style="font-size: 0.82rem; color: #c084fc; font-weight: 800; margin-bottom: 4px;">Point 3. 자발적 친구 추천 바이럴 엔진</div>
+                <div style="background: linear-gradient(135deg, rgba(99, 102, 241,0.15), rgba(99,102,241,0.15)); border: 1px solid #6366f1; border-radius: 14px; padding: 16px; margin-bottom: 14px;">
+                    <div style="font-size: 0.82rem; color: #818cf8; font-weight: 800; margin-bottom: 4px;">Point 3. 자발적 친구 추천 바이럴 엔진</div>
                     <div style="font-size: 1.15rem; font-weight: 900; color: #ffffff; line-height: 1.35; margin-bottom: 10px;">
-                        학교 대항전(길드전)과 지역 제왕으로<br><span style="color: #c084fc;">학생들이 친구를 학원으로 초대</span>
+                        학교 대항전(길드전)과 지역 제왕으로<br><span style="color: #818cf8;">학생들이 친구를 학원으로 초대</span>
                     </div>
                     <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">
                         • 학교별 누적 자습시간 랭킹전으로 "우리 학교 1등 만들자"며 친구를 학원과 앱으로 이끄는 강력한 네트워크 효과가 발생합니다.<br>
@@ -4204,7 +4204,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
             <!-- Student Slide 1: 24시간 1:1 AI 입시 멘토링 -->
             <div id="student-slide-1" class="student-slide" style="display: block;">
-                <div style="background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(168,85,247,0.1)); border: 1px solid #6366f1; border-radius: 14px; padding: 16px; margin-bottom: 14px;">
+                <div style="background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(99, 102, 241,0.1)); border: 1px solid #6366f1; border-radius: 14px; padding: 16px; margin-bottom: 14px;">
                     <div style="font-size: 0.82rem; color: #a5b4fc; font-weight: 800; margin-bottom: 4px;">Point 1. 24시간 1:1 AI 입시 멘토링</div>
                     <div style="font-size: 1.15rem; font-weight: 900; color: #ffffff; line-height: 1.35; margin-bottom: 10px;">
                         새벽 2시에도 막히는 문제와 불안한 멘탈,<br><span style="color: #818cf8;">PALIN 초정밀 수험 전략 AI가 즉시 처방</span>
@@ -4232,10 +4232,10 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
             <!-- Student Slide 3: 학교 대항전 & 정시 예측 -->
             <div id="student-slide-3" class="student-slide" style="display: none;">
-                <div style="background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(99,102,241,0.15)); border: 1px solid #a855f7; border-radius: 14px; padding: 16px; margin-bottom: 14px;">
-                    <div style="font-size: 0.82rem; color: #c084fc; font-weight: 800; margin-bottom: 4px;">Point 3. 학교 대항전(길드전) & 선배 튜터링</div>
+                <div style="background: linear-gradient(135deg, rgba(99, 102, 241,0.15), rgba(99,102,241,0.15)); border: 1px solid #6366f1; border-radius: 14px; padding: 16px; margin-bottom: 14px;">
+                    <div style="font-size: 0.82rem; color: #818cf8; font-weight: 800; margin-bottom: 4px;">Point 3. 학교 대항전(길드전) & 선배 튜터링</div>
                     <div style="font-size: 1.15rem; font-weight: 900; color: #ffffff; line-height: 1.35; margin-bottom: 10px;">
-                        우리 학교 친구들과 함께 1등 도전,<br><span style="color: #c084fc;">검증된 명문대 선배 1:1 과외 매칭</span>
+                        우리 학교 친구들과 함께 1등 도전,<br><span style="color: #818cf8;">검증된 명문대 선배 1:1 과외 매칭</span>
                     </div>
                     <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">
                         • 학교별 누적 자습시간 실시간 랭킹전으로 우리 학교를 전국 최상위권으로 끌어올리는 재미를 경험하세요.<br>
@@ -4712,10 +4712,10 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <!-- 4. 과제 & 기상/취침 루틴 -->
                 <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px;">
                     <div style="font-size: 0.7rem; color: #94a3b8; display: flex; justify-content: space-between; align-items: center;">
-                        <span style="display: flex; align-items: center; gap: 3px;"><span class="material-symbols-rounded" style="font-size: 0.9rem; color: #a78bfa;">checklist</span> 과제 & 수면 루틴</span>
-                        <span style="color: #a78bfa; font-weight: 700;">정기 점검</span>
+                        <span style="display: flex; align-items: center; gap: 3px;"><span class="material-symbols-rounded" style="font-size: 0.9rem; color: #818cf8;">checklist</span> 과제 & 수면 루틴</span>
+                        <span style="color: #818cf8; font-weight: 700;">정기 점검</span>
                     </div>
-                    <div style="font-size: 1.15rem; font-weight: 900; color: #a78bfa; margin-top: 2px;" id="parent-dossier-homework-rate">과제 점검 완료</div>
+                    <div style="font-size: 1.15rem; font-weight: 900; color: #818cf8; margin-top: 2px;" id="parent-dossier-homework-rate">과제 점검 완료</div>
                     <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 2px;" id="parent-dossier-routine-rate">루틴 집계 중</div>
                 </div>
             </div>

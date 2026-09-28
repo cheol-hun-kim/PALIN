@@ -5090,7 +5090,7 @@ function renderPreviewModeBanner(role) {
 
         bar.id = "palin-preview-floating-bar";
 
-        bar.style.cssText = "position: fixed; top: 10px; right: 10px; z-index: 10001; background: rgba(15,23,42,0.95); border: 1.5px solid #8b5cf6; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.6); color: #fde68a;";
+        bar.style.cssText = "position: fixed; top: 10px; right: 10px; z-index: 10001; background: rgba(15,23,42,0.95); border: 1.5px solid #6366f1; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.6); color: #fde68a;";
 
         document.body.appendChild(bar);
 
@@ -5259,9 +5259,9 @@ function updateTimerDisplay(seconds) {
             badge.style.border = '1px solid rgba(245,158,11,0.35)';
         } else {
             badge.innerText = '00:00:00 대기중';
-            badge.style.background = 'rgba(168,85,247,0.15)';
-            badge.style.color = '#c084fc';
-            badge.style.border = '1px solid rgba(168,85,247,0.3)';
+            badge.style.background = 'rgba(99, 102, 241,0.15)';
+            badge.style.color = '#818cf8';
+            badge.style.border = '1px solid rgba(99, 102, 241,0.3)';
         }
     }
 }
@@ -6643,8 +6643,8 @@ function getB2CTierInfo(tierNum) {
             modalDesc: '월 99,000원 멤버십 이용 중 (수험 전략 백서 풀 RAG + 무제한 AI)',
             chatLabel: 'Tier 3 (마스터)',
             chatDesc: 'Tier 3 (마스터) · 백서 지식 100% 무제한 AI 활성화',
-            color: '#c084fc',
-            bg: 'rgba(168, 85, 247, 0.2)',
+            color: '#818cf8',
+            bg: 'rgba(99, 102, 241, 0.2)',
             isUnlimited: true
         };
     } else if (tierNum === 2) {
@@ -9284,16 +9284,16 @@ async function stopTimerForcefully(triggeredByDistraction = false) {
     const timerBtn = document.getElementById("timer-toggle-btn");
     if (timerBtn) {
         timerBtn.innerText = "공부 시작";
-        timerBtn.style.backgroundColor = "#8b5cf6";
-        timerBtn.style.boxShadow = "0 4px 14px rgba(139,92,246,0.4)";
+        timerBtn.style.backgroundColor = "#6366f1";
+        timerBtn.style.boxShadow = "0 4px 14px rgba(99, 102, 241,0.4)";
     }
 
     const badge = document.getElementById("timer-badge-status");
     if (badge) {
         badge.innerText = "00:00:00 대기중";
-        badge.style.background = "rgba(168,85,247,0.15)";
-        badge.style.color = "#c084fc";
-        badge.style.border = "1px solid rgba(168,85,247,0.3)";
+        badge.style.background = "rgba(99, 102, 241,0.15)";
+        badge.style.color = "#818cf8";
+        badge.style.border = "1px solid rgba(99, 102, 241,0.3)";
     }
 
     const currStudy = document.getElementById("timer-current-study");
@@ -9432,7 +9432,7 @@ async function sendChatMessage() {
 
     // 🤖 실시간 회전 스피너 로딩 버블 노출
 
-    const loadingHtml = `<div style="display: flex; align-items: center; gap: 8px;"><span class="ai-spin-icon" style="font-size: 1.15rem;">🌀</span><span style="font-size: 0.85rem; font-weight: 600; color: #a78bfa;">AI 멘토가 답변을 생성 중입니다...</span></div>`;
+    const loadingHtml = `<div style="display: flex; align-items: center; gap: 8px;"><span class="ai-spin-icon" style="font-size: 1.15rem;">🌀</span><span style="font-size: 0.85rem; font-weight: 600; color: #818cf8;">AI 멘토가 답변을 생성 중입니다...</span></div>`;
 
     const loadingBubble = appendChatBubble("bot", loadingHtml, true);
 
@@ -10895,11 +10895,11 @@ function renderQAPosts() {
         // 선배 타깃팅 및 핀 뱃지
         let targetBadgeHtml = "";
         if (post.is_pinned_for_viewer) {
-            targetBadgeHtml = `<span style="background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; box-shadow: 0 0 10px rgba(236,72,153,0.3); display: inline-flex; align-items: center; gap: 3px;"><span class="material-symbols-rounded" style="font-size: 0.85rem;">push_pin</span> ${post.viewer_target_match_reason || '선배 맞춤 질문'}</span>`;
+            targetBadgeHtml = `<span style="background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; box-shadow: 0 0 10px rgba(236,72,153,0.3); display: inline-flex; align-items: center; gap: 3px;"><span class="material-symbols-rounded" style="font-size: 0.85rem;">push_pin</span> ${post.viewer_target_match_reason || '선배 맞춤 질문'}</span>`;
         } else if (post.target_type === 'HIGH_SCHOOL' && post.target_high_school) {
             targetBadgeHtml = `<span style="background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; font-weight: 700;">모교 ${post.target_high_school} 지정</span>`;
         } else if (post.target_type === 'TARGET_UNIV' && post.target_university) {
-            targetBadgeHtml = `<span style="background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; font-weight: 700;">목표 ${post.target_university} 지정</span>`;
+            targetBadgeHtml = `<span style="background: rgba(99, 102, 241,0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241,0.3); padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; font-weight: 700;">목표 ${post.target_university} 지정</span>`;
         }
         
         let commentsHtml = "";
@@ -10912,7 +10912,7 @@ function renderQAPosts() {
                 commentsHtml += `
                     <div style="background: ${c.is_accepted ? 'rgba(16,185,129,0.06)' : 'rgba(255,255,255,0.03)'}; border: 1px solid ${c.is_accepted ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)'}; padding: 10px 12px; border-radius: 8px; margin-top: 6px; font-size: 0.82rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
                         <div style="flex: 1; min-width: 0;">
-                            <div style="font-weight: 700; color: #a78bfa; margin-bottom: 3px; font-size: 0.78rem;">${c.student_name}</div>
+                            <div style="font-weight: 700; color: #818cf8; margin-bottom: 3px; font-size: 0.78rem;">${c.student_name}</div>
                             <div style="color: #e2e8f0; line-height: 1.5; white-space: pre-wrap;">${c.content}</div>
                         </div>
                         <div style="flex-shrink: 0;">${acceptBtn}</div>
@@ -11935,7 +11935,7 @@ function switchAdmissionTab(tab) {
 
             btnSusi.className = 'btn';
 
-            btnSusi.style.background = 'linear-gradient(135deg, #6366f1, #8b5cf6)';
+            btnSusi.style.background = 'linear-gradient(135deg, #6366f1, #4f46e5)';
 
         }
 
@@ -11999,7 +11999,7 @@ function switchAdmissionTab(tab) {
 
             btnReport.className = 'btn';
 
-            btnReport.style.background = 'linear-gradient(135deg, #6366f1, #8b5cf6)';
+            btnReport.style.background = 'linear-gradient(135deg, #6366f1, #4f46e5)';
 
         }
 
@@ -12460,9 +12460,9 @@ async function loadExamMaterials() {
 
                 "한국사": { bg: "rgba(217, 119, 6, 0.15)", color: "#f59e0b", icon: "🇰🇷" },
 
-                "논술": { bg: "rgba(168, 85, 247, 0.15)", color: "#c084fc", icon: "✍️" },
+                "논술": { bg: "rgba(99, 102, 241, 0.15)", color: "#818cf8", icon: "✍️" },
 
-                "논술/면접": { bg: "rgba(168, 85, 247, 0.15)", color: "#c084fc", icon: "✍️" },
+                "논술/면접": { bg: "rgba(99, 102, 241, 0.15)", color: "#818cf8", icon: "✍️" },
 
                 "사관": { bg: "rgba(244, 63, 94, 0.15)", color: "#fb7185", icon: "🎖️" },
 
@@ -14911,10 +14911,10 @@ async function loadStudentVods() {
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 10px;">
                             ${libList.map(item => `
-                                <div style="background: rgba(168,85,247,0.06); border: 1.5px solid rgba(168,85,247,0.3); border-radius: 12px; padding: 14px;">
+                                <div style="background: rgba(99, 102, 241,0.06); border: 1.5px solid rgba(99, 102, 241,0.3); border-radius: 12px; padding: 14px;">
                                     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px;">
                                         <div>
-                                            <span style="font-size: 0.7rem; background: rgba(168,85,247,0.25); color: #6b21a8; padding: 2px 8px; border-radius: 4px; font-weight: 800; margin-right: 4px;">${item.category || '특강'}</span>
+                                            <span style="font-size: 0.7rem; background: rgba(99, 102, 241,0.25); color: #6b21a8; padding: 2px 8px; border-radius: 4px; font-weight: 800; margin-right: 4px;">${item.category || '특강'}</span>
                                             <span style="font-weight: 800; font-size: 0.92rem; color: var(--text-primary);">${item.title}</span>
                                         </div>
                                     </div>
@@ -14922,7 +14922,7 @@ async function loadStudentVods() {
                                         <div style="flex: 1; min-width: 0;">
                                             ${item.password ? `<span style="font-size: 0.75rem; color: #b45309; background: rgba(245,158,11,0.15); padding: 3px 8px; border-radius: 6px; font-weight: 800; display: inline-block;">시청 비번: <b>${item.password}</b></span>` : '<span style="font-size: 0.75rem; color: #10b981; font-weight: 700;">전체 공개 영상</span>'}
                                         </div>
-                                        <a href="${item.video_url}" target="_blank" class="btn" style="margin-left: auto; flex-shrink: 0; padding: 6px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #a855f7, #7e22ce); color: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
+                                        <a href="${item.video_url}" target="_blank" class="btn" style="margin-left: auto; flex-shrink: 0; padding: 6px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
                                             ▶️ 영상 시청하기
                                         </a>
                                     </div>
@@ -15875,7 +15875,7 @@ async function loadParentWeeklyDossier() {
                 if (data.tier_info.tier_num === 4) {
                     tierBadge.style.background = "linear-gradient(135deg, #10b981, #059669)";
                 } else if (data.tier_info.tier_num === 3) {
-                    tierBadge.style.background = "linear-gradient(135deg, #6366f1, #8b5cf6)";
+                    tierBadge.style.background = "linear-gradient(135deg, #6366f1, #4f46e5)";
                 } else {
                     tierBadge.style.background = "rgba(255,255,255,0.15)";
                 }
@@ -17442,7 +17442,7 @@ async function loadSchoolBibleSummary(schoolName, subject) {
                     "linear-gradient(90deg, #38bdf8, #0ea5e9)",
                     "linear-gradient(90deg, #f59e0b, #d97706)",
                     "linear-gradient(90deg, #10b981, #059669)",
-                    "linear-gradient(90deg, #a855f7, #9333ea)"
+                    "linear-gradient(90deg, #6366f1, #4f46e5)"
                 ];
                 rankingContainer.innerHTML = topBooks.map((b, idx) => {
                     const color = barColors[idx % barColors.length];
@@ -19518,7 +19518,7 @@ function renderTitlesList() {
         if (t.tier === "입문") { tierColor = "#94a3b8"; tierBg = isDayMode ? "#f1f5f9" : "rgba(148, 163, 184, 0.12)"; }
         else if (t.tier === "일반") { tierColor = "#38bdf8"; tierBg = isDayMode ? "#e0f2fe" : "rgba(56, 189, 248, 0.12)"; }
         else if (t.tier === "레어") { tierColor = "#818cf8"; tierBg = isDayMode ? "#e0e7ff" : "rgba(129, 140, 248, 0.12)"; }
-        else if (t.tier === "에픽") { tierColor = "#c084fc"; tierBg = isDayMode ? "#f3e8ff" : "rgba(192, 132, 252, 0.12)"; }
+        else if (t.tier === "에픽") { tierColor = "#818cf8"; tierBg = isDayMode ? "#f3e8ff" : "rgba(99, 102, 241, 0.12)"; }
         else if (t.tier === "레전드") { tierColor = "#fbbf24"; tierBg = isDayMode ? "#fef3c7" : "rgba(251, 191, 36, 0.15)"; }
         else if (t.tier === "신화") { tierColor = "#f43f5e"; tierBg = isDayMode ? "#ffe4e6" : "rgba(244, 63, 94, 0.15)"; }
 
