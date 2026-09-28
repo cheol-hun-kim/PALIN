@@ -144,40 +144,44 @@
             color: #ffffff;
         }
         .admin-tab-nav {
-            display: flex;
-            gap: 6px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 8px;
             margin-bottom: 20px;
-            overflow-x: auto;
-            padding-bottom: 6px;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: thin;
+            width: 100%;
         }
         .admin-cockpit-tab-btn {
-            padding: 10px 15px;
-            font-size: 0.82rem;
+            padding: 12px 10px;
+            font-size: 0.84rem;
             font-weight: 800;
-            border-radius: 10px;
-            border: 1.8px solid rgba(255, 255, 255, 0.2) !important;
-            background: rgba(255, 255, 255, 0.05) !important;
+            border-radius: 12px;
+            border: 1.5px solid rgba(255, 255, 255, 0.15) !important;
+            background: rgba(255, 255, 255, 0.04) !important;
             color: #cbd5e1 !important;
             cursor: pointer;
             white-space: nowrap;
-            transition: all 0.2s ease;
-            display: inline-flex;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
-            flex-shrink: 0;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
         .admin-cockpit-tab-btn:hover {
-            background: rgba(255, 255, 255, 0.12) !important;
-            border-color: rgba(255, 255, 255, 0.5) !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: rgba(99, 102, 241, 0.4) !important;
             color: #ffffff !important;
+            transform: translateY(-1px);
         }
         .admin-cockpit-tab-btn.active {
             background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
-            border: 1.8px solid #818cf8 !important;
+            border: 1.5px solid #818cf8 !important;
             color: #ffffff !important;
-            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4) !important;
+        }
+        .admin-cockpit-tab-btn.active span {
+            color: #ffffff !important;
         }
         .section-title {
             font-size: 1rem;
@@ -3013,6 +3017,11 @@
                 const data = await res.json();
                 if (res.ok && data.authenticated) {
                     sessionStorage.setItem("palin_admin_authenticated", "true");
+                    if (data.is_master) {
+                        sessionStorage.setItem("palin_super_admin", "true");
+                    } else {
+                        sessionStorage.removeItem("palin_super_admin");
+                    }
                     if (data.tenant_code) {
                         currentTenantCode = data.tenant_code;
                         currentTenantName = data.tenant_name || "가맹학원";
@@ -3032,8 +3041,15 @@
                     }
                 }
             } catch(e) {
-                if (pin === "12Yonsei21*" || pin === "12862386" || pin === "10101010") {
+                if (pin === "12Yonsei21*") {
                     sessionStorage.setItem("palin_admin_authenticated", "true");
+                    sessionStorage.setItem("palin_super_admin", "true");
+                    document.getElementById("admin-login-screen").style.display = "none";
+                    document.getElementById("admin-dashboard-screen").style.display = "block";
+                    fetchDashboardData(); updateMasterBtnVisibility();
+                } else if (pin === "12862386" || pin === "10101010") {
+                    sessionStorage.setItem("palin_admin_authenticated", "true");
+                    sessionStorage.removeItem("palin_super_admin");
                     document.getElementById("admin-login-screen").style.display = "none";
                     document.getElementById("admin-dashboard-screen").style.display = "block";
                     fetchDashboardData(); updateMasterBtnVisibility();
@@ -3045,6 +3061,7 @@
 
         function adminLogout() {
             sessionStorage.removeItem("palin_admin_authenticated");
+            sessionStorage.removeItem("palin_super_admin");
             sessionStorage.removeItem("palin_shadow_mode");
             sessionStorage.removeItem("palin_shadow_tenant_code");
             location.reload();
@@ -5195,8 +5212,7 @@
             const masterBtn = document.getElementById("admin-master-console-btn");
             if (!masterBtn) return;
             const isSuperAdmin = (sessionStorage.getItem("palin_super_admin") === "true") ||
-                                (localStorage.getItem("userRole") === "SUPER_ADMIN") ||
-                                (currentTenantCode && (currentTenantCode === "ADMIN" || currentTenantCode === "MASTER"));
+                                (localStorage.getItem("userRole") === "SUPER_ADMIN");
             if (isSuperAdmin) {
                 masterBtn.style.display = "inline-flex";
             } else {

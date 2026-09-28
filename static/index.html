@@ -3584,16 +3584,16 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <div style="font-size: 0.78rem; font-weight: 800; color: #818cf8; display: flex; align-items: center; justify-content: space-between;">
                         <span style="display: flex; align-items: center; gap: 5px;">
                             <span class="material-symbols-rounded" style="font-size: 1.05rem;">admin_panel_settings</span>
-                            관리자 & 마스터 전용 관제실
+                            <span id="mypage-admin-section-title">관리자 & 마스터 전용 관제실</span>
                         </span>
                         <span style="font-size: 0.65rem; background: #6366f1; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 800;">AUTHORIZED</span>
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px;">
-                        <a href="/admin.html" target="_blank" class="btn" style="text-decoration: none; padding: 10px 8px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(99,102,241,0.35);">
+                    <div style="display: flex; gap: 8px; margin-top: 4px;" id="mypage-admin-btn-group">
+                        <a id="mypage-admin-director-btn" href="/admin.html" target="_blank" class="btn" style="flex: 1; text-decoration: none; padding: 10px 8px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(99,102,241,0.35);">
                             <span class="material-symbols-rounded" style="font-size: 1.1rem;">shield_person</span>
                             <span>원장 관제실</span>
                         </a>
-                        <a href="/master.html" target="_blank" class="btn" style="text-decoration: none; padding: 10px 8px; font-size: 0.82rem; font-weight: 900; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(245,158,11,0.35); border: 1px solid #fbbf24;">
+                        <a id="mypage-godmode-btn" href="/master.html" target="_blank" class="btn" style="display: none; flex: 1; text-decoration: none; padding: 10px 8px; font-size: 0.82rem; font-weight: 900; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border-radius: 10px; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(245,158,11,0.35); border: 1px solid #fbbf24;">
                             <span class="material-symbols-rounded" style="font-size: 1.1rem;">bolt</span>
                             <span>갓모드 콘솔</span>
                         </a>

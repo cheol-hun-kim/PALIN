@@ -6336,13 +6336,19 @@ function applyRolePermissions(role) {
         mypageSchoolSwitcher.style.display = isMasterUser ? 'block' : 'none';
     }
 
-    // 2. MyPage Admin Link
-
+    // 2. MyPage Admin Link & God-Mode Isolation
     const mypageAdminRow = document.getElementById('mypage-admin-row');
-
     if (mypageAdminRow) {
         if (userRole === 'SUPER_ADMIN' || userRole === 'TENANT_ADMIN' || userRole === 'DIRECTOR' || isMasterUser) {
             mypageAdminRow.style.display = 'flex';
+            const godModeBtn = document.getElementById('mypage-godmode-btn');
+            if (godModeBtn) {
+                godModeBtn.style.display = isMasterUser ? 'flex' : 'none';
+            }
+            const sectionTitle = document.getElementById('mypage-admin-section-title');
+            if (sectionTitle) {
+                sectionTitle.textContent = isMasterUser ? '관리자 & 마스터 전용 관제실' : '학원장 전용 관제실';
+            }
         } else {
             mypageAdminRow.style.display = 'none';
         }
