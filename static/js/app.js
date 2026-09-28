@@ -5243,19 +5243,27 @@ function setupDistractionDetection() {
 }
 
 function updateTimerDisplay(seconds) {
-
     const circle = document.getElementById("timer-circle");
-
     if (!circle) return;
-
     const hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
-
     const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
-
     const secs = String(seconds % 60).padStart(2, '0');
-
     circle.innerText = `${hrs}:${mins}:${secs}`;
 
+    const badge = document.getElementById("timer-badge-status");
+    if (badge) {
+        if (seconds > 0) {
+            badge.innerText = `${hrs}:${mins}:${secs} 몰입중`;
+            badge.style.background = 'rgba(245,158,11,0.18)';
+            badge.style.color = '#fbbf24';
+            badge.style.border = '1px solid rgba(245,158,11,0.35)';
+        } else {
+            badge.innerText = '00:00:00 대기중';
+            badge.style.background = 'rgba(168,85,247,0.15)';
+            badge.style.color = '#c084fc';
+            badge.style.border = '1px solid rgba(168,85,247,0.3)';
+        }
+    }
 }
 
 // --- API 연동 함수들 ---
@@ -9274,12 +9282,22 @@ async function stopTimerForcefully(triggeredByDistraction = false) {
     
 
     const timerBtn = document.getElementById("timer-toggle-btn");
+    if (timerBtn) {
+        timerBtn.innerText = "공부 시작";
+        timerBtn.style.backgroundColor = "#8b5cf6";
+        timerBtn.style.boxShadow = "0 4px 14px rgba(139,92,246,0.4)";
+    }
 
-    timerBtn.innerText = "공부 시작";
+    const badge = document.getElementById("timer-badge-status");
+    if (badge) {
+        badge.innerText = "00:00:00 대기중";
+        badge.style.background = "rgba(168,85,247,0.15)";
+        badge.style.color = "#c084fc";
+        badge.style.border = "1px solid rgba(168,85,247,0.3)";
+    }
 
-    timerBtn.style.backgroundColor = "var(--color-success)";
-
-    document.getElementById("timer-current-study").innerText = "대기 중: 할 일을 골라 측정을 시작하세요";
+    const currStudy = document.getElementById("timer-current-study");
+    if (currStudy) currStudy.innerText = "대기 중: 할 일을 골라 측정을 시작하세요";
 
     try {
 
