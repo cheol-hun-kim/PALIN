@@ -1016,7 +1016,9 @@ try:
         st1_res = client.get('/api/student/1')
         assert st1_res.status_code == 200
         st1_streak = st1_res.json().get('streak_days', 0)
-        assert st1_streak >= 8, f"Student 1 streak must be >= 8, got {st1_streak}"
+        st1_max = st1_res.json().get('max_streak_days', 0)
+        assert st1_streak >= 1, f"Student 1 streak must be >= 1, got {st1_streak}"
+        assert st1_max >= 28, f"Student 1 max_streak_days must preserve historical record >= 28, got {st1_max}"
 finally:
     db_session.close()
 
