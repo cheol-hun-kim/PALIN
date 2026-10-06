@@ -1,6 +1,8 @@
 {
   "name": "PASS MATE | 수험생 입시 관제 플랫폼",
   "short_name": "PASS MATE",
+  "id": "/",
+  "scope": "/",
   "description": "데이터 기반 행동 통제 및 대입 수시·정시 합격 예측 관리 시스템",
   "start_url": "/",
   "display": "standalone",
@@ -12,12 +14,25 @@
       "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
