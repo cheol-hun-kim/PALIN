@@ -32,10 +32,10 @@ class Student(Base):
     name = Column(String)
     phone = Column(String)
     grade = Column(Integer)  # 고1=1, 고2=2, 고3=3
-    region = Column(String)  # 지역 (예: 경기도 성남시 분당구)
+    region = Column(String, index=True)  # 지역 (예: 경기도 성남시 분당구)
     sido = Column(String, default="경기도") # 시도
     sigungu = Column(String, default="성남시 분당구") # 시군구
-    high_school = Column(String)  # 고등학교 (예: 낙생고등학교)
+    high_school = Column(String, index=True)  # 고등학교 (예: 낙생고등학교)
     high_school_type = Column(String, default="일반고") # 일반고 | 전국자사고 | 광역자사고 | 과학고 | 외국어고 | 영재학교 | 특성화고
     target_univ = Column(String)  # 목표 대학/학과
     baseline_univ = Column(String)  # 마지노선 대학/학과
@@ -205,7 +205,7 @@ class GoldenTicket(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     code = Column(String, unique=True, index=True)
-    referrer_id = Column(Integer, ForeignKey("students.id"))
+    referrer_id = Column(Integer, ForeignKey("students.id"), index=True)
     claimed_by_id = Column(Integer, ForeignKey("students.id"), nullable=True)
     is_claimed = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -267,12 +267,12 @@ class StudySession(Base):
     __tablename__ = "study_sessions"
 
     id = Column(Integer, primary_key=True, index=True)
-    student_id = Column(Integer, ForeignKey("students.id"))
+    student_id = Column(Integer, ForeignKey("students.id"), index=True)
     start_time = Column(DateTime)
     end_time = Column(DateTime, nullable=True)
     duration_sec = Column(Integer, default=0)
     is_distracted = Column(Boolean, default=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
     deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
     student = relationship("Student", back_populates="study_sessions")
