@@ -153,9 +153,105 @@ def send_mock_sms(to_phone: str, message: str):
 
 import random
 import time
+from typing import Optional
 from app.email_service import send_real_email_otp, load_email_settings, save_email_settings, test_smtp_connection
 
 EMAIL_OTP_STORE: Dict[str, Dict[str, Any]] = {}
+
+class ReadMathEmailPayload(BaseModel):
+    email: str
+    code: Optional[str] = None
+
+@app.post("/api/readmath/send-email-otp")
+def readmath_send_email_otp(payload: ReadMathEmailPayload):
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+
+    clean_email = str(payload.email).strip().lower()
+    code = payload.code.strip() if payload.code else f"{random.randint(100000, 999999)}"
+    expires_at = time.time() + 300
+
+    smtp_user = "1286orbital21@gmail.com"
+    smtp_pw = "adiuvotwzlqhhmol"
+    smtp_host = "smtp.gmail.com"
+    smtp_port = 587
+    from_name = "리드매스 (ReadMath)"
+
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = "[ReadMath 리드매스] 학생 회원가입 본인확인 인증번호"
+        msg["From"] = f"{from_name} <{smtp_user}>"
+        msg["To"] = clean_email
+
+        html = f"""<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="UTF-8"><title>리드매스 본인인증 번호</title></head>
+<body style="margin: 0; padding: 0; background-color: #0b0f19; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Pretendard', sans-serif;">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #0b0f19; padding: 36px 16px;">
+        <tr>
+            <td align="center">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 480px; background-color: #0f172a; border: 1.5px solid #4f46e5; border-radius: 16px; overflow: hidden; box-shadow: 0 12px 36px rgba(0,0,0,0.6);">
+                    <tr>
+                        <td style="padding: 30px 24px 20px 24px; text-align: center;">
+                            <div style="font-size: 24px; font-weight: 900; color: #ffffff; letter-spacing: -0.5px; margin-bottom: 6px;">
+                                ReadMath <span style="font-size: 13px; color: #818cf8; font-weight: 800;">리드매스</span>
+                            </div>
+                            <div style="font-size: 12.5px; color: #94a3b8; font-weight: 500;">
+                                수학은 해석의 대상이다! 1:1 시각적 원리 튜터
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0 24px 28px 24px;">
+                            <div style="background-color: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.4); border-radius: 12px; padding: 24px 16px; text-align: center;">
+                                <div style="font-size: 13px; color: #c7d2fe; margin-bottom: 14px; font-weight: 600;">
+                                    학생 회원가입 본인확인 6자리 인증번호
+                                </div>
+                                <div style="font-size: 34px; font-weight: 900; letter-spacing: 10px; color: #38bdf8; background-color: rgba(11, 15, 25, 0.85); border: 1.5px dashed #38bdf8; border-radius: 10px; padding: 14px 0; margin-bottom: 14px; font-family: monospace;">
+                                    {code}
+                                </div>
+                                <div style="font-size: 12px; color: #f87171; font-weight: 700;">
+                                    유효시간: 5분 (300초 이내 입력)
+                                </div>
+                            </div>
+                            <div style="margin-top: 22px; font-size: 11px; color: #64748b; line-height: 1.5; text-align: center;">
+                                * 본 인증번호는 리드매스 회원가입 및 본인 확인 목적으로만 사용됩니다.<br/>
+                                * 본인이 요청하지 않은 경우 이 메일을 안전하게 무시하셔도 됩니다.
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>"""
+        msg.attach(MIMEText(html, "html", "utf-8"))
+
+        server = smtplib.SMTP(smtp_host, smtp_port, timeout=12)
+        server.starttls()
+        server.login(smtp_user, smtp_pw)
+        server.sendmail(smtp_user, clean_email, msg.as_string())
+        server.quit()
+    except Exception as e:
+        print(f"[READMATH SMTP ERROR] {e}")
+        raise HTTPException(status_code=500, detail=f"인증 이메일 발송에 실패했습니다: {str(e)}")
+
+    EMAIL_OTP_STORE[clean_email] = {
+        "code": code,
+        "expires_at": expires_at,
+        "verified": False,
+        "created_at": time.time()
+    }
+
+    return {
+        "success": True,
+        "status": "success",
+        "code": code,
+        "message": f"[{clean_email}]로 6자리 인증번호가 발송되었습니다.",
+        "expires_in": 300
+    }
 
 @app.post("/api/auth/send-email-otp")
 def send_email_otp(payload: schemas.EmailOtpSendPayload, db: Session = Depends(get_db)):
