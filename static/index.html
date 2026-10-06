@@ -713,10 +713,6 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <span class="logo-subtext">by PALIN</span>
             </div>
             <div class="user-status">
-                <!-- PWA 홈 화면 바로가기 추가 버튼 -->
-                <button type="button" onclick="triggerPwaInstall()" class="btn btn-secondary header-theme-btn" id="header-pwa-install-btn" title="스마트폰 바탕화면에 앱 바로가기 설치">
-                    <span class="material-symbols-rounded" style="font-size: 1.15rem; line-height: 1; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; color: #818cf8;">install_mobile</span>
-                </button>
                 <!-- 테마 모드 전환 버튼 -->
                 <button type="button" onclick="togglePALINTheme()" class="btn btn-secondary header-theme-btn" title="라이트/다크 모드 전환">
                     <span id="theme-toggle-icon" class="material-symbols-rounded" style="font-size: 1.15rem; line-height: 1; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle;">dark_mode</span>
@@ -5316,10 +5312,6 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPwaPrompt = e;
-        const headerBtn = document.getElementById('header-pwa-install-btn');
-        if (headerBtn) {
-            headerBtn.style.display = 'inline-flex';
-        }
     });
 
     window.addEventListener('appinstalled', () => {
