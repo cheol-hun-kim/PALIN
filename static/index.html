@@ -722,7 +722,11 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <span class="logo-subtext">by PALIN</span>
             </div>
             <div class="user-status">
-                <!-- 🌓 테마 모드 전환 버튼 -->
+                <!-- PWA 홈 화면 바로가기 추가 버튼 -->
+                <button type="button" onclick="triggerPwaInstall()" class="btn btn-secondary header-theme-btn" id="header-pwa-install-btn" title="스마트폰 바탕화면에 앱 바로가기 설치">
+                    <span class="material-symbols-rounded" style="font-size: 1.15rem; vertical-align: middle; color: #818cf8;">install_mobile</span>
+                </button>
+                <!-- 테마 모드 전환 버튼 -->
                 <button type="button" onclick="togglePALINTheme()" class="btn btn-secondary header-theme-btn" title="라이트/다크 모드 전환">
                     <span id="theme-toggle-icon" class="material-symbols-rounded" style="font-size: 1.15rem; vertical-align: middle;">dark_mode</span>
                 </button>
@@ -3627,7 +3631,21 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <span class="material-symbols-rounded mypage-chevron">chevron_right</span>
                 </div>
 
-                <!-- 6. 낮/밤 테마 모드 전환 -->
+                <!-- 6. 스마트폰 홈 화면 바로가기 추가 (PWA) -->
+                <div onclick="triggerPwaInstall()" class="mypage-menu-row" style="cursor: pointer; background: rgba(99, 102, 241, 0.08); border: 1.5px solid rgba(99, 102, 241, 0.35);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="mypage-icon-box" style="background: rgba(99, 102, 241, 0.2); color: #818cf8;">
+                            <span class="material-symbols-rounded">install_mobile</span>
+                        </div>
+                        <div>
+                            <div class="mypage-menu-title" style="color: #818cf8; font-weight: 800;">스마트폰 바탕화면 바로가기 추가</div>
+                            <div class="mypage-menu-desc">앱스토어 없이 홈 화면에서 단독 앱으로 실행</div>
+                        </div>
+                    </div>
+                    <span class="material-symbols-rounded mypage-chevron" style="color: #818cf8;">add_to_home_screen</span>
+                </div>
+
+                <!-- 7. 낮/밤 테마 모드 전환 -->
                 <div id="theme-toggle-btn" class="mypage-menu-row" onclick="togglePALINTheme()" style="cursor: pointer;">
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <div class="mypage-icon-box mypage-icon-theme">
@@ -5221,10 +5239,78 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
+    <!-- PWA 홈 화면 바로가기 추가 안내 모달 (NO EMOJIS) -->
+    <div id="pwa-guide-modal" class="trigger-modal" style="display: none;">
+        <div class="trigger-content" style="max-width: 440px; max-height: 88vh; overflow-y: auto; border-color: #6366f1; background: #0f172a !important; color: #ffffff !important; padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="material-symbols-rounded" style="font-size: 1.5rem; color: #818cf8;">install_mobile</span>
+                    <div>
+                        <div style="font-size: 1.15rem; font-weight: 800; color: #818cf8;">스마트폰 바탕화면 바로가기 추가</div>
+                        <div style="font-size: 0.72rem; color: #94a3b8;">앱스토어 없이 홈 화면에서 전체화면 앱으로 실행</div>
+                    </div>
+                </div>
+                <button onclick="closePwaGuideModal()" class="modal-close-btn" title="닫기" style="background: rgba(255, 255, 255, 0.2) !important; color: #ffffff !important; border: 1.5px solid rgba(255, 255, 255, 0.4) !important; width: 34px; height: 34px; border-radius: 50%; font-size: 1.3rem; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</button>
+            </div>
+
+            <!-- 안드로이드 안내 카드 -->
+            <div style="background: rgba(99, 102, 241, 0.08); border: 1.5px solid rgba(99, 102, 241, 0.3); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span style="font-size: 0.84rem; font-weight: 800; color: #a5b4fc; display: flex; align-items: center; gap: 6px;">
+                        <span class="material-symbols-rounded" style="font-size: 1.1rem; color: #818cf8;">android</span>
+                        안드로이드 (삼성 인터넷 / 크롬)
+                    </span>
+                    <span style="font-size: 0.65rem; background: #4338ca; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 700;">간편 설치</span>
+                </div>
+                <ol style="font-size: 0.78rem; color: #cbd5e1; line-height: 1.6; margin: 0; padding-left: 18px;">
+                    <li>아래 [지금 바로가기 추가하기] 버튼을 터치합니다.</li>
+                    <li>설치 창이 뜨지 않는 경우, 브라우저 메뉴(점 3개 또는 줄 3개)를 누릅니다.</li>
+                    <li>[홈 화면에 추가] 또는 [앱 설치]를 선택하면 바탕화면에 생성됩니다.</li>
+                </ol>
+            </div>
+
+            <!-- 아이폰 사파리 안내 카드 -->
+            <div style="background: rgba(245, 158, 11, 0.08); border: 1.5px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span style="font-size: 0.84rem; font-weight: 800; color: #fbbf24; display: flex; align-items: center; gap: 6px;">
+                        <span class="material-symbols-rounded" style="font-size: 1.1rem; color: #f59e0b;">phone_iphone</span>
+                        아이폰 (사파리 Safari)
+                    </span>
+                    <span style="font-size: 0.65rem; background: #b45309; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 700;">3단계 추가</span>
+                </div>
+                <ol style="font-size: 0.78rem; color: #cbd5e1; line-height: 1.6; margin: 0; padding-left: 18px;">
+                    <li>Safari 하단 중앙의 [공유 버튼(네모 위 화살표)]을 누릅니다.</li>
+                    <li>나타난 메뉴를 아래로 스크롤하여 [홈 화면에 추가]를 선택합니다.</li>
+                    <li>우측 상단의 [추가]를 누르면 바탕화면에 PASS MATE 앱이 생성됩니다.</li>
+                </ol>
+            </div>
+
+            <!-- PC 데스크톱 안내 카드 -->
+            <div style="background: rgba(16, 185, 129, 0.08); border: 1.5px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span style="font-size: 0.84rem; font-weight: 800; color: #34d399; display: flex; align-items: center; gap: 6px;">
+                        <span class="material-symbols-rounded" style="font-size: 1.1rem; color: #10b981;">laptop</span>
+                        PC (크롬 / 엣지 브라우저)
+                    </span>
+                    <span style="font-size: 0.65rem; background: #065f46; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 700;">데스크톱 앱</span>
+                </div>
+                <p style="font-size: 0.78rem; color: #cbd5e1; line-height: 1.5; margin: 0;">
+                    주소창 우측의 [설치] 아이콘을 클릭하거나 브라우저 설정에서 [PASS MATE 설치]를 누르면 단독 데스크톱 앱으로 즉시 실행됩니다.
+                </p>
+            </div>
+
+            <button type="button" onclick="triggerPwaInstall()" class="btn" style="width: 100%; padding: 13px 0; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 8px; box-shadow: 0 4px 15px rgba(99,102,241,0.4);">
+                <span class="material-symbols-rounded">download</span>지금 홈 화면에 바로가기 추가하기
+            </button>
+            <button type="button" onclick="closePwaGuideModal()" class="btn" style="width: 100%; padding: 11px 0; font-size: 0.88rem; font-weight: 700; background: #334155; color: #ffffff !important; border-radius: 8px;">
+                닫기
+            </button>
+        </div>
+    </div>
+
     <script src="js/app.js?v=20260928_unify_purple_v2"></script>
     <script>
     // Service Worker Registration with Force Update & Immediate Activation
-    // 💥 모든 Service Worker 전량 강제 삭제 & 등록 취소
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(regs => {
             for (let reg of regs) {
@@ -5241,6 +5327,47 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             }
         });
     }
+
+    // ================= PWA HOME SCREEN SHORTCUT & INSTALLATION ENGINE =================
+    let deferredPwaPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPwaPrompt = e;
+        const headerBtn = document.getElementById('header-pwa-install-btn');
+        if (headerBtn) {
+            headerBtn.style.display = 'inline-flex';
+        }
+    });
+
+    window.addEventListener('appinstalled', () => {
+        deferredPwaPrompt = null;
+        console.log('[PASS MATE PWA] App installed successfully');
+    });
+
+    window.triggerPwaInstall = function() {
+        if (deferredPwaPrompt) {
+            deferredPwaPrompt.prompt();
+            deferredPwaPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('[PASS MATE PWA] User accepted install prompt');
+                }
+                deferredPwaPrompt = null;
+            });
+        } else {
+            openPwaGuideModal();
+        }
+    };
+
+    window.openPwaGuideModal = function() {
+        const modal = document.getElementById('pwa-guide-modal');
+        if (modal) modal.style.display = 'flex';
+    };
+
+    window.closePwaGuideModal = function() {
+        const modal = document.getElementById('pwa-guide-modal');
+        if (modal) modal.style.display = 'none';
+    };
     </script>
 
 
