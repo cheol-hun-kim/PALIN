@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from datetime import datetime, timedelta, date
 from typing import List, Optional, Dict, Any, Union
 from pydantic import BaseModel
@@ -3599,20 +3599,28 @@ def get_admin_dashboard(tenant_code: Optional[str] = "ILWON-2027", db: Session =
             models.Parent.deleted_at == None,
             models.Parent.id.in_(parent_ids)
         ).all() if parent_ids else []
-        missions = db.query(models.MissionLog).filter(models.MissionLog.student_id.in_(student_ids)).order_by(models.MissionLog.created_at.desc()).limit(15).all() if student_ids else []
-        studies = db.query(models.StudySession).filter(models.StudySession.student_id.in_(student_ids)).order_by(models.StudySession.created_at.desc()).limit(15).all() if student_ids else []
+        missions = db.query(models.MissionLog).options(joinedload(models.MissionLog.student)).filter(models.MissionLog.student_id.in_(student_ids)).order_by(models.MissionLog.created_at.desc()).limit(15).all() if student_ids else []
+        studies = db.query(models.StudySession).options(joinedload(models.StudySession.student)).filter(models.StudySession.student_id.in_(student_ids)).order_by(models.StudySession.created_at.desc()).limit(15).all() if student_ids else []
     else:
         students = db.query(models.Student).filter(models.Student.deleted_at == None).all()
         parents = db.query(models.Parent).filter(models.Parent.deleted_at == None).all()
-        missions = db.query(models.MissionLog).order_by(models.MissionLog.created_at.desc()).limit(15).all()
-        studies = db.query(models.StudySession).order_by(models.StudySession.created_at.desc()).limit(15).all()
+        missions = db.query(models.MissionLog).options(joinedload(models.MissionLog.student)).order_by(models.MissionLog.created_at.desc()).limit(15).all()
+        studies = db.query(models.StudySession).options(joinedload(models.StudySession.student)).order_by(models.StudySession.created_at.desc()).limit(15).all()
     
-    feedbacks = db.query(models.Feedback).order_by(models.Feedback.created_at.desc()).all()
+    feedbacks = db.query(models.Feedback).options(joinedload(models.Feedback.student)).order_by(models.Feedback.created_at.desc()).limit(50).all()
     pending_tutors_raw = db.query(models.TutorProfile).filter(models.TutorProfile.is_verified == False).order_by(models.TutorProfile.created_at.desc()).all()
     
     biz_type = getattr(tenant, "business_type", "HIGH_ACADEMY") or "HIGH_ACADEMY"
     seat_layout = getattr(tenant, "seat_layout_json", "[]") or "[]"
     target_schools = getattr(tenant, "target_schools_json", "[]") or "[]"
+
+    # Pre-aggregate golden tickets in 1 single query instead of 200+ N+1 queries
+    ticket_counts = dict(
+        db.query(
+            models.GoldenTicket.referrer_id,
+            func.count(models.GoldenTicket.id)
+        ).group_by(models.GoldenTicket.referrer_id).all()
+    )
 
     tier_counts = {"PLATINUM": 0, "GOLD": 0, "SILVER": 0, "BRONZE": 0}
     student_list = []
@@ -3665,7 +3673,7 @@ def get_admin_dashboard(tenant_code: Optional[str] = "ILWON-2027", db: Session =
             "point_multiplier": s.point_multiplier or 1.0,
             "current_points": s.current_points or 0,
             "diligence_score": s.diligence_score or 0,
-            "golden_tickets_count": getattr(s, "golden_tickets_count", len(s.golden_tickets) if hasattr(s, "golden_tickets") and s.golden_tickets else 0),
+            "golden_tickets_count": ticket_counts.get(s.id, 0),
             "is_banned": getattr(s, "is_banned", False),
             "ban_reason": getattr(s, "ban_reason", "") or "",
             "academy_code": getattr(s, "academy_code", None),
@@ -8396,38 +8404,33 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
     my_rem_mins = my_mins % 60
     my_time_str = f"{my_hours}시간 {my_rem_mins}분" if my_hours > 0 else f"{my_rem_mins}분"
 
-    # 1. Real Region Ranking Calculation
+    # 1. Real Region & School Filtering
     region_students = db.query(models.Student).filter(
         models.Student.deleted_at == None,
         or_(*region_cond)
     ).all() if reg_clean else [student]
 
-    region_scores = []
-    for st in region_students:
-        st_sess = db.query(models.StudySession).filter(
-            models.StudySession.student_id == st.id,
-            models.StudySession.created_at >= week_start,
-            models.StudySession.deleted_at == None
-        ).all()
-        sec = sum((s.duration_sec or 0) for s in st_sess)
-        region_scores.append((st.id, sec))
-    region_scores.sort(key=lambda x: x[1], reverse=True)
-
-    # 2. Real School Ranking Calculation
     school_students = db.query(models.Student).filter(
         models.Student.deleted_at == None,
         or_(*school_cond)
     ).all() if school else [student]
 
-    school_scores = []
-    for st in school_students:
-        st_sess = db.query(models.StudySession).filter(
-            models.StudySession.student_id == st.id,
-            models.StudySession.created_at >= week_start,
-            models.StudySession.deleted_at == None
-        ).all()
-        sec = sum((s.duration_sec or 0) for s in st_sess)
-        school_scores.append((st.id, sec))
+    # Single bulk SQL aggregate query for all weekly study seconds across region, school, and peers
+    all_cohort_ids = list(set([s.id for s in region_students] + [s.id for s in school_students] + [p.id for p in peer_students] + [student.id]))
+    session_totals = db.query(
+        models.StudySession.student_id,
+        func.coalesce(func.sum(models.StudySession.duration_sec), 0).label("total_sec")
+    ).filter(
+        models.StudySession.student_id.in_(all_cohort_ids),
+        models.StudySession.created_at >= week_start,
+        models.StudySession.deleted_at == None
+    ).group_by(models.StudySession.student_id).all()
+    seconds_map = {row[0]: int(row[1]) for row in session_totals}
+
+    region_scores = [(st.id, seconds_map.get(st.id, 0)) for st in region_students]
+    region_scores.sort(key=lambda x: x[1], reverse=True)
+
+    school_scores = [(st.id, seconds_map.get(st.id, 0)) for st in school_students]
     school_scores.sort(key=lambda x: x[1], reverse=True)
 
     region_rank = next((idx + 1 for idx, (sid, _) in enumerate(region_scores) if sid == student.id), 1)
@@ -8437,10 +8440,8 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
         region_pos_str = "기록 대기 (타이머 시작 시 진입)"
         school_pos_str = "기록 대기 (타이머 시작 시 진입)"
     else:
-        medal_r = "🥇" if region_rank == 1 else ("🥈" if region_rank == 2 else ("🥉" if region_rank == 3 else ""))
-        medal_s = "🥇" if school_rank == 1 else ("🥈" if school_rank == 2 else ("🥉" if school_rank == 3 else ""))
-        region_pos_str = f"동네 {region_rank}위 {medal_r}".strip()
-        school_pos_str = f"전교 {school_rank}위 {medal_s}".strip()
+        region_pos_str = f"동네 {region_rank}위"
+        school_pos_str = f"전교 {school_rank}위"
 
     def resolve_student_title(st, study_sec, streak):
         if st and st.equipped_title_name:
@@ -8471,12 +8472,7 @@ def get_micro_rankings(student_id: int, db: Session = Depends(get_db)):
     })
 
     for p in peer_students:
-        p_sessions = db.query(models.StudySession).filter(
-            models.StudySession.student_id == p.id,
-            models.StudySession.created_at >= week_start,
-            models.StudySession.deleted_at == None
-        ).all()
-        p_sec = sum((s.duration_sec or 0) for s in p_sessions)
+        p_sec = seconds_map.get(p.id, 0)
         p_m = p_sec // 60
         p_h = p_m // 60
         p_rm = p_m % 60

@@ -3221,11 +3221,7 @@
                 fetchDashboardData();
                 updateMasterBtnVisibility();
                 checkMandatoryNotices();
-                loadAdminSchedules();
-                try { loadAdminVodLibrary(); } catch(e) {}
-                try { loadAdminExamMaterials(); } catch(e) {}
-                try { loadAdminPrivateMaterials(); } catch(e) {}
-                try { loadBillingInvoices(); } catch(e) {}
+                // Sub-tabs (VOD, Exams, Finance, Schedules) are lazy-loaded when clicked in switchAdminCockpitTab
             }
         });
 

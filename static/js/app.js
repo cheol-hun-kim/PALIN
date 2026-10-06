@@ -7988,6 +7988,7 @@ function switchTab(tabId) {
             if (typeof loadPage2Data === 'function') loadPage2Data();
         } else if (baseTab === "page3") {
             if (typeof loadPage3Data === 'function') loadPage3Data();
+            if (typeof loadMicroRankings === 'function') loadMicroRankings();
         } else if (baseTab === "page4") {
             if (typeof loadAcademyHubView === 'function') loadAcademyHubView();
         }
@@ -10611,6 +10612,8 @@ function loadPage3Data() {
     loadTutorRequests();
 
     loadReceivedProposals();
+
+    if (typeof loadMicroRankings === 'function') loadMicroRankings();
 
 }
 
@@ -13755,14 +13758,14 @@ async function loadMicroRankings() {
             if (schPosEl) schPosEl.innerText = data.school_pos_str || "-";
 
             const liveActiveBadge = document.getElementById("live-active-studying-badge");
-            if (liveActiveBadge && data.live_active_count) {
-                liveActiveBadge.innerText = `🔥 동네 ${data.live_active_count}명 열공 중`;
+            if (liveActiveBadge) {
+                liveActiveBadge.innerText = `동네 ${data.live_active_count || 1}명 열공 중`;
             }
 
             listEl.innerHTML = "";
             (data.rankers || []).forEach(r => {
                 const medal = (r.studySeconds && r.studySeconds > 0)
-                    ? (r.rank === 1 ? "🥇" : (r.rank === 2 ? "🥈" : (r.rank === 3 ? "🥉" : `${r.rank}위`)))
+                    ? `${r.rank}위`
                     : "-";
                 const isDayMode = document.body.classList.contains('day-mode');
                 const bg = r.isMe 
