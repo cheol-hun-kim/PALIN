@@ -724,18 +724,18 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             <div class="user-status">
                 <!-- PWA 홈 화면 바로가기 추가 버튼 -->
                 <button type="button" onclick="triggerPwaInstall()" class="btn btn-secondary header-theme-btn" id="header-pwa-install-btn" title="스마트폰 바탕화면에 앱 바로가기 설치">
-                    <span class="material-symbols-rounded" style="font-size: 1.15rem; vertical-align: middle; color: #818cf8;">install_mobile</span>
+                    <span class="material-symbols-rounded" style="font-size: 1.15rem; line-height: 1; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; color: #818cf8;">install_mobile</span>
                 </button>
                 <!-- 테마 모드 전환 버튼 -->
                 <button type="button" onclick="togglePALINTheme()" class="btn btn-secondary header-theme-btn" title="라이트/다크 모드 전환">
-                    <span id="theme-toggle-icon" class="material-symbols-rounded" style="font-size: 1.15rem; vertical-align: middle;">dark_mode</span>
+                    <span id="theme-toggle-icon" class="material-symbols-rounded" style="font-size: 1.15rem; line-height: 1; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle;">dark_mode</span>
                 </button>
                 <!-- 듀오링고 연속 출석 불꽃 (명확한 연속일수 안내) -->
                 <div class="streak-badge" id="header-streak-badge" title="연속 학습 미션 성공 기록 (클릭하여 주간 현황 확인)">
                     <span class="material-symbols-rounded" style="font-size: 1.15rem; color: #f97316;">local_fire_department</span>
                     <span id="header-streak-count">0일</span>
                 </div>
-                <!-- 👤 마이페이지 & 자산 관리 버튼 -->
+                <!-- 마이페이지 & 자산 관리 버튼 -->
                 <button id="header-mypage-btn" onclick="openMyPageModal()" class="header-user-btn">
                     <span class="material-symbols-rounded header-user-icon">account_circle</span>
                     <span id="header-student-name">내 정보</span>

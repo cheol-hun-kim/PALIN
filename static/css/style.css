@@ -2280,17 +2280,37 @@ header {
     min-width: 0 !important;
 }
 
+#header-pwa-install-btn,
 .header-theme-btn {
     padding: 0 !important;
     border-radius: 50% !important;
     width: 32px !important;
     height: 32px !important;
     min-width: 32px !important;
-    display: flex !important;
+    max-width: 32px !important;
+    min-height: 32px !important;
+    max-height: 32px !important;
+    box-sizing: border-box !important;
+    display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
+    vertical-align: middle !important;
+    line-height: 1 !important;
     font-size: 0.95rem !important;
     flex-shrink: 0 !important;
+    margin: 0 !important;
+}
+
+#header-pwa-install-btn .material-symbols-rounded,
+.header-theme-btn .material-symbols-rounded {
+    font-size: 1.15rem !important;
+    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .streak-badge {
@@ -2359,11 +2379,20 @@ header {
     .user-status {
         gap: 4px !important;
     }
+    #header-pwa-install-btn,
     .header-theme-btn {
         width: 30px !important;
         height: 30px !important;
         min-width: 30px !important;
+        max-width: 30px !important;
+        min-height: 30px !important;
+        max-height: 30px !important;
+        box-sizing: border-box !important;
         font-size: 0.9rem !important;
+    }
+    #header-pwa-install-btn .material-symbols-rounded,
+    .header-theme-btn .material-symbols-rounded {
+        font-size: 1.05rem !important;
     }
     .streak-badge {
         padding: 0 6px !important;
@@ -2395,10 +2424,19 @@ header {
     .user-status {
         gap: 3px !important;
     }
+    #header-pwa-install-btn,
     .header-theme-btn {
         width: 28px !important;
         height: 28px !important;
         min-width: 28px !important;
+        max-width: 28px !important;
+        min-height: 28px !important;
+        max-height: 28px !important;
+        box-sizing: border-box !important;
+    }
+    #header-pwa-install-btn .material-symbols-rounded,
+    .header-theme-btn .material-symbols-rounded {
+        font-size: 0.95rem !important;
     }
     .streak-badge {
         padding: 0 5px !important;
