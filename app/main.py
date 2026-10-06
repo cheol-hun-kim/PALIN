@@ -130,7 +130,7 @@ def handle_health():
 
 @app.get("/api/version")
 def handle_version():
-    return {"version": "v2.5.4", "ai_model_priority": ["gemini-3.5-flash-lite", "gemini-flash-lite-latest", "local-knowledge-engine"]}
+    return {"version": "v2.5.5-readmath-sync", "ai_model_priority": ["gemini-3.5-flash-lite", "gemini-flash-lite-latest", "local-knowledge-engine"]}
 
 try:
     from app.sms import send_sms, check_aligo_remain, save_sms_settings, load_sms_settings
@@ -297,7 +297,7 @@ def handle_save_readmath_question(payload: ReadMathQuestionPayload):
     diagnosis_str = json.dumps(payload.diagnosis, ensure_ascii=False) if payload.diagnosis else ""
 
     try:
-        with database.engine.begin() as conn:
+        with database.engine.connect() as conn:
             prob_id_str = str(payload.problem_id) if payload.problem_id is not None else ""
             if prob_id_str:
                 row = conn.execute(
@@ -313,6 +313,7 @@ def handle_save_readmath_question(payload: ReadMathQuestionPayload):
                         """),
                         {"chat": chat_history_str, "diag": diagnosis_str, "ans": payload.final_answer or "", "svg": payload.svg_diagram or "", "qid": row[0]}
                     )
+                    conn.commit()
                     return {"success": True, "action": "updated", "id": row[0]}
 
             conn.execute(
@@ -339,10 +340,13 @@ def handle_save_readmath_question(payload: ReadMathQuestionPayload):
                     "diag": diagnosis_str
                 }
             )
+            conn.commit()
         return {"success": True, "status": "saved"}
     except Exception as e:
-        print(f"[READMATH QUESTION SAVE ERROR] {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        import traceback
+        err_msg = traceback.format_exc()
+        print(f"[READMATH QUESTION SAVE ERROR] {err_msg}")
+        return {"success": False, "error": str(e), "detail": err_msg}
 
 @app.get("/api/readmath/questions")
 def handle_get_readmath_questions(student_name: Optional[str] = None, limit: int = 50):
@@ -395,7 +399,7 @@ def handle_save_readmath_user(payload: ReadMathUserPayload):
     if not clean_name:
         raise HTTPException(status_code=400, detail="Name required.")
     try:
-        with database.engine.begin() as conn:
+        with database.engine.connect() as conn:
             clean_phone = payload.phone.strip() if payload.phone else ""
             clean_email = payload.email.strip().lower() if payload.email else ""
             existing = None
@@ -409,16 +413,20 @@ def handle_save_readmath_user(payload: ReadMathUserPayload):
                     text("UPDATE readmath_users SET name = :name, school = :school, grade = :grade, email = :email, is_suspended = :susp WHERE id = :uid"),
                     {"name": clean_name, "school": payload.school or "", "grade": payload.grade or "", "email": clean_email, "susp": payload.is_suspended or False, "uid": existing[0]}
                 )
+                conn.commit()
                 return {"success": True, "action": "updated", "id": existing[0]}
             else:
                 conn.execute(
                     text("INSERT INTO readmath_users (name, school, grade, phone, email, is_suspended) VALUES (:name, :school, :grade, :phone, :email, :susp)"),
                     {"name": clean_name, "school": payload.school or "", "grade": payload.grade or "", "phone": clean_phone, "email": clean_email, "susp": payload.is_suspended or False}
                 )
+                conn.commit()
                 return {"success": True, "action": "created"}
     except Exception as e:
-        print(f"[READMATH USER SAVE ERROR] {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        import traceback
+        err_msg = traceback.format_exc()
+        print(f"[READMATH USER SAVE ERROR] {err_msg}")
+        return {"success": False, "error": str(e), "detail": err_msg}
 
 @app.get("/api/readmath/users")
 def handle_get_readmath_users(limit: int = 100):
@@ -445,15 +453,18 @@ def handle_get_readmath_users(limit: int = 100):
 @app.post("/api/readmath/feedbacks")
 def handle_save_readmath_feedback(payload: ReadMathFeedbackPayload):
     try:
-        with database.engine.begin() as conn:
+        with database.engine.connect() as conn:
             conn.execute(
                 text("INSERT INTO readmath_feedbacks (student_name, student_school, student_phone, content) VALUES (:name, :school, :phone, :content)"),
                 {"name": payload.student_name or "", "school": payload.student_school or "", "phone": payload.student_phone or "", "content": payload.content}
             )
+            conn.commit()
         return {"success": True, "status": "received"}
     except Exception as e:
-        print(f"[READMATH FEEDBACK SAVE ERROR] {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        import traceback
+        err_msg = traceback.format_exc()
+        print(f"[READMATH FEEDBACK SAVE ERROR] {err_msg}")
+        return {"success": False, "error": str(e), "detail": err_msg}
 
 @app.get("/api/readmath/feedbacks")
 def handle_get_readmath_feedbacks(limit: int = 50):
