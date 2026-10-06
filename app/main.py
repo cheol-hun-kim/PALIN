@@ -253,6 +253,228 @@ def readmath_send_email_otp(payload: ReadMathEmailPayload):
         "expires_in": 300
     }
 
+# --- 1-1. READMATH QUESTIONS & REMOTE SYNC (SUPABASE POSTGRESQL) ---
+class ReadMathQuestionPayload(BaseModel):
+    student_name: str
+    student_school: Optional[str] = ""
+    student_grade: Optional[str] = ""
+    student_phone: Optional[str] = ""
+    student_email: Optional[str] = ""
+    problem_id: Optional[Union[str, int]] = None
+    problem_title: Optional[str] = ""
+    problem_text: Optional[str] = ""
+    curriculum_grade: Optional[str] = ""
+    final_answer: Optional[str] = ""
+    svg_diagram: Optional[str] = ""
+    prescriptions: Optional[Any] = None
+    chat_history: Optional[Any] = None
+    diagnosis: Optional[Any] = None
+    created_at: Optional[str] = None
+
+class ReadMathUserPayload(BaseModel):
+    name: str
+    school: Optional[str] = ""
+    grade: Optional[str] = ""
+    phone: Optional[str] = ""
+    email: Optional[str] = ""
+    is_suspended: Optional[bool] = False
+
+class ReadMathFeedbackPayload(BaseModel):
+    student_name: Optional[str] = ""
+    student_school: Optional[str] = ""
+    student_phone: Optional[str] = ""
+    content: str
+
+@app.post("/api/readmath/questions")
+def handle_save_readmath_question(payload: ReadMathQuestionPayload):
+    clean_name = payload.student_name.strip()
+    if not clean_name:
+        raise HTTPException(status_code=400, detail="Student name required for remote sync.")
+    
+    import json
+    prescriptions_str = json.dumps(payload.prescriptions, ensure_ascii=False) if payload.prescriptions else ""
+    chat_history_str = json.dumps(payload.chat_history, ensure_ascii=False) if payload.chat_history else ""
+    diagnosis_str = json.dumps(payload.diagnosis, ensure_ascii=False) if payload.diagnosis else ""
+
+    try:
+        with database.engine.begin() as conn:
+            prob_id_str = str(payload.problem_id) if payload.problem_id is not None else ""
+            if prob_id_str:
+                row = conn.execute(
+                    text("SELECT id FROM readmath_questions WHERE student_name = :name AND problem_id = :pid LIMIT 1"),
+                    {"name": clean_name, "pid": prob_id_str}
+                ).fetchone()
+                if row:
+                    conn.execute(
+                        text("""
+                        UPDATE readmath_questions 
+                        SET chat_history = :chat, diagnosis = :diag, final_answer = :ans, svg_diagram = :svg
+                        WHERE id = :qid
+                        """),
+                        {"chat": chat_history_str, "diag": diagnosis_str, "ans": payload.final_answer or "", "svg": payload.svg_diagram or "", "qid": row[0]}
+                    )
+                    return {"success": True, "action": "updated", "id": row[0]}
+
+            conn.execute(
+                text("""
+                INSERT INTO readmath_questions 
+                (student_name, student_school, student_grade, student_phone, student_email, problem_id, problem_title, problem_text, curriculum_grade, final_answer, svg_diagram, prescriptions, chat_history, diagnosis)
+                VALUES 
+                (:name, :school, :grade, :phone, :email, :pid, :title, :ptext, :cgrade, :ans, :svg, :presc, :chat, :diag)
+                """),
+                {
+                    "name": clean_name,
+                    "school": payload.student_school or "",
+                    "grade": payload.student_grade or "",
+                    "phone": payload.student_phone or "",
+                    "email": payload.student_email or "",
+                    "pid": prob_id_str,
+                    "title": payload.problem_title or "",
+                    "ptext": payload.problem_text or "",
+                    "cgrade": payload.curriculum_grade or "",
+                    "ans": payload.final_answer or "",
+                    "svg": payload.svg_diagram or "",
+                    "presc": prescriptions_str,
+                    "chat": chat_history_str,
+                    "diag": diagnosis_str
+                }
+            )
+        return {"success": True, "status": "saved"}
+    except Exception as e:
+        print(f"[READMATH QUESTION SAVE ERROR] {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/readmath/questions")
+def handle_get_readmath_questions(student_name: Optional[str] = None, limit: int = 50):
+    import json
+    try:
+        with database.engine.connect() as conn:
+            if student_name and student_name.strip():
+                rows = conn.execute(
+                    text("SELECT id, student_name, student_school, student_grade, student_phone, student_email, problem_id, problem_title, problem_text, curriculum_grade, final_answer, svg_diagram, prescriptions, chat_history, diagnosis, created_at FROM readmath_questions WHERE student_name = :sname ORDER BY id DESC LIMIT :lim"),
+                    {"sname": student_name.strip(), "lim": limit}
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    text("SELECT id, student_name, student_school, student_grade, student_phone, student_email, problem_id, problem_title, problem_text, curriculum_grade, final_answer, svg_diagram, prescriptions, chat_history, diagnosis, created_at FROM readmath_questions ORDER BY id DESC LIMIT :lim"),
+                    {"lim": limit}
+                ).fetchall()
+            
+            items = []
+            for r in rows:
+                def safe_json_load(v):
+                    if not v: return None
+                    try: return json.loads(v)
+                    except: return v
+                items.append({
+                    "id": r[0],
+                    "student_name": r[1],
+                    "student_school": r[2],
+                    "student_grade": r[3],
+                    "student_phone": r[4],
+                    "student_email": r[5],
+                    "problem_id": r[6],
+                    "problem_title": r[7],
+                    "problem_text": r[8],
+                    "curriculum_grade": r[9],
+                    "final_answer": r[10],
+                    "svg_diagram": r[11],
+                    "prescriptions": safe_json_load(r[12]),
+                    "chat_history": safe_json_load(r[13]),
+                    "diagnosis": safe_json_load(r[14]),
+                    "created_at": r[15].isoformat() if hasattr(r[15], "isoformat") else str(r[15])
+                })
+            return {"success": True, "count": len(items), "questions": items}
+    except Exception as e:
+        print(f"[READMATH QUESTION GET ERROR] {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/readmath/users")
+def handle_save_readmath_user(payload: ReadMathUserPayload):
+    clean_name = payload.name.strip()
+    if not clean_name:
+        raise HTTPException(status_code=400, detail="Name required.")
+    try:
+        with database.engine.begin() as conn:
+            clean_phone = payload.phone.strip() if payload.phone else ""
+            clean_email = payload.email.strip().lower() if payload.email else ""
+            existing = None
+            if clean_phone:
+                existing = conn.execute(text("SELECT id FROM readmath_users WHERE phone = :phone LIMIT 1"), {"phone": clean_phone}).fetchone()
+            elif clean_email:
+                existing = conn.execute(text("SELECT id FROM readmath_users WHERE email = :email LIMIT 1"), {"email": clean_email}).fetchone()
+            
+            if existing:
+                conn.execute(
+                    text("UPDATE readmath_users SET name = :name, school = :school, grade = :grade, email = :email, is_suspended = :susp WHERE id = :uid"),
+                    {"name": clean_name, "school": payload.school or "", "grade": payload.grade or "", "email": clean_email, "susp": payload.is_suspended or False, "uid": existing[0]}
+                )
+                return {"success": True, "action": "updated", "id": existing[0]}
+            else:
+                conn.execute(
+                    text("INSERT INTO readmath_users (name, school, grade, phone, email, is_suspended) VALUES (:name, :school, :grade, :phone, :email, :susp)"),
+                    {"name": clean_name, "school": payload.school or "", "grade": payload.grade or "", "phone": clean_phone, "email": clean_email, "susp": payload.is_suspended or False}
+                )
+                return {"success": True, "action": "created"}
+    except Exception as e:
+        print(f"[READMATH USER SAVE ERROR] {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/readmath/users")
+def handle_get_readmath_users(limit: int = 100):
+    try:
+        with database.engine.connect() as conn:
+            rows = conn.execute(text("SELECT id, name, school, grade, phone, email, is_suspended, created_at FROM readmath_users ORDER BY id DESC LIMIT :lim"), {"lim": limit}).fetchall()
+            users = []
+            for r in rows:
+                users.append({
+                    "id": r[0],
+                    "name": r[1],
+                    "school": r[2],
+                    "grade": r[3],
+                    "phone": r[4],
+                    "email": r[5],
+                    "is_suspended": bool(r[6]),
+                    "created_at": r[7].isoformat() if hasattr(r[7], "isoformat") else str(r[7])
+                })
+            return {"success": True, "count": len(users), "users": users}
+    except Exception as e:
+        print(f"[READMATH USERS GET ERROR] {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/readmath/feedbacks")
+def handle_save_readmath_feedback(payload: ReadMathFeedbackPayload):
+    try:
+        with database.engine.begin() as conn:
+            conn.execute(
+                text("INSERT INTO readmath_feedbacks (student_name, student_school, student_phone, content) VALUES (:name, :school, :phone, :content)"),
+                {"name": payload.student_name or "", "school": payload.student_school or "", "phone": payload.student_phone or "", "content": payload.content}
+            )
+        return {"success": True, "status": "received"}
+    except Exception as e:
+        print(f"[READMATH FEEDBACK SAVE ERROR] {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/readmath/feedbacks")
+def handle_get_readmath_feedbacks(limit: int = 50):
+    try:
+        with database.engine.connect() as conn:
+            rows = conn.execute(text("SELECT id, student_name, student_school, student_phone, content, created_at FROM readmath_feedbacks ORDER BY id DESC LIMIT :lim"), {"lim": limit}).fetchall()
+            feedbacks = []
+            for r in rows:
+                feedbacks.append({
+                    "id": r[0],
+                    "student_name": r[1],
+                    "student_school": r[2],
+                    "student_phone": r[3],
+                    "content": r[4],
+                    "created_at": r[5].isoformat() if hasattr(r[5], "isoformat") else str(r[5])
+                })
+            return {"success": True, "count": len(feedbacks), "feedbacks": feedbacks}
+    except Exception as e:
+        print(f"[READMATH FEEDBACKS GET ERROR] {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/auth/send-email-otp")
 def send_email_otp(payload: schemas.EmailOtpSendPayload, db: Session = Depends(get_db)):
     clean_email = payload.email.strip().lower()
