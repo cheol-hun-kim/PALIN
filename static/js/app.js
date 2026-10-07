@@ -6273,51 +6273,31 @@ async function handleSaveInitialPassword(e) {
 }
 
 function previewRoleAs(targetRole) {
-
     console.log("Godmode Role Preview Switching to:", targetRole);
-
     localStorage.setItem('userRole', targetRole);
-
     applyRolePermissions(targetRole);
 
-    
-
     const sel = document.getElementById('godmode-role-preview-select');
-
     if (sel) sel.value = targetRole;
 
     let roleNotice = "";
-
     if (targetRole === 'STUDENT') {
-
-        roleNotice = "🧑‍🎓 [학생 모드]로 전환되었습니다.\n\n• 학부모 대시보드(SMS) 및 원장 관제 링크가 완전 차단됩니다.\n• 플래너/타이머를 자유롭게 사용할 수 있습니다.\n• AI 챗봇이 학생용 독기 멘토링 모드로 응답합니다.";
-
+        roleNotice = "[학생 모드]로 전환되었습니다.\n\n• 학부모 대시보드(SMS) 및 원장 관제 링크가 완전 차단됩니다.\n• 플래너/타이머를 자유롭게 사용할 수 있습니다.\n• AI 챗봇이 학생용 독기 멘토링 모드로 응답합니다.";
     } else if (targetRole === 'PARENT') {
-
-        roleNotice = "👨‍👩‍👧 [학부모 모드]로 전환되었습니다.\n\n• 플래너/타이머가 Read-Only로 잠깁니다.\n• 학부모 SMS 대시보드 및 스폰서 지갑이 활성화됩니다.\n• AI 챗봇이 사교육 과소비를 만류하는 Anti-Marketing 모드로 응답합니다.";
-
+        roleNotice = "[학부모 모드]로 전환되었습니다.\n\n• 플래너/타이머 대신 자녀 안심 브리핑 및 응원 펀드 선물 뷰가 활성화됩니다.\n• 학부모 전용 커뮤니티(입시 Q&A, 튜터 탐색, 학군 레이더, 전략 살롱)가 열립니다.\n• AI 챗봇이 사교육 과소비를 만류하는 Anti-Marketing 모드로 응답합니다.";
     } else if (targetRole === 'TENANT_ADMIN') {
-
         roleNotice = "[가맹 원장 모드]로 전환되었습니다.\n\n• 학생 B2C 학습 뷰와 하단 GNB [원장관제] 탭이 활성화됩니다.";
-
     } else {
-
         roleNotice = "[슈퍼 어드민 갓모드]로 복귀하였습니다.\n\n• 전지전능 마스터 권한 및 전체 관제 기능이 활성화됩니다.";
-
     }
 
     alert(roleNotice);
-
 }
 
 function applyRolePermissions(role) {
-
     const userRole = role || localStorage.getItem('userRole') || 'STUDENT';
-
     const isMasterUser = (sessionStorage.getItem('palin_super_admin') === 'true') || 
-
                          (currentStudent && currentStudent.email && currentStudent.email.toLowerCase() === '1286orbital21@gmail.com') || 
-
                          (localStorage.getItem('userRole') === 'SUPER_ADMIN');
 
     // 1. Master God-mode Top Banner & School Level Switcher Bar (Only visible for Master Account)
@@ -6364,42 +6344,63 @@ function applyRolePermissions(role) {
         }
     }
 
-    // 4. Parent SMS Dashboard Isolation
+    // 4. Student vs Parent Dual View Toggling on Page 1 & Page 3
+    const studentP1View = document.getElementById('student-p1-view');
+    const parentP1View = document.getElementById('parent-p1-view');
+    const studentP3Container = document.getElementById('student-p3-container');
+    const parentP3Container = document.getElementById('parent-p3-container');
 
-    const parentSmsDashboard = document.getElementById('parent-sms-dashboard-card');
-
-    if (parentSmsDashboard) {
-
-        if (userRole === 'PARENT' || (userRole === 'SUPER_ADMIN' && isMasterUser)) {
-
-            parentSmsDashboard.style.display = 'block';
-
-        } else {
-
-            parentSmsDashboard.style.display = 'none';
-
-        }
-
-    }
-
-    // 5. Parent Read-Only Restrictions & Body Role Management
-
-    const scheduleBanner = document.getElementById('parent-schedule-readonly-banner');
+    const navItemP1 = document.querySelector('.bottom-nav .nav-item[data-tab="page1"]');
+    const navItemP3 = document.querySelector('.bottom-nav .nav-item[data-tab="page3"]');
 
     if (userRole === 'PARENT') {
-
         document.body.classList.add('role-parent');
+        if (studentP1View) studentP1View.style.display = 'none';
+        if (parentP1View) parentP1View.style.display = 'block';
+        if (studentP3Container) studentP3Container.style.display = 'none';
+        if (parentP3Container) parentP3Container.style.display = 'block';
 
-        if (scheduleBanner) scheduleBanner.style.display = 'block';
+        // Update Bottom Nav for Parent: [자녀케어, 학습공간, 학부모룸, 학원관리]
+        if (navItemP1) {
+            navItemP1.innerHTML = `<span class="material-symbols-rounded nav-icon">family_restroom</span><span>자녀케어</span>`;
+        }
+        if (navItemP3) {
+            navItemP3.innerHTML = `<span class="material-symbols-rounded nav-icon">forum</span><span>학부모룸</span>`;
+        }
 
+        if (typeof renderParentBriefing === 'function') renderParentBriefing();
+        if (typeof renderParentCommunity === 'function') renderParentCommunity();
     } else {
-
         document.body.classList.remove('role-parent');
+        if (studentP1View) studentP1View.style.display = 'block';
+        if (parentP1View) parentP1View.style.display = 'none';
+        if (studentP3Container) studentP3Container.style.display = 'block';
+        if (parentP3Container) parentP3Container.style.display = 'none';
 
-        if (scheduleBanner) scheduleBanner.style.display = 'none';
-
+        // Update Bottom Nav for Student: [생활관리, 학습공간, 커뮤니티, 학원관리]
+        if (navItemP1) {
+            navItemP1.innerHTML = `<span class="material-symbols-rounded nav-icon">local_activity</span><span>생활관리</span>`;
+        }
+        if (navItemP3) {
+            navItemP3.innerHTML = `<span class="material-symbols-rounded nav-icon">groups</span><span>커뮤니티</span>`;
+        }
     }
 
+    // 5. Parent SMS Dashboard Card
+    const parentSmsDashboard = document.getElementById('parent-sms-dashboard-card');
+    if (parentSmsDashboard) {
+        if (userRole === 'PARENT' || (userRole === 'SUPER_ADMIN' && isMasterUser)) {
+            parentSmsDashboard.style.display = 'block';
+        } else {
+            parentSmsDashboard.style.display = 'none';
+        }
+    }
+
+    // 6. Parent Read-Only Restrictions
+    const scheduleBanner = document.getElementById('parent-schedule-readonly-banner');
+    if (scheduleBanner) {
+        scheduleBanner.style.display = (userRole === 'PARENT') ? 'block' : 'none';
+    }
 }
 
 async function handleRegister(e) {
@@ -19748,7 +19749,7 @@ async function completeEbsStudySession() {
         });
         const data = await res.json();
         if (res.ok) {
-            alert(`🎉 ${data.message || '학습 시간이 기록되었습니다!'}`);
+            alert(`[학습 기록 완료] ${data.message || '학습 시간이 정상 기록되었습니다.'}`);
             closeEbsVodModal();
             if (typeof fetchStudentInfo === 'function') {
                 fetchStudentInfo();
@@ -19765,6 +19766,449 @@ window.openEbsVodModal = openEbsVodModal;
 window.closeEbsVodModal = closeEbsVodModal;
 window.selectEbsLecture = selectEbsLecture;
 window.completeEbsStudySession = completeEbsStudySession;
+
+// ==============================================================================
+// 학부모 전용 기능 & 자녀 후원(Sponsorship) 파이프라인
+// ==============================================================================
+
+function selectCheerPreset(msg) {
+    const input = document.getElementById('parent-cheer-custom-message');
+    if (input) {
+        input.value = msg;
+        input.focus();
+    }
+}
+
+function selectSponsorPoints(points, el) {
+    const hidden = document.getElementById('parent-sponsor-selected-points');
+    if (hidden) hidden.value = points;
+    
+    document.querySelectorAll('.sponsor-point-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.classList.add('btn-secondary');
+        btn.style.background = '';
+        btn.style.color = '';
+    });
+    if (el) {
+        el.classList.add('active');
+        el.classList.remove('btn-secondary');
+        el.style.background = '#6366f1';
+        el.style.color = '#ffffff';
+    }
+    const btnLabel = document.getElementById('parent-sponsor-btn-label');
+    if (btnLabel) {
+        btnLabel.textContent = `자녀에게 ${Number(points).toLocaleString()} P & 칭찬 메시지 전달하기`;
+    }
+}
+
+async function sendParentCheerFund() {
+    const sId = (currentStudent && currentStudent.id) ? currentStudent.id : (localStorage.getItem('studentId') || 1);
+    const pointsInput = document.getElementById('parent-sponsor-selected-points');
+    const points = pointsInput ? parseInt(pointsInput.value, 10) : 10000;
+    const msgInput = document.getElementById('parent-cheer-custom-message');
+    const cheerMessage = msgInput ? msgInput.value.trim() : "오늘도 묵묵히 해내는 모습이 정말 자랑스러워!";
+
+    if (!points || points <= 0) {
+        alert("선물할 포인트를 0P 이상 선택해 주세요.");
+        return;
+    }
+
+    try {
+        const res = await fetch("/api/parent/sponsor/gift-points", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                parent_id: 1,
+                student_id: parseInt(sId, 10),
+                points: points,
+                cheer_message: cheerMessage
+            })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+            throw new Error(data.detail || "포인트 선물 처리에 실패했습니다.");
+        }
+
+        // 상태 업데이트
+        if (currentStudent) {
+            currentStudent.current_points = data.student_points;
+        }
+        updateHeaderUI();
+        renderParentBriefing();
+
+        alert(`[자녀 응원 완료]\n\n자녀에게 ${points.toLocaleString()}P와 따뜻한 응원 메시지가 성공적으로 전달되었습니다.\n\n전달 메시지: "${cheerMessage}"\n자녀 현재 포인트: ${data.student_points.toLocaleString()}P`);
+    } catch (err) {
+        console.error("sendParentCheerFund Error:", err);
+        alert(err.message || "서버 통신 중 오류가 발생했습니다.");
+    }
+}
+
+function renderParentBriefing() {
+    if (!currentStudent) return;
+    const ptDisplay = document.getElementById('parent-student-point-display');
+    if (ptDisplay) {
+        const curPt = currentStudent.current_points || 0;
+        ptDisplay.textContent = `자녀 보유: ${curPt.toLocaleString()} P`;
+    }
+
+    const studyTimeEl = document.getElementById('parent-brief-study-time');
+    if (studyTimeEl) {
+        const hrs = Math.floor((currentStudent.study_hours_today || 0) / 60);
+        const mins = (currentStudent.study_hours_today || 0) % 60;
+        if (hrs > 0 || mins > 0) {
+            studyTimeEl.textContent = `${hrs}시간 ${mins}분`;
+        }
+    }
+}
+
+function switchParentP3SubTab(subTab) {
+    if (!subTab) return;
+    document.querySelectorAll(".parent-subtab-view").forEach(view => {
+        view.style.display = "none";
+    });
+    document.querySelectorAll("#parent-p3-tabs .tab-btn").forEach(btn => {
+        if (btn.getAttribute("data-parentsub") === subTab) {
+            btn.classList.add("active");
+        } else {
+            btn.classList.remove("active");
+        }
+    });
+
+    const target = document.getElementById(`parent-p3-${subTab}`);
+    if (target) target.style.display = "block";
+}
+
+let parentQAPostsList = [
+    {
+        id: 1,
+        category: "수시/학생부",
+        title: "고2 2학기 내신 2.3등급, 수시 학종으로 서성한 라인 가능할까요?",
+        author: "강남 학부모",
+        date: "2026.10.06",
+        replies: 4,
+        solved: true,
+        preview: "일반고 이과 학생이고 탐구활동 세특이 수학/물리 쪽으로 매우 탄탄한 편입니다. 3학년 1학기 때 1등급대 진입하면 서성한 학종 충분히 노려볼 수 있을지 선배님들 조언 부탁드립니다."
+    },
+    {
+        id: 2,
+        category: "정시/수능",
+        title: "고3 9모 수학 2등급에서 수능 1등급 컷 진입을 위한 실모 양치기 vs N제 복습 비중",
+        author: "목동 수험생 맘",
+        date: "2026.10.05",
+        replies: 7,
+        solved: false,
+        preview: "현재 주 3회 실모를 풀고 있는데, 22번/30번 킬러보다 준킬러 14, 15번에서 시간이 끌리는 편입니다. N제 오답 노트를 다시 꼼꼼히 돌리는 게 맞을까요?"
+    },
+    {
+        id: 3,
+        category: "멘탈/소통",
+        title: "자녀가 모의고사 이후 슬럼프가 왔을 때 학부모가 건네기 좋은 대화법",
+        author: "분당 고2 학부모",
+        date: "2026.10.04",
+        replies: 12,
+        solved: true,
+        preview: "성적이 조금 떨어졌다고 방에서 잘 나오지 않고 자책을 많이 하네요. 억지로 학원을 독려하기보다 어떻게 마음을 다독여주는 게 좋을까요?"
+    },
+    {
+        id: 4,
+        category: "학원/인강",
+        title: "대치동 대형 단과 vs 소수정예 클리닉 학원 비교 조언 부탁드립니다",
+        author: "대치 고1 학부모",
+        date: "2026.10.02",
+        replies: 5,
+        solved: true,
+        preview: "국어 비문학 구조독해를 잡으려고 하는데 100명 단과가 나을지, 6인 소수 클리닉 첨삭형이 나을지 고민입니다."
+    }
+];
+
+function renderParentCommunity() {
+    renderParentQAList(parentQAPostsList);
+    renderParentTutorList();
+    renderParentRadarContent('DAECHI');
+    renderParentSalonColumns();
+}
+
+function renderParentQAList(posts) {
+    const container = document.getElementById('parent-qa-list-container');
+    if (!container) return;
+    if (!posts || posts.length === 0) {
+        container.innerHTML = `<div style="text-align: center; color: #94a3b8; font-size: 0.8rem; padding: 20px;">등록된 학부모 질문이 없습니다.</div>`;
+        return;
+    }
+    container.innerHTML = posts.map(p => `
+        <div class="card" style="padding: 12px 14px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="font-size: 0.68rem; font-weight: 800; background: rgba(99,102,241,0.15); color: #818cf8; padding: 2px 7px; border-radius: 6px; border: 1px solid rgba(99,102,241,0.3);">${p.category}</span>
+                    <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">${p.author}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    ${p.solved ? '<span style="font-size: 0.68rem; font-weight: 800; color: #10b981; background: rgba(16,185,129,0.12); padding: 1px 6px; border-radius: 4px;">조언 채택</span>' : '<span style="font-size: 0.68rem; font-weight: 800; color: #f59e0b; background: rgba(245,158,11,0.12); padding: 1px 6px; border-radius: 4px;">답변 대기</span>'}
+                    <span style="font-size: 0.68rem; color: #64748b;">${p.date}</span>
+                </div>
+            </div>
+            <div style="font-size: 0.86rem; font-weight: 800; color: #ffffff; margin-bottom: 4px; line-height: 1.35;">${p.title}</div>
+            <div style="font-size: 0.75rem; color: #94a3b8; line-height: 1.4; margin-bottom: 8px;">${p.preview}</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: #818cf8; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 6px;">
+                <span style="display: inline-flex; align-items: center; gap: 4px;">
+                    <span class="material-symbols-rounded" style="font-size: 0.9rem;">chat</span>
+                    <span>선배 학부모 조언 ${p.replies}개</span>
+                </span>
+                <span style="font-weight: 700; cursor: pointer;" onclick="alert('학부모 상세 답변 열람 모달을 준비 중입니다.')">답변 보기 →</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+function filterParentQA(filterType, el) {
+    document.querySelectorAll('#parent-qa-filters button').forEach(b => {
+        b.classList.remove('active');
+        b.classList.add('btn-secondary');
+    });
+    if (el) {
+        el.classList.add('active');
+        el.classList.remove('btn-secondary');
+    }
+    if (filterType === 'ALL') {
+        renderParentQAList(parentQAPostsList);
+    } else if (filterType === 'ADVICE') {
+        renderParentQAList(parentQAPostsList.filter(p => p.category.includes('멘탈') || p.category.includes('수시')));
+    } else if (filterType === 'ACADEMY') {
+        renderParentQAList(parentQAPostsList.filter(p => p.category.includes('학원') || p.category.includes('정시')));
+    }
+}
+
+function createParentQAPost() {
+    const titleInput = document.getElementById('parent-qa-title');
+    const contentInput = document.getElementById('parent-qa-content');
+    const catSelect = document.getElementById('parent-qa-category');
+    const anonCheck = document.getElementById('parent-qa-anonymous');
+
+    const title = titleInput ? titleInput.value.trim() : '';
+    const content = contentInput ? contentInput.value.trim() : '';
+    const cat = catSelect ? catSelect.value : '기타';
+    const isAnon = anonCheck ? anonCheck.checked : true;
+
+    if (!title) {
+        alert("질문 제목을 입력해 주세요.");
+        return;
+    }
+    if (!content) {
+        alert("질문 세부 내용을 입력해 주세요.");
+        return;
+    }
+
+    const newPost = {
+        id: Date.now(),
+        category: cat,
+        title: title,
+        author: isAnon ? "익명 학부모" : "PALIN 학부모",
+        date: "오늘",
+        replies: 0,
+        solved: false,
+        preview: content
+    };
+
+    parentQAPostsList.unshift(newPost);
+    renderParentQAList(parentQAPostsList);
+
+    if (titleInput) titleInput.value = '';
+    if (contentInput) contentInput.value = '';
+
+    alert("[학부모 Q&A 등록 완료]\n질문이 학부모 소통 피드에 성공적으로 등록되었습니다.");
+}
+
+function renderParentTutorList() {
+    const container = document.getElementById('parent-tutor-list-container');
+    if (!container) return;
+
+    const tutors = [
+        {
+            name: "이O원 튜터",
+            univ: "서울대학교 의예과",
+            high: "대치 휘문고 수석 졸업",
+            subject: "수학 (미적분) / 과탐 (생명과학)",
+            rating: "5.0 (후기 28건)",
+            tag: "2026 수능 만점자",
+            bio: "킬러 3문항 15분 단축 풀이법 및 오답 메타인지 1:1 밀착 코칭"
+        },
+        {
+            name: "박O준 튜터",
+            univ: "연세대학교 경영학과",
+            high: "대원외고 졸업",
+            subject: "국어 (비문학 독서 / 언매)",
+            rating: "4.9 (후기 19건)",
+            tag: "수능 국어 100점",
+            bio: "지문 논리 구조화 및 수능 평가원 평가 코드 완벽 체화"
+        },
+        {
+            name: "정O민 튜터",
+            univ: "고려대학교 기계공학부",
+            high: "중동고 졸업",
+            subject: "수학 (기하 / 미적) / 물리",
+            rating: "5.0 (후기 14건)",
+            tag: "내신 1.1등급 수시 합격",
+            bio: "개념 백지 인출부터 고난도 내신 변형 문항 완벽 대비"
+        }
+    ];
+
+    container.innerHTML = tutors.map(t => `
+        <div class="card" style="padding: 14px; margin-bottom: 10px; border: 1.5px solid rgba(16, 185, 129, 0.25); background: linear-gradient(135deg, rgba(16,185,129,0.04), rgba(255,255,255,0.02));">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                        <span style="font-size: 0.95rem; font-weight: 900; color: #ffffff;">${t.name}</span>
+                        <span class="material-symbols-rounded" style="font-size: 1rem; color: #10b981;">verified</span>
+                        <span style="font-size: 0.68rem; font-weight: 800; background: rgba(16,185,129,0.15); color: #10b981; padding: 2px 6px; border-radius: 4px;">${t.tag}</span>
+                    </div>
+                    <div style="font-size: 0.78rem; font-weight: 800; color: #818cf8;">${t.univ} · <span style="color: #94a3b8; font-weight: 600;">${t.high}</span></div>
+                </div>
+                <span style="font-size: 0.72rem; font-weight: 800; color: #fbbf24; background: rgba(245,158,11,0.15); padding: 2px 7px; border-radius: 6px;">${t.rating}</span>
+            </div>
+            <div style="font-size: 0.74rem; color: #cbd5e1; margin-bottom: 8px; background: rgba(0,0,0,0.25); padding: 6px 10px; border-radius: 6px;">
+                <b style="color: #38bdf8;">전문 과목:</b> ${t.subject}
+            </div>
+            <p style="font-size: 0.74rem; color: #94a3b8; line-height: 1.4; margin-bottom: 10px;">${t.bio}</p>
+            <button type="button" class="btn" onclick="alert('${t.name} 선생님과의 1:1 과외 상담 및 일정 조율 창이 열립니다.')" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 8px;">
+                1:1 과외 문의 & 상담 신청
+            </button>
+        </div>
+    `).join('');
+}
+
+function filterParentTutors() {
+    renderParentTutorList();
+}
+
+function switchRadarRegion(region, el) {
+    document.querySelectorAll('#parent-radar-region-tabs button').forEach(b => {
+        b.classList.remove('active');
+        b.classList.add('btn-secondary');
+    });
+    if (el) {
+        el.classList.add('active');
+        el.classList.remove('btn-secondary');
+    }
+    renderParentRadarContent(region);
+}
+
+function renderParentRadarContent(region) {
+    const box = document.getElementById('parent-radar-content-box');
+    if (!box) return;
+
+    const radarData = {
+        DAECHI: {
+            title: "대치동 학원가 입시 & 내신 레이더",
+            points: [
+                { head: "2027 수능 국어 트렌드", desc: "EBS 연계율 체감 강화에 따라 비문학 제재별 독해 클리닉 및 독점 주간지 수요 급증" },
+                { head: "주요 고교(휘문/단대부고/중대부고) 내신 경향", desc: "수학 부교재 변형 및 서술형 부분점수 감점 기준 대폭 엄격화" },
+                { head: "학부모 추천 수강 조합", desc: "주 1회 대형 단과(개념) + 주 1회 소수 클리닉(오답 밀착) 조합 선호도 78%" }
+            ]
+        },
+        MOKDONG: {
+            title: "목동 학원가 입시 & 내신 레이더",
+            points: [
+                { head: "강서고/양정고 내신 고난도 대비", desc: "모의고사 킬러 기출(최근 5개년) 100% 변형 문제 집중 훈련 필수" },
+                { head: "중등~고1 연계 선행 추세", desc: "통합과학/통합사회 대비 조기 심화 단과 마감 임박" },
+                { head: "학부모 만족도 1위 영역", desc: "매주 OMR 성적표 및 순공 텔레메트리 SMS 발송 학원 선호" }
+            ]
+        },
+        BUNDANG: {
+            title: "분당/수내 학원가 입시 & 내신 레이더",
+            points: [
+                { head: "낙생고/분당대진고/서현고 경향", desc: "수학 1등급 컷 80점대 후반 형성, 타임어택 극복 훈련 집중" },
+                { head: "정시 파이터 vs 수시 수능최저", desc: "수능최저 충족을 위한 전략 과목(탐구/영어) 2합 5 집중 케어반 증가" }
+            ]
+        },
+        JUNGGYE: {
+            title: "중계동 은행사거리 학원가 레이더",
+            points: [
+                { head: "대진고/서라벌고/재현고 내신 경향", desc: "교과서 외 심화 프린트 연계율 40% 이상, 꼼꼼한 필기 관리 필수" },
+                { head: "학습 습관 관리 솔루션", desc: "자율자습실 및 휴대폰 수거 관리형 단과 연동 수요 급증" }
+            ]
+        }
+    };
+
+    const cur = radarData[region] || radarData.DAECHI;
+    box.innerHTML = `
+        <div style="background: rgba(56, 189, 248, 0.06); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 14px;">
+            <div style="font-size: 0.88rem; font-weight: 800; color: #38bdf8; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                <span class="material-symbols-rounded" style="font-size: 1.1rem;">radar</span>
+                <span>${cur.title}</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                ${cur.points.map(p => `
+                    <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 8px 10px;">
+                        <div style="font-size: 0.78rem; font-weight: 800; color: #ffffff; margin-bottom: 2px;">• ${p.head}</div>
+                        <div style="font-size: 0.72rem; color: #94a3b8; line-height: 1.35;">${p.desc}</div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
+
+function renderParentSalonColumns() {
+    const list = document.getElementById('parent-salon-columns-list');
+    if (!list) return;
+
+    const columns = [
+        {
+            tag: "대치동 수석 칼럼",
+            title: "2028 대입 개편안과 2027 수능: 현 고등 학부모가 반드시 챙겨야 할 로드맵",
+            author: "김O진 입시전략소장",
+            date: "2026.10.04",
+            readTime: "5분 리포트",
+            summary: "내신 5등급제 전환 이전의 마지막 기회인 2027 수능. 정시 선발 비율과 학생부 정성평가 도입 대학을 종합 분석하여 최적의 수시·정시 황금 비율을 제안합니다."
+        },
+        {
+            tag: "학습 심리 & 멘탈",
+            title: "자녀의 공부 멘탈을 지키는 '3단계 대화법': 잔소리가 아닌 든든한 페이스메이커 되기",
+            author: "이O영 청소년 심리상담 수석",
+            date: "2026.10.01",
+            readTime: "4분 리포트",
+            summary: "수험생 자녀가 가장 스트레스받는 순간은 결과에 대한 평가입니다. '공부했니?' 대신 '오늘 가장 힘들었던 부분은 뭐였니?'로 시작하는 메타인지 대화법의 힘."
+        },
+        {
+            tag: "사교육 다이어트",
+            title: "불필요한 사교육 다이어트: 순공 시간을 확보하는 '선택과 집중' 전략",
+            author: "PALIN 입시 R&D 센터",
+            date: "2026.09.28",
+            readTime: "6분 리포트",
+            summary: "학원 수업 시간이 늘어난다고 성적이 오르지 않습니다. 자녀의 실제 순공 시간 대비 인풋 효율을 극대화하는 사교육 재배치 가이드."
+        }
+    ];
+
+    list.innerHTML = columns.map(c => `
+        <div class="card" style="padding: 14px; margin-bottom: 8px; border: 1px solid rgba(245, 158, 11, 0.25); background: rgba(0,0,0,0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 0.68rem; font-weight: 800; color: #fbbf24; background: rgba(245, 158, 11, 0.15); padding: 2px 7px; border-radius: 4px;">${c.tag}</span>
+                <span style="font-size: 0.68rem; color: #64748b;">${c.readTime} · ${c.date}</span>
+            </div>
+            <div style="font-size: 0.88rem; font-weight: 800; color: #ffffff; margin-bottom: 4px; line-height: 1.35;">${c.title}</div>
+            <p style="font-size: 0.74rem; color: #cbd5e1; line-height: 1.45; margin-bottom: 8px;">${c.summary}</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: #94a3b8; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 6px;">
+                <span>작성: <b style="color: #e2e8f0;">${c.author}</b></span>
+                <span style="color: #fbbf24; font-weight: 800; cursor: pointer;" onclick="alert('칼럼 전문 열람 모달을 준비 중입니다.')">칼럼 전문 읽기 →</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+window.selectCheerPreset = selectCheerPreset;
+window.selectSponsorPoints = selectSponsorPoints;
+window.sendParentCheerFund = sendParentCheerFund;
+window.renderParentBriefing = renderParentBriefing;
+window.switchParentP3SubTab = switchParentP3SubTab;
+window.createParentQAPost = createParentQAPost;
+window.filterParentQA = filterParentQA;
+window.renderParentTutorList = renderParentTutorList;
+window.filterParentTutors = filterParentTutors;
+window.switchRadarRegion = switchRadarRegion;
+window.renderParentRadarContent = renderParentRadarContent;
+window.renderParentSalonColumns = renderParentSalonColumns;
+window.renderParentCommunity = renderParentCommunity;
 
 // 자동 초기화 리스너 등록
 document.addEventListener("DOMContentLoaded", () => {

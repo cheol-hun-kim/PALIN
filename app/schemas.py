@@ -577,6 +577,12 @@ class ParentSponsorPayRequest(BaseModel):
     amount: int
     item_title: str
 
+class ParentGiftPointsRequest(BaseModel):
+    parent_id: Optional[int] = 1
+    student_id: int
+    points: int
+    cheer_message: Optional[str] = "오늘도 묵묵히 해내는 모습이 자랑스러워!"
+
 class EmailOtpSendPayload(BaseModel):
     email: EmailStr
 

@@ -1336,6 +1336,36 @@ def pay_from_sponsor_wallet(payload: schemas.ParentSponsorPayRequest, db: Sessio
     }
 
 
+@app.post("/api/parent/sponsor/gift-points")
+def gift_points_to_student(payload: schemas.ParentGiftPointsRequest, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생 계정을 찾을 수 없습니다.")
+    if payload.points <= 0:
+        raise HTTPException(status_code=400, detail="포인트는 0P보다 커야 합니다.")
+    
+    student.current_points = (student.current_points or 0) + payload.points
+    
+    # 학부모 응원 알림 기록
+    cheer_msg = payload.cheer_message or "오늘도 묵묵히 해내는 모습이 자랑스러워!"
+    notif = models.UserNotification(
+        recipient_id=student.id,
+        sender_id=None,
+        sender_region="학부모 안심 서포트",
+        notification_type="PARENT_SPONSOR",
+        message=f"부모님께서 응원 펀드 {payload.points:,}P와 메시지를 보내셨습니다: '{cheer_msg}'"
+    )
+    db.add(notif)
+    db.commit()
+    db.refresh(student)
+    
+    return {
+        "status": "success",
+        "message": f"자녀에게 {payload.points:,}P와 응원 메시지가 성공적으로 전달되었습니다.",
+        "student_points": student.current_points
+    }
+
+
 def update_student_streak(student: models.Student, db: Session):
     try:
         from datetime import timezone
