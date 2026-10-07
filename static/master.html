@@ -1758,7 +1758,25 @@
 
         function masterLogout() {
             sessionStorage.removeItem("palin_super_admin");
-            location.reload();
+            sessionStorage.removeItem("palin_admin_authenticated");
+            sessionStorage.removeItem("palin_shadow_mode");
+            sessionStorage.removeItem("palin_shadow_tenant_code");
+            sessionStorage.removeItem("palin_shadow_tenant_name");
+            localStorage.removeItem("userRole");
+            localStorage.removeItem("palin_role_preview");
+
+            const dash = document.getElementById("master-dashboard-screen");
+            if (dash) dash.style.display = "none";
+            const login = document.getElementById("master-login-screen");
+            if (login) login.style.display = "flex";
+            const pinInput = document.getElementById("master-login-pin");
+            if (pinInput) pinInput.value = "";
+            const err = document.getElementById("master-login-error");
+            if (err) err.style.display = "none";
+
+            if (window.location.search) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
         }
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -1766,6 +1784,9 @@
                 document.getElementById("master-login-screen").style.display = "none";
                 document.getElementById("master-dashboard-screen").style.display = "block";
                 fetchMasterData(); loadAllMasterNotices();
+            } else {
+                document.getElementById("master-dashboard-screen").style.display = "none";
+                document.getElementById("master-login-screen").style.display = "flex";
             }
         });
 

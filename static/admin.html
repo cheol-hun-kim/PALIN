@@ -3068,7 +3068,25 @@
             sessionStorage.removeItem("palin_super_admin");
             sessionStorage.removeItem("palin_shadow_mode");
             sessionStorage.removeItem("palin_shadow_tenant_code");
-            location.reload();
+            sessionStorage.removeItem("palin_shadow_tenant_name");
+            sessionStorage.removeItem("palin_current_tenant_code");
+            sessionStorage.removeItem("palin_current_tenant_name");
+            sessionStorage.removeItem("palin_business_type");
+            localStorage.removeItem("userRole");
+            localStorage.removeItem("palin_role_preview");
+
+            const dash = document.getElementById("admin-dashboard-screen");
+            if (dash) dash.style.display = "none";
+            const login = document.getElementById("admin-login-screen");
+            if (login) login.style.display = "flex";
+            const pinInput = document.getElementById("admin-pin-input");
+            if (pinInput) pinInput.value = "";
+            const errorMsg = document.getElementById("login-error-msg");
+            if (errorMsg) errorMsg.style.display = "none";
+
+            if (window.location.search) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
         }
 
         function openChangePinModal() {
@@ -3161,7 +3179,6 @@
             const isShadow = urlParams.get('shadow') === 'true' || sessionStorage.getItem('palin_shadow_mode') === 'true';
             const isSim = urlParams.get('simulator') === 'true';
             const isMaster = (sessionStorage.getItem('palin_super_admin') === 'true') || 
-                             (localStorage.getItem('userRole') === 'SUPER_ADMIN') || 
                              (urlParams.get('master') === 'true');
             const tenantParam = urlParams.get('tenant') || sessionStorage.getItem('palin_shadow_tenant_code') || sessionStorage.getItem('palin_current_tenant_code');
             const tenantNameParam = sessionStorage.getItem('palin_shadow_tenant_name') || sessionStorage.getItem('palin_current_tenant_name') || tenantParam;
@@ -3188,7 +3205,7 @@
                 }
             }
 
-            if (isShadow && tenantParam) {
+            if (isShadow && tenantParam && sessionStorage.getItem('palin_super_admin') === 'true') {
                 document.body.classList.add('shadow-god-mode');
                 const godBanner = document.getElementById('god-mode-banner');
                 if (godBanner) {
@@ -3210,18 +3227,18 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             checkGodMode();
-            const isAuth = sessionStorage.getItem("palin_admin_authenticated") === "true" ||
-                           localStorage.getItem("userRole") === "DIRECTOR" ||
-                           localStorage.getItem("userRole") === "SUPER_ADMIN" ||
+            const isAuth = (sessionStorage.getItem("palin_admin_authenticated") === "true") ||
                            (sessionStorage.getItem("palin_super_admin") === "true");
             if (isAuth) {
-                sessionStorage.setItem("palin_admin_authenticated", "true");
                 document.getElementById("admin-login-screen").style.display = "none";
                 document.getElementById("admin-dashboard-screen").style.display = "block";
                 fetchDashboardData();
                 updateMasterBtnVisibility();
                 checkMandatoryNotices();
                 // Sub-tabs (VOD, Exams, Finance, Schedules) are lazy-loaded when clicked in switchAdminCockpitTab
+            } else {
+                document.getElementById("admin-dashboard-screen").style.display = "none";
+                document.getElementById("admin-login-screen").style.display = "flex";
             }
         });
 
@@ -5211,8 +5228,7 @@
         function updateMasterBtnVisibility() {
             const masterBtn = document.getElementById("admin-master-console-btn");
             if (!masterBtn) return;
-            const isSuperAdmin = (sessionStorage.getItem("palin_super_admin") === "true") ||
-                                (localStorage.getItem("userRole") === "SUPER_ADMIN");
+            const isSuperAdmin = (sessionStorage.getItem("palin_super_admin") === "true");
             if (isSuperAdmin) {
                 masterBtn.style.display = "inline-flex";
             } else {
