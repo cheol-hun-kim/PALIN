@@ -1199,16 +1199,16 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             </div>
                         </div>
 
-                        <!-- 3) 학원 등원 & 출결 -->
+                        <!-- 3) 학원 등원 & 실시간 위치 -->
                         <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 12px;">
                             <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
                                 <span class="material-symbols-rounded" style="font-size: 1.1rem; color: #34d399;">domain_verification</span>
-                                <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">학원 등원</span>
+                                <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">실시간 등원 · 위치</span>
                             </div>
-                            <div id="parent-brief-attendance-name" style="font-size: 0.88rem; font-weight: 900; color: #ffffff; margin-bottom: 4px;">일원학원 등원</div>
+                            <div id="parent-brief-attendance-name" style="font-size: 0.88rem; font-weight: 900; color: #ffffff; margin-bottom: 4px;">등원 정보 동기화 중...</div>
                             <div style="display: flex; align-items: center; gap: 4px; font-size: 0.68rem; color: #34d399; font-weight: 700;">
-                                <span class="material-symbols-rounded" style="font-size: 0.85rem;">check_circle</span>
-                                <span id="parent-brief-attendance-status">18:00 정상 출석</span>
+                                <span class="material-symbols-rounded" id="parent-brief-attendance-icon" style="font-size: 0.85rem;">location_on</span>
+                                <span id="parent-brief-attendance-status">실시간 감지 중</span>
                             </div>
                         </div>
 
@@ -1223,6 +1223,20 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 <span class="material-symbols-rounded" style="font-size: 0.85rem;">star</span>
                                 <span id="parent-brief-grade-status">상위 8% 성취도</span>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- 실시간 다중 등원 및 장소 이동 동선 타임라인 -->
+                    <div id="parent-realtime-location-tracker" style="background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 10px; padding: 10px 12px; margin-top: 4px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <div style="display: flex; align-items: center; gap: 6px; font-size: 0.76rem; font-weight: 800; color: #38bdf8;">
+                                <span class="material-symbols-rounded" style="font-size: 0.95rem;">route</span>
+                                <span>오늘의 학원 · 학습 장소 이동 동선</span>
+                            </div>
+                            <span id="parent-location-live-tag" style="font-size: 0.62rem; color: #22c55e; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); padding: 1px 6px; border-radius: 8px; font-weight: 800;">LIVE</span>
+                        </div>
+                        <div id="parent-attendance-timeline-list" style="display: flex; flex-direction: column; gap: 6px;">
+                            <div style="font-size: 0.72rem; color: #94a3b8; padding: 4px 0;">실시간 출결 및 이동 데이터를 불러오는 중입니다...</div>
                         </div>
                     </div>
                 </div>
@@ -1246,9 +1260,18 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <span>선물된 포인트는 <b>선배 1:1 과외 매칭</b>, <b>고난도 문제 출처 질의</b>, <b>합격 후 과외생 모집</b>에 활용됩니다.</span>
                     </div>
 
-                    <!-- 칭찬 메시지 프리셋 칩 바 -->
-                    <div style="margin-bottom: 8px;">
-                        <label style="font-size: 0.74rem; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 6px;">따뜻한 응원 한마디 선택</label>
+                    <!-- 응원 메시지 직접 입력 (와이드 풀 위드) -->
+                    <div style="margin-bottom: 12px;">
+                        <label for="parent-cheer-custom-message" style="font-size: 0.76rem; font-weight: 800; color: #e2e8f0; display: flex; align-items: center; gap: 5px; margin-bottom: 6px;">
+                            <span class="material-symbols-rounded" style="font-size: 0.95rem; color: #fbbf24;">edit_note</span>
+                            <span>따뜻한 응원 메시지 직접 작성</span>
+                        </label>
+                        <textarea id="parent-cheer-custom-message" style="width: 100%; box-sizing: border-box; min-height: 85px; padding: 12px 14px; font-size: 0.88rem; border-radius: 10px; border: 1.5px solid rgba(99, 102, 241, 0.4); background: rgba(15, 23, 42, 0.6); color: #ffffff; line-height: 1.5; resize: vertical; display: block;" placeholder="자녀에게 전달할 응원 메시지를 자유롭게 작성하세요. (아래 추천 문구를 누르면 자동 완성됩니다)">오늘도 묵묵히 해내는 모습이 정말 자랑스러워!</textarea>
+                    </div>
+
+                    <!-- 칭찬 메시지 추천 프리셋 칩 바 -->
+                    <div style="margin-bottom: 14px;">
+                        <label style="font-size: 0.72rem; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 6px;">추천 응원 문구 (클릭 시 자동 완성)</label>
                         <div style="display: flex; flex-wrap: wrap; gap: 6px;" id="cheer-preset-chips">
                             <button type="button" class="btn btn-secondary" onclick="selectCheerPreset('오늘도 묵묵히 해내는 모습이 정말 자랑스러워!')" style="font-size: 0.72rem; padding: 5px 10px; border-radius: 8px;">오늘도 묵묵히 해내는 모습이 자랑스러워</button>
                             <button type="button" class="btn btn-secondary" onclick="selectCheerPreset('항상 널 믿고 응원한단다. 힘내자!')" style="font-size: 0.72rem; padding: 5px 10px; border-radius: 8px;">항상 널 믿고 응원한단다</button>
@@ -1256,9 +1279,6 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             <button type="button" class="btn btn-secondary" onclick="selectCheerPreset('최선을 다하는 네 노력이 가장 빛나!')" style="font-size: 0.72rem; padding: 5px 10px; border-radius: 8px;">최선을 다하는 네 노력이 빛나</button>
                         </div>
                     </div>
-
-                    <!-- 응원 메시지 직접 입력 -->
-                    <textarea id="parent-cheer-custom-message" class="form-input" style="height: 54px; resize: none; font-size: 0.78rem; margin-bottom: 12px;" placeholder="자녀에게 전달할 응원 메시지를 입력하세요..">오늘도 묵묵히 해내는 모습이 정말 자랑스러워!</textarea>
 
                     <!-- 포인트 금액 선택 칩스 -->
                     <div style="margin-bottom: 14px;">

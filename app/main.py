@@ -1366,6 +1366,205 @@ def gift_points_to_student(payload: schemas.ParentGiftPointsRequest, db: Session
     }
 
 
+@app.get("/api/parent/student/{student_id}/realtime-attendance")
+def get_parent_student_realtime_attendance(student_id: int, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생 계정을 찾을 수 없습니다.")
+
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    now_dt = datetime.now()
+
+    # 1. 오늘 출결 로그 조회
+    attendance_logs = db.query(models.AttendanceLog).filter(
+        models.AttendanceLog.student_id == student_id,
+        models.AttendanceLog.class_date == today_str
+    ).order_by(models.AttendanceLog.created_at.asc()).all()
+
+    # 2. 오늘 학습 세션 조회
+    start_of_today = datetime.combine(datetime.today(), datetime.min.time())
+    study_sessions = db.query(models.StudySession).filter(
+        models.StudySession.student_id == student_id,
+        models.StudySession.created_at >= start_of_today
+    ).order_by(models.StudySession.created_at.asc()).all()
+
+    academy_name = "일원학원 대치본원"
+    if student.academy_code:
+        tenant = db.query(models.Tenant).filter(models.Tenant.code == student.academy_code).first()
+        if tenant:
+            academy_name = tenant.name
+
+    timeline = []
+    for log in attendance_logs:
+        log_dt = log.created_at or now_dt
+        time_str = log_dt.strftime("%H:%M")
+        elapsed_mins = max(0, int((now_dt - log_dt).total_seconds() / 60))
+        if elapsed_mins < 5:
+            status_text = f"{time_str} [{academy_name}] 등원 완료"
+            badge = "방금 등원"
+            state = "CHECKED_IN"
+        else:
+            status_text = f"[{academy_name}] 열공 학습 중 ({time_str}~현재)"
+            badge = "학습 몰입 중"
+            state = "STUDYING"
+        timeline.append({
+            "type": "ACADEMY",
+            "location": academy_name,
+            "time": time_str,
+            "elapsed_minutes": elapsed_mins,
+            "status_text": status_text,
+            "badge": badge,
+            "state": state,
+            "is_late": log.status == "LATE"
+        })
+
+    for sess in study_sessions:
+        sess_dt = sess.start_time or sess.created_at or now_dt
+        time_str = sess_dt.strftime("%H:%M")
+        dur_mins = int(sess.duration_sec / 60) if sess.duration_sec else 0
+        if sess.end_time:
+            end_time_str = sess.end_time.strftime("%H:%M")
+            status_text = f"스터디카페 자습 완료 ({time_str}~{end_time_str}, {dur_mins}분)"
+            badge = "자습 완료"
+            state = "COMPLETED"
+        else:
+            elapsed_mins = max(0, int((now_dt - sess_dt).total_seconds() / 60))
+            status_text = f"스터디카페 열공 중 ({time_str}~현재, {elapsed_mins}분째)"
+            badge = "자습 집중 중"
+            state = "STUDYING"
+        timeline.append({
+            "type": "STUDY_CAFE",
+            "location": "프리미엄 자율학습관",
+            "time": time_str,
+            "elapsed_minutes": dur_mins or elapsed_mins,
+            "status_text": status_text,
+            "badge": badge,
+            "state": state
+        })
+
+    if timeline:
+        latest = timeline[-1]
+        current_location = latest["location"]
+        current_status = latest["status_text"]
+        current_badge = latest["badge"]
+        is_active = True
+    else:
+        current_location = academy_name
+        current_status = "오늘 등원 대기 중 (수업 시간표 확인)"
+        current_badge = "등원 대기"
+        is_active = False
+
+    return {
+        "status": "success",
+        "student_id": student_id,
+        "student_name": student.name,
+        "current_location": current_location,
+        "current_status": current_status,
+        "current_badge": current_badge,
+        "is_active": is_active,
+        "timeline": timeline
+    }
+
+
+@app.get("/api/parent/salon/columns")
+def get_parent_salon_columns(db: Session = Depends(get_db)):
+    db_notices = db.query(models.Notice).filter(
+        models.Notice.category.in_(["SALON", "입시칼럼", "대치동 수석 칼럼", "학습 심리 & 멘탈", "사교육 다이어트", "일반공지"]),
+        models.Notice.deleted_at == None
+    ).order_by(models.Notice.created_at.desc()).limit(10).all()
+
+    default_columns = [
+        {
+            "id": 101,
+            "tag": "대치동 수석 칼럼",
+            "title": "2028 대입 개편안과 2027 수능: 현 고등 학부모가 반드시 챙겨야 할 로드맵",
+            "author": "김서진 입시전략소장 (PALIN R&D)",
+            "date": "2026.10.04",
+            "readTime": "5분 리포트",
+            "summary": "내신 5등급제 전환 이전의 마지막 기회인 2027 수능. 정시 선발 비율과 학생부 정성평가 도입 대학을 종합 분석하여 최적의 수시·정시 황금 비율을 제안합니다."
+        },
+        {
+            "id": 102,
+            "tag": "학습 심리 & 멘탈",
+            "title": "자녀의 공부 멘탈을 지키는 '3단계 대화법': 잔소리가 아닌 든든한 페이스메이커 되기",
+            "author": "이서영 청소년 심리상담 수석",
+            "date": "2026.10.01",
+            "readTime": "4분 리포트",
+            "summary": "수험생 자녀가 가장 스트레스받는 순간은 결과에 대한 평가입니다. '공부했니?' 대신 '오늘 가장 힘들었던 부분은 뭐였니?'로 시작하는 메타인지 대화법의 힘."
+        },
+        {
+            "id": 103,
+            "tag": "사교육 다이어트",
+            "title": "불필요한 사교육 다이어트: 순공 시간을 확보하는 '선택과 집중' 전략",
+            "author": "PALIN 입시 R&D 센터",
+            "date": "2026.09.28",
+            "readTime": "6분 리포트",
+            "summary": "학원 수업 시간이 늘어난다고 성적이 오르지 않습니다. 자녀의 실제 순공 시간 대비 인풋 효율을 극대화하는 사교육 재배치 가이드."
+        }
+    ]
+
+    columns = []
+    for n in db_notices:
+        if n.category in ["SALON", "입시칼럼", "대치동 수석 칼럼", "학습 심리 & 멘탈", "사교육 다이어트"]:
+            columns.append({
+                "id": n.id,
+                "tag": n.category,
+                "title": n.title,
+                "author": "PALIN 공인 연구소",
+                "date": n.created_at.strftime("%Y.%m.%d") if n.created_at else "최근",
+                "readTime": "5분 리포트",
+                "summary": n.content[:150] + "..." if len(n.content or "") > 150 else (n.content or "")
+            })
+
+    for dc in default_columns:
+        if not any(c["title"] == dc["title"] for c in columns):
+            columns.append(dc)
+
+    return {"status": "success", "columns": columns}
+
+
+@app.get("/api/parent/radar")
+def get_parent_radar_info(region: str = "DAECHI", db: Session = Depends(get_db)):
+    radar_data = {
+        "DAECHI": {
+            "title": "대치동 학원가 입시 & 내신 레이더",
+            "source": "교육부 학교알리미 & 강남서초 학원연합회 실시간 분석",
+            "points": [
+                { "head": "2027 수능 국어 트렌드", "desc": "EBS 연계율 체감 강화에 따라 비문학 제재별 독해 클리닉 및 독점 주간지 수요 급증" },
+                { "head": "주요 고교(휘문/단대부고/중대부고) 내신 경향", "desc": "수학 부교재 변형 및 서술형 부분점수 감점 기준 대폭 엄격화" },
+                { "head": "학부모 추천 수강 조합", "desc": "주 1회 대형 단과(개념) + 주 1회 소수 클리닉(오답 밀착) 조합 선호도 78%" }
+            ]
+        },
+        "MOKDONG": {
+            "title": "목동 학원가 입시 & 내신 레이더",
+            "source": "교육부 학교알리미 & 강서양천 학군 분석",
+            "points": [
+                { "head": "강서고/양정고 내신 고난도 대비", "desc": "모의고사 킬러 기출(최근 5개년) 100% 변형 문제 집중 훈련 필수" },
+                { "head": "중등~고1 연계 선행 추세", "desc": "통합과학/통합사회 대비 조기 심화 단과 마감 임박" },
+                { "head": "학부모 만족도 1위 영역", "desc": "매주 OMR 성적표 및 순공 텔레메트리 SMS 발송 학원 선호" }
+            ]
+        },
+        "BUNDANG": {
+            "title": "분당/수내 학원가 입시 & 내신 레이더",
+            "source": "교육부 학교알리미 & 성남분당 학군 분석",
+            "points": [
+                { "head": "낙생고/분당대진고/서현고 경향", "desc": "수학 1등급 컷 80점대 후반 형성, 타임어택 극복 훈련 집중" },
+                { "head": "정시 파이터 vs 수시 수능최저", "desc": "수능최저 충족을 위한 전략 과목(탐구/영어) 2합 5 집중 케어반 증가" }
+            ]
+        },
+        "JUNGGYE": {
+            "title": "중계동 은행사거리 학원가 레이더",
+            "source": "교육부 학교알리미 & 노원도봉 학군 분석",
+            "points": [
+                { "head": "대진고/서라벌고/재현고 내신 경향", "desc": "교과서 외 심화 프린트 연계율 40% 이상, 꼼꼼한 필기 관리 필수" },
+                { "head": "학습 습관 관리 솔루션", "desc": "자율자습실 및 휴대폰 수거 관리형 단과 연동 수요 급증" }
+            ]
+        }
+    }
+    cur = radar_data.get(region.upper(), radar_data["DAECHI"])
+    return {"status": "success", "region": region.upper(), "data": cur}
+
+
 def update_student_streak(student: models.Student, db: Session):
     try:
         from datetime import timezone

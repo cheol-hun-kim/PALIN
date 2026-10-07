@@ -19837,7 +19837,7 @@ async function sendParentCheerFund() {
     }
 }
 
-function renderParentBriefing() {
+async function renderParentBriefing() {
     if (!currentStudent) return;
     const ptDisplay = document.getElementById('parent-student-point-display');
     if (ptDisplay) {
@@ -19852,6 +19852,50 @@ function renderParentBriefing() {
         if (hrs > 0 || mins > 0) {
             studyTimeEl.textContent = `${hrs}시간 ${mins}분`;
         }
+    }
+
+    // 실시간 다중 등원 및 장소 이동 동선 텔레메트리 동기화
+    try {
+        const targetId = currentStudent.id || localStorage.getItem('studentId') || 1;
+        const res = await fetch(`/api/parent/student/${targetId}/realtime-attendance`);
+        if (res.ok) {
+            const data = await res.json();
+            const attName = document.getElementById('parent-brief-attendance-name');
+            const attStatus = document.getElementById('parent-brief-attendance-status');
+            const attIcon = document.getElementById('parent-brief-attendance-icon');
+            const timelineContainer = document.getElementById('parent-attendance-timeline-list');
+
+            if (attName) attName.textContent = data.current_location || "일원학원 대치본원";
+            if (attStatus) attStatus.textContent = data.current_status || "등원 대기 중";
+            if (attIcon) {
+                attIcon.textContent = data.is_active ? "domain_verification" : "schedule";
+                attIcon.style.color = data.is_active ? "#34d399" : "#94a3b8";
+            }
+
+            if (timelineContainer) {
+                if (data.timeline && data.timeline.length > 0) {
+                    timelineContainer.innerHTML = data.timeline.map((item, idx) => `
+                        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 6px 10px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 0.72rem; font-weight: 800; color: #818cf8; background: rgba(99,102,241,0.15); padding: 1px 6px; border-radius: 4px;">${item.time}</span>
+                                <span style="font-size: 0.76rem; font-weight: 800; color: #ffffff;">${item.location}</span>
+                            </div>
+                            <span style="font-size: 0.68rem; font-weight: 800; color: ${item.state === 'STUDYING' ? '#34d399' : '#38bdf8'}; background: ${item.state === 'STUDYING' ? 'rgba(52,211,153,0.12)' : 'rgba(56,189,248,0.12)'}; padding: 2px 7px; border-radius: 6px;">${item.badge}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    const defaultAcademy = currentStudent.academy_code ? "소속 학원" : "일원학원 대치본원";
+                    timelineContainer.innerHTML = `
+                        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 6px 10px;">
+                            <span style="font-size: 0.74rem; color: #cbd5e1;">${defaultAcademy} 등원 대기 중</span>
+                            <span style="font-size: 0.68rem; color: #94a3b8;">오늘 수업 시간표 연동됨</span>
+                        </div>
+                    `;
+                }
+            }
+        }
+    } catch (e) {
+        console.warn("Realtime attendance telemetry fetch warning:", e);
     }
 }
 
@@ -20012,62 +20056,46 @@ function createParentQAPost() {
     alert("[학부모 Q&A 등록 완료]\n질문이 학부모 소통 피드에 성공적으로 등록되었습니다.");
 }
 
-function renderParentTutorList() {
+async function renderParentTutorList() {
     const container = document.getElementById('parent-tutor-list-container');
     if (!container) return;
 
-    const tutors = [
-        {
-            name: "이O원 튜터",
-            univ: "서울대학교 의예과",
-            high: "대치 휘문고 수석 졸업",
-            subject: "수학 (미적분) / 과탐 (생명과학)",
-            rating: "5.0 (후기 28건)",
-            tag: "2026 수능 만점자",
-            bio: "킬러 3문항 15분 단축 풀이법 및 오답 메타인지 1:1 밀착 코칭"
-        },
-        {
-            name: "박O준 튜터",
-            univ: "연세대학교 경영학과",
-            high: "대원외고 졸업",
-            subject: "국어 (비문학 독서 / 언매)",
-            rating: "4.9 (후기 19건)",
-            tag: "수능 국어 100점",
-            bio: "지문 논리 구조화 및 수능 평가원 평가 코드 완벽 체화"
-        },
-        {
-            name: "정O민 튜터",
-            univ: "고려대학교 기계공학부",
-            high: "중동고 졸업",
-            subject: "수학 (기하 / 미적) / 물리",
-            rating: "5.0 (후기 14건)",
-            tag: "내신 1.1등급 수시 합격",
-            bio: "개념 백지 인출부터 고난도 내신 변형 문항 완벽 대비"
+    try {
+        const res = await fetch("/api/tutor/list");
+        let tutors = [];
+        if (res.ok) {
+            tutors = await res.json();
         }
-    ];
+        if (!tutors || tutors.length === 0) {
+            container.innerHTML = `<div style="text-align: center; color: #94a3b8; font-size: 0.8rem; padding: 20px;">등록된 공인 튜터 정보가 없습니다.</div>`;
+            return;
+        }
 
-    container.innerHTML = tutors.map(t => `
-        <div class="card" style="padding: 14px; margin-bottom: 10px; border: 1.5px solid rgba(16, 185, 129, 0.25); background: linear-gradient(135deg, rgba(16,185,129,0.04), rgba(255,255,255,0.02));">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                <div>
-                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-                        <span style="font-size: 0.95rem; font-weight: 900; color: #ffffff;">${t.name}</span>
-                        <span class="material-symbols-rounded" style="font-size: 1rem; color: #10b981;">verified</span>
-                        <span style="font-size: 0.68rem; font-weight: 800; background: rgba(16,185,129,0.15); color: #10b981; padding: 2px 6px; border-radius: 4px;">${t.tag}</span>
+        container.innerHTML = tutors.map(t => `
+            <div class="card" style="padding: 14px; margin-bottom: 10px; border: 1.5px solid rgba(16, 185, 129, 0.25); background: linear-gradient(135deg, rgba(16,185,129,0.04), rgba(255,255,255,0.02));">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                            <span style="font-size: 0.95rem; font-weight: 900; color: #ffffff;">${t.name} 튜터</span>
+                            <span class="material-symbols-rounded" style="font-size: 1rem; color: #10b981;">verified</span>
+                            <span style="font-size: 0.68rem; font-weight: 800; background: rgba(16,185,129,0.15); color: #10b981; padding: 2px 6px; border-radius: 4px;">${t.tier === 'SSR' ? '의치한약수 공인' : 'SKY 공인'}</span>
+                        </div>
+                        <div style="font-size: 0.78rem; font-weight: 800; color: #818cf8;">${t.university} ${t.major || ''} · <span style="color: #94a3b8; font-weight: 600;">${t.high_school_type || '명문고 수석'}</span></div>
                     </div>
-                    <div style="font-size: 0.78rem; font-weight: 800; color: #818cf8;">${t.univ} · <span style="color: #94a3b8; font-weight: 600;">${t.high}</span></div>
+                    <span style="font-size: 0.72rem; font-weight: 800; color: #fbbf24; background: rgba(245,158,11,0.15); padding: 2px 7px; border-radius: 6px;">5.0 (검증완료)</span>
                 </div>
-                <span style="font-size: 0.72rem; font-weight: 800; color: #fbbf24; background: rgba(245,158,11,0.15); padding: 2px 7px; border-radius: 6px;">${t.rating}</span>
+                <div style="font-size: 0.74rem; color: #cbd5e1; margin-bottom: 8px; background: rgba(0,0,0,0.25); padding: 6px 10px; border-radius: 6px;">
+                    <b style="color: #38bdf8;">전문 전형/과목:</b> ${t.admission_track || '정시/수능'} · 수학 / 과학
+                </div>
+                <p style="font-size: 0.74rem; color: #94a3b8; line-height: 1.4; margin-bottom: 10px;">${t.bio || '킬러 문항 시간 단축 풀이법 및 오답 메타인지 1:1 밀착 코칭'}</p>
+                <button type="button" class="btn" onclick="alert('${t.name} 선생님과의 1:1 과외 상담 및 일정 조율 창이 열립니다.')" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 8px;">
+                    1:1 과외 문의 & 상담 신청
+                </button>
             </div>
-            <div style="font-size: 0.74rem; color: #cbd5e1; margin-bottom: 8px; background: rgba(0,0,0,0.25); padding: 6px 10px; border-radius: 6px;">
-                <b style="color: #38bdf8;">전문 과목:</b> ${t.subject}
-            </div>
-            <p style="font-size: 0.74rem; color: #94a3b8; line-height: 1.4; margin-bottom: 10px;">${t.bio}</p>
-            <button type="button" class="btn" onclick="alert('${t.name} 선생님과의 1:1 과외 상담 및 일정 조율 창이 열립니다.')" style="width: 100%; padding: 8px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 8px;">
-                1:1 과외 문의 & 상담 신청
-            </button>
-        </div>
-    `).join('');
+        `).join('');
+    } catch (e) {
+        console.warn("renderParentTutorList error:", e);
+    }
 }
 
 function filterParentTutors() {
@@ -20086,107 +20114,65 @@ function switchRadarRegion(region, el) {
     renderParentRadarContent(region);
 }
 
-function renderParentRadarContent(region) {
+async function renderParentRadarContent(region) {
     const box = document.getElementById('parent-radar-content-box');
     if (!box) return;
 
-    const radarData = {
-        DAECHI: {
-            title: "대치동 학원가 입시 & 내신 레이더",
-            points: [
-                { head: "2027 수능 국어 트렌드", desc: "EBS 연계율 체감 강화에 따라 비문학 제재별 독해 클리닉 및 독점 주간지 수요 급증" },
-                { head: "주요 고교(휘문/단대부고/중대부고) 내신 경향", desc: "수학 부교재 변형 및 서술형 부분점수 감점 기준 대폭 엄격화" },
-                { head: "학부모 추천 수강 조합", desc: "주 1회 대형 단과(개념) + 주 1회 소수 클리닉(오답 밀착) 조합 선호도 78%" }
-            ]
-        },
-        MOKDONG: {
-            title: "목동 학원가 입시 & 내신 레이더",
-            points: [
-                { head: "강서고/양정고 내신 고난도 대비", desc: "모의고사 킬러 기출(최근 5개년) 100% 변형 문제 집중 훈련 필수" },
-                { head: "중등~고1 연계 선행 추세", desc: "통합과학/통합사회 대비 조기 심화 단과 마감 임박" },
-                { head: "학부모 만족도 1위 영역", desc: "매주 OMR 성적표 및 순공 텔레메트리 SMS 발송 학원 선호" }
-            ]
-        },
-        BUNDANG: {
-            title: "분당/수내 학원가 입시 & 내신 레이더",
-            points: [
-                { head: "낙생고/분당대진고/서현고 경향", desc: "수학 1등급 컷 80점대 후반 형성, 타임어택 극복 훈련 집중" },
-                { head: "정시 파이터 vs 수시 수능최저", desc: "수능최저 충족을 위한 전략 과목(탐구/영어) 2합 5 집중 케어반 증가" }
-            ]
-        },
-        JUNGGYE: {
-            title: "중계동 은행사거리 학원가 레이더",
-            points: [
-                { head: "대진고/서라벌고/재현고 내신 경향", desc: "교과서 외 심화 프린트 연계율 40% 이상, 꼼꼼한 필기 관리 필수" },
-                { head: "학습 습관 관리 솔루션", desc: "자율자습실 및 휴대폰 수거 관리형 단과 연동 수요 급증" }
-            ]
-        }
-    };
-
-    const cur = radarData[region] || radarData.DAECHI;
-    box.innerHTML = `
-        <div style="background: rgba(56, 189, 248, 0.06); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 14px;">
-            <div style="font-size: 0.88rem; font-weight: 800; color: #38bdf8; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-                <span class="material-symbols-rounded" style="font-size: 1.1rem;">radar</span>
-                <span>${cur.title}</span>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-                ${cur.points.map(p => `
-                    <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 8px 10px;">
-                        <div style="font-size: 0.78rem; font-weight: 800; color: #ffffff; margin-bottom: 2px;">• ${p.head}</div>
-                        <div style="font-size: 0.72rem; color: #94a3b8; line-height: 1.35;">${p.desc}</div>
+    try {
+        const res = await fetch(`/api/parent/radar?region=${region}`);
+        if (res.ok) {
+            const resp = await res.json();
+            const cur = resp.data;
+            box.innerHTML = `
+                <div style="background: rgba(56, 189, 248, 0.06); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 14px;">
+                    <div style="font-size: 0.88rem; font-weight: 800; color: #38bdf8; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                        <span class="material-symbols-rounded" style="font-size: 1.1rem;">radar</span>
+                        <span>${cur.title}</span>
                     </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
+                    <div style="font-size: 0.68rem; color: #94a3b8; margin-bottom: 10px;">데이터 출처: ${cur.source}</div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        ${cur.points.map(p => `
+                            <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 8px 10px;">
+                                <div style="font-size: 0.78rem; font-weight: 800; color: #ffffff; margin-bottom: 2px;">• ${p.head}</div>
+                                <div style="font-size: 0.72rem; color: #cbd5e1; line-height: 1.35;">${p.desc}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+    } catch (e) {
+        console.warn("renderParentRadarContent error:", e);
+    }
 }
 
-function renderParentSalonColumns() {
+async function renderParentSalonColumns() {
     const list = document.getElementById('parent-salon-columns-list');
     if (!list) return;
 
-    const columns = [
-        {
-            tag: "대치동 수석 칼럼",
-            title: "2028 대입 개편안과 2027 수능: 현 고등 학부모가 반드시 챙겨야 할 로드맵",
-            author: "김O진 입시전략소장",
-            date: "2026.10.04",
-            readTime: "5분 리포트",
-            summary: "내신 5등급제 전환 이전의 마지막 기회인 2027 수능. 정시 선발 비율과 학생부 정성평가 도입 대학을 종합 분석하여 최적의 수시·정시 황금 비율을 제안합니다."
-        },
-        {
-            tag: "학습 심리 & 멘탈",
-            title: "자녀의 공부 멘탈을 지키는 '3단계 대화법': 잔소리가 아닌 든든한 페이스메이커 되기",
-            author: "이O영 청소년 심리상담 수석",
-            date: "2026.10.01",
-            readTime: "4분 리포트",
-            summary: "수험생 자녀가 가장 스트레스받는 순간은 결과에 대한 평가입니다. '공부했니?' 대신 '오늘 가장 힘들었던 부분은 뭐였니?'로 시작하는 메타인지 대화법의 힘."
-        },
-        {
-            tag: "사교육 다이어트",
-            title: "불필요한 사교육 다이어트: 순공 시간을 확보하는 '선택과 집중' 전략",
-            author: "PALIN 입시 R&D 센터",
-            date: "2026.09.28",
-            readTime: "6분 리포트",
-            summary: "학원 수업 시간이 늘어난다고 성적이 오르지 않습니다. 자녀의 실제 순공 시간 대비 인풋 효율을 극대화하는 사교육 재배치 가이드."
+    try {
+        const res = await fetch("/api/parent/salon/columns");
+        if (res.ok) {
+            const data = await res.json();
+            const columns = data.columns || [];
+            list.innerHTML = columns.map(c => `
+                <div class="card" style="padding: 14px; margin-bottom: 8px; border: 1px solid rgba(245, 158, 11, 0.25); background: rgba(0,0,0,0.3);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 0.68rem; font-weight: 800; color: #fbbf24; background: rgba(245, 158, 11, 0.15); padding: 2px 7px; border-radius: 4px;">${c.tag}</span>
+                        <span style="font-size: 0.68rem; color: #64748b;">${c.readTime} · ${c.date}</span>
+                    </div>
+                    <div style="font-size: 0.88rem; font-weight: 800; color: #ffffff; margin-bottom: 4px; line-height: 1.35;">${c.title}</div>
+                    <p style="font-size: 0.74rem; color: #cbd5e1; line-height: 1.45; margin-bottom: 8px;">${c.summary}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: #94a3b8; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 6px;">
+                        <span>작성: <b style="color: #e2e8f0;">${c.author}</b></span>
+                        <span style="color: #fbbf24; font-weight: 800; cursor: pointer;" onclick="alert('칼럼 전문 열람 모달을 준비 중입니다.')">칼럼 전문 읽기 →</span>
+                    </div>
+                </div>
+            `).join('');
         }
-    ];
-
-    list.innerHTML = columns.map(c => `
-        <div class="card" style="padding: 14px; margin-bottom: 8px; border: 1px solid rgba(245, 158, 11, 0.25); background: rgba(0,0,0,0.3);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <span style="font-size: 0.68rem; font-weight: 800; color: #fbbf24; background: rgba(245, 158, 11, 0.15); padding: 2px 7px; border-radius: 4px;">${c.tag}</span>
-                <span style="font-size: 0.68rem; color: #64748b;">${c.readTime} · ${c.date}</span>
-            </div>
-            <div style="font-size: 0.88rem; font-weight: 800; color: #ffffff; margin-bottom: 4px; line-height: 1.35;">${c.title}</div>
-            <p style="font-size: 0.74rem; color: #cbd5e1; line-height: 1.45; margin-bottom: 8px;">${c.summary}</p>
-            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: #94a3b8; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 6px;">
-                <span>작성: <b style="color: #e2e8f0;">${c.author}</b></span>
-                <span style="color: #fbbf24; font-weight: 800; cursor: pointer;" onclick="alert('칼럼 전문 열람 모달을 준비 중입니다.')">칼럼 전문 읽기 →</span>
-            </div>
-        </div>
-    `).join('');
+    } catch (e) {
+        console.warn("renderParentSalonColumns error:", e);
+    }
 }
 
 window.selectCheerPreset = selectCheerPreset;
