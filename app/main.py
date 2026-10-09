@@ -11477,6 +11477,34 @@ def record_ebs_telemetry(payload: EbsTelemetryPayload, db: Session = Depends(get
         "total_points": student.current_points
     }
 
+from fastapi.responses import FileResponse
+
+STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "static")
+
+@app.get("/")
+def get_landing_page():
+    landing_path = os.path.join(STATIC_DIR, "landing.html")
+    if os.path.exists(landing_path):
+        return FileResponse(landing_path)
+    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+
+@app.get("/landing")
+def get_landing_alias():
+    landing_path = os.path.join(STATIC_DIR, "landing.html")
+    return FileResponse(landing_path)
+
+@app.get("/app")
+def get_student_app():
+    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+
+@app.get("/student")
+def get_student_alias():
+    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+
+@app.get("/admin")
+def get_admin_alias():
+    return FileResponse(os.path.join(STATIC_DIR, "admin.html"))
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
+
 

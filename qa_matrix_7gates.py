@@ -23,7 +23,8 @@ frontend_files = [
     os.path.join(ROOT_DIR, 'static', 'js', 'app.js'),
     os.path.join(ROOT_DIR, 'static', 'index.html'),
     os.path.join(ROOT_DIR, 'static', 'admin.html'),
-    os.path.join(ROOT_DIR, 'static', 'master.html')
+    os.path.join(ROOT_DIR, 'static', 'master.html'),
+    os.path.join(ROOT_DIR, 'static', 'landing.html')
 ]
 
 forbidden_patterns = [
@@ -96,7 +97,8 @@ class StrictModalNestingValidator(HTMLParser):
 html_files = [
     os.path.join(ROOT_DIR, 'static', 'index.html'),
     os.path.join(ROOT_DIR, 'static', 'admin.html'),
-    os.path.join(ROOT_DIR, 'static', 'master.html')
+    os.path.join(ROOT_DIR, 'static', 'master.html'),
+    os.path.join(ROOT_DIR, 'static', 'landing.html')
 ]
 
 for hf in html_files:
@@ -237,7 +239,8 @@ full_stack_files = [
     os.path.join(ROOT_DIR, 'static', 'js', 'app.js'),
     os.path.join(ROOT_DIR, 'static', 'index.html'),
     os.path.join(ROOT_DIR, 'static', 'admin.html'),
-    os.path.join(ROOT_DIR, 'static', 'master.html')
+    os.path.join(ROOT_DIR, 'static', 'master.html'),
+    os.path.join(ROOT_DIR, 'static', 'landing.html')
 ]
 
 forbidden_biases = [
