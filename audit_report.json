@@ -1,0 +1,848 @@
+{
+  "app/main.py :: fake_or_dummy_keywords": [
+    [
+      138,
+      "print(f\"Warning: app.sms import failed ({_sms_err}), falling back to dummy SMS.\")"
+    ],
+    [
+      141,
+      "return {\"result_code\": 1, \"message\": \"Dummy fallback success\"}"
+    ],
+    [
+      143,
+      "return {\"status\": \"mock\", \"message\": \"시뮬레이션 모드\", \"SMS_CNT\": 9999, \"LMS_CNT\": 9999}"
+    ]
+  ],
+  "app/main.py :: master_or_id1_overrides": [
+    [
+      467,
+      "if clean_email == \"1286orbital21@gmail.com\":"
+    ],
+    [
+      470,
+      "master_student = db.query(models.Student).filter(func.lower(models.Student.email) == \"1286orbital21@gmail.com\").first()"
+    ],
+    [
+      482,
+      "email=\"1286orbital21@gmail.com\","
+    ],
+    [
+      2972,
+      "student.email in [\"1286orbital21@gmail.com\", \"director@test.com\"] or"
+    ],
+    [
+      3001,
+      "student.email in [\"1286orbital21@gmail.com\", \"director@test.com\"] or"
+    ],
+    [
+      3123,
+      "\"is_master\": True,"
+    ],
+    [
+      3144,
+      "\"is_master\": False,"
+    ],
+    [
+      3157,
+      "\"is_master\": False,"
+    ],
+    [
+      3175,
+      "\"is_master\": False,"
+    ],
+    [
+      3193,
+      "\"is_master\": False,"
+    ],
+    [
+      3210,
+      "\"is_master\": False,"
+    ],
+    [
+      6545,
+      "director_email=\"1286orbital21@gmail.com\","
+    ],
+    [
+      6821,
+      "is_ilwon = (s.get(\"academy_code\") == \"ILWON-2027\" or sid == 1)"
+    ],
+    [
+      6825,
+      "b2c_tier = \"TIER_3_MASTER\" if sid == 1 else s.get(\"b2c_subscription_tier\", \"TIER_1_FREE\")"
+    ],
+    [
+      6861,
+      "previous_b2c_tier=\"TIER_3_MASTER\" if sid == 1 else s.get(\"previous_b2c_tier\", \"B2C_FREE\"),"
+    ],
+    [
+      6881,
+      "if sid == 1:"
+    ],
+    [
+      8538,
+      "student = db.query(models.Student).filter(models.Student.id == 1).first() or db.query(models.Student).first()"
+    ],
+    [
+      8695,
+      "student = db.query(models.Student).filter(models.Student.id == 1).first() or db.query(models.Student).first()"
+    ]
+  ],
+  "app/main.py :: hardcoded_numbers_in_metrics": [
+    [
+      681,
+      "parent = models.Parent(name=payload.parent_name or \"학부모\", phone=clean_p_phone, wallet_balance=50000)"
+    ],
+    [
+      846,
+      "parent.wallet_balance = 50000"
+    ],
+    [
+      854,
+      "wallet_balance=50000"
+    ],
+    [
+      1012,
+      "student.streak_days = max(1, student.streak_days or 1)"
+    ],
+    [
+      1628,
+      "student.chat_tokens = max(0, current_toks - 1)"
+    ],
+    [
+      5348,
+      "student.chat_tokens = 15"
+    ],
+    [
+      5416,
+      "student.chat_tokens = 15"
+    ],
+    [
+      6377,
+      "student.diligence_score = max(0, (student.diligence_score or 100) - 20)"
+    ],
+    [
+      6378,
+      "student.current_points = max(0, (student.current_points or 0) - payload.penalty_amount)"
+    ],
+    [
+      6856,
+      "chat_tokens=999 if is_ilwon else s.get(\"chat_tokens\", 5),"
+    ],
+    [
+      6877,
+      "s_exist.chat_tokens = 999 if is_ilwon else s.get(\"chat_tokens\", 5)"
+    ],
+    [
+      7222,
+      "student.chat_tokens = 999"
+    ],
+    [
+      7241,
+      "student.chat_tokens = 999"
+    ],
+    [
+      7249,
+      "student.chat_tokens = 999"
+    ],
+    [
+      7257,
+      "student.chat_tokens = 999"
+    ],
+    [
+      7265,
+      "student.chat_tokens = 30"
+    ],
+    [
+      7272,
+      "student.chat_tokens = 999"
+    ],
+    [
+      7278,
+      "student.chat_tokens = 50"
+    ],
+    [
+      7284,
+      "student.chat_tokens = 15"
+    ],
+    [
+      7310,
+      "student.chat_tokens = 15"
+    ],
+    [
+      7540,
+      "student.chat_tokens = 999"
+    ],
+    [
+      7544,
+      "student.chat_tokens = 50"
+    ],
+    [
+      7883,
+      "student.chat_tokens = 999"
+    ],
+    [
+      7887,
+      "student.chat_tokens = 50"
+    ],
+    [
+      7891,
+      "student.chat_tokens = 15"
+    ],
+    [
+      7963,
+      "student.chat_tokens = 999"
+    ],
+    [
+      7968,
+      "student.chat_tokens = 999"
+    ],
+    [
+      7973,
+      "student.chat_tokens = 50"
+    ],
+    [
+      7978,
+      "student.chat_tokens = 15"
+    ],
+    [
+      9374,
+      "student.diligence_score = 50"
+    ]
+  ],
+  "app/main.py :: hardcoded_html_metrics": [
+    [
+      3541,
+      "target_seat[\"study_time_today\"] = \"0시간 01분\""
+    ],
+    [
+      3727,
+      "target_seat[\"study_time_today\"] = \"0시간 01분\""
+    ],
+    [
+      3887,
+      "tutor.student.current_points += 500  # 원장 승인 시 축하 500P 부여!"
+    ]
+  ],
+  "app/models.py :: hardcoded_html_metrics": [
+    [
+      999,
+      "problem_book_source = Column(Text, nullable=True)        # 시중 문제집 출처 (예: 블랙라벨 수학II 14p 4번)"
+    ]
+  ],
+  "app/schemas.py :: fake_or_dummy_keywords": [
+    [
+      314,
+      "img_data: Optional[str] = None  # Base64 이미지 데이터 (Mock 업로드용)"
+    ]
+  ],
+  "static/js/app.js :: hardcoded_html_metrics": [
+    [
+      5131,
+      "if (headerPoints) headerPoints.innerText = \"0 P\";"
+    ],
+    [
+      8236,
+      "if (hoursEl) hoursEl.innerText = \"48시간 15분\";"
+    ],
+    [
+      11474,
+      "<button class=\"btn\" style=\"padding: 6px; font-size:0.72rem;\" onclick=\"sendProposalFromTutor(${r.id}, ${myTutorId})\">제안발송(100P)</button>"
+    ],
+    [
+      11648,
+      "alert(\"과외 매칭 신청에 필요한 포인트(150P)가 부족합니다.\");"
+    ],
+    [
+      13478,
+      "const textToCopy = `[PALIN OS] 목표 대학 27학번 가상 학생증 발급 & 19,000원 입시 심층 리포트 무료권 획득!\\n가입할 때 내 초대코드 [ ${code} ] 를 입력하면 500P 웰컴 보너스 즉시 지급!\\n👉 접속: https://palin-os.onrender.com`;"
+    ],
+    [
+      14610,
+      "alert(\"[체험 모드] 출석 체크인(입실)이 완료되었습니다! (출석 포인트 +10P)\");"
+    ],
+    [
+      14838,
+      "<button onclick=\"alert('[체험 모드] VOD 스트리밍 플레이어 시연: 1080p 고화질 1.0배속 시청 및 7일 후 자동 만료 보안 기능이 정상 가동 중입니다.')\" class=\"btn\" style=\"padding: 6px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border-radius: 6px;\">"
+    ],
+    [
+      14855,
+      "<button onclick=\"alert('[체험 모드] VOD 스트리밍 플레이어 시연: 1080p 고화질 1.0배속 시청 및 7일 후 자동 만료 보안 기능이 정상 가동 중입니다.')\" class=\"btn\" style=\"padding: 6px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 6px;\">"
+    ],
+    [
+      15052,
+      "alert(\"[체험 모드] 주차별 성적 제출 시뮬레이션이 완료되었습니다! (+50P 지급)\\n이어서 1:1 맞춤 문진표가 팝업됩니다.\");"
+    ],
+    [
+      16293,
+      "alert(`🎉 [채점 완료] 원점수 ${data.score}점 (${data.grade}등급) 획득! (+50P 지급)\\n원장 1:1 맞춤 처방전이 함께 생성되었습니다.`);"
+    ],
+    [
+      17520,
+      "첫 질문 올리기 (+500P)"
+    ],
+    [
+      17733,
+      "<button type=\"button\" class=\"btn\" onclick=\"acceptExamSourceAnswer(${q.id}, ${ans.id})\" style=\"padding: 6px 12px; font-size: 0.76rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 6px;\">이 출처 채택하기 (+500P 지급)"
+    ],
+    [
+      17781,
+      "alert(\"출처 제보 답변이 등록되었습니다!\\n질문자가 확인 후 답변을 채택하면 +500P 현상금이 지급됩니다.\");"
+    ],
+    [
+      18402,
+      "\"condition_desc\": \"연속 3일 달성\","
+    ],
+    [
+      18412,
+      "\"condition_desc\": \"연속 5일 달성\","
+    ],
+    [
+      18422,
+      "\"condition_desc\": \"연속 7일 달성\","
+    ],
+    [
+      18432,
+      "\"condition_desc\": \"연속 14일 달성\","
+    ],
+    [
+      18442,
+      "\"condition_desc\": \"연속 21일 달성\","
+    ],
+    [
+      18452,
+      "\"condition_desc\": \"연속 30일 달성\","
+    ],
+    [
+      18462,
+      "\"condition_desc\": \"연속 50일 달성\","
+    ],
+    [
+      18472,
+      "\"condition_desc\": \"연속 100일 달성\","
+    ],
+    [
+      18482,
+      "\"condition_desc\": \"연속 200일 달성\","
+    ],
+    [
+      19072,
+      "\"condition_desc\": \"10,000P 이상 누적\","
+    ]
+  ],
+  "static/js/app.js :: master_or_id1_overrides": [
+    [
+      5329,
+      "(currentStudent && currentStudent.email && currentStudent.email.toLowerCase() === '1286orbital21@gmail.com') ||"
+    ],
+    [
+      5685,
+      "if (email.toLowerCase() === '1286orbital21@gmail.com' || data.role === 'SUPER_ADMIN') {"
+    ],
+    [
+      6311,
+      "(currentStudent && currentStudent.email && currentStudent.email.toLowerCase() === '1286orbital21@gmail.com') ||"
+    ],
+    [
+      7359,
+      "const email = \"1286orbital21@gmail.com\";"
+    ],
+    [
+      10865,
+      "(currentStudent && currentStudent.email === \"1286orbital21@gmail.com\") ||"
+    ]
+  ],
+  "static/js/app.js :: fallback_or_operators": [
+    [
+      5536,
+      "currentActiveFacility = currentStudent?.academy_code || \"ILWON-2027\";"
+    ],
+    [
+      5709,
+      "alert(err.detail || err.message || \"서버 통신 중 오류가 발생했습니다.\");"
+    ],
+    [
+      5746,
+      "alert(data.detail || \"인증코드 발송에 실패했습니다.\");"
+    ],
+    [
+      5825,
+      "alert(data.detail || \"인증번호 검증 실패\");"
+    ],
+    [
+      5952,
+      "alert(err.detail || err.message || \"서버 통신 중 오류가 발생했습니다.\");"
+    ],
+    [
+      6579,
+      "const eqTitle = currentStudent.equipped_title || \"[트랙 인: 1열 탑승자]\";"
+    ],
+    [
+      6688,
+      "const b2cTier = (student.b2c_subscription_tier || \"TIER_1_FREE\").toUpperCase();"
+    ],
+    [
+      6893,
+      "const baseline = (currentStudent && currentStudent.baseline_univ && currentStudent.baseline_univ !== \"-\") ? currentStudent.baseline_univ : (localStorage.getItem(\"cached_baseline_univ\") || \"서울대학교 화학생물공학부\");"
+    ],
+    [
+      6918,
+      "const activeDate = localStorage.getItem('pinnedDDayDate') || (currentStudent && currentStudent.dday_date) || \"2026-11-19\";"
+    ],
+    [
+      7106,
+      "<div style=\"font-weight:800; font-size:0.95rem; color:#a5b4fc; margin-top:2px;\">${(vip.cutoff_points || 1000).toLocaleString()}P</div>"
+    ],
+    [
+      7200,
+      "const b2cTier = (student.b2c_subscription_tier || student.previous_b2c_tier || \"TIER_1_FREE\").toUpperCase();"
+    ],
+    [
+      7322,
+      "alert(data.message || \"구독이 정상적으로 해지되었습니다.\");"
+    ],
+    [
+      7626,
+      "alert(data.detail || \"초대 코드 등록 실패\");"
+    ],
+    [
+      7681,
+      "const pinnedDate = localStorage.getItem('pinnedDDayDate') || \"2026-11-19\";"
+    ],
+    [
+      7754,
+      "if (sub) sub.innerText = `${currentStudent.high_school || \"일반고\"} ${gradeText} | ${currentStudent.region || \"경기도 성남시 분당구\"}`;"
+    ],
+    [
+      9122,
+      "alert(err.detail || \"서약 문구가 일치하지 않습니다.\");"
+    ],
+    [
+      10636,
+      "alert(data.message || \"과외선생님 신청이 원장님께 제출되었습니다. 원장님이 서류(합격증 및 성적표)를 별도 확인 후 최종 승인하면 프로필이 공개됩니다.\");"
+    ],
+    [
+      11027,
+      "alert(err.detail || \"질문 수정에 실패했습니다.\");"
+    ],
+    [
+      11053,
+      "alert(err.detail || \"질문 삭제에 실패했습니다.\");"
+    ],
+    [
+      13190,
+      "const kor = parseFloat(document.getElementById('pred-kor')?.value) || 85;"
+    ],
+    [
+      13192,
+      "const math = parseFloat(document.getElementById('pred-math')?.value) || 85;"
+    ],
+    [
+      13194,
+      "const eng = parseInt(document.getElementById('pred-eng')?.value) || 85;"
+    ],
+    [
+      13196,
+      "const hist = parseInt(document.getElementById('pred-hist')?.value) || 40;"
+    ],
+    [
+      13198,
+      "const tam1 = parseFloat(document.getElementById('pred-tam1')?.value) || 85;"
+    ],
+    [
+      13200,
+      "const tam2 = parseFloat(document.getElementById('pred-tam2')?.value) || 85;"
+    ],
+    [
+      13266,
+      "<div style=\"color: #cbd5e1; font-size: 0.85rem; margin-bottom: 16px;\">${err.detail || \"캐시가 부족합니다.\"}</div>"
+    ],
+    [
+      13328,
+      "<div style=\"font-size: 1.15rem; font-weight: 900; color: #ffffff; margin-top: 6px;\">${report.summary_headline || \"정시 100% 집중 포트폴리오\"}</div>"
+    ],
+    [
+      14069,
+      "alert(err.detail || \"탈퇴 처리 중 오류가 발생했습니다.\");"
+    ],
+    [
+      14199,
+      "alert(`✅ ${data.message || \"가맹 신청이 취소되었습니다.\"}`);"
+    ],
+    [
+      14204,
+      "alert(data.detail || \"취소 처리에 실패했습니다.\");"
+    ],
+    [
+      14689,
+      "const activeFacility = (typeof currentActiveFacility !== 'undefined' && currentActiveFacility) ? currentActiveFacility : (currentStudent?.academy_code || \"ILWON-2027\");"
+    ],
+    [
+      15473,
+      "alert(data.detail || \"비밀번호 변경 실패\");"
+    ],
+    [
+      16276,
+      "student_id: st.id || 9999,"
+    ],
+    [
+      16287,
+      "alert(err.detail || \"OMR 채점 처리 중 오류가 발생했습니다.\");"
+    ],
+    [
+      16325,
+      "if (diagEl) diagEl.innerText = data.director_diagnosis || data.diagnosis || \"원장 진단서가 생성 중입니다.\";"
+    ],
+    [
+      16429,
+      "academy_code: currentTenantCode || \"ILWON-2027\","
+    ],
+    [
+      16950,
+      "const petExp = student.pet_exp || 45;"
+    ],
+    [
+      17648,
+      "alert(err.detail || \"질문 등록 중 오류가 발생했습니다.\");"
+    ],
+    [
+      17896,
+      "currentStudentSeatMode = data.seat_mode || \"FREE_SELECT\";"
+    ],
+    [
+      17953,
+      "statsText.innerText = `잔여 ${data.available_seats || 0}석 / 총 ${data.total_seats || 24}석`;"
+    ],
+    [
+      18039,
+      "alert(data.message || \"좌석 상태가 변경되었습니다.\");"
+    ],
+    [
+      18128,
+      "if (codeEl) codeEl.innerText = inv.invoice_code || \"INV-2026-0001\";"
+    ],
+    [
+      18133,
+      "if (amountEl) amountEl.innerText = `₩${(inv.final_amount || 450000).toLocaleString()}`;"
+    ],
+    [
+      18166,
+      "alert(data.detail || \"결제 승인 처리 중 오류가 발생했습니다.\");"
+    ],
+    [
+      18195,
+      "alert(data.detail || \"콕 찌르기 전송에 실패했습니다.\");"
+    ],
+    [
+      19416,
+      "const equippedTitle = data.equipped_title || \"[수능 만점의 신화]\";"
+    ],
+    [
+      19425,
+      "progressEl.innerText = `해금 ${data.unlocked_count || 0} / ${data.total_count || 100} (${data.unlocked_rate || 0}%)`;"
+    ],
+    [
+      19573,
+      "alert(data.detail || \"칭호 장착에 실패했습니다.\");"
+    ],
+    [
+      19661,
+      "if (tag) tag.innerText = data.edition_tag || \"목표대학 몰입 사운드\";"
+    ]
+  ],
+  "static/js/app.js :: js_math_max_fallbacks": [
+    [
+      8811,
+      "const topPx = Math.max(0, Math.min(510, (startHour - 6) * 30));"
+    ],
+    [
+      8812,
+      "const heightPx = Math.max(22, Math.min(540 - topPx, (endHour - startHour) * 30));"
+    ],
+    [
+      19714,
+      "duration = Math.max(15, elapsed);"
+    ]
+  ],
+  "static/index.html :: hardcoded_html_metrics": [
+    [
+      468,
+      "회원가입 완료 (100P 지급)"
+    ],
+    [
+      1302,
+      "<div class=\"tier-desc-text\" style=\"font-size: 0.74rem;\">수시 OR 정시 택 1 집중 진단 (2~4p)</div>"
+    ],
+    [
+      1314,
+      "<div class=\"tier-desc-text\" style=\"font-size: 0.74rem;\">수시(학종/논술) + 정시 풀스캔 비교 (4~8p)</div>"
+    ],
+    [
+      1332,
+      "Tier 2 전체 + <strong>168시간 시간표</strong> + <strong>과목별/시험별 만점 비법</strong> + <strong>생활/멘탈 케어</strong> (10~15p)"
+    ],
+    [
+      1753,
+      "<button type=\"button\" class=\"btn\" onclick=\"openExamSourceAskModal()\" style=\"padding: 10px 20px; font-size: 0.85rem; font-weight: 900; background: linear-gradient(135deg, #6366f1, #4f46e5); border-radius: 8px; color: white;\">문제 사진/텍스트 올리고 출처 질문하기 (+500P 현상금)"
+    ],
+    [
+      1878,
+      "대학 합격증 혹은 학생증을 연동해 인증하면, **[과외 선생님 모드]**가 해금되어 프로필을 등록하고 후배들에게 과외를 유치해 용돈을 벌 수 있습니다! (인증 즉시 500P 지급)"
+    ],
+    [
+      1969,
+      "<div style=\"font-size:0.75rem; color:var(--text-secondary); margin-bottom:12px;\">후배들이 작성한 과외 희망조건입니다. 제안하기(100P 소모)를 통해 즉시 매칭을 어필해 보세요!</div>"
+    ],
+    [
+      2478,
+      "<div style=\"font-size: 1.15rem; font-weight: 900; color: #fbbf24;\">+50 P</div>"
+    ],
+    [
+      2854,
+      "<button class=\"btn\" style=\"padding: 10px; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5);\">질문 등록하기 (+30P)</button>"
+    ],
+    [
+      3158,
+      "<button class=\"btn\" style=\"padding: 10px; font-weight: 800; background: linear-gradient(135deg, #ec4899, #f59e0b); color: white;\">이야기 올리기 (+20P)</button>"
+    ],
+    [
+      3341,
+      "<div style=\"font-size: 1.15rem; font-weight: 900; color: #fbbf24; margin-top: 2px;\" id=\"mypage-points\">350 P</div>"
+    ],
+    [
+      3699,
+      "<div style=\"font-size: 0.78rem; color: #94a3b8; margin-bottom: 14px;\">7일 연속 완주 시 <strong>주간 잭팟 보너스 (+100P)</strong>가 지급됩니다."
+    ],
+    [
+      3829,
+      "<div style=\"font-size: 0.75rem; color: #fda4af; margin-top: 6px;\">가입한 친구도 500P 웰컴 포인트를 받습니다.</div>"
+    ],
+    [
+      4867,
+      "어머님, 김학생 학생이 18:30 정규 수업에 정상 입실하였습니다. (오늘 누적 자습: 6시간 42분)"
+    ],
+    [
+      5034,
+      "시험 문제 사진이나 텍스트를 등록하면 동료 학생 및 선배 튜터들이 원본 출처를 찾아드립니다. 정답 채택 시 답변자에게 <b>500P</b>가 지급됩니다."
+    ],
+    [
+      5088,
+      "<span style=\"font-weight: 800; color: #fbbf24;\">500 P 예치</span>"
+    ],
+    [
+      5133,
+      "<div style=\"font-size: 0.82rem; font-weight: 800; color: #c7d2fe; margin-bottom: 8px;\">이 문제의 원본 출처를 아시나요? (+500P 획득)"
+    ],
+    [
+      5182,
+      "<button type=\"button\" onclick=\"completeEbsStudySession()\" class=\"btn\" style=\"background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: 900; font-size: 0.82rem; padding: 8px 16px; border-radius: 8px;\">수강 완료 & 포인트 획득 (+30P)</button>"
+    ],
+    [
+      5547,
+      "alert(`🎉 [채점 완료] 원점수 ${data.score}점 (${data.grade}등급) 획득! (+50P 지급)\\n원장 1:1 맞춤 처방전이 함께 생성되었습니다.`);"
+    ]
+  ],
+  "static/index.html :: js_math_max_fallbacks": [
+    [
+      1218,
+      "<textarea id=\"chat-input\" class=\"form-input\" placeholder=\"수험 고민, 공부법 등을 질문해보세요\" rows=\"1\" style=\"resize: none; overflow-y: auto; min-height: 48px; max-height: 120px; line-height: 1.4; padding: 13px 14px; font-size: 0.88rem; flex: 1; box-sizing: border-box; border-radius: 12px;\" oninput=\"this.style.height='auto'; this.style.height=Math.max(48, Math.min(this.scrollHeight, 120))+'px';\" onkeydown=\"if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); sendChatMessage(); }\"></textarea>"
+    ]
+  ],
+  "static/index.html :: master_or_id1_overrides": [
+    [
+      4505,
+      "<div style=\"font-size: 1.05rem; font-weight: 900; color: #ffffff; letter-spacing: 0.5px; user-select: all;\">1286orbital21@gmail.com</div>"
+    ],
+    [
+      4511,
+      "<a href=\"mailto:1286orbital21@gmail.com?subject=[PALIN OS 가맹 도입 문의]&body=학원명:%0D%0A지역:%0D%0A원장님 성함 및 연락처:%0D%0A문의사항:\" class=\"btn btn-secondary\" style=\"flex: 1; padding: 10px; font-size: 0.82rem; font-weight: 800; border-color: #f59e0b; color: #fbbf24; text-decoration: none; display: flex; align-items: center; justify-content: center;\">메일 바로 쓰기"
+    ]
+  ],
+  "static/index.html :: fallback_or_operators": [
+    [
+      5530,
+      "student_id: st.id || 9999,"
+    ],
+    [
+      5541,
+      "alert(err.detail || \"OMR 채점 처리 중 오류가 발생했습니다.\");"
+    ],
+    [
+      5571,
+      "if (diagEl) diagEl.innerText = data.director_diagnosis || data.diagnosis || \"원장 진단서가 생성 중입니다.\";"
+    ]
+  ],
+  "static/admin.html :: hardcoded_html_metrics": [
+    [
+      2135,
+      "<div style=\"font-size: 1.6rem; font-weight: 900; color: #34d399; margin: 4px 0;\">124시간 40분</div>"
+    ],
+    [
+      2191,
+      "<div style=\"font-size: 0.72rem; color: #94a3b8;\">정기권 · 연속 14일 출석 🔥</div>"
+    ],
+    [
+      2194,
+      "<div style=\"font-size: 0.95rem; font-weight: 900; color: #34d399;\">7시간 30분</div>"
+    ],
+    [
+      2201,
+      "<div style=\"font-size: 0.72rem; color: #94a3b8;\">정기권 · 연속 8일 출석</div>"
+    ],
+    [
+      2204,
+      "<div style=\"font-size: 0.95rem; font-weight: 900; color: #a5b4fc;\">6시간 40분</div>"
+    ],
+    [
+      2211,
+      "<div style=\"font-size: 0.72rem; color: #94a3b8;\">100시간권 · 연속 6일 출석</div>"
+    ],
+    [
+      2214,
+      "<div style=\"font-size: 0.95rem; font-weight: 900; color: #fbbf24;\">5시간 15분</div>"
+    ],
+    [
+      2239,
+      "<div style=\"font-size: 0.72rem; color: #f87171; font-weight: 800;\">잔여 3시간 10분</div>"
+    ],
+    [
+      4955,
+      "<button onclick=\"approveTutor(${t.id})\" class=\"btn\" style=\"background:linear-gradient(135deg,#10b981,#059669); color:white; font-weight:800; padding:6px 12px; font-size:0.75rem;\">승인 (+500P)"
+    ],
+    [
+      5632,
+      "<div style=\"font-size: 0.7rem; color: #10b981; font-weight: 700;\" id=\"dossier-kpi-streak\">연속 0일 불꽃</div>"
+    ],
+    [
+      5647,
+      "<div style=\"font-size: 0.7rem; color: var(--text-secondary);\" id=\"dossier-kpi-points\">보유 0 P</div>"
+    ],
+    [
+      6419,
+      "document.getElementById(\"dossier-kpi-streak\").innerText = data.study.current_streak > 0 ? `연속 ${data.study.current_streak}일 불꽃` : \"연속 0일\";"
+    ]
+  ],
+  "static/admin.html :: fallback_or_operators": [
+    [
+      2667,
+      "const total = currentStudyCafeSeats.length || 24;"
+    ],
+    [
+      2796,
+      "if (rateEl) rateEl.innerText = `${data.all_a_rate || 87.5}%`;"
+    ],
+    [
+      2960,
+      "errEl.innerText = data.detail || \"비밀번호 또는 보안 PIN이 올바르지 않습니다.\";"
+    ],
+    [
+      3040,
+      "tenant_code: currentTenantCode || \"ILWON-2027\","
+    ],
+    [
+      3048,
+      "alert(data.message || \"보안 PIN이 성공적으로 변경되었습니다.\");"
+    ],
+    [
+      3349,
+      "document.getElementById(\"survey-bot-tone\").value = data.bot_tone || \"VERY_STRICT\";"
+    ],
+    [
+      3520,
+      "statusLabel = `🟡 지각 (${l.arrival_minutes || 15}분)`;"
+    ],
+    [
+      3741,
+      "alert(data.detail || \"일괄 수납 처리 실패\");"
+    ],
+    [
+      3788,
+      "if (aEl) aEl.innerText = setInfo.settlement_account_number || \"110-384-928192\";"
+    ],
+    [
+      3949,
+      "const tuition = parseInt(document.getElementById(\"batch-tuition-amount\").value, 10) || 450000;"
+    ],
+    [
+      3950,
+      "const textbook = parseInt(document.getElementById(\"batch-textbook-amount\").value, 10) || 50000;"
+    ],
+    [
+      3978,
+      "alert(data.detail || \"일괄 청구서 발행 실패\");"
+    ],
+    [
+      4009,
+      "const amount = parseInt(document.getElementById(\"single-amount\").value, 10) || 500000;"
+    ],
+    [
+      4059,
+      "const dueDay = parseInt(document.getElementById(\"settle-input-dueday\").value, 10) || 25;"
+    ],
+    [
+      4080,
+      "alert(data.detail || \"정산 계좌 등록 실패\");"
+    ],
+    [
+      4128,
+      "alert(data.detail || \"수납 확인 처리 실패\");"
+    ],
+    [
+      4173,
+      "body: JSON.stringify({ academy_code: currentTenantCode || \"ILWON-2027\", week_number: week, title: title, content: content })"
+    ],
+    [
+      4758,
+      "alert(`⚠️ 처리 실패: ${data.detail || data.message || \"오류가 발생했습니다.\"}`);"
+    ],
+    [
+      4781,
+      "alert(`⚠️ 작업 실패: ${data.detail || data.message || \"오류가 발생했습니다.\"}`);"
+    ],
+    [
+      4870,
+      "alert(data.message || \"합격 실적 및 선배 멘토 등록이 완료되었습니다.\");"
+    ],
+    [
+      5121,
+      "formData.append(\"academy_code\", currentTenantCode || \"ILWON-2027\");"
+    ],
+    [
+      5323,
+      "const year = document.getElementById(\"mat-year\")?.value || 2027;"
+    ],
+    [
+      5492,
+      "alert(data.detail || \"라이선스 변경 실패\");"
+    ],
+    [
+      6186,
+      "academy_code: currentTenantCode || \"ILWON-2027\","
+    ]
+  ],
+  "static/master.html :: fallback_or_operators": [
+    [
+      1836,
+      "const port = parseInt(document.getElementById(\"smtp-cfg-port\").value.trim()) || 587;"
+    ],
+    [
+      2131,
+      "sessionStorage.setItem(\"palin_business_type\", bizType || \"HIGH_ACADEMY\");"
+    ],
+    [
+      2145,
+      "sessionStorage.setItem(\"palin_business_type\", businessType || \"HIGH_ACADEMY\");"
+    ],
+    [
+      2217,
+      "const msg = msgInput.value.trim() || \"원장님 저 국어 4등급인데 지금부터 해도 인서울 가능할까요?\";"
+    ],
+    [
+      2993,
+      "const b2cTier = (s.b2c_subscription_tier || \"TIER_1_FREE\").toUpperCase();"
+    ],
+    [
+      3130,
+      "alert(`⚠️ 액션 실패: ${data.detail || data.message || \"오류가 발생했습니다.\"}`);"
+    ]
+  ]
+}

@@ -12,50 +12,28 @@ function openStreakModal() {
     }
 
     const titleEl = document.getElementById("streak-modal-title");
-    if (titleEl) titleEl.innerText = `${count}일 연속 학습 달성!`;
-
-    
+    if (titleEl) titleEl.innerText = `🔥 ${count}일 연속 학습 달성!`;
 
     // 7일 출석 도장 렌더링 (월~일)
-
     const weekContainer = document.getElementById("streak-week-days");
-
     if (weekContainer) {
-
         const dayNames = ['월', '화', '수', '목', '금', '토', '일'];
-
         const today = new Date();
-
         const currentDayIndex = (today.getDay() + 6) % 7; // 월=0, 일=6
-
         
-
         let html = '';
-
         dayNames.forEach((name, idx) => {
-
             let isAchieved = false;
-
             let isToday = (idx === currentDayIndex);
-
             if (idx <= currentDayIndex && count > 0) {
-
                 if (currentDayIndex - idx < count) {
-
                     isAchieved = true;
-
                 }
-
             }
-
             
-
             const badgeBg = isAchieved ? '#f97316' : (isToday ? 'rgba(249, 115, 22, 0.3)' : '#334155');
-
             const textColor = isAchieved ? '#ffffff' : (isToday ? '#fed7aa' : '#64748b');
-
-            const icon = isAchieved ? '' : (idx === 6 ? '' : '-');
-
+            const icon = isAchieved ? '🔥' : (isToday ? '⏳' : (idx === 6 ? '🎁' : '-'));
             const border = isToday ? '2px solid #f97316' : 'none';
 
             

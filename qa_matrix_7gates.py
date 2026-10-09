@@ -266,8 +266,28 @@ for target_file in full_stack_files:
 
 print("[GATE 1.8 PASS] Zero Account-Bias & Field Hardcoding Scanner Passed: 100% dynamic DB ground-truth enforcement verified across full stack!")
 
+# 1.9 Strict Zero-AI-Cliche & Raw Markdown Asterisks Scanner (No-AI-Tone Rule)
+banned_ai_cliches = ["냉철한", "서늘한", "팩트폭격", "뼈를 때리", "소크라테스"]
+for hf in html_files:
+    fname = os.path.basename(hf)
+    with open(hf, 'r', encoding='utf-8') as f:
+        content = f.read()
+    clean_text = re.sub(r'<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>', '', content, flags=re.I)
+    clean_text = re.sub(r'<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>', '', clean_text, flags=re.I)
+    clean_text = re.sub(r'<!--[\s\S]*?-->', '', clean_text)
+    visible_text = re.sub(r'<[^>]+>', ' ', clean_text)
+    
+    for cliche in banned_ai_cliches:
+        if cliche in visible_text:
+            print(f"[GATE 1.9 FAIL] Pretentious AI cliche '{cliche}' found in visible UI of {fname}!")
+            sys.exit(1)
+            
+    if re.search(r'\*\*[^*]+\*\*', visible_text):
+        print(f"[GATE 1.9 FAIL] Raw unrendered markdown asterisks (**) found in visible UI of {fname}!")
+        sys.exit(1)
 
-# ==============================================================================
+print("[GATE 1.9 PASS] Zero AI-tone cliches ('냉철한', '서늘한', '팩트폭격' 등) & Zero raw markdown asterisks (**) verified across UI!")
+
 # GATE 2: DOM Event Listener, Dead Button & Modal Function Binding Scanner
 # ==============================================================================
 print("\n[GATE 2] Running DOM Event Listener & Dead Button Scanner...")
