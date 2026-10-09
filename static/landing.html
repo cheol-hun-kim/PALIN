@@ -6,12 +6,12 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>PASS-MATE (패스메이트) - 데이터가 증명하는 올인원 입시 관제 OS</title>
+  <title>PASS-MATE (패스메이트) - 인생 3회차 선배가 설계한 올인원 입시 관제 OS</title>
   
   <!-- OpenGraph Metadata -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="PASS-MATE - 데이터가 증명하는 올인원 입시 관제 OS">
-  <meta property="og:description" content="비싼 양치기와 무의미한 엉덩이 공부를 깨는 실전 몰입 시스템. 기상·출결·순공 타이머·오답노트·원장 관제까지 하나로.">
+  <meta property="og:title" content="PASS-MATE - 인생 3회차 선배의 올인원 입시 관제 OS">
+  <meta property="og:description" content="수험생활의 모든 시행착오, 시간 낭비, 돈 낭비를 끝냅니다. 학생·학부모·학원을 위한 가장 확실한 입시 지름길.">
   <meta property="og:image" content="/icon-512.png">
   <link rel="icon" type="image/png" href="/icon-192.png">
 
@@ -29,10 +29,6 @@
     
     html { scroll-behavior: smooth; }
     
-    .glow-orange { box-shadow: 0 0 50px -10px rgba(249, 115, 22, 0.35); }
-    .glow-blue { box-shadow: 0 0 50px -10px rgba(59, 130, 246, 0.35); }
-    .glow-emerald { box-shadow: 0 0 50px -10px rgba(16, 185, 129, 0.35); }
-    
     .bg-grid-pattern {
       background-size: 32px 32px;
       background-image: 
@@ -40,29 +36,30 @@
         linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
     }
 
-    .badge-shimmer {
-      background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.05) 100%);
-      background-size: 200% 100%;
-      animation: shimmer 3s infinite;
+    /* Persona Selector Nav */
+    .persona-tab {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-
-    /* Tab Switcher Styling */
-    .tab-btn.active {
-      background: #2563eb;
+    .persona-tab.active {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
       color: #ffffff;
       border-color: #3b82f6;
-      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+      box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.5);
+    }
+
+    /* Interactive Demo Switchers */
+    .demo-tab.active {
+      background: #f97316;
+      color: #ffffff;
+      border-color: #fb923c;
+      box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);
     }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen antialiased selection:bg-orange-500 selection:text-white">
 
   <!-- ================= TOP NAVIGATION BAR ================= -->
-  <header class="sticky top-0 z-40 bg-slate-950/85 backdrop-blur-md border-b border-slate-800">
+  <header class="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
       <!-- Logo -->
       <a href="#" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;" class="flex items-center gap-2.5 group">
@@ -76,26 +73,25 @@
             <span class="font-black text-lg tracking-tight text-white">PASS-MATE</span>
             <span class="text-[10px] font-extrabold px-1.5 py-0.2 rounded bg-orange-500/20 text-orange-300 border border-orange-500/30">패스메이트</span>
           </div>
-          <p class="text-[9px] text-slate-400 tracking-wider">올인원 입시 관제 OS</p>
+          <p class="text-[9px] text-slate-400 tracking-wider">인생 3회차 입시 관제 OS</p>
         </div>
       </a>
 
       <!-- Desktop Nav -->
       <nav class="hidden md:flex items-center gap-6 text-xs font-semibold text-slate-300">
-        <a href="#philosophy" class="hover:text-white transition">교육 철학</a>
-        <a href="#features" class="hover:text-white transition">4대 관제 시스템</a>
-        <a href="#demo" class="hover:text-white transition">10초 실시간 체험</a>
-        <a href="#cockpit" class="hover:text-white transition">학원장 관제실</a>
-        <a href="#b2b" class="hover:text-white transition text-amber-300 font-bold">학원·독서실 제휴</a>
+        <a href="#philosophy" class="hover:text-white transition">선배의 철학</a>
+        <a href="#audience-section" class="hover:text-white transition">맞춤 솔루션</a>
+        <a href="#demo" class="hover:text-white transition">가상 체험 데모</a>
+        <a href="#pricing" class="hover:text-white transition">투명 요금제</a>
         <a href="#faq" class="hover:text-white transition">FAQ</a>
       </nav>
 
       <!-- Action Buttons -->
       <div class="flex items-center gap-2">
-        <a href="/admin.html" class="hidden sm:inline-flex px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-bold border border-slate-700 transition items-center gap-1.5 shadow-sm">
-          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-amber-400"></i>
-          <span>원장 관제실</span>
-        </a>
+        <button onclick="openSandboxModal()" class="hidden sm:inline-flex px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-bold border border-slate-700 transition items-center gap-1.5 shadow-sm">
+          <i data-lucide="shield" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>가상 관제실 체험</span>
+        </button>
         <a href="/app" class="px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 via-amber-500 to-blue-600 hover:from-orange-400 hover:to-blue-500 text-white text-xs font-black shadow-md shadow-orange-500/25 transition flex items-center gap-1.5">
           <span>학생 포털 시작</span>
           <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
@@ -105,283 +101,317 @@
   </header>
 
   <!-- ================= HERO SECTION ================= -->
-  <section class="relative pt-12 pb-20 overflow-hidden bg-grid-pattern">
-    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-slate-950/60 to-slate-950 pointer-events-none"></div>
+  <section class="relative pt-14 pb-16 overflow-hidden bg-grid-pattern">
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-slate-950/70 to-slate-950 pointer-events-none"></div>
     
     <div class="relative max-w-5xl mx-auto px-4 sm:px-6 text-center">
       
       <!-- Top Announcement Pill -->
-      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 border border-orange-500/30 text-slate-300 text-xs font-semibold mb-6 shadow-sm">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-orange-500/30 text-slate-300 text-xs font-semibold mb-6 shadow-sm">
         <span class="text-orange-400 font-extrabold flex items-center gap-1">
-          <span>🔥</span> 실전 검증 완료
+          <span>🔥</span> 수험의 모든 시행착오 종결
         </span>
         <span class="w-1 h-1 rounded-full bg-slate-600"></span>
-        <span>일원학원 & 대치동 관리형 입시 시스템</span>
+        <span>인생 3회차 삼수선배가 설계한 진짜 지름길</span>
       </div>
 
       <!-- Main Headline -->
-      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.18] mb-6">
-        비싼 양치기와 무의미한 엉덩이 공부는<br class="hidden sm:inline">
-        더 이상 정답이 아닙니다.<br>
+      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.2] mb-6">
+        수험생활의 모든 시간 낭비,<br class="hidden sm:inline">
+        돈 낭비, 에너지 낭비를 끝냅니다.<br>
         <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-300 to-blue-400">
-          데이터로 증명하는 올인원 입시 관제
+          오직 검증된 지름길만을 안내하는 입시 관제 OS
         </span>
       </h1>
 
       <!-- Subheadline -->
-      <p class="max-w-2xl mx-auto text-sm sm:text-base text-slate-300 leading-relaxed font-normal mb-8">
-        문제를 해석하는 원리를 배우지 않은 채 비싼 교재만 풀고 앉아있는 것은 시간 낭비입니다.<br class="hidden sm:inline">
-        기상·출결·순공 타이머·오답노트 백지 재풀이부터 실시간 원장 관제까지,<br class="hidden sm:inline">
-        비용과 시간의 낭비 없이 흔들리지 않는 합격 습관을 완성합니다.
+      <p class="max-w-3xl mx-auto text-sm sm:text-base text-slate-300 leading-relaxed font-normal mb-10">
+        이미 입시의 바닥과 정점을 모두 치러본 선배는 압니다.<br class="hidden sm:inline">
+        불안감을 파는 사교육의 상술, 비싼 문제집 양치기, 시간만 때우는 멍때리기 공부는 실패로 가는 길입니다.<br class="hidden sm:inline">
+        마치 인생 3회차를 사는 사람처럼, 잘못된 길은 사전에 완벽히 피하고 가장 빠르고 확실한 길로 직행하십시오.
       </p>
 
-      <!-- Primary CTAs -->
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-3.5 mb-12">
+      <!-- Primary Action CTAs -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3.5 mb-14">
         <a href="/app" class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-orange-500 via-amber-500 to-blue-600 hover:from-orange-400 hover:to-blue-500 text-white text-sm font-black shadow-lg shadow-orange-500/30 transition flex items-center justify-center gap-2 group">
-          <span>학생 전용 포털 바로가기</span>
+          <span>학생 전용 포털 시작하기</span>
           <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
         </a>
-        <a href="/admin.html" class="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 text-sm font-bold border border-slate-700 transition flex items-center justify-center gap-2">
+        <button onclick="openSandboxModal()" class="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 text-sm font-bold border border-slate-700 transition flex items-center justify-center gap-2">
           <i data-lucide="layout-dashboard" class="w-4 h-4 text-amber-400"></i>
-          <span>학원장 관제실 로그인</span>
-        </a>
+          <span>학원장 가상 관제실 체험하기</span>
+        </button>
       </div>
 
-      <!-- Trust Metrics Bar -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto text-left">
-        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm">
-          <div class="flex items-center gap-2 text-orange-400 mb-1">
-            <i data-lucide="flame" class="w-4 h-4"></i>
-            <span class="text-xs font-bold text-slate-400">연속 학습 스트릭</span>
-          </div>
-          <div class="text-xl sm:text-2xl font-black text-white">무제한 지속</div>
-          <p class="text-[11px] text-slate-400 mt-0.5">매일 기상·순공 미션 달성</p>
+      <!-- ================= 3-WAY AUDIENCE SELECTOR ================= -->
+      <div id="audience-section" class="scroll-mt-24 pt-4">
+        <div class="text-center mb-6">
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">맞춤형 솔루션 선택</p>
+          <h2 class="text-xl sm:text-2xl font-black text-white">어떤 입장에서 PASS-MATE를 찾으셨나요?</h2>
         </div>
 
-        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm">
-          <div class="flex items-center gap-2 text-blue-400 mb-1">
-            <i data-lucide="timer" class="w-4 h-4"></i>
-            <span class="text-xs font-bold text-slate-400">일일 순공 트래킹</span>
-          </div>
-          <div class="text-xl sm:text-2xl font-black text-white">초 단위 정밀 관제</div>
-          <p class="text-[11px] text-slate-400 mt-0.5">가짜 엉덩이 공부 0% 차단</p>
-        </div>
-
-        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm">
-          <div class="flex items-center gap-2 text-emerald-400 mb-1">
-            <i data-lucide="file-check-2" class="w-4 h-4"></i>
-            <span class="text-xs font-bold text-slate-400">디지털 OMR & 백지 오답</span>
-          </div>
-          <div class="text-xl sm:text-2xl font-black text-white">3단계 재풀이</div>
-          <p class="text-[11px] text-slate-400 mt-0.5">완전 이해 시까지 오답 관리</p>
-        </div>
-
-        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm">
-          <div class="flex items-center gap-2 text-amber-400 mb-1">
-            <i data-lucide="building-2" class="w-4 h-4"></i>
-            <span class="text-xs font-bold text-slate-400">실전 플래그십 운영</span>
-          </div>
-          <div class="text-xl sm:text-2xl font-black text-white">일원학원 현장 검증</div>
-          <p class="text-[11px] text-slate-400 mt-0.5">원장·학생·학부모 3자 동기화</p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto p-1.5 rounded-2xl bg-slate-900/90 border border-slate-800 backdrop-blur-sm mb-8">
+          <button onclick="selectPersona('student')" id="persona-btn-student" class="persona-tab active py-3 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 border border-transparent">
+            <span>🎓</span>
+            <span>수험생 / 학생</span>
+          </button>
+          <button onclick="selectPersona('parent')" id="persona-btn-parent" class="persona-tab py-3 px-4 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:text-white flex items-center justify-center gap-2 border border-transparent">
+            <span>👨‍👩‍👧</span>
+            <span>학부모님</span>
+          </button>
+          <button onclick="selectPersona('director')" id="persona-btn-director" class="persona-tab py-3 px-4 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:text-white flex items-center justify-center gap-2 border border-transparent">
+            <span>🏫</span>
+            <span>학원장 / 독서실 대표</span>
+          </button>
         </div>
       </div>
 
     </div>
   </section>
 
-  <!-- ================= PHILOSOPHY SECTION ================= -->
+  <!-- ================= PERSONA CONTENT 1: STUDENT (수험생) ================= -->
+  <section id="persona-content-student" class="py-12 border-t border-slate-900 bg-slate-950">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      
+      <div class="text-center max-w-2xl mx-auto mb-12">
+        <span class="inline-block px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold border border-blue-500/20 mb-3">FOR STUDENTS</span>
+        <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight mb-3">
+          혼자 끙끙 앓는 삽질은 끝났습니다.<br>
+          목표 대학 선배와 직결되어 지름길로 가세요.
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          같은 고등학교, 같은 학원을 거쳐 내가 원하는 대학에 먼저 도달한 선배들이 당신의 페이스메이커가 되어 줍니다.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        
+        <div class="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 hover:border-blue-500/40 transition">
+          <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-xl font-bold mb-4">
+            🤝
+          </div>
+          <h4 class="text-base font-bold text-white mb-2">목표 대학·동문 선배 1:1 직결</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            나와 같은 출신 고교 선배, 목표 대학(의대·치대·SKY·카이스트)에 재학 중인 선배들과 1:1로 연결되어 진짜 공부법과 과외, 질의응답을 지원받습니다.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 hover:border-orange-500/40 transition">
+          <div class="w-12 h-12 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center text-xl font-bold mb-4">
+            🔥
+          </div>
+          <h4 class="text-base font-bold text-white mb-2">가짜 순공 0% 차단 & 불꽃 스트릭</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            책상에 10시간 멍하니 앉아있는 가짜 공부를 깨고, 06:30 기상 미션과 초 단위 정밀 타이머로 매일 꺼지지 않는 연속 학습 불꽃(🔥)을 유지합니다.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 hover:border-emerald-500/40 transition">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl font-bold mb-4">
+            ✍️
+          </div>
+          <h4 class="text-base font-bold text-white mb-2">3단계 백지 오답노트 & OMR</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            단순히 풀이 테크닉을 외우는 것은 수능날 변형 문제에 무너집니다. 출제자의 시각에서 개념을 백지에 완벽히 재풀이할 때까지 관리합니다.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="text-center">
+        <a href="/app" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md transition">
+          <span>학생 포털에서 무료 체험 시작</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= PERSONA CONTENT 2: PARENT (학부모) ================= -->
+  <section id="persona-content-parent" class="py-12 border-t border-slate-900 bg-slate-950 hidden">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      
+      <div class="text-center max-w-2xl mx-auto mb-12">
+        <span class="inline-block px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20 mb-3">FOR PARENTS</span>
+        <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight mb-3">
+          사교육의 공포 마케팅과 거짓 전략에<br>
+          더 이상 휘둘리지 마십시오.
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          학원의 교재 장사와 학교의 면피용 입시 지도를 피해, 오직 대학 입학처 팩트 데이터와 내 자녀의 투명한 일상만을 보여드립니다.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        
+        <div class="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 hover:border-emerald-500/40 transition">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl font-bold mb-4">
+            🛡️
+          </div>
+          <h4 class="text-base font-bold text-white mb-2">실패를 파는 사교육 상술 타파</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            아이를 끊임없이 불안하게 만들어 불필요한 고액 강의를 계속 결제하게 만드는 사교육의 구조적 덫을 피하고, 필수적인 몰입 시스템만 갖춥니다.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 hover:border-blue-500/40 transition">
+          <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-xl font-bold mb-4">
+            🏛️
+          </div>
+          <h4 class="text-base font-bold text-white mb-2">오직 '대학 공식 입장' 팩트 기반</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            학교 교사의 권위나 실적 유지를 위해 권하는 왜곡된 상담 대신, 실제 대학교 입학처의 공식 발표 기준과 합격자 실데이터만을 기반으로 진단합니다.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 hover:border-amber-500/40 transition">
+          <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl font-bold mb-4">
+            📱
+          </div>
+          <h4 class="text-base font-bold text-white mb-2">100% 투명한 자녀 안심 모니터링</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            내 자녀가 몇 시에 입실했는지, 오늘 순공은 몇 시간 채웠는지, 숙제와 오답노트는 제대로 끝냈는지 스마트폰 알림장으로 실시간 확인합니다.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="text-center">
+        <button onclick="showParentDemoModal()" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition">
+          <span>학부모 안심 리포트 가상 시연 보기</span>
+          <i data-lucide="file-text" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= PERSONA CONTENT 3: DIRECTOR (학원장) ================= -->
+  <section id="persona-content-director" class="py-12 border-t border-slate-900 bg-slate-950 hidden">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      
+      <div class="text-center max-w-2xl mx-auto mb-12">
+        <span class="inline-block px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs font-bold border border-amber-500/20 mb-3">FOR DIRECTORS</span>
+        <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight mb-3">
+          학부모 상담과 행정의 늪에서 벗어나,<br>
+          원장님은 오직 '수업'에만 몰입하십시오.
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          출결, 수납, 과제, 테스트, 학부모 보고, 비품 구매, 보강 관리까지. 원장 혼자서 수백 명의 학생을 오차 없이 통제하는 올인원 시스템입니다.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        
+        <div class="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 hover:border-amber-500/40 transition">
+          <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl font-bold mb-4">
+            🚀
+          </div>
+          <h4 class="text-base font-bold text-white mb-2">원장 1인 = 수백 명 통제 시스템</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            좌석 관제, 와이파이 입퇴실, 결제선생/토스 비대면 수납, OMR 채점 성적표 생성까지 번거로운 행정을 1초 클릭으로 자동화합니다.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 hover:border-blue-500/40 transition">
+          <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-xl font-bold mb-4">
+            💬
+          </div>
+          <h4 class="text-base font-bold text-white mb-2">학부모 일일 보고 카톡 완전 해방</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            원장님이 일일이 학부모에게 전화하고 카톡할 필요 없이, 시스템이 학생의 일일 순공과 출결 데이터를 정밀 리포트로 자동 발송합니다.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 hover:border-orange-500/40 transition">
+          <div class="w-12 h-12 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center text-xl font-bold mb-4">
+            📅
+          </div>
+          <h4 class="text-base font-bold text-white mb-2">휴강·결석·보강 & 비품 일원화</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            학생의 결석 신청 시 보강 VOD 자동 배정, 교재 및 소모품 재고 발주까지 학원 운영의 모든 바퀴가 끊김 없이 맞물려 돌아갑니다.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="text-center">
+        <button onclick="openSandboxModal()" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-black text-xs shadow-md transition">
+          <span>가상 데이터 관제실 샌드박스 체험</span>
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= PHILOSOPHY: 인생 3회차의 법칙 ================= -->
   <section id="philosophy" class="py-20 border-t border-slate-900 bg-slate-950/80">
     <div class="max-w-5xl mx-auto px-4 sm:px-6">
       
       <div class="text-center max-w-2xl mx-auto mb-14">
-        <span class="text-xs font-bold uppercase tracking-wider text-orange-400">Our Education Philosophy</span>
+        <span class="text-xs font-bold uppercase tracking-wider text-orange-400">Core Philosophy</span>
         <h2 class="text-2xl sm:text-4xl font-black text-white tracking-tight mt-2 mb-4">
-          사교육의 낡은 착각을 깨뜨립니다
+          왜 인생 3회차 선배의 지름길인가?
         </h2>
         <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
-          오래 앉아있는 것이 공부가 아니며, 비싼 컨텐츠를 잔뜩 쌓아두는 것이 입시 준비가 아닙니다.<br>
-          제대로 된 원리와 시스템을 만나면 비용과 시간의 낭비가 획기적으로 줄어듭니다.
+          수험생 시절 겪을 수 있는 모든 방황과 실패를 미리 겪어본 사람만이,<br>
+          당신이 밟지 말아야 할 지뢰를 정확히 치워줄 수 있습니다.
         </p>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Card 1 -->
-        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
+        
+        <!-- Pillar 1 -->
+        <div class="p-7 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col justify-between">
           <div>
-            <div class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center font-bold text-sm mb-4">
-              기존 사교육
+            <div class="inline-block px-3 py-1 rounded-lg bg-red-500/10 text-red-400 text-xs font-bold mb-4 border border-red-500/20">
+              시행착오 1
             </div>
-            <h3 class="text-base font-bold text-white mb-2">비싼 컨텐츠 양치기와 테크닉 암기</h3>
-            <p class="text-xs text-slate-400 leading-relaxed mb-4">
-              어려운 문제가 나오면 테크닉을 외우지 못했다고 자책하며 비싼 N제와 모의고사를 끝없이 구매합니다. 하지만 해석의 본질을 모르면 시험장 변형 문제에 무너집니다.
+            <h3 class="text-base font-bold text-white mb-2.5">비싼 N제 양치기와 테크닉 맹신</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              어려운 문제가 나오면 테크닉을 외우지 못했다고 자책하며 비싼 문제집만 사 모읍니다. 하지만 출제자가 의도한 문제의 언어와 본질을 해석하지 못하면 어떤 변형 문제도 풀 수 없습니다.
             </p>
           </div>
-          <div class="pt-4 border-t border-slate-800 text-xs font-bold text-orange-400 flex items-center gap-1.5">
-            <i data-lucide="arrow-right-circle" class="w-4 h-4"></i>
+          <div class="mt-6 pt-4 border-t border-slate-800 text-xs font-bold text-orange-400 flex items-center gap-1.5">
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
             <span>PASS-MATE: 출제 원리 해석 & 백지 재풀이</span>
           </div>
         </div>
 
-        <!-- Card 2 -->
-        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
+        <!-- Pillar 2 -->
+        <div class="p-7 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col justify-between">
           <div>
-            <div class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center font-bold text-sm mb-4">
-              기존 독서실
+            <div class="inline-block px-3 py-1 rounded-lg bg-red-500/10 text-red-400 text-xs font-bold mb-4 border border-red-500/20">
+              시행착오 2
             </div>
-            <h3 class="text-base font-bold text-white mb-2">시간만 때우는 멍때리기 공부</h3>
-            <p class="text-xs text-slate-400 leading-relaxed mb-4">
-              독서실에 10시간 앉아 있어도 실제 몰입한 시간은 2~3시간에 불과합니다. 딴생각과 스마트폰으로 낭비되는 시간을 감추는 것은 학습이 아닙니다.
+            <h3 class="text-base font-bold text-white mb-2.5">독서실 10시간 '가짜 엉덩이 공부'</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              독서실에 온종일 앉아 있어도 스마트폰을 보거나 딴생각을 하면 시간 낭비입니다. 공부는 시간이 아니라 '몰입의 밀도'입니다. 단 4시간을 하더라도 진짜 순공이어야 성적이 오릅니다.
             </p>
           </div>
-          <div class="pt-4 border-t border-slate-800 text-xs font-bold text-blue-400 flex items-center gap-1.5">
-            <i data-lucide="arrow-right-circle" class="w-4 h-4"></i>
-            <span>PASS-MATE: 초 단위 순공 타이머 & 연속 불꽃(🔥)</span>
+          <div class="mt-6 pt-4 border-t border-slate-800 text-xs font-bold text-blue-400 flex items-center gap-1.5">
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
+            <span>PASS-MATE: 초 단위 순공 타이머 & 불꽃 스트릭</span>
           </div>
         </div>
 
-        <!-- Card 3 -->
-        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
+        <!-- Pillar 3 -->
+        <div class="p-7 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col justify-between">
           <div>
-            <div class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center font-bold text-sm mb-4">
-              기존 관리 방식
+            <div class="inline-block px-3 py-1 rounded-lg bg-red-500/10 text-red-400 text-xs font-bold mb-4 border border-red-500/20">
+              시행착오 3
             </div>
-            <h3 class="text-base font-bold text-white mb-2">불안감 마케팅과 과도한 사교육비</h3>
-            <p class="text-xs text-slate-400 leading-relaxed mb-4">
-              학생과 학부모의 불안감을 자극해 매달 수십~수백만 원의 비용을 요구합니다. 진정한 관리는 화려한 겉치레가 아닌 단단한 일상 루틴에서 나옵니다.
+            <h3 class="text-base font-bold text-white mb-2.5">불안감 마케팅과 막대한 사교육비</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              제대로 공부하는 법을 모르면 학원가의 불안 마케팅에 휘말려 매달 수백만 원을 낭비합니다. 올바른 입시 시스템만 갖추어지면 비용과 시간이 거의 들지 않는 것이 정상입니다.
             </p>
           </div>
-          <div class="pt-4 border-t border-slate-800 text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-            <i data-lucide="arrow-right-circle" class="w-4 h-4"></i>
-            <span>PASS-MATE: 디지털 관제화로 비용과 시간 최적화</span>
+          <div class="mt-6 pt-4 border-t border-slate-800 text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
+            <span>PASS-MATE: 낭비 제로의 올인원 디지털 관제</span>
           </div>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ================= 4 CORE SYSTEMS SECTION ================= -->
-  <section id="features" class="py-20 border-t border-slate-900 bg-slate-950">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6">
-      
-      <div class="text-center max-w-2xl mx-auto mb-14">
-        <span class="text-xs font-bold uppercase tracking-wider text-blue-400">Integrated Systems</span>
-        <h2 class="text-2xl sm:text-4xl font-black text-white tracking-tight mt-2 mb-4">
-          합격을 만드는 4대 입시 관제 시스템
-        </h2>
-        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
-          학생의 일상 습관 형성부터 취약점 극복, 학원 현장의 행정 자동화까지 완벽하게 맞물려 작동합니다.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <!-- System 1 -->
-        <div class="p-7 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-900/60 border border-slate-800 hover:border-orange-500/50 transition">
-          <div class="w-12 h-12 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center text-2xl mb-5 shadow-sm">
-            🔥
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2.5">
-            연속 학습 스트릭 & 기상/자습 미션
-          </h3>
-          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
-            매일 오전 06:30 기상 체크인과 순공 목표를 달성할 때마다 불꽃(🔥)이 유지됩니다. 7일 단위를 넘어 30일, 100일 끊김 없는 자기주도적 습관을 형성합니다.
-          </p>
-          <ul class="space-y-2 text-xs text-slate-400">
-            <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-3.5 h-3.5 text-orange-400"></i>
-              <span>매일 아침 바이오리듬을 바로잡는 기상 미션</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-3.5 h-3.5 text-orange-400"></i>
-              <span>공부 시간을 가짜로 채울 수 없는 정밀 순공 타이머</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-3.5 h-3.5 text-orange-400"></i>
-              <span>연속 학습 완주 시 부여되는 랭킹 및 포인트 보상</span>
-            </li>
-          </ul>
-        </div>
-
-        <!-- System 2 -->
-        <div class="p-7 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-900/60 border border-slate-800 hover:border-blue-500/50 transition">
-          <div class="w-12 h-12 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-2xl mb-5 shadow-sm">
-            🎯
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2.5">
-            디지털 OMR 실시간 채점 & 백지 오답노트
-          </h3>
-          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
-            수능·모의고사 OMR을 모바일로 즉시 채점하고 정답률과 등급컷을 산출합니다. 틀린 문제는 답만 확인하는 것이 아닌, 백지 재풀이 프로토콜로 완전히 내 것으로 만듭니다.
-          </p>
-          <ul class="space-y-2 text-xs text-slate-400">
-            <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-3.5 h-3.5 text-blue-400"></i>
-              <span>문항별 배점·난이도 자동 분석 및 등급 예측</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-3.5 h-3.5 text-blue-400"></i>
-              <span>1단계 원인 진단 ➔ 2단계 개념 확인 ➔ 3단계 백지 재풀이</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-3.5 h-3.5 text-blue-400"></i>
-              <span>취약 문항 전용 데이터베이스 누적 및 리포트 제공</span>
-            </li>
-          </ul>
-        </div>
-
-        <!-- System 3 -->
-        <div class="p-7 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-900/60 border border-slate-800 hover:border-amber-500/50 transition">
-          <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-2xl mb-5 shadow-sm">
-            📊
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2.5">
-            학원장·독서실 통합 관제실 (Director Cockpit)
-          </h3>
-          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
-            원장실 책상에서 재원생의 실시간 재실 현황, 와이파이 접속 상태, 일일 순공 현황을 한눈에 관제합니다. 지각 및 이탈 발생 시 카카오 알림톡이 즉시 발송됩니다.
-          </p>
-          <ul class="space-y-2 text-xs text-slate-400">
-            <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-3.5 h-3.5 text-amber-400"></i>
-              <span>실시간 재실·공실 좌석 및 와이파이 텔레메트리 관제</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-3.5 h-3.5 text-amber-400"></i>
-              <span>학생별 순공 리포트 학부모 자동 발송 파이프라인</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-3.5 h-3.5 text-amber-400"></i>
-              <span>토스페이먼츠 & 결제선생 수납 분할 자동 연동</span>
-            </li>
-          </ul>
-        </div>
-
-        <!-- System 4 -->
-        <div class="p-7 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-900/60 border border-slate-800 hover:border-emerald-500/50 transition">
-          <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl mb-5 shadow-sm">
-            📱
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2.5">
-            학부모 안심 리포트 & 출결 안심 알림
-          </h3>
-          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
-            학부모는 불필요한 학원 방문이나 전화 없이 스마트폰으로 자녀의 오늘 입실 시간, 순공 시간, 시험 성적 통계를 실시간으로 확인하고 소통할 수 있습니다.
-          </p>
-          <ul class="space-y-2 text-xs text-slate-400">
-            <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>
-              <span>입실·퇴실 시각 실시간 카카오 알림톡 전송</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>
-              <span>주간·월간 누적 순공 시간 및 성실도 분석 차트</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>
-              <span>모바일 간편 원비 결제 및 분할 납부 지원</span>
-            </li>
-          </ul>
         </div>
 
       </div>
@@ -389,65 +419,65 @@
     </div>
   </section>
 
-  <!-- ================= 10-SEC INTERACTIVE PREVIEW DEMO ================= -->
-  <section id="demo" class="py-20 border-t border-slate-900 bg-slate-950/70">
+  <!-- ================= 10-SECOND INTERACTIVE DEMO WIDGET ================= -->
+  <section id="demo" class="py-20 border-t border-slate-900 bg-slate-950">
     <div class="max-w-4xl mx-auto px-4 sm:px-6">
       
       <div class="text-center max-w-xl mx-auto mb-10">
-        <span class="text-xs font-bold uppercase tracking-wider text-orange-400">Live Preview</span>
+        <span class="text-xs font-bold uppercase tracking-wider text-orange-400">Interactive Preview</span>
         <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight mt-1 mb-2">
-          10초 인터랙티브 실시간 체험
+          10초 가상 시뮬레이션 체험
         </h2>
         <p class="text-xs text-slate-400">
-          학생, 원장, 학부모 화면이 어떻게 작동하는지 지금 바로 탭을 눌러 확인해보세요.
+          실제 사용자 화면이 어떻게 작동하는지 가상 데이터로 안전하게 체험해보세요.
         </p>
       </div>
 
-      <!-- Preview Container -->
+      <!-- Demo Box -->
       <div class="rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden">
         
         <!-- Tab Bar -->
         <div class="p-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between flex-wrap gap-2">
           <div class="flex items-center gap-2">
-            <button onclick="switchDemoTab('student')" id="tab-student" class="tab-btn active px-3.5 py-1.5 rounded-lg text-xs font-bold border border-transparent transition flex items-center gap-1.5">
-              <span>🔥 학생 포털 뷰</span>
+            <button onclick="switchDemoView('student')" id="demo-tab-student" class="demo-tab active px-3.5 py-1.5 rounded-lg text-xs font-bold border border-transparent transition flex items-center gap-1.5">
+              <span>🎓 학생 화면 체험</span>
             </button>
-            <button onclick="switchDemoTab('admin')" id="tab-admin" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-bold border border-slate-800 text-slate-300 hover:text-white transition flex items-center gap-1.5">
-              <span>📊 원장 관제 뷰</span>
+            <button onclick="switchDemoView('parent')" id="demo-tab-parent" class="demo-tab px-3.5 py-1.5 rounded-lg text-xs font-bold border border-slate-800 text-slate-300 hover:text-white transition flex items-center gap-1.5">
+              <span>👨‍👩‍👧 학부모 리포트 체험</span>
             </button>
-            <button onclick="switchDemoTab('parent')" id="tab-parent" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-bold border border-slate-800 text-slate-300 hover:text-white transition flex items-center gap-1.5">
-              <span>📱 학부모 안심 뷰</span>
+            <button onclick="openSandboxModal()" class="px-3.5 py-1.5 rounded-lg text-xs font-bold border border-amber-500/50 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 transition flex items-center gap-1.5">
+              <span>🏫 원장 관제실 샌드박스 (클릭)</span>
             </button>
           </div>
-          <span class="text-[11px] text-slate-500 hidden sm:inline">실시간 양방향 데이터 동기화</span>
+          <span class="text-[11px] text-slate-500 hidden sm:inline">* 가상 목데이터 환경</span>
         </div>
 
-        <!-- Panel 1: Student View -->
-        <div id="panel-student" class="p-6 sm:p-8">
+        <!-- Demo Panel 1: Student -->
+        <div id="demo-view-student" class="p-6 sm:p-8">
           <div class="max-w-md mx-auto bg-slate-950 rounded-xl p-5 border border-slate-800 text-center">
             
             <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-bold mb-4">
-              <span id="demo-streak-text">🔥 14일 연속 학습 달성 중!</span>
+              <span>🔥 14일 연속 학습 달성 중!</span>
             </div>
 
-            <!-- Timer Display -->
-            <div class="text-4xl sm:text-5xl font-black text-white tracking-tight font-mono mb-2" id="demo-timer">
+            <!-- Timer -->
+            <div class="text-4xl sm:text-5xl font-black text-white tracking-tight font-mono mb-2" id="sim-timer">
               04:28:15
             </div>
             <p class="text-xs text-slate-400 mb-5">오늘의 정밀 순공 시간 (목표: 6시간)</p>
 
             <div class="flex items-center justify-center gap-3">
-              <button onclick="toggleDemoTimer()" id="demo-timer-btn" class="px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-orange-500/20">
-                <i data-lucide="pause" id="timer-icon" class="w-4 h-4"></i>
-                <span id="timer-btn-text">순공 일시정지</span>
+              <button onclick="toggleSimTimer()" id="sim-timer-btn" class="px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-orange-500/20">
+                <i data-lucide="pause" id="sim-timer-icon" class="w-4 h-4"></i>
+                <span id="sim-timer-text">순공 일시정지</span>
               </button>
-              <button onclick="triggerStreakAlert()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition border border-slate-700">
+              <button onclick="triggerSimStreakModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition border border-slate-700">
                 출석 도장 확인
               </button>
             </div>
 
-            <!-- Mini Streak Badges -->
-            <div class="mt-6 pt-5 border-t border-slate-800/80 flex items-center justify-between text-xs">
+            <!-- 7-day badges -->
+            <div class="mt-6 pt-5 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
               <div class="text-center"><div class="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold mb-1 mx-auto text-xs">🔥</div>월</div>
               <div class="text-center"><div class="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold mb-1 mx-auto text-xs">🔥</div>화</div>
               <div class="text-center"><div class="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold mb-1 mx-auto text-xs">🔥</div>수</div>
@@ -460,89 +490,43 @@
           </div>
         </div>
 
-        <!-- Panel 2: Director View (Hidden by default) -->
-        <div id="panel-admin" class="p-6 sm:p-8 hidden">
-          <div class="bg-slate-950 rounded-xl p-5 border border-slate-800">
-            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
-              <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="text-xs font-bold text-white">일원학원 본원 실시간 관제 현황</span>
-              </div>
-              <span class="text-[11px] text-slate-400">재실 48명 / 전체 52명</span>
-            </div>
-
-            <div class="space-y-2 text-xs">
-              <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                  <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                  <span class="font-bold text-white">김철훈 (고3 / 의대 목표)</span>
-                  <span class="text-slate-400">좌석 A-04</span>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="text-orange-400 font-bold font-mono">순공 05:40:12</span>
-                  <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[10px]">정상 집중 중</span>
-                </div>
-              </div>
-
-              <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                  <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                  <span class="font-bold text-white">이서연 (고2 / 자연계열)</span>
-                  <span class="text-slate-400">좌석 B-12</span>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="text-orange-400 font-bold font-mono">순공 04:12:05</span>
-                  <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[10px]">정상 집중 중</span>
-                </div>
-              </div>
-
-              <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                  <span class="font-bold text-white">박민재 (고1)</span>
-                  <span class="text-slate-400">좌석 C-01</span>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="text-slate-400 font-mono">외출 (식사)</span>
-                  <button onclick="alert('[시뮬레이션] 복귀 독려 카카오 알림톡이 발송되었습니다.')" class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 font-bold text-[10px] transition">
-                    알림톡 전송
-                  </button>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Panel 3: Parent View (Hidden by default) -->
-        <div id="panel-parent" class="p-6 sm:p-8 hidden">
+        <!-- Demo Panel 2: Parent -->
+        <div id="demo-view-parent" class="p-6 sm:p-8 hidden">
           <div class="max-w-md mx-auto bg-slate-950 rounded-xl p-5 border border-slate-800">
-            <div class="flex items-center gap-2 text-xs font-bold text-slate-300 mb-3 pb-2 border-b border-slate-800">
-              <i data-lucide="smartphone" class="w-4 h-4 text-emerald-400"></i>
-              <span>학부모 안심 알림장 (자녀: 김철훈)</span>
+            <div class="flex items-center justify-between text-xs font-bold text-slate-300 mb-3 pb-2 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <i data-lucide="smartphone" class="w-4 h-4 text-emerald-400"></i>
+                <span>학부모 안심 리포트 (자녀: 이*혁 학생)</span>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">정상 등원</span>
             </div>
 
-            <div class="p-3 rounded-lg bg-slate-900 border border-slate-800 mb-3">
-              <div class="text-[11px] text-slate-400 mb-1">오늘의 학습 총평</div>
-              <div class="text-sm font-bold text-white mb-2">
-                오늘 목표 순공 5시간을 초과 달성하였습니다.
-              </div>
+            <div class="p-3.5 rounded-lg bg-slate-900 border border-slate-800 mb-3 text-xs">
+              <div class="text-slate-400 text-[11px] mb-1">오늘의 학습 총평</div>
+              <p class="font-bold text-white mb-3">
+                오늘 목표 순공 5시간을 초과 달성하였으며, 3단계 백지 오답노트 과제를 완수했습니다.
+              </p>
               <div class="grid grid-cols-2 gap-2 text-xs">
-                <div class="p-2 rounded bg-slate-950">
-                  <span class="text-slate-400 text-[10px] block">입실 시각</span>
-                  <span class="font-bold text-emerald-400">08:15 정상 등원</span>
+                <div class="p-2.5 rounded bg-slate-950 border border-slate-800/80">
+                  <span class="text-slate-400 text-[10px] block mb-0.5">입실 시각</span>
+                  <span class="font-bold text-emerald-400">08:15 입실 완료</span>
                 </div>
-                <div class="p-2 rounded bg-slate-950">
-                  <span class="text-slate-400 text-[10px] block">총 순공 시간</span>
+                <div class="p-2.5 rounded bg-slate-950 border border-slate-800/80">
+                  <span class="text-slate-400 text-[10px] block mb-0.5">일일 순공</span>
                   <span class="font-bold text-orange-400 font-mono">5시간 40분</span>
                 </div>
               </div>
             </div>
 
-            <div class="text-center">
-              <a href="/app" class="inline-block text-xs font-bold text-blue-400 hover:text-blue-300 underline">
-                학생 포털에서 상세 성적 및 출결 리포트 확인하기 &rarr;
-              </a>
+            <div class="p-3 rounded-lg bg-slate-900/60 border border-slate-800/80 text-[11px] text-slate-400 space-y-1">
+              <div class="flex justify-between">
+                <span>모의고사 OMR 채점</span>
+                <span class="text-white font-bold">국어 1등급 (94점)</span>
+              </div>
+              <div class="flex justify-between">
+                <span>취약 단원 오답노트</span>
+                <span class="text-emerald-400 font-bold">백지 재풀이 100% 완료</span>
+              </div>
             </div>
           </div>
         </div>
@@ -552,56 +536,77 @@
     </div>
   </section>
 
-  <!-- ================= B2B ACADEMY INQUIRY SECTION ================= -->
-  <section id="b2b" class="py-20 border-t border-slate-900 bg-slate-950">
+  <!-- ================= TRANSPARENT PRICING SECTION ================= -->
+  <section id="pricing" class="py-20 border-t border-slate-900 bg-slate-950/80">
     <div class="max-w-5xl mx-auto px-4 sm:px-6">
       
-      <div class="p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-blue-950/40 border border-slate-800 relative overflow-hidden">
+      <div class="text-center max-w-2xl mx-auto mb-14">
+        <span class="text-xs font-bold uppercase tracking-wider text-orange-400">Transparent Pricing</span>
+        <h2 class="text-2xl sm:text-4xl font-black text-white tracking-tight mt-2 mb-4">
+          사교육 거품을 걷어낸 정직한 요금제
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          필요하지도 않은 비싼 컨텐츠를 강매하지 않습니다. 스스로 학습하고 관제하는 본질에만 집중하십시오.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         
-        <div class="max-w-2xl relative z-10">
-          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-300 text-xs font-bold mb-4">
-            <i data-lucide="building" class="w-3.5 h-3.5"></i>
-            <span>학원 및 관리형 독서실 전용 B2B 솔루션</span>
+        <!-- Plan 1: Free -->
+        <div class="p-7 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
+          <div>
+            <div class="text-xs font-bold text-slate-400 uppercase mb-2">수험생 기본 플랜</div>
+            <div class="text-2xl font-black text-white mb-1">0원 <span class="text-xs text-slate-400 font-normal">/ 평생 무료</span></div>
+            <p class="text-xs text-slate-400 mb-6">스스로 공부하는 습관을 기르고 싶은 수험생</p>
+            <ul class="space-y-2.5 text-xs text-slate-300">
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>06:30 기상 체크인 미션</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>초정밀 순공 타이머</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>연속 학습 불꽃(🔥) 스트릭</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>수능/모의고사 모바일 OMR 채점</span></li>
+            </ul>
           </div>
+          <a href="/app" class="mt-8 w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold text-center transition block">
+            무료로 바로 시작
+          </a>
+        </div>
 
-          <h2 class="text-2xl sm:text-4xl font-black text-white tracking-tight mb-4">
-            원장님의 학원에 대치동급 입시 관제 시스템을 즉시 이식해 드립니다
-          </h2>
-
-          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">
-            별도의 개발이나 복잡한 서버 구축 없이, 학원 등록 코드만으로 우리 학원 전용 브랜드 관제실이 열립니다.<br>
-            출결·와이파이 체크인·카카오 알림톡·결제선생 분할 수납까지 하나의 화면에서 해결하세요.
-          </p>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-300 mb-8">
-            <div class="flex items-center gap-2">
-              <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
-              <span>학원 전용 테넌트 코드 발급</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
-              <span>지각·결석 시 자동 카카오 알림톡</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
-              <span>모바일 비대면 원비 분할 결제</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
-              <span>일원학원 현장 노하우 실시간 지원</span>
-            </div>
+        <!-- Plan 2: Senior Mentorship (Featured) -->
+        <div class="p-7 rounded-2xl bg-gradient-to-b from-slate-900 via-slate-900 to-blue-950/40 border-2 border-blue-500 shadow-xl relative flex flex-col justify-between">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-blue-500 text-white text-[10px] font-black uppercase tracking-wider">
+            인기 추천
           </div>
-
-          <div class="flex flex-col sm:flex-row items-center gap-3">
-            <a href="/admin.html" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30">
-              <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-              <span>원장 관제실 둘러보기</span>
-            </a>
-            <button onclick="openInquiryModal()" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition flex items-center justify-center gap-2">
-              <i data-lucide="mail" class="w-4 h-4 text-orange-400"></i>
-              <span>도입 문의 및 제휴 신청</span>
-            </button>
+          <div>
+            <div class="text-xs font-bold text-blue-400 uppercase mb-2">명문대 선배 멘토링</div>
+            <div class="text-2xl font-black text-white mb-1">월 19,000원</div>
+            <p class="text-xs text-slate-400 mb-6">목표 대학 선배의 직통 지도와 오답 관리가 필요한 학생</p>
+            <ul class="space-y-2.5 text-xs text-slate-200">
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i><span>기본 플랜의 모든 기능 포함</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i><span>목표 대학/동문 선배 1:1 질문방</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i><span>3단계 백지 오답노트 정밀 첨삭</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i><span>학부모 안심 알림장 실시간 전송</span></li>
+            </ul>
           </div>
+          <a href="/app" class="mt-8 w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold text-center transition block shadow-md shadow-blue-600/30">
+            선배 멘토링 체험하기
+          </a>
+        </div>
+
+        <!-- Plan 3: B2B Tenant -->
+        <div class="p-7 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
+          <div>
+            <div class="text-xs font-bold text-amber-400 uppercase mb-2">학원 & 관리형 독서실 B2B</div>
+            <div class="text-2xl font-black text-white mb-1">합리적 종량제 <span class="text-xs text-slate-400 font-normal">(학생당 월 2,900원~)</span></div>
+            <p class="text-xs text-slate-400 mb-6">수백 명 원생을 원장 1인이 오차 없이 관제하고 싶은 교육기관</p>
+            <ul class="space-y-2.5 text-xs text-slate-300">
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>학원 전용 독립 브랜드 관제실</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>출결 & 와이파이 자동 입퇴실 관제</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>지각생 카카오 알림톡 자동 발송</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>토스 / 결제선생 비대면 수납 자동화</span></li>
+            </ul>
+          </div>
+          <button onclick="openSandboxModal()" class="mt-8 w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold text-center transition block">
+            가상 관제실 시연 신청
+          </button>
         </div>
 
       </div>
@@ -610,7 +615,7 @@
   </section>
 
   <!-- ================= FAQ SECTION ================= -->
-  <section id="faq" class="py-20 border-t border-slate-900 bg-slate-950/80">
+  <section id="faq" class="py-20 border-t border-slate-900 bg-slate-950">
     <div class="max-w-3xl mx-auto px-4 sm:px-6">
       
       <div class="text-center mb-12">
@@ -619,7 +624,7 @@
           자주 묻는 질문
         </h2>
         <p class="text-xs text-slate-400">
-          PASS-MATE에 대해 궁금한 점을 명쾌하게 안내해 드립니다.
+          PASS-MATE에 대해 궁금한 점을 솔직하게 답변해 드립니다.
         </p>
       </div>
 
@@ -628,30 +633,30 @@
         <div class="p-5 rounded-xl bg-slate-900 border border-slate-800">
           <h3 class="text-sm font-bold text-white mb-2 flex items-center gap-2">
             <i data-lucide="help-circle" class="w-4 h-4 text-orange-400"></i>
-            <span>학원에 다니지 않는 개인 수험생도 혼자 사용할 수 있나요?</span>
+            <span>'인생 3회차 선배'라는 철학은 어떤 의미인가요?</span>
           </h3>
           <p class="text-xs text-slate-300 leading-relaxed pl-6">
-            네, 가능합니다. B2C 개인 회원으로 가입하시면 기상 미션, 순공 타이머, 연속 학습 스트릭(🔥), 디지털 OMR 채점 및 오답노트 시스템을 자유롭게 이용하실 수 있습니다.
+            수험생활에서 겪는 막대한 시행착오(비싼 교재 쇼핑, 비효율적 암기, 엉덩이만 붙이고 있는 멍때리기 공부 등)를 이미 다 겪어본 선배가, 후배들은 단 하루도 낭비하지 않도록 오직 지름길과 핵심 원리만을 시스템으로 잡아준다는 의미입니다.
           </p>
         </div>
 
         <div class="p-5 rounded-xl bg-slate-900 border border-slate-800">
           <h3 class="text-sm font-bold text-white mb-2 flex items-center gap-2">
             <i data-lucide="help-circle" class="w-4 h-4 text-blue-400"></i>
-            <span>연속 학습 스트릭(🔥)은 어떻게 유지되나요?</span>
+            <span>학원에 다니지 않는 혼공 수험생도 쓸 수 있나요?</span>
           </h3>
           <p class="text-xs text-slate-300 leading-relaxed pl-6">
-            매일 오전 기상 체크인을 완료하거나, 일일 순공 목표를 달성할 때마다 불꽃이 꺼지지 않고 1일씩 누적됩니다. 꾸준히 성실하게 학습하는 습관을 자연스럽게 길러줍니다.
+            네, 당연합니다. 수험생 혼자서도 기상 체크인, 순공 타이머, 연속 불꽃 스트릭, OMR 채점과 백지 오답노트를 전액 무료로 평생 이용할 수 있습니다.
           </p>
         </div>
 
         <div class="p-5 rounded-xl bg-slate-900 border border-slate-800">
           <h3 class="text-sm font-bold text-white mb-2 flex items-center gap-2">
             <i data-lucide="help-circle" class="w-4 h-4 text-emerald-400"></i>
-            <span>학원이나 독서실 도입 시 별도 장비 설치가 필요한가요?</span>
+            <span>학원이나 독서실 도입 시 초기 세팅이 복잡한가요?</span>
           </h3>
           <p class="text-xs text-slate-300 leading-relaxed pl-6">
-            고가의 별도 하드웨어 설치가 필요 없습니다. 학원 와이파이 정보와 재원생 명단만 등록하면 즉시 웹 브라우저에서 관제실과 출결 체크인이 연동됩니다.
+            고가의 별도 하드웨어 설치가 전혀 없습니다. 학원 와이파이 정보와 원생 명단만 등록하면 10분 만에 원장 전용 관제실과 출결 체크인이 즉시 연동됩니다.
           </p>
         </div>
 
@@ -660,53 +665,186 @@
     </div>
   </section>
 
-  <!-- ================= INQUIRY MODAL ================= -->
-  <div id="inquiry-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" style="display: none;">
-    <div class="max-w-md w-full bg-slate-900 border border-slate-700 rounded-2xl p-6 relative shadow-2xl">
-      <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
-        <div class="text-base font-bold text-white flex items-center gap-2">
-          <span>📩</span>
-          <span>학원 도입 및 제휴 문의</span>
+  <!-- ================= SAFE VIRTUAL SANDBOX MODAL (가상 관제실 시연) ================= -->
+  <div id="sandbox-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6" style="display: none;">
+    <div class="max-w-4xl w-full max-h-[92vh] bg-slate-900 border border-amber-500/50 rounded-2xl flex flex-col shadow-2xl overflow-hidden">
+      
+      <!-- Modal Header -->
+      <div class="p-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="w-3 h-3 rounded-full bg-amber-400 animate-pulse"></span>
+          <div>
+            <div class="text-sm font-black text-white flex items-center gap-2">
+              <span>[체험용 데모 모드] PASS-MATE 가상 입시 관제실</span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">가상 데이터 샌드박스</span>
+            </div>
+            <p class="text-[10px] text-slate-400">실제 관제실과 동일한 통제 기능을 안전하게 테스트해보실 수 있습니다.</p>
+          </div>
         </div>
-        <button onclick="closeInquiryModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-sm font-bold transition">
+        <button onclick="closeSandboxModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-sm font-bold transition">
           &times;
         </button>
       </div>
 
-      <form onsubmit="handleInquirySubmit(event)" class="space-y-3 text-xs">
-        <div>
-          <label class="block text-slate-400 font-semibold mb-1">학원/독서실명</label>
-          <input type="text" id="inq-academy" required placeholder="예: 대치 일원학원 본원" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-blue-500">
-        </div>
-        <div>
-          <label class="block text-slate-400 font-semibold mb-1">원장님/담당자 성함 및 직함</label>
-          <input type="text" id="inq-name" required placeholder="예: 김원장 대표원장" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-blue-500">
-        </div>
-        <div>
-          <label class="block text-slate-400 font-semibold mb-1">연락처 (휴대폰 번호)</label>
-          <input type="tel" id="inq-phone" required placeholder="예: 010-1234-5678" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-blue-500">
-        </div>
-        <div>
-          <label class="block text-slate-400 font-semibold mb-1">학생 규모 및 문의 내용</label>
-          <textarea id="inq-memo" rows="3" placeholder="예: 재원생 약 120명 규모이며 관제 솔루션 도입 견적 및 시연 요청합니다." class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-blue-500"></textarea>
+      <!-- Modal Body -->
+      <div class="p-5 overflow-y-auto space-y-4 text-xs">
+        
+        <!-- Live Stats Bar -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+            <span class="text-slate-400 text-[10px] block">현재 재실 현황</span>
+            <span class="text-lg font-black text-emerald-400">48명 / 52석</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+            <span class="text-slate-400 text-[10px] block">오늘 평균 순공</span>
+            <span class="text-lg font-black text-orange-400 font-mono">05:24:18</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+            <span class="text-slate-400 text-[10px] block">오답노트 완수율</span>
+            <span class="text-lg font-black text-blue-400">94.2%</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+            <span class="text-slate-400 text-[10px] block">원비 수납 완료</span>
+            <span class="text-lg font-black text-amber-400">100% 자동 정산</span>
+          </div>
         </div>
 
-        <button type="submit" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold transition mt-2 shadow-md">
-          상담 신청서 전송
+        <!-- Virtual Student Roster (All Masked Names) -->
+        <div class="bg-slate-950 rounded-xl p-4 border border-slate-800">
+          <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+            <span class="font-bold text-white text-xs">재원생 실시간 몰입 관제 현황 (가명 처리)</span>
+            <span class="text-[11px] text-slate-400">전체 52명 중 4명 표기</span>
+          </div>
+
+          <div class="space-y-2">
+            
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between flex-wrap gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span class="font-bold text-white">이*혁 (고3 / 의예과 목표)</span>
+                <span class="text-slate-400 text-[11px]">좌석 A-04</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-orange-400 font-bold font-mono">순공 05:40:12</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[10px]">정상 집중 중</span>
+                <button onclick="alert('[시뮬레이션] 이*혁 학생의 학부모님께 안심 리포트가 전송되었습니다.')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold">
+                  리포트 발송
+                </button>
+              </div>
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between flex-wrap gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span class="font-bold text-white">최*서 (고2 / 자연계열)</span>
+                <span class="text-slate-400 text-[11px]">좌석 B-12</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-orange-400 font-bold font-mono">순공 04:12:05</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[10px]">정상 집중 중</span>
+                <button onclick="alert('[시뮬레이션] 최*서 학생의 학부모님께 안심 리포트가 전송되었습니다.')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold">
+                  리포트 발송
+                </button>
+              </div>
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between flex-wrap gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                <span class="font-bold text-white">강*민 (고1)</span>
+                <span class="text-slate-400 text-[11px]">좌석 C-01</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-slate-400 font-mono">외출 (식사)</span>
+                <button onclick="alert('[시뮬레이션] 복귀 독려 카카오 알림톡이 정상 발송되었습니다.')" class="px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 font-bold text-[10px] transition">
+                  알림톡 전송
+                </button>
+              </div>
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between flex-wrap gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                <span class="font-bold text-white">박*우 (고3 / 인문계열)</span>
+                <span class="text-slate-400 text-[11px]">좌석 D-08</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-blue-400 font-bold">OMR 채점 완료 (98점)</span>
+                <button onclick="alert('[시뮬레이션] 3단계 백지 오답노트가 배정되었습니다.')" class="px-2.5 py-1 rounded bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 font-bold text-[10px] transition">
+                  오답노트 배정
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Notice -->
+        <div class="p-3 rounded-xl bg-blue-500/10 border border-blue-500/30 text-slate-300 text-[11px] leading-relaxed">
+          💡 <strong>학원 도입 안내</strong>: 전국 단과학원, 기숙학원, 관리형 독서실 원장님은 전용 테넌트 코드를 발급받아 우리 학원만의 브랜딩으로 즉시 운영하실 수 있습니다.
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 bg-slate-950 border-t border-slate-800 flex items-center justify-between">
+        <button onclick="closeSandboxModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition">
+          닫기
         </button>
-      </form>
+        <button onclick="alert('[도입 문의 접수] 상단 메뉴의 B2B 도입 상담을 신청하시면 담당 수석 매니저가 신속히 안내해 드립니다.'); closeSandboxModal();" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black transition">
+          우리 학원에 정식 도입 신청하기
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= PARENT DEMO REPORT MODAL ================= -->
+  <div id="parent-demo-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4" style="display: none;">
+    <div class="max-w-md w-full bg-slate-900 border border-emerald-500/50 rounded-2xl p-6 relative shadow-2xl text-xs">
+      <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+        <div class="text-sm font-bold text-white flex items-center gap-2">
+          <span>📱</span>
+          <span>학부모 안심 리포트 시뮬레이션</span>
+        </div>
+        <button onclick="document.getElementById('parent-demo-modal').style.display='none'" class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-sm font-bold transition">
+          &times;
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+          <div class="text-[11px] text-slate-400 mb-1">학생 정보 (가명 처리)</div>
+          <div class="text-base font-bold text-white mb-2">이*혁 학생 (고3 / 목표: 연세대)</div>
+          <div class="text-[11px] text-emerald-400 font-bold mb-1">오늘 08:15 입실 완료 (정상 등원)</div>
+          <div class="text-[11px] text-slate-400">총 순공 시간: <span class="text-orange-400 font-mono font-bold">5시간 40분</span> (목표 달성)</div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+          <div class="text-[11px] text-slate-400 mb-1.5">학습 진행 및 과제 점검</div>
+          <ul class="space-y-1.5 text-[11px] text-slate-300">
+            <li class="flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-400"></i><span>EBS 수능특강 비문학 3개 지문 완독</span></li>
+            <li class="flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-400"></i><span>수학 미적분 킬러 문항 3단계 백지 재풀이 완료</span></li>
+            <li class="flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-400"></i><span>목표 대학 멘토 선배 질문 답변 확인 완료</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <button onclick="document.getElementById('parent-demo-modal').style.display='none'" class="w-full mt-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition">
+        확인 완료
+      </button>
     </div>
   </div>
 
   <!-- ================= STREAK MODAL PREVIEW ================= -->
-  <div id="demo-streak-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" style="display: none;">
+  <div id="sim-streak-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4" style="display: none;">
     <div class="max-w-xs w-full bg-slate-900 border border-orange-500 rounded-2xl p-6 text-center shadow-2xl">
       <div class="text-3xl mb-2">🔥</div>
       <div class="text-lg font-black text-orange-400 mb-1">14일 연속 학습 달성!</div>
       <p class="text-xs text-slate-300 mb-4">
         오늘도 흔들림 없이 자습 미션을 완수했습니다. 불꽃이 유지됩니다!
       </p>
-      <button onclick="document.getElementById('demo-streak-modal').style.display='none'" class="w-full py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition">
+      <button onclick="document.getElementById('sim-streak-modal').style.display='none'" class="w-full py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition">
         확인
       </button>
     </div>
@@ -722,19 +860,19 @@
         </div>
         <div>
           <div class="font-bold text-white text-sm">PASS-MATE (패스메이트)</div>
-          <p class="text-[11px] text-slate-400">데이터 기반 올인원 입시 관제 시스템</p>
+          <p class="text-[11px] text-slate-400">인생 3회차 선배가 설계한 올인원 입시 관제 시스템</p>
         </div>
       </div>
 
       <div class="flex flex-wrap items-center gap-6 text-xs text-slate-400">
         <a href="/app" class="hover:text-white transition">학생 포털</a>
-        <a href="/admin.html" class="hover:text-white transition">원장 관제실</a>
-        <a href="#philosophy" class="hover:text-white transition">교육 철학</a>
-        <a href="#b2b" class="hover:text-white transition">B2B 제휴</a>
+        <button onclick="openSandboxModal()" class="hover:text-white transition">가상 관제실</button>
+        <a href="#philosophy" class="hover:text-white transition">선배의 철학</a>
+        <a href="#pricing" class="hover:text-white transition">투명 요금제</a>
       </div>
 
       <div class="text-[11px] text-slate-500 text-center md:text-right">
-        &copy; 2026 PASS-MATE by Ilwon Education. All rights reserved.
+        &copy; 2026 PASS-MATE OS Inc. All rights reserved.
       </div>
 
     </div>
@@ -745,76 +883,90 @@
     // Initialize Lucide icons
     lucide.createIcons();
 
-    // Tab Switcher for Demo
-    function switchDemoTab(type) {
-      const tabs = ['student', 'admin', 'parent'];
-      tabs.forEach(t => {
-        const btn = document.getElementById(`tab-${t}`);
-        const panel = document.getElementById(`panel-${t}`);
-        if (t === type) {
+    // Persona Selector (Student, Parent, Director)
+    function selectPersona(type) {
+      const personas = ['student', 'parent', 'director'];
+      personas.forEach(p => {
+        const btn = document.getElementById(`persona-btn-${p}`);
+        const content = document.getElementById(`persona-content-${p}`);
+        if (p === type) {
           btn.classList.add('active');
-          btn.classList.remove('border-slate-800', 'text-slate-300');
-          panel.classList.remove('hidden');
+          btn.classList.remove('text-slate-400');
+          content.classList.remove('hidden');
         } else {
           btn.classList.remove('active');
-          btn.classList.add('border-slate-800', 'text-slate-300');
-          panel.classList.add('hidden');
+          btn.classList.add('text-slate-400');
+          content.classList.add('hidden');
         }
       });
       lucide.createIcons();
     }
 
-    // Mini Timer Toggle
-    let timerRunning = true;
-    let timerSeconds = 16095; // 04:28:15
-    let timerInterval = setInterval(updateTimer, 1000);
-
-    function updateTimer() {
-      if (!timerRunning) return;
-      timerSeconds++;
-      const h = String(Math.floor(timerSeconds / 3600)).padStart(2, '0');
-      const m = String(Math.floor((timerSeconds % 3600) / 60)).padStart(2, '0');
-      const s = String(timerSeconds % 60).padStart(2, '0');
-      const el = document.getElementById('demo-timer');
-      if (el) el.innerText = `${h}:${m}:${s}`;
+    // Demo View Switcher (Student vs Parent)
+    function switchDemoView(type) {
+      const tabs = ['student', 'parent'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`demo-tab-${t}`);
+        const view = document.getElementById(`demo-view-${t}`);
+        if (t === type) {
+          btn.classList.add('active');
+          btn.classList.remove('border-slate-800', 'text-slate-300');
+          view.classList.remove('hidden');
+        } else {
+          btn.classList.remove('active');
+          btn.classList.add('border-slate-800', 'text-slate-300');
+          view.classList.add('hidden');
+        }
+      });
+      lucide.createIcons();
     }
 
-    function toggleDemoTimer() {
-      timerRunning = !timerRunning;
-      const btnText = document.getElementById('timer-btn-text');
-      const btn = document.getElementById('demo-timer-btn');
-      if (timerRunning) {
-        btnText.innerText = '순공 일시정지';
-        btn.classList.replace('bg-emerald-600', 'bg-orange-500');
+    // Mini Timer in Student Demo
+    let simTimerRunning = true;
+    let simTimerSec = 16095; // 04:28:15
+    setInterval(() => {
+      if (!simTimerRunning) return;
+      simTimerSec++;
+      const h = String(Math.floor(simTimerSec / 3600)).padStart(2, '0');
+      const m = String(Math.floor((simTimerSec % 3600) / 60)).padStart(2, '0');
+      const s = String(simTimerSec % 60).padStart(2, '0');
+      const el = document.getElementById('sim-timer');
+      if (el) el.innerText = `${h}:${m}:${s}`;
+    }, 1000);
+
+    function toggleSimTimer() {
+      simTimerRunning = !simTimerRunning;
+      const textEl = document.getElementById('sim-timer-text');
+      const btnEl = document.getElementById('sim-timer-btn');
+      if (simTimerRunning) {
+        textEl.innerText = '순공 일시정지';
+        btnEl.classList.replace('bg-emerald-600', 'bg-orange-500');
       } else {
-        btnText.innerText = '순공 재개하기';
-        btn.classList.replace('bg-orange-500', 'bg-emerald-600');
+        textEl.innerText = '순공 재개하기';
+        btnEl.classList.replace('bg-orange-500', 'bg-emerald-600');
       }
     }
 
-    function triggerStreakAlert() {
-      const modal = document.getElementById('demo-streak-modal');
-      if (modal) modal.style.display = 'flex';
-    }
-
-    // Inquiry Modal
-    function openInquiryModal() {
-      const m = document.getElementById('inquiry-modal');
+    function triggerSimStreakModal() {
+      const m = document.getElementById('sim-streak-modal');
       if (m) m.style.display = 'flex';
     }
 
-    function closeInquiryModal() {
-      const m = document.getElementById('inquiry-modal');
+    // Sandbox Modal (Virtual Cockpit)
+    function openSandboxModal() {
+      const m = document.getElementById('sandbox-modal');
+      if (m) m.style.display = 'flex';
+    }
+
+    function closeSandboxModal() {
+      const m = document.getElementById('sandbox-modal');
       if (m) m.style.display = 'none';
     }
 
-    function handleInquirySubmit(e) {
-      e.preventDefault();
-      const academy = document.getElementById('inq-academy').value;
-      const phone = document.getElementById('inq-phone').value;
-      alert(`[접수 완료] ${academy} 원장님, 상담 신청이 정상 접수되었습니다.\n담당 수석 컨설턴트가 ${phone} 번호로 신속히 연락드리겠습니다.`);
-      closeInquiryModal();
-      e.target.reset();
+    // Parent Demo Modal
+    function showParentDemoModal() {
+      const m = document.getElementById('parent-demo-modal');
+      if (m) m.style.display = 'flex';
     }
   </script>
 </body>
