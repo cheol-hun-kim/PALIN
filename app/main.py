@@ -41,9 +41,10 @@ def init_db_schema():
                 except Exception:
                     pass
         sq_db = database.SqliteSessionLocal()
-        seed_data.auto_seed_database(sq_db, database.sqlite_engine)
+        if database.engine.dialect.name == "sqlite":
+            seed_data.auto_seed_database(sq_db, database.sqlite_engine)
         sq_db.close()
-        print("[INIT] SQLite baseline database verified & seeded successfully.")
+        print("[INIT] SQLite baseline database verified successfully.")
     except Exception as sq_err:
         print("[INIT] SQLite init note:", sq_err)
 

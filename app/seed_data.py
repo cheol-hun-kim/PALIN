@@ -180,89 +180,94 @@ def auto_seed_database(db: Session, engine):
 
         # 1.4 PALIN OS Phase 11: Create user_titles and user_notifications tables & retroactively backfill all 100 titles
         try:
-            models.Base.metadata.create_all(bind=engine, tables=[models.UserTitle.__table__, models.UserNotification.__table__])
-            db.commit()
-            
-            from app.title_catalog import get_all_master_titles
-            master_titles = get_all_master_titles()
-            from datetime import timedelta
-            now = datetime.now()
-            week_start = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
-
-            def safe_num(val, default=0):
-                try:
-                    return int(val)
-                except (ValueError, TypeError):
-                    return default
-
-            students = db.query(models.Student).all()
-            for s in students:
-                all_sessions = db.query(models.StudySession).filter(
-                    models.StudySession.student_id == s.id,
-                    models.StudySession.deleted_at == None
-                ).all()
-                total_seconds = sum((sess.duration_sec or 0) for sess in all_sessions)
-                total_hours = total_seconds / 3600.0
-                streak = s.streak_days or 0
-                if streak > 0 and s.last_streak_date is None:
-                    s.last_streak_date = date.today()
-                target_univ = (s.target_univ or '').strip()
-
-                def make_naive(dt):
-                    if dt is None:
-                        return None
-                    return dt.replace(tzinfo=None) if getattr(dt, 'tzinfo', None) is not None else dt
-
-                week_sessions = [sess for sess in all_sessions if sess.created_at and make_naive(sess.created_at) >= week_start]
-                week_hours = sum((sess.duration_sec or 0) for sess in week_sessions) / 3600.0
+            mig_titles = db.execute(text("SELECT migration_key FROM system_migrations WHERE migration_key = 'phase_11_100_titles_synced_v20261009'")).fetchone()
+            if not mig_titles:
+                models.Base.metadata.create_all(bind=engine, tables=[models.UserTitle.__table__, models.UserNotification.__table__])
+                db.commit()
                 
-                try:
-                    omr_count = db.query(models.ExamOMRSubmission).filter(models.ExamOMRSubmission.student_id == s.id).count()
-                except Exception:
-                    omr_count = 0
-                    
-                points = safe_num(getattr(s, 'weekly_diligence_points', 0)) + safe_num(s.diligence_score) + safe_num(s.current_points)
-                is_vip = bool(getattr(s, 'is_vip', False)) or (streak >= 15)
-                
-                master_map = {mt["condition_code"]: mt for mt in master_titles}
-                existing_titles = db.query(models.UserTitle).filter(models.UserTitle.student_id == s.id).all()
-                existing_map = {}
-                for t in existing_titles:
-                    if t.condition_code in master_map:
-                        t.title_name = master_map[t.condition_code]["title_name"]
-                        existing_map[t.condition_code] = t
-                    else:
-                        db.delete(t)
-                
-                unlocked_mts = []
-                for mt in master_titles:
-                    is_eligible = False
+                from app.title_catalog import get_all_master_titles
+                master_titles = get_all_master_titles()
+                from datetime import timedelta
+                now = datetime.now()
+                week_start = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+
+                def safe_num(val, default=0):
                     try:
-                        is_eligible = mt['check'](s, total_hours, streak, week_hours, target_univ, omr_count, points, is_vip)
+                        return int(val)
+                    except (ValueError, TypeError):
+                        return default
+
+                students = db.query(models.Student).all()
+                for s in students:
+                    all_sessions = db.query(models.StudySession).filter(
+                        models.StudySession.student_id == s.id,
+                        models.StudySession.deleted_at == None
+                    ).all()
+                    total_seconds = sum((sess.duration_sec or 0) for sess in all_sessions)
+                    total_hours = total_seconds / 3600.0
+                    streak = s.streak_days or 0
+                    if streak > 0 and s.last_streak_date is None:
+                        s.last_streak_date = date.today()
+                    target_univ = (s.target_univ or '').strip()
+
+                    def make_naive(dt):
+                        if dt is None:
+                            return None
+                        return dt.replace(tzinfo=None) if getattr(dt, 'tzinfo', None) is not None else dt
+
+                    week_sessions = [sess for sess in all_sessions if sess.created_at and make_naive(sess.created_at) >= week_start]
+                    week_hours = sum((sess.duration_sec or 0) for sess in week_sessions) / 3600.0
+                    
+                    try:
+                        omr_count = db.query(models.ExamOMRSubmission).filter(models.ExamOMRSubmission.student_id == s.id).count()
                     except Exception:
-                        is_eligible = (mt['condition_code'] == 'STARTER_TIER')
+                        omr_count = 0
                         
-                    if is_eligible:
-                        unlocked_mts.append(mt)
-                        if mt['condition_code'] not in existing_map:
-                            new_t = models.UserTitle(
-                                student_id=s.id,
-                                title_name=mt['title_name'],
-                                condition_code=mt['condition_code'],
-                                is_equipped=False
-                            )
-                            db.add(new_t)
-                            existing_map[mt['condition_code']] = new_t
+                    points = safe_num(getattr(s, 'weekly_diligence_points', 0)) + safe_num(s.diligence_score) + safe_num(s.current_points)
+                    is_vip = bool(getattr(s, 'is_vip', False)) or (streak >= 15)
+                    
+                    master_map = {mt["condition_code"]: mt for mt in master_titles}
+                    existing_titles = db.query(models.UserTitle).filter(models.UserTitle.student_id == s.id).all()
+                    existing_map = {}
+                    for t in existing_titles:
+                        if t.condition_code in master_map:
+                            t.title_name = master_map[t.condition_code]["title_name"]
+                            existing_map[t.condition_code] = t
+                        else:
+                            db.delete(t)
+                    
+                    unlocked_mts = []
+                    for mt in master_titles:
+                        is_eligible = False
+                        try:
+                            is_eligible = mt['check'](s, total_hours, streak, week_hours, target_univ, omr_count, points, is_vip)
+                        except Exception:
+                            is_eligible = (mt['condition_code'] == 'STARTER_TIER')
+                            
+                        if is_eligible:
+                            unlocked_mts.append(mt)
+                            if mt['condition_code'] not in existing_map:
+                                new_t = models.UserTitle(
+                                    student_id=s.id,
+                                    title_name=mt['title_name'],
+                                    condition_code=mt['condition_code'],
+                                    is_equipped=False
+                                )
+                                db.add(new_t)
+                                existing_map[mt['condition_code']] = new_t
 
-                # Auto-equip highest prestige title
-                unlocked_mts.sort(key=lambda x: (x.get('tier_weight', 100), x.get('difficulty_weight', 1)), reverse=True)
-                if unlocked_mts:
-                    best_code = unlocked_mts[0]['condition_code']
-                    for t in existing_map.values():
-                        t.is_equipped = (t.condition_code == best_code)
+                    # Auto-equip highest prestige title
+                    unlocked_mts.sort(key=lambda x: (x.get('tier_weight', 100), x.get('difficulty_weight', 1)), reverse=True)
+                    if unlocked_mts:
+                        best_code = unlocked_mts[0]['condition_code']
+                        for t in existing_map.values():
+                            t.is_equipped = (t.condition_code == best_code)
 
-            db.commit()
-            print(f"[AUTO_SEED] Phase 11 100-Title Master Matrix synced for all {len(students)} students.")
+                db.execute(text("INSERT INTO system_migrations (migration_key) VALUES ('phase_11_100_titles_synced_v20261009')"))
+                db.commit()
+                print(f"[AUTO_SEED] Phase 11 100-Title Master Matrix synced for all {len(students)} students.")
+            else:
+                print("[AUTO_SEED] Phase 11 100-Title Master Matrix verified in DB. Skipping redundant loop.")
         except Exception as p11_err:
             db.rollback()
             print(f"[AUTO_SEED] Phase 11 title initialization note: {p11_err}")
@@ -431,7 +436,13 @@ def auto_seed_database(db: Session, engine):
     except Exception as em_err:
         db.rollback()
     # 2. Synchronize all 208 authentic students and 203 parents into database
-    print("[AUTO_SEED] Synchronizing 208 authentic students and 203 parents into database...")
+    mig_cohort = db.execute(text("SELECT migration_key FROM system_migrations WHERE migration_key = 'authentic_cohort_208_synced_v20261009'")).fetchone()
+    current_student_count = db.query(func.count(models.Student.id)).scalar() or 0
+    if mig_cohort and current_student_count >= 150:
+        print(f"[AUTO_SEED] Authentic cohort verified ({current_student_count} students in DB). Skipping redundant sync loop.")
+        return
+
+    print(f"[AUTO_SEED] Synchronizing 208 authentic students and 203 parents into database (current: {current_student_count})...")
     from app.students_data_builtin import BUILTIN_STUDENTS_LIST, BUILTIN_PARENTS_LIST
     auth_student_ids = set(s["id"] for s in BUILTIN_STUDENTS_LIST)
     auth_parent_ids = set(p["id"] for p in BUILTIN_PARENTS_LIST)
@@ -554,6 +565,11 @@ def auto_seed_database(db: Session, engine):
         except Exception:
             db.rollback()
 
-    print("[AUTO_SEED] Seeding completed.")
+        try:
+            db.execute(text("INSERT INTO system_migrations (migration_key) VALUES ('authentic_cohort_208_synced_v20261009')"))
+            db.commit()
+        except Exception:
+            pass
+        print("[AUTO_SEED] Seeding completed.")
 
 
