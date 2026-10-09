@@ -540,29 +540,41 @@
   <section id="pricing" class="py-20 border-t border-slate-900 bg-slate-950/80">
     <div class="max-w-5xl mx-auto px-4 sm:px-6">
       
-      <div class="text-center max-w-2xl mx-auto mb-14">
-        <span class="text-xs font-bold uppercase tracking-wider text-orange-400">Transparent Pricing</span>
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <span class="text-xs font-bold uppercase tracking-wider text-orange-400">Official Pricing Matrix</span>
         <h2 class="text-2xl sm:text-4xl font-black text-white tracking-tight mt-2 mb-4">
-          사교육 거품을 걷어낸 정직한 요금제
+          B2C · B2B 공식 Tier 1~3 요금제
         </h2>
         <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
-          필요하지도 않은 비싼 컨텐츠를 강매하지 않습니다. 스스로 학습하고 관제하는 본질에만 집중하십시오.
+          수험생 개인부터 대형 학원까지, 필요한 관리 규모와 기능에 맞춰 합리적으로 선택할 수 있습니다.
         </p>
+
+        <!-- Pricing Toggle: B2C vs B2B -->
+        <div class="inline-flex items-center p-1 rounded-xl bg-slate-900 border border-slate-800 mt-6 gap-1 shadow-inner">
+          <button onclick="togglePricingCategory('b2c')" id="btn-pricing-b2c" class="px-5 py-2 rounded-lg text-xs font-bold transition bg-blue-600 text-white shadow-sm">
+            <span>🎓 B2C 수험생 & 학부모 플랜</span>
+          </button>
+          <button onclick="togglePricingCategory('b2b')" id="btn-pricing-b2b" class="px-5 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
+            <span>🏫 B2B 학원 & 독서실 SaaS</span>
+          </button>
+        </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- ================= B2C PRICING GRID (Tier 1 ~ Tier 3) ================= -->
+      <div id="pricing-grid-b2c" class="grid grid-cols-1 md:grid-cols-3 gap-6">
         
-        <!-- Plan 1: Free -->
+        <!-- B2C Tier 1 -->
         <div class="p-7 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
           <div>
-            <div class="text-xs font-bold text-slate-400 uppercase mb-2">수험생 기본 플랜</div>
-            <div class="text-2xl font-black text-white mb-1">0원 <span class="text-xs text-slate-400 font-normal">/ 평생 무료</span></div>
-            <p class="text-xs text-slate-400 mb-6">스스로 공부하는 습관을 기르고 싶은 수험생</p>
+            <div class="inline-block px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 text-[11px] font-bold mb-3">Tier 1. 스타터 (무료 체험)</div>
+            <div class="text-3xl font-black text-white mb-1">월 0원</div>
+            <p class="text-xs text-slate-400 mb-6">스스로 공부 루틴과 순공 습관을 다지고 싶은 수험생</p>
             <ul class="space-y-2.5 text-xs text-slate-300">
-              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>06:30 기상 체크인 미션</span></li>
-              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>초정밀 순공 타이머</span></li>
-              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>연속 학습 불꽃(🔥) 스트릭</span></li>
-              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>수능/모의고사 모바일 OMR 채점</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>06:30 기상 체크인 & 자습 미션</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>초정밀 일일 순공 타이머 트래킹</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>연속 학습 불꽃(🔥) 스트릭 시스템</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>수능/모의고사 모바일 OMR 즉시 채점</span></li>
+              <li class="flex items-center gap-2 text-slate-500"><i data-lucide="minus" class="w-4 h-4 text-slate-600"></i><span>단일 전형 심층 진단 리포트 (16,900원 별도)</span></li>
             </ul>
           </div>
           <a href="/app" class="mt-8 w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold text-center transition block">
@@ -570,42 +582,110 @@
           </a>
         </div>
 
-        <!-- Plan 2: Senior Mentorship (Featured) -->
-        <div class="p-7 rounded-2xl bg-gradient-to-b from-slate-900 via-slate-900 to-blue-950/40 border-2 border-blue-500 shadow-xl relative flex flex-col justify-between">
-          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-blue-500 text-white text-[10px] font-black uppercase tracking-wider">
-            인기 추천
+        <!-- B2C Tier 2 -->
+        <div class="p-7 rounded-2xl bg-slate-900 border border-emerald-500/50 shadow-lg shadow-emerald-500/10 flex flex-col justify-between relative">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider">
+            학부모 안심 플랜
           </div>
           <div>
-            <div class="text-xs font-bold text-blue-400 uppercase mb-2">명문대 선배 멘토링</div>
-            <div class="text-2xl font-black text-white mb-1">월 19,000원</div>
-            <p class="text-xs text-slate-400 mb-6">목표 대학 선배의 직통 지도와 오답 관리가 필요한 학생</p>
+            <div class="inline-block px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 text-[11px] font-bold mb-3 border border-emerald-500/30">Tier 2. 스탠다드</div>
+            <div class="text-3xl font-black text-white mb-1">월 19,900원</div>
+            <p class="text-xs text-slate-400 mb-6">매일 자녀의 입퇴실과 순공을 안심 확인하고 싶은 학부모</p>
             <ul class="space-y-2.5 text-xs text-slate-200">
-              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i><span>기본 플랜의 모든 기능 포함</span></li>
-              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i><span>목표 대학/동문 선배 1:1 질문방</span></li>
-              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i><span>3단계 백지 오답노트 정밀 첨삭</span></li>
-              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i><span>학부모 안심 알림장 실시간 전송</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>Tier 1 기본 기능 100% 포함</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>학부모 안심 카카오 알림장 실시간 전송</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>자녀 입실·퇴실 시각 실시간 타임라인</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>3대 전형(학종/논술/정시) 종합 분석</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>피상적 나열 없는 핵심 요약 코칭</span></li>
             </ul>
           </div>
-          <a href="/app" class="mt-8 w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold text-center transition block shadow-md shadow-blue-600/30">
-            선배 멘토링 체험하기
+          <button onclick="showParentDemoModal()" class="mt-8 w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold text-center transition block">
+            학부모 안심 플랜 시연
+          </button>
+        </div>
+
+        <!-- B2C Tier 3 -->
+        <div class="p-7 rounded-2xl bg-gradient-to-b from-slate-900 via-slate-900 to-indigo-950/40 border-2 border-indigo-500 shadow-xl flex flex-col justify-between relative">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-indigo-500 to-amber-500 text-white text-[10px] font-black uppercase tracking-wider">
+            75% 수험생 선택 (BEST)
+          </div>
+          <div>
+            <div class="inline-block px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-[11px] font-bold mb-3 border border-indigo-500/30">Tier 3. 마스터 AI 풀패키지</div>
+            <div class="text-3xl font-black text-amber-300 mb-1">월 99,000원</div>
+            <p class="text-xs text-slate-400 mb-6">목표 대학 선배 직결 & 168시간 시간표 백서 올인원</p>
+            <ul class="space-y-2.5 text-xs text-slate-200">
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-indigo-400"></i><span>Tier 2 전체 기능 100% 포함</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-indigo-400"></i><span>목표 대학/의대 선배 1:1 무제한 튜터링</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-indigo-400"></i><span>3단계 백지 오답노트 전수 첨삭 지도</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-indigo-400"></i><span>168시간 분 단위 초정밀 개인화 시간표</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>대입 정밀 전략 올인원 백서 (풀 RAG)</span></li>
+            </ul>
+          </div>
+          <a href="/app" class="mt-8 w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white text-xs font-black text-center transition block shadow-md shadow-indigo-600/30">
+            마스터 풀패키지 시작
           </a>
         </div>
 
-        <!-- Plan 3: B2B Tenant -->
+      </div>
+
+      <!-- ================= B2B PRICING GRID (Tier 1 ~ Tier 3) ================= -->
+      <div id="pricing-grid-b2b" class="grid grid-cols-1 md:grid-cols-3 gap-6 hidden">
+        
+        <!-- B2B Tier 1 -->
         <div class="p-7 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
           <div>
-            <div class="text-xs font-bold text-amber-400 uppercase mb-2">학원 & 관리형 독서실 B2B</div>
-            <div class="text-2xl font-black text-white mb-1">합리적 종량제 <span class="text-xs text-slate-400 font-normal">(학생당 월 2,900원~)</span></div>
-            <p class="text-xs text-slate-400 mb-6">수백 명 원생을 원장 1인이 오차 없이 관제하고 싶은 교육기관</p>
+            <div class="inline-block px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 text-[11px] font-bold mb-3">B2B Tier 1. 스타터</div>
+            <div class="text-3xl font-black text-white mb-1">월 29.9만 원</div>
+            <p class="text-xs text-slate-400 mb-6">교습소 및 50인 이하 소규모 단과학원</p>
             <ul class="space-y-2.5 text-xs text-slate-300">
-              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>학원 전용 독립 브랜드 관제실</span></li>
-              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>출결 & 와이파이 자동 입퇴실 관제</span></li>
-              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>지각생 카카오 알림톡 자동 발송</span></li>
-              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>토스 / 결제선생 비대면 수납 자동화</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>재원생 50명 CAP</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>기본 출결 & 와이파이 자동 입퇴실 관제</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>원장 전용 기본 행정 ERP 대시보드</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>학부모 안심 알림장 기본 발송</span></li>
             </ul>
           </div>
-          <button onclick="openSandboxModal()" class="mt-8 w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold text-center transition block">
-            가상 관제실 시연 신청
+          <button onclick="openSandboxModal()" class="mt-8 w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold text-center transition block">
+            스타터 도입 상담
+          </button>
+        </div>
+
+        <!-- B2B Tier 2 -->
+        <div class="p-7 rounded-2xl bg-slate-900 border-2 border-amber-500 shadow-xl shadow-amber-500/10 flex flex-col justify-between relative">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider">
+            학원장 85% 선택 (BEST)
+          </div>
+          <div>
+            <div class="inline-block px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[11px] font-bold mb-3 border border-amber-500/30">B2B Tier 2. 프로</div>
+            <div class="text-3xl font-black text-amber-400 mb-1">월 59.9만 원</div>
+            <p class="text-xs text-slate-400 mb-6">100인 규모 종합학원 및 관리형 독서실</p>
+            <ul class="space-y-2.5 text-xs text-slate-200">
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>재원생 100명 CAP</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>지각·외출 실시간 카카오 알림톡 자동화</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>토스 / 결제선생 비대면 수납 자동 정산</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>디지털 OMR 채점 1초 성적표 생성</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>우리 학원 전용 AI 튜터 뇌 이식</span></li>
+            </ul>
+          </div>
+          <button onclick="openSandboxModal()" class="mt-8 w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black text-center transition block shadow-md shadow-amber-500/30">
+            프로 관제실 샌드박스 체험
+          </button>
+        </div>
+
+        <!-- B2B Tier 3 -->
+        <div class="p-7 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
+          <div>
+            <div class="inline-block px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 text-[11px] font-bold mb-3">B2B Tier 3. 엔터프라이즈</div>
+            <div class="text-3xl font-black text-white mb-1">월 99.9만 원</div>
+            <p class="text-xs text-slate-400 mb-6">대형 어학원, 프랜차이즈 본원, 기숙학원</p>
+            <ul class="space-y-2.5 text-xs text-slate-300">
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>무제한 재원생 CAP (제한 없음)</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>단독 전용 클라우드 서버망 & 독립 도메인</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>다지점/캠퍼스 통합 중앙 관제</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i><span>의대/SKY 출신 검증된 튜터 풀 우선 배정</span></li>
+            </ul>
+          </div>
+          <button onclick="openSandboxModal()" class="mt-8 w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold text-center transition block">
+            엔터프라이즈 맞춤 구축 문의
           </button>
         </div>
 
@@ -899,6 +979,26 @@
           content.classList.add('hidden');
         }
       });
+      lucide.createIcons();
+    }
+
+    // Pricing Category Switcher (B2C vs B2B)
+    function togglePricingCategory(type) {
+      const b2cGrid = document.getElementById('pricing-grid-b2c');
+      const b2bGrid = document.getElementById('pricing-grid-b2b');
+      const btnB2C = document.getElementById('btn-pricing-b2c');
+      const btnB2B = document.getElementById('btn-pricing-b2b');
+      if (type === 'b2c') {
+        b2cGrid.classList.remove('hidden');
+        b2bGrid.classList.add('hidden');
+        btnB2C.className = 'px-5 py-2 rounded-lg text-xs font-bold transition bg-blue-600 text-white shadow-sm';
+        btnB2B.className = 'px-5 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white';
+      } else {
+        b2cGrid.classList.add('hidden');
+        b2bGrid.classList.remove('hidden');
+        btnB2B.className = 'px-5 py-2 rounded-lg text-xs font-bold transition bg-amber-500 text-slate-950 font-black shadow-sm';
+        btnB2C.className = 'px-5 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white';
+      }
       lucide.createIcons();
     }
 
