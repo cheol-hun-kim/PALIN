@@ -41,22 +41,23 @@
       transition: all 0.2s ease;
     }
     .persona-tab.active {
-      background-color: #facc15;
-      color: #09090b;
+      background-color: #7c3aed;
+      color: #ffffff;
       font-weight: 800;
-      border-color: #facc15;
-      box-shadow: 0 4px 20px -2px rgba(250, 204, 21, 0.25);
+      border-color: #8b5cf6;
+      box-shadow: 0 4px 20px -2px rgba(124, 58, 237, 0.35);
     }
 
     /* Cockpit Sandbox Tabs */
     .sandbox-tab.active {
-      background-color: #facc15;
-      color: #09090b;
+      background-color: #7c3aed;
+      color: #ffffff;
       font-weight: 800;
+      border-color: #8b5cf6;
     }
   </style>
 </head>
-<body class="bg-[#09090d] text-slate-100 min-h-screen antialiased selection:bg-yellow-400 selection:text-slate-950">
+<body class="bg-[#09090d] text-slate-100 min-h-screen antialiased selection:bg-purple-600 selection:text-white leading-normal break-keep">
 
   <!-- ================= TOP NAVIGATION BAR ================= -->
   <header class="sticky top-0 z-40 bg-[#09090d]/95 backdrop-blur-md border-b border-slate-800">
@@ -77,25 +78,25 @@
 
       <!-- Desktop Nav -->
       <nav class="hidden md:flex items-center gap-6 text-xs font-semibold text-slate-300">
-        <a href="#audience-section" class="hover:text-yellow-400 transition">맞춤 솔루션</a>
-        <a href="#philosophy" class="hover:text-yellow-400 transition">선배의 철학</a>
-        <a href="#features" class="hover:text-yellow-400 transition">핵심 기능</a>
-        <a href="#demo" class="hover:text-yellow-400 transition">가상 체험</a>
-        <a href="#pricing" class="hover:text-yellow-400 transition">투명 요금제</a>
-        <a href="#faq" class="hover:text-yellow-400 transition">FAQ</a>
+        <a href="#audience-section" class="hover:text-purple-400 transition">맞춤 솔루션</a>
+        <a href="#philosophy" class="hover:text-purple-400 transition">선배의 철학</a>
+        <a href="#features" class="hover:text-purple-400 transition">핵심 기능</a>
+        <a href="#demo" class="hover:text-purple-400 transition">가상 체험</a>
+        <a href="#pricing" class="hover:text-purple-400 transition">투명 요금제</a>
+        <a href="#faq" class="hover:text-purple-400 transition">FAQ</a>
       </nav>
 
       <!-- Dynamic Header Button -->
       <div class="flex items-center gap-2">
-        <a href="/app" id="header-btn-student" class="px-4 py-2 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-xs shadow-md transition flex items-center gap-1.5">
+        <a href="/app" id="header-btn-student" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-md shadow-purple-900/30 transition flex items-center gap-1.5">
           <span>학생 포털 시작</span>
           <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
         </a>
-        <button onclick="showParentDemoModal()" id="header-btn-parent" class="hidden px-4 py-2 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-xs shadow-md transition flex items-center gap-1.5">
+        <button onclick="showParentDemoModal()" id="header-btn-parent" class="hidden px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-md shadow-purple-900/30 transition flex items-center gap-1.5">
           <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
           <span>학부모 리포트 시연</span>
         </button>
-        <button onclick="openSandboxModal()" id="header-btn-director" class="hidden px-4 py-2 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-xs shadow-md transition flex items-center gap-1.5">
+        <button onclick="openSandboxModal()" id="header-btn-director" class="hidden px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-md shadow-purple-900/30 transition flex items-center gap-1.5">
           <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
           <span>가상 관제실 체험</span>
         </button>
@@ -117,9 +118,9 @@
       </div>
 
       <!-- Main Headline: Crisp White with Point Yellow Focus -->
-      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.25] mb-6">
-        수험생활의 모든 시간 낭비, 돈 낭비, 에너지 낭비를 끝냅니다.<br>
-        <span class="text-yellow-400">오직 검증된 지름길만을 안내하는 입시 관제 OS</span>
+      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.3] mb-6 break-keep">
+        수험생활의 모든 시간·돈·에너지 낭비를 끝냅니다.<br>
+        <span class="text-purple-400">오직 검증된 <span class="text-yellow-400">지름길</span>만을 안내하는 입시 관제 OS</span>
       </h1>
 
       <!-- Persona Subheadlines (Dynamically Swapped) -->
@@ -144,7 +145,7 @@
       <!-- ================= 3-WAY AUDIENCE PERSONA SELECTOR ================= -->
       <div id="audience-section" class="scroll-mt-24 pt-2">
         <div class="text-center mb-3">
-          <p class="text-[11px] font-black text-yellow-400 uppercase tracking-widest mb-1">AUDIENCE SELECTION</p>
+          <p class="text-[11px] font-bold text-purple-400 uppercase tracking-widest mb-1">AUDIENCE SELECTION</p>
           <h2 class="text-base sm:text-lg font-black text-white">어떤 입장에서 PASS-MATE를 찾으셨나요?</h2>
         </div>
 
@@ -176,7 +177,7 @@
     <section class="py-14 border-t border-slate-800 bg-[#0c0c12]">
       <div class="max-w-5xl mx-auto px-4 sm:px-6">
         <div class="text-center max-w-2xl mx-auto mb-10">
-          <span class="text-xs font-black uppercase tracking-wider text-yellow-400">Student Philosophy</span>
+          <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Student Philosophy</span>
           <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight mt-1 mb-2">
             삼수선배가 치워주는 수험생활 3대 함정
           </h3>
@@ -195,8 +196,8 @@
                 어려운 문제가 나오면 테크닉을 못 외웠다고 자책하며 문제집만 사 모읍니다. 하지만 출제자의 원리를 백지에 스스로 유도하지 못하면 변형 문제에 무너집니다.
               </p>
             </div>
-            <div class="mt-6 pt-4 border-t border-slate-800 min-h-[44px] flex items-center text-xs font-bold text-yellow-400 gap-1.5">
-              <i data-lucide="check-circle" class="w-4 h-4 text-yellow-400 shrink-0"></i>
+            <div class="mt-6 pt-4 border-t border-slate-800 min-h-[44px] flex items-center text-xs font-bold text-purple-300 gap-1.5">
+              <i data-lucide="check-circle" class="w-4 h-4 text-purple-400 shrink-0"></i>
               <span>해결책: 3단계 백지 복기 & 출제원리 해석</span>
             </div>
           </div>
@@ -210,8 +211,8 @@
                 독서실에 온종일 앉아 있어도 스마트폰을 보거나 딴생각을 하면 시간 낭비입니다. 공부는 시간이 아니라 밀도입니다. 단 4시간이라도 진짜 순공이어야 합니다.
               </p>
             </div>
-            <div class="mt-6 pt-4 border-t border-slate-800 min-h-[44px] flex items-center text-xs font-bold text-yellow-400 gap-1.5">
-              <i data-lucide="check-circle" class="w-4 h-4 text-yellow-400 shrink-0"></i>
+            <div class="mt-6 pt-4 border-t border-slate-800 min-h-[44px] flex items-center text-xs font-bold text-purple-300 gap-1.5">
+              <i data-lucide="check-circle" class="w-4 h-4 text-purple-400 shrink-0"></i>
               <span>해결책: 초 단위 정밀 순공 & 연속 불꽃 스트릭</span>
             </div>
           </div>
@@ -225,8 +226,8 @@
                 단과학원 과제, 독서실 외출 체크, 결석 보강 신청까지 학원마다 따로 연락하느라 진이 빠집니다. 공부에만 집중할 수 있는 하나의 허브가 절실합니다.
               </p>
             </div>
-            <div class="mt-6 pt-4 border-t border-slate-800 min-h-[44px] flex items-center text-xs font-bold text-yellow-400 gap-1.5">
-              <i data-lucide="check-circle" class="w-4 h-4 text-yellow-400 shrink-0"></i>
+            <div class="mt-6 pt-4 border-t border-slate-800 min-h-[44px] flex items-center text-xs font-bold text-purple-300 gap-1.5">
+              <i data-lucide="check-circle" class="w-4 h-4 text-purple-400 shrink-0"></i>
               <span>해결책: 내 모든 학원·독서실 올인원 연동 관리</span>
             </div>
           </div>
@@ -238,7 +239,7 @@
     <section class="py-14 border-t border-slate-800 bg-[#09090d]">
       <div class="max-w-5xl mx-auto px-4 sm:px-6">
         <div class="text-center max-w-2xl mx-auto mb-10">
-          <span class="text-xs font-black uppercase tracking-wider text-yellow-400">Student Features</span>
+          <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Student Features</span>
           <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight mt-1 mb-2">
             수험생이 매일 사용하는 핵심 실전 기능
           </h3>
@@ -253,7 +254,7 @@
           <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-5 pb-4 border-b border-slate-800">
               <div>
-                <span class="text-yellow-400 text-xs font-bold block mb-1">FEATURE 01</span>
+                <span class="text-purple-400 text-xs font-bold block mb-1">FEATURE 01</span>
                 <h4 class="text-lg sm:text-xl font-black text-white">2026학년도 대학별 공식 환산점수 & 정시 합격예측</h4>
                 <p class="text-xs text-slate-400">내 수능 성적 기반 대학별 영역 가중치(수학 40%, 국어 33.3%, 탐구 26.7%) 자동 반영</p>
               </div>
@@ -305,7 +306,7 @@
           <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-5 pb-4 border-b border-slate-800">
               <div>
-                <span class="text-yellow-400 text-xs font-bold block mb-1">FEATURE 02</span>
+                <span class="text-purple-400 text-xs font-bold block mb-1">FEATURE 02</span>
                 <h4 class="text-lg sm:text-xl font-black text-white">목표 대학·동문 선배 1:1 과외 & 실시간 질의응답</h4>
                 <p class="text-xs text-slate-400">내가 가고 싶은 대학에 실제로 합격한 선배들의 검증된 튜터링 공고를 실시간 탐색</p>
               </div>
@@ -355,7 +356,7 @@
           <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-5 pb-4 border-b border-slate-800">
               <div>
-                <span class="text-yellow-400 text-xs font-bold block mb-1">FEATURE 03</span>
+                <span class="text-purple-400 text-xs font-bold block mb-1">FEATURE 03</span>
                 <h4 class="text-lg sm:text-xl font-black text-white">내가 다니는 모든 학원·독서실 올인원 연동 관리</h4>
                 <p class="text-xs text-slate-400">
                   단과학원, 과외, 스터디카페마다 흩어져 있던 출결 확인, 보강 VOD 신청, 결석 요청을 앱 하나로 해결합니다.
@@ -394,7 +395,7 @@
                   <button onclick="alert('[학생 행정 요청 시뮬레이션] 이번 주 토요일 결석 신청과 함께 해당 회차 보강 VOD가 즉시 배정되었습니다.')" class="py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition text-center">
                     결석 & 보강 VOD 신청
                   </button>
-                  <button onclick="alert('[학생 질의응답 시뮬레이션] 담당 강사님께 1:1 질문이 접수되었습니다.')" class="py-2 px-3 rounded-lg bg-yellow-400 hover:bg-yellow-300 text-slate-950 text-xs font-black transition text-center">
+                  <button onclick="alert('[학생 질의응답 시뮬레이션] 담당 강사님께 1:1 질문이 접수되었습니다.')" class="py-2 px-3 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition text-center">
                     학원 선생님께 질문하기
                   </button>
                 </div>
@@ -460,7 +461,7 @@
           <p class="text-xs text-slate-400 mb-6">오늘의 정밀 순공 시간 (목표: 6시간)</p>
 
           <div class="flex items-center justify-center gap-3">
-            <button onclick="toggleSimTimer()" id="sim-timer-btn" class="px-6 py-3 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 text-xs font-black transition flex items-center gap-1.5 shadow-md">
+            <button onclick="toggleSimTimer()" id="sim-timer-btn" class="px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-purple-900/30">
               <i data-lucide="pause" id="sim-timer-icon" class="w-4 h-4"></i>
               <span id="sim-timer-text">순공 일시정지</span>
             </button>
@@ -492,7 +493,7 @@
         <p class="text-xs sm:text-sm text-slate-400 mb-8">
           오늘부터 인생 3회차 선배와 함께 진짜 실력을 올리는 지름길로 직행하십시오.
         </p>
-        <a href="/app" class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-sm shadow-xl transition transform hover:scale-105">
+        <a href="/app" class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm shadow-lg shadow-purple-900/40 transition transform hover:scale-105">
           <span>학생 전용 포털 무료로 시작하기</span>
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </a>
@@ -510,7 +511,7 @@
     <section class="py-14 border-t border-slate-800 bg-[#0c0c12]">
       <div class="max-w-5xl mx-auto px-4 sm:px-6">
         <div class="text-center max-w-2xl mx-auto mb-10">
-          <span class="text-xs font-black uppercase tracking-wider text-yellow-400">Parent Protection Philosophy</span>
+          <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Parent Protection Philosophy</span>
           <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight mt-1 mb-2">
             사교육의 불안 마케팅에서 자녀를 지키는 3대 원칙
           </h3>
@@ -529,8 +530,8 @@
                 아이를 불안하게 만들어 불필요한 고액 패키지 강의를 결제하게 만드는 구조를 걷어냅니다. 수백만 원 학원비 대신 자녀 본인의 몰입 시스템만 갖추면 충분합니다.
               </p>
             </div>
-            <div class="mt-6 pt-4 border-t border-slate-800 min-h-[44px] flex items-center text-xs font-bold text-yellow-400 gap-1.5">
-              <i data-lucide="check-circle" class="w-4 h-4 text-yellow-400 shrink-0"></i>
+            <div class="mt-6 pt-4 border-t border-slate-800 min-h-[44px] flex items-center text-xs font-bold text-purple-300 gap-1.5">
+              <i data-lucide="check-circle" class="w-4 h-4 text-purple-400 shrink-0"></i>
               <span>해결책: 사교육비 낭비 제로의 자율 몰입 환경</span>
             </div>
           </div>
@@ -544,8 +545,8 @@
                 학교의 안전빵 합격 실적을 위한 왜곡된 상담에 흔들리지 마세요. 실제 대학교 입학처가 공식 공시한 환산 점수와 합격자 실데이터만을 기반으로 진단합니다.
               </p>
             </div>
-            <div class="mt-6 pt-4 border-t border-slate-800 min-h-[44px] flex items-center text-xs font-bold text-yellow-400 gap-1.5">
-              <i data-lucide="check-circle" class="w-4 h-4 text-yellow-400 shrink-0"></i>
+            <div class="mt-6 pt-4 border-t border-slate-800 min-h-[44px] flex items-center text-xs font-bold text-purple-300 gap-1.5">
+              <i data-lucide="check-circle" class="w-4 h-4 text-purple-400 shrink-0"></i>
               <span>해결책: 대학교 공인 공식 발표 기준 100% 진단</span>
             </div>
           </div>
@@ -559,8 +560,8 @@
                 자녀가 몇 시에 등원했는지뿐만 아니라, 매주 일요일 원장님이 버튼 하나로 발송하는 주간 종합 보고서로 순공 시간, 과제 완성도, 모의고사 성적까지 투명하게 확인합니다.
               </p>
             </div>
-            <div class="mt-6 pt-4 border-t border-slate-800 min-h-[44px] flex items-center text-xs font-bold text-yellow-400 gap-1.5">
-              <i data-lucide="check-circle" class="w-4 h-4 text-yellow-400 shrink-0"></i>
+            <div class="mt-6 pt-4 border-t border-slate-800 min-h-[44px] flex items-center text-xs font-bold text-purple-300 gap-1.5">
+              <i data-lucide="check-circle" class="w-4 h-4 text-purple-400 shrink-0"></i>
               <span>해결책: 초 단위 등하원 & 매주 학생 모든 정보 담은 종합 리포트</span>
             </div>
           </div>
@@ -572,7 +573,7 @@
     <section class="py-14 border-t border-slate-800 bg-[#09090d]">
       <div class="max-w-4xl mx-auto px-4 sm:px-6">
         <div class="text-center max-w-2xl mx-auto mb-10">
-          <span class="text-xs font-black uppercase tracking-wider text-yellow-400">Parent Live Report</span>
+          <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Parent Live Report</span>
           <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight mt-1 mb-2">
             학부모 안심 카카오톡 실전 알림장 시뮬레이션
           </h3>
@@ -652,7 +653,7 @@
 
             </div>
 
-            <button onclick="showParentDemoModal()" class="w-full mt-4 py-2.5 rounded-lg bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-xs transition">
+            <button onclick="showParentDemoModal()" class="w-full mt-4 py-2.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-md shadow-purple-900/30 transition">
               전체 화면으로 리포트 시뮬레이션 열기
             </button>
           </div>
@@ -663,14 +664,14 @@
     <!-- Parent Final CTA -->
     <section class="py-16 border-t border-slate-800 bg-[#09090d] text-center">
       <div class="max-w-2xl mx-auto px-4">
-        <span class="text-xs font-black uppercase tracking-wider text-yellow-400">PEACE OF MIND</span>
+        <span class="text-xs font-bold uppercase tracking-wider text-purple-400">PEACE OF MIND</span>
         <h3 class="text-2xl sm:text-4xl font-black text-white tracking-tight mt-1 mb-3">
           자녀의 정직한 노력, 투명하게 확인하세요.
         </h3>
         <p class="text-xs sm:text-sm text-slate-400 mb-8">
           불안을 부추기는 사교육 상술에서 벗어나 대학 공식 기준과 내 자녀의 성장을 안심하고 지켜보세요.
         </p>
-        <button onclick="showParentDemoModal()" class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-sm shadow-xl transition transform hover:scale-105">
+        <button onclick="showParentDemoModal()" class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm shadow-lg shadow-purple-900/40 transition transform hover:scale-105">
           <i data-lucide="smartphone" class="w-4 h-4"></i>
           <span>학부모 안심 리포트 시뮬레이션 열기</span>
         </button>
@@ -688,7 +689,7 @@
     <section class="py-14 border-t border-slate-800 bg-[#0c0c12]">
       <div class="max-w-5xl mx-auto px-4 sm:px-6">
         <div class="text-center max-w-2xl mx-auto mb-10">
-          <span class="text-xs font-black uppercase tracking-wider text-yellow-400">Academy Director Innovation</span>
+          <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Academy Director Innovation</span>
           <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight mt-1 mb-2">
             학원장 1인이 수백 명을 완벽하게 통제하는 법
           </h3>
@@ -707,8 +708,8 @@
                 직원을 계속 채용할 필요가 없습니다. 좌석 관제, 와이파이 자동 출결, 결제선생/토스 비대면 수납, OMR 채점 성적표 생성까지 번거로운 행정을 1초 클릭으로 자동화합니다.
               </p>
             </div>
-            <div class="mt-6 pt-4 border-t border-slate-800 min-h-[44px] flex items-center text-xs font-bold text-yellow-400 gap-1.5">
-              <i data-lucide="check-circle" class="w-4 h-4 text-yellow-400 shrink-0"></i>
+            <div class="mt-6 pt-4 border-t border-slate-800 min-h-[44px] flex items-center text-xs font-bold text-purple-300 gap-1.5">
+              <i data-lucide="check-circle" class="w-4 h-4 text-purple-400 shrink-0"></i>
               <span>해결책: 1인 500명 관제 올인원 학원 ERP</span>
             </div>
           </div>
@@ -722,8 +723,8 @@
                 주말마다 학생별 학습 상태를 일일이 전화로 설명할 필요가 없습니다. 한 주간의 순공, 출결, 과제, OMR 테스트 결과가 담긴 프리미엄 보고서를 버튼 한 번으로 전체 학부모 카톡에 1초 만에 전송합니다.
               </p>
             </div>
-            <div class="mt-6 pt-4 border-t border-slate-800 min-h-[44px] flex items-center text-xs font-bold text-yellow-400 gap-1.5">
-              <i data-lucide="check-circle" class="w-4 h-4 text-yellow-400 shrink-0"></i>
+            <div class="mt-6 pt-4 border-t border-slate-800 min-h-[44px] flex items-center text-xs font-bold text-purple-300 gap-1.5">
+              <i data-lucide="check-circle" class="w-4 h-4 text-purple-400 shrink-0"></i>
               <span>해결책: 학생 모든 정보 담은 주간 종합 리포트 1초 일괄 발송</span>
             </div>
           </div>
@@ -737,8 +738,8 @@
                 학생의 결석 신청 시 보강 VOD 자동 배정, 모의고사 시험지 인쇄 발주, 비품 재고 관리까지 학원 운영의 모든 과정이 단 하나의 시스템 안에서 끊김 없이 돌아갑니다.
               </p>
             </div>
-            <div class="mt-6 pt-4 border-t border-slate-800 min-h-[44px] flex items-center text-xs font-bold text-yellow-400 gap-1.5">
-              <i data-lucide="check-circle" class="w-4 h-4 text-yellow-400 shrink-0"></i>
+            <div class="mt-6 pt-4 border-t border-slate-800 min-h-[44px] flex items-center text-xs font-bold text-purple-300 gap-1.5">
+              <i data-lucide="check-circle" class="w-4 h-4 text-purple-400 shrink-0"></i>
               <span>해결책: 원스톱 학원 운영 자동화 파이프라인</span>
             </div>
           </div>
@@ -815,7 +816,7 @@
             
             <!-- Campus Switcher in Preview -->
             <div class="flex items-center gap-1.5 p-1 rounded-xl bg-slate-950 border border-slate-800">
-              <button onclick="switchCampusPreview('daechi')" id="campus-btn-daechi" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-yellow-400 text-slate-950 transition">
+              <button onclick="switchCampusPreview('daechi')" id="campus-btn-daechi" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white transition">
                 대치 에듀포레 본원
               </button>
               <button onclick="switchCampusPreview('banpo')" id="campus-btn-banpo" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">
@@ -864,7 +865,7 @@
         <p class="text-xs sm:text-sm text-slate-400 mb-8">
           원장 1인이 수백 명의 학생을 통제하는 차세대 입시 관제 시스템을 안전하게 둘러보세요.
         </p>
-        <button onclick="openSandboxModal()" class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-sm shadow-xl transition transform hover:scale-105">
+        <button onclick="openSandboxModal()" class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm shadow-lg shadow-purple-900/40 transition transform hover:scale-105">
           <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
           <span>학원장 가상 관제실 샌드박스 전체 열기</span>
         </button>
@@ -888,7 +889,7 @@
 
         <!-- Pricing Toggle: B2C vs B2B -->
         <div class="inline-flex items-center p-1 rounded-xl bg-slate-900 border border-slate-800 mt-6 gap-1 shadow-inner">
-          <button onclick="togglePricingCategory('b2c')" id="btn-pricing-b2c" class="px-5 py-2 rounded-lg text-xs font-bold transition bg-yellow-400 text-slate-950 shadow-sm">
+          <button onclick="togglePricingCategory('b2c')" id="btn-pricing-b2c" class="px-5 py-2 rounded-lg text-xs font-bold transition bg-purple-600 text-white shadow-sm">
             <span>🎓 B2C 수험생 & 학부모 플랜</span>
           </button>
           <button onclick="togglePricingCategory('b2b')" id="btn-pricing-b2b" class="px-5 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
@@ -936,7 +937,7 @@
               <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-yellow-400"></i><span>피상적 나열 없는 핵심 요약 코칭</span></li>
             </ul>
           </div>
-          <button onclick="showParentDemoModal()" class="mt-8 w-full py-2.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 text-xs font-black text-center transition block">
+          <button onclick="showParentDemoModal()" class="mt-8 w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold text-center shadow-md shadow-purple-900/30 transition block">
             학부모 안심 리포트 시연
           </button>
         </div>
@@ -958,7 +959,7 @@
               <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-yellow-400"></i><span>대입 정밀 전략 올인원 백서 (풀 RAG)</span></li>
             </ul>
           </div>
-          <a href="/app" class="mt-8 w-full py-2.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 text-xs font-black text-center transition block">
+          <a href="/app" class="mt-8 w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold text-center shadow-md shadow-purple-900/30 transition block">
             마스터 풀패키지 시작
           </a>
         </div>
@@ -1003,7 +1004,7 @@
               <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-yellow-400"></i><span>우리 학원 전용 AI 튜터 시스템</span></li>
             </ul>
           </div>
-          <button onclick="openSandboxModal()" class="mt-8 w-full py-2.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 text-xs font-black text-center transition block">
+          <button onclick="openSandboxModal()" class="mt-8 w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold text-center shadow-md shadow-purple-900/30 transition block">
             프로 관제실 샌드박스 체험
           </button>
         </div>
@@ -1036,7 +1037,7 @@
     <div class="max-w-3xl mx-auto px-4 sm:px-6">
       
       <div class="text-center mb-10">
-        <span class="text-xs font-black uppercase tracking-wider text-yellow-400">FAQ</span>
+        <span class="text-xs font-bold uppercase tracking-wider text-purple-400">FAQ</span>
         <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight mt-1 mb-2">
           자주 묻는 질문
         </h3>
@@ -1049,7 +1050,7 @@
         
         <div class="p-5 rounded-xl bg-slate-900 border border-slate-800">
           <h4 class="text-sm font-bold text-white mb-2 flex items-center gap-2">
-            <i data-lucide="help-circle" class="w-4 h-4 text-yellow-400"></i>
+            <i data-lucide="help-circle" class="w-4 h-4 text-purple-400"></i>
             <span>'인생 3회차 선배'라는 철학은 어떤 의미인가요?</span>
           </h4>
           <p class="text-xs text-slate-300 leading-relaxed pl-6">
@@ -1059,7 +1060,7 @@
 
         <div class="p-5 rounded-xl bg-slate-900 border border-slate-800">
           <h4 class="text-sm font-bold text-white mb-2 flex items-center gap-2">
-            <i data-lucide="help-circle" class="w-4 h-4 text-yellow-400"></i>
+            <i data-lucide="help-circle" class="w-4 h-4 text-purple-400"></i>
             <span>학원에 다니지 않는 혼공 수험생도 쓸 수 있나요?</span>
           </h4>
           <p class="text-xs text-slate-300 leading-relaxed pl-6">
@@ -1069,7 +1070,7 @@
 
         <div class="p-5 rounded-xl bg-slate-900 border border-slate-800">
           <h4 class="text-sm font-bold text-white mb-2 flex items-center gap-2">
-            <i data-lucide="help-circle" class="w-4 h-4 text-yellow-400"></i>
+            <i data-lucide="help-circle" class="w-4 h-4 text-purple-400"></i>
             <span>학원이나 독서실 도입 시 초기 세팅이 복잡한가요?</span>
           </h4>
           <p class="text-xs text-slate-300 leading-relaxed pl-6">
@@ -1107,7 +1108,7 @@
       <div class="px-5 py-2.5 bg-slate-950 border-b border-slate-800 flex items-center justify-between flex-wrap gap-2">
         <div class="flex items-center gap-1.5">
           <span class="text-[11px] text-slate-400 font-bold mr-1">시뮬레이션 캠퍼스:</span>
-          <button onclick="switchSandboxCampus('daechi')" id="sb-campus-daechi" class="px-3 py-1 rounded-lg text-xs font-bold bg-yellow-400 text-slate-950 transition">
+          <button onclick="switchSandboxCampus('daechi')" id="sb-campus-daechi" class="px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition">
             대치 에듀포레 본원
           </button>
           <button onclick="switchSandboxCampus('banpo')" id="sb-campus-banpo" class="px-3 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">
@@ -1122,7 +1123,7 @@
 
       <!-- Navigation Tabs in Sandbox -->
       <div class="px-5 py-2 bg-slate-950 border-b border-slate-800 flex items-center gap-2 overflow-x-auto text-xs">
-        <button onclick="switchDirectorSandboxTab('seats')" id="tab-btn-seats" class="sandbox-tab active px-3 py-1.5 rounded-lg border border-slate-700 transition">
+        <button onclick="switchDirectorSandboxTab('seats')" id="tab-btn-seats" class="sandbox-tab active px-3 py-1.5 rounded-lg border border-purple-500 bg-purple-600 text-white font-bold transition">
           📡 실시간 좌석 & 출결
         </button>
         <button onclick="switchDirectorSandboxTab('billing')" id="tab-btn-billing" class="sandbox-tab px-3 py-1.5 rounded-lg text-slate-400 hover:text-white border border-transparent transition">
@@ -1166,7 +1167,7 @@
               <span class="text-white font-bold text-xs block">원클릭 학부모 주간 정밀 리포트 1초 일괄 발송</span>
               <span class="text-[11px] text-slate-400">이번 주 학생 48명의 출결, 순공, 과제 완수율, OMR 성적 전수 자동 취합 완료</span>
             </div>
-            <button onclick="alert('[시뮬레이션 완료] 48명 재원생 학부모님께 이번 주 학생의 모든 학습 정보를 담은 프리미엄 주간 종합 보고서가 1초 만에 카카오톡으로 일괄 발송되었습니다!');" class="px-4 py-2 rounded-lg bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-xs transition shadow-sm">
+            <button onclick="alert('[시뮬레이션 완료] 48명 재원생 학부모님께 이번 주 학생의 모든 학습 정보를 담은 프리미엄 주간 종합 보고서가 1초 만에 카카오톡으로 일괄 발송되었습니다!');" class="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition shadow-sm">
               학부모 주간 리포트 1초 일괄 전송
             </button>
           </div>
@@ -1216,7 +1217,7 @@
                 </div>
                 <div class="flex items-center gap-3">
                   <span class="text-slate-400 font-mono">외출 (식사)</span>
-                  <button onclick="alert('[시뮬레이션] 복귀 독려 카카오 알림톡이 정상 발송되었습니다.')" class="px-2.5 py-1 rounded bg-yellow-400 text-slate-950 font-bold text-[10px] transition">
+                  <button onclick="alert('[시뮬레이션] 복귀 독려 카카오 알림톡이 정상 발송되었습니다.')" class="px-2.5 py-1 rounded bg-purple-600 hover:bg-purple-500 text-white font-bold text-[10px] transition">
                     알림톡 전송
                   </button>
                 </div>
@@ -1259,7 +1260,7 @@
                   <span class="font-bold text-white block">강*민 학부모님 (고1 몰입반)</span>
                   <span class="text-[10px] text-yellow-400">청구액: 450,000원 · 납부 기한 D-1</span>
                 </div>
-                <button onclick="alert('[시뮬레이션] 카카오 비대면 결제 알림톡이 재발송되었습니다.')" class="px-2.5 py-1 rounded bg-yellow-400 text-slate-950 font-bold text-[10px]">
+                <button onclick="alert('[시뮬레이션] 카카오 비대면 결제 알림톡이 재발송되었습니다.')" class="px-2.5 py-1 rounded bg-purple-600 hover:bg-purple-500 text-white font-bold text-[10px]">
                   납부 독려 알림톡
                 </button>
               </div>
@@ -1288,7 +1289,7 @@
                 <span class="font-bold text-emerald-400">100점</span>
               </div>
             </div>
-            <button onclick="alert('[시뮬레이션 완료] 48명 원생 학부모님께 이번 주 OMR 성적표 및 취약 단원 분석이 담긴 주간 보고서가 1초 만에 카카오톡으로 일괄 발송되었습니다!');" class="w-full py-2.5 rounded-lg bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black transition">
+            <button onclick="alert('[시뮬레이션 완료] 48명 원생 학부모님께 이번 주 OMR 성적표 및 취약 단원 분석이 담긴 주간 보고서가 1초 만에 카카오톡으로 일괄 발송되었습니다!');" class="w-full py-2.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold transition shadow-sm">
               학부모 성적표 & 주간 보고서 카카오톡 일괄 발송 (1초)
             </button>
           </div>
@@ -1318,7 +1319,7 @@
         <button onclick="closeSandboxModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition">
           닫기
         </button>
-        <button onclick="alert('[도입 문의 접수] 상단 메뉴의 B2B 도입 상담을 신청하시면 담당 수석 매니저가 신속히 안내해 드립니다.'); closeSandboxModal();" class="px-5 py-2 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 text-xs font-black transition">
+        <button onclick="alert('[도입 문의 접수] 상단 메뉴의 B2B 도입 상담을 신청하시면 담당 수석 매니저가 신속히 안내해 드립니다.'); closeSandboxModal();" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition">
           우리 학원에 정식 도입 신청하기
         </button>
       </div>
@@ -1378,7 +1379,7 @@
         </div>
       </div>
 
-      <button onclick="document.getElementById('parent-demo-modal').style.display='none'" class="w-full mt-5 py-2.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black transition">
+      <button onclick="document.getElementById('parent-demo-modal').style.display='none'" class="w-full mt-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold transition shadow-md shadow-purple-900/30">
         확인 완료
       </button>
     </div>
@@ -1392,7 +1393,7 @@
       <p class="text-xs text-slate-300 mb-4">
         오늘도 흔들림 없이 자습 미션을 완수했습니다. 불꽃이 유지됩니다!
       </p>
-      <button onclick="document.getElementById('sim-streak-modal').style.display='none'" class="w-full py-2 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 text-xs font-black transition">
+      <button onclick="document.getElementById('sim-streak-modal').style.display='none'" class="w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition shadow-md shadow-purple-900/30">
         확인
       </button>
     </div>
@@ -1413,11 +1414,11 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-6 text-xs text-slate-400">
-        <a href="/app" class="hover:text-yellow-400 transition">학생 포털</a>
-        <button onclick="showParentDemoModal()" class="hover:text-yellow-400 transition">학부모 리포트</button>
-        <button onclick="openSandboxModal()" class="hover:text-yellow-400 transition">가상 관제실</button>
-        <a href="#audience-section" class="hover:text-yellow-400 transition">맞춤 솔루션</a>
-        <a href="#pricing" class="hover:text-yellow-400 transition">공식 요금제</a>
+        <a href="/app" class="hover:text-purple-400 transition">학생 포털</a>
+        <button onclick="showParentDemoModal()" class="hover:text-purple-400 transition">학부모 리포트</button>
+        <button onclick="openSandboxModal()" class="hover:text-purple-400 transition">가상 관제실</button>
+        <a href="#audience-section" class="hover:text-purple-400 transition">맞춤 솔루션</a>
+        <a href="#pricing" class="hover:text-purple-400 transition">공식 요금제</a>
       </div>
 
       <div class="text-[11px] text-slate-500">
@@ -1472,12 +1473,12 @@
       if (type === 'b2c') {
         b2cGrid.classList.remove('hidden');
         b2bGrid.classList.add('hidden');
-        btnB2C.className = 'px-5 py-2 rounded-lg text-xs font-bold transition bg-yellow-400 text-slate-950 shadow-sm';
+        btnB2C.className = 'px-5 py-2 rounded-lg text-xs font-bold transition bg-purple-600 text-white shadow-sm';
         btnB2B.className = 'px-5 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white';
       } else {
         b2cGrid.classList.add('hidden');
         b2bGrid.classList.remove('hidden');
-        btnB2B.className = 'px-5 py-2 rounded-lg text-xs font-bold transition bg-yellow-400 text-slate-950 shadow-sm';
+        btnB2B.className = 'px-5 py-2 rounded-lg text-xs font-bold transition bg-purple-600 text-white shadow-sm';
         btnB2C.className = 'px-5 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white';
       }
       lucide.createIcons();
@@ -1502,7 +1503,7 @@
       const btnEl = document.getElementById('sim-timer-btn');
       if (simTimerRunning) {
         textEl.innerText = '순공 일시정지';
-        btnEl.className = 'px-6 py-3 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 text-xs font-black transition flex items-center gap-1.5 shadow-md';
+        btnEl.className = 'px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-purple-900/30';
       } else {
         textEl.innerText = '순공 재개하기';
         btnEl.className = 'px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-yellow-400 text-xs font-black transition flex items-center gap-1.5 shadow-md border border-slate-700';
@@ -1525,7 +1526,7 @@
       campuses.forEach(c => {
         const btn = document.getElementById(`campus-btn-${c}`);
         if (c === campus) {
-          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-yellow-400 text-slate-950 transition';
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white transition';
         } else {
           btn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition';
         }
@@ -1561,7 +1562,7 @@
       campuses.forEach(c => {
         const btn = document.getElementById(`sb-campus-${c}`);
         if (c === campus) {
-          btn.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-yellow-400 text-slate-950 transition';
+          btn.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition';
         } else {
           btn.className = 'px-3 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition';
         }
@@ -1578,7 +1579,7 @@
         const btn = document.getElementById(`tab-btn-${t}`);
         const content = document.getElementById(`sb-tab-content-${t}`);
         if (t === tab) {
-          btn.className = 'sandbox-tab active px-3 py-1.5 rounded-lg border border-slate-700 transition font-bold text-slate-950';
+          btn.className = 'sandbox-tab active px-3 py-1.5 rounded-lg border border-purple-500 bg-purple-600 text-white font-bold transition';
           content.classList.remove('hidden');
         } else {
           btn.className = 'sandbox-tab px-3 py-1.5 rounded-lg text-slate-400 hover:text-white border border-transparent transition';
