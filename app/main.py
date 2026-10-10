@@ -129,6 +129,9 @@ async def add_anti_cache_headers(request: Request, call_next):
         response.headers["Expires"] = "0"
     return response
 
+from app.infra_guard import router as infra_router
+app.include_router(infra_router)
+
 @app.get("/api/health")
 def handle_health():
     db_type = "sqlite" if database.engine.dialect.name == "sqlite" else "postgresql"
