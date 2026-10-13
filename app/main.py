@@ -294,6 +294,11 @@ class ReadMathFeedbackPayload(BaseModel):
     student_phone: Optional[str] = ""
     content: str
 
+class ReadMathQuestionDeletePayload(BaseModel):
+    student_name: Optional[str] = ""
+    problem_id: Optional[Union[str, int]] = None
+    clear_all: Optional[bool] = False
+
 @app.post("/api/readmath/questions")
 def handle_save_readmath_question(payload: ReadMathQuestionPayload):
     clean_name = payload.student_name.strip()
@@ -401,6 +406,44 @@ def handle_get_readmath_questions(student_name: Optional[str] = None, limit: int
     except Exception as e:
         print(f"[READMATH QUESTION GET ERROR] {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/readmath/questions/delete")
+def handle_delete_readmath_question(payload: ReadMathQuestionDeletePayload):
+    clean_name = payload.student_name.strip() if payload.student_name else ""
+    try:
+        with database.engine.connect() as conn:
+            if payload.clear_all and clean_name:
+                conn.execute(
+                    text("DELETE FROM readmath_questions WHERE student_name = :name"),
+                    {"name": clean_name}
+                )
+                conn.commit()
+                return {"success": True, "deleted_all": True, "student_name": clean_name}
+
+            prob_id_str = str(payload.problem_id) if payload.problem_id is not None else ""
+            if prob_id_str:
+                if clean_name:
+                    conn.execute(
+                        text("DELETE FROM readmath_questions WHERE student_name = :name AND (problem_id = :pid OR CAST(id AS TEXT) = :pid)"),
+                        {"name": clean_name, "pid": prob_id_str}
+                    )
+                else:
+                    conn.execute(
+                        text("DELETE FROM readmath_questions WHERE problem_id = :pid OR CAST(id AS TEXT) = :pid"),
+                        {"pid": prob_id_str}
+                    )
+                conn.commit()
+                return {"success": True, "deleted_id": prob_id_str}
+            return {"success": False, "error": "No target specified for deletion"}
+    except Exception as e:
+        import traceback
+        err_msg = traceback.format_exc()
+        print(f"[READMATH QUESTION DELETE ERROR] {err_msg}")
+        return {"success": False, "error": str(e), "detail": err_msg}
+
+@app.delete("/api/readmath/questions/{problem_id}")
+def handle_delete_readmath_question_by_id(problem_id: str, student_name: Optional[str] = None):
+    return handle_delete_readmath_question(ReadMathQuestionDeletePayload(student_name=student_name or "", problem_id=problem_id))
 
 @app.post("/api/readmath/users")
 def handle_save_readmath_user(payload: ReadMathUserPayload):
