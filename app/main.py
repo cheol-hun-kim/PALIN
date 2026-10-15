@@ -6779,6 +6779,114 @@ def check_in_attendance(payload: AttendanceCheckInPayload, request: Request, db:
     return {"status": status_result, "penalty_deducted": penalty, "message": "출결 체크가 완료되었습니다."}
 
 
+# ==============================================================================
+# 🎓 대학교식 현장 실시간 3분 타임어택 출결 인증번호 (Dynamic Roll Call OTP)
+# ==============================================================================
+active_attendance_otp = {
+    "code": None,
+    "created_at": None,
+    "expires_at": None,
+    "created_by": "DIRECTOR",
+    "verified_students": []
+}
+
+class VerifyAttendanceOtpPayload(BaseModel):
+    student_id: int
+    code: str
+
+@app.post("/api/admin/attendance/generate-otp")
+def generate_attendance_otp(db: Session = Depends(get_db)):
+    import random
+    from datetime import datetime, timedelta
+    code = f"{random.randint(1000, 9999)}"
+    now = datetime.now()
+    expires_at = now + timedelta(minutes=3)
+    active_attendance_otp["code"] = code
+    active_attendance_otp["created_at"] = now.isoformat()
+    active_attendance_otp["expires_at"] = expires_at.isoformat()
+    active_attendance_otp["verified_students"] = []
+    return {
+        "status": "success",
+        "code": code,
+        "expires_in_seconds": 180,
+        "expires_at": expires_at.strftime("%H:%M:%S")
+    }
+
+@app.get("/api/admin/attendance/current-otp")
+def get_current_attendance_otp():
+    from datetime import datetime
+    if not active_attendance_otp.get("code") or not active_attendance_otp.get("expires_at"):
+        return {"is_active": False, "code": None, "remaining_seconds": 0, "verified_students": []}
+    
+    exp = datetime.fromisoformat(active_attendance_otp["expires_at"])
+    rem = int((exp - datetime.now()).total_seconds())
+    if rem <= 0:
+        return {"is_active": False, "code": None, "remaining_seconds": 0, "verified_students": active_attendance_otp.get("verified_students", [])}
+    
+    return {
+        "is_active": True,
+        "code": active_attendance_otp["code"],
+        "remaining_seconds": rem,
+        "expires_at": exp.strftime("%H:%M:%S"),
+        "verified_students": active_attendance_otp.get("verified_students", [])
+    }
+
+@app.post("/api/academy/attendance/verify-otp")
+def verify_attendance_otp(payload: VerifyAttendanceOtpPayload, db: Session = Depends(get_db)):
+    from datetime import datetime
+    if not active_attendance_otp.get("code") or not active_attendance_otp.get("expires_at"):
+        raise HTTPException(status_code=400, detail="현재 활성화된 현장 출결 인증번호가 없습니다. 원장님께 확인해 주세요.")
+    
+    exp = datetime.fromisoformat(active_attendance_otp["expires_at"])
+    if datetime.now() > exp:
+        raise HTTPException(status_code=400, detail="인증번호 유효 시간(3분)이 만료되었습니다. 원장님께 직접 문의하세요.")
+    
+    if payload.code.strip() != active_attendance_otp["code"]:
+        raise HTTPException(status_code=400, detail="인증번호가 일치하지 않습니다. 칠판에 적힌 번호를 다시 확인해 주세요.")
+    
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+    
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    time_str = datetime.now().strftime("%H:%M:%S")
+    
+    # Check if already checked in today
+    existing = db.query(models.AttendanceLog).filter(
+        models.AttendanceLog.student_id == student.id,
+        models.AttendanceLog.class_date == today_str
+    ).first()
+    
+    if existing:
+        existing.status = "PRESENT"
+    else:
+        new_log = models.AttendanceLog(
+            student_id=student.id,
+            class_date=today_str,
+            status="PRESENT",
+            penalty_deducted=0,
+            sms_sent=False
+        )
+        db.add(new_log)
+    
+    # Update student streak
+    update_student_streak(student, db)
+    db.commit()
+    
+    # Add to verified students in memory
+    active_attendance_otp["verified_students"].append({
+        "student_id": student.id,
+        "student_name": student.name,
+        "verified_at": time_str
+    })
+    
+    return {
+        "status": "success",
+        "message": f"🎉 [{student.name}] 학생의 현장 출석이 성공적으로 인증되었습니다! ({time_str})"
+    }
+
+
+
 @app.post("/api/admin/users/{user_id}/penalty")
 def assign_manual_red_card(user_id: int, payload: ManualPenaltyPayload, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == user_id).first()

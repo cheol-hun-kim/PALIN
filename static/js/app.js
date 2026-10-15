@@ -18198,6 +18198,53 @@ async function handleTuitionPaymentSubmit(method) {
 window.handleTuitionPaymentSubmit = handleTuitionPaymentSubmit;
 
 // ==============================================================================
+// 🎓 대학교식 3분 현장 출결 인증번호 클라이언트 함수
+// ==============================================================================
+window.openOtpAttendanceModal = function() {
+    const modal = document.getElementById("attendance-otp-modal");
+    if (modal) {
+        modal.style.display = "flex";
+        const input = document.getElementById("student-attendance-otp-input");
+        if (input) {
+            input.value = "";
+            setTimeout(() => input.focus(), 100);
+        }
+    }
+};
+
+window.closeAttendanceOtpModal = function() {
+    const modal = document.getElementById("attendance-otp-modal");
+    if (modal) modal.style.display = "none";
+};
+
+window.submitAttendanceOtpNow = async function() {
+    const input = document.getElementById("student-attendance-otp-input");
+    const code = input ? input.value.trim() : "";
+    if (!code || code.length !== 4) {
+        alert("4자리 인증번호를 올바르게 입력해주세요.");
+        return;
+    }
+    const studentId = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem("studentId") || "1", 10);
+    try {
+        const res = await fetch("/api/academy/attendance/verify-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: studentId, code: code })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(data.message || "🎉 현장 출석 인증이 완료되었습니다!");
+            window.closeAttendanceOtpModal();
+        } else {
+            alert(data.detail || "인증번호가 일치하지 않거나 유효시간(3분)이 만료되었습니다.");
+        }
+    } catch(e) {
+        console.error("submitAttendanceOtpNow error:", e);
+        alert("출석 인증 통신 중 오류가 발생했습니다.");
+    }
+};
+
+// ==============================================================================
 // 🎮 PALIN OS Phase 11: 심리적 락인 엔진 & 크로스 트래픽 파이프라인 함수
 // ==============================================================================
 

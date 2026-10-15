@@ -2497,10 +2497,16 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                     </div>
                                 </div>
                             </div>
-                            <button onclick="checkInAttendanceNow()" class="btn" style="padding: 8px 14px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); border-radius: 10px; display: flex; align-items: center; gap: 4px;">
-                                <span class="material-symbols-rounded" style="font-size: 1rem;">wifi</span>
-                                <span>학원 출석체크</span>
-                            </button>
+                            <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                                <button onclick="openOtpAttendanceModal()" class="btn" style="padding: 8px 12px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #0284c7, #0369a1); border-radius: 10px; display: flex; align-items: center; gap: 4px; color: white;">
+                                    <span class="material-symbols-rounded" style="font-size: 1rem;">pin</span>
+                                    <span>인증번호 출결</span>
+                                </button>
+                                <button onclick="checkInAttendanceNow()" class="btn" style="padding: 8px 12px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); border-radius: 10px; display: flex; align-items: center; gap: 4px; color: white;">
+                                    <span class="material-symbols-rounded" style="font-size: 1rem;">wifi</span>
+                                    <span>Wi-Fi 출결</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -5210,6 +5216,24 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <button type="button" onclick="openDirectorContactFromLock()" class="btn btn-secondary" style="width: 100%; padding: 11px 0; font-size: 0.82rem; font-weight: 700; color: #cbd5e1; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); cursor: pointer;">
                     📞 일원학원 원장실 직통 문의 (010-5527-2979)
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🎓 대학교식 3분 현장 출결 인증번호 입력 모달 -->
+    <div id="attendance-otp-modal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10006; backdrop-filter: blur(8px); padding: 16px;">
+        <div class="modal-content" style="background: #0f172a; border: 1.5px solid #38bdf8; border-radius: 20px; max-width: 380px; width: 100%; padding: 24px; text-align: center; box-shadow: 0 10px 40px rgba(56,189,248,0.25);">
+            <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(56,189,248,0.15); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: #38bdf8;">
+                <span class="material-symbols-rounded" style="font-size: 2rem;">pin</span>
+            </div>
+            <h3 style="margin: 0 0 6px; font-size: 1.15rem; font-weight: 900; color: #ffffff;">현장 출결 인증번호 입력</h3>
+            <p style="margin: 0 0 18px; font-size: 0.78rem; color: #94a3b8; line-height: 1.5;">
+                원장님이 칠판이나 구두로 안내하신 <strong>4자리 인증번호</strong>를 3분 내로 입력하세요.
+            </p>
+            <input type="text" id="student-attendance-otp-input" maxlength="4" placeholder="0000" style="width: 100%; box-sizing: border-box; font-size: 2.2rem; font-weight: 900; letter-spacing: 12px; text-align: center; font-family: monospace; background: rgba(0,0,0,0.5); border: 2px solid #38bdf8; border-radius: 12px; padding: 10px 0; color: #38bdf8; margin-bottom: 16px; outline: none;">
+            <div style="display: flex; gap: 8px;">
+                <button type="button" onclick="closeAttendanceOtpModal()" class="btn btn-secondary" style="flex: 1; padding: 11px 0; border-radius: 10px; font-weight: 700;">취소</button>
+                <button type="button" onclick="submitAttendanceOtpNow()" class="btn" style="flex: 2; padding: 11px 0; border-radius: 10px; font-weight: 900; background: linear-gradient(135deg, #0284c7, #0369a1); color: white;">인증하기</button>
             </div>
         </div>
     </div>
