@@ -765,15 +765,17 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <span class="material-symbols-rounded" style="font-size: 1.5rem; color: #f87171; flex-shrink: 0;">lock_clock</span>
                     <div style="flex: 1; min-width: 0;">
                         <div style="font-weight: 800; font-size: 0.84rem; color: #fecaca; display: flex; align-items: center; gap: 6px;">
-                            <span>수강료 납부 기한 경과</span>
-                            <span class="invoice-pill-overdue" style="font-size: 0.65rem; padding: 1px 6px;">학습 기능 일시 제한</span>
+                            <span>일원학원 수강료 안내</span>
+                            <span class="invoice-pill-overdue" style="font-size: 0.65rem; padding: 1px 6px;">학원 혜택 일시 정지</span>
                         </div>
                         <div style="font-size: 0.73rem; color: #fca5a5; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="hostage-lock-banner-msg">
-                            수강료 미납으로 인해 프리미엄 학습 기능(AI 멘토 등)이 잠금 상태입니다.
+                            수강료 납부 기한 경과로 학원 전용 혜택이 일시 정지되었습니다. (개인 자습 기능은 정상 이용 가능)
                         </div>
                     </div>
                 </div>
-                <button type="button" class="btn" onclick="openTuitionPaymentModal()" style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; font-weight: 800; font-size: 0.78rem; padding: 8px 14px; border-radius: 10px; white-space: nowrap; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); border: 1px solid #f87171; cursor: pointer; flex-shrink: 0;">즉시 수납 / 잠금 해제
+                <button type="button" class="btn" onclick="openTuitionPaymentModal()" style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; font-weight: 800; font-size: 0.78rem; padding: 8px 14px; border-radius: 10px; white-space: nowrap; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); border: 1px solid #f87171; cursor: pointer; flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px;">
+                    <span class="material-symbols-rounded" style="font-size: 0.95rem;">sms</span>
+                    <span>직통 문자 문의</span>
                 </button>
             </div>
             
@@ -2517,8 +2519,37 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </div>
                     </div>
 
+                    <!-- 수강료 미납 제재: 학원 전용 혜택 정지 안내 카드 -->
+                    <div id="hub-tuition-lock-card" class="card" style="display: none; margin-bottom: 14px; border: 1.5px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 18px; border-radius: 16px;">
+                        <div style="display: flex; gap: 14px; align-items: flex-start;">
+                            <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(239, 68, 68, 0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #ef4444;">
+                                <span class="material-symbols-rounded" style="font-size: 1.6rem;">lock</span>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 6px;">
+                                    <div style="font-weight: 900; font-size: 1.02rem; color: #f87171;">일원학원 수강생 전용 혜택 일시 정지</div>
+                                    <span style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid #ef4444; padding: 2px 8px; border-radius: 8px; font-size: 0.72rem; font-weight: 800;">수강료 미납</span>
+                                </div>
+                                <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.55; margin-bottom: 12px;">
+                                    수강료 납부 기한 경과로 인해 <b>학원 전용 공간(학사일정, 복습 VOD, 수업자료, 시험 OMR, 출석체크)</b> 이용이 일시 정지되었습니다.<br>
+                                    <span style="color: #60a5fa; font-weight: 700;">※ 개인 학습 타이머, 스톱워치, 주간 플래너 등 기본 자습 기능은 정상 이용 가능합니다.</span>
+                                </div>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <button type="button" onclick="checkStudentTuitionLockStatus()" class="btn" style="padding: 9px 14px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 10px; display: inline-flex; align-items: center; gap: 4px; cursor: pointer;">
+                                        <span class="material-symbols-rounded" style="font-size: 1rem;">sync</span>
+                                        <span>수납 확인 (새로고침)</span>
+                                    </button>
+                                    <a href="sms:01055272979?body=%5B%EC%9D%BC%EC%9B%90%ED%95%99%EC%9B%90%20%EC%88%98%EA%B0%95%20%EB%AC%B8%EC%9D%98%5D%20%EC%95%88%EB%85%95%ED%95%98%EC%84%B8%EC%9A%94%20%EC%9B%90%EC%9E%A5%EB%8B%98%2C%20" class="btn btn-secondary" style="padding: 9px 14px; font-size: 0.82rem; font-weight: 800; border-radius: 10px; display: inline-flex; align-items: center; gap: 4px; text-decoration: none; color: #f8fafc; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); cursor: pointer;">
+                                        <span class="material-symbols-rounded" style="font-size: 1rem;">sms</span>
+                                        <span>직통 문자 문의 (010-5527-2979)</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- 학원/독서실 관리 6대 서브탭 (2x3 균형 그리드) -->
-                    <div class="subtabs-container-hub" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;">
+                    <div id="hub-subtabs-grid" class="subtabs-container-hub" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;">
                         <button class="subtab-btn-hub-2x2 active" onclick="switchHubSubTab('feed')" id="hub-tab-feed" style="padding: 12px 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
                             <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #818cf8;">calendar_month</span>
                             <span style="font-size: 0.88rem; font-weight: 800;">학사일정</span>
@@ -5219,9 +5250,9 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <span class="material-symbols-rounded" style="font-size: 1.1rem;">sync</span>
                     <span>수납 확인 및 잠금 해제 새로고침</span>
                 </button>
-                <a href="tel:01055272979" class="btn btn-secondary" style="width: 100%; box-sizing: border-box; text-align: center; text-decoration: none; padding: 11px 0; font-size: 0.82rem; font-weight: 700; color: #cbd5e1; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                    <span class="material-symbols-rounded" style="font-size: 1rem;">call</span>
-                    <span>📞 일원학원 원장실 직통 문의 (010-5527-2979)</span>
+                <a href="sms:01055272979?body=%5B%EC%9D%BC%EC%9B%90%ED%95%99%EC%9B%90%20%EC%88%98%EA%B0%95%20%EB%AC%B8%EC%9D%98%5D%20%EC%95%88%EB%85%95%ED%95%98%EC%84%B8%EC%9A%94%20%EC%9B%90%EC%9E%A5%EB%8B%98%2C%20" class="btn btn-secondary" style="width: 100%; box-sizing: border-box; text-align: center; text-decoration: none; padding: 11px 0; font-size: 0.82rem; font-weight: 700; color: #cbd5e1; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <span class="material-symbols-rounded" style="font-size: 1rem;">sms</span>
+                    <span>💬 일원학원 직통 문자 문의 (010-5527-2979)</span>
                 </a>
             </div>
         </div>

@@ -14653,6 +14653,12 @@ async function checkInAttendanceNow() {
 let currentHubSubTab = "feed";
 
 function switchHubSubTab(subTab) {
+    if (window.isStudentTuitionLocked) {
+        if (confirm("🔒 [일원학원 수강생 전용 혜택 정지 안내]\n\n수강료 납부 기한 경과로 학원 전용 공간(학사일정, VOD, 수업자료, OMR 등) 이용이 일시 정지되었습니다.\n개인 자습(타이머, 플래너)은 정상 이용 가능합니다.\n\n원장실(010-5527-2979)로 직통 문자 문의하시겠습니까?")) {
+            window.location.href = "sms:01055272979?body=" + encodeURIComponent("[일원학원 수강 문의] 안녕하세요 원장님, ");
+        }
+        return;
+    }
     currentHubSubTab = subTab;
     document.querySelectorAll(".hub-subtab-view").forEach(el => el.style.display = "none");
     document.querySelectorAll(".subtab-btn-hub-2x2, .subtab-btn-hub").forEach(el => el.classList.remove("active"));
@@ -18060,20 +18066,30 @@ window.initAppTheme = initAppTheme;
 let currentActiveOverdueInvoice = null;
 
 window.openDirectorContactFromLock = function() {
-    if (confirm("일원학원 원장실(010-5527-2979)로 직통 문의하시겠습니까?\n'확인'을 누르시면 통화 또는 문자로 연결됩니다.")) {
-        window.location.href = "tel:01055272979";
+    if (confirm("일원학원 원장실(010-5527-2979)로 직통 문자 문의하시겠습니까?\n'확인'을 누르시면 문자 작성 창으로 이동합니다.")) {
+        window.location.href = "sms:01055272979?body=" + encodeURIComponent("[일원학원 수강 문의] 안녕하세요 원장님, ");
     }
 };
 
 async function checkStudentTuitionLockStatus(studentId) {
+    const banner = document.getElementById("tuition-overdue-lock-banner");
+    const bannerMsg = document.getElementById("hostage-lock-banner-msg");
+    const hardOverlay = document.getElementById("tuition-hard-lockout-overlay");
+    const hubTuitionLockCard = document.getElementById("hub-tuition-lock-card");
+    const hubSubtabsGrid = document.getElementById("hub-subtabs-grid");
+    const hubMainContent = document.getElementById("hub-main-content-area");
+
+    // 앱 전체를 가로막는 풀스크린 하드락 오버레이는 원천 비활성화 (개인 자습권 100% 보장)
+    if (hardOverlay) hardOverlay.style.display = "none";
+
     // 마스터 관리자 / 갓모드 개발자 계정은 연체 잠금 UI 원천 비활성화
     const currentRole = (localStorage.getItem("userRole") || (window.currentStudent && window.currentStudent.role) || "").toUpperCase();
     const currentEmail = (localStorage.getItem("userEmail") || (window.currentStudent && window.currentStudent.email) || "").toLowerCase();
     if (currentRole === "ADMIN" || currentRole === "MASTER" || currentEmail === "master@palin-os.com") {
-        const banner = document.getElementById("tuition-overdue-lock-banner");
-        const hardOverlay = document.getElementById("tuition-hard-lockout-overlay");
         if (banner) banner.style.display = "none";
-        if (hardOverlay) hardOverlay.style.display = "none";
+        if (hubTuitionLockCard) hubTuitionLockCard.style.display = "none";
+        if (hubSubtabsGrid) hubSubtabsGrid.style.display = "grid";
+        if (hubMainContent) hubMainContent.style.display = "block";
         window.isStudentTuitionLocked = false;
         return;
     }
@@ -18088,50 +18104,44 @@ async function checkStudentTuitionLockStatus(studentId) {
         if (!res.ok) return;
         const data = await res.json();
         
-        const banner = document.getElementById("tuition-overdue-lock-banner");
-        const bannerMsg = document.getElementById("hostage-lock-banner-msg");
-        const hardOverlay = document.getElementById("tuition-hard-lockout-overlay");
-        
         if (data.is_locked && data.overdue_invoices && data.overdue_invoices.length > 0) {
             currentActiveOverdueInvoice = data.overdue_invoices[0];
             
-            // 2단계 제재 분기 처리 (독촉 모드 vs 전면 차단 락아웃)
+            // 2단계 제재 분기 처리 (독촉 모드 vs 학원 전용 혜택 정지)
             if (data.lock_stage === "STAGE_2_LOCKOUT") {
-                // [2단계] D+14일 이상 연체: 풀스크린 전면 차단 (Hard Lockout)
+                // [2단계] D+14일 이상 연체: 학원 전용 공간(Academy Hub)만 잠금 (개인 자습 타이머/플래너는 100% 정상 이용!)
                 window.isStudentTuitionLocked = true;
-                if (banner) banner.style.display = "none";
-                if (hardOverlay) {
-                    hardOverlay.style.display = "flex";
-                    const itemTitleEl = document.getElementById("hardlock-item-title");
-                    const dueDateEl = document.getElementById("hardlock-due-date");
-                    const amountEl = document.getElementById("hardlock-amount");
-                    if (itemTitleEl) itemTitleEl.innerText = currentActiveOverdueInvoice.item_title || "정규반 수강료";
-                    if (dueDateEl) dueDateEl.innerText = `${currentActiveOverdueInvoice.due_date || "-"} (${data.overdue_days}일 경과)`;
-                    if (amountEl) amountEl.innerText = `₩${(currentActiveOverdueInvoice.final_amount || 0).toLocaleString()}`;
+                
+                // 메인 상단 배너 표시 (개인 자습은 유지되고 학원 혜택만 정지되었음을 알기 쉽게 안내)
+                if (banner) banner.style.display = "flex";
+                if (bannerMsg) {
+                    bannerMsg.innerText = `수강료 납부 기한이 ${data.overdue_days}일 경과되어 학원 전용 혜택이 일시 정지되었습니다. (개인 자습 기능 정상 이용 가능)`;
                 }
+
+                // 학원/독서실 관리(Academy Hub) 전용 락 카드 표시 & 학원 컨텐츠 숨김
+                if (hubTuitionLockCard) hubTuitionLockCard.style.display = "block";
+                if (hubSubtabsGrid) hubSubtabsGrid.style.display = "none";
+                if (hubMainContent) hubMainContent.style.display = "none";
             } else {
-                // [1단계] D+7일 연체 (1주 경과): 상단 독촉 배너 노출 + 학습 기능 유지
+                // [1단계] D+7일 연체 (1주 경과): 학원 기능 정상 유지 + 상단 안내 배너만 노출
                 window.isStudentTuitionLocked = false;
-                if (hardOverlay) hardOverlay.style.display = "none";
                 if (banner) banner.style.display = "flex";
                 if (bannerMsg) {
                     const daysLeft = data.days_until_hard_lock !== undefined ? data.days_until_hard_lock : Math.max(0, 14 - data.overdue_days);
-                    bannerMsg.innerText = `[${currentActiveOverdueInvoice.item_title}] 수강료 ₩${currentActiveOverdueInvoice.final_amount.toLocaleString()}원 납부 기한이 ${data.overdue_days}일 경과되었습니다. (서비스 전면 차단까지 D-${daysLeft}일)`;
+                    bannerMsg.innerText = `[${currentActiveOverdueInvoice.item_title}] 수강료 납부 기한이 ${data.overdue_days}일 경과되었습니다. (학원 혜택 정지까지 D-${daysLeft}일)`;
                 }
-                
-                // 1일 1회 접속 시 알림 팝업 (학습 방해 최소화)
-                const todayKey = 'tuition_warn_popup_' + new Date().toISOString().slice(0, 10);
-                if (!sessionStorage.getItem(todayKey)) {
-                    sessionStorage.setItem(todayKey, '1');
-                    console.log(`[수강료 납부 안내] 납부 기한이 ${data.overdue_days}일 경과되었습니다. (전면 차단까지 D-${data.days_until_hard_lock}일)`);
-                }
+                if (hubTuitionLockCard) hubTuitionLockCard.style.display = "none";
+                if (hubSubtabsGrid) hubSubtabsGrid.style.display = "grid";
+                if (hubMainContent) hubMainContent.style.display = "block";
             }
         } else {
-            // 정상 완납 상태: 모든 락 해제
+            // 정상 완납 상태: 모든 학원 혜택 정상 복구
             currentActiveOverdueInvoice = null;
             window.isStudentTuitionLocked = false;
             if (banner) banner.style.display = "none";
-            if (hardOverlay) hardOverlay.style.display = "none";
+            if (hubTuitionLockCard) hubTuitionLockCard.style.display = "none";
+            if (hubSubtabsGrid) hubSubtabsGrid.style.display = "grid";
+            if (hubMainContent) hubMainContent.style.display = "block";
         }
     } catch (e) {
         console.warn("checkStudentTuitionLockStatus error:", e);
@@ -18140,7 +18150,9 @@ async function checkStudentTuitionLockStatus(studentId) {
 window.checkStudentTuitionLockStatus = checkStudentTuitionLockStatus;
 
 function openTuitionPaymentModal(invoice) {
-    alert("📢 [수강료 납부 안내]\n\n학부모님 카카오톡으로 발송된 [결제선생 청구서] 링크를 통해 수강료를 결제해 주시기 바랍니다.\n\n결제가 완료되면 Google 시트 및 시스템에 자동 반영되어 잠금이 즉시 해제됩니다.\n\n문의사항은 일원학원 원장실(010-5527-2979)로 연락 부탁드립니다.");
+    if (confirm("📢 [수강료 납부 안내]\n\n학부모님 카카오톡으로 발송된 [결제선생 청구서] 링크를 통해 수강료를 결제해 주시기 바랍니다.\n\n결제가 완료되면 시스템에 자동 반영되어 학원 혜택이 즉시 복구됩니다.\n\n원장실(010-5527-2979)로 직통 문자 문의하시겠습니까?")) {
+        window.location.href = "sms:01055272979?body=" + encodeURIComponent("[일원학원 수강 문의] 안녕하세요 원장님, ");
+    }
 }
 window.openTuitionPaymentModal = openTuitionPaymentModal;
 
@@ -18160,6 +18172,12 @@ window.handleTuitionPaymentSubmit = handleTuitionPaymentSubmit;
 // 🎓 대학교식 3분 현장 출결 인증번호 클라이언트 함수
 // ==============================================================================
 window.openOtpAttendanceModal = function() {
+    if (window.isStudentTuitionLocked) {
+        if (confirm("🔒 [학원 혜택 일시 정지]\n\n수강료 미납으로 인해 학원 현장 출결 인증이 일시 정지되었습니다.\n개인 자습(타이머/플래너)은 자유롭게 이용 가능합니다.\n\n원장실(010-5527-2979)로 직통 문자 문의하시겠습니까?")) {
+            window.location.href = "sms:01055272979?body=" + encodeURIComponent("[일원학원 출결 문의] 안녕하세요 원장님, ");
+        }
+        return;
+    }
     const modal = document.getElementById("attendance-otp-modal");
     if (modal) {
         modal.style.display = "flex";
