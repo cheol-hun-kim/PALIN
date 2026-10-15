@@ -18059,6 +18059,12 @@ window.initAppTheme = initAppTheme;
 // ============================================================================
 let currentActiveOverdueInvoice = null;
 
+window.openDirectorContactFromLock = function() {
+    if (confirm("일원학원 원장실(010-5527-2979)로 직통 문의하시겠습니까?\n'확인'을 누르시면 통화 또는 문자로 연결됩니다.")) {
+        window.location.href = "tel:01055272979";
+    }
+};
+
 async function checkStudentTuitionLockStatus(studentId) {
     if (!studentId) {
         const stored = localStorage.getItem("studentId") || (window.currentStudent && window.currentStudent.id);
@@ -18072,22 +18078,48 @@ async function checkStudentTuitionLockStatus(studentId) {
         
         const banner = document.getElementById("tuition-overdue-lock-banner");
         const bannerMsg = document.getElementById("hostage-lock-banner-msg");
+        const hardOverlay = document.getElementById("tuition-hard-lockout-overlay");
         
         if (data.is_locked && data.overdue_invoices && data.overdue_invoices.length > 0) {
             currentActiveOverdueInvoice = data.overdue_invoices[0];
-            if (banner) {
-                banner.style.display = "flex";
+            
+            // 2단계 제재 분기 처리 (독촉 모드 vs 전면 차단 락아웃)
+            if (data.lock_stage === "STAGE_2_LOCKOUT") {
+                // [2단계] D+14일 이상 연체: 풀스크린 전면 차단 (Hard Lockout)
+                window.isStudentTuitionLocked = true;
+                if (banner) banner.style.display = "none";
+                if (hardOverlay) {
+                    hardOverlay.style.display = "flex";
+                    const itemTitleEl = document.getElementById("hardlock-item-title");
+                    const dueDateEl = document.getElementById("hardlock-due-date");
+                    const amountEl = document.getElementById("hardlock-amount");
+                    if (itemTitleEl) itemTitleEl.innerText = currentActiveOverdueInvoice.item_title || "정규반 수강료";
+                    if (dueDateEl) dueDateEl.innerText = `${currentActiveOverdueInvoice.due_date || "-"} (${data.overdue_days}일 경과)`;
+                    if (amountEl) amountEl.innerText = `₩${(currentActiveOverdueInvoice.final_amount || 0).toLocaleString()}`;
+                }
+            } else {
+                // [1단계] D+7일 연체 (1주 경과): 상단 독촉 배너 노출 + 학습 기능 유지
+                window.isStudentTuitionLocked = false;
+                if (hardOverlay) hardOverlay.style.display = "none";
+                if (banner) banner.style.display = "flex";
+                if (bannerMsg) {
+                    const daysLeft = data.days_until_hard_lock !== undefined ? data.days_until_hard_lock : Math.max(0, 14 - data.overdue_days);
+                    bannerMsg.innerText = `[${currentActiveOverdueInvoice.item_title}] 수강료 ₩${currentActiveOverdueInvoice.final_amount.toLocaleString()}원 납부 기한이 ${data.overdue_days}일 경과되었습니다. (서비스 전면 차단까지 D-${daysLeft}일)`;
+                }
+                
+                // 1일 1회 접속 시 알림 팝업 (학습 방해 최소화)
+                const todayKey = 'tuition_warn_popup_' + new Date().toISOString().slice(0, 10);
+                if (!sessionStorage.getItem(todayKey)) {
+                    sessionStorage.setItem(todayKey, '1');
+                    console.log(`[수강료 납부 안내] 납부 기한이 ${data.overdue_days}일 경과되었습니다. (전면 차단까지 D-${data.days_until_hard_lock}일)`);
+                }
             }
-            if (bannerMsg) {
-                bannerMsg.innerText = `[${currentActiveOverdueInvoice.item_title}] 수강료 ₩${currentActiveOverdueInvoice.final_amount.toLocaleString()}원이 미납되어 학습 기능이 일시 제한되었습니다.`;
-            }
-            window.isStudentTuitionLocked = true;
         } else {
+            // 정상 완납 상태: 모든 락 해제
             currentActiveOverdueInvoice = null;
-            if (banner) {
-                banner.style.display = "none";
-            }
             window.isStudentTuitionLocked = false;
+            if (banner) banner.style.display = "none";
+            if (hardOverlay) hardOverlay.style.display = "none";
         }
     } catch (e) {
         console.warn("checkStudentTuitionLockStatus error:", e);

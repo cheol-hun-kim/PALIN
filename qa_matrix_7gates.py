@@ -255,7 +255,14 @@ forbidden_biases = [
     (r"len\(self\.golden_tickets\)\s*if\s*self\.golden_tickets\s*else\s*3", "Hardcoded 3-ticket model fallback"),
     (r"wallet_balance\s*=\s*50000", "Hardcoded 50000 wallet balance"),
     (r"강현우 \(A06 몰입존\)", "Static study cafe mock ranker"),
-    (r"임지호 \(당일권 4시간\)", "Static study cafe mock expiring member")
+    (r"임지호 \(당일권 4시간\)", "Static study cafe mock expiring member"),
+    (r"87\.5%", "Hardcoded middle school all-A rate mock metric"),
+    (r"94\.0%", "Hardcoded elementary routine rate mock metric"),
+    (r"142문항", "Hardcoded middle school mock questions"),
+    (r"46명\s*/\s*50명", "Hardcoded middle school mock student count"),
+    (r"약 485,000원", "Hardcoded mock commission in master"),
+    (r"누적 12건", "Hardcoded mock textbook orders in master"),
+    (r"66\.7%", "Hardcoded study cafe occupancy mock metric")
 ]
 
 for target_file in full_stack_files:

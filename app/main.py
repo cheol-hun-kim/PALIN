@@ -11243,42 +11243,174 @@ def handle_toss_submall_webhook(payload: TossSubmallWebhookPayload, db: Session 
     return {"status": "ACK", "message": "Invoice not found, ignored."}
 
 
+class StudentPaymentSyncPayload(BaseModel):
+    phone: str
+    student_name: Optional[str] = None
+    tuition_paid: bool = True
+    textbook_paid: Optional[bool] = None
+    due_date: Optional[str] = None
+    amount: Optional[int] = 450000
+    memo: Optional[str] = "구글 시트 출석부 / 결제선생 실시간 수납 동기화"
+
+
 @app.get("/api/billing/student-lock-status/{student_id}")
 def check_student_hostage_lock_status(student_id: int, db: Session = Depends(get_db)):
     """
-    학생 수강료 연체 및 인질 프로토콜 잠금 상태 확인 API
+    학생 수강료 연체 및 2단계 인질 프로토콜(독촉 ➔ 전면 서비스 일시중단) 잠금 상태 확인 API
+    - 1단계 (1주차 경과): lock_stage = 'STAGE_1_WARNING' (학습 허용, 상단 경고 띠 배너 및 1일 1회 독촉)
+    - 2단계 (2주차 도래, 14일 초과): lock_stage = 'STAGE_2_LOCKOUT' (전면 서비스 하드 락아웃 풀스크린 차단)
+    - 완납 시: lock_stage = 'NORMAL', is_locked = False
     """
     student = db.query(models.Student).filter(models.Student.id == student_id).first()
     if not student:
         raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
 
-    today_str = date.today().isoformat()
+    today = date.today()
+    today_str = today.isoformat()
     overdue_invoices = db.query(models.BillingInvoice).filter(
         models.BillingInvoice.student_id == student_id,
         models.BillingInvoice.deleted_at == None,
         (models.BillingInvoice.status == "OVERDUE") | ((models.BillingInvoice.status == "SENT") & (models.BillingInvoice.due_date < today_str))
     ).all()
 
-    is_locked = len(overdue_invoices) > 0
-    
+    # Calculate max overdue days
+    max_overdue_days = 0
     overdue_list = []
     for o in overdue_invoices:
+        diff_days = 1
+        try:
+            due_d = date.fromisoformat(o.due_date)
+            diff_days = max(1, (today - due_d).days)
+        except Exception:
+            diff_days = 1
+
+        if diff_days > max_overdue_days:
+            max_overdue_days = diff_days
+
         overdue_list.append({
             "id": o.id,
             "invoice_code": o.invoice_code,
             "item_title": o.item_title,
             "final_amount": o.final_amount,
             "due_date": o.due_date,
-            "status": o.status
+            "status": o.status,
+            "overdue_days": diff_days
         })
+
+    is_locked = len(overdue_invoices) > 0
+
+    if not is_locked:
+        lock_stage = "NORMAL"
+    else:
+        # Determine 2-stage lock
+        if max_overdue_days >= 14:
+            lock_stage = "STAGE_2_LOCKOUT"
+        else:
+            lock_stage = "STAGE_1_WARNING"
 
     return {
         "status": "ok",
         "is_locked": is_locked,
+        "lock_stage": lock_stage,
+        "overdue_days": max_overdue_days,
+        "days_until_hard_lock": max(0, 14 - max_overdue_days) if lock_stage == "STAGE_1_WARNING" else 0,
         "student_id": student.id,
         "student_name": student.name,
         "academy_code": student.academy_code,
+        "tuition_paid": bool(student.tuition_paid) and not is_locked,
+        "textbook_paid": bool(student.textbook_paid),
         "overdue_invoices": overdue_list
+    }
+
+
+@app.post("/api/billing/sync-payment-status")
+def sync_student_payment_status(payload: StudentPaymentSyncPayload, db: Session = Depends(get_db)):
+    """
+    구글 시트 출석부 & 결제선생 수납 내역 PassMate 실시간 동기화 API
+    - 전화번호(학생 또는 학부모)로 원생 조회
+    - 수업료 완납/미납 및 교재비 상태 즉시 갱신
+    - 완납 시 미납 인보이스 상태 PAID 전환 및 인질 락 0.1초 자동 해제
+    """
+    import uuid
+    clean_phone = re.sub(r"[^0-9]", "", payload.phone)
+    if not clean_phone:
+        raise HTTPException(status_code=400, detail="유효한 전화번호가 필요합니다.")
+
+    # Find student by phone or parent phone
+    student = db.query(models.Student).filter(
+        models.Student.deleted_at == None,
+        (models.Student.phone == clean_phone) |
+        (models.Student.parent_phone == clean_phone)
+    ).first()
+
+    if not student:
+        # Also check parent table
+        parent = db.query(models.Parent).filter(
+            models.Parent.phone == clean_phone,
+            models.Parent.deleted_at == None
+        ).first()
+        if parent:
+            student = db.query(models.Student).filter(
+                models.Student.parent_id == parent.id,
+                models.Student.deleted_at == None
+            ).first()
+
+    if not student:
+        raise HTTPException(status_code=404, detail=f"전화번호 {payload.phone}에 해당하는 재원생을 찾을 수 없습니다.")
+
+    # Update student payment booleans
+    student.tuition_paid = payload.tuition_paid
+    if payload.textbook_paid is not None:
+        student.textbook_paid = payload.textbook_paid
+
+    if payload.tuition_paid:
+        # Mark all active overdue/sent invoices as PAID
+        invoices = db.query(models.BillingInvoice).filter(
+            models.BillingInvoice.student_id == student.id,
+            models.BillingInvoice.deleted_at == None,
+            models.BillingInvoice.status.in_(["SENT", "OVERDUE"])
+        ).all()
+        for inv in invoices:
+            inv.status = "PAID"
+            inv.paid_at = datetime.now()
+            inv.payment_method = "결제선생(수납완료)"
+            inv.memo = payload.memo
+    else:
+        # If marked unpaid, ensure overdue invoice exists
+        due_str = payload.due_date or str(date.today() - timedelta(days=14))
+        existing_inv = db.query(models.BillingInvoice).filter(
+            models.BillingInvoice.student_id == student.id,
+            models.BillingInvoice.deleted_at == None,
+            models.BillingInvoice.status.in_(["SENT", "OVERDUE"])
+        ).first()
+        if existing_inv:
+            existing_inv.due_date = due_str
+            existing_inv.status = "OVERDUE"
+        else:
+            new_inv = models.BillingInvoice(
+                invoice_code=f"INV-{date.today().strftime('%Y%m')}-{uuid.uuid4().hex[:6].upper()}",
+                tenant_code=student.academy_code or "ILWON-2027",
+                student_id=student.id,
+                student_name=student.name,
+                parent_phone=student.parent_phone or clean_phone,
+                item_title="정규반 수강료",
+                billing_month=date.today().strftime('%Y-%m'),
+                amount=payload.amount or 450000,
+                final_amount=payload.amount or 450000,
+                due_date=due_str,
+                status="OVERDUE",
+                memo=payload.memo
+            )
+            db.add(new_inv)
+
+    db.commit()
+    return {
+        "status": "success",
+        "message": f"[{student.name}] 학생 수납 상태 동기화 완료: 수업료 {'완납(락해제)' if payload.tuition_paid else '미납(락적용)'}",
+        "student_id": student.id,
+        "student_name": student.name,
+        "tuition_paid": bool(student.tuition_paid),
+        "textbook_paid": bool(student.textbook_paid)
     }
 
 
