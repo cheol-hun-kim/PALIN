@@ -18157,8 +18157,10 @@ function renderStudentSeatUI(data) {
         }
     }
 
+    const usableSeats = currentStudentSeatsCache.filter(s => s.status !== 'DISABLED');
+    const availableSeats = usableSeats.filter(s => s.status === 'EMPTY' || s.status === 'AVAILABLE').length;
     if (statsText) {
-        statsText.innerText = `잔여 ${data.available_seats || 0}석 / 총 ${data.total_seats || 24}석`;
+        statsText.innerText = `잔여 ${availableSeats}석 / 총 ${usableSeats.length}석`;
     }
 
     // 2D 좌석 그리드 렌더링
@@ -18178,7 +18180,16 @@ function renderStudentSeatUI(data) {
         grid.innerHTML = currentStudentSeatsCache.map(s => {
             const isMine = currentStudentMySeat && (currentStudentMySeat.seat_id === s.seat_id || currentStudentMySeat.seat_num === s.seat_num);
             const isOccupied = s.status === 'OCCUPIED' || s.status === 'RESERVED';
+            const isDisabled = s.status === 'DISABLED';
             const sTitle = s.seat_id || `${s.seat_num}번`;
+
+            if (isDisabled) {
+                return `
+                    <div class="seat-item-card is-disabled" style="opacity: 0.18; border: 1.5px dashed rgba(255,255,255,0.12); background: rgba(15, 23, 42, 0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 52px; border-radius: 8px; cursor: not-allowed;">
+                        <span style="font-size: 0.65rem; color: #64748b; font-weight: 800;">기둥/통로</span>
+                    </div>
+                `;
+            }
 
             let cardClass = "seat-item-card is-available";
             let statusDot = `<span style="width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; display: inline-block;"></span>`;
@@ -18211,6 +18222,10 @@ function renderStudentSeatUI(data) {
 window.renderStudentSeatUI = renderStudentSeatUI;
 
 function handleStudentSeatCardClick(seatId, seatNum, status) {
+    if (status === 'DISABLED') {
+        alert("🧱 해당 구역은 기둥 또는 통로로 지정되어 좌석으로 이용할 수 없는 공간입니다.");
+        return;
+    }
     const isFixed = currentStudentSeatMode === "FIXED_ASSIGN";
     const isMine = currentStudentMySeat && (currentStudentMySeat.seat_id === seatId || currentStudentMySeat.seat_num === seatNum);
 

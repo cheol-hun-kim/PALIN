@@ -2141,11 +2141,26 @@
                         <span>실시간 2D 좌석 매트릭스 관제 (클릭 시 원터치 제어)</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
+                        <button type="button" id="btn-toggle-seat-exclude-mode" onclick="toggleSeatExcludeMode()" class="btn" style="padding: 5px 12px; font-size: 0.76rem; font-weight: 800; background: rgba(245, 158, 11, 0.12); border: 1.5px solid rgba(245, 158, 11, 0.4); color: #fbbf24; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;">
+                            <span class="material-symbols-rounded" style="font-size: 1rem;">disabled_by_default</span>
+                            <span id="btn-seat-exclude-mode-text">🧱 기둥·통로 낱개 제외 모드</span>
+                        </button>
                         <button type="button" onclick="loadStudyCafeSeats()" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px;">
                             <span class="material-symbols-rounded" style="font-size: 0.9rem;">refresh</span>
                             <span>새로고침</span>
                         </button>
                     </div>
+                </div>
+
+                <!-- 낱개 제외 모드 활성화 안내 배너 -->
+                <div id="seat-exclude-mode-banner" style="display: none; background: rgba(245, 158, 11, 0.12); border: 1.5px solid #f59e0b; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #fde68a; font-weight: 700;">
+                        <span class="material-symbols-rounded" style="color: #fbbf24; font-size: 1.2rem;">domain_disabled</span>
+                        <span><strong>[기둥·통로 낱개 제외 모드 활성화 중]</strong> 좌석을 클릭하면 <strong>즉시 기둥/통로(제외) ↔ 정상 좌석(복원)</strong>으로 토글되며 실시간 저장됩니다.</span>
+                    </div>
+                    <button type="button" onclick="toggleSeatExcludeMode(false)" class="btn" style="padding: 4px 10px; font-size: 0.74rem; font-weight: 800; background: #fbbf24; color: #0b0f19; border-radius: 6px; cursor: pointer;">
+                        완료 / 모드 끄기
+                    </button>
                 </div>
 
                 <!-- 강의실/스터디룸 전면 칠판 랜드마크 -->
@@ -2265,7 +2280,10 @@
                         <button onclick="executeSeatAction('OUT')" class="btn" style="background: #f59e0b; color: black; padding: 10px; font-weight: 800; font-size: 0.78rem;">외출 전환</button>
                         <button onclick="executeSeatAction('EXTEND')" class="btn" style="background: #6366f1; color: white; padding: 10px; font-weight: 800; font-size: 0.78rem;">+4시간 연장</button>
                     </div>
-                    <button onclick="executeSeatAction('CLEAN')" class="btn btn-secondary" style="margin-top: 6px; padding: 8px; font-size: 0.75rem;">소독/청소 완료 (빈자리 전환)
+                    <button onclick="executeSeatAction('CLEAN')" class="btn btn-secondary" style="margin-top: 6px; padding: 8px; font-size: 0.75rem;">소독/청소 완료 (빈자리 전환)</button>
+                    <button id="modal-btn-toggle-disable" onclick="handleModalToggleSeatDisable()" class="btn" style="margin-top: 6px; padding: 10px; font-size: 0.78rem; font-weight: 800; border-radius: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <span class="material-symbols-rounded" style="font-size: 1rem;">disabled_by_default</span>
+                        <span id="modal-btn-toggle-disable-text">🚫 이 자리를 기둥·통로로 제외 (좌석 삭제)</span>
                     </button>
                 </div>
             </div>
@@ -2681,21 +2699,30 @@
             let occupiedCount = 0;
             let outCount = 0;
             let reservedCount = 0;
+            let disabledCount = 0;
 
             grid.innerHTML = currentStudyCafeSeats.map(s => {
                 const isOccupied = s.status === 'OCCUPIED';
                 const isOut = s.status === 'OUT_BRIEF';
                 const isReserved = s.status === 'RESERVED';
+                const isDisabled = s.status === 'DISABLED';
+
                 if (isOccupied) occupiedCount++;
                 if (isOut) outCount++;
                 if (isReserved) reservedCount++;
+                if (isDisabled) disabledCount++;
 
                 let borderCol = 'rgba(255,255,255,0.12)';
                 let bgCol = 'rgba(15, 23, 42, 0.6)';
                 let badgeText = '⚪ 빈자리';
                 let badgeStyle = 'background: rgba(255,255,255,0.06); color: #94a3b8;';
 
-                if (isOccupied) {
+                if (isDisabled) {
+                    borderCol = 'rgba(245, 158, 11, 0.25)';
+                    bgCol = 'rgba(15, 23, 42, 0.35)';
+                    badgeText = '🧱 기둥/통로';
+                    badgeStyle = 'background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px dashed rgba(100, 116, 139, 0.4);';
+                } else if (isOccupied) {
                     borderCol = '#10b981';
                     bgCol = 'rgba(16, 185, 129, 0.12)';
                     badgeText = '🟢 이용중';
@@ -2715,27 +2742,30 @@
                 const seatTypeName = s.seat_type === 'FOCUS' ? '1인 집중석' : (s.seat_type === 'WINDOW' ? '창가석' : '오픈석');
 
                 return `
-                    <div onclick="openStudycafeSeatModal('${s.seat_id}')" style="background: ${bgCol}; border: 1.5px solid ${borderCol}; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <div onclick="handleAdminSeatClick('${s.seat_id}')" style="background: ${bgCol}; border: 1.5px ${isDisabled ? 'dashed' : 'solid'} ${borderCol}; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; opacity: ${isDisabled ? '0.45' : '1'};" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-size: 1rem; font-weight: 900; color: #ffffff; font-family: monospace;">${s.seat_id}</span>
+                            <span style="font-size: 1rem; font-weight: 900; color: ${isDisabled ? '#64748b' : '#ffffff'}; font-family: monospace;">${s.seat_id}</span>
                             <span style="font-size: 0.7rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; ${badgeStyle}">${badgeText}</span>
                         </div>
-                        <div style="font-size: 0.72rem; color: #94a3b8; margin-bottom: 4px;">${seatTypeName} (${s.seat_num}번)</div>
-                        <div style="font-size: 0.85rem; font-weight: 800; color: ${isOccupied ? '#34d399' : '#f8fafc'}; min-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            ${s.student_name ? '👤 ' + s.student_name : '<span style="color:#64748b;">(비어있음)</span>'}
+                        <div style="font-size: 0.72rem; color: #94a3b8; margin-bottom: 4px;">
+                            ${isDisabled ? '<span style="color:#64748b;">미사용 구역 (제외)</span>' : `${seatTypeName} (${s.seat_num}번)`}
+                        </div>
+                        <div style="font-size: 0.85rem; font-weight: 800; color: ${isDisabled ? '#64748b' : (isOccupied ? '#34d399' : '#f8fafc')}; min-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            ${isDisabled ? '<span style="color:#475569; font-size:0.75rem;">[좌석 없음]</span>' : (s.student_name ? '👤 ' + s.student_name : '<span style="color:#64748b;">(비어있음)</span>')}
                         </div>
                         <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px; display: flex; justify-content: space-between;">
-                            <span>${s.start_time ? '' + s.start_time : '-'}</span>
-                            <span>${s.plan_type || '-'}</span>
+                            <span>${isDisabled ? (isSeatExcludeMode ? '클릭 시 복원' : '-') : (s.start_time || '-')}</span>
+                            <span>${isDisabled ? '-' : (s.plan_type || '-')}</span>
                         </div>
                     </div>
                 `;
             }).join('');
 
-            // KPI 업데이트
+            // KPI 업데이트: 기둥/통로로 제외된 좌석을 뺀 실제 가용 좌석 기준으로 가동률 산출
             const total = currentStudyCafeSeats.length || 24;
+            const usableTotal = Math.max(1, total - disabledCount);
             const activeTotal = occupiedCount + outCount + reservedCount;
-            const rate = Math.round((activeTotal / total) * 100);
+            const rate = Math.round((activeTotal / usableTotal) * 100);
             const occEl = document.getElementById('cafe-kpi-occupancy');
             const countEl = document.getElementById('cafe-kpi-seat-count');
             const activeCountEl = document.getElementById('cafe-kpi-active-count');
@@ -2977,6 +3007,69 @@
         window.handleSaveCustomSeatLayout = handleSaveCustomSeatLayout;
 
 
+        let isSeatExcludeMode = false;
+
+        function toggleSeatExcludeMode(forceVal) {
+            isSeatExcludeMode = (typeof forceVal === 'boolean') ? forceVal : !isSeatExcludeMode;
+            
+            const btn = document.getElementById('btn-toggle-seat-exclude-mode');
+            const btnText = document.getElementById('btn-seat-exclude-mode-text');
+            const banner = document.getElementById('seat-exclude-mode-banner');
+
+            if (btn && btnText) {
+                if (isSeatExcludeMode) {
+                    btn.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+                    btn.style.borderColor = '#fbbf24';
+                    btn.style.color = '#0b0f19';
+                    btn.style.boxShadow = '0 0 14px rgba(245, 158, 11, 0.4)';
+                    btnText.innerText = '🧱 낱개 제외 모드 ON (좌석 클릭 시 즉시 토글)';
+                } else {
+                    btn.style.background = 'rgba(245, 158, 11, 0.12)';
+                    btn.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+                    btn.style.color = '#fbbf24';
+                    btn.style.boxShadow = 'none';
+                    btnText.innerText = '🧱 기둥·통로 낱개 제외 모드';
+                }
+            }
+            if (banner) {
+                banner.style.display = isSeatExcludeMode ? 'flex' : 'none';
+            }
+            renderStudyCafeSeatGrid();
+        }
+        window.toggleSeatExcludeMode = toggleSeatExcludeMode;
+
+        function handleAdminSeatClick(seatId) {
+            if (isSeatExcludeMode) {
+                // 낱개 제외 모드: 즉시 기둥/통로 <-> 일반 좌석 토글 및 저장
+                const seat = currentStudyCafeSeats.find(s => s.seat_id === seatId);
+                if (!seat) return;
+
+                const willDisable = seat.status !== 'DISABLED';
+                if (willDisable) {
+                    seat.status = 'DISABLED';
+                    seat.student_id = null;
+                    seat.student_name = '';
+                    seat.plan_type = '';
+                    seat.remaining_days = 0;
+                    seat.start_time = '';
+                    seat.study_time_today = '';
+                } else {
+                    seat.status = 'EMPTY';
+                }
+
+                renderStudyCafeSeatGrid();
+
+                const rows = parseInt(document.getElementById('builder-rows')?.value || "4", 10);
+                const cols = parseInt(document.getElementById('builder-cols')?.value || "6", 10);
+                autoSaveSeatLayout(rows, cols);
+                return;
+            }
+
+            // 일반 관제 모드: 원터치 제어 모달 오픈
+            openStudycafeSeatModal(seatId);
+        }
+        window.handleAdminSeatClick = handleAdminSeatClick;
+
         function openStudycafeSeatModal(seatId) {
             const seat = currentStudyCafeSeats.find(s => s.seat_id === seatId);
             if (!seat) return;
@@ -2988,19 +3081,64 @@
 
             if (titleEl) titleEl.innerText = `${seat.seat_id} (${seat.seat_num}번)`;
             if (infoBox) {
-                const statusK = seat.status === 'OCCUPIED' ? '🟢 이용중' : (seat.status === 'OUT_BRIEF' ? '🟡 외출중' : (seat.status === 'RESERVED' ? '🔵 예약' : '⚪ 빈자리'));
+                const statusK = seat.status === 'DISABLED' ? '🧱 기둥/통로 (제외)' : (seat.status === 'OCCUPIED' ? '🟢 이용중' : (seat.status === 'OUT_BRIEF' ? '🟡 외출중' : (seat.status === 'RESERVED' ? '🔵 예약' : '⚪ 빈자리')));
                 infoBox.innerHTML = `
                     <div style="display:grid; grid-template-columns: 80px 1fr; gap: 6px;">
                         <span style="color:#94a3b8;">현재 상태:</span><strong>${statusK}</strong>
-                        <span style="color:#94a3b8;">이용자:</span><strong style="color:#34d399;">${seat.student_name || '없음'}</strong>
-                        <span style="color:#94a3b8;">이용권 종류:</span><span>${seat.plan_type || '지정 배정'}</span>
-                        <span style="color:#94a3b8;">입실 시각:</span><span>${seat.start_time || '-'}</span>
+                        <span style="color:#94a3b8;">이용자:</span><strong style="color:${seat.status === 'DISABLED' ? '#64748b' : '#34d399'};">${seat.status === 'DISABLED' ? '(제외된 구역)' : (seat.student_name || '없음')}</strong>
+                        <span style="color:#94a3b8;">이용권 종류:</span><span>${seat.status === 'DISABLED' ? '-' : (seat.plan_type || '지정 배정')}</span>
+                        <span style="color:#94a3b8;">입실 시각:</span><span>${seat.status === 'DISABLED' ? '-' : (seat.start_time || '-')}</span>
                     </div>
                 `;
             }
 
+            // 기둥/통로 제외 토글 버튼 동적 라벨링
+            const toggleBtn = document.getElementById('modal-btn-toggle-disable');
+            const toggleText = document.getElementById('modal-btn-toggle-disable-text');
+            const isCurrentlyDisabled = seat.status === 'DISABLED';
+            if (toggleBtn && toggleText) {
+                if (isCurrentlyDisabled) {
+                    toggleBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                    toggleBtn.style.border = '1px solid #34d399';
+                    toggleBtn.style.color = '#ffffff';
+                    toggleText.innerText = '✨ 정상 좌석으로 복원 (다시 사용)';
+                } else {
+                    toggleBtn.style.background = 'rgba(239, 68, 68, 0.12)';
+                    toggleBtn.style.border = '1.5px dashed rgba(239, 68, 68, 0.5)';
+                    toggleBtn.style.color = '#fca5a5';
+                    toggleText.innerText = '🚫 이 자리를 기둥·통로로 제외 (좌석 삭제)';
+                }
+            }
+
             if (modal) modal.style.display = 'flex';
         }
+
+        async function handleModalToggleSeatDisable() {
+            if (!selectedAdminSeatId) return;
+            const seat = currentStudyCafeSeats.find(s => s.seat_id === selectedAdminSeatId);
+            if (!seat) return;
+
+            const willDisable = seat.status !== 'DISABLED';
+            if (willDisable) {
+                seat.status = 'DISABLED';
+                seat.student_id = null;
+                seat.student_name = '';
+                seat.plan_type = '';
+                seat.remaining_days = 0;
+                seat.start_time = '';
+                seat.study_time_today = '';
+            } else {
+                seat.status = 'EMPTY';
+            }
+
+            renderStudyCafeSeatGrid();
+            closeStudycafeSeatModal();
+
+            const rows = parseInt(document.getElementById('builder-rows')?.value || "4", 10);
+            const cols = parseInt(document.getElementById('builder-cols')?.value || "6", 10);
+            await autoSaveSeatLayout(rows, cols);
+        }
+        window.handleModalToggleSeatDisable = handleModalToggleSeatDisable;
 
         function closeStudycafeSeatModal() {
             const modal = document.getElementById('studycafe-seat-modal');

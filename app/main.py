@@ -4214,6 +4214,18 @@ def handle_studycafe_seat_action(payload: schemas.StudyCafeSeatActionPayload, te
         target_seat["status"] = "EMPTY"
         target_seat["student_id"] = None
         target_seat["student_name"] = ""
+    elif payload.action == "DISABLE":
+        target_seat["status"] = "DISABLED"
+        target_seat["student_id"] = None
+        target_seat["student_name"] = ""
+        target_seat["plan_type"] = ""
+        target_seat["remaining_days"] = 0
+        target_seat["start_time"] = ""
+        target_seat["study_time_today"] = ""
+    elif payload.action == "ENABLE":
+        target_seat["status"] = "EMPTY"
+        target_seat["student_id"] = None
+        target_seat["student_name"] = ""
 
     tenant.seat_layout_json = json.dumps(seats, ensure_ascii=False)
     db.commit()
@@ -4319,8 +4331,9 @@ def get_student_academy_seats(student_id: Optional[int] = None, academy_code: Op
                     my_seat = s
                     break
 
-    available_count = len([s for s in seats if s.get("status") in ["EMPTY", "AVAILABLE"]])
-    occupied_count = len(seats) - available_count
+    usable_seats = [s for s in seats if s.get("status") != "DISABLED"]
+    available_count = len([s for s in usable_seats if s.get("status") in ["EMPTY", "AVAILABLE"]])
+    occupied_count = len(usable_seats) - available_count
 
     return {
         "status": "success",
@@ -4328,7 +4341,7 @@ def get_student_academy_seats(student_id: Optional[int] = None, academy_code: Op
         "academy_name": tenant.name if tenant else "등록 독서실/학원",
         "business_type": getattr(tenant, "business_type", "STUDY_CAFE") if tenant else "STUDY_CAFE",
         "seat_mode": seat_mode,  # 'FREE_SELECT' | 'FIXED_ASSIGN'
-        "total_seats": len(seats),
+        "total_seats": len(usable_seats),
         "available_seats": available_count,
         "occupied_seats": occupied_count,
         "my_seat": my_seat,
@@ -4387,6 +4400,9 @@ def select_student_academy_seat(payload: schemas.StudentSeatSelectPayload, db: S
 
         if not target_seat:
             raise HTTPException(status_code=404, detail="해당 좌석을 찾을 수 없습니다.")
+
+        if target_seat.get("status") == "DISABLED":
+            raise HTTPException(status_code=400, detail="🧱 해당 구역은 기둥 또는 통로로 지정되어 좌석으로 이용할 수 없는 공간입니다.")
 
         # 타인 점유 여부 확인
         if target_seat.get("status") in ["OCCUPIED", "RESERVED"] and target_seat.get("student_id") and target_seat.get("student_id") != student.id:
