@@ -18073,20 +18073,31 @@ window.openDirectorContactFromLock = function() {
 
 async function checkStudentTuitionLockStatus(studentId) {
     const banner = document.getElementById("tuition-overdue-lock-banner");
-    const bannerMsg = document.getElementById("hostage-lock-banner-msg");
     const hardOverlay = document.getElementById("tuition-hard-lockout-overlay");
     const hubTuitionLockCard = document.getElementById("hub-tuition-lock-card");
     const hubSubtabsGrid = document.getElementById("hub-subtabs-grid");
     const hubMainContent = document.getElementById("hub-main-content-area");
 
-    // 앱 전체를 가로막는 풀스크린 하드락 오버레이는 원천 비활성화 (개인 자습권 100% 보장)
+    // 1. 메인 자습 화면 배너 및 풀스크린 락아웃은 절대 노출하지 않음 (개인 자습권 100% 보장)
+    if (banner) banner.style.display = "none";
     if (hardOverlay) hardOverlay.style.display = "none";
 
-    // 마스터 관리자 / 갓모드 개발자 계정은 연체 잠금 UI 원천 비활성화
+    // 2. 비로그인 상태일 때는 어떤 제재도 실행하지 않음
+    const regOverlay = document.getElementById("register-overlay");
+    const isLoggedOut = !localStorage.getItem("jwtToken") || (regOverlay && regOverlay.style.display !== "none");
+    if (isLoggedOut) {
+        window.isStudentTuitionLocked = false;
+        return;
+    }
+
+    // 3. 마스터 관리자 / 갓모드 / 제작자 계정(김철훈 학생 등)은 모든 잠금에서 원천 제외
     const currentRole = (localStorage.getItem("userRole") || (window.currentStudent && window.currentStudent.role) || "").toUpperCase();
     const currentEmail = (localStorage.getItem("userEmail") || (window.currentStudent && window.currentStudent.email) || "").toLowerCase();
-    if (currentRole === "ADMIN" || currentRole === "MASTER" || currentEmail === "master@palin-os.com") {
-        if (banner) banner.style.display = "none";
+    const isSuperAdmin = (currentRole === "SUPER_ADMIN") || (sessionStorage.getItem("palin_super_admin") === "true") || (localStorage.getItem("userRole") === "SUPER_ADMIN");
+    const effectiveStudentId = studentId || localStorage.getItem("studentId") || (window.currentStudent && window.currentStudent.id);
+    const isMasterId = (effectiveStudentId === 1 || effectiveStudentId === "1" || effectiveStudentId === "1286orbital21@gmail.com");
+
+    if (isSuperAdmin || isMasterId || currentRole === "ADMIN" || currentRole === "MASTER" || currentEmail.includes("orbital") || currentEmail.includes("master")) {
         if (hubTuitionLockCard) hubTuitionLockCard.style.display = "none";
         if (hubSubtabsGrid) hubSubtabsGrid.style.display = "grid";
         if (hubMainContent) hubMainContent.style.display = "block";
@@ -18094,42 +18105,25 @@ async function checkStudentTuitionLockStatus(studentId) {
         return;
     }
 
-    if (!studentId) {
-        const stored = localStorage.getItem("studentId") || (window.currentStudent && window.currentStudent.id);
-        studentId = stored || 1;
-    }
+    if (!effectiveStudentId) return;
     
     try {
-        const res = await fetch(`/api/billing/student-lock-status/${studentId}`);
+        const res = await fetch(`/api/billing/student-lock-status/${effectiveStudentId}`);
         if (!res.ok) return;
         const data = await res.json();
         
         if (data.is_locked && data.overdue_invoices && data.overdue_invoices.length > 0) {
             currentActiveOverdueInvoice = data.overdue_invoices[0];
             
-            // 2단계 제재 분기 처리 (독촉 모드 vs 학원 전용 혜택 정지)
+            // 2단계 제재 분기 처리: D+14일 이상 연체 시 [학원/독서실 관리] 탭만 잠금
             if (data.lock_stage === "STAGE_2_LOCKOUT") {
-                // [2단계] D+14일 이상 연체: 학원 전용 공간(Academy Hub)만 잠금 (개인 자습 타이머/플래너는 100% 정상 이용!)
                 window.isStudentTuitionLocked = true;
-                
-                // 메인 상단 배너 표시 (개인 자습은 유지되고 학원 혜택만 정지되었음을 알기 쉽게 안내)
-                if (banner) banner.style.display = "flex";
-                if (bannerMsg) {
-                    bannerMsg.innerText = `수강료 납부 기한이 ${data.overdue_days}일 경과되어 학원 전용 혜택이 일시 정지되었습니다. (개인 자습 기능 정상 이용 가능)`;
-                }
-
-                // 학원/독서실 관리(Academy Hub) 전용 락 카드 표시 & 학원 컨텐츠 숨김
                 if (hubTuitionLockCard) hubTuitionLockCard.style.display = "block";
                 if (hubSubtabsGrid) hubSubtabsGrid.style.display = "none";
                 if (hubMainContent) hubMainContent.style.display = "none";
             } else {
-                // [1단계] D+7일 연체 (1주 경과): 학원 기능 정상 유지 + 상단 안내 배너만 노출
+                // 1단계: D+7일 연체 시 학원 기능 정상 유지
                 window.isStudentTuitionLocked = false;
-                if (banner) banner.style.display = "flex";
-                if (bannerMsg) {
-                    const daysLeft = data.days_until_hard_lock !== undefined ? data.days_until_hard_lock : Math.max(0, 14 - data.overdue_days);
-                    bannerMsg.innerText = `[${currentActiveOverdueInvoice.item_title}] 수강료 납부 기한이 ${data.overdue_days}일 경과되었습니다. (학원 혜택 정지까지 D-${daysLeft}일)`;
-                }
                 if (hubTuitionLockCard) hubTuitionLockCard.style.display = "none";
                 if (hubSubtabsGrid) hubSubtabsGrid.style.display = "grid";
                 if (hubMainContent) hubMainContent.style.display = "block";
@@ -18138,7 +18132,6 @@ async function checkStudentTuitionLockStatus(studentId) {
             // 정상 완납 상태: 모든 학원 혜택 정상 복구
             currentActiveOverdueInvoice = null;
             window.isStudentTuitionLocked = false;
-            if (banner) banner.style.display = "none";
             if (hubTuitionLockCard) hubTuitionLockCard.style.display = "none";
             if (hubSubtabsGrid) hubSubtabsGrid.style.display = "grid";
             if (hubMainContent) hubMainContent.style.display = "block";
@@ -20226,7 +20219,6 @@ window.renderParentCommunity = renderParentCommunity;
 // 자동 초기화 리스너 등록
 document.addEventListener("DOMContentLoaded", () => {
     initAppTheme();
-    checkStudentTuitionLockStatus();
     loadAsmrCurationCard();
     loadUserTitles();
     pollNotifications();
