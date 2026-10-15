@@ -154,12 +154,12 @@
         .admin-cockpit-tab-btn {
             flex: 1 1 auto;
             min-width: max-content;
-            padding: 11px 16px;
-            font-size: 0.86rem;
-            font-weight: 800;
-            border-radius: 12px;
-            border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
-            background: rgba(255, 255, 255, 0.04) !important;
+            padding: 10px 15px;
+            font-size: 0.84rem;
+            font-weight: 700;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            background: rgba(15, 23, 42, 0.7) !important;
             color: #cbd5e1 !important;
             cursor: pointer;
             white-space: nowrap;
@@ -169,11 +169,15 @@
             justify-content: center;
             gap: 7px;
             text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
             box-sizing: border-box;
         }
+        .admin-cockpit-tab-btn .material-symbols-rounded {
+            color: #818cf8;
+            transition: color 0.2s;
+        }
         .admin-cockpit-tab-btn:hover {
-            background: rgba(255, 255, 255, 0.1) !important;
+            background: rgba(99, 102, 241, 0.12) !important;
             border-color: rgba(99, 102, 241, 0.4) !important;
             color: #ffffff !important;
             transform: translateY(-1px);
@@ -182,10 +186,14 @@
             background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
             border: 1.5px solid #818cf8 !important;
             color: #ffffff !important;
-            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4) !important;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4) !important;
+        }
+        .admin-cockpit-tab-btn.active .material-symbols-rounded {
+            color: #fbbf24 !important;
         }
         .admin-cockpit-tab-btn.active span {
             color: #ffffff !important;
+            font-weight: 800 !important;
         }
         .section-title {
             font-size: 1rem;
@@ -242,9 +250,36 @@
             touch-action: manipulation;
         }
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.06);
-            color: #cbd5e1;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(99, 102, 241, 0.1);
+            color: #c7d2fe;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+        .btn-secondary:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: rgba(99, 102, 241, 0.5);
+            color: #ffffff;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #ffffff;
+            border: 1px solid #818cf8;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #4f46e5, #4338ca);
+            transform: translateY(-1px);
+        }
+        .btn-accent {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #0b0f19;
+            border: 1px solid #fbbf24;
+            font-weight: 800;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+        }
+        .btn-accent:hover {
+            background: linear-gradient(135deg, #d97706, #b45309);
+            transform: translateY(-1px);
         }
         .form-input {
             background: rgba(255, 255, 255, 0.06);
@@ -478,35 +513,35 @@
                     <div class="admin-title">PALIN<span style="color: #6366f1;">OS</span> <span id="cockpit-academy-title">일원학원</span> 원장 관제실</div>
                     <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 3px;">재원생 자기주도 몰입 케어 · 수납 ERP · Wi-Fi 출결 로그 · AI 맞춤 뇌 이식</div>
                 </div>
-                <div class="admin-header-actions">
-                    <a id="admin-master-console-btn" href="/master.html" target="_blank" class="btn" style="display: none; padding: 9px 16px; font-size: 0.86rem; font-weight: 900; background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; border-radius: 12px; text-decoration: none; align-items: center; gap: 6px; box-shadow: 0 4px 16px rgba(245,158,11,0.4); border: 1.5px solid #fbbf24; transition: all 0.2s ease;">
-                        <span class="material-symbols-rounded" style="font-size: 1.15rem;">shield_person</span>
+                <div class="admin-header-actions" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <a id="admin-master-console-btn" href="/master.html" target="_blank" class="btn" style="display: none; padding: 7px 14px; font-size: 0.8rem; font-weight: 800; background: rgba(245, 158, 11, 0.15); border: 1.5px solid #fbbf24; color: #fbbf24; border-radius: 8px; text-decoration: none; align-items: center; gap: 5px; box-shadow: 0 2px 10px rgba(245,158,11,0.25);">
+                        <span class="material-symbols-rounded" style="font-size: 1rem;">shield_person</span>
                         <span>갓모드 (마스터 관제)</span>
                     </a>
-                    <button onclick="openBrainSurveyModal()" class="btn" style="padding: 9px 15px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; display: flex; align-items: center; gap: 6px; border-radius: 12px; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);">
-                        <span class="material-symbols-rounded" style="font-size: 1.1rem;">psychology</span>
+                    <button onclick="openBrainSurveyModal()" class="btn" style="padding: 7px 13px; font-size: 0.8rem; font-weight: 700; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); color: #c7d2fe; display: flex; align-items: center; gap: 5px; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                        <span class="material-symbols-rounded" style="font-size: 1rem; color: #818cf8;">psychology</span>
                         <span>AI 페르소나 설정</span>
                     </button>
-                    <button onclick="openChangePinModal()" class="btn" style="padding: 9px 15px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: white; display: flex; align-items: center; gap: 6px; border-radius: 12px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);" title="원장 관제실 접속 PIN 번호 직접 변경">
-                        <span class="material-symbols-rounded" style="font-size: 1.1rem;">lock_reset</span>
+                    <button onclick="openChangePinModal()" class="btn" style="padding: 7px 13px; font-size: 0.8rem; font-weight: 700; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); color: #c7d2fe; display: flex; align-items: center; gap: 5px; border-radius: 8px; cursor: pointer; transition: all 0.2s;" title="원장 관제실 접속 PIN 번호 직접 변경">
+                        <span class="material-symbols-rounded" style="font-size: 1rem; color: #818cf8;">lock_reset</span>
                         <span>보안 PIN 변경</span>
                     </button>
-                    <button onclick="fetchDashboardData()" class="btn" style="padding: 9px 14px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; display: flex; align-items: center; gap: 5px; border-radius: 12px; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);">
-                        <span class="material-symbols-rounded" style="font-size: 1.1rem;">sync</span>
+                    <button onclick="fetchDashboardData()" class="btn" style="padding: 7px 14px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); border: 1px solid #818cf8; color: white; display: flex; align-items: center; gap: 5px; border-radius: 8px; box-shadow: 0 2px 8px rgba(99,102,241,0.35); cursor: pointer; transition: all 0.2s;">
+                        <span class="material-symbols-rounded" style="font-size: 1rem; color: #fbbf24;">sync</span>
                         <span>갱신</span>
                     </button>
-                    <a href="/" class="btn btn-secondary" style="padding: 9px 14px; font-size: 0.82rem; font-weight: 800; border-radius: 12px; text-decoration: none; display: flex; align-items: center; gap: 5px;">
-                        <span class="material-symbols-rounded" style="font-size: 1.1rem;">smartphone</span>
+                    <a href="/" class="btn" style="padding: 7px 13px; font-size: 0.8rem; font-weight: 700; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); color: #c7d2fe; border-radius: 8px; text-decoration: none; display: flex; align-items: center; gap: 5px; cursor: pointer; transition: all 0.2s;">
+                        <span class="material-symbols-rounded" style="font-size: 1rem; color: #818cf8;">smartphone</span>
                         <span>학생 화면</span>
                     </a>
-                    <button onclick="adminLogout()" class="btn" style="padding: 9px 14px; font-size: 0.82rem; background: rgba(239, 68, 68, 0.15); border: 1.5px solid #ef4444; color: #f87171; font-weight: 800; border-radius: 12px; display: flex; align-items: center; gap: 5px;">
-                        <span class="material-symbols-rounded" style="font-size: 1.1rem;">logout</span>
+                    <button onclick="adminLogout()" class="btn" style="padding: 7px 13px; font-size: 0.8rem; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.35); color: #fca5a5; font-weight: 700; border-radius: 8px; display: flex; align-items: center; gap: 5px; cursor: pointer; transition: all 0.2s;">
+                        <span class="material-symbols-rounded" style="font-size: 1rem;">logout</span>
                         <span>로그아웃</span>
                     </button>
                 </div>
             </div>
 
-            <!-- 7대 탭 네비게이션 (업종별 반응형 라벨 & 특화 7번 탭) -->
+            <!-- 10대 통합 탭 네비게이션 (로열 인디고 & 앰버 골드 통일 테마) -->
             <div class="admin-tab-nav" id="admin-tab-nav-bar">
                 <button class="admin-cockpit-tab-btn active" onclick="switchAdminCockpitTab('tab-schedule')" id="tab-btn-schedule">
                     <span class="material-symbols-rounded" style="font-size: 1rem;">calendar_month</span>
@@ -533,20 +568,20 @@
                     <span id="tab-label-tutors">6. 튜터 관리</span>
                 </button>
                 <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-studycafe-seats')" id="tab-btn-seats">
-                    <span class="material-symbols-rounded" style="font-size: 1rem; color: #fbbf24;">chair</span>
-                    <span id="tab-label-seats" style="color: #fbbf24; font-weight: 800;">7. 좌석·교실배치 관제</span>
+                    <span class="material-symbols-rounded" style="font-size: 1rem;">chair</span>
+                    <span id="tab-label-seats">7. 좌석·교실배치 관제</span>
                 </button>
                 <button class="admin-cockpit-tab-btn" onclick="switchAdminSpecialTab()" id="tab-btn-special">
-                    <span class="material-symbols-rounded" id="tab-special-icon" style="font-size: 1rem; color: #34d399;">assignment</span>
-                    <span id="tab-special-text" style="color: #34d399; font-weight: 800;">8. 모의고사·OMR 관제</span>
+                    <span class="material-symbols-rounded" id="tab-special-icon" style="font-size: 1rem;">assignment</span>
+                    <span id="tab-special-text">8. 모의고사·OMR 관제</span>
                 </button>
                 <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-procurement')" id="tab-btn-procurement">
-                    <span class="material-symbols-rounded" style="font-size: 1rem; color: #38bdf8;">shopping_cart</span>
-                    <span id="tab-label-procurement" style="color: #38bdf8; font-weight: 800;">9. 비품·교재·렌탈</span>
+                    <span class="material-symbols-rounded" style="font-size: 1rem;">shopping_cart</span>
+                    <span id="tab-label-procurement">9. 비품·교재·렌탈</span>
                 </button>
                 <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-marketing')" id="tab-btn-marketing">
-                    <span class="material-symbols-rounded" style="font-size: 1rem; color: #f472b6;">auto_awesome</span>
-                    <span id="tab-label-marketing" style="color: #f472b6; font-weight: 800;">10. 성적역전 카드뉴스</span>
+                    <span class="material-symbols-rounded" style="font-size: 1rem;">auto_awesome</span>
+                    <span id="tab-label-marketing">10. 성적역전 카드뉴스</span>
                 </button>
             </div>
 
@@ -2137,36 +2172,74 @@
                     학원 교실 및 독서실 모양에 맞춰 <b>행(줄)과 열(칸) 수</b>를 설정하거나 <b>프리셋 템플릿</b>을 선택하세요. 저장 즉시 학생용 앱의 [좌석선택] 화면에 그대로 반영됩니다.
                 </div>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 14px;">
-                    <div style="display: flex; align-items: center; gap: 4px;">
-                        <span style="font-size: 0.75rem; color: #cbd5e1; font-weight: 700;">세로(행):</span>
-                        <select id="builder-rows" class="form-input" style="padding: 4px 8px; font-weight: 800; width: 64px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.78rem; color: #cbd5e1; font-weight: 700;">세로(행):</span>
+                        <select id="builder-rows" onchange="handleSeatDimensionChange()" class="form-input" style="padding: 5px 10px; font-weight: 800; font-size: 0.8rem; width: 96px; min-width: 90px; background: rgba(15, 23, 42, 0.9); border: 1.5px solid rgba(99, 102, 241, 0.4); color: #f8fafc; border-radius: 8px;">
+                            <option value="1">1행</option>
+                            <option value="2">2행</option>
                             <option value="3">3행</option>
                             <option value="4" selected>4행</option>
                             <option value="5">5행</option>
                             <option value="6">6행</option>
+                            <option value="7">7행</option>
+                            <option value="8">8행</option>
+                            <option value="9">9행</option>
+                            <option value="10">10행</option>
+                            <option value="11">11행</option>
+                            <option value="12">12행</option>
+                            <option value="13">13행</option>
+                            <option value="14">14행</option>
+                            <option value="15">15행</option>
+                            <option value="16">16행</option>
+                            <option value="17">17행</option>
+                            <option value="18">18행</option>
+                            <option value="19">19행</option>
+                            <option value="20">20행</option>
                         </select>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 4px;">
-                        <span style="font-size: 0.75rem; color: #cbd5e1; font-weight: 700;">가로(열):</span>
-                        <select id="builder-cols" class="form-input" style="padding: 4px 8px; font-weight: 800; width: 64px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.78rem; color: #cbd5e1; font-weight: 700;">가로(열):</span>
+                        <select id="builder-cols" onchange="handleSeatDimensionChange()" class="form-input" style="padding: 5px 10px; font-weight: 800; font-size: 0.8rem; width: 96px; min-width: 90px; background: rgba(15, 23, 42, 0.9); border: 1.5px solid rgba(99, 102, 241, 0.4); color: #f8fafc; border-radius: 8px;">
+                            <option value="1">1열</option>
+                            <option value="2">2열</option>
+                            <option value="3">3열</option>
                             <option value="4">4열</option>
                             <option value="5">5열</option>
                             <option value="6" selected>6열</option>
                             <option value="7">7열</option>
                             <option value="8">8열</option>
+                            <option value="9">9열</option>
+                            <option value="10">10열</option>
+                            <option value="11">11열</option>
+                            <option value="12">12열</option>
+                            <option value="13">13열</option>
+                            <option value="14">14열</option>
+                            <option value="15">15열</option>
+                            <option value="16">16열</option>
+                            <option value="17">17열</option>
+                            <option value="18">18열</option>
+                            <option value="19">19열</option>
+                            <option value="20">20열</option>
                         </select>
                     </div>
-                    <button type="button" onclick="applySeatBuilderPreset('2_COL_AISLE')" class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.75rem;">
-                        🏫 2분단(중앙통로형)
+                    <button type="button" onclick="applySeatBuilderPreset('2_COL_AISLE')" class="btn" style="padding: 6px 11px; font-size: 0.76rem; font-weight: 700; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.35); color: #c7d2fe; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                        🏫 2분단(5x6)
                     </button>
-                    <button type="button" onclick="applySeatBuilderPreset('FOCUS_STUDY')" class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.75rem;">
-                        🎧 1인 집중 독서실형
+                    <button type="button" onclick="applySeatBuilderPreset('FOCUS_STUDY')" class="btn" style="padding: 6px 11px; font-size: 0.76rem; font-weight: 700; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.35); color: #c7d2fe; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                        🎧 1인 독서실(4x8)
                     </button>
-                    <button type="button" onclick="applySeatBuilderPreset('LECTURE_HALL')" class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.75rem;">
-                        🏛️ 대형 강의실형(6x7)
+                    <button type="button" onclick="applySeatBuilderPreset('LECTURE_HALL')" class="btn" style="padding: 6px 11px; font-size: 0.76rem; font-weight: 700; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.35); color: #c7d2fe; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                        🏛️ 대형 강의실(6x10)
                     </button>
-                    <button type="button" onclick="handleSaveCustomSeatLayout()" class="btn" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706); color: black; margin-left: auto;">
-                        💾 배치도 클라우드 저장 & 즉시 반영
+                    <button type="button" onclick="applySeatBuilderPreset('AUDITORIUM_100')" class="btn" style="padding: 6px 11px; font-size: 0.76rem; font-weight: 700; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.35); color: #c7d2fe; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                        🏢 100석 대강당(10x10)
+                    </button>
+                    <button type="button" onclick="applySeatBuilderPreset('MEGA_400')" class="btn" style="padding: 6px 11px; font-size: 0.76rem; font-weight: 700; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.35); color: #c7d2fe; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                        🏬 400석 메가관(20x20)
+                    </button>
+                    <button type="button" onclick="handleSaveCustomSeatLayout()" class="btn" style="padding: 7px 16px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706); border: 1px solid #fbbf24; color: #0b0f19; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25); margin-left: auto;">
+                        <span class="material-symbols-rounded" style="font-size: 1rem;">save</span>
+                        <span>배치도 클라우드 저장 & 즉시 반영</span>
                     </button>
                 </div>
             </div>
@@ -2473,10 +2546,10 @@
             };
 
             const colors = {
-                'HIGH_ACADEMY': { primary: '#6366f1', text: '고등 대입전문학원', tabText: '7. 모의고사·OMR 관제', tabIcon: 'assignment', badgeColor: '#34d399', badgeBg: 'rgba(16, 185, 129, 0.15)', badgeBorder: 'rgba(16, 185, 129, 0.3)' },
-                'MID_ACADEMY': { primary: '#0284c7', text: '중등 내신·특목전문학원', tabText: '7. 올A 내신 & 특목고 진학', tabIcon: 'grade', badgeColor: '#38bdf8', badgeBg: 'rgba(2, 132, 199, 0.15)', badgeBorder: 'rgba(2, 132, 199, 0.3)' },
-                'ELEM_ACADEMY': { primary: '#d97706', text: '초등 보습·어학원', tabText: '7. 매일 습관 · 스티커 · 펫', tabIcon: 'stars', badgeColor: '#fbbf24', badgeBg: 'rgba(245, 158, 11, 0.15)', badgeBorder: 'rgba(245, 158, 11, 0.3)' },
-                'STUDY_CAFE': { primary: '#4f46e5', text: '독서실·스터디카페', tabText: '7. 2D 좌석 매트릭스 & 이용권', tabIcon: 'chair', badgeColor: '#818cf8', badgeBg: 'rgba(99, 102, 241, 0.15)', badgeBorder: 'rgba(99, 102, 241, 0.3)' }
+                'HIGH_ACADEMY': { primary: '#6366f1', text: '고등 대입전문학원', tabText: '8. 모의고사·OMR 관제', tabIcon: 'assignment', badgeColor: '#fbbf24', badgeBg: 'rgba(251, 191, 36, 0.12)', badgeBorder: 'rgba(251, 191, 36, 0.3)' },
+                'MID_ACADEMY': { primary: '#6366f1', text: '중등 내신·특목전문학원', tabText: '8. 올A 내신 & 특목고 진학', tabIcon: 'grade', badgeColor: '#fbbf24', badgeBg: 'rgba(251, 191, 36, 0.12)', badgeBorder: 'rgba(251, 191, 36, 0.3)' },
+                'ELEM_ACADEMY': { primary: '#6366f1', text: '초등 보습·어학원', tabText: '8. 매일 습관 · 스티커 · 펫', tabIcon: 'stars', badgeColor: '#fbbf24', badgeBg: 'rgba(251, 191, 36, 0.12)', badgeBorder: 'rgba(251, 191, 36, 0.3)' },
+                'STUDY_CAFE': { primary: '#6366f1', text: '독서실·스터디카페', tabText: '8. 좌석·순공 랭킹 리더보드', tabIcon: 'military_tech', badgeColor: '#fbbf24', badgeBg: 'rgba(251, 191, 36, 0.12)', badgeBorder: 'rgba(251, 191, 36, 0.3)' }
             };
 
             const activeCfg = colors[currentBusinessType] || colors['HIGH_ACADEMY'];
@@ -2507,17 +2580,15 @@
                 badgeTextEl.innerText = `현재 관제: ${activeCfg.text}`;
             }
 
-            // 3. 7번 특화 탭 버튼 라벨 및 아이콘 갱신
+            // 3. 8번 특화 탭 버튼 라벨 및 아이콘 갱신
             const specialBtn = document.getElementById('tab-btn-special');
             const specialIcon = document.getElementById('tab-special-icon');
             const specialText = document.getElementById('tab-special-text');
             if (specialIcon) {
                 specialIcon.innerText = activeCfg.tabIcon;
-                specialIcon.style.color = activeCfg.badgeColor;
             }
             if (specialText) {
                 specialText.innerText = activeCfg.tabText;
-                specialText.style.color = activeCfg.badgeColor;
             }
 
             // 4. 만약 현재 7번 특화 탭이 열려있는 상태라면, 화면 컨테이너도 즉시 해당 업종 전용으로 전환
@@ -2575,6 +2646,23 @@
                 currentStudyCafeSeats = data.seats || [];
                 currentTenantSeatMode = data.seat_mode || 'FREE_SELECT';
 
+                if (currentStudyCafeSeats.length > 0) {
+                    const maxRowChar = currentStudyCafeSeats.reduce((max, s) => {
+                        const char = (s.seat_id || '')[0];
+                        return (!max || char > max) ? char : max;
+                    }, 'A');
+                    const maxRow = Math.max(1, maxRowChar.charCodeAt(0) - 64);
+                    const maxCols = currentStudyCafeSeats.reduce((max, s) => {
+                        const match = (s.seat_id || '').match(/^[A-Z](\d+)$/i);
+                        const col = match ? parseInt(match[1], 10) : 0;
+                        return Math.max(max, col);
+                    }, 0);
+                    const rowsSelect = document.getElementById('builder-rows');
+                    const colsSelect = document.getElementById('builder-cols');
+                    if (rowsSelect && maxRow <= 20) rowsSelect.value = String(maxRow);
+                    if (colsSelect && maxCols > 0 && maxCols <= 20) colsSelect.value = String(maxCols);
+                }
+
                 renderStudyCafeSeatGrid();
                 updateSeatModeUI();
             } catch(e) {
@@ -2585,6 +2673,18 @@
         function renderStudyCafeSeatGrid() {
             const grid = document.getElementById('studycafe-seat-grid');
             if (!grid) return;
+
+            const maxCols = currentStudyCafeSeats.reduce((max, s) => {
+                const match = (s.seat_id || '').match(/^[A-Z](\d+)$/i);
+                const col = match ? parseInt(match[1], 10) : 0;
+                return Math.max(max, col);
+            }, 0) || parseInt(document.getElementById('builder-cols')?.value || "6", 10) || 6;
+
+            grid.style.display = 'grid';
+            grid.style.gridTemplateColumns = `repeat(${maxCols}, minmax(110px, 1fr))`;
+            grid.style.overflowX = 'auto';
+            grid.style.padding = '8px 4px';
+            grid.style.gap = '10px';
 
             let occupiedCount = 0;
             let outCount = 0;
@@ -2751,31 +2851,12 @@
             alert(`[발송 완료] ${studentName} 회원에게 이용권 연장 결제 안내가 전송되었습니다.`);
         }
 
-        function applySeatBuilderPreset(presetType) {
-            const rowsSelect = document.getElementById('builder-rows');
-            const colsSelect = document.getElementById('builder-cols');
-            let rows = 4, cols = 6;
-
-            if (presetType === '2_COL_AISLE') {
-                rows = 5; cols = 6;
-                if (rowsSelect) rowsSelect.value = "5";
-                if (colsSelect) colsSelect.value = "6";
-            } else if (presetType === 'FOCUS_STUDY') {
-                rows = 4; cols = 8;
-                if (rowsSelect) rowsSelect.value = "4";
-                if (colsSelect) colsSelect.value = "8";
-            } else if (presetType === 'LECTURE_HALL') {
-                rows = 6; cols = 7;
-                if (rowsSelect) rowsSelect.value = "6";
-                if (colsSelect) colsSelect.value = "7";
-            }
-
-            const rowLetters = ["A", "B", "C", "D", "E", "F"];
+        function generateSeatsForDimensions(rows, cols) {
             const newSeats = [];
             let sNum = 1;
             for (let r = 0; r < rows; r++) {
+                const rowChar = r < 26 ? String.fromCharCode(65 + r) : `R${r + 1}`;
                 for (let c = 1; c <= cols; c++) {
-                    const rowChar = rowLetters[r] || `R${r+1}`;
                     const sId = `${rowChar}${String(c).padStart(2, '0')}`;
                     const seatType = (r === 0 || r === rows - 1) ? "WINDOW" : (c % 2 === 1 ? "FOCUS" : "OPEN");
                     newSeats.push({
@@ -2794,7 +2875,37 @@
             }
             currentStudyCafeSeats = newSeats;
             renderStudyCafeSeatGrid();
-            alert(`[프리셋 적용] ${rows}행 x ${cols}열 (총 ${newSeats.length}석) 임시 배치도가 렌더링되었습니다.\n'배치도 클라우드 저장'을 눌러 학생 앱에 즉시 배포하세요.`);
+        }
+
+        function handleSeatDimensionChange() {
+            const rows = parseInt(document.getElementById('builder-rows')?.value || "4", 10);
+            const cols = parseInt(document.getElementById('builder-cols')?.value || "6", 10);
+            generateSeatsForDimensions(rows, cols);
+        }
+        window.handleSeatDimensionChange = handleSeatDimensionChange;
+
+        function applySeatBuilderPreset(presetType) {
+            const rowsSelect = document.getElementById('builder-rows');
+            const colsSelect = document.getElementById('builder-cols');
+            let rows = 4, cols = 6;
+
+            if (presetType === '2_COL_AISLE') {
+                rows = 5; cols = 6;
+            } else if (presetType === 'FOCUS_STUDY') {
+                rows = 4; cols = 8;
+            } else if (presetType === 'LECTURE_HALL') {
+                rows = 6; cols = 10;
+            } else if (presetType === 'AUDITORIUM_100') {
+                rows = 10; cols = 10;
+            } else if (presetType === 'MEGA_400') {
+                rows = 20; cols = 20;
+            }
+
+            if (rowsSelect) rowsSelect.value = String(rows);
+            if (colsSelect) colsSelect.value = String(cols);
+
+            generateSeatsForDimensions(rows, cols);
+            alert(`[프리셋 적용] ${rows}행 x ${cols}열 (총 ${currentStudyCafeSeats.length}석) 임시 배치도가 즉시 렌더링되었습니다.\n'배치도 클라우드 저장'을 누르면 학생 앱에 즉시 배포됩니다.`);
         }
         window.applySeatBuilderPreset = applySeatBuilderPreset;
 
@@ -2804,12 +2915,11 @@
 
             let seatsToSave = currentStudyCafeSeats;
             if (!seatsToSave || seatsToSave.length === 0 || seatsToSave.length !== (rows * cols)) {
-                const rowLetters = ["A", "B", "C", "D", "E", "F"];
                 seatsToSave = [];
                 let sNum = 1;
                 for (let r = 0; r < rows; r++) {
+                    const rowChar = r < 26 ? String.fromCharCode(65 + r) : `R${r + 1}`;
                     for (let c = 1; c <= cols; c++) {
-                        const rowChar = rowLetters[r] || `R${r+1}`;
                         const sId = `${rowChar}${String(c).padStart(2, '0')}`;
                         seatsToSave.push({
                             seat_id: sId,
@@ -2839,7 +2949,7 @@
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    alert(`🎉 [저장 완료] ${data.message || '좌석 배치도가 성공적으로 저장되었습니다.'}\n이제 학생 앱의 [좌석선택] 탭에 원장님이 설정하신 2D 배치도가 그대로 노출됩니다!`);
+                    alert(`🎉 [저장 완료] ${data.message || '좌석 배치도가 성공적으로 저장되었습니다.'}\n이제 학생 앱의 [좌석선택] 탭에 원장님이 설정하신 2D 배치도(${rows}행 x ${cols}열, 총 ${seatsToSave.length}석)가 그대로 노출됩니다!`);
                     currentStudyCafeSeats = seatsToSave;
                     renderStudyCafeSeatGrid();
                 } else {

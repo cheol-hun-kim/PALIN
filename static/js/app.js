@@ -18163,6 +18163,18 @@ function renderStudentSeatUI(data) {
 
     // 2D 좌석 그리드 렌더링
     if (grid) {
+        const maxCols = currentStudentSeatsCache.reduce((max, s) => {
+            const match = (s.seat_id || '').match(/^[A-Z](\d+)$/i);
+            const col = match ? parseInt(match[1], 10) : 0;
+            return Math.max(max, col);
+        }, 0) || 6;
+
+        grid.style.display = 'grid';
+        grid.style.gridTemplateColumns = `repeat(${maxCols}, minmax(52px, 1fr))`;
+        grid.style.overflowX = 'auto';
+        grid.style.gap = '8px';
+        grid.style.padding = '4px';
+
         grid.innerHTML = currentStudentSeatsCache.map(s => {
             const isMine = currentStudentMySeat && (currentStudentMySeat.seat_id === s.seat_id || currentStudentMySeat.seat_num === s.seat_num);
             const isOccupied = s.status === 'OCCUPIED' || s.status === 'RESERVED';
