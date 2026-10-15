@@ -18135,6 +18135,49 @@ function renderStudentSeatUI(data) {
         lockNotice.style.display = isFixed ? "block" : "none";
     }
 
+    // 출입구 랜드마크 렌더링
+    const doorPos = data.door_position || "FRONT_RIGHT";
+    const sfLeft = document.getElementById("student-front-door-left");
+    const sfRight = document.getElementById("student-front-door-right");
+    const srLeft = document.getElementById("student-rear-door-left");
+    const srRight = document.getElementById("student-rear-door-right");
+    const srCenter = document.getElementById("student-rear-center-wall");
+
+    if (sfLeft) sfLeft.style.display = "none";
+    if (sfRight) sfRight.style.display = "none";
+    if (srLeft) srLeft.style.display = "none";
+    if (srRight) srRight.style.display = "none";
+
+    if (srCenter) {
+        if (doorPos === "REAR_CENTER") {
+            srCenter.style.background = "rgba(16, 185, 129, 0.15)";
+            srCenter.style.border = "1.5px solid #10b981";
+            srCenter.style.color = "#34d399";
+            srCenter.innerHTML = '<span class="material-symbols-rounded" style="font-size: 0.9rem;">meeting_room</span><span>🚪 후면 중앙문</span>';
+        } else {
+            srCenter.style.background = "rgba(255, 255, 255, 0.03)";
+            srCenter.style.border = "1px dashed rgba(255, 255, 255, 0.15)";
+            srCenter.style.color = "#64748b";
+            srCenter.innerHTML = '<span class="material-symbols-rounded" style="font-size: 0.85rem; color: #64748b;">door_sliding</span><span>[ ── 교실 후면 (뒷벽) ── ]</span>';
+        }
+    }
+
+    if (doorPos === "FRONT_RIGHT") {
+        if (sfRight) sfRight.style.display = "flex";
+    } else if (doorPos === "FRONT_LEFT") {
+        if (sfLeft) sfLeft.style.display = "flex";
+    } else if (doorPos === "REAR_RIGHT") {
+        if (srRight) srRight.style.display = "flex";
+    } else if (doorPos === "REAR_LEFT") {
+        if (srLeft) srLeft.style.display = "flex";
+    } else if (doorPos === "FRONT_REAR_RIGHT") {
+        if (sfRight) sfRight.style.display = "flex";
+        if (srRight) srRight.style.display = "flex";
+    } else if (doorPos === "FRONT_REAR_LEFT") {
+        if (sfLeft) sfLeft.style.display = "flex";
+        if (srLeft) srLeft.style.display = "flex";
+    }
+
     // 내 좌석 상태
     if (mySeatText && mySeatActionArea) {
         if (currentStudentMySeat) {
@@ -18186,7 +18229,7 @@ function renderStudentSeatUI(data) {
             if (isDisabled) {
                 return `
                     <div class="seat-item-card is-disabled" style="opacity: 0.18; border: 1.5px dashed rgba(255,255,255,0.12); background: rgba(15, 23, 42, 0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 52px; border-radius: 8px; cursor: not-allowed;">
-                        <span style="font-size: 0.65rem; color: #64748b; font-weight: 800;">기둥/통로</span>
+                        <span style="font-size: 0.65rem; color: #64748b; font-weight: 800;">미사용</span>
                     </div>
                 `;
             }
@@ -18223,7 +18266,7 @@ window.renderStudentSeatUI = renderStudentSeatUI;
 
 function handleStudentSeatCardClick(seatId, seatNum, status) {
     if (status === 'DISABLED') {
-        alert("🧱 해당 구역은 기둥 또는 통로로 지정되어 좌석으로 이용할 수 없는 공간입니다.");
+        alert("🚫 해당 구역은 미사용 공간(제외된 좌석)으로 지정되어 선택할 수 없습니다.");
         return;
     }
     const isFixed = currentStudentSeatMode === "FIXED_ASSIGN";

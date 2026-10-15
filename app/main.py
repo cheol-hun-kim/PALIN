@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session, joinedload
 from datetime import datetime, timedelta, date
-from typing import List, Optional, Dict, Any, Union
+from typing import List, Optional, Dict, Any, Union, Tuple
 from pydantic import BaseModel
 import json
 import os
@@ -4127,6 +4127,32 @@ def get_admin_dashboard(tenant_code: Optional[str] = "ILWON-2027", db: Session =
 
 # === ☕ 독서실/스터디카페 및 일반 학원 2D 좌석 제어 & 학생 선택/예약 API ===
 
+def _parse_seat_layout(seat_json_str: Optional[str]) -> Tuple[str, List[Dict[str, Any]]]:
+    door_pos = "FRONT_RIGHT"
+    seats = []
+    if not seat_json_str or seat_json_str == "[]":
+        return door_pos, seats
+    try:
+        parsed = json.loads(seat_json_str)
+        if isinstance(parsed, dict):
+            door_pos = parsed.get("door_position") or "FRONT_RIGHT"
+            seats = parsed.get("seats") or []
+        elif isinstance(parsed, list):
+            door_pos = "FRONT_RIGHT"
+            seats = parsed
+    except Exception:
+        door_pos = "FRONT_RIGHT"
+        seats = []
+    return door_pos, seats
+
+
+def _serialize_seat_layout(door_pos: str, seats: List[Dict[str, Any]]) -> str:
+    return json.dumps({
+        "door_position": door_pos or "FRONT_RIGHT",
+        "seats": seats
+    }, ensure_ascii=False)
+
+
 @app.get("/api/admin/studycafe/seats")
 def get_studycafe_seats(tenant_code: Optional[str] = "CAFE-STUDY01", db: Session = Depends(get_db)):
     tenant = db.query(models.Tenant).filter(models.Tenant.code == tenant_code, models.Tenant.deleted_at == None).first()
@@ -4134,7 +4160,8 @@ def get_studycafe_seats(tenant_code: Optional[str] = "CAFE-STUDY01", db: Session
         tenant = db.query(models.Tenant).filter(models.Tenant.business_type == "STUDY_CAFE", models.Tenant.deleted_at == None).first()
     
     seat_json = getattr(tenant, "seat_layout_json", "[]") if tenant else "[]"
-    if not seat_json or seat_json == "[]":
+    door_pos, seats = _parse_seat_layout(seat_json)
+    if not seats:
         # Generate default
         seats = []
         types = ["FOCUS", "FOCUS", "OPEN", "WINDOW"]
@@ -4154,16 +4181,17 @@ def get_studycafe_seats(tenant_code: Optional[str] = "CAFE-STUDY01", db: Session
                     "start_time": "",
                     "study_time_today": ""
                 })
-        seat_json = json.dumps(seats, ensure_ascii=False)
+        door_pos = "FRONT_RIGHT"
         if tenant:
-            tenant.seat_layout_json = seat_json
+            tenant.seat_layout_json = _serialize_seat_layout(door_pos, seats)
             db.commit()
 
     return {
         "status": "success",
         "tenant_code": tenant.code if tenant else tenant_code,
         "seat_mode": getattr(tenant, "seat_mode", "FREE_SELECT") or "FREE_SELECT",
-        "seats": json.loads(seat_json)
+        "door_position": door_pos,
+        "seats": seats
     }
 
 
@@ -4176,10 +4204,7 @@ def handle_studycafe_seat_action(payload: schemas.StudyCafeSeatActionPayload, te
         raise HTTPException(status_code=404, detail="가맹점을 찾을 수 없습니다.")
 
     seat_json = getattr(tenant, "seat_layout_json", "[]") or "[]"
-    try:
-        seats = json.loads(seat_json)
-    except Exception:
-        seats = []
+    door_pos, seats = _parse_seat_layout(seat_json)
 
     target_seat = None
     for s in seats:
@@ -4227,7 +4252,7 @@ def handle_studycafe_seat_action(payload: schemas.StudyCafeSeatActionPayload, te
         target_seat["student_id"] = None
         target_seat["student_name"] = ""
 
-    tenant.seat_layout_json = json.dumps(seats, ensure_ascii=False)
+    tenant.seat_layout_json = _serialize_seat_layout(door_pos, seats)
     db.commit()
     return {"status": "success", "message": f"좌석 [{payload.seat_id}] 상태가 변경되었습니다.", "seat": target_seat}
 
@@ -4260,14 +4285,16 @@ def save_studycafe_seat_layout(payload: schemas.StudyCafeLayoutSavePayload, db: 
     if payload.seat_mode:
         tenant.seat_mode = payload.seat_mode
     
-    tenant.seat_layout_json = json.dumps(payload.seats, ensure_ascii=False)
+    door_pos = payload.door_position or "FRONT_RIGHT"
+    tenant.seat_layout_json = _serialize_seat_layout(door_pos, payload.seats)
     db.commit()
     return {
         "status": "success",
         "message": f"좌석 배치도({len(payload.seats)}석)가 성공적으로 저장되었습니다.",
         "tenant_code": tenant.code,
         "total_seats": len(payload.seats),
-        "seat_mode": tenant.seat_mode
+        "seat_mode": tenant.seat_mode,
+        "door_position": door_pos
     }
 
 
@@ -4287,12 +4314,7 @@ def get_student_academy_seats(student_id: Optional[int] = None, academy_code: Op
         tenant = db.query(models.Tenant).filter(models.Tenant.business_type == "STUDY_CAFE", models.Tenant.deleted_at == None).first()
     
     seat_json = getattr(tenant, "seat_layout_json", "[]") if tenant else "[]"
-    seats = []
-    if seat_json and seat_json != "[]":
-        try:
-            seats = json.loads(seat_json)
-        except Exception:
-            seats = []
+    door_pos, seats = _parse_seat_layout(seat_json)
     
     if not seats:
         # Default 24 seats (A01~D06)
@@ -4313,8 +4335,9 @@ def get_student_academy_seats(student_id: Optional[int] = None, academy_code: Op
                     "start_time": "",
                     "study_time_today": ""
                 })
+        door_pos = "FRONT_RIGHT"
         if tenant:
-            tenant.seat_layout_json = json.dumps(seats, ensure_ascii=False)
+            tenant.seat_layout_json = _serialize_seat_layout(door_pos, seats)
             db.commit()
 
     seat_mode = getattr(tenant, "seat_mode", "FREE_SELECT") if tenant else "FREE_SELECT"
@@ -4341,6 +4364,7 @@ def get_student_academy_seats(student_id: Optional[int] = None, academy_code: Op
         "academy_name": tenant.name if tenant else "등록 독서실/학원",
         "business_type": getattr(tenant, "business_type", "STUDY_CAFE") if tenant else "STUDY_CAFE",
         "seat_mode": seat_mode,  # 'FREE_SELECT' | 'FIXED_ASSIGN'
+        "door_position": door_pos,
         "total_seats": len(usable_seats),
         "available_seats": available_count,
         "occupied_seats": occupied_count,
@@ -4365,10 +4389,7 @@ def select_student_academy_seat(payload: schemas.StudentSeatSelectPayload, db: S
 
     seat_mode = getattr(tenant, "seat_mode", "FREE_SELECT") or "FREE_SELECT"
     seat_json = getattr(tenant, "seat_layout_json", "[]") or "[]"
-    try:
-        seats = json.loads(seat_json)
-    except Exception:
-        seats = []
+    door_pos, seats = _parse_seat_layout(seat_json)
 
     action = (payload.action or "CHECK_IN").upper()
     now_str = datetime.now().strftime("%H:%M")
@@ -4402,7 +4423,7 @@ def select_student_academy_seat(payload: schemas.StudentSeatSelectPayload, db: S
             raise HTTPException(status_code=404, detail="해당 좌석을 찾을 수 없습니다.")
 
         if target_seat.get("status") == "DISABLED":
-            raise HTTPException(status_code=400, detail="🧱 해당 구역은 기둥 또는 통로로 지정되어 좌석으로 이용할 수 없는 공간입니다.")
+            raise HTTPException(status_code=400, detail="🚫 해당 구역은 미사용(제외) 공간으로 지정되어 좌석으로 이용할 수 없습니다.")
 
         # 타인 점유 여부 확인
         if target_seat.get("status") in ["OCCUPIED", "RESERVED"] and target_seat.get("student_id") and target_seat.get("student_id") != student.id:
@@ -4427,7 +4448,7 @@ def select_student_academy_seat(payload: schemas.StudentSeatSelectPayload, db: S
         student.seat_status = target_seat["status"]
         student.seat_checkin_time = datetime.now()
 
-        tenant.seat_layout_json = json.dumps(seats, ensure_ascii=False)
+        tenant.seat_layout_json = _serialize_seat_layout(door_pos, seats)
         db.commit()
 
         return {
@@ -4455,7 +4476,7 @@ def select_student_academy_seat(payload: schemas.StudentSeatSelectPayload, db: S
         student.seat_status = "NONE"
         student.seat_checkin_time = None
 
-        tenant.seat_layout_json = json.dumps(seats, ensure_ascii=False)
+        tenant.seat_layout_json = _serialize_seat_layout(door_pos, seats)
         db.commit()
 
         return {
