@@ -532,58 +532,102 @@
                     <span class="material-symbols-rounded" style="font-size: 1rem;">school</span>
                     <span id="tab-label-tutors">6. 튜터 관리</span>
                 </button>
+                <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-studycafe-seats')" id="tab-btn-seats">
+                    <span class="material-symbols-rounded" style="font-size: 1rem; color: #fbbf24;">chair</span>
+                    <span id="tab-label-seats" style="color: #fbbf24; font-weight: 800;">7. 좌석·교실배치 관제</span>
+                </button>
                 <button class="admin-cockpit-tab-btn" onclick="switchAdminSpecialTab()" id="tab-btn-special">
                     <span class="material-symbols-rounded" id="tab-special-icon" style="font-size: 1rem; color: #34d399;">assignment</span>
-                    <span id="tab-special-text" style="color: #34d399; font-weight: 800;">7. 모의고사·OMR 관제</span>
+                    <span id="tab-special-text" style="color: #34d399; font-weight: 800;">8. 모의고사·OMR 관제</span>
                 </button>
                 <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-procurement')" id="tab-btn-procurement">
                     <span class="material-symbols-rounded" style="font-size: 1rem; color: #38bdf8;">shopping_cart</span>
-                    <span id="tab-label-procurement" style="color: #38bdf8; font-weight: 800;">8. 비품·교재·렌탈</span>
+                    <span id="tab-label-procurement" style="color: #38bdf8; font-weight: 800;">9. 비품·교재·렌탈</span>
                 </button>
                 <button class="admin-cockpit-tab-btn" onclick="switchAdminCockpitTab('tab-marketing')" id="tab-btn-marketing">
                     <span class="material-symbols-rounded" style="font-size: 1rem; color: #f472b6;">auto_awesome</span>
-                    <span id="tab-label-marketing" style="color: #f472b6; font-weight: 800;">9. 성적역전 카드뉴스</span>
+                    <span id="tab-label-marketing" style="color: #f472b6; font-weight: 800;">10. 성적역전 카드뉴스</span>
                 </button>
             </div>
 
-            <!-- TAB 1: 1. 원장 스케줄러 -->
+            <!-- TAB 1: 1. 원장 개인 스케줄러 (모바일 1화면 최적화 월간 캘린더) -->
             <div id="tab-schedule" class="cockpit-tab-view" style="display: block;">
-                <div class="kpi-card" style="border: 1.5px solid rgba(99, 102, 241, 0.4);">
-                    <div class="section-title" style="color: #818cf8;">
-                        <div style="display:flex; align-items:center; gap:6px;">
+                <div class="kpi-card" style="border: 1.5px solid rgba(99, 102, 241, 0.4); margin-bottom: 16px;">
+                    <!-- 캘린더 헤더 & 월 이동 네비게이션 -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                        <div class="section-title" style="color: #818cf8; margin-bottom: 0;">
                             <span class="material-symbols-rounded">calendar_month</span>
                             <span>원장 전용 개인 스케줄러</span>
                         </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <button type="button" onclick="navigateAdminPersonalCalendar(-1)" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.72rem;">◀</button>
+                            <span id="admin-personal-cal-month-label" style="font-weight: 900; font-size: 0.88rem; color: #ffffff; min-width: 80px; text-align: center;">2026. 10</span>
+                            <button type="button" onclick="navigateAdminPersonalCalendar(1)" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.72rem;">▶</button>
+                            <button type="button" onclick="jumpAdminPersonalCalendarToToday()" class="btn" style="padding: 4px 9px; font-size: 0.72rem; font-weight: 800; background: rgba(99,102,241,0.25); border: 1px solid #818cf8; color: #c7d2fe;">오늘</button>
+                            <button type="button" onclick="togglePersonalScheduleAddForm()" class="btn" style="padding: 4px 10px; font-size: 0.75rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; display: flex; align-items: center; gap: 4px; border-radius: 6px;">
+                                <span class="material-symbols-rounded" style="font-size: 0.9rem;">add</span>
+                                <span>일정 추가</span>
+                            </button>
+                        </div>
                     </div>
-                    <form onsubmit="handleCreateSchedule(event)" style="margin-bottom: 18px; background: rgba(0,0,0,0.3); padding: 14px; border-radius: 12px; border: 1px solid rgba(99, 102, 241, 0.3); box-sizing: border-box; width: 100%;">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
-                            <div>
-                                <label style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">일정 구분</label>
-                                <select id="sched-category" class="form-input" style="font-weight: 700; height: 42px; width: 100%; box-sizing: border-box;">
-                                    <option value="교재주문">교재 주문</option>
-                                    <option value="입시설명회">입시설명회</option>
-                                    <option value="모의고사마감">모의고사 마감</option>
-                                    <option value="행정일반">행정 일반</option>
-                                </select>
+
+                    <!-- 요일 헤더 -->
+                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.72rem; font-weight: 800; color: #94a3b8; margin-bottom: 6px;">
+                        <div style="color: #f87171;">일</div>
+                        <div>월</div>
+                        <div>화</div>
+                        <div>수</div>
+                        <div>목</div>
+                        <div>금</div>
+                        <div style="color: #60a5fa;">토</div>
+                    </div>
+
+                    <!-- 캘린더 날짜 셀 그리드 (한 화면 뷰포트 맞춤 반응형) -->
+                    <div id="admin-personal-calendar-cells" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 14px;">
+                        <!-- JS renderAdminPersonalCalendar() -->
+                    </div>
+
+                    <!-- 접이식 새 일정 등록 드로어 (기본 닫힘으로 모바일 1화면 유지) -->
+                    <div id="admin-personal-sched-drawer" style="display: none; margin-bottom: 14px; background: rgba(0,0,0,0.35); padding: 14px; border-radius: 12px; border: 1px solid rgba(99, 102, 241, 0.35); box-sizing: border-box;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <span style="font-size: 0.84rem; font-weight: 800; color: #818cf8; display: flex; align-items: center; gap: 4px;">
+                                <span class="material-symbols-rounded" style="font-size: 1rem;">edit_calendar</span>
+                                <span>새 개인 일정 등록</span>
+                            </span>
+                            <button type="button" onclick="togglePersonalScheduleAddForm(false)" style="background: none; border: none; color: #94a3b8; font-size: 1rem; cursor: pointer;">✕</button>
+                        </div>
+                        <form onsubmit="handleCreateSchedule(event)" style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <div>
+                                    <label style="font-size: 0.72rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 3px;">일정 구분</label>
+                                    <select id="sched-category" class="form-input" style="font-weight: 700; height: 38px; width: 100%; box-sizing: border-box; font-size: 0.78rem;">
+                                        <option value="교재주문">교재 주문</option>
+                                        <option value="입시설명회">입시설명회</option>
+                                        <option value="모의고사마감">모의고사 마감</option>
+                                        <option value="행정일반">행정 일반</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.72rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 3px;">일정 날짜</label>
+                                    <input type="date" id="sched-date" required class="form-input" style="color-scheme: dark !important; font-weight: 700; height: 38px; width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.08); color: #ffffff !important; padding: 6px 10px; border-radius: 8px; font-size: 0.78rem;">
+                                </div>
                             </div>
                             <div>
-                                <label style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">주차 라벨</label>
-                                <input type="text" id="sched-week-label" placeholder="예: 3주차" value="3주차" class="form-input" style="text-align: center; font-weight: 800; height: 42px; width: 100%; box-sizing: border-box;">
+                                <label style="font-size: 0.72rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 3px;">일정 제목</label>
+                                <input type="text" id="sched-title" placeholder="일정 제목 (예: 6모 교재 발주 및 수강생 명단 마감)" required class="form-input" style="height: 38px; width: 100%; box-sizing: border-box; font-size: 0.8rem;">
                             </div>
-                        </div>
-                        <div style="margin-bottom: 10px;">
-                            <label style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">일정 날짜 선택</label>
-                            <input type="date" id="sched-date" required class="form-input" style="color-scheme: dark !important; font-weight: 700; height: 42px; width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.08); color: #ffffff !important; padding: 8px 12px; border-radius: 8px;">
-                        </div>
-                        <div style="margin-bottom: 10px;">
-                            <label style="font-size: 0.75rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">일정 제목</label>
-                            <input type="text" id="sched-title" placeholder="일정 제목 (예: 6모 교재 발주 및 수강생 명단 마감)" required class="form-input" style="height: 42px; width: 100%; box-sizing: border-box;">
-                        </div>
-                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; padding: 12px; font-size: 0.92rem; color: white; border-radius: 8px; width: 100%; box-sizing: border-box; cursor: pointer; box-shadow: 0 4px 12px rgba(99,102,241,0.35);">
-                            + 일정 등록
-                        </button>
-                    </form>
-                    <div id="admin-schedules-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto;"></div>
+                            <button type="submit" class="btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; padding: 10px; font-size: 0.85rem; color: white; border-radius: 8px; width: 100%; box-sizing: border-box; cursor: pointer; box-shadow: 0 4px 12px rgba(99,102,241,0.35);">
+                                + 일정 등록
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- 선택 날짜 일정 리스트 영역 -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span id="admin-personal-selected-date-label" style="font-size: 0.8rem; font-weight: 800; color: #cbd5e1;">📅 선택 일자 일정</span>
+                        <button type="button" onclick="showAllPersonalSchedules()" id="btn-show-all-sched" class="btn btn-secondary" style="padding: 3px 8px; font-size: 0.7rem;">전체 보기</button>
+                    </div>
+                    <div id="admin-schedules-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto;"></div>
                 </div>
             </div>
 
@@ -2118,6 +2162,9 @@
                     <button type="button" onclick="applySeatBuilderPreset('FOCUS_STUDY')" class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.75rem;">
                         🎧 1인 집중 독서실형
                     </button>
+                    <button type="button" onclick="applySeatBuilderPreset('LECTURE_HALL')" class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.75rem;">
+                        🏛️ 대형 강의실형(6x7)
+                    </button>
                     <button type="button" onclick="handleSaveCustomSeatLayout()" class="btn" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706); color: black; margin-left: auto;">
                         💾 배치도 클라우드 저장 & 즉시 반영
                     </button>
@@ -2521,7 +2568,8 @@
         // ==========================================
         async function loadStudyCafeSeats() {
             try {
-                const res = await fetch(`/api/admin/studycafe/seats?tenant_code=${currentTenantCode}`);
+                const code = currentTenantCode || 'ILWON-2027';
+                const res = await fetch(`/api/admin/studycafe/seats?tenant_code=${encodeURIComponent(code)}`);
                 if (!res.ok) return;
                 const data = await res.json();
                 currentStudyCafeSeats = data.seats || [];
@@ -2716,6 +2764,10 @@
                 rows = 4; cols = 8;
                 if (rowsSelect) rowsSelect.value = "4";
                 if (colsSelect) colsSelect.value = "8";
+            } else if (presetType === 'LECTURE_HALL') {
+                rows = 6; cols = 7;
+                if (rowsSelect) rowsSelect.value = "6";
+                if (colsSelect) colsSelect.value = "7";
             }
 
             const rowLetters = ["A", "B", "C", "D", "E", "F"];
@@ -2958,7 +3010,10 @@
             const btn = document.querySelector(`button[onclick*="${tabId}"]`);
             if (btn) btn.classList.add('active');
 
-            if (tabId === 'tab-schedule') loadAdminSchedules();
+            if (tabId === 'tab-schedule') {
+                renderAdminPersonalCalendar();
+                loadAdminSchedules();
+            }
             if (tabId === 'tab-attendance') {
                 loadAdminAttendanceLogs();
                 loadAdminAcademyCodes();
@@ -2967,6 +3022,7 @@
                 renderFinancialERP();
             }
             if (tabId === 'tab-curriculum') {
+                renderAdminCalendar();
                 loadAdminExamsList();
                 loadAdminVodLibrary();
                 loadAdminPrivateMaterials();
@@ -2980,6 +3036,24 @@
             }
             if (tabId === 'tab-tutors') {
                 loadAdminTutors();
+            }
+            if (tabId === 'tab-studycafe-seats') {
+                loadStudyCafeSeats();
+                if (window.adminSeatPollInterval) clearInterval(window.adminSeatPollInterval);
+                window.adminSeatPollInterval = setInterval(() => {
+                    const cafeTab = document.getElementById('tab-studycafe-seats');
+                    if (cafeTab && cafeTab.style.display !== 'none') {
+                        loadStudyCafeSeats();
+                    } else {
+                        clearInterval(window.adminSeatPollInterval);
+                        window.adminSeatPollInterval = null;
+                    }
+                }, 8000);
+            } else {
+                if (window.adminSeatPollInterval) {
+                    clearInterval(window.adminSeatPollInterval);
+                    window.adminSeatPollInterval = null;
+                }
             }
             if (tabId === 'tab-procurement') {
                 loadProcurementCatalog();
@@ -3239,6 +3313,9 @@
                 fetchDashboardData();
                 updateMasterBtnVisibility();
                 checkMandatoryNotices();
+                renderAdminPersonalCalendar();
+                loadAdminSchedules();
+                renderAdminCalendar();
                 // Sub-tabs (VOD, Exams, Finance, Schedules) are lazy-loaded when clicked in switchAdminCockpitTab
             } else {
                 document.getElementById("admin-dashboard-screen").style.display = "none";
@@ -3509,44 +3586,187 @@
         }
 
         
-        function initSchedulerDate() {
-            const dInput = document.getElementById("sched-date");
-            if (dInput && !dInput.value) {
-                const today = new Date();
-                const yyyy = today.getFullYear();
-                const mm = String(today.getMonth() + 1).padStart(2, '0');
-                const dd = String(today.getDate()).padStart(2, '0');
-                dInput.value = `${yyyy}-${mm}-${dd}`;
+        const _adminToday = new Date();
+        let adminPersonalCalYear = _adminToday.getFullYear();
+        let adminPersonalCalMonth = _adminToday.getMonth();
+        let adminPersonalSelectedDate = `${_adminToday.getFullYear()}-${String(_adminToday.getMonth() + 1).padStart(2, '0')}-${String(_adminToday.getDate()).padStart(2, '0')}`;
+        let adminPersonalSchedulesCache = [];
+        let adminPersonalShowAll = false;
+
+        function togglePersonalScheduleAddForm(show) {
+            const drawer = document.getElementById("admin-personal-sched-drawer");
+            if (!drawer) return;
+            if (show === undefined) {
+                drawer.style.display = (drawer.style.display === 'none' || !drawer.style.display) ? 'block' : 'none';
+            } else {
+                drawer.style.display = show ? 'block' : 'none';
+            }
+            if (drawer.style.display === 'block') {
+                const dateInput = document.getElementById("sched-date");
+                if (dateInput && !dateInput.value) dateInput.value = adminPersonalSelectedDate;
+                const titleInput = document.getElementById("sched-title");
+                if (titleInput) titleInput.focus();
             }
         }
+        window.togglePersonalScheduleAddForm = togglePersonalScheduleAddForm;
+
+        function navigateAdminPersonalCalendar(delta) {
+            adminPersonalCalMonth += delta;
+            if (adminPersonalCalMonth < 0) { adminPersonalCalMonth = 11; adminPersonalCalYear -= 1; }
+            else if (adminPersonalCalMonth > 11) { adminPersonalCalMonth = 0; adminPersonalCalYear += 1; }
+            renderAdminPersonalCalendar();
+        }
+        window.navigateAdminPersonalCalendar = navigateAdminPersonalCalendar;
+
+        function jumpAdminPersonalCalendarToToday() {
+            const today = new Date();
+            adminPersonalCalYear = today.getFullYear();
+            adminPersonalCalMonth = today.getMonth();
+            adminPersonalSelectedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            const dInput = document.getElementById("sched-date");
+            if (dInput) dInput.value = adminPersonalSelectedDate;
+            adminPersonalShowAll = false;
+            renderAdminPersonalCalendar();
+            renderFilteredPersonalSchedules();
+        }
+        window.jumpAdminPersonalCalendarToToday = jumpAdminPersonalCalendarToToday;
+
+        function selectAdminPersonalDate(dStr) {
+            adminPersonalSelectedDate = dStr;
+            adminPersonalShowAll = false;
+            const dInput = document.getElementById("sched-date");
+            if (dInput) dInput.value = dStr;
+            renderAdminPersonalCalendar();
+            renderFilteredPersonalSchedules();
+        }
+        window.selectAdminPersonalDate = selectAdminPersonalDate;
+
+        function showAllPersonalSchedules() {
+            adminPersonalShowAll = !adminPersonalShowAll;
+            const btn = document.getElementById("btn-show-all-sched");
+            if (btn) btn.innerText = adminPersonalShowAll ? "선택일 보기" : "전체 보기";
+            renderAdminPersonalCalendar();
+            renderFilteredPersonalSchedules();
+        }
+        window.showAllPersonalSchedules = showAllPersonalSchedules;
+
+        function renderAdminPersonalCalendar() {
+            const label = document.getElementById("admin-personal-cal-month-label");
+            const grid = document.getElementById("admin-personal-calendar-cells");
+            const dInput = document.getElementById("sched-date");
+            if (dInput && !dInput.value) {
+                dInput.value = adminPersonalSelectedDate;
+            }
+            if (label) label.innerText = `${adminPersonalCalYear}. ${String(adminPersonalCalMonth + 1).padStart(2, '0')}`;
+            if (!grid) return;
+
+            const firstDay = new Date(adminPersonalCalYear, adminPersonalCalMonth, 1).getDay();
+            const daysInMonth = new Date(adminPersonalCalYear, adminPersonalCalMonth + 1, 0).getDate();
+            const daysInPrevMonth = new Date(adminPersonalCalYear, adminPersonalCalMonth, 0).getDate();
+
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+            let html = "";
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const pDay = daysInPrevMonth - i;
+                html += `<div style="background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.03); border-radius: 6px; padding: 4px 2px; text-align: center; opacity: 0.22; font-size: 0.72rem; color: #64748b; min-height: 42px; display: flex; flex-direction: column; justify-content: flex-start; align-items: center;"><span style="margin-top: 2px;">${pDay}</span></div>`;
+            }
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dStr = `${adminPersonalCalYear}-${String(adminPersonalCalMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const isToday = (dStr === todayStr);
+                const isSelected = (!adminPersonalShowAll && dStr === adminPersonalSelectedDate);
+                const daySchedules = (adminPersonalSchedulesCache || []).filter(s => (s.schedule_date || '').startsWith(dStr));
+
+                let indicatorHtml = "";
+                if (daySchedules.length > 0) {
+                    const dots = daySchedules.slice(0, 3).map(s => {
+                        let dotColor = "#818cf8";
+                        if (s.category === "교재주문") dotColor = "#818cf8";
+                        else if (s.category === "입시설명회") dotColor = "#fbbf24";
+                        else if (s.category === "모의고사마감") dotColor = "#ef4444";
+                        else if (s.category === "행정일반") dotColor = "#34d399";
+                        return `<span style="width: 5px; height: 5px; border-radius: 50%; background: ${dotColor}; display: inline-block;"></span>`;
+                    }).join("");
+                    indicatorHtml = `<div style="display: flex; justify-content: center; gap: 2px; margin-top: 3px;">${dots}</div>`;
+                }
+
+                html += `
+                    <div onclick="selectAdminPersonalDate('${dStr}')" style="background: ${isSelected ? 'rgba(56,189,248,0.22)' : (isToday ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.025)')}; border: 1.5px solid ${isSelected ? '#38bdf8' : (isToday ? '#818cf8' : 'rgba(255,255,255,0.06)')}; border-radius: 6px; padding: 4px 2px; text-align: center; cursor: pointer; transition: all 0.15s; min-height: 42px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; box-sizing: border-box;" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='${isSelected ? '#38bdf8' : (isToday ? '#818cf8' : 'rgba(255,255,255,0.06)')}'">
+                        <span style="font-size: 0.76rem; font-weight: ${isToday || isSelected ? '900' : '700'}; color: ${isToday ? '#ffffff' : (isSelected ? '#38bdf8' : '#e2e8f0')}; line-height: 1.2;">${d}</span>
+                        ${indicatorHtml || '<span style="height: 5px;"></span>'}
+                    </div>
+                `;
+            }
+            grid.innerHTML = html;
+        }
+        window.renderAdminPersonalCalendar = renderAdminPersonalCalendar;
+
+        function renderFilteredPersonalSchedules() {
+            const container = document.getElementById("admin-schedules-list");
+            const label = document.getElementById("admin-personal-selected-date-label");
+            if (!container) return;
+
+            let filtered = [];
+            if (adminPersonalShowAll) {
+                filtered = adminPersonalSchedulesCache || [];
+                if (label) label.innerText = `📋 전체 개인 일정 (${filtered.length}건)`;
+            } else {
+                filtered = (adminPersonalSchedulesCache || []).filter(s => (s.schedule_date || '').startsWith(adminPersonalSelectedDate));
+                if (label) label.innerText = `📅 ${adminPersonalSelectedDate} 일정 (${filtered.length}건)`;
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; color: #94a3b8; font-size: 0.78rem; padding: 14px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px dashed rgba(255,255,255,0.08);">
+                        ${adminPersonalShowAll ? '등록된 일정이 없습니다.' : `선택한 날짜(${adminPersonalSelectedDate})에 일정이 없습니다.`}
+                        <div style="margin-top: 6px;">
+                            <button type="button" onclick="togglePersonalScheduleAddForm(true)" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.72rem; color: #a5b4fc; border-color: #6366f1;">
+                                + 이 날짜에 새 일정 등록
+                            </button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(s => {
+                const safeTitle = (s.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                let catBadgeColor = "rgba(99,102,241,0.2)";
+                let catTextColor = "#818cf8";
+                if (s.category === "입시설명회") { catBadgeColor = "rgba(245,158,11,0.2)"; catTextColor = "#fbbf24"; }
+                else if (s.category === "모의고사마감") { catBadgeColor = "rgba(239,68,68,0.2)"; catTextColor = "#fca5a5"; }
+                else if (s.category === "행정일반") { catBadgeColor = "rgba(16,185,129,0.2)"; catTextColor = "#34d399"; }
+
+                return `
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 8px; border-left: 4px solid ${catTextColor}; flex-wrap: wrap; gap: 6px;">
+                        <div style="flex: 1; min-width: 0;">
+                            <span style="font-size: 0.72rem; background: ${catBadgeColor}; color: ${catTextColor}; padding: 2px 6px; border-radius: 4px; font-weight: 800;">${s.category || '일정'} [${s.schedule_date || '-'}]</span>
+                            <span style="font-weight: 800; font-size: 0.85rem; color: white; margin-left: 4px; word-break: break-all;">${s.title}</span>
+                        </div>
+                        <div style="display: flex; gap: 6px; align-items: center; margin-left: auto;">
+                            <button onclick="editAdminSchedule(${s.id}, '${safeTitle}', '${s.schedule_date || ''}', '${s.category || ''}')" class="btn" style="padding: 3px 8px; font-size: 0.72rem; background: rgba(99,102,241,0.25); color: #a5b4fc; border: 1px solid #6366f1; border-radius: 6px; font-weight: 700; cursor: pointer;">수정</button>
+                            <button onclick="deleteAdminSchedule(${s.id}, '${safeTitle}')" class="btn" style="padding: 3px 8px; font-size: 0.72rem; background: rgba(239,68,68,0.2); color: #fca5a5; border: 1px solid #ef4444; border-radius: 6px; font-weight: 700; cursor: pointer;">삭제</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        window.renderFilteredPersonalSchedules = renderFilteredPersonalSchedules;
 
         async function loadAdminSchedules() {
-            initSchedulerDate();
-            const container = document.getElementById("admin-schedules-list");
-            if (!container) return;
+            renderAdminPersonalCalendar();
             try {
                 const res = await fetch("/api/admin/schedules");
                 if (!res.ok) return;
                 const list = await res.json();
-                if (list.length === 0) {
-                    container.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.8rem; padding:12px;">등록된 일정이 없습니다.</div>';
-                    return;
-                }
-                container.innerHTML = list.map(s => {
-                    const safeTitle = (s.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                    return `
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.3); padding:10px 12px; border-radius:8px; border-left:4px solid #6366f1; flex-wrap:wrap; gap:6px;">
-                        <div>
-                            <span style="font-size:0.72rem; background:rgba(99,102,241,0.2); color:#818cf8; padding:2px 6px; border-radius:4px; font-weight:800;">${s.category} [${s.schedule_date || '-'}]</span>
-                            <span style="font-weight:800; font-size:0.88rem; color:white; margin-left:4px;">${s.title}</span>
-                        </div>
-                        <div style="display:flex; gap:6px; align-items:center;">
-                            <button onclick="editAdminSchedule(${s.id}, '${safeTitle}', '${s.schedule_date || ''}', '${s.category || ''}')" class="btn" style="padding:4px 9px; font-size:0.72rem; background:rgba(99,102,241,0.25); color:#a5b4fc; border:1px solid #6366f1; border-radius:6px; font-weight:700; cursor:pointer;">수정</button>
-                            <button onclick="deleteAdminSchedule(${s.id}, '${safeTitle}')" class="btn" style="padding:4px 9px; font-size:0.72rem; background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid #ef4444; border-radius:6px; font-weight:700; cursor:pointer;">삭제</button>
-                        </div>
-                    </div>
-                `}).join('');
-            } catch(e) {}
+                adminPersonalSchedulesCache = list || [];
+                renderAdminPersonalCalendar();
+                renderFilteredPersonalSchedules();
+            } catch(e) {
+                console.error("loadAdminSchedules error:", e);
+            }
         }
 
         async function editAdminSchedule(id, currentTitle, currentDate, currentCat) {
@@ -3595,7 +3815,8 @@
             const cat = document.getElementById("sched-category").value;
             const date = document.getElementById("sched-date").value;
             const title = document.getElementById("sched-title").value.trim();
-            const weekStr = document.getElementById("sched-week-label").value.replace(/[^0-9]/g, '');
+            const weekInput = document.getElementById("sched-week-label");
+            const weekStr = weekInput ? weekInput.value.replace(/[^0-9]/g, '') : "3";
             const week = parseInt(weekStr || "3", 10);
             try {
                 const res = await fetch("/api/admin/schedules", {
@@ -3607,6 +3828,7 @@
                 if (res.ok) {
                     alert(`✅ ${data.message || '스케줄이 등록되었습니다!'}`);
                     document.getElementById("sched-title").value = "";
+                    togglePersonalScheduleAddForm(false);
                     loadAdminSchedules();
                 } else {
                     alert(data.detail || "일정 등록 실패");
@@ -4408,8 +4630,9 @@
             fetchDashboardData();
         }
 
-        let adminCalYear = 2026;
-        let adminCalMonth = 9; // October
+        const _adminCalNow = new Date();
+        let adminCalYear = _adminCalNow.getFullYear();
+        let adminCalMonth = _adminCalNow.getMonth();
         let adminFeedsCache = [];
 
         function renderAdminCalendar() {
@@ -4521,11 +4744,13 @@
         async function loadAdminFeedsList() {
             const listEl = document.getElementById("admin-feeds-list");
             const countBadge = document.getElementById("admin-feeds-count-badge");
+            renderAdminCalendar();
             if (!listEl) return;
             try {
                 const res = await fetch(`/api/academy/feeds?academy_code=${encodeURIComponent(currentTenantCode || 'ILWON-2027')}`);
                 if (!res.ok) {
                     listEl.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.8rem; padding:12px;">공지사항을 불러오지 못했습니다.</div>';
+                    renderAdminCalendar();
                     return;
                 }
                 const feeds = await res.json();

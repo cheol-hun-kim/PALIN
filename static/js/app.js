@@ -632,7 +632,18 @@ function updateUniversitySlogan(targetUnivStr, theme, isDayMode) {
     const sloganBox = document.getElementById("univ-slogan-container");
     if (!sloganEl || !sloganBox) return;
 
+    if (!targetUnivStr || targetUnivStr === "-" || targetUnivStr.includes("미설정") || targetUnivStr.includes("설정해 주세요")) {
+        sloganBox.style.display = "none";
+        return;
+    }
+
     const slogan = getUniversitySlogan(targetUnivStr);
+    if (!slogan) {
+        sloganBox.style.display = "none";
+        return;
+    }
+
+    sloganBox.style.display = "flex";
     sloganEl.innerText = `“${slogan}”`;
 
     const color = theme ? theme.color : "#6366F1";
@@ -666,7 +677,15 @@ function formatDDayTitle(title) {
 }
 
 function applyUniversityTheme(targetUnivStr) {
-    if (!targetUnivStr) return;
+    const watermark = document.getElementById("banner-univ-watermark");
+    const sloganBox = document.getElementById("univ-slogan-container");
+
+    if (!targetUnivStr || targetUnivStr === "-" || targetUnivStr.includes("설정해 주세요") || targetUnivStr.includes("미설정")) {
+        if (watermark) watermark.innerText = "";
+        if (sloganBox) sloganBox.style.display = "none";
+        return;
+    }
+
     const raw = targetUnivStr.trim();
     let theme = null;
 
@@ -682,7 +701,6 @@ function applyUniversityTheme(targetUnivStr) {
     }
 
     const banner = document.getElementById("univ-target-banner");
-    const watermark = document.getElementById("banner-univ-watermark");
     const targetLabel = document.getElementById("banner-target-label");
     const ddayBadgeBox = document.getElementById("banner-dday-badge-box");
     const isDayMode = document.body.classList.contains("day-mode");
@@ -4671,6 +4689,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     initPALINThemeEngine();
 
+    // 1-1. Instant render cached student target university (Zero Flash)
+    try {
+        const cachedTarget = localStorage.getItem("cached_target_univ");
+        const cachedBaseline = localStorage.getItem("cached_baseline_univ");
+        if (cachedTarget) {
+            const targetUnivEl = document.getElementById("banner-target-univ");
+            if (targetUnivEl) targetUnivEl.innerText = cachedTarget;
+            applyUniversityTheme(cachedTarget);
+        }
+        if (cachedBaseline) {
+            const baselineUnivEl = document.getElementById("banner-baseline-univ");
+            if (baselineUnivEl) baselineUnivEl.innerText = cachedBaseline;
+        }
+    } catch(e) {}
+
     // 2. 내장 정적 지역 및 고등학교 데이터로 즉시 렌더링
     populateSidoOptions("reg-sido");
     populateSidoOptions("edit-sido");
@@ -5266,9 +5299,9 @@ async function fetchStudentInfo(studentId) {
 
                 high_school: "낙생고",
 
-                target_univ: "연세대학교 의예과",
+                target_univ: localStorage.getItem("cached_target_univ") || "",
 
-                baseline_univ: "서울대학교 화학생물공학부",
+                baseline_univ: localStorage.getItem("cached_baseline_univ") || "",
 
                 current_points: 100,
 
@@ -6868,12 +6901,22 @@ function updateTargetBanner() {
 
     const baselineUnivEl = document.getElementById("banner-baseline-univ");
 
-    const target = (currentStudent && currentStudent.target_univ && currentStudent.target_univ !== "-") ? currentStudent.target_univ : (localStorage.getItem("cached_target_univ") || "연세대학교 의예과");
+    const cachedTarget = localStorage.getItem("cached_target_univ");
+    const cachedBaseline = localStorage.getItem("cached_baseline_univ");
 
-    const baseline = (currentStudent && currentStudent.baseline_univ && currentStudent.baseline_univ !== "-") ? currentStudent.baseline_univ : (localStorage.getItem("cached_baseline_univ") || "서울대학교 화학생물공학부");
+    const target = (currentStudent && currentStudent.target_univ && currentStudent.target_univ !== "-") ? currentStudent.target_univ : (cachedTarget || "");
 
-    if (targetUnivEl) targetUnivEl.innerText = target;
-    if (baselineUnivEl) baselineUnivEl.innerText = baseline;
+    const baseline = (currentStudent && currentStudent.baseline_univ && currentStudent.baseline_univ !== "-") ? currentStudent.baseline_univ : (cachedBaseline || "");
+
+    if (currentStudent && currentStudent.target_univ && currentStudent.target_univ !== "-") {
+        localStorage.setItem("cached_target_univ", currentStudent.target_univ);
+    }
+    if (currentStudent && currentStudent.baseline_univ && currentStudent.baseline_univ !== "-") {
+        localStorage.setItem("cached_baseline_univ", currentStudent.baseline_univ);
+    }
+
+    if (targetUnivEl) targetUnivEl.innerText = target || "목표 대학을 설정해 주세요";
+    if (baselineUnivEl) baselineUnivEl.innerText = baseline || "마지노선 대학 미설정";
 
     // 정시/수시 합격예측 화면의 목표 대학 & 마지노선 대학 실시간 동기화
     const dispTarget = document.getElementById("disp-target-univ");
