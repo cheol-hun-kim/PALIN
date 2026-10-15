@@ -14260,82 +14260,234 @@ async function handleLinkAcademyCode() {
     }
 }
 
+let currentCalendarYear = 2026;
+let currentCalendarMonth = 9; // 0-indexed: 9 = October
+let selectedCalendarDateStr = "2026-10-16";
+let currentAcademicFeedsCache = [];
+
+function initCalendarState() {
+    const today = new Date();
+    currentCalendarYear = today.getFullYear();
+    currentCalendarMonth = today.getMonth();
+    const mm = String(currentCalendarMonth + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    selectedCalendarDateStr = `${currentCalendarYear}-${mm}-${dd}`;
+}
+
 async function loadAcademyHubView() {
     updateAcademyGNBVisibility();
-    const aCode = (currentStudent && currentStudent.academy_code) ? currentStudent.academy_code : "";
+    if (!currentAcademicFeedsCache || currentAcademicFeedsCache.length === 0) {
+        initCalendarState();
+    }
     const container = document.getElementById("hub-curriculum-feed-list");
-    if (!container) return;
 
-    if (!aCode && !isDemoMode) {
-        container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 18px;">학원 연동 후 학사 일정을 확인하실 수 있습니다.</div>';
-        return;
+    try {
+        const res = await fetch(`/api/academy/feeds?academy_code=ALL&all_enrolled=true`);
+        if (res.ok) {
+            currentAcademicFeedsCache = await res.json();
+        }
+    } catch(e) {
+        console.error("loadAcademyHubView fetch error:", e);
     }
 
-    if (isDemoMode || currentStudent?.id === 9999 || (aCode === "PALIN-2027" && isDemoMode)) {
-        container.innerHTML = `
-            <div style="background: rgba(239,68,68,0.1); border: 1px solid #ef4444; border-radius: 10px; padding: 12px; margin-bottom: 8px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.68rem; font-weight: 800;">특별공지</span>
-                        <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-primary);">[수시/정시 원서전략 주간 안내]</span>
-                    </div>
-                    <span style="font-size: 0.72rem; color: var(--text-secondary);">2026-09-03</span>
-                </div>
-                <div style="font-size: 0.8rem; color: var(--text-primary); line-height: 1.45;">2027학년도 대입 수시 원서 접수 최종 1:1 배치 상담이 진행 중입니다. 목표/안정 대학 라인을 확인해 주세요.</div>
+    renderAcademyCalendar(currentCalendarYear, currentCalendarMonth);
+    renderCalendarSelectedDayDetails(selectedCalendarDateStr);
+    renderAcademyFeedList();
+}
+window.loadAcademyHubView = loadAcademyHubView;
+
+function renderAcademyCalendar(year, month) {
+    const label = document.getElementById("calendar-current-month-label");
+    const grid = document.getElementById("calendar-grid-cells");
+    if (label) {
+        label.innerText = `${year}. ${String(month + 1).padStart(2, '0')}`;
+    }
+    if (!grid) return;
+
+    const firstDay = new Date(year, month, 1).getDay(); // 0: Sun, 6: Sat
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+    let cellsHtml = "";
+
+    // 1. Previous Month Days (흐리게 표시)
+    for (let i = firstDay - 1; i >= 0; i--) {
+        const pDay = daysInPrevMonth - i;
+        const prevMonthNum = month === 0 ? 12 : month;
+        const prevYearNum = month === 0 ? year - 1 : year;
+        const pDateStr = `${prevYearNum}-${String(prevMonthNum).padStart(2, '0')}-${String(pDay).padStart(2, '0')}`;
+        cellsHtml += `
+            <div class="cal-cell is-other-month" onclick="selectCalendarDate('${pDateStr}')">
+                <span style="font-size: 0.72rem; color: #64748b;">${pDay}</span>
             </div>
-            <div style="background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.2); border-radius: 10px; padding: 12px; margin-bottom: 8px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-primary);">[수능국어 1주차 정규 강의]</span>
-                    </div>
-                    <span style="font-size: 0.72rem; color: var(--text-secondary);">2026-09-01</span>
-                </div>
-                <div style="font-size: 0.8rem; color: var(--text-primary); line-height: 1.45;">9월 평가원 비문학 고난도 인문철학 킬러 3개년 기출 구조독해법 & 취약문항 1:1 오답 클리닉 (VOD 7일 락 제공)</div>
+        `;
+    }
+
+    // 2. Current Month Days
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const isToday = (dateStr === todayStr);
+        const isSelected = (dateStr === selectedCalendarDateStr);
+
+        let cellClasses = "cal-cell";
+        if (isToday) cellClasses += " is-today";
+        if (isSelected) cellClasses += " is-selected";
+
+        // 해당 일자의 학사 일정 조회 (학원별 색상 점 도트 표시)
+        const dayEvents = (currentAcademicFeedsCache || []).filter(f => f.feed_date === dateStr);
+
+        let dotsHtml = "";
+        if (dayEvents.length > 0) {
+            dotsHtml = `<div class="cal-dot-container">` + dayEvents.slice(0, 3).map(ev => {
+                const color = ev.brand_color || (ev.academy_code === "CAFE-STUDY01" ? "#34d399" : "#818cf8");
+                return `<span class="cal-dot" style="background: ${color};" title="${ev.institution_name}: ${ev.curriculum_name}"></span>`;
+            }).join('') + (dayEvents.length > 3 ? `<span style="font-size: 0.6rem; color: #94a3b8;">+</span>` : "") + `</div>`;
+        }
+
+        cellsHtml += `
+            <div class="${cellClasses}" onclick="selectCalendarDate('${dateStr}')" data-date="${dateStr}">
+                <span style="font-size: 0.75rem; font-weight: ${isToday || isSelected ? '900' : '700'}; color: ${isToday ? '#ffffff' : (isSelected ? '#38bdf8' : '#e2e8f0')};">${day}</span>
+                ${dotsHtml}
             </div>
-            <div style="background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.2); border-radius: 10px; padding: 12px; margin-bottom: 8px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-primary);">[주간 모의고사 과제 공지]</span>
-                    </div>
-                    <span style="font-size: 0.72rem; color: var(--text-secondary);">2026-09-04</span>
-                </div>
-                <div style="font-size: 0.8rem; color: var(--text-primary); line-height: 1.45;">EBS 수능특강 문학 고전시가 핵심 테마 총정리 워크북 배부 완료. 이번 주 일요일 자정까지 OMR 성적 제출을 완료해 주세요.</div>
+        `;
+    }
+
+    // 3. Next Month Filler
+    const totalFilled = firstDay + daysInMonth;
+    const remaining = (7 - (totalFilled % 7)) % 7;
+    for (let nextDay = 1; nextDay <= remaining; nextDay++) {
+        const nextMonthNum = month === 11 ? 1 : month + 2;
+        const nextYearNum = month === 11 ? year + 1 : year;
+        const nDateStr = `${nextYearNum}-${String(nextMonthNum).padStart(2, '0')}-${String(nextDay).padStart(2, '0')}`;
+        cellsHtml += `
+            <div class="cal-cell is-other-month" onclick="selectCalendarDate('${nDateStr}')">
+                <span style="font-size: 0.72rem; color: #64748b;">${nextDay}</span>
+            </div>
+        `;
+    }
+
+    grid.innerHTML = cellsHtml;
+}
+window.renderAcademyCalendar = renderAcademyCalendar;
+
+function selectCalendarDate(dateStr) {
+    selectedCalendarDateStr = dateStr;
+    renderAcademyCalendar(currentCalendarYear, currentCalendarMonth);
+    renderCalendarSelectedDayDetails(dateStr);
+}
+window.selectCalendarDate = selectCalendarDate;
+
+function navigateAcademyCalendar(delta) {
+    currentCalendarMonth += delta;
+    if (currentCalendarMonth < 0) {
+        currentCalendarMonth = 11;
+        currentCalendarYear -= 1;
+    } else if (currentCalendarMonth > 11) {
+        currentCalendarMonth = 0;
+        currentCalendarYear += 1;
+    }
+    renderAcademyCalendar(currentCalendarYear, currentCalendarMonth);
+}
+window.navigateAcademyCalendar = navigateAcademyCalendar;
+
+function jumpAcademyCalendarToToday() {
+    initCalendarState();
+    renderAcademyCalendar(currentCalendarYear, currentCalendarMonth);
+    renderCalendarSelectedDayDetails(selectedCalendarDateStr);
+}
+window.jumpAcademyCalendarToToday = jumpAcademyCalendarToToday;
+
+function renderCalendarSelectedDayDetails(dateStr) {
+    const titleEl = document.getElementById("calendar-selected-date-text");
+    const countBadge = document.getElementById("calendar-selected-count-badge");
+    const listEl = document.getElementById("calendar-selected-events-list");
+    if (!listEl) return;
+
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const isToday = (dateStr === todayStr);
+
+    if (titleEl) {
+        const parts = dateStr.split("-");
+        const y = parts[0];
+        const m = parseInt(parts[1], 10);
+        const d = parseInt(parts[2], 10);
+        const dObj = new Date(parseInt(y, 10), m - 1, d);
+        const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+        const dayName = dayNames[dObj.getDay()] || "";
+        titleEl.innerHTML = `${y}년 ${m}월 ${d}일 (${dayName})${isToday ? ' <span style="color: #818cf8; font-weight: 900;">(오늘)</span>' : ''} 학사일정`;
+    }
+
+    const dayEvents = (currentAcademicFeedsCache || []).filter(f => f.feed_date === dateStr);
+    if (countBadge) {
+        countBadge.innerText = `일정 ${dayEvents.length}건`;
+    }
+
+    if (dayEvents.length === 0) {
+        listEl.innerHTML = `
+            <div style="text-align: center; color: var(--text-secondary); font-size: 0.78rem; padding: 14px 10px; background: rgba(255,255,255,0.02); border-radius: 8px;">
+                선택하신 날짜에 등록된 학사 일정 및 특별 공지가 없습니다.
             </div>
         `;
         return;
     }
 
-    try {
-        const res = await fetch(`/api/academy/feeds?academy_code=${encodeURIComponent(aCode)}`);
-        if (res.ok) {
-            const feeds = await res.json();
-            if (!feeds || feeds.length === 0) {
-                container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 18px;">등록된 학사 일정 및 공지사항이 없습니다.</div>';
-                return;
-            }
-            container.innerHTML = feeds.map(f => {
-                const isSpecial = f.is_special_notice;
-                return `
-                    <div style="background: ${isSpecial ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.04)'}; border: 1px solid ${isSpecial ? '#ef4444' : 'rgba(255,255,255,0.08)'}; border-radius: 10px; padding: 12px; margin-bottom: 8px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                            <div style="display: flex; align-items: center; gap: 6px;">
-                                ${isSpecial ? '<span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.68rem; font-weight: 800;">특별공지</span>' : ''}
-                                <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-primary);">[${f.curriculum_name} ${f.week_number}주차]</span>
-                            </div>
-                            <span style="font-size: 0.72rem; color: var(--text-secondary);">${f.feed_date}</span>
-                        </div>
-                        <div style="font-size: 0.8rem; color: var(--text-primary); line-height: 1.45;">${f.content}</div>
+    listEl.innerHTML = dayEvents.map(ev => {
+        const isSpecial = ev.is_special_notice;
+        const color = ev.brand_color || (ev.academy_code === "CAFE-STUDY01" ? "#34d399" : "#818cf8");
+        const instBadge = ev.institution_name || (ev.academy_code === "CAFE-STUDY01" ? "일원 스터디카페" : "일원학원");
+
+        return `
+            <div style="background: rgba(255,255,255,0.03); border: 1.5px solid ${color}; border-radius: 10px; padding: 10px 12px; margin-bottom: 2px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; flex-wrap: wrap; gap: 4px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="background: ${color}; color: #ffffff; padding: 2px 7px; border-radius: 4px; font-size: 0.68rem; font-weight: 900;">${instBadge}</span>
+                        ${isSpecial ? '<span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.68rem; font-weight: 800;">중요</span>' : ''}
+                        <span style="font-weight: 800; font-size: 0.84rem; color: var(--text-primary);">${ev.curriculum_name}</span>
                     </div>
-                `;
-            }).join('');
-        }
-    } catch(e) {
-        console.error("loadAcademyHubView error:", e);
-        if (container) {
-            container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 18px;">등록된 학사 일정 및 공지사항이 없습니다.</div>';
-        }
-    }
+                    <span style="font-size: 0.72rem; color: var(--text-secondary);">${ev.feed_date}</span>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.45;">${ev.content}</div>
+            </div>
+        `;
+    }).join('');
 }
+window.renderCalendarSelectedDayDetails = renderCalendarSelectedDayDetails;
+
+function renderAcademyFeedList() {
+    const container = document.getElementById("hub-curriculum-feed-list");
+    if (!container) return;
+
+    if (!currentAcademicFeedsCache || currentAcademicFeedsCache.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 18px;">등록된 학사 일정 및 공지사항이 없습니다.</div>';
+        return;
+    }
+
+    container.innerHTML = currentAcademicFeedsCache.map(f => {
+        const isSpecial = f.is_special_notice;
+        const color = f.brand_color || (f.academy_code === "CAFE-STUDY01" ? "#34d399" : "#818cf8");
+        const instName = f.institution_name || (f.academy_code === "CAFE-STUDY01" ? "일원 스터디카페" : "일원학원");
+
+        return `
+            <div style="background: ${isSpecial ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.03)'}; border: 1px solid ${isSpecial ? '#ef4444' : 'rgba(255,255,255,0.08)'}; border-left: 3.5px solid ${color}; border-radius: 10px; padding: 12px; margin-bottom: 6px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; flex-wrap: wrap; gap: 4px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="background: ${color}; color: #ffffff; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 800;">${instName}</span>
+                        ${isSpecial ? '<span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 800;">특별공지</span>' : ''}
+                        <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-primary);">${f.curriculum_name}</span>
+                    </div>
+                    <span style="font-size: 0.72rem; color: var(--text-secondary);">${f.feed_date}</span>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-primary); line-height: 1.45;">${f.content}</div>
+            </div>
+        `;
+    }).join('');
+}
+window.renderAcademyFeedList = renderAcademyFeedList;
+
 
 function openRequestModal(reqType) {
     const modal = document.getElementById("academy-request-modal");
@@ -14669,6 +14821,11 @@ function switchHubSubTab(subTab) {
     if (targetView) targetView.style.display = "block";
     if (targetBtn) targetBtn.classList.add("active");
 
+    if (window.studentSeatPollInterval) {
+        clearInterval(window.studentSeatPollInterval);
+        window.studentSeatPollInterval = null;
+    }
+
     if (subTab === "feed") loadAcademyHubView();
     else if (subTab === "vod") loadStudentVods();
     else if (subTab === "material") loadAcademyMaterials();
@@ -14678,8 +14835,17 @@ function switchHubSubTab(subTab) {
     }
     else if (subTab === "seat") {
         loadStudentAcademySeats();
+        window.studentSeatPollInterval = setInterval(() => {
+            if (currentHubSubTab === "seat") {
+                loadStudentAcademySeats();
+            } else {
+                clearInterval(window.studentSeatPollInterval);
+                window.studentSeatPollInterval = null;
+            }
+        }, 8000);
     }
 }
+
 
 async function loadAcademyMaterials() {
     const container = document.getElementById("hub-academy-materials-list");

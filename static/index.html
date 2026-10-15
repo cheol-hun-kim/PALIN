@@ -47,6 +47,66 @@
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .ai-spin-icon { display: inline-block; animation: spin 1s linear infinite; }
 
+    /* 📅 실시간 학사일정 캘린더 & 오늘 날짜 깜빡임 애니메이션 */
+    @keyframes today-cal-pulse {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.75);
+            border-color: #818cf8;
+        }
+        50% {
+            box-shadow: 0 0 0 6px rgba(99, 102, 241, 0);
+            border-color: #c7d2fe;
+        }
+    }
+    .cal-cell {
+        aspect-ratio: 1;
+        min-height: 42px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        padding: 3px 2px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        position: relative;
+    }
+    .cal-cell:hover {
+        background: rgba(99, 102, 241, 0.12);
+        border-color: rgba(99, 102, 241, 0.4);
+    }
+    .cal-cell.is-other-month {
+        opacity: 0.28;
+    }
+    .cal-cell.is-today {
+        background: rgba(99, 102, 241, 0.22) !important;
+        border: 2px solid #818cf8 !important;
+        font-weight: 900 !important;
+        color: #ffffff !important;
+        animation: today-cal-pulse 2s infinite !important;
+    }
+    .cal-cell.is-selected {
+        outline: 2px solid #38bdf8 !important;
+        background: rgba(56, 189, 248, 0.18) !important;
+    }
+    .cal-dot-container {
+        display: flex;
+        gap: 2.5px;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        margin-top: 1px;
+    }
+    .cal-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+
     /* 📅 & ⏰ 날짜/시간 선택창(Date/Time Picker) 단일 화이트 고대비 스타일링 */
 input[type="date"],
 input[type="time"],
@@ -2577,15 +2637,77 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     </div>
 
                     <div id="hub-main-content-area">
-                        <!-- 서브탭 1: 📢 주차별 학사 일정 & 특별 공지사항 -->
+                        <!-- 서브탭 1: 📅 통합 학사 일정 캘린더 & 주차별 진도 공지 -->
                         <div id="hub-view-feed" class="hub-subtab-view">
+                            <!-- 1. 월간 인터랙티브 학사일정 캘린더 카드 -->
+                            <div class="card" id="academic-calendar-card" style="margin-bottom: 14px;">
+                                <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                                    <div style="font-weight: 800; font-size: 0.95rem; color: #818cf8; display: flex; align-items: center; gap: 6px;">
+                                        <span class="material-symbols-rounded">calendar_month</span>
+                                        <span>통합 학사일정 캘린더</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <button type="button" onclick="navigateAcademyCalendar(-1)" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.72rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center;">◀</button>
+                                        <span id="calendar-current-month-label" style="font-weight: 900; font-size: 0.88rem; color: #f8fafc; min-width: 80px; text-align: center;">2026. 10</span>
+                                        <button type="button" onclick="navigateAcademyCalendar(1)" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.72rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center;">▶</button>
+                                        <button type="button" onclick="jumpAcademyCalendarToToday()" class="btn" style="padding: 4px 9px; font-size: 0.72rem; font-weight: 800; background: rgba(99,102,241,0.25); border: 1px solid #818cf8; color: #c7d2fe; border-radius: 6px; cursor: pointer;">오늘</button>
+                                    </div>
+                                </div>
+
+                                <!-- 다중 학원/독서실 범례 태그 (Color Legend) -->
+                                <div id="calendar-institution-legend" style="display: flex; gap: 10px; margin-bottom: 10px; font-size: 0.72rem; flex-wrap: wrap; padding: 4px 2px;">
+                                    <span style="display: inline-flex; align-items: center; gap: 4px;">
+                                        <span style="width: 7px; height: 7px; border-radius: 50%; background: #818cf8;"></span>
+                                        <span style="color: #cbd5e1; font-weight: 700;">일원학원</span>
+                                    </span>
+                                    <span style="display: inline-flex; align-items: center; gap: 4px;">
+                                        <span style="width: 7px; height: 7px; border-radius: 50%; background: #34d399;"></span>
+                                        <span style="color: #cbd5e1; font-weight: 700;">일원 스터디카페</span>
+                                    </span>
+                                    <span style="display: inline-flex; align-items: center; gap: 4px; margin-left: auto; color: #94a3b8;">
+                                        <span>⚡ 오늘 날짜 실시간 깜빡임</span>
+                                    </span>
+                                </div>
+
+                                <!-- 요일 헤더 -->
+                                <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.72rem; font-weight: 800; color: #94a3b8; margin-bottom: 6px;">
+                                    <div style="color: #f87171;">일</div>
+                                    <div>월</div>
+                                    <div>화</div>
+                                    <div>수</div>
+                                    <div>목</div>
+                                    <div>금</div>
+                                    <div style="color: #60a5fa;">토</div>
+                                </div>
+
+                                <!-- 7x5/6 달력 날짜 셀 그리드 -->
+                                <div id="calendar-grid-cells" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 12px;">
+                                    <!-- JS에서 renderAcademyCalendar()로 동적 렌더링 -->
+                                </div>
+
+                                <!-- 2. 특정 날짜 터치 시 펼쳐지는 당일 세부 학사일정 서랍 (Selected Day Schedule Drawer) -->
+                                <div id="calendar-selected-day-box" style="background: rgba(15, 23, 42, 0.75); border: 1.5px solid rgba(99, 102, 241, 0.35); border-radius: 12px; padding: 12px; margin-top: 4px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                        <div style="font-size: 0.82rem; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 6px;">
+                                            <span class="material-symbols-rounded" style="font-size: 1rem; color: #818cf8;">event_note</span>
+                                            <span id="calendar-selected-date-text">2026년 10월 16일 (오늘) 학사일정</span>
+                                        </div>
+                                        <span id="calendar-selected-count-badge" style="font-size: 0.7rem; color: #818cf8; font-weight: 700; background: rgba(99,102,241,0.15); padding: 2px 7px; border-radius: 10px;"></span>
+                                    </div>
+                                    <div id="calendar-selected-events-list" style="display: flex; flex-direction: column; gap: 6px;">
+                                        <!-- JS에서 당일 학원별 일정 카드 주입 -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 3. 주차별 강의 진도 & 최신 공지사항 피드 리스트 -->
                             <div class="card" style="margin-bottom: 14px;">
                                 <div class="section-header" style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
                                     <div style="font-weight: 800; font-size: 0.92rem; color: #818cf8; display: flex; align-items: center; gap: 6px;">
                                         <span class="material-symbols-rounded">feed</span>
-                                        <span>주차별 강의 진도 & 공지사항</span>
+                                        <span>주차별 강의 진도 & 공지 피드</span>
                                     </div>
-                                    <span style="font-size: 0.72rem; color: var(--text-secondary);" id="hub-feed-count">최신 공지</span>
+                                    <span style="font-size: 0.72rem; color: var(--text-secondary);" id="hub-feed-count">전체 공지</span>
                                 </div>
                                 <div id="hub-curriculum-feed-list" style="display: flex; flex-direction: column; gap: 8px;">
                                     <div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 12px;">학사 일정을 불러오는 중...</div>
@@ -2929,6 +3051,28 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
                                 <!-- 운영 방식별 안내 문구 (지정좌석제 시 잠금 안내) -->
                                 <div id="student-seat-lock-notice" style="display: none; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 0.78rem; color: #fbbf24; line-height: 1.45;">본 기관은 원장 전담 <strong>[지정좌석제]</strong>로 운영 중입니다. 좌석 변경 및 신규 배정은 원장실에 문의해 주세요.
+                                </div>
+
+                                <!-- 🎬 영화관/강의실 전면 칠판 및 좌석 안내 범례 바 -->
+                                <div style="margin-bottom: 10px;">
+                                    <div style="text-align: center; padding: 7px 10px; background: rgba(99, 102, 241, 0.08); border: 1.5px dashed rgba(99, 102, 241, 0.3); border-radius: 10px; font-size: 0.78rem; font-weight: 800; color: #a5b4fc; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;">
+                                        <span class="material-symbols-rounded" style="font-size: 1.1rem; color: #818cf8;">co_present</span>
+                                        <span>[ ── 칠판 / 강단 / SCREEN ── ]</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: center; align-items: center; gap: 14px; font-size: 0.72rem; color: var(--text-secondary); flex-wrap: wrap;">
+                                        <span style="display: inline-flex; align-items: center; gap: 4px;">
+                                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #94a3b8;"></span>
+                                            <span>선택가능(빈자리)</span>
+                                        </span>
+                                        <span style="display: inline-flex; align-items: center; gap: 4px;">
+                                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #ef4444;"></span>
+                                            <span style="color: #f87171;">이용중(예약완료)</span>
+                                        </span>
+                                        <span style="display: inline-flex; align-items: center; gap: 4px;">
+                                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
+                                            <span style="color: #34d399; font-weight: 800;">내 좌석</span>
+                                        </span>
+                                    </div>
                                 </div>
 
                                 <!-- 2D 좌석 매트릭스 그리드 -->

@@ -4238,7 +4238,29 @@ def toggle_admin_academy_seat_mode(payload: schemas.TenantSeatModeTogglePayload,
     }
 
 
+@app.post("/api/admin/studycafe/layout")
+def save_studycafe_seat_layout(payload: schemas.StudyCafeLayoutSavePayload, db: Session = Depends(get_db)):
+    """원장 관제실: 자유자재 2D 좌석 배치 편집 및 저장 API"""
+    tenant = db.query(models.Tenant).filter(models.Tenant.code == payload.tenant_code, models.Tenant.deleted_at == None).first()
+    if not tenant:
+        raise HTTPException(status_code=404, detail="학원/스터디카페를 찾을 수 없습니다.")
+    
+    if payload.seat_mode:
+        tenant.seat_mode = payload.seat_mode
+    
+    tenant.seat_layout_json = json.dumps(payload.seats, ensure_ascii=False)
+    db.commit()
+    return {
+        "status": "success",
+        "message": f"좌석 배치도({len(payload.seats)}석)가 성공적으로 저장되었습니다.",
+        "tenant_code": tenant.code,
+        "total_seats": len(payload.seats),
+        "seat_mode": tenant.seat_mode
+    }
+
+
 # === 🪑 학생용 학원/독서실 실시간 2D 좌석 조회 & 자유선택/예약/퇴실 API ===
+
 
 @app.get("/api/student/academy/seats")
 def get_student_academy_seats(student_id: Optional[int] = None, academy_code: Optional[str] = None, db: Session = Depends(get_db)):
@@ -6195,12 +6217,141 @@ def request_academy_return(payload: dict, db: Session = Depends(get_db)):
 
 
 @app.get("/api/academy/feeds")
-def get_academy_feeds(academy_code: str = "ILWON-2027", db: Session = Depends(get_db)):
-    feeds = db.query(models.CurriculumFeed)\
-        .filter(models.CurriculumFeed.academy_code == academy_code)\
-        .order_by(models.CurriculumFeed.is_special_notice.desc(), models.CurriculumFeed.feed_date.desc())\
-        .all()
-    return feeds
+def get_academy_feeds(
+    academy_code: Optional[str] = "ILWON-2027", 
+    student_id: Optional[int] = None, 
+    all_enrolled: Optional[bool] = False,
+    db: Session = Depends(get_db)
+):
+    """학사일정 & 공지사항 조회 (단일 학원 또는 재원생 소속 다중 학원/독서실 통합 지원)"""
+    # 1. DB 공지 부재 시 2026-10월 실전 학사일정 자동 시딩
+    if db.query(models.CurriculumFeed).filter(models.CurriculumFeed.deleted_at == None).count() == 0:
+        seed_feeds = [
+            models.CurriculumFeed(
+                academy_code='ILWON-2027',
+                curriculum_name='[일원학원] 1주차 9월 모의평가 해설 및 고난도 비문학 독해',
+                week_number=1,
+                feed_date='2026-10-06',
+                content='9월 모의평가 오답률 TOP 5 문항 심층 분석 및 비문학 제재별 독해 공식 적용 훈련',
+                is_special_notice=False
+            ),
+            models.CurriculumFeed(
+                academy_code='CAFE-STUDY01',
+                curriculum_name='[일원 스터디카페] 2학기 중간고사 대비 24시간 특별 개방',
+                week_number=1,
+                feed_date='2026-10-10',
+                content='재원생 집중 학습을 위한 24시간 특별 개방 및 심야 백색소음 집중존 운영',
+                is_special_notice=False
+            ),
+            models.CurriculumFeed(
+                academy_code='ILWON-2027',
+                curriculum_name='[일원학원] 2주차 EBS 수능완성 실전 문학 핵심 제재 총정리',
+                week_number=2,
+                feed_date='2026-10-13',
+                content='수능 연계율 50% 완벽 대비: 고전시가 및 현대소설 핵심 출제 예상 작품 압축 총정리',
+                is_special_notice=False
+            ),
+            models.CurriculumFeed(
+                academy_code='ILWON-2027',
+                curriculum_name='[일원학원] 3주차 실전 봉투 모의고사 OMR 마킹 훈련 & 취약점 1:1 진단',
+                week_number=3,
+                feed_date='2026-10-16',
+                content='실전 수능과 동일한 80분 제한시간 모의고사 실시, 디지털 OMR 즉시 자동 채점 및 1:1 오답 클리닉',
+                is_special_notice=True
+            ),
+            models.CurriculumFeed(
+                academy_code='CAFE-STUDY01',
+                curriculum_name='[일원 스터디카페] 심야 집중 좌석 정기 소독 및 클린 방역',
+                week_number=3,
+                feed_date='2026-10-16',
+                content='23:00 ~ 익일 01:00 전 좌석 알코올 소독 및 공기청정 필터 살균 케어가 진행됩니다.',
+                is_special_notice=False
+            ),
+            models.CurriculumFeed(
+                academy_code='ILWON-2027',
+                curriculum_name='[일원학원] 10월 전국연합 학력평가 대비 파이널 킬러 문항 특강',
+                week_number=3,
+                feed_date='2026-10-18',
+                content='14:00 ~ 18:00 대치동 1타 기출 변형 킬러 문항 파이널 정복 특강 (현장 및 VOD 복습 제공)',
+                is_special_notice=False
+            ),
+            models.CurriculumFeed(
+                academy_code='ILWON-2027',
+                curriculum_name='[일원학원] 2027학년도 대입 최종 수시/정시 원서 전략 학부모 설명회',
+                week_number=4,
+                feed_date='2026-10-21',
+                content='19:30 대강당: 의약학계열 및 주요 10개 대학 합격 커트라인 분석 및 수시 납치 방지 지원 전략 공개',
+                is_special_notice=True
+            ),
+            models.CurriculumFeed(
+                academy_code='ILWON-2027',
+                curriculum_name='[일원학원] 11월 수강료 정기 결제일 및 11월 진도 계획서 교재 배부',
+                week_number=4,
+                feed_date='2026-10-25',
+                content='11월 수능 직전 파이널 실전 봉투 모의고사 4회분 교재 일괄 배부 및 자동 수납 안내',
+                is_special_notice=False
+            ),
+            models.CurriculumFeed(
+                academy_code='CAFE-STUDY01',
+                curriculum_name='[일원 스터디카페] 수능 D-20 수험생 집중 케어 프리미엄 간식 데이',
+                week_number=4,
+                feed_date='2026-10-28',
+                content='입실 수험생 전원에게 비타민 음료 및 견과류 집중 케어 패키지 증정',
+                is_special_notice=False
+            ),
+            models.CurriculumFeed(
+                academy_code='ILWON-2027',
+                curriculum_name='[일원학원] 11월 파이널 수능 직전 초고난도 파이널 압축반 개강',
+                week_number=5,
+                feed_date='2026-11-01',
+                content='수능 당일 1교시 국어 1등급 쟁취를 위한 14일 초단기 파이널 실전 감각 극대화 프로그램 개강',
+                is_special_notice=True
+            )
+        ]
+        db.add_all(seed_feeds)
+        db.commit()
+
+    query = db.query(models.CurriculumFeed).filter(models.CurriculumFeed.deleted_at == None)
+    
+    codes = []
+    if academy_code and academy_code.upper() != "ALL":
+        codes = [c.strip() for c in academy_code.split(",") if c.strip()]
+        
+    if student_id and not codes:
+        student = db.query(models.Student).filter(models.Student.id == student_id).first()
+        if student and student.academy_code:
+            codes.append(student.academy_code)
+            
+    if all_enrolled or (academy_code and academy_code.upper() == "ALL"):
+        pass
+    elif codes:
+        query = query.filter(models.CurriculumFeed.academy_code.in_(codes))
+        
+    feeds = query.order_by(models.CurriculumFeed.is_special_notice.desc(), models.CurriculumFeed.feed_date.desc()).all()
+    
+    tenants = {t.code: t for t in db.query(models.Tenant).filter(models.Tenant.deleted_at == None).all()}
+    
+    results = []
+    for f in feeds:
+        t = tenants.get(f.academy_code)
+        inst_name = t.name if t else ("일원학원" if "ILWON" in (f.academy_code or "") else "스터디카페")
+        brand_col = getattr(t, "brand_color", None) or ("#818cf8" if "ILWON" in (f.academy_code or "") else "#10b981")
+        b_type = getattr(t, "business_type", "HIGH_ACADEMY") if t else "HIGH_ACADEMY"
+        results.append({
+            "id": f.id,
+            "academy_code": f.academy_code,
+            "curriculum_name": f.curriculum_name,
+            "week_number": f.week_number,
+            "feed_date": f.feed_date,
+            "content": f.content,
+            "is_special_notice": bool(f.is_special_notice),
+            "created_at": f.created_at.isoformat() if f.created_at else None,
+            "institution_name": inst_name,
+            "brand_color": brand_col,
+            "business_type": b_type
+        })
+    return results
+
 
 
 @app.post("/api/admin/academy/feeds")

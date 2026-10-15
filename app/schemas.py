@@ -613,5 +613,11 @@ class TenantSeatModeTogglePayload(BaseModel):
     tenant_code: str
     seat_mode: str  # FREE_SELECT | FIXED_ASSIGN
 
+class StudyCafeLayoutSavePayload(BaseModel):
+    tenant_code: str = "CAFE-STUDY01"
+    seat_mode: Optional[str] = "FREE_SELECT"
+    seats: List[Dict[str, Any]]
+
+
 
 
