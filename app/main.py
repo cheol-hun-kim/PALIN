@@ -6798,16 +6798,20 @@ class VerifyAttendanceOtpPayload(BaseModel):
 def generate_attendance_otp(db: Session = Depends(get_db)):
     import random
     from datetime import datetime, timedelta
-    code = f"{random.randint(1000, 9999)}"
+    old_code = active_attendance_otp.get("code")
+    new_code = old_code
+    while new_code == old_code:
+        new_code = f"{random.randint(1000, 9999)}"
+        
     now = datetime.now()
     expires_at = now + timedelta(minutes=3)
-    active_attendance_otp["code"] = code
+    active_attendance_otp["code"] = new_code
     active_attendance_otp["created_at"] = now.isoformat()
     active_attendance_otp["expires_at"] = expires_at.isoformat()
     active_attendance_otp["verified_students"] = []
     return {
         "status": "success",
-        "code": code,
+        "code": new_code,
         "expires_in_seconds": 180,
         "expires_at": expires_at.strftime("%H:%M:%S")
     }
@@ -6821,6 +6825,7 @@ def get_current_attendance_otp():
     exp = datetime.fromisoformat(active_attendance_otp["expires_at"])
     rem = int((exp - datetime.now()).total_seconds())
     if rem <= 0:
+        active_attendance_otp["code"] = None
         return {"is_active": False, "code": None, "remaining_seconds": 0, "verified_students": active_attendance_otp.get("verified_students", [])}
     
     return {
@@ -6839,6 +6844,7 @@ def verify_attendance_otp(payload: VerifyAttendanceOtpPayload, db: Session = Dep
     
     exp = datetime.fromisoformat(active_attendance_otp["expires_at"])
     if datetime.now() > exp:
+        active_attendance_otp["code"] = None
         raise HTTPException(status_code=400, detail="인증번호 유효 시간(3분)이 만료되었습니다. 원장님께 직접 문의하세요.")
     
     if payload.code.strip() != active_attendance_otp["code"]:
