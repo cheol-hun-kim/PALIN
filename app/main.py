@@ -11248,9 +11248,10 @@ class StudentPaymentSyncPayload(BaseModel):
     student_name: Optional[str] = None
     tuition_paid: bool = True
     textbook_paid: Optional[bool] = None
+    enrollment_status: Optional[str] = None  # '재원', '휴원', '퇴원', 'ENROLLED', 'ON_LEAVE', 'WITHDRAWN'
     due_date: Optional[str] = None
     amount: Optional[int] = 450000
-    memo: Optional[str] = "구글 시트 출석부 / 결제선생 실시간 수납 동기화"
+    memo: Optional[str] = "구글 시트 출석부 / 결제선생 실시간 수납 및 상태 동기화"
 
 
 @app.get("/api/billing/student-lock-status/{student_id}")
@@ -11363,6 +11364,35 @@ def sync_student_payment_status(payload: StudentPaymentSyncPayload, db: Session 
     if payload.textbook_paid is not None:
         student.textbook_paid = payload.textbook_paid
 
+    # Update student enrollment status (재원 / 휴원 / 퇴원 / Tier 1 강등)
+    status_change_msg = ""
+    if payload.enrollment_status:
+        st_norm = payload.enrollment_status.strip().upper()
+        if st_norm in ["퇴원", "WITHDRAWN", "DROPOUT"]:
+            student.enrollment_status = "WITHDRAWN"
+            student.academy_code = None
+            student.pending_tenant_code = None
+            student.academy_approval_status = "NONE"
+            student.b2c_subscription_tier = "TIER_1_FREE"
+            student.ai_level = "B2C_FREE"
+            student.has_unlimited_chat = False
+            student.chat_tokens = 5
+            status_change_msg = ", 상태: 퇴원 (Tier 1 무료 강등)"
+        elif st_norm in ["휴원", "휴강", "ON_LEAVE"]:
+            student.enrollment_status = "ON_LEAVE"
+            student.b2c_subscription_tier = "TIER_1_FREE"
+            student.ai_level = "B2C_FREE"
+            student.has_unlimited_chat = False
+            status_change_msg = ", 상태: 휴원 (Tier 1 임시 전환)"
+        elif st_norm in ["재원", "복귀", "ENROLLED"]:
+            student.enrollment_status = "ENROLLED"
+            student.academy_code = "ILWON-2027"
+            student.academy_approval_status = "APPROVED"
+            student.ai_level = "TIER_4_ILWON"
+            student.has_unlimited_chat = True
+            student.chat_tokens = 999
+            status_change_msg = ", 상태: 재원 (일원학원 Tier 4 플래그십 복구)"
+
     if payload.tuition_paid:
         # Mark all active overdue/sent invoices as PAID
         invoices = db.query(models.BillingInvoice).filter(
@@ -11406,11 +11436,13 @@ def sync_student_payment_status(payload: StudentPaymentSyncPayload, db: Session 
     db.commit()
     return {
         "status": "success",
-        "message": f"[{student.name}] 학생 수납 상태 동기화 완료: 수업료 {'완납(락해제)' if payload.tuition_paid else '미납(락적용)'}",
+        "message": f"[{student.name}] 학생 수납 상태 동기화 완료: 수업료 {'완납(락해제)' if payload.tuition_paid else '미납(락적용)'}{status_change_msg}",
         "student_id": student.id,
         "student_name": student.name,
         "tuition_paid": bool(student.tuition_paid),
-        "textbook_paid": bool(student.textbook_paid)
+        "textbook_paid": bool(student.textbook_paid),
+        "enrollment_status": student.enrollment_status,
+        "b2c_subscription_tier": student.b2c_subscription_tier
     }
 
 
