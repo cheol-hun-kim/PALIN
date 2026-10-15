@@ -11340,8 +11340,7 @@ def sync_student_payment_status(payload: StudentPaymentSyncPayload, db: Session 
     # Find student by phone or parent phone
     student = db.query(models.Student).filter(
         models.Student.deleted_at == None,
-        (models.Student.phone == clean_phone) |
-        (models.Student.parent_phone == clean_phone)
+        models.Student.phone == clean_phone
     ).first()
 
     if not student:
@@ -11417,12 +11416,15 @@ def sync_student_payment_status(payload: StudentPaymentSyncPayload, db: Session 
             existing_inv.due_date = due_str
             existing_inv.status = "OVERDUE"
         else:
+            p_phone = clean_phone
+            if getattr(student, "parent", None) and student.parent.phone:
+                p_phone = student.parent.phone
             new_inv = models.BillingInvoice(
                 invoice_code=f"INV-{date.today().strftime('%Y%m')}-{uuid.uuid4().hex[:6].upper()}",
                 tenant_code=student.academy_code or "ILWON-2027",
                 student_id=student.id,
                 student_name=student.name,
-                parent_phone=student.parent_phone or clean_phone,
+                parent_phone=p_phone,
                 item_title="정규반 수강료",
                 billing_month=date.today().strftime('%Y-%m'),
                 amount=payload.amount or 450000,
