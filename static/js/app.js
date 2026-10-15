@@ -18066,6 +18066,18 @@ window.openDirectorContactFromLock = function() {
 };
 
 async function checkStudentTuitionLockStatus(studentId) {
+    // 마스터 관리자 / 갓모드 개발자 계정은 연체 잠금 UI 원천 비활성화
+    const currentRole = (localStorage.getItem("userRole") || (window.currentStudent && window.currentStudent.role) || "").toUpperCase();
+    const currentEmail = (localStorage.getItem("userEmail") || (window.currentStudent && window.currentStudent.email) || "").toLowerCase();
+    if (currentRole === "ADMIN" || currentRole === "MASTER" || currentEmail === "master@palin-os.com") {
+        const banner = document.getElementById("tuition-overdue-lock-banner");
+        const hardOverlay = document.getElementById("tuition-hard-lockout-overlay");
+        if (banner) banner.style.display = "none";
+        if (hardOverlay) hardOverlay.style.display = "none";
+        window.isStudentTuitionLocked = false;
+        return;
+    }
+
     if (!studentId) {
         const stored = localStorage.getItem("studentId") || (window.currentStudent && window.currentStudent.id);
         studentId = stored || 1;
@@ -18128,36 +18140,7 @@ async function checkStudentTuitionLockStatus(studentId) {
 window.checkStudentTuitionLockStatus = checkStudentTuitionLockStatus;
 
 function openTuitionPaymentModal(invoice) {
-    const inv = invoice || currentActiveOverdueInvoice || {
-        id: 1,
-        invoice_code: "INV-2026-0001",
-        tenant_code: "ILWON-2027",
-        item_title: "9월 수능 파이널 정규반 수강료",
-        student_name: (window.currentStudent && window.currentStudent.name) || "김학생",
-        due_date: "2026-09-10",
-        final_amount: 450000
-    };
-    
-    currentActiveOverdueInvoice = inv;
-    
-    const modal = document.getElementById("tuition-payment-modal");
-    if (!modal) return;
-    
-    const codeEl = document.getElementById("tuition-modal-code");
-    const tenantEl = document.getElementById("tuition-modal-tenant");
-    const titleEl = document.getElementById("tuition-modal-title");
-    const studentEl = document.getElementById("tuition-modal-student");
-    const dueEl = document.getElementById("tuition-modal-due");
-    const amountEl = document.getElementById("tuition-modal-amount");
-    
-    if (codeEl) codeEl.innerText = inv.invoice_code || "INV-2026-0001";
-    if (tenantEl) tenantEl.innerText = inv.tenant_code === "ILWON-2027" ? "일원학원 대치본원" : (inv.tenant_code || "가맹학원");
-    if (titleEl) titleEl.innerText = inv.item_title || "수강료 청구서";
-    if (studentEl) studentEl.innerText = inv.student_name || "수험생";
-    if (dueEl) dueEl.innerText = `${inv.due_date || '납부기한'} (미납)`;
-    if (amountEl) amountEl.innerText = `₩${(inv.final_amount || 450000).toLocaleString()}`;
-    
-    modal.style.display = "flex";
+    alert("📢 [수강료 납부 안내]\n\n학부모님 카카오톡으로 발송된 [결제선생 청구서] 링크를 통해 수강료를 결제해 주시기 바랍니다.\n\n결제가 완료되면 Google 시트 및 시스템에 자동 반영되어 잠금이 즉시 해제됩니다.\n\n문의사항은 일원학원 원장실(010-5527-2979)로 연락 부탁드립니다.");
 }
 window.openTuitionPaymentModal = openTuitionPaymentModal;
 
@@ -18168,32 +18151,8 @@ function closeTuitionPaymentModal() {
 window.closeTuitionPaymentModal = closeTuitionPaymentModal;
 
 async function handleTuitionPaymentSubmit(method) {
-    const inv = currentActiveOverdueInvoice;
-    const invoiceId = inv ? inv.id : 1;
-    
-    try {
-        const res = await fetch(`/api/billing/invoices/${invoiceId}/pay`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                payment_method: method === "EASY_PAY" ? "KAKAOPAY" : "CARD",
-                card_company: method === "EASY_PAY" ? "카카오페이머니" : "신한카드"
-            })
-        });
-        
-        const data = await res.json();
-        if (res.ok) {
-            alert(`🎉 [수납 및 인질 잠금 해제 완료!]\n\n수강료 ₩${data.invoice.final_amount.toLocaleString()}원이 결제되었습니다.\n결제선생 서브몰 정산 및 AI 멘토/프리미엄 기능이 즉시 정상 복구되었습니다.`);
-            closeTuitionPaymentModal();
-            const studentId = (window.currentStudent && window.currentStudent.id) || localStorage.getItem("studentId") || 1;
-            checkStudentTuitionLockStatus(studentId);
-        } else {
-            alert(data.detail || "결제 승인 처리 중 오류가 발생했습니다.");
-        }
-    } catch (e) {
-        console.error("handleTuitionPaymentSubmit error:", e);
-        alert("결제 통신 중 오류가 발생했습니다.");
-    }
+    // Deprecated mock submit - redirected to direct contact
+    openTuitionPaymentModal();
 }
 window.handleTuitionPaymentSubmit = handleTuitionPaymentSubmit;
 

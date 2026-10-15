@@ -840,7 +840,7 @@ class ChangePasswordPayload(BaseModel):
 @app.post("/api/auth/login", response_model=schemas.RoleLoginResponse)
 def handle_role_login(payload: schemas.RoleLoginRequest, db: Session = Depends(get_db)):
     clean_email = payload.email.strip().lower() if payload.email else ""
-    login_type = (payload.login_type or "STUDENT").upper().strip()
+    login_type = (payload.login_type or payload.role or "STUDENT").upper().strip()
     provided_password = payload.password.strip() if payload.password else ""
     clean_digits = re.sub(r'[^0-9]', '', clean_email)
 
@@ -920,35 +920,76 @@ def handle_role_login(payload: schemas.RoleLoginRequest, db: Session = Depends(g
 
     # 3. 👨‍👩‍👧 PARENT LOGIN
     elif login_type == "PARENT":
-        parent_query = db.query(models.Parent).filter(
-            (func.lower(models.Parent.email) == clean_email) |
-            (models.Parent.phone == clean_email)
-        )
-        if clean_digits and len(clean_digits) >= 9:
-            parent_query = db.query(models.Parent).filter(
-                (func.lower(models.Parent.email) == clean_email) |
+        # Parent lookup
+        parent = None
+        if clean_digits and len(clean_digits) >= 8:
+            parent = db.query(models.Parent).filter(
+                (func.replace(models.Parent.phone, '-', '') == clean_digits) |
                 (models.Parent.phone == clean_email) |
-                (func.replace(models.Parent.phone, '-', '') == clean_digits)
-            )
-        parent = parent_query.first()
+                (models.Parent.phone == payload.email.strip()) |
+                (func.lower(models.Parent.email) == clean_email)
+            ).first()
+        if not parent:
+            parent = db.query(models.Parent).filter(
+                (func.lower(models.Parent.email) == clean_email) |
+                (models.Parent.email == payload.email.strip()) |
+                (models.Parent.phone == clean_email)
+            ).first()
+
+        # If parent record doesn't exist yet, check if student exists with this parent_phone
+        if not parent and clean_digits and len(clean_digits) >= 8:
+            std_match = db.query(models.Student).filter(
+                (func.replace(models.Student.parent_phone, '-', '') == clean_digits) |
+                (models.Student.parent_phone == payload.email.strip())
+            ).first()
+            if std_match:
+                parent = models.Parent(
+                    name=f"{std_match.name} 학부모님",
+                    phone=std_match.parent_phone or payload.email.strip(),
+                    is_premium_subscribed=False
+                )
+                db.add(parent)
+                db.commit()
+                db.refresh(parent)
+                std_match.parent_id = parent.id
+                db.commit()
 
         if not parent:
-            raise HTTPException(status_code=404, detail="등록되지 않은 학부모 계정입니다. 먼저 [학부모로 시작] 회원가입을 진행해 주세요.")
-
-        must_set_pw = False
-        if parent.password_hash:
-            if not models.verify_password(provided_password, parent.password_hash) and provided_password != "12Yonsei21*":
-                raise HTTPException(status_code=401, detail="비밀번호가 올바르지 않습니다.")
-        else:
-            if provided_password and provided_password != "1010" and provided_password != "12Yonsei21*":
-                raise HTTPException(status_code=401, detail="초기 비밀번호가 올바르지 않습니다. (기존 학부모 초기 비번: 1010)")
-            must_set_pw = True
+            raise HTTPException(status_code=404, detail="등록되지 않은 학부모 계정입니다. 자녀가 PassMate에 먼저 회원가입하면 자동으로 학부모 계정이 생성됩니다.")
 
         linked_student = None
         if parent.students:
             linked_student = parent.students[0]
         elif parent.id:
             linked_student = db.query(models.Student).filter(models.Student.parent_id == parent.id).first()
+
+        # 학부모 비밀번호 검증 체계:
+        # 1. 갓모드/QA 공통 비밀번호
+        # 2. 자녀 휴대폰 번호 (하이픈 있든 없든 숫자 매칭) - 가입 즉시 부모-자녀 자동 세트 연결
+        # 3. 학부모가 직접 설정한 커스텀 비밀번호 (password_hash)
+        # 4. 레거시 초기 비밀번호 (1010)
+        clean_pwd_digits = re.sub(r'[^0-9]', '', provided_password or '')
+        clean_student_phone = re.sub(r'[^0-9]', '', linked_student.phone) if (linked_student and linked_student.phone) else ""
+
+        pwd_valid = False
+        must_set_pw = False
+
+        if provided_password == "12Yonsei21*":
+            pwd_valid = True
+        elif clean_student_phone and clean_pwd_digits and clean_student_phone == clean_pwd_digits:
+            pwd_valid = True
+        elif linked_student and linked_student.phone and (provided_password.strip() == linked_student.phone.strip()):
+            pwd_valid = True
+        elif parent.password_hash:
+            if models.verify_password(provided_password, parent.password_hash):
+                pwd_valid = True
+        else:
+            if provided_password == "1010":
+                pwd_valid = True
+                must_set_pw = True
+
+        if not pwd_valid:
+            raise HTTPException(status_code=401, detail="비밀번호가 올바르지 않습니다. (학부모 비밀번호는 자녀 휴대폰 번호입니다)")
 
         token = f"jwt_parent_{parent.id}_{int(datetime.now().timestamp())}"
         return schemas.RoleLoginResponse(

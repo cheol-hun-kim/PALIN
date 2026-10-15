@@ -487,7 +487,8 @@ class ProposalResponse(BaseModel):
 # ============================================================================
 
 class RoleLoginRequest(BaseModel):
-    login_type: str = "STUDENT"  # "STUDENT" | "PARENT" | "DIRECTOR"
+    login_type: Optional[str] = None  # "STUDENT" | "PARENT" | "DIRECTOR"
+    role: Optional[str] = None
     email: str
     password: Optional[str] = None
     academy_code: Optional[str] = None
