@@ -217,6 +217,8 @@ forbidden_fabrications = [
     r"BT /F1 12 Tf 50 750 Td",
     r"mins\s*=\s*150",
     r"total_checkins\s*=\s*24",
+    r"dummy_users\s*=",
+    r"김민준.*정기권",
 ]
 
 for target_file in scan_target_files:

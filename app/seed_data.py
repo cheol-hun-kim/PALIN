@@ -282,52 +282,22 @@ def auto_seed_database(db: Session, engine):
         def generate_default_seats():
             seats = []
             types = ["FOCUS", "FOCUS", "OPEN", "WINDOW"]
-            dummy_users = [
-                {"name": "김민준", "plan": "정기권 (30일)", "rem": 18, "start": "08:30", "time": "6시간 40분"},
-                {"name": "이서연", "plan": "100시간권", "rem": 42, "start": "09:10", "time": "5시간 15분"},
-                {"name": "박도윤", "plan": "정기권 (30일)", "rem": 5, "start": "10:00", "time": "4시간 20분"},
-                {"name": "최지우", "plan": "당일권 (8시간)", "rem": 3, "start": "11:30", "time": "3시간 10분"},
-                {"name": "정예은", "plan": "50시간권", "rem": 21, "start": "13:00", "time": "2시간 00분"},
-                {"name": "강현우", "plan": "정기권 (60일)", "rem": 45, "start": "07:50", "time": "7시간 30분"},
-                {"name": "윤서아", "plan": "100시간권", "rem": 88, "start": "14:20", "time": "1시간 20분"},
-                {"name": "임지호", "plan": "당일권 (4시간)", "rem": 1, "start": "15:00", "time": "0시간 40분"},
-            ]
-            u_idx = 0
             for r_idx, row_char in enumerate(["A", "B", "C", "D"]):
                 for col_idx in range(1, 7):
                     s_id = f"{row_char}{col_idx:02d}"
                     s_num = r_idx * 6 + col_idx
                     stype = types[r_idx]
-                    status = "EMPTY"
-                    student_name = ""
-                    plan_type = ""
-                    rem_days = 0
-                    start_time = ""
-                    study_time = ""
-                    
-                    if s_num in [1, 2, 4, 7, 8, 13, 19, 21] and u_idx < len(dummy_users):
-                        u = dummy_users[u_idx]
-                        status = "OCCUPIED" if s_num != 4 else "OUT_BRIEF"
-                        student_name = u["name"]
-                        plan_type = u["plan"]
-                        rem_days = u["rem"]
-                        start_time = u["start"]
-                        study_time = u["time"]
-                        u_idx += 1
-                    elif s_num == 12:
-                        status = "RESERVED"
-                        student_name = "예약 대기"
-
                     seats.append({
                         "seat_id": s_id,
                         "seat_num": s_num,
                         "seat_type": stype,
-                        "status": status,
-                        "student_name": student_name,
-                        "plan_type": plan_type,
-                        "remaining_days": rem_days,
-                        "start_time": start_time,
-                        "study_time_today": study_time
+                        "status": "EMPTY",
+                        "student_id": None,
+                        "student_name": "",
+                        "plan_type": "",
+                        "remaining_days": 0,
+                        "start_time": "",
+                        "study_time_today": ""
                     })
             return json.dumps(seats, ensure_ascii=False)
 

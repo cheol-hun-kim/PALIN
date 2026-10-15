@@ -2222,21 +2222,7 @@
                             <option value="20">20열</option>
                         </select>
                     </div>
-                    <button type="button" onclick="applySeatBuilderPreset('2_COL_AISLE')" class="btn" style="padding: 6px 11px; font-size: 0.76rem; font-weight: 700; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.35); color: #c7d2fe; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
-                        🏫 2분단(5x6)
-                    </button>
-                    <button type="button" onclick="applySeatBuilderPreset('FOCUS_STUDY')" class="btn" style="padding: 6px 11px; font-size: 0.76rem; font-weight: 700; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.35); color: #c7d2fe; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
-                        🎧 1인 독서실(4x8)
-                    </button>
-                    <button type="button" onclick="applySeatBuilderPreset('LECTURE_HALL')" class="btn" style="padding: 6px 11px; font-size: 0.76rem; font-weight: 700; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.35); color: #c7d2fe; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
-                        🏛️ 대형 강의실(6x10)
-                    </button>
-                    <button type="button" onclick="applySeatBuilderPreset('AUDITORIUM_100')" class="btn" style="padding: 6px 11px; font-size: 0.76rem; font-weight: 700; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.35); color: #c7d2fe; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
-                        🏢 100석 대강당(10x10)
-                    </button>
-                    <button type="button" onclick="applySeatBuilderPreset('MEGA_400')" class="btn" style="padding: 6px 11px; font-size: 0.76rem; font-weight: 700; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.35); color: #c7d2fe; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
-                        🏬 400석 메가관(20x20)
-                    </button>
+                    <span id="builder-status-badge" style="font-size: 0.78rem; font-weight: 800; color: #10b981; display: none; padding: 4px 8px; border-radius: 6px; background: rgba(16, 185, 129, 0.1);">✓ 저장됨</span>
                     <button type="button" onclick="handleSaveCustomSeatLayout()" class="btn" style="padding: 7px 16px; font-size: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706); border: 1px solid #fbbf24; color: #0b0f19; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25); margin-left: auto;">
                         <span class="material-symbols-rounded" style="font-size: 1rem;">save</span>
                         <span>배치도 클라우드 저장 & 즉시 반영</span>
@@ -2638,11 +2624,17 @@
         // 🪑 스터디카페 / 독서실 2D 좌석 제어 시스템
         // ==========================================
         async function loadStudyCafeSeats() {
+            // 원장님이 좌석 행/열 변경 중일 때는 폴링으로 덮어쓰지 않음
+            if (isSeatBuilderEditing) return;
+
             try {
                 const code = currentTenantCode || 'ILWON-2027';
                 const res = await fetch(`/api/admin/studycafe/seats?tenant_code=${encodeURIComponent(code)}`);
                 if (!res.ok) return;
                 const data = await res.json();
+
+                if (isSeatBuilderEditing) return;
+
                 currentStudyCafeSeats = data.seats || [];
                 currentTenantSeatMode = data.seat_mode || 'FREE_SELECT';
 
@@ -2851,6 +2843,9 @@
             alert(`[발송 완료] ${studentName} 회원에게 이용권 연장 결제 안내가 전송되었습니다.`);
         }
 
+        let isSeatBuilderEditing = false;
+        let seatDimensionSaveTimer = null;
+
         function generateSeatsForDimensions(rows, cols) {
             const newSeats = [];
             let sNum = 1;
@@ -2877,64 +2872,74 @@
             renderStudyCafeSeatGrid();
         }
 
+        async function autoSaveSeatLayout(rows, cols) {
+            try {
+                const statusBadge = document.getElementById('builder-status-badge');
+                if (statusBadge) {
+                    statusBadge.style.display = 'inline';
+                    statusBadge.style.background = 'rgba(245, 158, 11, 0.15)';
+                    statusBadge.style.color = '#fbbf24';
+                    statusBadge.innerText = '⏳ 클라우드 동기화 중...';
+                }
+
+                const res = await fetch("/api/admin/studycafe/layout", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        tenant_code: currentTenantCode || "ILWON-2027",
+                        seat_mode: currentTenantSeatMode || "FREE_SELECT",
+                        seats: currentStudyCafeSeats
+                    })
+                });
+
+                if (res.ok) {
+                    if (statusBadge) {
+                        statusBadge.style.background = 'rgba(16, 185, 129, 0.15)';
+                        statusBadge.style.color = '#34d399';
+                        statusBadge.innerText = `✓ ${rows}행×${cols}열 (${currentStudyCafeSeats.length}석) 자동 저장 완료`;
+                        setTimeout(() => {
+                            if (statusBadge && !isSeatBuilderEditing) statusBadge.style.display = 'none';
+                        }, 3500);
+                    }
+                } else {
+                    if (statusBadge) {
+                        statusBadge.style.background = 'rgba(239, 68, 68, 0.15)';
+                        statusBadge.style.color = '#f87171';
+                        statusBadge.innerText = '저장 실패';
+                    }
+                }
+            } catch(e) {
+                console.error("autoSaveSeatLayout error:", e);
+            } finally {
+                setTimeout(() => { isSeatBuilderEditing = false; }, 1500);
+            }
+        }
+
         function handleSeatDimensionChange() {
+            isSeatBuilderEditing = true;
             const rows = parseInt(document.getElementById('builder-rows')?.value || "4", 10);
             const cols = parseInt(document.getElementById('builder-cols')?.value || "6", 10);
+
+            // 1. 즉시 메모리 생성 및 2D 매트릭스 그리드 렌더링
             generateSeatsForDimensions(rows, cols);
+
+            // 2. 즉시 클라우드 DB에 자동 영구 저장 (백그라운드 폴링으로 인한 4행 6열 롤백 원천 차단)
+            if (seatDimensionSaveTimer) clearTimeout(seatDimensionSaveTimer);
+            seatDimensionSaveTimer = setTimeout(() => {
+                autoSaveSeatLayout(rows, cols);
+            }, 300);
         }
         window.handleSeatDimensionChange = handleSeatDimensionChange;
 
-        function applySeatBuilderPreset(presetType) {
-            const rowsSelect = document.getElementById('builder-rows');
-            const colsSelect = document.getElementById('builder-cols');
-            let rows = 4, cols = 6;
-
-            if (presetType === '2_COL_AISLE') {
-                rows = 5; cols = 6;
-            } else if (presetType === 'FOCUS_STUDY') {
-                rows = 4; cols = 8;
-            } else if (presetType === 'LECTURE_HALL') {
-                rows = 6; cols = 10;
-            } else if (presetType === 'AUDITORIUM_100') {
-                rows = 10; cols = 10;
-            } else if (presetType === 'MEGA_400') {
-                rows = 20; cols = 20;
-            }
-
-            if (rowsSelect) rowsSelect.value = String(rows);
-            if (colsSelect) colsSelect.value = String(cols);
-
-            generateSeatsForDimensions(rows, cols);
-            alert(`[프리셋 적용] ${rows}행 x ${cols}열 (총 ${currentStudyCafeSeats.length}석) 임시 배치도가 즉시 렌더링되었습니다.\n'배치도 클라우드 저장'을 누르면 학생 앱에 즉시 배포됩니다.`);
-        }
-        window.applySeatBuilderPreset = applySeatBuilderPreset;
-
         async function handleSaveCustomSeatLayout() {
+            isSeatBuilderEditing = true;
             const rows = parseInt(document.getElementById('builder-rows')?.value || "4", 10);
             const cols = parseInt(document.getElementById('builder-cols')?.value || "6", 10);
 
             let seatsToSave = currentStudyCafeSeats;
             if (!seatsToSave || seatsToSave.length === 0 || seatsToSave.length !== (rows * cols)) {
-                seatsToSave = [];
-                let sNum = 1;
-                for (let r = 0; r < rows; r++) {
-                    const rowChar = r < 26 ? String.fromCharCode(65 + r) : `R${r + 1}`;
-                    for (let c = 1; c <= cols; c++) {
-                        const sId = `${rowChar}${String(c).padStart(2, '0')}`;
-                        seatsToSave.push({
-                            seat_id: sId,
-                            seat_num: sNum++,
-                            seat_type: (r === 0 ? "WINDOW" : "FOCUS"),
-                            status: "EMPTY",
-                            student_id: null,
-                            student_name: "",
-                            plan_type: "",
-                            remaining_days: 0,
-                            start_time: "",
-                            study_time_today: ""
-                        });
-                    }
-                }
+                generateSeatsForDimensions(rows, cols);
+                seatsToSave = currentStudyCafeSeats;
             }
 
             try {
@@ -2952,11 +2957,21 @@
                     alert(`🎉 [저장 완료] ${data.message || '좌석 배치도가 성공적으로 저장되었습니다.'}\n이제 학생 앱의 [좌석선택] 탭에 원장님이 설정하신 2D 배치도(${rows}행 x ${cols}열, 총 ${seatsToSave.length}석)가 그대로 노출됩니다!`);
                     currentStudyCafeSeats = seatsToSave;
                     renderStudyCafeSeatGrid();
+                    const statusBadge = document.getElementById('builder-status-badge');
+                    if (statusBadge) {
+                        statusBadge.style.display = 'inline';
+                        statusBadge.style.background = 'rgba(16, 185, 129, 0.15)';
+                        statusBadge.style.color = '#34d399';
+                        statusBadge.innerText = `✓ ${rows}행×${cols}열 (${seatsToSave.length}석) 저장 완료`;
+                        setTimeout(() => { if (statusBadge) statusBadge.style.display = 'none'; }, 4000);
+                    }
                 } else {
                     alert(data.detail || "좌석 배치도 저장 실패");
                 }
             } catch(e) {
                 alert("서버 연결 실패");
+            } finally {
+                setTimeout(() => { isSeatBuilderEditing = false; }, 2000);
             }
         }
         window.handleSaveCustomSeatLayout = handleSaveCustomSeatLayout;
