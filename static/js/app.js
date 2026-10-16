@@ -8835,9 +8835,17 @@ async function loadTimetable() {
             const topPx = Math.max(0, Math.min(510, (startHour - 6) * 30));
             const heightPx = Math.max(22, Math.min(540 - topPx, (endHour - startHour) * 30));
 
-            // 같은 학원의 수업은 동일한 고유 시그니처 테마 색상으로 일관되게 표시
-            const colorClass = getAcademyColorClass(block.title);
+            // 1. 과목별 6대 고유 컬러 (국어 / 수학 / 영어 / 탐구 / 자습 / 기타) - 톤다운된 세련된 팔레트
+            const colorClass = getSubjectColorClass(block.title);
             const cleanTitle = formatCleanSubjectTitle(block.title);
+            
+            // 2. 학원이 다르면 다른 배지 및 시각적 태그 부여
+            const academyMeta = getAcademyMeta(block.title);
+            let academyBadgeHtml = '';
+            if (academyMeta) {
+                academyBadgeHtml = `<span class="academy-badge-tag ${academyMeta.badgeClass}">${academyMeta.tag}</span>`;
+            }
+
             const blockEl = document.createElement("div");
             blockEl.className = `timetable-block ${colorClass}`;
             blockEl.style.top = `${topPx}px`;
@@ -8846,7 +8854,7 @@ async function loadTimetable() {
 
             const isParent = localStorage.getItem('userRole') === 'PARENT';
             blockEl.innerHTML = `
-                <div class="block-title">${cleanTitle}</div>
+                <div class="block-title">${academyBadgeHtml}${cleanTitle}</div>
                 ${!isParent ? `<button class="btn-delete-block" title="계획 삭제" onclick="deletePlannerBlock(event, ${block.id})">&times;</button>` : ''}
             `;
             col.appendChild(blockEl);
@@ -8856,54 +8864,76 @@ async function loadTimetable() {
     }
 }
 
+function getAcademyMeta(title) {
+    if (!title) return null;
+    const t = title.toLowerCase();
+    if (t.includes('시대') || t.includes('sidae')) {
+        return { name: '시대인재', tag: '시대', badgeClass: 'badge-academy-sidae' };
+    }
+    if (t.includes('명인') || t.includes('myungin')) {
+        return { name: '대치명인', tag: '명인', badgeClass: 'badge-academy-myungin' };
+    }
+    if (t.includes('두각') || t.includes('dugak')) {
+        return { name: '두각', tag: '두각', badgeClass: 'badge-academy-dugak' };
+    }
+    if (t.includes('일원') || t.includes('ilwon')) {
+        return { name: '일원학원', tag: '일원', badgeClass: 'badge-academy-ilwon' };
+    }
+    if (t.includes('독서실') || t.includes('스터디카페')) {
+        return { name: '독서실', tag: '독서실', badgeClass: 'badge-academy-study' };
+    }
+    return null;
+}
+
 function getAcademyColorClass(nameOrTitle) {
     if (!nameOrTitle) return 'color-academy-ilwon';
     const str = String(nameOrTitle).toLowerCase();
-    
-    // 독서실 / 자율학습 / 스터디
     if (str.includes('독서실') || str.includes('자습') || str.includes('스터디') || str.includes('study') || str.includes('홈스터디')) {
         return 'color-academy-study';
     }
-    // 시대인재
     if (str.includes('시대') || str.includes('sidae')) {
         return 'color-academy-sidae';
     }
-    // 대치명인
     if (str.includes('명인') || str.includes('myungin')) {
         return 'color-academy-myungin';
     }
-    // 두각
     if (str.includes('두각') || str.includes('dugak')) {
         return 'color-academy-dugak';
     }
-    // 일원학원 및 본원 수업 (기본 B2B 플래그십 학원)
     return 'color-academy-ilwon';
 }
 
 function getSubjectColorClass(title) {
     if (!title) return 'color-subj-default';
     const t = title.toLowerCase();
+
+    // 1. 국어 (와인 / 딥 버건디)
     if (t.includes('국어') || t.includes('문학') || t.includes('독서') || t.includes('비문학') || t.includes('언매') || t.includes('화작')) {
         return 'color-subj-korean';
     }
+    // 2. 수학 (차분한 딥 네이비 / 코발트)
     if (t.includes('수학') || t.includes('미적') || t.includes('기하') || t.includes('확통') || t.includes('수1') || t.includes('수2') || t.includes('수i') || t.includes('수ii')) {
         return 'color-subj-math';
     }
-    if (t.includes('영어') || t.includes('영단어') || t.includes('듣기') || t.includes('구문')) {
+    // 3. 영어 (차분한 딥 바이올렛 / 플럼)
+    if (t.includes('영어') || t.includes('영단어') || t.includes('듣기') || t.includes('구문') || t.includes('독해')) {
         return 'color-subj-english';
     }
-    if (t.includes('물리') || t.includes('화학') || t.includes('생명') || t.includes('지구') || t.includes('과탐') || t.includes('과학')) {
+    // 4. 탐구 (과탐, 사탐, 한국사, 물리, 화학, 생명, 지구, 생윤, 사문, 한지, 세지, 윤리, 역사 - 차분한 딥 에메랄드 / 세이지)
+    if (t.includes('탐구') || t.includes('과탐') || t.includes('사탐') || t.includes('과학') || t.includes('사회') || 
+        t.includes('물리') || t.includes('화학') || t.includes('생명') || t.includes('지구') || 
+        t.includes('생윤') || t.includes('사문') || t.includes('한지') || t.includes('세지') || t.includes('역사') || t.includes('윤리') || t.includes('한국사')) {
         return 'color-subj-science';
     }
-    if (t.includes('사탐') || t.includes('생윤') || t.includes('사문') || t.includes('한지') || t.includes('세지') || t.includes('사회') || t.includes('역사') || t.includes('윤리')) {
-        return 'color-subj-society';
-    }
-    if (t.includes('학원') || t.includes('단과') || t.includes('수업') || t.includes('클리닉') || t.includes('인강')) {
-        return 'color-subj-academy';
-    }
-    if (t.includes('자습') || t.includes('복습') || t.includes('오답') || t.includes('숙제') || t.includes('모의고사') || t.includes('실모')) {
+    // 5. 자습 (자율학습, 복습, 오답노트, 숙제, 모의고사, 실모, 독서실, 스터디, 자율 - 차분한 딥 슬레이트 / 차콜)
+    if (t.includes('자습') || t.includes('복습') || t.includes('오답') || t.includes('숙제') || t.includes('모의고사') || t.includes('실모') || t.includes('독서실') || t.includes('스터디') || t.includes('자율')) {
         return 'color-subj-study';
     }
+    // 6. 기타 / 실기 (실기, 체육, 미술, 음악, 예체능, 논술, 면접, 상담, 특강, 클리닉 - 세련된 딥 앰버 / 브라운)
+    if (t.includes('실기') || t.includes('체육') || t.includes('미술') || t.includes('음악') || t.includes('예체능') || t.includes('논술') || t.includes('면접') || t.includes('상담') || t.includes('특강') || t.includes('클리닉') || t.includes('기타')) {
+        return 'color-subj-etc';
+    }
+
     return 'color-subj-default';
 }
 
@@ -14768,8 +14798,8 @@ function renderClassChangeTimetable(classes) {
         } else {
             dayClasses.forEach(c => {
                 const block = document.createElement("div");
-                // 같은 학원의 수업은 동일한 테마 색상으로 일관되게 표시 (알록달록 방지)
-                const colorClass = getAcademyColorClass(c.academy_code || c.academy_name || '일원학원');
+                // 과목별 6대 고유 컬러 (국어/수학/영어/탐구/자습/기타) - 세련된 톤다운 팔레트
+                const colorClass = getSubjectColorClass(c.subject || c.course_name);
                 block.className = `class-change-block ${colorClass}`;
                 
                 block.innerHTML = `
@@ -20696,6 +20726,7 @@ window.loadClassChangeOptions = loadClassChangeOptions;
 window.renderClassChangeTimetable = renderClassChangeTimetable;
 window.getSubjectColorClass = getSubjectColorClass;
 window.getAcademyColorClass = getAcademyColorClass;
+window.getAcademyMeta = getAcademyMeta;
 
 // 자동 초기화 리스너 등록
 document.addEventListener("DOMContentLoaded", () => {
