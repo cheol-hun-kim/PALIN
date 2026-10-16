@@ -7270,6 +7270,7 @@ def get_csat_practice_priority_rankings(
     weight_absent: float = 50.0,
     weight_diligence: float = 0.1,
     weight_longevity: float = 0.5,
+    grade_filter: Optional[str] = "CSAT_ONLY",
     db: Session = Depends(get_db)
 ):
     query = db.query(models.Student).filter(models.Student.deleted_at == None)
@@ -7279,6 +7280,19 @@ def get_csat_practice_priority_rankings(
             (models.Student.pending_tenant_code == tenant_code) |
             (models.Student.leave_reason.like(f"%{tenant_code}%"))
         )
+        
+    # 🎯 당해년도 수능 응시자(고3/N수) 필터링 로직
+    if grade_filter == "CSAT_ONLY":
+        query = query.filter(models.Student.grade.in_([3, 4]))
+    elif grade_filter == "GRADE_3":
+        query = query.filter(models.Student.grade == 3)
+    elif grade_filter == "GRADE_4":
+        query = query.filter(models.Student.grade == 4)
+    elif grade_filter == "GRADE_2":
+        query = query.filter(models.Student.grade == 2)
+    elif grade_filter == "GRADE_1":
+        query = query.filter(models.Student.grade == 1)
+        
     students = query.all()
     
     student_ids = [s.id for s in students]
@@ -7389,6 +7403,7 @@ def get_csat_practice_priority_rankings(
         "status": "success",
         "tenant_code": tenant_code,
         "capacity": capacity,
+        "grade_filter": grade_filter,
         "total_eligible_students": len(ranked_list),
         "selected_count": len(selected_items),
         "waitlist_count": len(ranked_list) - len(selected_items),
@@ -7403,6 +7418,104 @@ def get_csat_practice_priority_rankings(
             "longevity": weight_longevity
         },
         "rankings": ranked_list
+    }
+
+
+# === 🎓 신학기/새학년 학년 일괄 진급 관리 API ===
+@app.get("/api/admin/students/promotion-preview")
+def get_student_promotion_preview(tenant_code: Optional[str] = "ILWON-2027", db: Session = Depends(get_db)):
+    query = db.query(models.Student).filter(models.Student.deleted_at == None)
+    if tenant_code and tenant_code != "ALL":
+        query = query.filter(
+            (models.Student.academy_code == tenant_code) | 
+            (models.Student.pending_tenant_code == tenant_code) |
+            (models.Student.leave_reason.like(f"%{tenant_code}%"))
+        )
+    students = query.all()
+    
+    g1 = [s for s in students if s.grade == 1]
+    g2 = [s for s in students if s.grade == 2]
+    g3 = [s for s in students if s.grade == 3]
+    g4 = [s for s in students if s.grade == 4]
+    
+    return {
+        "status": "success",
+        "tenant_code": tenant_code,
+        "total_active_students": len(students),
+        "promotions": {
+            "grade_1_to_2": {
+                "label": "고등학교 1학년 ➔ 2학년 진급",
+                "count": len(g1),
+                "students": [{"id": s.id, "name": s.name, "school": s.high_school} for s in g1]
+            },
+            "grade_2_to_3": {
+                "label": "고등학교 2학년 ➔ 3학년 진급 (당해 수능 응시자 승격)",
+                "count": len(g2),
+                "students": [{"id": s.id, "name": s.name, "school": s.high_school} for s in g2]
+            },
+            "grade_3_to_4": {
+                "label": "고등학교 3학년 ➔ N수생(졸업생) 전환",
+                "count": len(g3),
+                "students": [{"id": s.id, "name": s.name, "school": s.high_school} for s in g3]
+            },
+            "grade_4_repeat": {
+                "label": "N수생(졸업생) 재수/N수 유지",
+                "count": len(g4),
+                "students": [{"id": s.id, "name": s.name, "school": s.high_school} for s in g4]
+            }
+        }
+    }
+
+class PromoteAcademicYearPayload(BaseModel):
+    tenant_code: Optional[str] = "ILWON-2027"
+    promote_g1_to_g2: bool = True
+    promote_g2_to_g3: bool = True
+    promote_g3_to_g4: bool = True
+
+@app.post("/api/admin/students/promote-academic-year")
+def execute_academic_year_promotion(payload: PromoteAcademicYearPayload, db: Session = Depends(get_db)):
+    query = db.query(models.Student).filter(models.Student.deleted_at == None)
+    if payload.tenant_code and payload.tenant_code != "ALL":
+        query = query.filter(
+            (models.Student.academy_code == payload.tenant_code) | 
+            (models.Student.pending_tenant_code == payload.tenant_code) |
+            (models.Student.leave_reason.like(f"%{payload.tenant_code}%"))
+        )
+    students = query.all()
+    
+    promoted_1_to_2 = 0
+    promoted_2_to_3 = 0
+    promoted_3_to_4 = 0
+    
+    # Promote highest grade first to prevent cascading in one loop
+    if payload.promote_g3_to_g4:
+        for s in students:
+            if s.grade == 3:
+                s.grade = 4
+                promoted_3_to_4 += 1
+                
+    if payload.promote_g2_to_g3:
+        for s in students:
+            if s.grade == 2:
+                s.grade = 3
+                promoted_2_to_3 += 1
+                
+    if payload.promote_g1_to_g2:
+        for s in students:
+            if s.grade == 1:
+                s.grade = 2
+                promoted_1_to_2 += 1
+                
+    db.commit()
+    return {
+        "status": "success",
+        "message": f"신학기 학년 일괄 진급이 완료되었습니다. (고1➔고2: {promoted_1_to_2}명, 고2➔고3: {promoted_2_to_3}명, 고3➔N수: {promoted_3_to_4}명)",
+        "promoted_counts": {
+            "g1_to_g2": promoted_1_to_2,
+            "g2_to_g3": promoted_2_to_3,
+            "g3_to_g4": promoted_3_to_4,
+            "total_promoted": promoted_1_to_2 + promoted_2_to_3 + promoted_3_to_4
+        }
     }
 
 
