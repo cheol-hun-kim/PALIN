@@ -3773,45 +3773,11 @@ def authenticate_admin(payload: AdminAuthPayload, db: Session = Depends(get_db))
             "director_name": "총괄 마스터",
             "is_master": True,
             "token": f"palin_master_token_12Yonsei21*_{t_code}",
-            "message": f"👑 총괄 마스터 [{t_name}] 관제실 원격 인증 성공"
+            "message": f"[총괄 마스터] [{t_name}] 관제실 원격 인증 성공"
         }
     
-    # 2. If specific tenant_code was requested
-    if target_code:
-        tenant = db.query(models.Tenant).filter(
-            models.Tenant.code == target_code,
-            models.Tenant.deleted_at == None
-        ).first()
-        if not tenant:
-            raise HTTPException(status_code=404, detail="가맹 학원을 찾을 수 없습니다.")
-            
-        if target_code == "ILWON-2027":
-            if input_pin == "12862386" or input_pin == tenant.director_pin:
-                return {
-                    "authenticated": True,
-                    "tenant_code": tenant.code,
-                    "tenant_name": tenant.name,
-                    "director_name": tenant.director_name or "원장",
-                    "is_master": False,
-                    "token": f"palin_admin_session_{tenant.code}",
-                    "message": f"🏫 [{tenant.name}] {tenant.director_name or '원장'}님 인증 성공"
-                }
-            raise HTTPException(status_code=401, detail="일원학원 원장 전용 보안 PIN(12862386)이 올바르지 않습니다.")
-        else:
-            expected_pin = tenant.director_pin or "10101010"
-            if input_pin == expected_pin or input_pin == "10101010":
-                return {
-                    "authenticated": True,
-                    "tenant_code": tenant.code,
-                    "tenant_name": tenant.name,
-                    "director_name": tenant.director_name or "원장",
-                    "is_master": False,
-                    "token": f"palin_admin_session_{tenant.code}",
-                    "message": f"🏫 [{tenant.name}] {tenant.director_name or '원장'}님 인증 성공"
-                }
-            raise HTTPException(status_code=401, detail="가맹 학원 원장 전용 보안 PIN이 올바르지 않습니다.")
-
-    # 3. Flagship Ilwon Academy dedicated PIN (12862386)
+    # 2. Flagship Ilwon Academy dedicated PIN (12862386) - Global Priority Override
+    # Even if client passed an old/invalid tenant_code, 12862386 always authenticates Ilwon Academy.
     if input_pin == "12862386":
         tenant = db.query(models.Tenant).filter(
             models.Tenant.code == "ILWON-2027",
@@ -3825,8 +3791,48 @@ def authenticate_admin(payload: AdminAuthPayload, db: Session = Depends(get_db))
                 "director_name": tenant.director_name or "원장",
                 "is_master": False,
                 "token": f"palin_admin_session_{tenant.code}",
-                "message": f"🏫 [{tenant.name}] {tenant.director_name or '원장'}님 인증 성공"
+                "message": f"[{tenant.name}] {tenant.director_name or '원장'}님 인증 성공"
             }
+        return {
+            "authenticated": True,
+            "tenant_code": "ILWON-2027",
+            "tenant_name": "일원학원",
+            "director_name": "원장",
+            "is_master": False,
+            "token": "palin_admin_session_ILWON-2027",
+            "message": "[일원학원] 원장님 인증 성공"
+        }
+
+    # 3. If specific tenant_code was requested and exists
+    if target_code:
+        tenant = db.query(models.Tenant).filter(
+            models.Tenant.code == target_code,
+            models.Tenant.deleted_at == None
+        ).first()
+        if tenant:
+            if target_code == "ILWON-2027":
+                if input_pin == "12862386" or input_pin == tenant.director_pin:
+                    return {
+                        "authenticated": True,
+                        "tenant_code": tenant.code,
+                        "tenant_name": tenant.name,
+                        "director_name": tenant.director_name or "원장",
+                        "is_master": False,
+                        "token": f"palin_admin_session_{tenant.code}",
+                        "message": f"[{tenant.name}] {tenant.director_name or '원장'}님 인증 성공"
+                    }
+            else:
+                expected_pin = tenant.director_pin or "10101010"
+                if input_pin == expected_pin or input_pin == "10101010":
+                    return {
+                        "authenticated": True,
+                        "tenant_code": tenant.code,
+                        "tenant_name": tenant.name,
+                        "director_name": tenant.director_name or "원장",
+                        "is_master": False,
+                        "token": f"palin_admin_session_{tenant.code}",
+                        "message": f"[{tenant.name}] {tenant.director_name or '원장'}님 인증 성공"
+                    }
 
     # 4. Default Initial PIN for New Affiliate Academies (10101010)
     if input_pin == "10101010":
@@ -3843,7 +3849,7 @@ def authenticate_admin(payload: AdminAuthPayload, db: Session = Depends(get_db))
                 "director_name": tenant.director_name or "원장",
                 "is_master": False,
                 "token": f"palin_admin_session_{tenant.code}",
-                "message": f"🏫 [{tenant.name}] {tenant.director_name or '원장'}님 인증 성공 (초기 PIN: 10101010)"
+                "message": f"[{tenant.name}] {tenant.director_name or '원장'}님 인증 성공 (초기 PIN: 10101010)"
             }
 
     # 5. Academy-Specific Custom Director PIN from DB
@@ -3860,7 +3866,7 @@ def authenticate_admin(payload: AdminAuthPayload, db: Session = Depends(get_db))
             "director_name": tenant.director_name or "원장",
             "is_master": False,
             "token": f"palin_admin_session_{tenant.code}",
-            "message": f"🏫 [{tenant.name}] {tenant.director_name or '원장'}님 인증 성공"
+            "message": f"[{tenant.name}] {tenant.director_name or '원장'}님 인증 성공"
         }
         
     raise HTTPException(status_code=401, detail="비밀번호 또는 원장 전용 보안 PIN이 올바르지 않습니다.")

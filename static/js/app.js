@@ -14467,7 +14467,7 @@ function renderAcademyCalendar(year, month) {
         let dotsHtml = "";
         if (dayEvents.length > 0) {
             dotsHtml = `<div class="cal-dot-container">` + dayEvents.slice(0, 3).map(ev => {
-                const color = ev.brand_color || (ev.academy_code === "CAFE-STUDY01" ? "#34d399" : "#818cf8");
+                const color = ev.brand_color || (window.currentStudent?.brand_color || "#818cf8");
                 return `<span class="cal-dot" style="background: ${color};" title="${ev.institution_name}: ${ev.curriculum_name}"></span>`;
             }).join('') + (dayEvents.length > 3 ? `<span style="font-size: 0.6rem; color: #94a3b8;">+</span>` : "") + `</div>`;
         }
@@ -14562,8 +14562,8 @@ function renderCalendarSelectedDayDetails(dateStr) {
 
     listEl.innerHTML = dayEvents.map(ev => {
         const isSpecial = ev.is_special_notice;
-        const color = ev.brand_color || (ev.academy_code === "CAFE-STUDY01" ? "#34d399" : "#818cf8");
-        const instBadge = ev.institution_name || (ev.academy_code === "CAFE-STUDY01" ? "일원 스터디카페" : "일원학원");
+        const color = ev.brand_color || (window.currentStudent?.brand_color || "#818cf8");
+        const instBadge = ev.institution_name || (window.currentStudent?.academy_name || "일원학원");
 
         return `
             <div style="background: rgba(255,255,255,0.03); border: 1.5px solid ${color}; border-radius: 10px; padding: 10px 12px; margin-bottom: 2px;">
@@ -14593,8 +14593,8 @@ function renderAcademyFeedList() {
 
     container.innerHTML = currentAcademicFeedsCache.map(f => {
         const isSpecial = f.is_special_notice;
-        const color = f.brand_color || (f.academy_code === "CAFE-STUDY01" ? "#34d399" : "#818cf8");
-        const instName = f.institution_name || (f.academy_code === "CAFE-STUDY01" ? "일원 스터디카페" : "일원학원");
+        const color = f.brand_color || (window.currentStudent?.brand_color || "#818cf8");
+        const instName = f.institution_name || (window.currentStudent?.academy_name || "일원학원");
 
         return `
             <div style="background: ${isSpecial ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.03)'}; border: 1px solid ${isSpecial ? '#ef4444' : 'rgba(255,255,255,0.08)'}; border-left: 3.5px solid ${color}; border-radius: 10px; padding: 12px; margin-bottom: 6px;">
@@ -18319,7 +18319,7 @@ async function loadStudentAcademySeats() {
     if (!seatCard) return;
 
     const studentId = (window.currentStudent && window.currentStudent.id) ? window.currentStudent.id : (localStorage.getItem("studentId") || 1);
-    const academyCode = (typeof currentActiveFacility !== 'undefined' && currentActiveFacility) ? currentActiveFacility : ((window.currentStudent && window.currentStudent.academy_code) ? window.currentStudent.academy_code : "CAFE-STUDY01");
+    const academyCode = (typeof currentActiveFacility !== 'undefined' && currentActiveFacility) ? currentActiveFacility : ((window.currentStudent && window.currentStudent.academy_code) ? window.currentStudent.academy_code : "ILWON-2027");
 
     try {
         const res = await fetch(`/api/student/academy/seats?student_id=${studentId}&academy_code=${academyCode}`);
@@ -18379,7 +18379,7 @@ function renderStudentSeatUI(data) {
             srCenter.style.background = "rgba(16, 185, 129, 0.15)";
             srCenter.style.border = "1.5px solid #10b981";
             srCenter.style.color = "#34d399";
-            srCenter.innerHTML = '<span class="material-symbols-rounded" style="font-size: 0.9rem;">meeting_room</span><span>🚪 후면 중앙문</span>';
+            srCenter.innerHTML = '<span class="material-symbols-rounded" style="font-size: 0.9rem;">meeting_room</span><span>후면 중앙문</span>';
         } else {
             srCenter.style.background = "rgba(255, 255, 255, 0.03)";
             srCenter.style.border = "1px dashed rgba(255, 255, 255, 0.15)";
@@ -18410,7 +18410,7 @@ function renderStudentSeatUI(data) {
             const s = currentStudentMySeat;
             const sName = s.seat_id || `${s.seat_num}번`;
             const sTime = s.start_time ? s.start_time + ' 입실' : '배정 완료';
-            mySeatText.innerHTML = `<span class="seat-active-highlight">🪑 ${sName} 좌석 이용 중</span> <span class="seat-active-time">(${sTime})</span>`;
+            mySeatText.innerHTML = `<span class="seat-active-highlight">${sName} 좌석 이용 중</span> <span class="seat-active-time">(${sTime})</span>`;
             mySeatActionArea.innerHTML = `
                 <button type="button" onclick="handleStudentSeatAction('CHECK_OUT', '${s.seat_id}', ${s.seat_num})" class="btn" style="background: rgba(239, 68, 68, 0.15); border: 1.5px solid #ef4444; color: #ef4444; padding: 7px 14px; font-size: 0.78rem; font-weight: 800; border-radius: 8px; cursor: pointer;">
                     퇴실 / 반납
@@ -18492,30 +18492,30 @@ window.renderStudentSeatUI = renderStudentSeatUI;
 
 function handleStudentSeatCardClick(seatId, seatNum, status) {
     if (status === 'DISABLED') {
-        alert("🚫 해당 구역은 미사용 공간(제외된 좌석)으로 지정되어 선택할 수 없습니다.");
+        alert("[안내] 해당 구역은 미사용 공간(제외된 좌석)으로 지정되어 선택할 수 없습니다.");
         return;
     }
     const isFixed = currentStudentSeatMode === "FIXED_ASSIGN";
     const isMine = currentStudentMySeat && (currentStudentMySeat.seat_id === seatId || currentStudentMySeat.seat_num === seatNum);
 
     if (isMine) {
-        if (confirm(`🪑 [${seatId || seatNum + '번'}] 좌석을 퇴실하고 반납하시겠습니까?`)) {
+        if (confirm(`[${seatId || seatNum + '번'}] 좌석을 퇴실하고 반납하시겠습니까?`)) {
             handleStudentSeatAction("CHECK_OUT", seatId, seatNum);
         }
         return;
     }
 
     if (isFixed) {
-        alert("본 기관(독서실/학원)은 원장 전담 [지정좌석제]로 운영 중입니다.\n\n좌석 변경 및 신규 배정은 원장실에 문의해 주세요.");
+        alert("본 기관(학원)은 원장 전담 [지정좌석제]로 운영 중입니다.\n\n좌석 변경 및 신규 배정은 원장실에 문의해 주세요.");
         return;
     }
 
     if (status === "OCCUPIED" || status === "RESERVED") {
-        alert(`⚠️ [${seatId || seatNum + '번'}] 좌석은 이미 다른 회원이 이용 중입니다. 빈 좌석을 선택해 주세요.`);
+        alert(`[안내] [${seatId || seatNum + '번'}] 좌석은 이미 다른 회원이 이용 중입니다. 빈 좌석을 선택해 주세요.`);
         return;
     }
 
-    if (confirm(`🎉 [${seatId || seatNum + '번'}] 좌석을 선택하여 지금 입실하시겠습니까?`)) {
+    if (confirm(`[${seatId || seatNum + '번'}] 좌석을 선택하여 지금 입실하시겠습니까?`)) {
         handleStudentSeatAction("CHECK_IN", seatId, seatNum);
     }
 }
@@ -18523,7 +18523,7 @@ window.handleStudentSeatCardClick = handleStudentSeatCardClick;
 
 async function handleStudentSeatAction(action, seatId, seatNum) {
     const studentId = (window.currentStudent && window.currentStudent.id) ? window.currentStudent.id : (localStorage.getItem("studentId") || 1);
-    const academyCode = (typeof currentActiveFacility !== 'undefined' && currentActiveFacility) ? currentActiveFacility : ((window.currentStudent && window.currentStudent.academy_code) ? window.currentStudent.academy_code : "CAFE-STUDY01");
+    const academyCode = (typeof currentActiveFacility !== 'undefined' && currentActiveFacility) ? currentActiveFacility : ((window.currentStudent && window.currentStudent.academy_code) ? window.currentStudent.academy_code : "ILWON-2027");
 
     try {
         const res = await fetch("/api/student/academy/seat/select", {
