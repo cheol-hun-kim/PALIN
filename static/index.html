@@ -4572,7 +4572,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
     
     <!-- 7. 학원 행정 요청 모달 (VOD, 단기 결석/보강, 정규 반 변경) -->
     <div id="academy-request-modal" class="trigger-modal" style="display: none;">
-        <div class="trigger-content" id="req-modal-content" style="max-width: 480px; max-height: 85vh; overflow-y: auto; border-color: #6366f1; background: #0f172a; padding: 20px;">
+        <div class="trigger-content" id="req-modal-content" style="max-width: 540px; max-height: 88vh; overflow-y: auto; border-color: #6366f1; background: #0f172a; padding: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
                 <div id="req-modal-title" style="font-size: 1.1rem; font-weight: 800; color: #818cf8; display: flex; align-items: center; gap: 6px;">
                     <span class="material-symbols-rounded">play_circle</span>
@@ -4582,6 +4582,46 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             </div>
             <form onsubmit="handleSendAcademyRequest(event)">
                 <input type="hidden" id="req-type-input" value="VOD">
+
+                <!-- 🔄 [정규 반 변경 전용] 인터랙티브 에타식 시간표 선택 섹션 -->
+                <div id="class-change-interactive-section" style="display: none; margin-bottom: 14px;">
+                    <div style="margin-bottom: 10px;">
+                        <label style="display: block; font-size: 0.78rem; font-weight: 800; color: #fbbf24; margin-bottom: 6px;">
+                            변경을 희망하는 과목 및 강좌 선택
+                        </label>
+                        <select id="req-class-change-course-select" class="form-input" onchange="onClassChangeCourseSelected(this.value)" style="width: 100%; box-sizing: border-box; font-weight: 700; background: #1e293b; color: #ffffff; border-color: rgba(245, 158, 11, 0.4);">
+                            <option value="">강좌를 선택하세요...</option>
+                        </select>
+                    </div>
+
+                    <!-- 에타 스타일 주간 분반 시간표 뷰어 (09:00 ~ 22:00) -->
+                    <div style="background: rgba(15, 23, 42, 0.7); border: 1.5px solid rgba(245, 158, 11, 0.25); border-radius: 12px; padding: 10px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <div style="font-size: 0.74rem; font-weight: 800; color: #fde68a; display: flex; align-items: center; gap: 5px;">
+                                <span class="material-symbols-rounded" style="font-size: 0.95rem; color: #f59e0b;">calendar_month</span>
+                                <span>개설된 분반 시간표 (원하는 시간 블록을 터치하세요)</span>
+                            </div>
+                            <span id="class-change-match-count" style="font-size: 0.65rem; color: #94a3b8; font-weight: 700;">3개 분반 개설됨</span>
+                        </div>
+
+                        <!-- 에타 주간 그리드 테이블 컨테이너 -->
+                        <div id="class-change-timetable-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 6px; min-height: 180px;">
+                            <!-- 요일별 컬럼 동적 렌더링 -->
+                        </div>
+                    </div>
+
+                    <!-- 선택된 희망 반 확인 뱃지 카드 -->
+                    <div id="class-change-selected-card" style="display: none; background: rgba(245, 158, 11, 0.12); border: 1.5px solid #f59e0b; border-radius: 10px; padding: 8px 12px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 0.68rem; color: #fbbf24; font-weight: 800;">선택된 변경 희망 반</div>
+                                <div id="class-change-selected-title" style="font-size: 0.84rem; font-weight: 900; color: #ffffff; margin-top: 2px;"></div>
+                            </div>
+                            <span class="material-symbols-rounded" style="color: #fbbf24; font-size: 1.3rem;">check_circle</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div style="margin-bottom: 12px;">
                     <label id="req-date-label" style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px;">수강 희망 강의 일자</label>
                     <input type="date" id="req-date-input" class="form-input" required style="width: 100%; box-sizing: border-box;">
@@ -4591,7 +4631,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <textarea id="req-details-input" class="form-input" rows="3" placeholder="복습이 필요한 주차 및 단원명을 입력해 주세요" required style="width: 100%; box-sizing: border-box; resize: vertical; min-height: 80px;"></textarea>
                 </div>
                 <div id="req-modal-notice" style="background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2); border-radius: 10px; padding: 10px; font-size: 0.74rem; color: #a5b4fc; margin-bottom: 14px;">
-                    ℹ️ 신청서 제출 시 학원 행정실 및 학부모님께 실시간 알림톡이 자동 발송됩니다.
+                    신청서 제출 시 학원 행정실 및 학부모님께 실시간 알림톡이 자동 발송됩니다.
                 </div>
                 <div style="display: flex; gap: 8px;">
                     <button type="button" onclick="document.getElementById('academy-request-modal').style.display='none'" class="btn btn-secondary" style="flex: 1; padding: 10px;">취소</button>

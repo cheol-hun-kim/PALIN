@@ -930,6 +930,42 @@
 
             <!-- TAB 4: 📢 4. 수업관리 -->
             <div id="tab-curriculum" class="cockpit-tab-view" style="display: none;">
+                <!-- 0. 원장 관제실 정규 수업 & 분반 시간표 편성 (학생 반 변경 연동) -->
+                <div class="kpi-card" style="border: 1.5px solid rgba(245, 158, 11, 0.4); margin-bottom: 16px; background: linear-gradient(135deg, rgba(245,158,11,0.06), rgba(99,102,241,0.04));">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+                        <div>
+                            <div class="section-title" style="color: #fbbf24; margin-bottom: 2px; display: flex; align-items: center; gap: 6px;">
+                                <span class="material-symbols-rounded">view_timeline</span>
+                                <span>학원 정규 수업 & 분반 시간표 편성</span>
+                                <span id="admin-class-total-badge" style="font-size: 0.68rem; font-weight: 800; background: rgba(245, 158, 11, 0.2); color: #fbbf24; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(245, 158, 11, 0.4);">12개 분반 운영 중</span>
+                            </div>
+                            <div style="font-size: 0.72rem; color: #94a3b8;">
+                                과목, 담당 선생님, 요일/시간, 분반 비고를 등록하면 학생 앱 '정규 반 변경' 에타식 시간표에 실시간 반영됩니다.
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <button type="button" onclick="openAdminCreateClassModal()" class="btn" style="padding: 7px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000000; border-radius: 8px; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);">
+                                + 신규 수업/분반 등록
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 과목 필터 칩스 -->
+                    <div style="display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px;" id="admin-class-subject-filters">
+                        <button type="button" class="btn active" onclick="filterAdminClasses('ALL', this)" style="padding: 5px 12px; font-size: 0.72rem; font-weight: 800; background: #6366f1; color: white;">전체 보기</button>
+                        <button type="button" class="btn btn-secondary" onclick="filterAdminClasses('수학', this)" style="padding: 5px 12px; font-size: 0.72rem; font-weight: 800;">수학</button>
+                        <button type="button" class="btn btn-secondary" onclick="filterAdminClasses('국어', this)" style="padding: 5px 12px; font-size: 0.72rem; font-weight: 800;">국어</button>
+                        <button type="button" class="btn btn-secondary" onclick="filterAdminClasses('영어', this)" style="padding: 5px 12px; font-size: 0.72rem; font-weight: 800;">영어</button>
+                        <button type="button" class="btn btn-secondary" onclick="filterAdminClasses('과탐', this)" style="padding: 5px 12px; font-size: 0.72rem; font-weight: 800;">과학/과탐</button>
+                        <button type="button" class="btn btn-secondary" onclick="filterAdminClasses('사탐', this)" style="padding: 5px 12px; font-size: 0.72rem; font-weight: 800;">사회/사탐</button>
+                    </div>
+
+                    <!-- 수업/분반 카드 리스트 컨테이너 -->
+                    <div id="admin-classes-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px;">
+                        <div style="font-size: 0.75rem; color: #94a3b8; padding: 15px 0;">수업 시간표를 불러오는 중입니다...</div>
+                    </div>
+                </div>
+
                 <!-- 1. 원장 관제실 인터랙티브 학사일정 캘린더 -->
                 <div class="kpi-card" style="border: 1.5px solid rgba(99, 102, 241, 0.4); margin-bottom: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
@@ -3395,6 +3431,7 @@
             }
             if (tabId === 'tab-curriculum') {
                 renderAdminCalendar();
+                loadAdminClassesList();
                 loadAdminExamsList();
                 loadAdminVodLibrary();
                 loadAdminPrivateMaterials();
@@ -3435,6 +3472,164 @@
             }
             if (tabId === 'tab-marketing') {
                 renderMarketingCardCanvas();
+            }
+        // === 🏛️ 학원 정규 수업 & 분반 시간표 관리 스크립트 ===
+        let adminClassesCache = [];
+        let currentAdminClassFilter = 'ALL';
+
+        function openAdminCreateClassModal() {
+            const modal = document.getElementById('admin-create-class-modal');
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeAdminCreateClassModal() {
+            const modal = document.getElementById('admin-create-class-modal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        async function loadAdminClassesList() {
+            const grid = document.getElementById('admin-classes-grid');
+            const totalBadge = document.getElementById('admin-class-total-badge');
+            if (!grid) return;
+
+            try {
+                const res = await fetch(`/api/academy/classes?academy_code=${currentTenantCode || 'ILWON-2027'}`);
+                if (!res.ok) return;
+                const data = await res.json();
+                adminClassesCache = data.classes || [];
+
+                if (totalBadge) {
+                    totalBadge.innerText = `${adminClassesCache.length}개 분반 운영 중`;
+                }
+
+                renderAdminClassesGrid();
+            } catch (e) {
+                console.warn('loadAdminClassesList error:', e);
+            }
+        }
+
+        function filterAdminClasses(subject, el) {
+            currentAdminClassFilter = subject;
+            document.querySelectorAll('#admin-class-subject-filters button').forEach(b => {
+                b.classList.remove('active');
+                b.classList.add('btn-secondary');
+                b.style.background = '';
+                b.style.color = '';
+            });
+            if (el) {
+                el.classList.add('active');
+                el.classList.remove('btn-secondary');
+                el.style.background = '#6366f1';
+                el.style.color = '#ffffff';
+            }
+            renderAdminClassesGrid();
+        }
+
+        function renderAdminClassesGrid() {
+            const grid = document.getElementById('admin-classes-grid');
+            if (!grid) return;
+
+            const dayNames = ['월', '화', '수', '목', '금', '토', '일'];
+            let filtered = adminClassesCache;
+            if (currentAdminClassFilter !== 'ALL') {
+                filtered = adminClassesCache.filter(c => c.subject === currentAdminClassFilter);
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div style="font-size: 0.8rem; color: #94a3b8; padding: 20px; grid-column: 1/-1; text-align: center;">등록된 수업/분반이 없습니다. [+ 신규 수업/분반 등록] 버튼을 눌러 개설해 주세요.</div>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(c => {
+                const dayName = dayNames[c.day_of_week] || '';
+                return `
+                    <div style="background: rgba(15, 23, 42, 0.7); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-size: 0.65rem; font-weight: 800; background: rgba(99,102,241,0.18); color: #818cf8; padding: 2px 7px; border-radius: 6px;">${c.subject}</span>
+                                    <span style="font-size: 0.65rem; font-weight: 800; background: rgba(245,158,11,0.18); color: #fbbf24; padding: 2px 7px; border-radius: 6px;">${c.target_grade || '고3/N수'}</span>
+                                </div>
+                                <button type="button" onclick="deleteAdminClass(${c.id})" style="background: none; border: none; color: #94a3b8; font-size: 1rem; cursor: pointer; padding: 0 4px;" title="수업 삭제">✕</button>
+                            </div>
+                            <div style="font-size: 0.88rem; font-weight: 900; color: #ffffff; line-height: 1.25; margin-bottom: 4px;">${c.course_name}</div>
+                            <div style="font-size: 0.75rem; color: #cbd5e1; font-weight: 700; margin-bottom: 2px;">
+                                <span style="color: #38bdf8;">${dayName}요일 ${c.start_time} ~ ${c.end_time}</span> · ${c.instructor_name}
+                            </div>
+                            <div style="font-size: 0.7rem; color: #94a3b8;">
+                                분반: <strong style="color: #fde68a;">${c.division_remark || '정규반'}</strong> (${c.classroom || '본원'})
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 6px; font-size: 0.7rem;">
+                            <span style="color: #94a3b8;">재원 현황: <b style="color: #34d399;">${c.current_enrolled || 0} / ${c.max_capacity || 30}명</b></span>
+                            <span style="color: #818cf8; font-weight: 700;">반 변경 연동 활성</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function handleSubmitCreateClass(e) {
+            e.preventDefault();
+            const subject = document.getElementById('modal-class-subject')?.value || '수학';
+            const grade = document.getElementById('modal-class-grade')?.value || '고3/N수';
+            const courseName = document.getElementById('modal-class-course-name')?.value.trim();
+            const instructor = document.getElementById('modal-class-instructor')?.value.trim();
+            const dayOfWeek = parseInt(document.getElementById('modal-class-day')?.value || '0', 10);
+            const startTime = document.getElementById('modal-class-start')?.value || '14:00';
+            const endTime = document.getElementById('modal-class-end')?.value || '17:00';
+            const room = document.getElementById('modal-class-room')?.value.trim() || '301호 대강의실';
+            const capacity = parseInt(document.getElementById('modal-class-capacity')?.value || '30', 10);
+            const remark = document.getElementById('modal-class-remark')?.value.trim() || '정규반';
+
+            if (!courseName || !instructor) {
+                alert('강좌명과 담당 선생님명을 모두 입력해 주세요.');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/admin/academy/classes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        academy_code: currentTenantCode || 'ILWON-2027',
+                        subject: subject,
+                        course_name: courseName,
+                        instructor_name: instructor,
+                        day_of_week: dayOfWeek,
+                        start_time: startTime,
+                        end_time: endTime,
+                        classroom: room,
+                        target_grade: grade,
+                        division_remark: remark,
+                        max_capacity: capacity,
+                        current_enrolled: 15
+                    })
+                });
+
+                if (res.ok) {
+                    alert('신규 정규 수업 및 분반이 성공적으로 등록되었습니다.');
+                    closeAdminCreateClassModal();
+                    loadAdminClassesList();
+                } else {
+                    const err = await res.json();
+                    alert(err.detail || '수업 등록에 실패했습니다.');
+                }
+            } catch (err) {
+                alert('서버 통신 실패');
+            }
+        }
+
+        async function deleteAdminClass(classId) {
+            if (!confirm('정말 이 수업/분반을 삭제하시겠습니까?')) return;
+            try {
+                const res = await fetch(`/api/admin/academy/classes/${classId}`, { method: 'DELETE' });
+                if (res.ok) {
+                    alert('수업이 삭제되었습니다.');
+                    loadAdminClassesList();
+                }
+            } catch (err) {
+                alert('수업 삭제 실패');
             }
         }
 
@@ -3688,6 +3883,7 @@
                 renderAdminPersonalCalendar();
                 loadAdminSchedules();
                 renderAdminCalendar();
+                loadAdminClassesList();
                 // Sub-tabs (VOD, Exams, Finance, Schedules) are lazy-loaded when clicked in switchAdminCockpitTab
             } else {
                 document.getElementById("admin-dashboard-screen").style.display = "none";
@@ -6690,6 +6886,99 @@
                     <button type="button" onclick="closePrescriptionModal()" class="btn btn-secondary" style="flex: 1; padding: 10px;">취소</button>
                     <button type="submit" class="btn" style="flex: 2; padding: 10px; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">처방전 저장 및 알림톡 발송
                     </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 학원 신규 정규 수업 및 분반 등록 모달 -->
+    <div id="admin-create-class-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(6px);">
+        <div class="modal-card" style="background: #0f172a; border: 1.5px solid #f59e0b; border-radius: 16px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; padding: 22px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); box-sizing: border-box;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
+                <div style="font-weight: 900; font-size: 1.05rem; color: #fbbf24; display: flex; align-items: center; gap: 6px;">
+                    <span class="material-symbols-rounded">post_add</span>
+                    <span>신규 정규 수업 및 분반 개설</span>
+                </div>
+                <button type="button" onclick="closeAdminCreateClassModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.3rem; cursor: pointer;">✕</button>
+            </div>
+            <form onsubmit="handleSubmitCreateClass(event)">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div>
+                        <label style="font-size: 0.74rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">과목 구분</label>
+                        <select id="modal-class-subject" class="form-input" style="width: 100%; box-sizing: border-box; font-weight: 700;">
+                            <option value="수학">수학</option>
+                            <option value="국어">국어</option>
+                            <option value="영어">영어</option>
+                            <option value="과탐">과학/과탐</option>
+                            <option value="사탐">사회/사탐</option>
+                            <option value="논술">인문/수리논술</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.74rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">대상 학년</label>
+                        <select id="modal-class-grade" class="form-input" style="width: 100%; box-sizing: border-box; font-weight: 700;">
+                            <option value="고3/N수">고3 / N수</option>
+                            <option value="고2">고등 2학년</option>
+                            <option value="고1">고등 1학년</option>
+                            <option value="중등">중등 심화</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <label style="font-size: 0.74rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">수업 / 강좌명</label>
+                    <input type="text" id="modal-class-course-name" required placeholder="예: 미적분 킬러 3문항 정복 & 실전 타임어택" class="form-input" style="width: 100%; box-sizing: border-box;">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div>
+                        <label style="font-size: 0.74rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">담당 선생님</label>
+                        <input type="text" id="modal-class-instructor" required placeholder="예: 이동하T" class="form-input" style="width: 100%; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.74rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">수업 요일</label>
+                        <select id="modal-class-day" class="form-input" style="width: 100%; box-sizing: border-box; font-weight: 700;">
+                            <option value="0">월요일</option>
+                            <option value="1">화요일</option>
+                            <option value="2">수요일</option>
+                            <option value="3">목요일</option>
+                            <option value="4">금요일</option>
+                            <option value="5" selected>토요일</option>
+                            <option value="6">일요일</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div>
+                        <label style="font-size: 0.74rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">시작 시간</label>
+                        <input type="time" id="modal-class-start" required value="14:00" class="form-input" style="width: 100%; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.74rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">종료 시간</label>
+                        <input type="time" id="modal-class-end" required value="17:00" class="form-input" style="width: 100%; box-sizing: border-box;">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div>
+                        <label style="font-size: 0.74rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">배정 강의실</label>
+                        <input type="text" id="modal-class-room" value="301호 대강의실" class="form-input" style="width: 100%; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.74rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">최대 정원 (명)</label>
+                        <input type="number" id="modal-class-capacity" value="30" min="1" max="200" class="form-input" style="width: 100%; box-sizing: border-box;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 14px;">
+                    <label style="font-size: 0.74rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">수준별 분반 비고 (학생이 선택 시 식별하는 반 이름)</label>
+                    <input type="text" id="modal-class-remark" placeholder="예: 최상위 S반 (의치한·서연고 대비) / 정규 A반" value="최상위 S반" class="form-input" style="width: 100%; box-sizing: border-box;">
+                </div>
+
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" onclick="closeAdminCreateClassModal()" class="btn btn-secondary" style="flex: 1; padding: 10px;">취소</button>
+                    <button type="submit" class="btn" style="flex: 2; padding: 10px; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000000;">정규 수업 개설 완료</button>
                 </div>
             </form>
         </div>

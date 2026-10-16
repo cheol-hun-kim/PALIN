@@ -620,5 +620,36 @@ class StudyCafeLayoutSavePayload(BaseModel):
     seats: List[Dict[str, Any]]
 
 
+class AcademyClassScheduleCreate(BaseModel):
+    academy_code: Optional[str] = "ILWON-2027"
+    subject: str # '국어', '수학', '영어', '과탐', '사탐', '논술'
+    course_name: str # 예: '수능 실전 킬러 정복'
+    instructor_name: str # 예: '김철훈T'
+    day_of_week: int # 0:월 ~ 6:일
+    start_time: str # '19:00'
+    end_time: str # '22:00'
+    classroom: Optional[str] = "301호 대강의실"
+    target_grade: Optional[str] = "고3/N수"
+    division_remark: Optional[str] = "최상위 S반"
+    max_capacity: Optional[int] = 30
+    current_enrolled: Optional[int] = 18
 
+class AcademyClassScheduleResponse(BaseModel):
+    id: int
+    academy_code: str
+    subject: str
+    course_name: str
+    instructor_name: str
+    day_of_week: int
+    start_time: str
+    end_time: str
+    classroom: Optional[str]
+    target_grade: Optional[str]
+    division_remark: Optional[str]
+    max_capacity: int
+    current_enrolled: int
+    is_active: bool
+    created_at: Optional[datetime] = None
 
+    class Config:
+        from_attributes = True

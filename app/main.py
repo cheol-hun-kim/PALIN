@@ -6430,6 +6430,8 @@ def update_admin_request_status(request_id: int, payload: RequestStatusUpdatePay
         except Exception as e:
             print("SMS sync notice:", e)
             
+    return {"status": "success", "message": f"요청이 {payload.status} 처리되었습니다.", "request": req}
+
 @app.post("/api/admin/requests/{request_id}/approve")
 def approve_admin_request(request_id: int, db: Session = Depends(get_db)):
     return update_admin_request_status(request_id, RequestStatusUpdatePayload(status="APPROVED"), db)
@@ -6437,6 +6439,195 @@ def approve_admin_request(request_id: int, db: Session = Depends(get_db)):
 @app.post("/api/admin/requests/{request_id}/reject")
 def reject_admin_request(request_id: int, db: Session = Depends(get_db)):
     return update_admin_request_status(request_id, RequestStatusUpdatePayload(status="REJECTED"), db)
+
+# === 학원 정규 수업 & 분반 시간표 관리 API ===
+
+DEFAULT_ILWON_CLASSES = [
+    {
+        "academy_code": "ILWON-2027", "subject": "수학", "course_name": "미적분 킬러 3문항 정복 & 실전 타임어택",
+        "instructor_name": "이동하T", "day_of_week": 5, "start_time": "14:00", "end_time": "17:00",
+        "classroom": "401호 대강의실", "target_grade": "고3/N수", "division_remark": "최상위 S반 (미적 100점 목표)",
+        "max_capacity": 30, "current_enrolled": 24
+    },
+    {
+        "academy_code": "ILWON-2027", "subject": "수학", "course_name": "미적분 킬러 3문항 정복 & 실전 타임어택",
+        "instructor_name": "이동하T", "day_of_week": 6, "start_time": "09:00", "end_time": "12:00",
+        "classroom": "401호 대강의실", "target_grade": "고3/N수", "division_remark": "정규 A반 (안정 1등급 완성)",
+        "max_capacity": 30, "current_enrolled": 22
+    },
+    {
+        "academy_code": "ILWON-2027", "subject": "수학", "course_name": "미적분 킬러 3문항 정복 & 실전 타임어택",
+        "instructor_name": "이동하T", "day_of_week": 3, "start_time": "19:00", "end_time": "22:00",
+        "classroom": "402호", "target_grade": "고3/N수", "division_remark": "주중 몰입 심화반",
+        "max_capacity": 25, "current_enrolled": 19
+    },
+    {
+        "academy_code": "ILWON-2027", "subject": "수학", "course_name": "확률과 통계 핵심 빈출 & 준킬러 N제",
+        "instructor_name": "박진우T", "day_of_week": 1, "start_time": "19:00", "end_time": "22:00",
+        "classroom": "303호", "target_grade": "고3/N수", "division_remark": "인문계 정규 A반",
+        "max_capacity": 25, "current_enrolled": 16
+    },
+    {
+        "academy_code": "ILWON-2027", "subject": "수학", "course_name": "확률과 통계 핵심 빈출 & 준킬러 N제",
+        "instructor_name": "박진우T", "day_of_week": 5, "start_time": "19:00", "end_time": "22:00",
+        "classroom": "303호", "target_grade": "고3/N수", "division_remark": "주말 집중 클리닉반",
+        "max_capacity": 25, "current_enrolled": 18
+    },
+    {
+        "academy_code": "ILWON-2027", "subject": "국어", "course_name": "2027 수능 실전 모의고사 & 비문학 독해",
+        "instructor_name": "김철훈T", "day_of_week": 5, "start_time": "09:00", "end_time": "12:00",
+        "classroom": "301호", "target_grade": "고3/N수", "division_remark": "수능 정규 A반 (의치한·서연고)",
+        "max_capacity": 30, "current_enrolled": 26
+    },
+    {
+        "academy_code": "ILWON-2027", "subject": "국어", "course_name": "2027 수능 실전 모의고사 & 비문학 독해",
+        "instructor_name": "김철훈T", "day_of_week": 6, "start_time": "14:00", "end_time": "17:00",
+        "classroom": "302호", "target_grade": "고3/N수", "division_remark": "수능 정규 B반 (1등급 목표)",
+        "max_capacity": 30, "current_enrolled": 21
+    },
+    {
+        "academy_code": "ILWON-2027", "subject": "국어", "course_name": "2027 수능 실전 모의고사 & 비문학 독해",
+        "instructor_name": "김철훈T", "day_of_week": 2, "start_time": "19:00", "end_time": "22:00",
+        "classroom": "301호", "target_grade": "고3/N수", "division_remark": "주중 야간 집중반",
+        "max_capacity": 25, "current_enrolled": 17
+    },
+    {
+        "academy_code": "ILWON-2027", "subject": "영어", "course_name": "수능 영어 1등급 빈칸·순서 삽입 논리 마스터",
+        "instructor_name": "정유진T", "day_of_week": 4, "start_time": "19:00", "end_time": "22:00",
+        "classroom": "201호", "target_grade": "고3/N수", "division_remark": "주중 정규 실전반",
+        "max_capacity": 30, "current_enrolled": 20
+    },
+    {
+        "academy_code": "ILWON-2027", "subject": "영어", "course_name": "수능 영어 1등급 빈칸·순서 삽입 논리 마스터",
+        "instructor_name": "정유진T", "day_of_week": 6, "start_time": "19:00", "end_time": "22:00",
+        "classroom": "201호", "target_grade": "고3/N수", "division_remark": "주말 파이널 완성반",
+        "max_capacity": 30, "current_enrolled": 23
+    },
+    {
+        "academy_code": "ILWON-2027", "subject": "과탐", "course_name": "생명과학I 유전 킬러 로직 & 스킬 체화",
+        "instructor_name": "한승우T", "day_of_week": 5, "start_time": "14:00", "end_time": "17:00",
+        "classroom": "205호", "target_grade": "고3/N수", "division_remark": "유전 특화 S반",
+        "max_capacity": 25, "current_enrolled": 21
+    },
+    {
+        "academy_code": "ILWON-2027", "subject": "과탐", "course_name": "생명과학I 유전 킬러 로직 & 스킬 체화",
+        "instructor_name": "한승우T", "day_of_week": 6, "start_time": "14:00", "end_time": "17:00",
+        "classroom": "205호", "target_grade": "고3/N수", "division_remark": "정규 A반 (기출 변형 정복)",
+        "max_capacity": 25, "current_enrolled": 19
+    }
+]
+
+def ensure_seed_academy_classes(db: Session, academy_code: str = "ILWON-2027"):
+    cnt = db.query(models.AcademyClassSchedule).filter(
+        models.AcademyClassSchedule.academy_code == academy_code,
+        models.AcademyClassSchedule.deleted_at == None
+    ).count()
+    if cnt == 0:
+        for c_data in DEFAULT_ILWON_CLASSES:
+            item = models.AcademyClassSchedule(**c_data)
+            db.add(item)
+        db.commit()
+
+@app.get("/api/academy/classes")
+def get_academy_classes(
+    academy_code: str = "ILWON-2027",
+    subject: Optional[str] = None,
+    grade: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    ensure_seed_academy_classes(db, academy_code)
+    q = db.query(models.AcademyClassSchedule).filter(
+        models.AcademyClassSchedule.academy_code == academy_code,
+        models.AcademyClassSchedule.is_active == True,
+        models.AcademyClassSchedule.deleted_at == None
+    )
+    if subject and subject != "ALL":
+        q = q.filter(models.AcademyClassSchedule.subject == subject)
+    if grade and grade != "ALL":
+        q = q.filter(models.AcademyClassSchedule.target_grade == grade)
+    
+    classes = q.order_by(
+        models.AcademyClassSchedule.day_of_week.asc(),
+        models.AcademyClassSchedule.start_time.asc()
+    ).all()
+    return {"status": "success", "classes": classes}
+
+@app.post("/api/admin/academy/classes")
+def create_academy_class(payload: schemas.AcademyClassScheduleCreate, db: Session = Depends(get_db)):
+    new_class = models.AcademyClassSchedule(**payload.model_dump())
+    db.add(new_class)
+    db.commit()
+    db.refresh(new_class)
+    return {"status": "success", "message": "새로운 정규 수업/분반이 등록되었습니다.", "class": new_class}
+
+@app.delete("/api/admin/academy/classes/{class_id}")
+def delete_academy_class(class_id: int, db: Session = Depends(get_db)):
+    c = db.query(models.AcademyClassSchedule).filter(models.AcademyClassSchedule.id == class_id).first()
+    if not c:
+        raise HTTPException(status_code=404, detail="해당 수업을 찾을 수 없습니다.")
+    c.deleted_at = datetime.now()
+    db.commit()
+    return {"status": "success", "message": "수업이 삭제되었습니다."}
+
+@app.get("/api/academy/classes/equivalent")
+def get_equivalent_classes(
+    course_name: Optional[str] = None,
+    subject: Optional[str] = None,
+    academy_code: str = "ILWON-2027",
+    db: Session = Depends(get_db)
+):
+    ensure_seed_academy_classes(db, academy_code)
+    q = db.query(models.AcademyClassSchedule).filter(
+        models.AcademyClassSchedule.academy_code == academy_code,
+        models.AcademyClassSchedule.is_active == True,
+        models.AcademyClassSchedule.deleted_at == None
+    )
+    if course_name:
+        q = q.filter(models.AcademyClassSchedule.course_name == course_name)
+    elif subject:
+        q = q.filter(models.AcademyClassSchedule.subject == subject)
+    
+    classes = q.order_by(
+        models.AcademyClassSchedule.day_of_week.asc(),
+        models.AcademyClassSchedule.start_time.asc()
+    ).all()
+
+    # 에타식 시간표 렌더링에 적합한 메타데이터 가공
+    timetable_blocks = []
+    day_names = ["월", "화", "수", "목", "금", "토", "일"]
+    for c in classes:
+        timetable_blocks.append({
+            "id": c.id,
+            "subject": c.subject,
+            "course_name": c.course_name,
+            "instructor_name": c.instructor_name,
+            "day_of_week": c.day_of_week,
+            "day_name": day_names[c.day_of_week] if 0 <= c.day_of_week < 7 else "",
+            "start_time": c.start_time,
+            "end_time": c.end_time,
+            "classroom": c.classroom or "본원 강의실",
+            "division_remark": c.division_remark or "정규반",
+            "capacity_info": f"{c.current_enrolled}/{c.max_capacity}명",
+            "is_full": c.current_enrolled >= c.max_capacity
+        })
+    
+    # 학원에 개설된 모든 과목/강좌 목록(선택용)도 함께 제공
+    all_courses = db.query(
+        models.AcademyClassSchedule.subject,
+        models.AcademyClassSchedule.course_name
+    ).filter(
+        models.AcademyClassSchedule.academy_code == academy_code,
+        models.AcademyClassSchedule.deleted_at == None
+    ).distinct().all()
+    
+    course_list = [{"subject": ac[0], "course_name": ac[1]} for ac in all_courses]
+
+    return {
+        "status": "success",
+        "matched_classes": timetable_blocks,
+        "available_courses": course_list
+    }
+
 
 # === 💰 원장 전용 수강료/교재비 ERP 관리 API ===
 

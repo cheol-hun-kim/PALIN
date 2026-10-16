@@ -595,6 +595,28 @@ class CurriculumFeed(Base):
     deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
 
 
+class AcademyClassSchedule(Base):
+    """학원 정규 수업 및 분반 시간표 (과목, 강사명, 요일, 시간, 수준별 분반 비고)"""
+    __tablename__ = "academy_class_schedules"
+
+    id = Column(Integer, primary_key=True, index=True)
+    academy_code = Column(String, default="ILWON-2027", index=True)
+    subject = Column(String, nullable=False) # '국어', '수학', '영어', '과탐', '사탐', '논술'
+    course_name = Column(String, nullable=False) # 예: '수능 실전 킬러 정복', '고2 내신 1등급 완성'
+    instructor_name = Column(String, nullable=False) # 예: '김철훈T', '이동하T'
+    day_of_week = Column(Integer, nullable=False) # 0:월, 1:화, 2:수, 3:목, 4:금, 5:토, 6:일
+    start_time = Column(String, nullable=False) # '14:00', '19:00'
+    end_time = Column(String, nullable=False) # '17:00', '22:00'
+    classroom = Column(String, nullable=True) # 예: '301호', '204호'
+    target_grade = Column(String, default="고3/N수") # '고1', '고2', '고3/N수'
+    division_remark = Column(String, nullable=True) # 예: '최상위 S반 (의치한 대비)', '정규 A반', '기본 완성 B반'
+    max_capacity = Column(Integer, default=30)
+    current_enrolled = Column(Integer, default=18)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
+
+
 class AdministrativeRequest(Base):
     """학생 행정 요청 (복습 VOD, 단기 결석/보강, 정규 반 변경, 휴강/복귀) 칸반 연동"""
     __tablename__ = "administrative_requests"

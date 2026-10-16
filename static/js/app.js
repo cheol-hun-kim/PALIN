@@ -8835,7 +8835,7 @@ async function loadTimetable() {
             const topPx = Math.max(0, Math.min(510, (startHour - 6) * 30));
             const heightPx = Math.max(22, Math.min(540 - topPx, (endHour - startHour) * 30));
 
-            const colorClass = `color-${index % 7}`;
+            const colorClass = getSubjectColorClass(block.title);
             const cleanTitle = formatCleanSubjectTitle(block.title);
             const blockEl = document.createElement("div");
             blockEl.className = `timetable-block ${colorClass}`;
@@ -8853,6 +8853,33 @@ async function loadTimetable() {
     } catch (e) {
         console.error("loadTimetable error:", e);
     }
+}
+
+function getSubjectColorClass(title) {
+    if (!title) return 'color-subj-default';
+    const t = title.toLowerCase();
+    if (t.includes('국어') || t.includes('문학') || t.includes('독서') || t.includes('비문학') || t.includes('언매') || t.includes('화작')) {
+        return 'color-subj-korean';
+    }
+    if (t.includes('수학') || t.includes('미적') || t.includes('기하') || t.includes('확통') || t.includes('수1') || t.includes('수2') || t.includes('수i') || t.includes('수ii')) {
+        return 'color-subj-math';
+    }
+    if (t.includes('영어') || t.includes('영단어') || t.includes('듣기') || t.includes('구문')) {
+        return 'color-subj-english';
+    }
+    if (t.includes('물리') || t.includes('화학') || t.includes('생명') || t.includes('지구') || t.includes('과탐') || t.includes('과학')) {
+        return 'color-subj-science';
+    }
+    if (t.includes('사탐') || t.includes('생윤') || t.includes('사문') || t.includes('한지') || t.includes('세지') || t.includes('사회') || t.includes('역사') || t.includes('윤리')) {
+        return 'color-subj-society';
+    }
+    if (t.includes('학원') || t.includes('단과') || t.includes('수업') || t.includes('클리닉') || t.includes('인강')) {
+        return 'color-subj-academy';
+    }
+    if (t.includes('자습') || t.includes('복습') || t.includes('오답') || t.includes('숙제') || t.includes('모의고사') || t.includes('실모')) {
+        return 'color-subj-study';
+    }
+    return 'color-subj-default';
 }
 
 async function addPlannerBlock(e) {
@@ -14552,7 +14579,10 @@ function openRequestModal(reqType) {
 
     const isDay = document.body.classList.contains("day-mode");
 
+    const classChangeSection = document.getElementById("class-change-interactive-section");
+
     if (reqType === "VOD") {
+        if (classChangeSection) classChangeSection.style.display = "none";
         if (titleEl) {
             titleEl.innerHTML = '<span class="material-symbols-rounded">play_circle</span><span>복습 VOD 신청</span>';
             titleEl.style.color = isDay ? "#4338ca" : "#818cf8";
@@ -14571,6 +14601,7 @@ function openRequestModal(reqType) {
             submitBtn.style.fontWeight = "800";
         }
     } else if (reqType === "ATTENDANCE") {
+        if (classChangeSection) classChangeSection.style.display = "none";
         if (titleEl) {
             titleEl.innerHTML = '<span class="material-symbols-rounded">event_busy</span><span>단기 결석 및 보강 신청</span>';
             titleEl.style.color = isDay ? "#065f46" : "#34d399";
@@ -14589,12 +14620,13 @@ function openRequestModal(reqType) {
             submitBtn.style.fontWeight = "800";
         }
     } else if (reqType === "CLASS_CHANGE") {
+        if (classChangeSection) classChangeSection.style.display = "block";
         if (titleEl) {
             titleEl.innerHTML = '<span class="material-symbols-rounded">swap_horiz</span><span>정규 반 변경 신청</span>';
             titleEl.style.color = isDay ? "#92400e" : "#fbbf24";
         }
         if (dateLabelEl) dateLabelEl.innerText = "변경 희망 적용 일자";
-        if (detailsInput) detailsInput.placeholder = "현재 수강 반 및 변경을 희망하는 요일/시간대를 입력해 주세요";
+        if (detailsInput) detailsInput.placeholder = "위 시간표에서 희망하는 반을 선택하시면 상세 정보가 자동 입력됩니다.";
         if (contentEl) contentEl.style.borderColor = "#f59e0b";
         if (noticeEl) {
             noticeEl.style.background = isDay ? "#fffbeb" : "rgba(245,158,11,0.08)";
@@ -14606,9 +14638,135 @@ function openRequestModal(reqType) {
             submitBtn.style.color = "#000000";
             submitBtn.style.fontWeight = "900";
         }
+        loadClassChangeOptions();
     }
 
     modal.style.display = "flex";
+}
+
+let cachedClassChangeData = [];
+
+async function loadClassChangeOptions(targetCourseName = null) {
+    const select = document.getElementById("req-class-change-course-select");
+    const countBadge = document.getElementById("class-change-match-count");
+    if (!select) return;
+
+    try {
+        const academyCode = currentStudent?.academy_code || "ILWON-2027";
+        const url = targetCourseName 
+            ? `/api/academy/classes/equivalent?course_name=${encodeURIComponent(targetCourseName)}&academy_code=${academyCode}`
+            : `/api/academy/classes/equivalent?academy_code=${academyCode}`;
+            
+        const res = await fetch(url);
+        if (!res.ok) return;
+        const data = await res.json();
+
+        // 1. 강좌 선택 옵션 구성
+        const courses = data.available_courses || [];
+        if (select.options.length <= 1) {
+            select.innerHTML = '<option value="">강좌를 선택하세요...</option>';
+            courses.forEach(c => {
+                const opt = document.createElement("option");
+                opt.value = c.course_name;
+                opt.textContent = `[${c.subject}] ${c.course_name}`;
+                select.appendChild(opt);
+            });
+            if (courses.length > 0 && !targetCourseName) {
+                select.selectedIndex = 1;
+                targetCourseName = courses[0].course_name;
+            }
+        }
+
+        if (targetCourseName) {
+            select.value = targetCourseName;
+        }
+
+        // 2. 일치하는 분반 목록
+        const matched = data.matched_classes || [];
+        cachedClassChangeData = matched;
+        if (countBadge) {
+            countBadge.innerText = `${matched.length}개 분반 개설됨`;
+        }
+
+        renderClassChangeTimetable(matched);
+    } catch (err) {
+        console.warn("loadClassChangeOptions error:", err);
+    }
+}
+
+function onClassChangeCourseSelected(courseName) {
+    if (!courseName) return;
+    loadClassChangeOptions(courseName);
+}
+
+function renderClassChangeTimetable(classes) {
+    const grid = document.getElementById("class-change-timetable-grid");
+    if (!grid) return;
+
+    const dayLabels = ["월", "화", "수", "목", "금", "토", "일"];
+    grid.innerHTML = "";
+
+    dayLabels.forEach((dayName, dayIdx) => {
+        const dayCol = document.createElement("div");
+        dayCol.style.cssText = "display: flex; flex-direction: column; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 4px; min-height: 160px;";
+        
+        // 요일 헤더
+        const header = document.createElement("div");
+        header.style.cssText = "font-size: 0.68rem; font-weight: 800; text-align: center; padding: 3px 0; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 4px;";
+        header.innerText = dayName;
+        if (dayIdx >= 5) {
+            header.style.color = dayIdx === 5 ? "#38bdf8" : "#f87171"; // 토/일 강조
+        }
+        dayCol.appendChild(header);
+
+        // 해당 요일 분반들
+        const dayClasses = classes.filter(c => c.day_of_week === dayIdx);
+        if (dayClasses.length === 0) {
+            const emptyEl = document.createElement("div");
+            emptyEl.style.cssText = "font-size: 0.6rem; color: #475569; text-align: center; margin-top: 15px;";
+            emptyEl.innerText = "-";
+            dayCol.appendChild(emptyEl);
+        } else {
+            dayClasses.forEach(c => {
+                const block = document.createElement("div");
+                const colorClass = getSubjectColorClass(c.subject || c.course_name);
+                block.className = `class-change-block ${colorClass}`;
+                block.style.cssText = "cursor: pointer; border-radius: 6px; padding: 6px 4px; margin-bottom: 4px; font-size: 0.65rem; color: #ffffff; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3); transition: transform 0.15s, box-shadow 0.15s; border: 1px solid rgba(255,255,255,0.2);";
+                block.onmouseover = () => { block.style.transform = "scale(1.04)"; block.style.boxShadow = "0 0 10px #f59e0b"; };
+                block.onmouseout = () => { block.style.transform = "scale(1)"; block.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)"; };
+                
+                block.innerHTML = `
+                    <div style="font-weight: 900; line-height: 1.1; margin-bottom: 2px;">${c.division_remark || '정규반'}</div>
+                    <div style="font-size: 0.6rem; opacity: 0.9;">${c.instructor_name}</div>
+                    <div style="font-size: 0.58rem; color: #fde68a; font-weight: 700; margin-top: 2px;">${c.start_time}~${c.end_time}</div>
+                    <div style="font-size: 0.55rem; color: #cbd5e1;">${c.classroom}</div>
+                    <div style="font-size: 0.55rem; color: #a7f3d0; font-weight: 800; margin-top: 2px;">${c.capacity_info}</div>
+                `;
+                block.onclick = (e) => {
+                    e.stopPropagation();
+                    selectClassChangeTarget(c);
+                };
+                dayCol.appendChild(block);
+            });
+        }
+        grid.appendChild(dayCol);
+    });
+}
+
+function selectClassChangeTarget(cls) {
+    const card = document.getElementById("class-change-selected-card");
+    const titleEl = document.getElementById("class-change-selected-title");
+    const detailsInput = document.getElementById("req-details-input");
+
+    if (card) card.style.display = "block";
+    if (titleEl) {
+        titleEl.innerText = `[${cls.subject}] ${cls.course_name} (${cls.day_name}요일 ${cls.start_time}~${cls.end_time} / ${cls.instructor_name} / ${cls.division_remark} / ${cls.classroom})`;
+    }
+
+    if (detailsInput) {
+        detailsInput.value = `[정규 반 변경 신청]\n• 희망 강좌: ${cls.course_name} (${cls.subject})\n• 희망 분반: ${cls.division_remark} (담당: ${cls.instructor_name})\n• 수업 시간: 매주 ${cls.day_name}요일 ${cls.start_time}~${cls.end_time} (${cls.classroom})\n• 변경 희망 사유: `;
+        detailsInput.focus();
+    }
 }
 
 async function handleSendAcademyRequest(e) {
@@ -20494,6 +20652,11 @@ window.switchRadarRegion = switchRadarRegion;
 window.renderParentRadarContent = renderParentRadarContent;
 window.renderParentSalonColumns = renderParentSalonColumns;
 window.renderParentCommunity = renderParentCommunity;
+window.onClassChangeCourseSelected = onClassChangeCourseSelected;
+window.selectClassChangeTarget = selectClassChangeTarget;
+window.loadClassChangeOptions = loadClassChangeOptions;
+window.renderClassChangeTimetable = renderClassChangeTimetable;
+window.getSubjectColorClass = getSubjectColorClass;
 
 // 자동 초기화 리스너 등록
 document.addEventListener("DOMContentLoaded", () => {
