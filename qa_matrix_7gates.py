@@ -652,9 +652,15 @@ print("[GATE 5.2 PASS] JavaScript app.js syntax & full runtime evaluation verifi
 
 # 5.2b Full HTML Inline Script Tags Syntax Scanner (Zero Syntax Error Guarantee)
 import tempfile
-for html_rel in ['static/admin.html', 'static/master.html', 'static/index.html']:
-    html_path = os.path.join(ROOT_DIR, html_rel)
-    with open(html_path, 'r', encoding='utf-8') as f:
+scanned_html_files = []
+for root, dirs, files in os.walk(os.path.join(ROOT_DIR, 'static')):
+    for f in files:
+        if f.endswith('.html'):
+            scanned_html_files.append(os.path.join(root, f))
+
+for html_abs_path in scanned_html_files:
+    rel_name = os.path.relpath(html_abs_path, ROOT_DIR)
+    with open(html_abs_path, 'r', encoding='utf-8', errors='ignore') as f:
         html_text = f.read()
     inline_scripts = re.findall(r'<script\b[^>]*>(.*?)</script>', html_text, re.DOTALL | re.IGNORECASE)
     for s_idx, s_code in enumerate(inline_scripts, 1):
@@ -666,10 +672,10 @@ for html_rel in ['static/admin.html', 'static/master.html', 'static/index.html']
         res_chk = subprocess.run(['node', '--check', tf_path], capture_output=True, text=True, encoding='utf-8')
         os.remove(tf_path)
         if res_chk.returncode != 0:
-            print(f"[GATE 5 FAIL] Syntax error in {html_rel} script tag #{s_idx}:\n{res_chk.stderr}")
+            print(f"[GATE 5.2b FAIL] Syntax error in {rel_name} script tag #{s_idx}:\n{res_chk.stderr}")
             sys.exit(1)
 
-print("[GATE 5.2b PASS] All inline script tags across admin.html, master.html, index.html 100% verified with Node.js syntax engine!")
+print(f"[GATE 5.2b PASS] All inline script tags across {len(scanned_html_files)} HTML files 100% verified with Node.js syntax engine!")
 
 # 5.3 Cloud Requirements Parity & Dependency Manifest Validator
 import ast
