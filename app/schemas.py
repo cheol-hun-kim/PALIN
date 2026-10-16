@@ -632,7 +632,7 @@ class AcademyClassScheduleCreate(BaseModel):
     target_grade: Optional[str] = "고3/N수"
     division_remark: Optional[str] = "최상위 S반"
     max_capacity: Optional[int] = 30
-    current_enrolled: Optional[int] = 18
+    current_enrolled: Optional[int] = 0
 
 class AcademyClassScheduleResponse(BaseModel):
     id: int

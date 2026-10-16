@@ -3579,6 +3579,7 @@
             const endTime = document.getElementById('modal-class-end')?.value || '17:00';
             const room = document.getElementById('modal-class-room')?.value.trim() || '301호 대강의실';
             const capacity = parseInt(document.getElementById('modal-class-capacity')?.value || '30', 10);
+            const enrolled = parseInt(document.getElementById('modal-class-enrolled')?.value || '0', 10);
             const remark = document.getElementById('modal-class-remark')?.value.trim() || '정규반';
 
             if (!courseName || !instructor) {
@@ -3602,7 +3603,7 @@
                         target_grade: grade,
                         division_remark: remark,
                         max_capacity: capacity,
-                        current_enrolled: 15
+                        current_enrolled: enrolled >= 0 ? enrolled : 0
                     })
                 });
 
@@ -6982,14 +6983,18 @@
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;">
                     <div>
                         <label style="font-size: 0.74rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">배정 강의실</label>
                         <input type="text" id="modal-class-room" value="301호 대강의실" class="form-input" style="width: 100%; box-sizing: border-box;">
                     </div>
                     <div>
                         <label style="font-size: 0.74rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">최대 정원 (명)</label>
-                        <input type="number" id="modal-class-capacity" value="30" min="1" max="200" class="form-input" style="width: 100%; box-sizing: border-box;">
+                        <input type="number" id="modal-class-capacity" value="70" min="1" max="300" class="form-input" style="width: 100%; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.74rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">현재 재원생 (명)</label>
+                        <input type="number" id="modal-class-enrolled" value="0" min="0" max="300" class="form-input" style="width: 100%; box-sizing: border-box;">
                     </div>
                 </div>
 

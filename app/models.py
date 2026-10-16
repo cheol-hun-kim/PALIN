@@ -611,7 +611,7 @@ class AcademyClassSchedule(Base):
     target_grade = Column(String, default="고3/N수") # '고1', '고2', '고3/N수'
     division_remark = Column(String, nullable=True) # 예: '최상위 S반 (의치한 대비)', '정규 A반', '기본 완성 B반'
     max_capacity = Column(Integer, default=30)
-    current_enrolled = Column(Integer, default=18)
+    current_enrolled = Column(Integer, default=0)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     deleted_at = Column(DateTime(timezone=True), nullable=True) # Soft Delete 필드
