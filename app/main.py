@@ -7261,6 +7261,151 @@ def get_admin_attendance_logs(db: Session = Depends(get_db)):
     return results
 
 
+# === 🎯 수강실적 & 수능 직전 무료 수능연습 우선순위 선발 API ===
+@app.get("/api/admin/csat-practice/priority-rankings")
+def get_csat_practice_priority_rankings(
+    tenant_code: Optional[str] = "ILWON-2027",
+    capacity: int = 30,
+    weight_att: float = 10.0,
+    weight_absent: float = 50.0,
+    weight_diligence: float = 0.1,
+    weight_longevity: float = 0.5,
+    db: Session = Depends(get_db)
+):
+    query = db.query(models.Student).filter(models.Student.deleted_at == None)
+    if tenant_code and tenant_code != "ALL":
+        query = query.filter(
+            (models.Student.academy_code == tenant_code) | 
+            (models.Student.pending_tenant_code == tenant_code) |
+            (models.Student.leave_reason.like(f"%{tenant_code}%"))
+        )
+    students = query.all()
+    
+    student_ids = [s.id for s in students]
+    att_logs = db.query(models.AttendanceLog).filter(
+        models.AttendanceLog.student_id.in_(student_ids),
+        models.AttendanceLog.deleted_at == None
+    ).all() if student_ids else []
+    
+    mission_logs = db.query(models.MissionLog).filter(
+        models.MissionLog.student_id.in_(student_ids),
+        models.MissionLog.status == "SUCCESS"
+    ).all() if student_ids else []
+    
+    from collections import defaultdict
+    att_by_student = defaultdict(lambda: {"present": 0, "late": 0, "absent": 0, "excused": 0, "total": 0})
+    for a in att_logs:
+        st = (a.status or "").upper()
+        sid = a.student_id
+        att_by_student[sid]["total"] += 1
+        if st in ["PRESENT", "ATTENDED", "출석", "출석완료"]:
+            att_by_student[sid]["present"] += 1
+        elif st in ["LATE", "지각"]:
+            att_by_student[sid]["late"] += 1
+        elif st in ["ABSENT", "결석", "무단결석"]:
+            att_by_student[sid]["absent"] += 1
+        elif st in ["EXCUSED", "사유결석", "공결"]:
+            att_by_student[sid]["excused"] += 1
+            
+    mission_by_student = defaultdict(int)
+    for m in mission_logs:
+        mission_by_student[m.student_id] += 1
+        
+    today = datetime.now().date()
+    ranked_list = []
+    
+    for s in students:
+        s_att = att_by_student[s.id]
+        present_cnt = s_att["present"]
+        late_cnt = s_att["late"]
+        absent_cnt = s_att["absent"]
+        excused_cnt = s_att["excused"]
+        total_att = s_att["total"]
+        
+        reg_date = s.created_at.date() if s.created_at else today
+        days_enrolled = max(1, (today - reg_date).days)
+        
+        diligence_pts = s.diligence_score or 0
+        missions_done = mission_by_student[s.id]
+        streak = s.streak_days or 0
+        
+        score = (
+            (present_cnt * weight_att) + 
+            (late_cnt * (weight_att * 0.5)) - 
+            (absent_cnt * weight_absent) + 
+            (diligence_pts * weight_diligence) + 
+            (days_enrolled * weight_longevity)
+        )
+        score = round(max(0.0, score), 1)
+        
+        att_rate = round((present_cnt + late_cnt * 0.7) / total_att * 100, 1) if total_att > 0 else (100.0 if absent_cnt == 0 else 0.0)
+        
+        ranked_list.append({
+            "student_id": s.id,
+            "name": s.name,
+            "phone": s.phone or "-",
+            "high_school": s.high_school or "-",
+            "grade": s.grade or 3,
+            "target_univ": s.target_univ or "-",
+            "enrollment_status": s.enrollment_status or "ENROLLED",
+            "days_enrolled": days_enrolled,
+            "joined_date": reg_date.strftime("%Y-%m-%d"),
+            "present_count": present_cnt,
+            "late_count": late_cnt,
+            "unexcused_absent_count": absent_cnt,
+            "excused_count": excused_cnt,
+            "total_checkins": total_att,
+            "attendance_rate": att_rate,
+            "diligence_score": diligence_pts,
+            "streak_days": streak,
+            "missions_completed": missions_done,
+            "total_priority_score": score
+        })
+        
+    ranked_list.sort(key=lambda x: (x["total_priority_score"], x["days_enrolled"], x["present_count"]), reverse=True)
+    
+    capacity = max(1, capacity)
+    for idx, item in enumerate(ranked_list):
+        rank = idx + 1
+        item["rank"] = rank
+        if rank <= capacity:
+            item["selection_status"] = "PASS"
+            item["selection_label"] = "선발 확정"
+            item["waitlist_no"] = 0
+        else:
+            item["selection_status"] = "WAIT"
+            wait_no = rank - capacity
+            item["selection_label"] = f"예비 {wait_no}번"
+            item["waitlist_no"] = wait_no
+            
+    selected_items = [x for x in ranked_list if x["selection_status"] == "PASS"]
+    cutoff_score = selected_items[-1]["total_priority_score"] if selected_items else 0.0
+    zero_absent_cnt = sum(1 for x in selected_items if x["unexcused_absent_count"] == 0)
+    zero_absent_pct = round(zero_absent_cnt / len(selected_items) * 100, 1) if selected_items else 100.0
+    avg_score = round(sum(x["total_priority_score"] for x in selected_items) / len(selected_items), 1) if selected_items else 0.0
+    avg_diligence = round(sum(x["diligence_score"] for x in selected_items) / len(selected_items), 1) if selected_items else 0.0
+
+    return {
+        "status": "success",
+        "tenant_code": tenant_code,
+        "capacity": capacity,
+        "total_eligible_students": len(ranked_list),
+        "selected_count": len(selected_items),
+        "waitlist_count": len(ranked_list) - len(selected_items),
+        "cutoff_score": cutoff_score,
+        "selected_avg_score": avg_score,
+        "selected_avg_diligence": avg_diligence,
+        "zero_absent_rate": zero_absent_pct,
+        "weights": {
+            "attendance": weight_att,
+            "unexcused_absent": weight_absent,
+            "diligence": weight_diligence,
+            "longevity": weight_longevity
+        },
+        "rankings": ranked_list
+    }
+
+
 # === 📱 학부모 알림톡/SMS 직통 발송기 API ===
 class SendParentSmsPayload(BaseModel):
     student_ids: Optional[List[int]] = None  # None or empty means all enrolled students
