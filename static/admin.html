@@ -2670,19 +2670,20 @@
                 specialText.innerText = activeCfg.tabText;
             }
 
-            // 4. 만약 현재 7번 특화 탭이 열려있는 상태라면, 화면 컨테이너도 즉시 해당 업종 전용으로 전환
-            const specialContainers = ['tab-exams', 'tab-middle-achievement', 'tab-elem-routines', 'tab-studycafe-seats'];
-            const isSpecialActive = specialContainers.some(id => {
+            // 4. 만약 현재 8번 특화 탭이 열려있는 상태라면, 화면 컨테이너도 즉시 해당 업종 전용으로 전환
+            const isSpecialTabActive = specialBtn && specialBtn.classList.contains('active');
+            const specialContainers = ['tab-exams', 'tab-middle-achievement', 'tab-elem-routines'];
+            const isSpecialContainerVisible = specialContainers.some(id => {
                 const el = document.getElementById(id);
                 return el && el.style.display !== 'none';
-            }) || (specialBtn && specialBtn.classList.contains('active'));
+            });
 
-            if (isSpecialActive) {
+            if (isSpecialTabActive || isSpecialContainerVisible) {
                 switchAdminSpecialTab();
             }
         }
 
-        // 7번 특화 탭 클릭 핸들러
+        // 8번 특화 탭 클릭 핸들러
         function switchAdminSpecialTab() {
             // 모든 탭 숨기기 및 비활성화
             document.querySelectorAll('.cockpit-tab-view').forEach(el => el.style.display = 'none');
@@ -2692,11 +2693,7 @@
             if (specialBtn) specialBtn.classList.add('active');
 
             // 업종별 대상 컨테이너 표시
-            if (currentBusinessType === 'STUDY_CAFE') {
-                const cafeTab = document.getElementById('tab-studycafe-seats');
-                if (cafeTab) cafeTab.style.display = 'block';
-                loadStudyCafeSeats();
-            } else if (currentBusinessType === 'MID_ACADEMY') {
+            if (currentBusinessType === 'MID_ACADEMY') {
                 const midTab = document.getElementById('tab-middle-achievement');
                 if (midTab) midTab.style.display = 'block';
                 loadMiddleAchievementStats();
@@ -2705,7 +2702,7 @@
                 if (elemTab) elemTab.style.display = 'block';
                 loadElemRoutines();
             } else {
-                // 기본: HIGH_ACADEMY (고등)
+                // 기본: HIGH_ACADEMY (고등) 및 일반 모드
                 const examTab = document.getElementById('tab-exams');
                 if (examTab) examTab.style.display = 'block';
                 loadAdminExamsList();
