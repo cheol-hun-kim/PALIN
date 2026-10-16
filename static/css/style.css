@@ -1292,7 +1292,7 @@ main::-webkit-scrollbar {
 .color-5 { background-color: rgba(20, 184, 166, 0.9); } /* Teal */
 .color-6 { background-color: rgba(239, 68, 68, 0.9); }  /* Rose */
 
-/* 과목별 통일 시맨틱 컬러 팔레트 (동일 과목 = 동일 색상) */
+/* 과목별 통일 시맨틱 컬러 팔레트 */
 .color-subj-korean   { background-color: rgba(225, 29, 72, 0.9) !important; border-left: 3px solid #f43f5e; } /* 국어/문학/비문학: 로즈 버건디 */
 .color-subj-math     { background-color: rgba(79, 70, 229, 0.9) !important; border-left: 3px solid #818cf8; } /* 수학/미적/기하/확통: 인디고 블루 */
 .color-subj-english  { background-color: rgba(217, 119, 6, 0.9) !important; border-left: 3px solid #fbbf24; } /* 영어/영단어: 앰버 골드 */
@@ -1301,6 +1301,40 @@ main::-webkit-scrollbar {
 .color-subj-academy  { background-color: rgba(147, 51, 234, 0.9) !important; border-left: 3px solid #c084fc; } /* 학원 정규 수업/단과: 바이올렛 */
 .color-subj-study    { background-color: rgba(71, 85, 105, 0.9) !important; border-left: 3px solid #94a3b8; } /* 자습/오답노트/스터디: 슬레이트 */
 .color-subj-default  { background-color: rgba(99, 102, 241, 0.9) !important; border-left: 3px solid #a5b4fc; } /* 기본 학습 */
+
+/* 학원별 고유 통일 테마 컬러 (동일 학원의 수업은 일관된 시그니처 색상 부여) */
+.color-academy-ilwon    { background: linear-gradient(135deg, rgba(30, 58, 138, 0.9), rgba(37, 99, 235, 0.85)) !important; border-left: 3px solid #60a5fa !important; border-top: 1px solid rgba(96, 165, 250, 0.3) !important; color: #ffffff !important; } /* 일원학원: 신뢰의 사파이어 블루 */
+.color-academy-sidae    { background: linear-gradient(135deg, rgba(88, 28, 135, 0.9), rgba(124, 58, 237, 0.85)) !important; border-left: 3px solid #a78bfa !important; border-top: 1px solid rgba(167, 139, 250, 0.3) !important; color: #ffffff !important; } /* 시대인재: 딥 바이올렛 */
+.color-academy-myungin  { background: linear-gradient(135deg, rgba(17, 94, 89, 0.9), rgba(13, 148, 136, 0.85)) !important; border-left: 3px solid #2dd4bf !important; border-top: 1px solid rgba(45, 212, 191, 0.3) !important; color: #ffffff !important; } /* 대치명인: 딥 틸/에메랄드 */
+.color-academy-dugak    { background: linear-gradient(135deg, rgba(146, 64, 14, 0.9), rgba(180, 83, 9, 0.85)) !important; border-left: 3px solid #facc15 !important; border-top: 1px solid rgba(250, 204, 21, 0.3) !important; color: #ffffff !important; } /* 두각: 앰버 골드 */
+.color-academy-study    { background: linear-gradient(135deg, rgba(51, 65, 85, 0.9), rgba(71, 85, 105, 0.85)) !important; border-left: 3px solid #94a3b8 !important; border-top: 1px solid rgba(148, 163, 184, 0.3) !important; color: #ffffff !important; } /* 독서실/스터디카페: 차분한 슬레이트 */
+.color-academy-default  { background: linear-gradient(135deg, rgba(30, 58, 138, 0.9), rgba(37, 99, 235, 0.85)) !important; border-left: 3px solid #60a5fa !important; border-top: 1px solid rgba(96, 165, 250, 0.3) !important; color: #ffffff !important; } /* 기본 학원 */
+
+body.day-mode .color-academy-ilwon   { background: #2563eb !important; color: #ffffff !important; border-left: 3px solid #1d4ed8 !important; }
+body.day-mode .color-academy-sidae   { background: #7c3aed !important; color: #ffffff !important; border-left: 3px solid #6d28d9 !important; }
+body.day-mode .color-academy-myungin { background: #0d9488 !important; color: #ffffff !important; border-left: 3px solid #0f766e !important; }
+body.day-mode .color-academy-dugak   { background: #b45309 !important; color: #ffffff !important; border-left: 3px solid #92400e !important; }
+body.day-mode .color-academy-study   { background: #475569 !important; color: #ffffff !important; border-left: 3px solid #334155 !important; }
+body.day-mode .color-academy-default { background: #2563eb !important; color: #ffffff !important; border-left: 3px solid #1d4ed8 !important; }
+
+/* 반 변경 인터랙티브 에타식 시간표 블록 */
+.class-change-block {
+    cursor: pointer;
+    border-radius: 6px;
+    padding: 6px 4px;
+    margin-bottom: 5px;
+    font-size: 0.65rem;
+    color: #ffffff;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    border: 1px solid rgba(255,255,255,0.18);
+}
+.class-change-block:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 10px rgba(96, 165, 250, 0.6) !important;
+}
+
 
 /* 라이트 모드 (Day mode) 시간표 고대비 스타일 */
 body.day-mode .timetable-container {

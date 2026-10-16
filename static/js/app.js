@@ -8835,7 +8835,8 @@ async function loadTimetable() {
             const topPx = Math.max(0, Math.min(510, (startHour - 6) * 30));
             const heightPx = Math.max(22, Math.min(540 - topPx, (endHour - startHour) * 30));
 
-            const colorClass = getSubjectColorClass(block.title);
+            // 같은 학원의 수업은 동일한 고유 시그니처 테마 색상으로 일관되게 표시
+            const colorClass = getAcademyColorClass(block.title);
             const cleanTitle = formatCleanSubjectTitle(block.title);
             const blockEl = document.createElement("div");
             blockEl.className = `timetable-block ${colorClass}`;
@@ -8853,6 +8854,30 @@ async function loadTimetable() {
     } catch (e) {
         console.error("loadTimetable error:", e);
     }
+}
+
+function getAcademyColorClass(nameOrTitle) {
+    if (!nameOrTitle) return 'color-academy-ilwon';
+    const str = String(nameOrTitle).toLowerCase();
+    
+    // 독서실 / 자율학습 / 스터디
+    if (str.includes('독서실') || str.includes('자습') || str.includes('스터디') || str.includes('study') || str.includes('홈스터디')) {
+        return 'color-academy-study';
+    }
+    // 시대인재
+    if (str.includes('시대') || str.includes('sidae')) {
+        return 'color-academy-sidae';
+    }
+    // 대치명인
+    if (str.includes('명인') || str.includes('myungin')) {
+        return 'color-academy-myungin';
+    }
+    // 두각
+    if (str.includes('두각') || str.includes('dugak')) {
+        return 'color-academy-dugak';
+    }
+    // 일원학원 및 본원 수업 (기본 B2B 플래그십 학원)
+    return 'color-academy-ilwon';
 }
 
 function getSubjectColorClass(title) {
@@ -14664,16 +14689,20 @@ async function loadClassChangeOptions(targetCourseName = null) {
         // 1. 강좌 선택 옵션 구성
         const courses = data.available_courses || [];
         if (select.options.length <= 1) {
-            select.innerHTML = '<option value="">강좌를 선택하세요...</option>';
-            courses.forEach(c => {
-                const opt = document.createElement("option");
-                opt.value = c.course_name;
-                opt.textContent = `[${c.subject}] ${c.course_name}`;
-                select.appendChild(opt);
-            });
-            if (courses.length > 0 && !targetCourseName) {
-                select.selectedIndex = 1;
-                targetCourseName = courses[0].course_name;
+            if (courses.length === 0) {
+                select.innerHTML = '<option value="">등록된 개설 강좌가 없습니다 (원장 관제실 편성 필요)</option>';
+            } else {
+                select.innerHTML = '<option value="">강좌를 선택하세요...</option>';
+                courses.forEach(c => {
+                    const opt = document.createElement("option");
+                    opt.value = c.course_name;
+                    opt.textContent = `[${c.subject}] ${c.course_name}`;
+                    select.appendChild(opt);
+                });
+                if (!targetCourseName) {
+                    select.selectedIndex = 1;
+                    targetCourseName = courses[0].course_name;
+                }
             }
         }
 
@@ -14703,6 +14732,16 @@ function renderClassChangeTimetable(classes) {
     const grid = document.getElementById("class-change-timetable-grid");
     if (!grid) return;
 
+    if (!classes || classes.length === 0) {
+        grid.innerHTML = `
+            <div style="grid-column: 1 / -1; padding: 32px 16px; text-align: center; color: #94a3b8; font-size: 0.78rem; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px dashed rgba(255,255,255,0.12);">
+                등록된 정규 수업 및 분반 시간표가 없습니다.<br>
+                <span style="font-size: 0.7rem; color: #64748b; margin-top: 5px; display: inline-block;">원장 관제실(커리큘럼 탭)에서 수업을 등록하면 실시간으로 연동됩니다.</span>
+            </div>
+        `;
+        return;
+    }
+
     const dayLabels = ["월", "화", "수", "목", "금", "토", "일"];
     grid.innerHTML = "";
 
@@ -14729,15 +14768,14 @@ function renderClassChangeTimetable(classes) {
         } else {
             dayClasses.forEach(c => {
                 const block = document.createElement("div");
-                const colorClass = getSubjectColorClass(c.subject || c.course_name);
+                // 같은 학원의 수업은 동일한 테마 색상으로 일관되게 표시 (알록달록 방지)
+                const colorClass = getAcademyColorClass(c.academy_code || c.academy_name || '일원학원');
                 block.className = `class-change-block ${colorClass}`;
-                block.style.cssText = "cursor: pointer; border-radius: 6px; padding: 6px 4px; margin-bottom: 4px; font-size: 0.65rem; color: #ffffff; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3); transition: transform 0.15s, box-shadow 0.15s; border: 1px solid rgba(255,255,255,0.2);";
-                block.onmouseover = () => { block.style.transform = "scale(1.04)"; block.style.boxShadow = "0 0 10px #f59e0b"; };
-                block.onmouseout = () => { block.style.transform = "scale(1)"; block.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)"; };
                 
                 block.innerHTML = `
-                    <div style="font-weight: 900; line-height: 1.1; margin-bottom: 2px;">${c.division_remark || '정규반'}</div>
-                    <div style="font-size: 0.6rem; opacity: 0.9;">${c.instructor_name}</div>
+                    <div style="display: inline-block; font-size: 0.55rem; font-weight: 700; padding: 1px 4px; border-radius: 3px; background: rgba(255,255,255,0.18); margin-bottom: 2px; color: #e0f2fe;">${c.subject || '정규'}</div>
+                    <div style="font-weight: 800; line-height: 1.15; margin-bottom: 2px; font-size: 0.65rem;">${c.division_remark || c.course_name}</div>
+                    <div style="font-size: 0.58rem; opacity: 0.92; color: #cbd5e1;">${c.instructor_name}</div>
                     <div style="font-size: 0.58rem; color: #fde68a; font-weight: 700; margin-top: 2px;">${c.start_time}~${c.end_time}</div>
                     <div style="font-size: 0.55rem; color: #cbd5e1;">${c.classroom}</div>
                     <div style="font-size: 0.55rem; color: #a7f3d0; font-weight: 800; margin-top: 2px;">${c.capacity_info}</div>
@@ -20657,6 +20695,7 @@ window.selectClassChangeTarget = selectClassChangeTarget;
 window.loadClassChangeOptions = loadClassChangeOptions;
 window.renderClassChangeTimetable = renderClassChangeTimetable;
 window.getSubjectColorClass = getSubjectColorClass;
+window.getAcademyColorClass = getAcademyColorClass;
 
 // 자동 초기화 리스너 등록
 document.addEventListener("DOMContentLoaded", () => {
