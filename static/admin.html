@@ -144,18 +144,17 @@
             color: #ffffff;
         }
         .admin-tab-nav {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: stretch;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
             gap: 8px;
-            margin-bottom: 22px;
+            margin-bottom: 20px;
             width: 100%;
         }
         .admin-cockpit-tab-btn {
-            flex: 1 1 auto;
-            min-width: max-content;
-            padding: 10px 15px;
-            font-size: 0.84rem;
+            width: 100%;
+            min-width: 0;
+            padding: 10px 6px;
+            font-size: 0.82rem;
             font-weight: 700;
             border-radius: 10px;
             border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -167,10 +166,46 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 7px;
+            gap: 6px;
             text-align: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.25);
             box-sizing: border-box;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .curriculum-sub-nav {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            margin-bottom: 16px;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 8px;
+            border-radius: 12px;
+            border: 1.5px solid rgba(99, 102, 241, 0.3);
+        }
+        .curriculum-sub-btn {
+            width: 100%;
+            padding: 9px 8px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(15, 23, 42, 0.7);
+            color: #cbd5e1;
+            white-space: nowrap;
+            box-sizing: border-box;
+        }
+        .curriculum-sub-btn.active {
+            background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+            border: 1.5px solid #818cf8 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
         }
         .admin-cockpit-tab-btn .material-symbols-rounded {
             color: #818cf8;
@@ -442,8 +477,16 @@
                 grid-template-columns: 1fr;
                 gap: 8px;
             }
+            .admin-tab-nav {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 6px;
+            }
+            .curriculum-sub-nav {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 6px;
+            }
             .admin-cockpit-tab-btn {
-                padding: 8px 12px;
+                padding: 10px 8px;
                 font-size: 0.78rem;
             }
             .floating-b2b-support-btn {
@@ -669,14 +712,21 @@
             <!-- TAB 2: 2. 출결관리 -->
             <div id="tab-attendance" class="cockpit-tab-view" style="display: none;">
                 <div class="kpi-card" style="border-color: rgba(16, 185, 129, 0.4); margin-bottom: 16px;">
-                    <div class="section-title" style="color: #34d399;">
-                        <div style="display: flex; align-items: center; gap: 6px;">
+                    <div class="section-title" style="color: #34d399; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
                             <span class="material-symbols-rounded">fact_check</span>
                             <span>실시간 Wi-Fi 출결 로그</span>
+                            <span id="attendance-log-badge" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 10px; background: rgba(16, 185, 129, 0.15); color: #34d399; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">출결 기록부</span>
                         </div>
-                        <button onclick="loadAdminAttendanceLogs()" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;">갱신</button>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <button type="button" onclick="loadAdminAttendanceLogs()" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;">갱신</button>
+                            <button type="button" onclick="toggleAttendanceLogsDropdown()" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 3px;" id="btn-toggle-attendance-logs">
+                                <span id="attendance-logs-toggle-text">접기</span>
+                                <span class="material-symbols-rounded" id="attendance-logs-toggle-icon" style="font-size: 1.1rem; transition: transform 0.2s;">expand_less</span>
+                            </button>
+                        </div>
                     </div>
-                    <div class="table-responsive">
+                    <div id="attendance-logs-collapsible" class="table-responsive" style="max-height: 380px; overflow-y: auto;">
                         <table class="data-table">
                             <thead>
                                 <tr>
@@ -928,10 +978,36 @@
 
             </div>
 
-            <!-- TAB 4: 📢 4. 수업관리 -->
+            <!-- TAB 4: 4. 수업관리 -->
             <div id="tab-curriculum" class="cockpit-tab-view" style="display: none;">
-                <!-- 0. 원장 관제실 정규 수업 & 분반 시간표 편성 (학생 반 변경 연동) -->
-                <div class="kpi-card" style="border: 1.5px solid rgba(245, 158, 11, 0.4); margin-bottom: 16px; background: linear-gradient(135deg, rgba(245,158,11,0.06), rgba(99,102,241,0.04));">
+                <!-- 세부 카테고리 네비게이션 바 -->
+                <div class="curriculum-sub-nav">
+                    <button type="button" class="btn curriculum-sub-btn active" onclick="switchCurriculumSubTab('curriculum-sub-classes', this)" id="btn-sub-classes">
+                        <span class="material-symbols-rounded" style="font-size: 1rem;">view_timeline</span>
+                        <span>1. 수업/시간표</span>
+                    </button>
+                    <button type="button" class="btn curriculum-sub-btn" onclick="switchCurriculumSubTab('curriculum-sub-calendar', this)" id="btn-sub-calendar">
+                        <span class="material-symbols-rounded" style="font-size: 1rem;">calendar_month</span>
+                        <span>2. 학사일정/공지</span>
+                    </button>
+                    <button type="button" class="btn curriculum-sub-btn" onclick="switchCurriculumSubTab('curriculum-sub-materials', this)" id="btn-sub-materials">
+                        <span class="material-symbols-rounded" style="font-size: 1rem;">folder_special</span>
+                        <span>3. 자료/기출은행</span>
+                    </button>
+                    <button type="button" class="btn curriculum-sub-btn" onclick="switchCurriculumSubTab('curriculum-sub-vod', this)" id="btn-sub-vod">
+                        <span class="material-symbols-rounded" style="font-size: 1rem;">video_library</span>
+                        <span>4. VOD 강좌</span>
+                    </button>
+                    <button type="button" class="btn curriculum-sub-btn" onclick="switchCurriculumSubTab('curriculum-sub-requests', this)" id="btn-sub-requests">
+                        <span class="material-symbols-rounded" style="font-size: 1rem;">pending_actions</span>
+                        <span>5. 행정신청 결재</span>
+                    </button>
+                </div>
+
+                <!-- SUB 1: 정규 수업 & 분반 시간표 -->
+                <div id="curriculum-sub-classes" class="curriculum-sub-section" style="display: block;">
+                    <!-- 0. 원장 관제실 정규 수업 & 분반 시간표 편성 (학생 반 변경 연동) -->
+                    <div class="kpi-card" style="border: 1.5px solid rgba(245, 158, 11, 0.4); margin-bottom: 16px; background: linear-gradient(135deg, rgba(245,158,11,0.06), rgba(99,102,241,0.04));">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
                         <div>
                             <div class="section-title" style="color: #fbbf24; margin-bottom: 2px; display: flex; align-items: center; gap: 6px;">
@@ -965,9 +1041,12 @@
                         <div style="font-size: 0.75rem; color: #94a3b8; padding: 15px 0;">수업 시간표를 불러오는 중입니다...</div>
                     </div>
                 </div>
+            </div>
 
-                <!-- 1. 원장 관제실 인터랙티브 학사일정 캘린더 -->
-                <div class="kpi-card" style="border: 1.5px solid rgba(99, 102, 241, 0.4); margin-bottom: 16px;">
+            <!-- SUB 2: 원장 관제실 학사일정 캘린더 & 공지 배포 -->
+            <div id="curriculum-sub-calendar" class="curriculum-sub-section" style="display: none;">
+                    <!-- 1. 원장 관제실 인터랙티브 학사일정 캘린더 -->
+                    <div class="kpi-card" style="border: 1.5px solid rgba(99, 102, 241, 0.4); margin-bottom: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
                         <div class="section-title" style="color: #818cf8; margin-bottom: 0;">
                             <span class="material-symbols-rounded">calendar_month</span>
@@ -1028,7 +1107,10 @@
                         <div style="text-align: center; color: #94a3b8; font-size: 0.8rem; padding: 12px;">공지사항을 불러오는 중...</div>
                     </div>
                 </div>
+            </div>
 
+            <!-- SUB 3: 학습자료 & 전국 공용 기출문제 은행 -->
+            <div id="curriculum-sub-materials" class="curriculum-sub-section" style="display: none;">
                 <!-- 2. [우리 학원 재원생 전용] 학습자료 & 워크북/자체 모의고사 업로드 -->
                 <div class="kpi-card" style="border: 1.5px solid rgba(56, 189, 248, 0.4); margin-bottom: 16px;">
                     <div class="section-title" style="color: #38bdf8; display: flex; justify-content: space-between; align-items: center;">
@@ -1206,7 +1288,10 @@
                     <!-- 기출문제 카드 목록 스크롤 -->
                     <div id="admin-exam-materials-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 380px; overflow-y: auto; padding-right: 4px;"></div>
                 </div>
+            </div>
 
+            <!-- SUB 4: VOD 라이브러리 & 강좌 배포 -->
+            <div id="curriculum-sub-vod" class="curriculum-sub-section" style="display: none;">
                 <!-- 1. 학원 VOD 동영상 강의 / 복습 링크 등록 & 게시판 -->
                 <div class="kpi-card" style="border: 1.5px solid rgba(99, 102, 241, 0.4); margin-bottom: 16px;">
                     <div class="section-title" style="color: #818cf8; display: flex; justify-content: space-between; align-items: center;">
@@ -1278,7 +1363,10 @@
                         <button type="submit" class="btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); font-weight: 800; padding: 9px 16px; color: white; width: 100%;">1:1 배정</button>
                     </form>
                 </div>
+            </div>
 
+            <!-- SUB 5: 학생 행정 신청 결재함 -->
+            <div id="curriculum-sub-requests" class="curriculum-sub-section" style="display: none;">
                 <div class="kpi-card" style="border: 1.5px solid rgba(245, 158, 11, 0.4);">
                     <div class="section-title" style="color: #fbbf24;">
                         <span class="material-symbols-rounded">pending_actions</span>
@@ -1287,6 +1375,7 @@
                     <div id="admin-requests-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
                 </div>
             </div>
+        </div>
 
             <!-- TAB 5: 👥 5. 학생관리 -->
             <div id="tab-students" class="cockpit-tab-view" style="display: none;">
@@ -1383,9 +1472,13 @@
                             </button>
                             <button type="button" onclick="handleBatchAdminStudentAction('DISENROLL')" class="btn" style="padding: 5px 10px; font-size: 0.74rem; font-weight: 800; background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.35); border-radius: 6px; cursor: pointer;">선택 가맹해지(퇴원)
                             </button>
+                            <button type="button" onclick="toggleStudentTableDropdown()" id="btn-toggle-student-table" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.74rem; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; border-color: rgba(129, 140, 248, 0.4); color: #818cf8; cursor: pointer;">
+                                <span id="text-toggle-student-table">접기</span>
+                                <span class="material-symbols-rounded" id="icon-toggle-student-table" style="font-size: 1rem; transition: transform 0.2s;">expand_less</span>
+                            </button>
                         </div>
                     </div>
-                    <div class="table-responsive">
+                    <div id="student-table-collapsible" class="table-responsive" style="max-height: 480px; overflow-y: auto;">
                         <table class="data-table">
                             <thead>
                                 <tr>
@@ -1598,9 +1691,13 @@
                             <span class="material-symbols-rounded">fact_check</span>
                             <span>재원생 전원 실시간 응시 성적 & 누적 OMR 장부</span>
                         </div>
-                        <div style="display: flex; gap: 8px;">
-                            <button onclick="exportExamSubmissionsCSV()" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.75rem; font-weight: 700;">엑셀(CSV) 다운로드</button>
-                            <button onclick="loadAdminSubmissionsList()" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.75rem; font-weight: 700;">갱신</button>
+                        <div style="display: flex; gap: 6px; align-items: center;">
+                            <button type="button" onclick="exportExamSubmissionsCSV()" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.75rem; font-weight: 700;">엑셀(CSV) 다운로드</button>
+                            <button type="button" onclick="loadAdminSubmissionsList()" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.75rem; font-weight: 700;">갱신</button>
+                            <button type="button" onclick="toggleExamSubmissionsDropdown()" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; border-color: rgba(99, 102, 241, 0.4); color: #818cf8; cursor: pointer;" id="btn-toggle-exam-submissions">
+                                <span id="text-toggle-exam-submissions">접기</span>
+                                <span class="material-symbols-rounded" id="icon-toggle-exam-submissions" style="font-size: 1rem; transition: transform 0.2s;">expand_less</span>
+                            </button>
                         </div>
                     </div>
 
@@ -1625,7 +1722,7 @@
                     </div>
 
                     <!-- 학생 성적 전수 테이블 -->
-                    <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+                    <div id="exam-submissions-collapsible" class="table-responsive" style="max-height: 480px; overflow-y: auto;">
                         <table class="data-table" style="width: 100%;">
                             <thead>
                                 <tr>
@@ -3472,7 +3569,53 @@
             }
         }
 
-        // === 🏛️ 학원 정규 수업 & 분반 시간표 관리 스크립트 ===
+        function switchCurriculumSubTab(subId, btnElem) {
+            document.querySelectorAll('.curriculum-sub-section').forEach(sec => sec.style.display = 'none');
+            document.querySelectorAll('.curriculum-sub-btn').forEach(btn => btn.classList.remove('active'));
+            const target = document.getElementById(subId);
+            if (target) target.style.display = 'block';
+            if (btnElem) {
+                btnElem.classList.add('active');
+            } else {
+                const btn = document.querySelector(`.curriculum-sub-btn[onclick*="${subId}"]`);
+                if (btn) btn.classList.add('active');
+            }
+        }
+
+        function toggleAttendanceLogsDropdown() {
+            const container = document.getElementById('attendance-logs-collapsible');
+            const text = document.getElementById('attendance-logs-toggle-text');
+            const icon = document.getElementById('attendance-logs-toggle-icon');
+            if (!container) return;
+            const isHidden = container.style.display === 'none';
+            container.style.display = isHidden ? 'block' : 'none';
+            if (text) text.innerText = isHidden ? '접기' : '펼치기';
+            if (icon) icon.innerText = isHidden ? 'expand_less' : 'expand_more';
+        }
+
+        function toggleStudentTableDropdown() {
+            const container = document.getElementById('student-table-collapsible');
+            const text = document.getElementById('text-toggle-student-table');
+            const icon = document.getElementById('icon-toggle-student-table');
+            if (!container) return;
+            const isHidden = container.style.display === 'none';
+            container.style.display = isHidden ? 'block' : 'none';
+            if (text) text.innerText = isHidden ? '접기' : '펼치기';
+            if (icon) icon.innerText = isHidden ? 'expand_less' : 'expand_more';
+        }
+
+        function toggleExamSubmissionsDropdown() {
+            const container = document.getElementById('exam-submissions-collapsible');
+            const text = document.getElementById('text-toggle-exam-submissions');
+            const icon = document.getElementById('icon-toggle-exam-submissions');
+            if (!container) return;
+            const isHidden = container.style.display === 'none';
+            container.style.display = isHidden ? 'block' : 'none';
+            if (text) text.innerText = isHidden ? '접기' : '펼치기';
+            if (icon) icon.innerText = isHidden ? 'expand_less' : 'expand_more';
+        }
+
+        // === 학원 정규 수업 & 분반 시간표 관리 스크립트 ===
         let adminClassesCache = [];
         let currentAdminClassFilter = 'ALL';
 
@@ -8477,6 +8620,10 @@ window.handleRenderMarketingCard = handleRenderMarketingCard;
 window.renderMarketingCardCanvas = renderMarketingCardCanvas;
 window.downloadMarketingCardPNG = downloadMarketingCardPNG;
 window.copyMarketingCaptionText = copyMarketingCaptionText;
+window.switchCurriculumSubTab = switchCurriculumSubTab;
+window.toggleAttendanceLogsDropdown = toggleAttendanceLogsDropdown;
+window.toggleStudentTableDropdown = toggleStudentTableDropdown;
+window.toggleExamSubmissionsDropdown = toggleExamSubmissionsDropdown;
 
 document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('palin_theme') || 'original';
