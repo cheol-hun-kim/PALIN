@@ -219,6 +219,14 @@ forbidden_fabrications = [
     r"total_checkins\s*=\s*24",
     r"dummy_users\s*=",
     r"김민준.*정기권",
+    r"DEFAULT_.*_CLASSES\s*=",
+    r"DEFAULT_.*_SCHEDULES\s*=",
+    r"ensure_seed_",
+    r"auto_seed_academy",
+    r"이동하T",
+    r"박진우T",
+    r"정유진T",
+    r"한승우T"
 ]
 
 for target_file in scan_target_files:
@@ -914,10 +922,12 @@ try:
         for bad_str in FORBIDDEN_SYNTHETIC_STRINGS:
             assert bad_str not in (fb.content or ""), f"[GATE 6.6 FAIL] Detected forbidden synthetic mock VOC #{fb.id}: '{bad_str}' in content!"
 
-    sb_tickets = db_sb_parity.query(models.B2BSupportTicket).filter(models.B2BSupportTicket.deleted_at == None).all()
-    for tk in sb_tickets:
-        for bad_str in FORBIDDEN_SYNTHETIC_STRINGS:
-            assert bad_str not in (tk.title or "") and bad_str not in (tk.content or ""), f"[GATE 6.6 FAIL] Detected forbidden synthetic mock ticket #{tk.id}: '{bad_str}'!"
+    # 3) Strict Zero-Mock Academy Class Schedule Scanner (No synthetic classes allowed in DB)
+    forbidden_class_seeds = ["이동하T", "박진우T", "정유진T", "한승우T", "미적분 킬러 3문항 정복", "생명과학I 유전 킬러 로직"]
+    live_classes = db_sb_parity.query(models.AcademyClassSchedule).all()
+    for lc in live_classes:
+        for bad_seed in forbidden_class_seeds:
+            assert bad_seed not in (lc.instructor_name or "") and bad_seed not in (lc.course_name or ""), f"[GATE 6.6 FAIL] Detected forbidden synthetic mock class #{lc.id}: '{bad_seed}'!"
 
     print(f"[GATE 6.6 PASS] Supabase Real-Time Ground-Truth Parity Verified: {len(sb_students)} real students ({len(sb_ilwon_students)} Ilwon), {len(sb_parents)} parents, {len(sb_feedbacks)} authentic VOCs, {len(sb_tutors)} tutors, {sb_sessions_cnt} study sessions with 100% Zero-Mock Guarantee!")
 finally:
