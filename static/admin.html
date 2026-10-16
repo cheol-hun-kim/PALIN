@@ -6956,7 +6956,7 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
                     <div>
                         <label style="font-size: 0.74rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">담당 선생님</label>
-                        <input type="text" id="modal-class-instructor" required placeholder="예: 이동하T" class="form-input" style="width: 100%; box-sizing: border-box;">
+                        <input type="text" id="modal-class-instructor" required placeholder="예: 김철훈T" class="form-input" style="width: 100%; box-sizing: border-box;">
                     </div>
                     <div>
                         <label style="font-size: 0.74rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">수업 요일</label>
@@ -8219,7 +8219,7 @@ function renderMarketingCardCanvas() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const stName = document.getElementById('mkt-st-name')?.value.trim() || '김민준 (낙생고)';
+    const stName = document.getElementById('mkt-st-name')?.value.trim() || '성적 우수 재원생';
     const subject = document.getElementById('mkt-subject')?.value.trim() || '수능국어 정규반';
     const scoreBefore = document.getElementById('mkt-score-before')?.value.trim() || '4등급 (62점)';
     const scoreAfter = document.getElementById('mkt-score-after')?.value.trim() || '1등급 (96점 / 백분위 99)';
@@ -8429,7 +8429,7 @@ function downloadMarketingCardPNG() {
 }
 
 function copyMarketingCaptionText() {
-    const stName = document.getElementById('mkt-st-name')?.value.trim() || '김민준 학생';
+    const stName = document.getElementById('mkt-st-name')?.value.trim() || '해당 재원생';
     const scoreBefore = document.getElementById('mkt-score-before')?.value.trim() || '4등급';
     const scoreAfter = document.getElementById('mkt-score-after')?.value.trim() || '1등급';
     const period = document.getElementById('mkt-period')?.value.trim() || '단 3개월';

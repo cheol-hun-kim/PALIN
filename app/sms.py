@@ -38,7 +38,7 @@ def check_aligo_remain():
     key = settings.get("aligo_key")
     user_id = settings.get("aligo_user_id")
     if not key or not user_id:
-        return {"status": "mock", "message": "시뮬레이션 모드 (API 키 미설정)", "SMS_CNT": 9999, "LMS_CNT": 9999}
+        return {"status": "unconfigured", "message": "알리고 API 키 미설정 (잔여 0건)", "SMS_CNT": 0, "LMS_CNT": 0}
     try:
         url = "https://apis.aligo.in/remain/"
         res = requests.post(url, data={"key": key, "user_id": user_id}, timeout=5)

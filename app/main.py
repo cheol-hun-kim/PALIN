@@ -149,7 +149,7 @@ except Exception as _sms_err:
         print(f"[FALLBACK SMS] TO: {to_phone} | {message}")
         return {"result_code": 1, "message": "Dummy fallback success"}
     def check_aligo_remain():
-        return {"status": "mock", "message": "시뮬레이션 모드", "SMS_CNT": 9999, "LMS_CNT": 9999}
+        return {"status": "unconfigured", "message": "알리고 미연동 (0건)", "SMS_CNT": 0, "LMS_CNT": 0}
     def save_sms_settings(key: str, user_id: str, sender: str):
         return True
     def load_sms_settings():
@@ -4160,10 +4160,10 @@ def _serialize_seat_layout(door_pos: str, seats: List[Dict[str, Any]]) -> str:
 
 
 @app.get("/api/admin/studycafe/seats")
-def get_studycafe_seats(tenant_code: Optional[str] = "CAFE-STUDY01", db: Session = Depends(get_db)):
+def get_studycafe_seats(tenant_code: Optional[str] = "ILWON-2027", db: Session = Depends(get_db)):
     tenant = db.query(models.Tenant).filter(models.Tenant.code == tenant_code, models.Tenant.deleted_at == None).first()
     if not tenant:
-        tenant = db.query(models.Tenant).filter(models.Tenant.business_type == "STUDY_CAFE", models.Tenant.deleted_at == None).first()
+        tenant = db.query(models.Tenant).filter(models.Tenant.code == "ILWON-2027", models.Tenant.deleted_at == None).first() or db.query(models.Tenant).filter(models.Tenant.deleted_at == None).first()
     
     seat_json = getattr(tenant, "seat_layout_json", "[]") if tenant else "[]"
     door_pos, seats = _parse_seat_layout(seat_json)
@@ -4202,10 +4202,10 @@ def get_studycafe_seats(tenant_code: Optional[str] = "CAFE-STUDY01", db: Session
 
 
 @app.post("/api/admin/studycafe/seat/action")
-def handle_studycafe_seat_action(payload: schemas.StudyCafeSeatActionPayload, tenant_code: Optional[str] = "CAFE-STUDY01", db: Session = Depends(get_db)):
+def handle_studycafe_seat_action(payload: schemas.StudyCafeSeatActionPayload, tenant_code: Optional[str] = "ILWON-2027", db: Session = Depends(get_db)):
     tenant = db.query(models.Tenant).filter(models.Tenant.code == tenant_code, models.Tenant.deleted_at == None).first()
     if not tenant:
-        tenant = db.query(models.Tenant).filter(models.Tenant.business_type == "STUDY_CAFE", models.Tenant.deleted_at == None).first()
+        tenant = db.query(models.Tenant).filter(models.Tenant.code == "ILWON-2027", models.Tenant.deleted_at == None).first() or db.query(models.Tenant).filter(models.Tenant.deleted_at == None).first()
     if not tenant:
         raise HTTPException(status_code=404, detail="가맹점을 찾을 수 없습니다.")
 
@@ -4314,10 +4314,10 @@ def get_student_academy_seats(student_id: Optional[int] = None, academy_code: Op
     if student_id:
         student = db.query(models.Student).filter(models.Student.id == student_id, models.Student.deleted_at == None).first()
     
-    code = academy_code or (student.academy_code if student else None) or "CAFE-STUDY01"
+    code = academy_code or (student.academy_code if student else None) or "ILWON-2027"
     tenant = db.query(models.Tenant).filter(models.Tenant.code == code, models.Tenant.deleted_at == None).first()
     if not tenant:
-        tenant = db.query(models.Tenant).filter(models.Tenant.business_type == "STUDY_CAFE", models.Tenant.deleted_at == None).first()
+        tenant = db.query(models.Tenant).filter(models.Tenant.code == "ILWON-2027", models.Tenant.deleted_at == None).first() or db.query(models.Tenant).filter(models.Tenant.deleted_at == None).first()
     
     seat_json = getattr(tenant, "seat_layout_json", "[]") if tenant else "[]"
     door_pos, seats = _parse_seat_layout(seat_json)
@@ -4386,10 +4386,10 @@ def select_student_academy_seat(payload: schemas.StudentSeatSelectPayload, db: S
     if not student:
         raise HTTPException(status_code=404, detail="학생 정보를 찾을 수 없습니다.")
 
-    code = payload.academy_code or student.academy_code or "CAFE-STUDY01"
+    code = payload.academy_code or student.academy_code or "ILWON-2027"
     tenant = db.query(models.Tenant).filter(models.Tenant.code == code, models.Tenant.deleted_at == None).first()
     if not tenant:
-        tenant = db.query(models.Tenant).filter(models.Tenant.business_type == "STUDY_CAFE", models.Tenant.deleted_at == None).first()
+        tenant = db.query(models.Tenant).filter(models.Tenant.code == "ILWON-2027", models.Tenant.deleted_at == None).first() or db.query(models.Tenant).filter(models.Tenant.deleted_at == None).first()
     if not tenant:
         raise HTTPException(status_code=404, detail="소속 학원/독서실을 찾을 수 없습니다.")
 
@@ -4539,32 +4539,67 @@ def batch_award_elem_stickers(payload: schemas.ElemStickerBatchPayload, db: Sess
 # === 🏫 중등 내신 5대 과목 올A & 특목고 진학 시뮬레이션 API ===
 
 @app.get("/api/admin/middle/achievement-stats")
-def get_middle_achievement_stats(tenant_code: Optional[str] = "MID-TOP01", db: Session = Depends(get_db)):
+def get_middle_achievement_stats(tenant_code: Optional[str] = "ILWON-2027", db: Session = Depends(get_db)):
     students = db.query(models.Student).filter(
         models.Student.deleted_at == None,
         (models.Student.school_level == "MIDDLE") | (models.Student.academy_code == tenant_code)
     ).all()
 
-    target_schools_dist = {
-        "외대부고": 4,
-        "하나고": 3,
-        "상산고": 5,
-        "경기과고/서울영재고": 2,
-        "대원외고/한영외고": 3,
-        "일반고 최상위": 6
+    target_schools_dist = {}
+    for st in students:
+        if st.target_high_school:
+            target_schools_dist[st.target_high_school] = target_schools_dist.get(st.target_high_school, 0) + 1
+
+    student_ids = [s.id for s in students]
+    subject_map = {
+        "국어": {"A_count": 0, "total": 0, "score_sum": 0.0},
+        "수학": {"A_count": 0, "total": 0, "score_sum": 0.0},
+        "영어": {"A_count": 0, "total": 0, "score_sum": 0.0},
+        "과학": {"A_count": 0, "total": 0, "score_sum": 0.0},
+        "사회/역사": {"A_count": 0, "total": 0, "score_sum": 0.0}
     }
-    
+
+    total_a_count = 0
+    total_score_entries = 0
+
+    if student_ids:
+        scores = db.query(models.ExamScore).filter(
+            models.ExamScore.student_id.in_(student_ids),
+            models.ExamScore.deleted_at == None
+        ).all()
+        for sc in scores:
+            subj = sc.subject or ""
+            target_key = None
+            for k in subject_map.keys():
+                if k in subj or subj in k:
+                    target_key = k
+                    break
+            if target_key:
+                val = float(sc.score or 0)
+                subject_map[target_key]["total"] += 1
+                subject_map[target_key]["score_sum"] += val
+                total_score_entries += 1
+                if val >= 90.0:
+                    subject_map[target_key]["A_count"] += 1
+                    total_a_count += 1
+
+    five_subjects = {}
+    for k, v in subject_map.items():
+        if v["total"] > 0:
+            a_rate = round((v["A_count"] / v["total"]) * 100, 1)
+            avg_sc = round(v["score_sum"] / v["total"], 1)
+        else:
+            a_rate = 0.0
+            avg_sc = 0.0
+        five_subjects[k] = {"A_rate": a_rate, "avg_score": avg_sc}
+
+    overall_a_rate = round((total_a_count / total_score_entries) * 100, 1) if total_score_entries > 0 else 0.0
+
     return {
         "status": "success",
         "total_middle_students": len(students),
-        "all_a_rate": 87.5,
-        "five_subjects": {
-            "국어": {"A_rate": 92.0, "avg_score": 93.4},
-            "수학": {"A_rate": 84.5, "avg_score": 89.8},
-            "영어": {"A_rate": 94.0, "avg_score": 95.1},
-            "과학": {"A_rate": 86.0, "avg_score": 90.5},
-            "사회/역사": {"A_rate": 90.0, "avg_score": 92.2}
-        },
+        "all_a_rate": overall_a_rate,
+        "five_subjects": five_subjects,
         "target_schools_distribution": target_schools_dist
     }
 
@@ -7479,16 +7514,10 @@ def get_master_macro_stats(db: Session = Depends(get_db)):
     tier1_cnt = 0
     tier2_cnt = 0
     tier3_cnt = 0
-    real_tenants_cnt = 0
+    real_tenants_cnt = len(tenants)
     demo_tenants_cnt = 0
     
     for t in tenants:
-        is_demo = t.code in ["MID-TOP01", "ELEM-PET01", "CAFE-STUDY01"]
-        if is_demo:
-            demo_tenants_cnt += 1
-        else:
-            real_tenants_cnt += 1
-
         if t.tier == 1: tier1_cnt += 1
         elif t.tier == 2: tier2_cnt += 1
         elif t.tier >= 3: tier3_cnt += 1
@@ -7550,7 +7579,7 @@ def get_master_tenants(db: Session = Depends(get_db)):
             models.Student.academy_code == t.code
         ).count()
 
-        is_demo = t.code in ["MID-TOP01", "ELEM-PET01", "CAFE-STUDY01"]
+        is_demo = False
         est_royalty = int((t.monthly_revenue or 0) * (t.royalty_rate or 15.0) / 100)
         result.append({
             "id": t.id,

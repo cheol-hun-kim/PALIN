@@ -313,42 +313,6 @@ def auto_seed_database(db: Session, engine):
                 "business_type": "HIGH_ACADEMY",
                 "subject_desc": "수능국어, 대치동 대입직강, 모의고사 OMR 처방",
                 "seats": "[]"
-            },
-            {
-                "code": "MID-TOP01",
-                "name": "대치 탑클래스 중등학원",
-                "director_name": "박중등 원장",
-                "director_email": "mid_top@palin.com",
-                "director_pin": "10101010",
-                "tier": 2,
-                "license_tier": 2,
-                "business_type": "MID_ACADEMY",
-                "subject_desc": "중등 5대과목 내신 올A, 특목자사고(외대부고/하나고) 진학",
-                "seats": "[]"
-            },
-            {
-                "code": "ELEM-PET01",
-                "name": "아이꿈 초등 보습·어학원",
-                "director_name": "이지은 원장",
-                "director_email": "elem_pet@palin.com",
-                "director_pin": "10101010",
-                "tier": 2,
-                "license_tier": 2,
-                "business_type": "ELEM_ACADEMY",
-                "subject_desc": "초등 3대 바른 루틴, 펫 성장 칭찬케어, 영재 어학",
-                "seats": "[]"
-            },
-            {
-                "code": "CAFE-STUDY01",
-                "name": "일원 프리미엄 스터디카페",
-                "director_name": "정스카 대표",
-                "director_email": "study_cafe@palin.com",
-                "director_pin": "10101010",
-                "tier": 2,
-                "license_tier": 2,
-                "business_type": "STUDY_CAFE",
-                "subject_desc": "24시간 2D 좌석관제, 전연령 순공 랭킹, 이용권 자동관리",
-                "seats": generate_default_seats()
             }
         ]
 
