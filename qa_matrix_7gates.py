@@ -650,6 +650,27 @@ if res_eval.returncode != 0:
 
 print("[GATE 5.2 PASS] JavaScript app.js syntax & full runtime evaluation verified with Node.js engine (0 TDZ/Hoisting errors)!")
 
+# 5.2b Full HTML Inline Script Tags Syntax Scanner (Zero Syntax Error Guarantee)
+import tempfile
+for html_rel in ['static/admin.html', 'static/master.html', 'static/index.html']:
+    html_path = os.path.join(ROOT_DIR, html_rel)
+    with open(html_path, 'r', encoding='utf-8') as f:
+        html_text = f.read()
+    inline_scripts = re.findall(r'<script\b[^>]*>(.*?)</script>', html_text, re.DOTALL | re.IGNORECASE)
+    for s_idx, s_code in enumerate(inline_scripts, 1):
+        if not s_code.strip():
+            continue
+        with tempfile.NamedTemporaryFile('w', suffix='.js', delete=False, encoding='utf-8') as tf:
+            tf.write(s_code)
+            tf_path = tf.name
+        res_chk = subprocess.run(['node', '--check', tf_path], capture_output=True, text=True, encoding='utf-8')
+        os.remove(tf_path)
+        if res_chk.returncode != 0:
+            print(f"[GATE 5 FAIL] Syntax error in {html_rel} script tag #{s_idx}:\n{res_chk.stderr}")
+            sys.exit(1)
+
+print("[GATE 5.2b PASS] All inline script tags across admin.html, master.html, index.html 100% verified with Node.js syntax engine!")
+
 # 5.3 Cloud Requirements Parity & Dependency Manifest Validator
 import ast
 app_dir = os.path.join(ROOT_DIR, 'app')
