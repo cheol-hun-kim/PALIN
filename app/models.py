@@ -1172,8 +1172,31 @@ class UserNotification(Base):
     sender = relationship("Student", foreign_keys=[sender_id])
 
 
+# === 📁 17. 학생별 개별 디지털 폴더 아카이브 (숙제 인증 · 시험결과 사진 · 내신 기간 홀드 통합 관리) ===
 
+class StudentActivityFolderItem(Base):
+    """학원 등록 학생별 개별 디지털 폴더 내 숙제 사진, 시험결과/성적표 사진, 내신 홀드 신청 및 원장 기록 모델"""
+    __tablename__ = "student_activity_folder_items"
 
+    id = Column(Integer, primary_key=True, index=True)
+    student_id = Column(Integer, ForeignKey("students.id", ondelete="CASCADE"), nullable=False, index=True)
+    student_name = Column(String, nullable=True)
+    academy_code = Column(String, default="ILWON-2027", index=True)
+    item_type = Column(String, default="HOMEWORK", index=True)     # 'HOMEWORK' | 'EXAM_PHOTO' | 'HOLD_REQUEST' | 'DIRECTOR_NOTE'
+    curriculum_stage = Column(String, default="수능국어 방법론 (8주)") # '수능국어 방법론 (8주)' | '수능국어 실전' | '모의고사/내신 성적' | '내신 기간 홀드' | '기타'
+    week_label = Column(String, default="1주차")                    # 예: '1주차', '3주차', '6월 평가원', '1학기 중간고사'
+    title = Column(String, nullable=False)                         # 예: '방법론 3주차 일일 숙제 인증', '6월 모평 시험지 및 성적표'
+    content = Column(Text, nullable=True)                          # 학습 메모, 오답 복기, 또는 내신 홀드 신청 사유
+    score_summary = Column(String, nullable=True)                  # 시험결과 요약 (예: '96점 / 1등급')
+    hold_start_date = Column(String, nullable=True)                # 내신 홀드 시작 희망일 (YYYY-MM-DD)
+    hold_end_date = Column(String, nullable=True)                  # 내신 홀드 종료/복귀 예정일 (YYYY-MM-DD)
+    image_data = Column(Text, nullable=True)                       # 숙제/시험지 사진 Base64 데이터 또는 이미지 URL
+    file_name = Column(String, nullable=True)                      # 업로드 원본 파일명
+    status = Column(String, default="SUBMITTED", index=True)       # 'SUBMITTED'(검수대기) | 'VERIFIED'(검수완료) | 'HOLD_ACTIVE'(홀드적용중) | 'HOLD_COMPLETED'(홀드종료/복귀) | 'REJECTED'(보완요청)
+    director_feedback = Column(Text, nullable=True)                # 원장 1:1 피드백 및 코멘트
+    reviewed_at = Column(DateTime(timezone=True), nullable=True)   # 원장 검수 시각
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+    deleted_at = Column(DateTime(timezone=True), nullable=True)    # Soft Delete 필드
 
-
+    student = relationship("Student")
 

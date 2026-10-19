@@ -109,13 +109,13 @@ def charge_toss_billing(
 
 def calculate_split_settlement(
     amount: int,
-    saas_fee_rate: float = 3.3,
+    saas_fee_rate: float = 0.0,
     sms_count: int = 1,
-    sms_unit_cost: int = 15
+    sms_unit_cost: int = 0
 ) -> Dict[str, int]:
     """
-    결제선생 분할 정산(Split Settlement) 계산기
-    수강료 입금 시 본사 SaaS 수수료와 알림톡/SMS 실비를 자동 공제하고 학원장 실입금액 산출
+    원장 정산금 계산기
+    수강료 입금 시 원장님 계좌로 100% 실시간 직송금 (목데이터 수수료 차감 없음)
     """
     saas_fee = int(amount * (saas_fee_rate / 100.0))
     sms_fee = sms_count * sms_unit_cost

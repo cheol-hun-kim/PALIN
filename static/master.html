@@ -9,98 +9,17 @@
     <link rel="stylesheet" href="css/style.css?v=20260928_unify_purple_v2">
     <style>
         :root {
-            --master-bg: #06070a;
-            --master-card: #0d0f18;
-            --master-gold: #f59e0b;
-            --master-gold-glow: rgba(245, 158, 11, 0.25);
+            --master-bg: #08090d;
+            --master-card: #11131c;
+            --master-gold: #6366f1;
+            --master-gold-glow: rgba(99, 102, 241, 0.2);
             --master-red: #ef4444;
             --master-indigo: #6366f1;
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
-            --border-color: rgba(245, 158, 11, 0.2);
+            --border-color: rgba(255, 255, 255, 0.1);
             --font-family-base: 'Pretendard', sans-serif;
-            --bg-radial: radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.08) 0%, transparent 60%);
-        }
-
-        /* 2. Palantir Cyber-Ops (NASA/SpaceX 젯블랙 + 형광 에메랄드 + 모노스페이스) */
-        [data-theme="palantir-cyber"] {
-            --master-bg: #020408;
-            --master-card: #060e17;
-            --master-gold: #00ff9d;
-            --master-gold-glow: rgba(0, 255, 157, 0.35);
-            --master-red: #ff3366;
-            --master-indigo: #00e5ff;
-            --text-primary: #e6fff4;
-            --text-secondary: #528070;
-            --border-color: rgba(0, 255, 157, 0.28);
-            --font-family-base: 'JetBrains Mono', 'SF Mono', monospace, 'Pretendard';
-            --bg-radial: radial-gradient(circle at 50% 0%, rgba(0, 255, 157, 0.12) 0%, transparent 65%);
-        }
-
-        /* 3. Neo-Swiss Editorial (Arc & Notion & Monocle 웜 오트밀 크림 라이트) */
-        [data-theme="neo-swiss"] {
-            --master-bg: #f6f4ee;
-            --master-card: #ffffff;
-            --master-gold: #e05a47;
-            --master-gold-glow: rgba(224, 90, 71, 0.2);
-            --master-red: #dc2626;
-            --master-indigo: #1e293b;
-            --text-primary: #0f172a;
-            --text-secondary: #64748b;
-            --border-color: rgba(15, 23, 42, 0.12);
-            --font-family-base: 'Pretendard', -apple-system, sans-serif;
-            --bg-radial: radial-gradient(circle at 50% 0%, rgba(224, 90, 71, 0.05) 0%, transparent 60%);
-        }
-        [data-theme="neo-swiss"] .kpi-value {
-            color: #0f172a !important;
-        }
-        [data-theme="neo-swiss"] strong {
-            color: #0f172a !important;
-        }
-
-        /* 4. Vercel Hyper-Monochrome (Vercel & Raycast 100% 흑백 극단 고대비) */
-        [data-theme="vercel-mono"] {
-            --master-bg: #000000;
-            --master-card: #0a0a0a;
-            --master-gold: #ffffff;
-            --master-gold-glow: rgba(255, 255, 255, 0.2);
-            --master-red: #ef4444;
-            --master-indigo: #e5e5e5;
-            --text-primary: #ffffff;
-            --text-secondary: #7e7e7e;
-            --border-color: #222222;
-            --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             --bg-radial: none;
-        }
-
-        /* 5. Nordic Pine & Champagne Gold (Brex / Carta / Rolex 헤리티지 딥 포레스트) */
-        [data-theme="nordic-gold"] {
-            --master-bg: #030d09;
-            --master-card: #081a13;
-            --master-gold: #d4af37;
-            --master-gold-glow: rgba(212, 175, 55, 0.3);
-            --master-red: #e63946;
-            --master-indigo: #2a9d8f;
-            --text-primary: #f4f9f6;
-            --text-secondary: #6f9483;
-            --border-color: rgba(212, 175, 55, 0.22);
-            --font-family-base: 'Pretendard', sans-serif;
-            --bg-radial: radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 60%);
-        }
-
-        /* 6. Tokyo Synthwave Neon (Cyberpunk 2077 / Steam Deck 마젠타 네온) */
-        [data-theme="tokyo-synthwave"] {
-            --master-bg: #0b031a;
-            --master-card: #150730;
-            --master-gold: #ff007f;
-            --master-gold-glow: rgba(255, 0, 127, 0.35);
-            --master-red: #ff3366;
-            --master-indigo: #00e5ff;
-            --text-primary: #fdf2f8;
-            --text-secondary: #818cf8;
-            --border-color: rgba(255, 0, 127, 0.3);
-            --font-family-base: 'Pretendard', sans-serif;
-            --bg-radial: radial-gradient(circle at 50% 0%, rgba(255, 0, 127, 0.12) 0%, transparent 65%);
         }
 
         * {
@@ -191,41 +110,41 @@
             letter-spacing: -0.5px;
         }
         .master-tab-nav {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 20px;
-            overflow-x: auto;
-            padding-bottom: 6px;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: thin;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 24px;
         }
         .master-tab-btn {
-            padding: 11px 16px;
-            font-size: 0.84rem;
+            width: 100%;
+            height: 52px;
+            padding: 0 14px;
+            font-size: 0.86rem;
             font-weight: 800;
             border-radius: 10px;
             border: 1.5px solid rgba(255, 255, 255, 0.1) !important;
-            background: rgba(255, 255, 255, 0.03) !important;
+            background: #11131c !important;
             color: #94a3b8 !important;
             cursor: pointer;
             white-space: nowrap;
             transition: all 0.2s ease;
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            gap: 6px;
-            flex-shrink: 0;
+            justify-content: center;
+            gap: 8px;
+            box-sizing: border-box;
         }
         .master-tab-btn:hover {
-            background: rgba(245, 158, 11, 0.1) !important;
-            border-color: rgba(245, 158, 11, 0.4) !important;
-            color: #fbbf24 !important;
+            background: rgba(99, 102, 241, 0.1) !important;
+            border-color: rgba(99, 102, 241, 0.3) !important;
+            color: #f8fafc !important;
         }
         .master-tab-btn.active {
-            background: linear-gradient(135deg, #f59e0b, #d97706) !important;
-            border: 1.5px solid #fbbf24 !important;
-            color: #000000 !important;
+            background: rgba(99, 102, 241, 0.2) !important;
+            border: 1.5px solid #6366f1 !important;
+            color: #ffffff !important;
             font-weight: 900 !important;
-            box-shadow: 0 4px 18px rgba(245, 158, 11, 0.4);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.25);
         }
         .master-tab-view {
             display: none;
@@ -529,141 +448,53 @@
                 </div>
             </div>
 
-            <!-- 갓모드 멀티 테마 스위처 샌드박스 (God-Mode 6-Theme Matrix & Enterprise UI Sandbox) -->
-            <div class="card" style="margin-bottom: 20px; background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9)); border: 1.5px solid #38bdf8; border-radius: 16px; padding: 16px 20px; box-shadow: 0 4px 20px rgba(56, 189, 248, 0.15);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-                    <div>
-                        <div style="font-size: 1.05rem; font-weight: 900; color: #38bdf8; display: flex; align-items: center; gap: 8px;">
-                            <span class="material-symbols-rounded" style="color: #38bdf8;">palette</span>
-                            <span>갓모드 6대 멀티 테마 스위처 (6-Theme Matrix & Enterprise Sandbox)</span>
-                        </div>
-                        <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 2px;">
-                            글로벌 Top 10 디자인 시스템 벤치마크 및 제미나이 Phase 10.3 테마를 실시간 전환합니다. (목표대학 다이내믹 앰블럼/컬러는 100% 성역 보존)
-                        </div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span id="active-theme-badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #38bdf8; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 900;">
-                            현재 테마: 오리지널 클래식
-                        </span>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
-                    <!-- Theme 1: original / classic -->
-                    <div onclick="applyGodModeTheme('original')" id="theme-card-original" style="background: #0a0b0e; border: 2px solid #6366f1; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s ease; position: relative;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-weight: 900; font-size: 0.88rem; color: #ffffff;">1. 오리지널 클래식</span>
-                            <span style="font-size: 0.7rem; background: #6366f1; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 800;">원형</span>
-                        </div>
-                        <div style="font-size: 0.73rem; color: #94a3b8; line-height: 1.4;">
-                            네오브루탈리즘 다크 & 인디고 네온 글로우
-                        </div>
-                    </div>
-
-                    <!-- Theme 2: Palantir Cyber-Ops -->
-                    <div onclick="applyGodModeTheme('palantir-cyber')" id="theme-card-palantir-cyber" style="background: #020408; border: 2px solid #00ff9d; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s ease; color: #e6fff4;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-weight: 900; font-size: 0.88rem; color: #00ff9d; font-family: monospace;">2. 팔란티어 사이버-옵스</span>
-                            <span style="font-size: 0.7rem; background: #00ff9d; color: #020408; padding: 2px 6px; border-radius: 4px; font-weight: 900;">Palantir</span>
-                        </div>
-                        <div style="font-size: 0.73rem; color: #528070; line-height: 1.4;">
-                            NASA/SpaceX급 젯블랙 & 포스포 에메랄드 시안 레이더
-                        </div>
-                    </div>
-
-                    <!-- Theme 3: Neo-Swiss Editorial -->
-                    <div onclick="applyGodModeTheme('neo-swiss')" id="theme-card-neo-swiss" style="background: #f6f4ee; border: 2px solid #e05a47; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s ease; color: #0f172a;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-weight: 900; font-size: 0.88rem; color: #0f172a;">3. 네오 스위스 에디토리얼</span>
-                            <span style="font-size: 0.7rem; background: #e05a47; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 800;">Arc & Notion</span>
-                        </div>
-                        <div style="font-size: 0.73rem; color: #64748b; line-height: 1.4;">
-                            눈의 피로를 덜어주는 웜 오트밀 크림 라이트 & 테라코타
-                        </div>
-                    </div>
-
-                    <!-- Theme 4: Vercel Hyper-Monochrome -->
-                    <div onclick="applyGodModeTheme('vercel-mono')" id="theme-card-vercel-mono" style="background: #000000; border: 2px solid #ffffff; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s ease; color: #ffffff;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-weight: 900; font-size: 0.88rem; color: #ffffff;">4. 버셀 하이퍼 모노</span>
-                            <span style="font-size: 0.7rem; background: #ffffff; color: #000000; padding: 2px 6px; border-radius: 4px; font-weight: 900;">Vercel</span>
-                        </div>
-                        <div style="font-size: 0.73rem; color: #888888; line-height: 1.4;">
-                            순도 100% 흑백 극단 고대비 & 1px 레이저 헤어라인
-                        </div>
-                    </div>
-
-                    <!-- Theme 5: Nordic Pine & Champagne Gold -->
-                    <div onclick="applyGodModeTheme('nordic-gold')" id="theme-card-nordic-gold" style="background: #030d09; border: 2px solid #d4af37; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s ease; color: #f4f9f6;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-weight: 900; font-size: 0.88rem; color: #d4af37;">5. 노르딕 파인 & 골드</span>
-                            <span style="font-size: 0.7rem; background: #d4af37; color: #030d09; padding: 2px 6px; border-radius: 4px; font-weight: 900;">Brex & Luxury</span>
-                        </div>
-                        <div style="font-size: 0.73rem; color: #6f9483; line-height: 1.4;">
-                            대치동 상위 1% VIP 웰스 라운지 딥 포레스트 그린 & 금박
-                        </div>
-                    </div>
-
-                    <!-- Theme 6: Tokyo Synthwave Neon -->
-                    <div onclick="applyGodModeTheme('tokyo-synthwave')" id="theme-card-tokyo-synthwave" style="background: #0b031a; border: 2px solid #ff007f; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s ease; color: #fdf2f8;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-weight: 900; font-size: 0.88rem; color: #ff007f;">6. 네오 도쿄 신스웨이브</span>
-                            <span style="font-size: 0.7rem; background: #ff007f; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 900;">Cyberpunk</span>
-                        </div>
-                        <div style="font-size: 0.73rem; color: #818cf8; line-height: 1.4;">
-                            심해 바이올렛 & 마젠타 핑크 레이저 네온 게이미피케이션
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 매크로 글로벌 통계 KPI 그리드 -->
-            
             <!-- 실운영 가맹 학원 원장 관제실 바로가기 -->
-            <div class="section-box" style="border: 1.5px solid #6366f1; background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(99, 102, 241, 0.08)); margin-bottom: 20px; padding: 16px 20px;">
+            <div class="section-box" style="border: 1.5px solid rgba(99, 102, 241, 0.35); background: #11131c; margin-bottom: 20px; padding: 16px 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                     <div>
                         <div style="font-size: 1.05rem; font-weight: 900; color: #f8fafc; display: flex; align-items: center; gap: 8px;">
-                            <span class="material-symbols-rounded" style="color: #fbbf24;">rocket_launch</span>
+                            <span class="material-symbols-rounded" style="color: #6366f1;">rocket_launch</span>
                             <span>실운영 가맹 학원 관제실 바로가기</span>
                         </div>
-                        <div style="font-size: 0.78rem; color: #cbd5e1; margin-top: 4px;">
+                        <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 4px;">
                             슈퍼 마스터로서 실제 등록된 가맹 학원 관제실을 원클릭으로 접속하여 실시간 현황을 점검할 수 있습니다.
                         </div>
                     </div>
                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <button onclick="launchDirectorSimulator('HIGH_ACADEMY', 'ILWON-2027')" class="btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; font-weight: 900; padding: 8px 16px; font-size: 0.85rem; border-radius: 8px; cursor: pointer;">
+                        <button onclick="launchDirectorSimulator('HIGH_ACADEMY', 'ILWON-2027')" class="btn" style="background: #6366f1; color: white; font-weight: 900; padding: 8px 16px; font-size: 0.85rem; border-radius: 8px; cursor: pointer;">
                             일원학원 원장 관제실 접속
                         </button>
                     </div>
                 </div>
             </div>
 
-<div class="kpi-grid">
+            <!-- 매크로 글로벌 통계 KPI 그리드 -->
+            <div class="kpi-grid">
                 <div class="kpi-card">
-                    <div class="kpi-title"><span class="material-symbols-rounded" style="font-size: 1rem; color: #fbbf24;">domain</span> 총 B2B 입점 학원</div>
-                    <div class="kpi-value" id="stat-total-tenants" style="color: #fbbf24;">-</div>
+                    <div class="kpi-title"><span class="material-symbols-rounded" style="font-size: 1rem; color: #6366f1;">domain</span> 총 B2B 입점 학원</div>
+                    <div class="kpi-value" id="stat-total-tenants" style="color: #f8fafc;">-</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-title"><span class="material-symbols-rounded" style="font-size: 1rem; color: #818cf8;">groups</span> 전 플랫폼 연결 수험생</div>
-                    <div class="kpi-value" id="stat-total-students" style="color: #818cf8;">-</div>
+                    <div class="kpi-title"><span class="material-symbols-rounded" style="font-size: 1rem; color: #6366f1;">groups</span> 전 플랫폼 연결 수험생</div>
+                    <div class="kpi-value" id="stat-total-students" style="color: #f8fafc;">-</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-title"><span class="material-symbols-rounded" style="font-size: 1rem; color: #34d399;">trending_up</span> 평균 자습시간 증가율</div>
+                    <div class="kpi-title"><span class="material-symbols-rounded" style="font-size: 1rem; color: #10b981;">trending_up</span> 평균 자습시간 증가율</div>
                     <div class="kpi-value" id="stat-study-growth" style="color: #34d399;">-</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-title"><span class="material-symbols-rounded" style="font-size: 1rem; color: #f43f5e;">payments</span> 누적 약정보증금 예치액</div>
-                    <div class="kpi-value" id="stat-total-escrow" style="color: #f43f5e;">-</div>
+                    <div class="kpi-title"><span class="material-symbols-rounded" style="font-size: 1rem; color: #ef4444;">payments</span> 누적 약정보증금 예치액</div>
+                    <div class="kpi-value" id="stat-total-escrow" style="color: #f87171;">-</div>
                 </div>
-                <div class="kpi-card" style="border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.05); grid-column: span 2;">
-                    <div class="kpi-title" style="color: #fbbf24;"><span class="material-symbols-rounded" style="font-size: 1rem; color: #fbbf24;">account_balance_wallet</span> 당월 본사 청구 로열티 수수료</div>
-                    <div class="kpi-value" id="stat-total-royalty" style="color: #fbbf24;">-</div>
+                <div class="kpi-card" style="border-color: rgba(99, 102, 241, 0.3); background: rgba(99, 102, 241, 0.05); grid-column: span 2;">
+                    <div class="kpi-title" style="color: #a5b4fc;"><span class="material-symbols-rounded" style="font-size: 1rem; color: #818cf8;">payments</span> 전 가맹 원비 총 수납액</div>
+                    <div class="kpi-value" id="stat-total-royalty" style="color: #f8fafc;">-</div>
                 </div>
             </div>
 
-            <!-- 8대 마스터 탭 네비게이션 -->
+            <!-- 9대 마스터 탭 네비게이션 (3x3 균등 그리드 배열) -->
             <div class="master-tab-nav">
+                <!-- 1행 -->
                 <button class="master-tab-btn active" onclick="switchMasterTab('tab-tenants')">
                     <span class="material-symbols-rounded">domain</span>
                     <span>1. B2B 고객사 & 갓모드</span>
@@ -676,6 +507,8 @@
                     <span class="material-symbols-rounded">analytics</span>
                     <span>3. 입시 심층 리포트</span>
                 </button>
+
+                <!-- 2행 -->
                 <button class="master-tab-btn" onclick="switchMasterTab('tab-consulting')">
                     <span class="material-symbols-rounded">support_agent</span>
                     <span>4. 1:1 상담 대기열</span>
@@ -688,17 +521,19 @@
                     <span class="material-symbols-rounded">contact_support</span>
                     <span>6. 헬프데스크 & VOC</span>
                 </button>
+
+                <!-- 3행 -->
                 <button class="master-tab-btn" onclick="switchMasterTab('tab-all-members')">
                     <span class="material-symbols-rounded">badge</span>
                     <span>7. 전 회원 통합 관리</span>
                 </button>
-                <button class="master-tab-btn" onclick="switchMasterTab('tab-secret-rnd')" style="border-color: rgba(236, 72, 153, 0.4) !important; color: #f472b6 !important;">
-                    <span class="material-symbols-rounded" style="color: #ec4899;">science</span>
-                    <span>8. 극비 R&D 전략실 (The Human Life OS & Alliance Vault)</span>
+                <button class="master-tab-btn" onclick="switchMasterTab('tab-secret-rnd')">
+                    <span class="material-symbols-rounded">science</span>
+                    <span>8. 극비 R&D & 지배구조</span>
                 </button>
-                <button class="master-tab-btn" onclick="switchMasterTab('tab-coupang-partners')" style="border-color: rgba(56, 189, 248, 0.4) !important; color: #38bdf8 !important;">
-                    <span class="material-symbols-rounded" style="color: #38bdf8;">shopping_cart_checkout</span>
-                    <span>9. 쿠팡 파트너스 & B2B 커미션 관제실</span>
+                <button class="master-tab-btn" onclick="switchMasterTab('tab-coupang-partners')">
+                    <span class="material-symbols-rounded">shopping_cart_checkout</span>
+                    <span>9. 쿠팡 파트너스 & 제휴 관제</span>
                 </button>
             </div>
 
@@ -1698,6 +1533,31 @@
             </div>
 
         </div>
+
+            <!-- TAB 10: 비즈니스 아키텍처 & 지배구조 관제실 -->
+            <div id="tab-business-architecture" class="master-tab-view" style="display: none;">
+                <div class="section-box" style="border-color: rgba(99, 102, 241, 0.4); margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <div class="section-header" style="color: #818cf8; margin-bottom: 4px;">
+                                <span class="material-symbols-rounded" style="color: #6366f1; vertical-align: middle; margin-right: 6px;">account_tree</span>
+                                <span>PALIN OS 글로벌 지배구조 및 1조 자산가 캐시플로우 관제실</span>
+                            </div>
+                            <div style="font-size: 0.85rem; color: #94a3b8;">
+                                미국 본사(델라웨어 C-Corp) - 한국 R&D 법인 - 일원학원 - 창업자 개인 자산 파이프라인
+                            </div>
+                        </div>
+                        <a href="architecture.html" target="_blank" class="btn" style="background: #6366f1; color: white; font-weight: 700; padding: 8px 14px; border-radius: 8px; font-size: 0.82rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                            <span class="material-symbols-rounded" style="font-size: 1rem;">open_in_new</span>
+                            새 창 단독 전체화면 열기
+                        </a>
+                    </div>
+                </div>
+
+                <div style="width: 100%; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); background: #0f172a; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                    <iframe src="architecture.html" style="width: 100%; height: 980px; border: none; display: block;" title="Business Architecture"></iframe>
+                </div>
+            </div>
     </div>
 
     <!-- 팝업 모달: 리포트 열람 -->
@@ -2021,8 +1881,8 @@
                             </button>
                         </td>
                         <td>
-                            <div style="font-weight:700; color:#cbd5e1; font-size:0.78rem;">${(t.monthly_revenue || 0).toLocaleString()}원</div>
-                            <div style="font-size:0.72rem; color:#fbbf24; font-weight:800;">수수료: ${(t.estimated_royalty || 0).toLocaleString()}원</div>
+                            <div style="font-weight:800; color:#f8fafc; font-size:0.82rem;">${(t.monthly_revenue || 0).toLocaleString()}원</div>
+                            <div style="font-size:0.7rem; color:#94a3b8; font-weight:600;">실시간 수납액</div>
                         </td>
                         <td style="text-align: center;">
                             <button onclick="impersonateTenant('${t.code}', '${t.name}', '${t.business_type || 'HIGH_ACADEMY'}')" class="btn btn-red" style="padding:5px 10px; font-size:0.75rem; font-weight:900; white-space:nowrap;">원격 접속
@@ -3242,39 +3102,6 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
             });
         }
 
-        // --- 갓모드 6대 멀티 테마 스위처 함수 ---
-        function applyGodModeTheme(themeName) {
-            const validThemes = ['original', 'palantir-cyber', 'neo-swiss', 'vercel-mono', 'nordic-gold', 'tokyo-synthwave'];
-            if (!validThemes.includes(themeName)) themeName = 'original';
-
-            document.documentElement.setAttribute('data-theme', themeName);
-            localStorage.setItem('palin_theme', themeName);
-
-            const labels = {
-                'original': '1. 오리지널 클래식',
-                'palantir-cyber': '2. 팔란티어 사이버-옵스',
-                'neo-swiss': '3. 네오 스위스 에디토리얼',
-                'vercel-mono': '4. 버셀 하이퍼 모노',
-                'nordic-gold': '5. 노르딕 파인 & 골드',
-                'tokyo-synthwave': '6. 네오 도쿄 신스웨이브'
-            };
-
-            const badge = document.getElementById('active-theme-badge');
-            if (badge) badge.innerText = `현재 테마: ${labels[themeName] || themeName}`;
-
-            ['original', 'palantir-cyber', 'neo-swiss', 'vercel-mono', 'nordic-gold', 'tokyo-synthwave'].forEach(t => {
-                const card = document.getElementById(`theme-card-${t}`);
-                if (card) {
-                    if (t === themeName) {
-                        card.style.outline = '3px solid #38bdf8';
-                        card.style.transform = 'scale(1.02)';
-                    } else {
-                        card.style.outline = 'none';
-                        card.style.transform = 'scale(1)';
-                    }
-                }
-            });
-        }
 
         // --- 9. 쿠팡 파트너스 & B2B 커미션 갓모드 관제 함수 ---
         async function loadMasterCoupangConfig() {
@@ -3351,11 +3178,6 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
                 resBox.innerHTML = `<a href="${resUrl}" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; text-decoration: underline;">${resUrl}</a>`;
             }
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('palin_theme') || 'original';
-            applyGodModeTheme(savedTheme);
-        });
     </script>
 </body>
 </html>

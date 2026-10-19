@@ -17,60 +17,6 @@
             --border-color: rgba(255, 255, 255, 0.12);
         }
 
-        /* 2. Palantir Cyber-Ops */
-        [data-theme="palantir-cyber"] {
-            --bg-color: #020408;
-            --card-bg: #060e17;
-            --accent-color: #00ff9d;
-            --text-primary: #e6fff4;
-            --text-secondary: #528070;
-            --border-color: rgba(0, 255, 157, 0.28);
-        }
-
-        /* 3. Neo-Swiss Editorial */
-        [data-theme="neo-swiss"] {
-            --bg-color: #f6f4ee;
-            --card-bg: #ffffff;
-            --accent-color: #e05a47;
-            --text-primary: #0f172a;
-            --text-secondary: #64748b;
-            --border-color: rgba(15, 23, 42, 0.12);
-        }
-        [data-theme="neo-swiss"] .admin-card, [data-theme="neo-swiss"] .section-box {
-            background: #ffffff !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        /* 4. Vercel Hyper-Monochrome */
-        [data-theme="vercel-mono"] {
-            --bg-color: #000000;
-            --card-bg: #0a0a0a;
-            --accent-color: #ffffff;
-            --text-primary: #ffffff;
-            --text-secondary: #7e7e7e;
-            --border-color: #222222;
-        }
-
-        /* 5. Nordic Pine & Champagne Gold */
-        [data-theme="nordic-gold"] {
-            --bg-color: #030d09;
-            --card-bg: #081a13;
-            --accent-color: #d4af37;
-            --text-primary: #f4f9f6;
-            --text-secondary: #6f9483;
-            --border-color: rgba(212, 175, 55, 0.22);
-        }
-
-        /* 6. Tokyo Synthwave Neon */
-        [data-theme="tokyo-synthwave"] {
-            --bg-color: #0b031a;
-            --card-bg: #150730;
-            --accent-color: #ff007f;
-            --text-primary: #fdf2f8;
-            --text-secondary: #818cf8;
-            --border-color: rgba(255, 0, 127, 0.3);
-        }
-
         * {
             box-sizing: border-box;
         }
@@ -848,7 +794,7 @@
                         <div style="background: rgba(0,0,0,0.4); padding: 14px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.3);">
                             <div style="font-size: 0.74rem; color: #fbbf24; font-weight: 700;">원장 실입금 정산액</div>
                             <div id="billing-kpi-payout-amount" style="font-size: 1.45rem; font-weight: 900; color: #fbbf24; margin-top: 4px;">₩0</div>
-                            <div id="billing-kpi-saas-deduction" style="font-size: 0.72rem; color: #fde68a; margin-top: 2px;">본사 SaaS 3.3% 자동공제 후</div>
+                            <div id="billing-kpi-saas-deduction" style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">수납액 전액 실시간 정산·입금</div>
                         </div>
                     </div>
                 </div>
@@ -971,7 +917,7 @@
                             </div>
                         </div>
                         <div style="font-size: 0.72rem; color: #94a3b8; line-height: 1.4;">
-                            • 토스페이먼츠 PG 정산 에스크로 연동으로 결제 즉시 본사 SaaS 수수료(3.3%) 및 알림톡 실비가 자동차감된 후 원장님 계좌로 실시간 송금됩니다.
+                            • 토스페이먼츠 PG 정산 에스크로 연동으로 결제 즉시 원장님 등록 계좌로 실시간 정산·입금됩니다.
                         </div>
                     </div>
                 </div>
@@ -1368,9 +1314,14 @@
             <!-- SUB 5: 학생 행정 신청 결재함 -->
             <div id="curriculum-sub-requests" class="curriculum-sub-section" style="display: none;">
                 <div class="kpi-card" style="border: 1.5px solid rgba(245, 158, 11, 0.4);">
-                    <div class="section-title" style="color: #fbbf24;">
-                        <span class="material-symbols-rounded">pending_actions</span>
-                        <span>학생 행정 신청 결재함</span>
+                    <div class="section-title" style="color: #fbbf24; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span class="material-symbols-rounded">pending_actions</span>
+                            <span>학생 행정 신청 결재함</span>
+                        </div>
+                        <button type="button" onclick="jumpToAdminStudentFoldersHub()" class="btn" style="padding: 6px 12px; font-size: 0.76rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; border-radius: 8px;">
+                            학생별 개별 폴더 &amp; 숙제·시험·홀드 일괄 관제소 열기
+                        </button>
                     </div>
                     <div id="admin-requests-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
                 </div>
@@ -1393,6 +1344,109 @@
                     </div>
                     <div id="admin-pending-students-list" style="display: flex; flex-direction: column; gap: 8px;">
                         <div style="text-align: center; color: #64748b; font-size: 0.78rem; padding: 12px;">현재 승인 대기 중인 학생이 없습니다.</div>
+                    </div>
+                </div>
+
+                <!-- 📁 [핵심] 학생별 개별 디지털 폴더 아카이브 & 숙제·시험결과·내신홀드 일괄 관제소 -->
+                <div id="admin-student-folders-hub-card" class="kpi-card" style="border: 1.5px solid rgba(99, 102, 241, 0.55); background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 27, 75, 0.45)); margin-bottom: 16px; padding: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(245, 158, 11, 0.16); border: 1.5px solid #fbbf24; display: flex; align-items: center; justify-content: center;">
+                                <span class="material-symbols-rounded" style="color: #fbbf24; font-size: 1.4rem;">folder_managed</span>
+                            </div>
+                            <div>
+                                <div style="font-size: 1.08rem; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                    <span>학생별 개별 디지털 폴더 &amp; 숙제·시험결과·내신홀드 일괄 관제소</span>
+                                    <span style="font-size: 0.7rem; font-weight: 800; background: rgba(99, 102, 241, 0.25); color: #a5b4fc; padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(129, 140, 248, 0.4);">전 원생 자동 폴더 아카이브</span>
+                                </div>
+                                <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 2px;">
+                                    학원 등록 학생마다 전용 폴더가 자동 생성되며, 학생이 업로드한 숙제 사진·시험결과 성적표·내신 기간 홀드 신청을 한눈에 일괄 검수하고 열람합니다.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                            <input type="text" id="admin-folder-search-input" oninput="loadAdminStudentFoldersOverview()" placeholder="학생명 / 학교명 검색..." class="form-input" style="width: 170px; height: 36px; font-size: 0.78rem; padding: 4px 10px;">
+                            <button type="button" id="btn-folder-view-grid" onclick="switchAdminFolderHubMode('GRID')" class="btn" style="padding: 7px 12px; font-size: 0.76rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff; border-radius: 8px;">
+                                학생별 폴더 탐색기
+                            </button>
+                            <button type="button" id="btn-folder-view-inbox" onclick="switchAdminFolderHubMode('INBOX')" class="btn btn-secondary" style="padding: 7px 12px; font-size: 0.76rem; font-weight: 800; border-radius: 8px;">
+                                실시간 일괄 검수함
+                            </button>
+                            <button type="button" onclick="loadAdminStudentFoldersOverview()" class="btn btn-secondary" style="padding: 7px 11px; font-size: 0.76rem; font-weight: 800; border-radius: 8px;">
+                                새로고침
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 5대 실시간 폴더 KPI 바 -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 8px; margin-bottom: 14px;">
+                        <div style="background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 12px;">
+                            <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 700;">재원생 개별 폴더</div>
+                            <div id="af-kpi-total-folders" style="font-size: 1.25rem; font-weight: 900; color: #ffffff; margin-top: 2px;">0개</div>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.35); border: 1px solid rgba(99, 102, 241, 0.35); border-radius: 10px; padding: 10px 12px;">
+                            <div style="font-size: 0.7rem; color: #a5b4fc; font-weight: 700;">미검수 숙제 사진</div>
+                            <div id="af-kpi-pending-hw" style="font-size: 1.25rem; font-weight: 900; color: #818cf8; margin-top: 2px;">0건</div>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.35); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 10px; padding: 10px 12px;">
+                            <div style="font-size: 0.7rem; color: #6ee7b7; font-weight: 700;">미검수 시험결과 사진</div>
+                            <div id="af-kpi-pending-exam" style="font-size: 1.25rem; font-weight: 900; color: #34d399; margin-top: 2px;">0건</div>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.35); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 10px; padding: 10px 12px;">
+                            <div style="font-size: 0.7rem; color: #fde68a; font-weight: 700;">내신 홀드 승인대기</div>
+                            <div id="af-kpi-pending-hold" style="font-size: 1.25rem; font-weight: 900; color: #fbbf24; margin-top: 2px;">0건</div>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.35); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 10px; padding: 10px 12px;">
+                            <div style="font-size: 0.7rem; color: #fca5a5; font-weight: 700;">현재 홀드(휴강) 적용중</div>
+                            <div id="af-kpi-active-hold" style="font-size: 1.25rem; font-weight: 900; color: #f87171; margin-top: 2px;">0명</div>
+                        </div>
+                    </div>
+
+                    <!-- 뷰 1: 학생별 개별 디지털 폴더 그리드 탐색기 -->
+                    <div id="admin-folders-grid-view" style="display: block;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                <button type="button" id="af-grid-filter-ALL" onclick="filterAdminFolderGrid('ALL')" class="btn" style="padding: 5px 10px; font-size: 0.74rem; font-weight: 800; background: #6366f1; color: #ffffff; border-radius: 6px;">전체 재원생 폴더</button>
+                                <button type="button" id="af-grid-filter-PENDING" onclick="filterAdminFolderGrid('PENDING')" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.74rem; font-weight: 800; border-radius: 6px;">미검수 항목 있는 폴더만</button>
+                                <button type="button" id="af-grid-filter-HOLD" onclick="filterAdminFolderGrid('HOLD')" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.74rem; font-weight: 800; border-radius: 6px;">현재 내신 홀드(휴강) 학생만</button>
+                            </div>
+                            <div style="font-size: 0.73rem; color: #94a3b8;">학생 폴더를 클릭하면 숙제 사진·시험결과·OMR·출결·홀드 전 이력이 열립니다.</div>
+                        </div>
+                        <div id="admin-student-folders-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(225px, 1fr)); gap: 10px; max-height: 430px; overflow-y: auto; padding: 4px;">
+                            <div style="grid-column: 1 / -1; text-align: center; color: #94a3b8; font-size: 0.8rem; padding: 24px;">학생별 디지털 폴더 목록을 불러오는 중입니다...</div>
+                        </div>
+                    </div>
+
+                    <!-- 뷰 2: 실시간 숙제·시험결과·내신홀드 일괄 검수 인박스 -->
+                    <div id="admin-folders-inbox-view" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; background: rgba(0,0,0,0.3); padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <label style="display: inline-flex; align-items: center; gap: 5px; font-size: 0.76rem; font-weight: 800; color: #e2e8f0; cursor: pointer;">
+                                    <input type="checkbox" id="admin-inbox-select-all" onchange="toggleAdminInboxSelectAll(this.checked)" style="cursor: pointer;">
+                                    <span>전체 선택</span>
+                                </label>
+                                <select id="admin-inbox-type-filter" onchange="loadAdminStudentFoldersOverview()" class="form-input" style="height: 32px; font-size: 0.75rem; font-weight: 700; width: 150px; padding: 2px 8px;">
+                                    <option value="ALL">모든 업로드 유형</option>
+                                    <option value="HOMEWORK">숙제 인증 사진만</option>
+                                    <option value="EXAM_PHOTO">시험결과 사진만</option>
+                                    <option value="HOLD_REQUEST">내신 홀드 신청만</option>
+                                </select>
+                                <select id="admin-inbox-status-filter" onchange="loadAdminStudentFoldersOverview()" class="form-input" style="height: 32px; font-size: 0.75rem; font-weight: 700; width: 140px; padding: 2px 8px;">
+                                    <option value="ALL">전체 검수 상태</option>
+                                    <option value="PENDING">미검수 대기만</option>
+                                    <option value="VERIFIED">검수/승인 완료만</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                <button type="button" onclick="handleBatchVerifyFolderItems()" class="btn" style="padding: 6px 14px; font-size: 0.76rem; font-weight: 900; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border-radius: 8px;">
+                                    선택 항목 일괄 검수완료
+                                </button>
+                            </div>
+                        </div>
+                        <div id="admin-folder-inbox-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 460px; overflow-y: auto; padding-right: 4px;">
+                            <div style="text-align: center; color: #94a3b8; font-size: 0.8rem; padding: 24px;">업로드 내역을 불러오는 중입니다...</div>
+                        </div>
                     </div>
                 </div>
 
@@ -3674,6 +3728,7 @@
                 fetchDashboardData();
                 loadPendingStudents();
                 loadCsatPriorityRankings();
+                if (typeof loadAdminStudentFoldersOverview === 'function') loadAdminStudentFoldersOverview();
             }
             if (tabId === 'tab-tutors') {
                 loadAdminTutors();
@@ -4304,6 +4359,11 @@
                         <span>360°</span>
                     </button>`;
 
+                    const folderBtn = `<button type="button" onclick="openAdminStudentFolderModal(${s.id})" class="btn" style="padding: 4px 8px; font-size: 0.72rem; font-weight: 800; background: rgba(245, 158, 11, 0.18); border: 1px solid rgba(245, 158, 11, 0.45); color: #fbbf24; border-radius: 6px; display: inline-flex; align-items: center; gap: 2px; cursor: pointer; white-space: nowrap;" title="학생 개별 디지털 폴더 열기">
+                        <span class="material-symbols-rounded" style="font-size: 0.85rem;">folder_managed</span>
+                        <span>폴더</span>
+                    </button>`;
+
                     tr.innerHTML = `
                         <td style="text-align: center;">
                             <input type="checkbox" class="admin-student-row-cb" value="${s.id}" style="cursor: pointer;">
@@ -4321,6 +4381,7 @@
                         <td style="color: #10b981; font-weight: 700; white-space: nowrap;">+${s.diligence_score}점</td>
                         <td style="text-align: center;">
                             <div style="display: inline-flex; gap: 4px; align-items: center; justify-content: center; flex-wrap: nowrap;">
+                                ${folderBtn}
                                 ${dossierBtn}
                                 ${graduateBtn}
                                 ${suspendBtn}
@@ -5049,7 +5110,7 @@
                 if (kpiOverdueAmt) kpiOverdueAmt.innerText = `₩${(s.overdue_amount || 0).toLocaleString()}`;
                 if (kpiOverdueCnt) kpiOverdueCnt.innerText = `미납 ${s.overdue_count || 0}명 (서비스 제한)`;
                 if (kpiPayoutAmt) kpiPayoutAmt.innerText = `₩${(s.total_payout_amount || 0).toLocaleString()}`;
-                if (kpiSaasDed) kpiSaasDed.innerText = `본사 SaaS 3.3%(₩${(s.total_saas_fee_deducted || 0).toLocaleString()}) 차감 후`;
+                if (kpiSaasDed) kpiSaasDed.innerText = `수납액 전액 원장 계좌 직송금`;
 
                 // 2. 정산 계좌 & 청구 정책 정보 갱신
                 const setInfo = data.settlement_info || {};
@@ -7416,6 +7477,73 @@
             </div>
         </div>
     </div>
+
+    <!-- 원장님용: 원생 개별 활동 폴더 (숙제·시험결과·OMR·출결·내신홀드 통합 아카이브) 모달 -->
+    <div id="admin-student-folder-modal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.86); backdrop-filter: blur(8px); z-index: 10050; align-items: center; justify-content: center; padding: 20px;">
+        <div class="glass-card" style="width: 100%; max-width: 980px; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(251, 146, 60, 0.45); background: rgba(15, 23, 42, 0.98); padding: 22px 24px; border-radius: 16px; box-shadow: 0 25px 60px rgba(0,0,0,0.75);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 14px; margin-bottom: 14px;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span style="font-size: 0.72rem; font-weight: 900; color: #fb923c; background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.4); padding: 2px 8px; border-radius: 6px;">STUDENT DIGITAL FOLDER</span>
+                        <h3 id="admin-sf-title" style="margin: 0; font-size: 1.18rem; color: #fff; font-weight: 900;">원생 개별 활동 폴더</h3>
+                        <span id="admin-sf-meta-badge" style="font-size: 0.76rem; color: #cbd5e1; background: rgba(255,255,255,0.06); padding: 3px 10px; border-radius: 999px;">-</span>
+                    </div>
+                    <p id="admin-sf-subtitle" style="margin: 6px 0 0 0; font-size: 0.8rem; color: #94a3b8;">숙제 인증 사진 · 시험 성적표/시험지 · 주간 OMR 성적 · 출결 기록 · 내신 홀드 신청 이력이 모두 이 폴더 안에 자동 보관됩니다.</p>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" id="admin-sf-open-dossier-btn" class="btn btn-secondary" style="padding: 7px 12px; font-size: 0.76rem; font-weight: 800; border-color: rgba(56,189,248,0.4); color: #38bdf8;">정밀 기록부 열기</button>
+                    <button type="button" onclick="closeAdminStudentFolderModal()" class="btn btn-secondary" style="padding: 7px 14px; font-size: 0.8rem; font-weight: 800;">닫기 ✕</button>
+                </div>
+            </div>
+
+            <!-- 폴더 요약 배지 -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 8px; margin-bottom: 14px;">
+                <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.28); border-radius: 8px; padding: 8px 12px;">
+                    <div style="font-size: 0.7rem; color: #6ee7b7; font-weight: 800;">누적 숙제 인증</div>
+                    <div id="admin-sf-stat-hw" style="font-size: 1.15rem; font-weight: 900; color: #fff;">0건</div>
+                </div>
+                <div style="background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.28); border-radius: 8px; padding: 8px 12px;">
+                    <div style="font-size: 0.7rem; color: #7dd3fc; font-weight: 800;">시험결과·성적표 사진</div>
+                    <div id="admin-sf-stat-exam" style="font-size: 1.15rem; font-weight: 900; color: #fff;">0건</div>
+                </div>
+                <div style="background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.28); border-radius: 8px; padding: 8px 12px;">
+                    <div style="font-size: 0.7rem; color: #d8b4fe; font-weight: 800;">주간 모의고사 OMR</div>
+                    <div id="admin-sf-stat-omr" style="font-size: 1.15rem; font-weight: 900; color: #fff;">0회</div>
+                </div>
+                <div style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,24,0.28); border-radius: 8px; padding: 8px 12px;">
+                    <div style="font-size: 0.7rem; color: #fcd34d; font-weight: 800;">내신 홀드 / 행정 신청</div>
+                    <div id="admin-sf-stat-hold" style="font-size: 1.15rem; font-weight: 900; color: #fff;">0건</div>
+                </div>
+                <div style="background: rgba(249,115,22,0.1); border: 1px solid rgba(249,115,22,0.35); border-radius: 8px; padding: 8px 12px;">
+                    <div style="font-size: 0.7rem; color: #fdba74; font-weight: 800;">미검수 대기 항목</div>
+                    <div id="admin-sf-stat-pending" style="font-size: 1.15rem; font-weight: 900; color: #fb923c;">0건</div>
+                </div>
+            </div>
+
+            <!-- 원장님 폴더 메모/코멘트 직접 추가 바 -->
+            <div style="background: rgba(2,6,23,0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <span style="font-size: 0.75rem; font-weight: 800; color: #fb923c;">원장님 폴더 기록 추가:</span>
+                <input type="text" id="admin-sf-note-title" placeholder="메모/피드백 제목 (예: 3주차 독서 오답노트 점검 완료)" style="flex: 1; min-width: 180px; padding: 7px 10px; border-radius: 6px; background: #0f172a; border: 1px solid #334155; color: #fff; font-size: 0.78rem;">
+                <input type="text" id="admin-sf-note-content" placeholder="상세 코멘트 입력 (학생/학부모 폴더에도 함께 표시됩니다)" style="flex: 2; min-width: 240px; padding: 7px 10px; border-radius: 6px; background: #0f172a; border: 1px solid #334155; color: #fff; font-size: 0.78rem;">
+                <button type="button" onclick="handleAdminAddNoteToStudentFolder()" class="btn btn-primary" style="padding: 7px 14px; font-size: 0.76rem; font-weight: 800; background: #f97316; border: none;">폴더에 기록 저장</button>
+            </div>
+
+            <!-- 폴더 내부 카테고리 탭 -->
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px;">
+                <button type="button" id="admin-sf-tab-ALL" onclick="switchAdminStudentFolderSubTab('ALL')" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.76rem; font-weight: 800; background: rgba(249,115,22,0.2); border-color: #f97316; color: #fdba74;">전체 활동 타임라인</button>
+                <button type="button" id="admin-sf-tab-HOMEWORK" onclick="switchAdminStudentFolderSubTab('HOMEWORK')" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.76rem; font-weight: 800;">숙제 인증 사진</button>
+                <button type="button" id="admin-sf-tab-EXAM_PHOTO" onclick="switchAdminStudentFolderSubTab('EXAM_PHOTO')" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.76rem; font-weight: 800;">시험 성적표·시험지 사진</button>
+                <button type="button" id="admin-sf-tab-OMR" onclick="switchAdminStudentFolderSubTab('OMR')" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.76rem; font-weight: 800;">주간 모의고사 OMR 성적</button>
+                <button type="button" id="admin-sf-tab-ATTENDANCE" onclick="switchAdminStudentFolderSubTab('ATTENDANCE')" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.76rem; font-weight: 800;">출결 기록</button>
+                <button type="button" id="admin-sf-tab-HOLD_REQUEST" onclick="switchAdminStudentFolderSubTab('HOLD_REQUEST')" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.76rem; font-weight: 800;">내신 홀드·행정 신청</button>
+            </div>
+
+            <!-- 폴더 상세 콘텐츠 영역 -->
+            <div id="admin-sf-content-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 500px; overflow-y: auto; padding-right: 4px;">
+                <div style="text-align: center; color: #64748b; padding: 28px; font-size: 0.85rem;">학생 폴더 데이터를 불러오는 중...</div>
+            </div>
+        </div>
+    </div>
 <script>
 // ==============================================================================
 // 7. 주차별 시험·OMR 관제 & 등급컷/정답 센터 JS 컨트롤러
@@ -9118,9 +9246,536 @@ window.toggleAttendanceLogsDropdown = toggleAttendanceLogsDropdown;
 window.toggleStudentTableDropdown = toggleStudentTableDropdown;
 window.toggleExamSubmissionsDropdown = toggleExamSubmissionsDropdown;
 
+// ==============================================================================
+// 9. 원생별 활동 폴더 아카이브 & 실시간 숙제·시험결과·내신홀드 일괄 검수 컨트롤러
+// ==============================================================================
+let adminStudentFoldersCache = [];
+let adminFolderInboxCache = [];
+let currentAdminFolderStudentId = null;
+let currentAdminFolderData = null;
+let currentAdminFolderSubTab = 'ALL';
+
+function jumpToAdminStudentFoldersHub() {
+    switchAdminCockpitTab('tab-students');
+    setTimeout(() => {
+        const card = document.getElementById('admin-student-folders-hub-card');
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        loadAdminStudentFoldersOverview();
+    }, 100);
+}
+
+function switchAdminFolderHubMode(mode) {
+    const gridView = document.getElementById('admin-folders-grid-view');
+    const inboxView = document.getElementById('admin-folders-inbox-view');
+    const btnGrid = document.getElementById('btn-folder-mode-grid');
+    const btnInbox = document.getElementById('btn-folder-mode-inbox');
+
+    if (mode === 'INBOX') {
+        if (gridView) gridView.style.display = 'none';
+        if (inboxView) inboxView.style.display = 'block';
+        if (btnInbox) {
+            btnInbox.style.background = '#f97316';
+            btnInbox.style.color = '#fff';
+        }
+        if (btnGrid) {
+            btnGrid.style.background = 'rgba(255,255,255,0.06)';
+            btnGrid.style.color = '#cbd5e1';
+        }
+    } else {
+        if (gridView) gridView.style.display = 'block';
+        if (inboxView) inboxView.style.display = 'none';
+        if (btnGrid) {
+            btnGrid.style.background = '#f97316';
+            btnGrid.style.color = '#fff';
+        }
+        if (btnInbox) {
+            btnInbox.style.background = 'rgba(255,255,255,0.06)';
+            btnInbox.style.color = '#cbd5e1';
+        }
+    }
+}
+
+async function loadAdminStudentFoldersOverview() {
+    const typeFilter = document.getElementById('admin-inbox-type-filter')?.value || 'ALL';
+    const statusFilter = document.getElementById('admin-inbox-status-filter')?.value || 'ALL';
+    try {
+        const res = await fetch(`/api/admin/student-folders/overview?item_type=${encodeURIComponent(typeFilter)}&review_status=${encodeURIComponent(statusFilter)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const kpis = data.kpis || {};
+        const elFolders = document.getElementById('folder-kpi-total-students');
+        const elHw = document.getElementById('folder-kpi-total-hw');
+        const elExam = document.getElementById('folder-kpi-total-exam');
+        const elPending = document.getElementById('folder-kpi-pending-review');
+        const elHold = document.getElementById('folder-kpi-active-holds');
+
+        if (elFolders) elFolders.textContent = `${kpis.total_folders || 0}폴더`;
+        if (elHw) elHw.textContent = `${kpis.total_homework || 0}건`;
+        if (elExam) elExam.textContent = `${kpis.total_exam_photos || 0}건`;
+        if (elPending) elPending.textContent = `${kpis.pending_reviews || 0}건`;
+        if (elHold) elHold.textContent = `${kpis.active_holds || 0}명`;
+
+        adminStudentFoldersCache = data.folders || [];
+        adminFolderInboxCache = data.recent_submissions || [];
+
+        renderAdminStudentFoldersGrid();
+        renderAdminFolderInboxList();
+    } catch (e) {
+        console.error('Failed to load student folders overview:', e);
+    }
+}
+
+function filterAdminFolderGrid() {
+    renderAdminStudentFoldersGrid();
+}
+
+function renderAdminStudentFoldersGrid() {
+    const container = document.getElementById('admin-student-folders-grid');
+    if (!container) return;
+
+    const q = (document.getElementById('admin-folder-search-input')?.value || '').trim().toLowerCase();
+    const filtered = adminStudentFoldersCache.filter(f => {
+        if (!q) return true;
+        const hay = `${f.name || ''} ${f.school_name || ''} ${f.class_group || ''} ${f.student_code || ''}`.toLowerCase();
+        return hay.includes(q);
+    });
+
+    if (filtered.length === 0) {
+        container.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: #64748b; padding: 24px; font-size: 0.82rem;">조건에 맞는 원생 폴더가 없습니다.</div>`;
+        return;
+    }
+
+    container.innerHTML = filtered.map(f => {
+        const isHold = f.enrollment_status === 'ON_LEAVE' || (f.hold_active_count || 0) > 0;
+        const pendingBadge = f.pending_count > 0
+            ? `<span style="background: rgba(249,115,22,0.2); border: 1px solid #f97316; color: #fdba74; font-size: 0.68rem; font-weight: 900; padding: 2px 7px; border-radius: 999px;">미검수 ${f.pending_count}건</span>`
+            : `<span style="background: rgba(16,185,129,0.12); color: #34d399; font-size: 0.68rem; font-weight: 800; padding: 2px 7px; border-radius: 999px;">검수완료</span>`;
+        const holdBadge = isHold
+            ? `<span style="background: rgba(245,158,11,0.2); border: 1px solid rgba(245,158,11,0.5); color: #fde047; font-size: 0.68rem; font-weight: 900; padding: 2px 7px; border-radius: 999px;">내신 홀드중</span>`
+            : '';
+
+        return `
+            <div onclick="openAdminStudentFolderModal(${f.student_id})" style="cursor: pointer; background: rgba(15,23,42,0.85); border: 1px solid ${f.pending_count > 0 ? 'rgba(249,115,22,0.5)' : 'rgba(255,255,255,0.08)'}; border-radius: 12px; padding: 13px 14px; transition: all 0.18s ease; display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 6px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 1.35rem;">📁</span>
+                        <div>
+                            <div style="font-size: 0.92rem; font-weight: 900; color: #f8fafc;">${f.name}</div>
+                            <div style="font-size: 0.72rem; color: #94a3b8;">${f.school_name || '학교미입력'} · ${f.grade || '-'} · ${f.class_group || '반미배정'}</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                        ${pendingBadge}
+                        ${holdBadge}
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; background: rgba(2,6,23,0.55); padding: 7px 8px; border-radius: 8px; font-size: 0.72rem;">
+                    <div style="text-align: center;">
+                        <div style="color: #94a3b8; font-size: 0.66rem;">숙제인증</div>
+                        <div style="color: #34d399; font-weight: 900;">${f.homework_count || 0}건</div>
+                    </div>
+                    <div style="text-align: center; border-left: 1px solid rgba(255,255,255,0.06); border-right: 1px solid rgba(255,255,255,0.06);">
+                        <div style="color: #94a3b8; font-size: 0.66rem;">시험사진</div>
+                        <div style="color: #38bdf8; font-weight: 900;">${f.exam_photo_count || 0}건</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="color: #94a3b8; font-size: 0.66rem;">주간OMR</div>
+                        <div style="color: #c084fc; font-weight: 900;">${f.omr_count || 0}회</div>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.69rem; color: #64748b;">
+                    <span>최근 업데이트: ${f.latest_activity_at || '기록 없음'}</span>
+                    <span style="color: #fb923c; font-weight: 800;">폴더 열기 →</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderAdminFolderInboxList() {
+    const container = document.getElementById('admin-folder-inbox-list');
+    if (!container) return;
+
+    if (!adminFolderInboxCache || adminFolderInboxCache.length === 0) {
+        container.innerHTML = `<div style="text-align: center; color: #64748b; padding: 24px; font-size: 0.82rem;">현재 필터 조건에 해당하는 제출/신청 내역이 없습니다.</div>`;
+        return;
+    }
+
+    const typeLabelMap = {
+        HOMEWORK: { label: '숙제 인증', color: '#34d399', bg: 'rgba(16,185,129,0.14)' },
+        EXAM_PHOTO: { label: '시험결과·성적표', color: '#38bdf8', bg: 'rgba(56,189,248,0.14)' },
+        HOLD_REQUEST: { label: '내신 홀드 신청', color: '#fde047', bg: 'rgba(245,158,11,0.18)' },
+        TEACHER_NOTE: { label: '원장님 기록', color: '#fdba74', bg: 'rgba(249,115,22,0.15)' }
+    };
+
+    container.innerHTML = adminFolderInboxCache.map(item => {
+        const tMeta = typeLabelMap[item.item_type] || { label: item.item_type, color: '#cbd5e1', bg: 'rgba(255,255,255,0.08)' };
+        const isPending = item.review_status === 'PENDING' || item.review_status === 'HOLD_ACTIVE';
+        const statusBadge = item.review_status === 'VERIFIED'
+            ? `<span style="background: rgba(16,185,129,0.16); color: #34d399; padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: 800;">검수완료</span>`
+            : item.review_status === 'HOLD_ACTIVE'
+                ? `<span style="background: rgba(245,158,11,0.2); color: #fde047; padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: 900;">내신 홀드 적용중</span>`
+                : item.review_status === 'HOLD_COMPLETED'
+                    ? `<span style="background: rgba(148,163,184,0.2); color: #cbd5e1; padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: 800;">홀드 해제(복귀완료)</span>`
+                    : `<span style="background: rgba(249,115,22,0.2); color: #fb923c; padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: 900;">미검수 대기</span>`;
+
+        const holdInfoHtml = item.item_type === 'HOLD_REQUEST'
+            ? `<div style="margin-top: 4px; font-size: 0.76rem; color: #fde047; font-weight: 800;">신청 홀드 기간: ${item.hold_start_date || '미지정'} ~ ${item.hold_end_date || '미지정'}</div>`
+            : '';
+
+        const scoreInfoHtml = (item.exam_score !== null && item.exam_score !== undefined) || item.exam_grade
+            ? `<div style="margin-top: 4px; font-size: 0.76rem; color: #38bdf8; font-weight: 800;">시험 점수/등급: ${item.exam_score ?? '-'}점 / ${item.exam_grade ?? '-'}등급</div>`
+            : '';
+
+        const photoHtml = item.attachment_data
+            ? `<a href="${item.attachment_data}" target="_blank" style="display: inline-block; margin-top: 6px;"><img src="${item.attachment_data}" alt="첨부 이미지" style="max-height: 92px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.18); object-fit: cover;"></a>`
+            : '';
+
+        return `
+            <div style="background: rgba(15,23,42,0.88); border: 1px solid ${isPending ? 'rgba(249,115,22,0.4)' : 'rgba(255,255,255,0.08)'}; border-radius: 10px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: flex-start; gap: 10px; flex: 1; min-width: 260px;">
+                    <input type="checkbox" class="admin-inbox-item-checkbox" value="${item.id}" style="margin-top: 4px; accent-color: #f97316; cursor: pointer;">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <span style="background: ${tMeta.bg}; color: ${tMeta.color}; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 900;">${tMeta.label}</span>
+                            <strong onclick="openAdminStudentFolderModal(${item.student_id})" style="cursor: pointer; color: #fff; font-size: 0.88rem; text-decoration: underline;">${item.student_name} (${item.school_name || '-'} · ${item.class_group || '-'})</strong>
+                            <span style="font-size: 0.73rem; color: #94a3b8;">${item.week_label || '상시'}</span>
+                            ${statusBadge}
+                            <span style="font-size: 0.7rem; color: #64748b;">${item.created_at || ''}</span>
+                        </div>
+                        <div style="margin-top: 5px; font-size: 0.84rem; font-weight: 800; color: #e2e8f0;">${item.title || ''}</div>
+                        ${item.content ? `<div style="margin-top: 3px; font-size: 0.78rem; color: #94a3b8; white-space: pre-wrap;">${item.content}</div>` : ''}
+                        ${holdInfoHtml}
+                        ${scoreInfoHtml}
+                        ${photoHtml}
+                        ${item.director_feedback ? `<div style="margin-top: 6px; font-size: 0.75rem; color: #fdba74; background: rgba(249,115,22,0.1); padding: 5px 8px; border-radius: 6px;">원장님 코멘트: ${item.director_feedback}</div>` : ''}
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px; min-width: 210px;">
+                    <input type="text" id="admin-inbox-fb-${item.id}" value="${(item.director_feedback || '').replace(/"/g, '&quot;')}" placeholder="원장님 한줄 피드백 (선택)" style="padding: 6px 9px; border-radius: 6px; background: #020617; border: 1px solid #334155; color: #fff; font-size: 0.74rem;">
+                    <div style="display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap;">
+                        ${item.item_type === 'HOLD_REQUEST' ? `
+                            <button type="button" onclick="handleReviewFolderItem(${item.id}, 'HOLD_ACTIVE')" class="btn" style="padding: 5px 10px; font-size: 0.72rem; font-weight: 900; background: #f59e0b; color: #000; border: none;">홀드 승인</button>
+                            <button type="button" onclick="handleReviewFolderItem(${item.id}, 'HOLD_COMPLETED')" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.72rem; font-weight: 800;">복귀(해제)</button>
+                        ` : `
+                            <button type="button" onclick="handleReviewFolderItem(${item.id}, 'VERIFIED')" class="btn" style="padding: 5px 12px; font-size: 0.72rem; font-weight: 900; background: #10b981; color: #022c22; border: none;">검수 완료</button>
+                        `}
+                        <button type="button" onclick="openAdminStudentFolderModal(${item.student_id})" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.72rem; font-weight: 800;">폴더 열기</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function toggleAdminInboxSelectAll(checked) {
+    document.querySelectorAll('.admin-inbox-item-checkbox').forEach(cb => {
+        cb.checked = checked;
+    });
+}
+
+async function handleReviewFolderItem(itemId, nextStatus) {
+    const fbInput = document.getElementById(`admin-inbox-fb-${itemId}`) || document.getElementById(`admin-sf-item-fb-${itemId}`);
+    const directorFeedback = fbInput ? fbInput.value.trim() : '';
+    try {
+        const res = await fetch(`/api/admin/student-folder/items/${itemId}/review`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                review_status: nextStatus,
+                director_feedback: directorFeedback || undefined
+            })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            alert(data.detail || '검수 상태 변경에 실패했습니다.');
+            return;
+        }
+        await loadAdminStudentFoldersOverview();
+        if (currentAdminFolderStudentId) {
+            await openAdminStudentFolderModal(currentAdminFolderStudentId, true);
+        }
+    } catch (e) {
+        console.error(e);
+        alert('검수 처리 중 오류가 발생했습니다.');
+    }
+}
+
+async function handleBatchVerifyFolderItems() {
+    const checkedIds = Array.from(document.querySelectorAll('.admin-inbox-item-checkbox:checked'))
+        .map(cb => parseInt(cb.value, 10))
+        .filter(n => !isNaN(n));
+
+    if (checkedIds.length === 0) {
+        alert('일괄 검수할 항목을 먼저 체크해주세요.');
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/admin/student-folder/batch-review', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                item_ids: checkedIds,
+                review_status: 'VERIFIED',
+                director_feedback: '원장님 일괄 확인 완료'
+            })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            alert(data.detail || '일괄 검수에 실패했습니다.');
+            return;
+        }
+        const selectAll = document.getElementById('admin-inbox-select-all');
+        if (selectAll) selectAll.checked = false;
+        await loadAdminStudentFoldersOverview();
+    } catch (e) {
+        console.error(e);
+        alert('일괄 검수 처리 중 오류가 발생했습니다.');
+    }
+}
+
+async function openAdminStudentFolderModal(studentId, keepSubTab = false) {
+    currentAdminFolderStudentId = studentId;
+    if (!keepSubTab) currentAdminFolderSubTab = 'ALL';
+
+    const modal = document.getElementById('admin-student-folder-modal');
+    if (modal) modal.style.display = 'flex';
+
+    const dossierBtn = document.getElementById('admin-sf-open-dossier-btn');
+    if (dossierBtn) {
+        dossierBtn.onclick = () => {
+            closeAdminStudentFolderModal();
+            if (typeof openStudentDossierModal === 'function') {
+                openStudentDossierModal(studentId);
+            }
+        };
+    }
+
+    try {
+        const res = await fetch(`/api/student-folder/student/${studentId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        currentAdminFolderData = data;
+
+        const st = data.student || {};
+        const sum = data.summary || {};
+        const titleEl = document.getElementById('admin-sf-title');
+        const badgeEl = document.getElementById('admin-sf-meta-badge');
+        if (titleEl) titleEl.textContent = `📁 ${st.name || '원생'} 개별 활동 폴더`;
+        if (badgeEl) badgeEl.textContent = `${st.school_name || '학교미입력'} · ${st.grade || '-'} · ${st.class_group || '반미배정'} · 코드 ${st.student_code || '-'}`;
+
+        const elHw = document.getElementById('admin-sf-stat-hw');
+        const elExam = document.getElementById('admin-sf-stat-exam');
+        const elOmr = document.getElementById('admin-sf-stat-omr');
+        const elHold = document.getElementById('admin-sf-stat-hold');
+        const elPend = document.getElementById('admin-sf-stat-pending');
+        if (elHw) elHw.textContent = `${sum.homework_count || 0}건`;
+        if (elExam) elExam.textContent = `${sum.exam_photo_count || 0}건`;
+        if (elOmr) elOmr.textContent = `${sum.omr_exam_count || 0}회`;
+        if (elHold) elHold.textContent = `${sum.hold_request_count || 0}건`;
+        if (elPend) elPend.textContent = `${sum.pending_review_count || 0}건`;
+
+        switchAdminStudentFolderSubTab(currentAdminFolderSubTab);
+    } catch (e) {
+        console.error('Failed to open student folder modal:', e);
+    }
+}
+
+function closeAdminStudentFolderModal() {
+    const modal = document.getElementById('admin-student-folder-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function switchAdminStudentFolderSubTab(tab) {
+    currentAdminFolderSubTab = tab;
+    const tabs = ['ALL', 'HOMEWORK', 'EXAM_PHOTO', 'OMR', 'ATTENDANCE', 'HOLD_REQUEST'];
+    tabs.forEach(t => {
+        const btn = document.getElementById(`admin-sf-tab-${t}`);
+        if (!btn) return;
+        if (t === tab) {
+            btn.style.background = 'rgba(249,115,22,0.2)';
+            btn.style.borderColor = '#f97316';
+            btn.style.color = '#fdba74';
+        } else {
+            btn.style.background = 'rgba(255,255,255,0.05)';
+            btn.style.borderColor = 'rgba(255,255,255,0.1)';
+            btn.style.color = '#cbd5e1';
+        }
+    });
+    renderAdminStudentFolderModalContent();
+}
+
+function renderAdminStudentFolderModalContent() {
+    const container = document.getElementById('admin-sf-content-list');
+    if (!container || !currentAdminFolderData) return;
+
+    const items = currentAdminFolderData.folder_items || [];
+    const omrs = currentAdminFolderData.omr_submissions || [];
+    const attLogs = currentAdminFolderData.attendance_logs || [];
+    const tab = currentAdminFolderSubTab;
+
+    const blocks = [];
+
+    if (tab === 'ALL' || tab === 'HOMEWORK' || tab === 'EXAM_PHOTO' || tab === 'HOLD_REQUEST') {
+        const filteredItems = items.filter(it => {
+            if (tab === 'ALL') return true;
+            return it.item_type === tab;
+        });
+
+        filteredItems.forEach(item => {
+            const photoHtml = item.attachment_data
+                ? `<div style="margin-top: 8px;"><a href="${item.attachment_data}" target="_blank"><img src="${item.attachment_data}" alt="첨부사진" style="max-height: 150px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.18);"></a></div>`
+                : '';
+            const holdPeriod = item.item_type === 'HOLD_REQUEST'
+                ? `<div style="margin-top: 4px; font-size: 0.76rem; color: #fde047; font-weight: 800;">신청 홀드 기간: ${item.hold_start_date || '-'} ~ ${item.hold_end_date || '-'}</div>`
+                : '';
+            const examMeta = (item.exam_score !== null && item.exam_score !== undefined) || item.exam_grade
+                ? `<div style="margin-top: 4px; font-size: 0.76rem; color: #38bdf8; font-weight: 800;">점수/등급: ${item.exam_score ?? '-'}점 (${item.exam_grade ?? '-'}등급)</div>`
+                : '';
+
+            blocks.push(`
+                <div style="background: rgba(2,6,23,0.72); border: 1px solid rgba(255,255,255,0.09); border-radius: 10px; padding: 12px 14px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 240px;">
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <span style="font-size: 0.7rem; font-weight: 900; padding: 2px 8px; border-radius: 6px; background: rgba(249,115,22,0.16); color: #fdba74;">${item.item_type}</span>
+                            <span style="font-size: 0.74rem; color: #94a3b8;">${item.week_label || '상시'}</span>
+                            <span style="font-size: 0.72rem; color: #34d399; font-weight: 800;">[${item.review_status}]</span>
+                            <span style="font-size: 0.7rem; color: #64748b;">${item.created_at || ''}</span>
+                        </div>
+                        <div style="margin-top: 5px; font-size: 0.86rem; font-weight: 800; color: #fff;">${item.title || ''}</div>
+                        ${item.content ? `<div style="margin-top: 3px; font-size: 0.78rem; color: #cbd5e1; white-space: pre-wrap;">${item.content}</div>` : ''}
+                        ${holdPeriod}
+                        ${examMeta}
+                        ${photoHtml}
+                        ${item.director_feedback ? `<div style="margin-top: 6px; font-size: 0.75rem; color: #fdba74;">원장님 피드백: ${item.director_feedback}</div>` : ''}
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px; min-width: 210px;">
+                        <input type="text" id="admin-sf-item-fb-${item.id}" value="${(item.director_feedback || '').replace(/"/g, '&quot;')}" placeholder="피드백 입력/수정" style="padding: 6px 9px; border-radius: 6px; background: #0f172a; border: 1px solid #334155; color: #fff; font-size: 0.74rem;">
+                        <div style="display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap;">
+                            ${item.item_type === 'HOLD_REQUEST' ? `
+                                <button type="button" onclick="handleReviewFolderItem(${item.id}, 'HOLD_ACTIVE')" class="btn" style="padding: 5px 9px; font-size: 0.72rem; font-weight: 900; background: #f59e0b; color: #000; border: none;">홀드 승인</button>
+                                <button type="button" onclick="handleReviewFolderItem(${item.id}, 'HOLD_COMPLETED')" class="btn btn-secondary" style="padding: 5px 9px; font-size: 0.72rem; font-weight: 800;">홀드 해제</button>
+                            ` : `
+                                <button type="button" onclick="handleReviewFolderItem(${item.id}, 'VERIFIED')" class="btn" style="padding: 5px 10px; font-size: 0.72rem; font-weight: 900; background: #10b981; color: #022c22; border: none;">검수 완료</button>
+                            `}
+                            <button type="button" onclick="deleteAdminStudentFolderItem(${item.id})" class="btn btn-secondary" style="padding: 5px 9px; font-size: 0.72rem; color: #f87171;">삭제</button>
+                        </div>
+                    </div>
+                </div>
+            `);
+        });
+    }
+
+    if (tab === 'ALL' || tab === 'OMR') {
+        omrs.forEach(o => {
+            blocks.push(`
+                <div style="background: rgba(168,85,247,0.07); border: 1px solid rgba(168,85,247,0.25); border-radius: 10px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                    <div>
+                        <span style="font-size: 0.7rem; font-weight: 900; color: #d8b4fe; background: rgba(168,85,247,0.2); padding: 2px 8px; border-radius: 6px;">주간 모의고사 OMR</span>
+                        <strong style="margin-left: 8px; color: #fff; font-size: 0.85rem;">${o.week_label} (${o.subject})</strong>
+                        <span style="margin-left: 8px; font-size: 0.75rem; color: #94a3b8;">오답 문항: ${(o.wrong_questions || []).join(', ') || '없음(만점)'}</span>
+                    </div>
+                    <div style="font-size: 0.85rem; font-weight: 900; color: #e9d5ff;">
+                        원점수 ${o.raw_score}점 · ${o.calculated_grade || '-'}등급 <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 600;">(${o.submitted_at || ''})</span>
+                    </div>
+                </div>
+            `);
+        });
+    }
+
+    if (tab === 'ALL' || tab === 'ATTENDANCE') {
+        attLogs.forEach(a => {
+            blocks.push(`
+                <div style="background: rgba(56,189,248,0.06); border: 1px solid rgba(56,189,248,0.2); border-radius: 10px; padding: 9px 14px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <span style="font-size: 0.7rem; font-weight: 900; color: #7dd3fc; background: rgba(56,189,248,0.15); padding: 2px 8px; border-radius: 6px;">출결 기록</span>
+                        <strong style="margin-left: 8px; color: #fff; font-size: 0.82rem;">상태: ${a.status}</strong>
+                        ${a.memo ? `<span style="margin-left: 8px; font-size: 0.75rem; color: #94a3b8;">(${a.memo})</span>` : ''}
+                    </div>
+                    <div style="font-size: 0.74rem; color: #94a3b8;">${a.check_in_time || ''}</div>
+                </div>
+            `);
+        });
+    }
+
+    if (blocks.length === 0) {
+        container.innerHTML = `<div style="text-align: center; color: #64748b; padding: 28px; font-size: 0.84rem;">이 카테고리에 저장된 활동 내역이 아직 없습니다.</div>`;
+    } else {
+        container.innerHTML = blocks.join('');
+    }
+}
+
+async function handleAdminAddNoteToStudentFolder() {
+    if (!currentAdminFolderStudentId) return;
+    const titleEl = document.getElementById('admin-sf-note-title');
+    const contentEl = document.getElementById('admin-sf-note-content');
+    const title = (titleEl?.value || '').trim();
+    const content = (contentEl?.value || '').trim();
+    if (!title) {
+        alert('폴더에 기록할 메모 제목을 입력해주세요.');
+        return;
+    }
+    try {
+        const res = await fetch('/api/student-folder/items', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                student_id: currentAdminFolderStudentId,
+                item_type: 'TEACHER_NOTE',
+                week_label: '원장님 기록',
+                title,
+                content,
+                director_feedback: content
+            })
+        });
+        if (!res.ok) {
+            alert('폴더 기록 저장에 실패했습니다.');
+            return;
+        }
+        if (titleEl) titleEl.value = '';
+        if (contentEl) contentEl.value = '';
+        await openAdminStudentFolderModal(currentAdminFolderStudentId, true);
+        await loadAdminStudentFoldersOverview();
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function deleteAdminStudentFolderItem(itemId) {
+    if (!confirm('이 폴더 항목을 아카이브(보관 삭제) 처리하시겠습니까?')) return;
+    try {
+        const res = await fetch(`/api/student-folder/items/${itemId}`, { method: 'DELETE' });
+        if (res.ok) {
+            if (currentAdminFolderStudentId) {
+                await openAdminStudentFolderModal(currentAdminFolderStudentId, true);
+            }
+            await loadAdminStudentFoldersOverview();
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+window.jumpToAdminStudentFoldersHub = jumpToAdminStudentFoldersHub;
+window.switchAdminFolderHubMode = switchAdminFolderHubMode;
+window.filterAdminFolderGrid = filterAdminFolderGrid;
+window.loadAdminStudentFoldersOverview = loadAdminStudentFoldersOverview;
+window.toggleAdminInboxSelectAll = toggleAdminInboxSelectAll;
+window.handleReviewFolderItem = handleReviewFolderItem;
+window.handleBatchVerifyFolderItems = handleBatchVerifyFolderItems;
+window.openAdminStudentFolderModal = openAdminStudentFolderModal;
+window.closeAdminStudentFolderModal = closeAdminStudentFolderModal;
+window.switchAdminStudentFolderSubTab = switchAdminStudentFolderSubTab;
+window.handleAdminAddNoteToStudentFolder = handleAdminAddNoteToStudentFolder;
+window.deleteAdminStudentFolderItem = deleteAdminStudentFolderItem;
+
 document.addEventListener('DOMContentLoaded', () => {
-    const savedTheme = localStorage.getItem('palin_theme') || 'original';
-    document.documentElement.setAttribute('data-theme', savedTheme);
+    localStorage.removeItem('palin_theme');
+    document.documentElement.removeAttribute('data-theme');
+    setTimeout(() => {
+        loadAdminStudentFoldersOverview();
+    }, 600);
 });
 </script>
 </body>

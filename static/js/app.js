@@ -14936,8 +14936,9 @@ async function handleSendAcademyLeave(e) {
     }
 
     const reason = document.getElementById("leave-reason-select").value;
-
     const details = document.getElementById("leave-details-input").value.trim();
+    const holdStartDate = document.getElementById("leave-start-date-input")?.value || null;
+    const holdEndDate = document.getElementById("leave-end-date-input")?.value || null;
 
     try {
 
@@ -14953,7 +14954,11 @@ async function handleSendAcademyLeave(e) {
 
                 leave_reason: reason,
 
-                details: details
+                details: details,
+
+                hold_start_date: holdStartDate,
+
+                hold_end_date: holdEndDate
 
             })
 
@@ -15067,7 +15072,7 @@ async function checkInAttendanceNow() {
 
 // ============================================================================
 
-// [Phase 1~5] 학생용 학원 관리 서브탭 (피드 / VOD / 시험 / 행정) 전환 및 OMR 엔진
+// [Phase 1~5] 학생용 학원 관리 서브탭 (피드 / VOD / 시험 / 행정 / 개별폴더) 전환 및 OMR 엔진
 
 // ============================================================================
 
@@ -15102,6 +15107,9 @@ function switchHubSubTab(subTab) {
         loadStudentExamHistory();
         renderDigitalOmrPad();
     }
+    else if (subTab === "folder") {
+        loadMyStudentDigitalFolder();
+    }
     else if (subTab === "seat") {
         loadStudentAcademySeats();
         window.studentSeatPollInterval = setInterval(() => {
@@ -15114,6 +15122,337 @@ function switchHubSubTab(subTab) {
         }, 8000);
     }
 }
+
+// ============================================================================
+// [신규] 학생별 개별 디지털 폴더 (숙제 인증 · 시험결과 사진 · 내신 홀드 신청) 컨트롤러
+// ============================================================================
+let currentStudentFolderData = null;
+let currentStudentFolderFilter = "ALL";
+let currentStudentFolderPhotoBase64 = null;
+let currentStudentFolderPhotoName = null;
+
+function switchStudentFolderUploadMode(mode) {
+    const typeInput = document.getElementById("sf-item-type");
+    if (typeInput) typeInput.value = mode;
+
+    ["HOMEWORK", "EXAM_PHOTO", "HOLD_REQUEST"].forEach(m => {
+        const btn = document.getElementById(`sf-mode-btn-${m}`);
+        if (!btn) return;
+        if (m === mode) {
+            btn.className = "btn";
+            btn.style.background = m === "HOLD_REQUEST"
+                ? "linear-gradient(135deg, #f59e0b, #d97706)"
+                : (m === "EXAM_PHOTO" ? "linear-gradient(135deg, #10b981, #059669)" : "linear-gradient(135deg, #6366f1, #4f46e5)");
+            btn.style.color = "#ffffff";
+        } else {
+            btn.className = "btn btn-secondary";
+            btn.style.background = "";
+            btn.style.color = "";
+        }
+    });
+
+    const guide = document.getElementById("sf-mode-guide-banner");
+    const stageSel = document.getElementById("sf-curriculum-stage");
+    const weekLabel = document.getElementById("sf-week-label");
+    const scoreWrap = document.getElementById("sf-score-summary-wrap");
+    const holdDatesWrap = document.getElementById("sf-hold-dates-wrap");
+    const photoBox = document.getElementById("sf-photo-upload-box");
+    const titleInput = document.getElementById("sf-title-input");
+    const submitBtn = document.getElementById("sf-submit-btn");
+
+    if (mode === "HOMEWORK") {
+        if (guide) guide.innerText = "하루 1~1.5시간 분량의 기출 분석 숙제를 완료한 뒤 사진을 촬영하여 업로드하면 내 폴더에 자동 기록되며 원장님이 일괄 확인합니다.";
+        if (stageSel) stageSel.value = "수능국어 방법론 (8주)";
+        if (weekLabel) { weekLabel.placeholder = "예: 방법론 3주차 / 실전 2주차"; if (!weekLabel.value || weekLabel.value.includes("고사")) weekLabel.value = "1주차"; }
+        if (scoreWrap) scoreWrap.style.display = "none";
+        if (holdDatesWrap) holdDatesWrap.style.display = "none";
+        if (photoBox) photoBox.style.display = "block";
+        if (titleInput) titleInput.placeholder = "예: 방법론 1주차 일일 기출분석 숙제 완료 인증";
+        if (submitBtn) {
+            submitBtn.innerText = "내 디지털 폴더에 숙제 업로드";
+            submitBtn.style.background = "linear-gradient(135deg, #6366f1, #4f46e5)";
+        }
+    } else if (mode === "EXAM_PHOTO") {
+        if (guide) guide.innerText = "학원 실전 모의고사, 평가원/교육청 모의고사 또는 학교 내신 시험지·성적표 사진을 업로드하면 내 폴더에 누적 보관됩니다.";
+        if (stageSel) stageSel.value = "모의고사/내신 성적";
+        if (weekLabel) { weekLabel.placeholder = "예: 6월 평가원 / 실전 4주차 / 1학기 중간"; weekLabel.value = "실전 모의고사"; }
+        if (scoreWrap) scoreWrap.style.display = "block";
+        if (holdDatesWrap) holdDatesWrap.style.display = "none";
+        if (photoBox) photoBox.style.display = "block";
+        if (titleInput) titleInput.placeholder = "예: 6월 평가원 모의고사 국어 시험지 및 성적표";
+        if (submitBtn) {
+            submitBtn.innerText = "내 디지털 폴더에 시험결과 업로드";
+            submitBtn.style.background = "linear-gradient(135deg, #10b981, #059669)";
+        }
+    } else if (mode === "HOLD_REQUEST") {
+        if (guide) guide.innerText = "내신도 함께 챙겨야 하는 학생들은 희망하는 홀드 기간을 신청하시면 원장님 확인 후 그 기간만큼 수강 홀드 처리됩니다.";
+        if (stageSel) stageSel.value = "내신 기간 홀드";
+        if (weekLabel) { weekLabel.placeholder = "예: 1학기 중간고사 / 1학기 기말고사"; weekLabel.value = "내신 대비 홀드"; }
+        if (scoreWrap) scoreWrap.style.display = "none";
+        if (holdDatesWrap) holdDatesWrap.style.display = "grid";
+        if (photoBox) photoBox.style.display = "none";
+        if (titleInput) titleInput.placeholder = "예: 1학기 중간고사 내신 집중 대비 수강 홀드 신청";
+        if (submitBtn) {
+            submitBtn.innerText = "내신 기간 수강 홀드 신청하기";
+            submitBtn.style.background = "linear-gradient(135deg, #f59e0b, #d97706)";
+        }
+    }
+}
+
+function handleStudentFolderPhotoPreview(inputEl) {
+    if (!inputEl || !inputEl.files || !inputEl.files[0]) return;
+    const file = inputEl.files[0];
+    currentStudentFolderPhotoName = file.name;
+
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+        const rawDataUrl = evt.target.result;
+        const img = new Image();
+        img.onload = function() {
+            const maxDim = 1280;
+            let w = img.width;
+            let h = img.height;
+            if (w > maxDim || h > maxDim) {
+                if (w > h) { h = Math.round(h * (maxDim / w)); w = maxDim; }
+                else { w = Math.round(w * (maxDim / h)); h = maxDim; }
+            }
+            const canvas = document.createElement("canvas");
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, w, h);
+            currentStudentFolderPhotoBase64 = canvas.toDataURL("image/jpeg", 0.82);
+            const prevWrap = document.getElementById("sf-photo-preview-wrap");
+            const prevImg = document.getElementById("sf-photo-preview-img");
+            if (prevImg) prevImg.src = currentStudentFolderPhotoBase64;
+            if (prevWrap) prevWrap.style.display = "block";
+        };
+        img.onerror = function() {
+            currentStudentFolderPhotoBase64 = rawDataUrl;
+            const prevWrap = document.getElementById("sf-photo-preview-wrap");
+            const prevImg = document.getElementById("sf-photo-preview-img");
+            if (prevImg) prevImg.src = rawDataUrl;
+            if (prevWrap) prevWrap.style.display = "block";
+        };
+        img.src = rawDataUrl;
+    };
+    reader.readAsDataURL(file);
+}
+
+function clearStudentFolderPhotoPreview() {
+    currentStudentFolderPhotoBase64 = null;
+    currentStudentFolderPhotoName = null;
+    const fileInput = document.getElementById("sf-photo-file-input");
+    if (fileInput) fileInput.value = "";
+    const prevWrap = document.getElementById("sf-photo-preview-wrap");
+    if (prevWrap) prevWrap.style.display = "none";
+}
+
+async function handleSubmitStudentFolderItem(e) {
+    e.preventDefault();
+    if (!currentStudent || !currentStudent.id) {
+        alert("로그인 후 이용해 주세요.");
+        return;
+    }
+    if (isDemoMode || currentStudent?.id === 9999) {
+        alert("[체험 모드] 학생 개별 디지털 폴더 업로드 시뮬레이션이 완료되었습니다.");
+        return;
+    }
+
+    const itemType = document.getElementById("sf-item-type")?.value || "HOMEWORK";
+    const stage = document.getElementById("sf-curriculum-stage")?.value || "수능국어 방법론 (8주)";
+    const weekLabel = document.getElementById("sf-week-label")?.value.trim() || "1주차";
+    const title = document.getElementById("sf-title-input")?.value.trim() || "";
+    const content = document.getElementById("sf-content-input")?.value.trim() || "";
+    const scoreSummary = document.getElementById("sf-score-summary")?.value.trim() || "";
+    const holdStart = document.getElementById("sf-hold-start-date")?.value || null;
+    const holdEnd = document.getElementById("sf-hold-end-date")?.value || null;
+
+    if (!title) {
+        alert("항목 제목을 입력해 주세요.");
+        return;
+    }
+    if (itemType === "HOLD_REQUEST" && (!holdStart || !holdEnd)) {
+        alert("내신 홀드 시작 희망일과 종료(복귀) 예정일을 선택해 주세요.");
+        return;
+    }
+
+    try {
+        const res = await fetch("/api/student-folder/items", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: currentStudent.id,
+                item_type: itemType,
+                curriculum_stage: stage,
+                week_label: weekLabel,
+                title: title,
+                content: content,
+                score_summary: scoreSummary,
+                hold_start_date: holdStart,
+                hold_end_date: holdEnd,
+                image_data: currentStudentFolderPhotoBase64,
+                file_name: currentStudentFolderPhotoName
+            })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            alert(data.message || "내 디지털 폴더에 저장되었습니다.");
+            document.getElementById("sf-title-input").value = "";
+            document.getElementById("sf-content-input").value = "";
+            if (document.getElementById("sf-score-summary")) document.getElementById("sf-score-summary").value = "";
+            clearStudentFolderPhotoPreview();
+            await loadMyStudentDigitalFolder();
+        } else {
+            const err = await res.json().catch(() => ({}));
+            alert(err.detail || "업로드 저장에 실패했습니다.");
+        }
+    } catch (err) {
+        alert("네트워크 오류로 저장하지 못했습니다.");
+    }
+}
+
+async function loadMyStudentDigitalFolder() {
+    const listEl = document.getElementById("student-folder-timeline-list");
+    if (!listEl) return;
+    if (!currentStudent || !currentStudent.id) return;
+
+    const headerTitle = document.getElementById("sf-header-folder-title");
+    if (headerTitle && currentStudent.name) {
+        headerTitle.innerText = `${currentStudent.name} 학생 전용 디지털 폴더`;
+    }
+
+    try {
+        const res = await fetch(`/api/student-folder/student/${currentStudent.id}`);
+        if (!res.ok) throw new Error("Failed to load folder");
+        const data = await res.json();
+        currentStudentFolderData = data;
+
+        const sum = data.summary || {};
+        const hwEl = document.getElementById("sf-stat-homework");
+        const exEl = document.getElementById("sf-stat-exam");
+        const hdEl = document.getElementById("sf-stat-hold");
+        const fbEl = document.getElementById("sf-stat-feedback");
+        if (hwEl) hwEl.innerText = `${sum.homework_count || 0}건`;
+        if (exEl) exEl.innerText = `${(sum.exam_photo_count || 0) + (sum.omr_exam_count || 0)}건`;
+        if (hdEl) hdEl.innerText = `${sum.hold_request_count || 0}건`;
+        if (fbEl) fbEl.innerText = `${sum.feedback_count || 0}건`;
+
+        renderMyStudentFolderTimeline();
+    } catch (e) {
+        listEl.innerHTML = `<div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 18px;">폴더 데이터를 불러오지 못했습니다.</div>`;
+    }
+}
+
+function filterMyStudentFolder(filterType) {
+    currentStudentFolderFilter = filterType;
+    ["ALL", "HOMEWORK", "EXAM_PHOTO", "HOLD_REQUEST"].forEach(t => {
+        const btn = document.getElementById(`sf-filter-${t}`);
+        if (!btn) return;
+        if (t === filterType) {
+            btn.className = "btn";
+            btn.style.background = "#6366f1";
+            btn.style.color = "#ffffff";
+        } else {
+            btn.className = "btn btn-secondary";
+            btn.style.background = "";
+            btn.style.color = "";
+        }
+    });
+    renderMyStudentFolderTimeline();
+}
+
+function renderMyStudentFolderTimeline() {
+    const listEl = document.getElementById("student-folder-timeline-list");
+    if (!listEl) return;
+    const items = (currentStudentFolderData && currentStudentFolderData.items) ? currentStudentFolderData.items : [];
+    const filtered = currentStudentFolderFilter === "ALL"
+        ? items
+        : items.filter(x => x.item_type === currentStudentFolderFilter);
+
+    if (filtered.length === 0) {
+        listEl.innerHTML = `<div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 22px; background: rgba(255,255,255,0.02); border-radius: 10px; border: 1px dashed rgba(255,255,255,0.1);">아직 등록된 폴더 항목이 없습니다. 위에서 숙제 사진, 시험결과 사진 또는 내신 홀드 신청을 등록해 보세요.</div>`;
+        return;
+    }
+
+    const typeBadgeMap = {
+        "HOMEWORK": { label: "숙제 인증", bg: "rgba(99, 102, 241, 0.2)", color: "#818cf8" },
+        "EXAM_PHOTO": { label: "시험결과", bg: "rgba(16, 185, 129, 0.2)", color: "#34d399" },
+        "HOLD_REQUEST": { label: "내신/일정 홀드", bg: "rgba(245, 158, 11, 0.2)", color: "#fbbf24" },
+        "DIRECTOR_NOTE": { label: "원장님 기록", bg: "rgba(56, 189, 248, 0.2)", color: "#38bdf8" }
+    };
+
+    const statusBadgeMap = {
+        "SUBMITTED": { label: "원장 확인 대기", bg: "rgba(148, 163, 184, 0.2)", color: "#cbd5e1" },
+        "VERIFIED": { label: "원장 검수완료", bg: "rgba(16, 185, 129, 0.2)", color: "#34d399" },
+        "HOLD_ACTIVE": { label: "홀드 승인·적용중", bg: "rgba(245, 158, 11, 0.25)", color: "#fbbf24" },
+        "HOLD_COMPLETED": { label: "홀드 종료·복귀", bg: "rgba(56, 189, 248, 0.2)", color: "#38bdf8" },
+        "REJECTED": { label: "보완 요청", bg: "rgba(239, 68, 68, 0.2)", color: "#f87171" }
+    };
+
+    listEl.innerHTML = filtered.map(item => {
+        const tb = typeBadgeMap[item.item_type] || typeBadgeMap["HOMEWORK"];
+        const sb = statusBadgeMap[item.status] || statusBadgeMap["SUBMITTED"];
+        const periodHtml = (item.hold_start_date || item.hold_end_date)
+            ? `<div style="font-size: 0.75rem; color: #fbbf24; font-weight: 800; margin-top: 4px;">신청 홀드 기간: ${item.hold_start_date || '-'} ~ ${item.hold_end_date || '-'}</div>`
+            : "";
+        const scoreHtml = item.score_summary
+            ? `<div style="font-size: 0.75rem; color: #34d399; font-weight: 800; margin-top: 4px;">성적 요약: ${item.score_summary}</div>`
+            : "";
+        const imgHtml = item.image_data
+            ? `<div style="margin-top: 8px;"><img src="${item.image_data}" alt="첨부 이미지" style="max-height: 200px; max-width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12); cursor: pointer;" onclick="window.open(this.src, '_blank')"></div>`
+            : "";
+        const fbHtml = item.director_feedback
+            ? `<div style="margin-top: 8px; padding: 9px 11px; background: rgba(99, 102, 241, 0.12); border-left: 3px solid #818cf8; border-radius: 6px; font-size: 0.76rem; color: #e2e8f0;">
+                <div style="font-weight: 900; color: #818cf8; margin-bottom: 2px;">원장님 확인 코멘트</div>
+                <div>${item.director_feedback}</div>
+               </div>`
+            : "";
+
+        return `
+            <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.09); border-radius: 12px; padding: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                        <span style="background: ${tb.bg}; color: ${tb.color}; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800;">${tb.label}</span>
+                        <span style="font-size: 0.72rem; color: var(--text-secondary); font-weight: 700;">${item.curriculum_stage || ''} · ${item.week_label || ''}</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="background: ${sb.bg}; color: ${sb.color}; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800;">${sb.label}</span>
+                        <button type="button" onclick="deleteMyStudentFolderItem(${item.id})" style="background: none; border: none; color: #64748b; font-size: 0.72rem; cursor: pointer;">삭제</button>
+                    </div>
+                </div>
+                <div style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin-top: 6px;">${item.title}</div>
+                ${item.content ? `<div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 4px; line-height: 1.45;">${item.content}</div>` : ""}
+                ${periodHtml}
+                ${scoreHtml}
+                ${imgHtml}
+                ${fbHtml}
+                <div style="font-size: 0.68rem; color: #64748b; margin-top: 6px; text-align: right;">등록일시: ${item.created_at || '-'}</div>
+            </div>
+        `;
+    }).join("");
+}
+
+async function deleteMyStudentFolderItem(itemId) {
+    if (!confirm("이 폴더 항목을 삭제하시겠습니까?")) return;
+    try {
+        const res = await fetch(`/api/student-folder/items/${itemId}`, { method: "DELETE" });
+        if (res.ok) {
+            await loadMyStudentDigitalFolder();
+        }
+    } catch (e) {
+        alert("삭제 처리 중 오류가 발생했습니다.");
+    }
+}
+
+window.switchStudentFolderUploadMode = switchStudentFolderUploadMode;
+window.handleStudentFolderPhotoPreview = handleStudentFolderPhotoPreview;
+window.clearStudentFolderPhotoPreview = clearStudentFolderPhotoPreview;
+window.handleSubmitStudentFolderItem = handleSubmitStudentFolderItem;
+window.loadMyStudentDigitalFolder = loadMyStudentDigitalFolder;
+window.filterMyStudentFolder = filterMyStudentFolder;
+window.deleteMyStudentFolderItem = deleteMyStudentFolderItem;
+
 
 
 async function loadAcademyMaterials() {

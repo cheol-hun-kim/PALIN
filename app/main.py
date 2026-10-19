@@ -762,6 +762,9 @@ class AcademyLeavePayload(BaseModel):
     student_id: int
     leave_reason: str # '내신 휴강' | '개인 사유' | '상담 후 결정'
     details: Optional[str] = ""
+    hold_start_date: Optional[str] = None
+    hold_end_date: Optional[str] = None
+
 
 class AdministrativeRequestPayload(BaseModel):
     student_id: int
@@ -6251,8 +6254,14 @@ def request_academy_leave(payload: AcademyLeavePayload, db: Session = Depends(ge
     if not student:
         raise HTTPException(status_code=404, detail="학생 정보를 찾을 수 없습니다.")
         
+    period_str = ""
+    if payload.hold_start_date and payload.hold_end_date:
+        period_str = f" ({payload.hold_start_date} ~ {payload.hold_end_date})"
+    elif payload.hold_start_date:
+        period_str = f" ({payload.hold_start_date} ~)"
+
     student.enrollment_status = "ON_LEAVE"
-    student.leave_reason = payload.leave_reason
+    student.leave_reason = f"{payload.leave_reason}{period_str}"
     # B2C 티어로 권한 즉시 롤백
     student.ai_level = student.previous_b2c_tier or "B2C_FREE"
     
@@ -6261,18 +6270,36 @@ def request_academy_leave(payload: AcademyLeavePayload, db: Session = Depends(ge
         student_id=student.id,
         student_name=student.name,
         request_type="LEAVE",
+        target_date=f"{payload.hold_start_date or ''} ~ {payload.hold_end_date or ''}".strip(" ~") or None,
         leave_reason=payload.leave_reason,
-        details=payload.details or f"장기 휴강 신청 ({payload.leave_reason})",
+        details=payload.details or f"장기 휴강/홀드 신청 ({payload.leave_reason}{period_str})",
         status="PENDING"
     )
     db.add(req)
+
+    # 학생 개별 디지털 폴더에도 홀드 신청 이력 자동 저장
+    folder_item = models.StudentActivityFolderItem(
+        student_id=student.id,
+        student_name=student.name,
+        academy_code=student.academy_code or "ILWON-2027",
+        item_type="HOLD_REQUEST",
+        curriculum_stage="내신 기간 홀드" if "내신" in (payload.leave_reason or "") else "기타 일정 홀드",
+        week_label=payload.leave_reason or "내신 휴강",
+        title=f"[{payload.leave_reason}] 수강 홀드 신청{period_str}",
+        content=payload.details or f"{payload.leave_reason} 사유로 수강 홀드를 신청합니다.",
+        hold_start_date=payload.hold_start_date,
+        hold_end_date=payload.hold_end_date,
+        status="SUBMITTED"
+    )
+    db.add(folder_item)
     db.commit()
     db.refresh(student)
     return {
         "status": "success",
-        "message": "장기 휴강 신청이 접수되었습니다. 앱 내 자동 처리는 불가하며, 대표 원장과의 최종 상담을 통해서만 확정됩니다.",
+        "message": "장기 휴강(내신 홀드) 신청이 접수되어 학생 개별 폴더 및 원장님 결재함에 등록되었습니다.",
         "student": student
     }
+
 
 
 @app.post("/api/academy/return")
@@ -7775,16 +7802,23 @@ def get_master_macro_stats(db: Session = Depends(get_db)):
     real_tenants_cnt = len(tenants)
     demo_tenants_cnt = 0
     
+    # 실시간 청구서 수납액 기반 매출 집계 (목데이터 수수료 없음)
+    paid_invoice_sum = db.query(func.sum(models.Invoice.final_amount)).filter(
+        models.Invoice.status == "PAID",
+        models.Invoice.deleted_at == None
+    ).scalar() or 0
+    total_revenue = paid_invoice_sum or paid_cash_total
+
+    tier1_cnt = 0
+    tier2_cnt = 0
+    tier3_cnt = 0
+    real_tenants_cnt = len(tenants)
+    demo_tenants_cnt = 0
+    
     for t in tenants:
         if t.tier == 1: tier1_cnt += 1
         elif t.tier == 2: tier2_cnt += 1
         elif t.tier >= 3: tier3_cnt += 1
-        total_royalty += int((t.monthly_revenue or 0) * (t.royalty_rate or 15.0) / 100)
-
-    logs = db.query(models.PlatformRevenueLog).filter(models.PlatformRevenueLog.deleted_at == None).all()
-    total_platform_rev = sum(l.amount for l in logs) if logs else 0
-    if total_platform_rev > 0:
-        total_royalty = total_platform_rev
 
     return {
         "status": "success",
@@ -7795,7 +7829,7 @@ def get_master_macro_stats(db: Session = Depends(get_db)):
         "avg_study_growth": growth_str,
         "total_escrow_deductions": escrow_total,
         "total_paid_cash": paid_cash_total,
-        "total_monthly_royalty": total_royalty,
+        "total_monthly_royalty": total_revenue,
         "tier1_count": tier1_cnt,
         "tier2_count": tier2_cnt,
         "tier3_count": tier3_cnt
@@ -7838,7 +7872,13 @@ def get_master_tenants(db: Session = Depends(get_db)):
         ).count()
 
         is_demo = False
-        est_royalty = int((t.monthly_revenue or 0) * (t.royalty_rate or 15.0) / 100)
+        t_paid_rev = db.query(func.sum(models.Invoice.final_amount)).filter(
+            models.Invoice.status == "PAID",
+            models.Invoice.academy_code == t.code,
+            models.Invoice.deleted_at == None
+        ).scalar() or 0
+        monthly_rev = t_paid_rev or (t.monthly_revenue or 0)
+
         result.append({
             "id": t.id,
             "code": t.code,
@@ -7855,9 +7895,9 @@ def get_master_tenants(db: Session = Depends(get_db)):
             "is_demo": is_demo,
             "logo_url": t.logo_url,
             "brand_color": t.brand_color,
-            "royalty_rate": t.royalty_rate,
-            "monthly_revenue": t.monthly_revenue or 0,
-            "estimated_royalty": est_royalty,
+            "royalty_rate": 0.0,
+            "monthly_revenue": monthly_rev,
+            "estimated_royalty": 0,
             "subject_desc": t.subject_desc,
             "enrolled_students_count": st_count,
             "created_at": t.created_at.strftime("%Y-%m-%d") if t.created_at else "-"
@@ -10955,6 +10995,31 @@ def get_student_dossier(student_id: int, db: Session = Depends(get_db)):
         } for r in rep_logs[:5]
     ]
 
+    # 7. Student Digital Folder Items (Homework photos, Exam result photos, Naesin Hold history)
+    folder_rows = db.query(models.StudentActivityFolderItem).filter(
+        models.StudentActivityFolderItem.student_id == student_id,
+        models.StudentActivityFolderItem.deleted_at == None
+    ).order_by(models.StudentActivityFolderItem.id.desc()).all()
+
+    folder_items_data = [
+        {
+            "id": fi.id,
+            "item_type": fi.item_type,
+            "curriculum_stage": fi.curriculum_stage or "",
+            "week_label": fi.week_label or "",
+            "title": fi.title,
+            "content": fi.content or "",
+            "score_summary": fi.score_summary or "",
+            "hold_start_date": fi.hold_start_date or "",
+            "hold_end_date": fi.hold_end_date or "",
+            "has_image": bool(fi.image_data),
+            "image_data": fi.image_data or "",
+            "status": fi.status or "SUBMITTED",
+            "director_feedback": fi.director_feedback or "",
+            "created_at": fi.created_at.strftime("%Y-%m-%d %H:%M") if fi.created_at else ""
+        } for fi in folder_rows
+    ]
+
     return {
         "status": "ok",
         "profile": profile,
@@ -10962,8 +11027,10 @@ def get_student_dossier(student_id: int, db: Session = Depends(get_db)):
         "study": study_data,
         "exams": exam_data,
         "feedback": feedback_data,
-        "report_history": report_logs
+        "report_history": report_logs,
+        "folder_items": folder_items_data
     }
+
 
 @app.post("/api/admin/students/{student_id}/assessment")
 def save_student_assessment(student_id: int, payload: DirectorAssessmentPayload, db: Session = Depends(get_db)):
@@ -12343,9 +12410,551 @@ def record_ebs_telemetry(payload: EbsTelemetryPayload, db: Session = Depends(get
         "total_points": student.current_points
     }
 
+# ==============================================================================
+# 📁 17. 학생별 개별 디지털 폴더 아카이브 & 숙제·시험결과·내신홀드 일괄 관제 API
+# ==============================================================================
+
+class StudentFolderItemCreatePayload(BaseModel):
+    student_id: int
+    item_type: str = "HOMEWORK"  # 'HOMEWORK' | 'EXAM_PHOTO' | 'HOLD_REQUEST' | 'DIRECTOR_NOTE'
+    curriculum_stage: Optional[str] = "수능국어 방법론 (8주)"
+    week_label: Optional[str] = "1주차"
+    title: str
+    content: Optional[str] = ""
+    score_summary: Optional[str] = ""
+    hold_start_date: Optional[str] = None
+    hold_end_date: Optional[str] = None
+    image_data: Optional[str] = None
+    file_name: Optional[str] = None
+    director_feedback: Optional[str] = None
+
+
+class StudentFolderReviewPayload(BaseModel):
+    status: Optional[str] = None  # 'VERIFIED' | 'HOLD_ACTIVE' | 'HOLD_COMPLETED' | 'REJECTED' | 'SUBMITTED'
+    review_status: Optional[str] = None
+    director_feedback: Optional[str] = None
+    send_sms: Optional[bool] = False
+
+
+class StudentFolderBatchReviewPayload(BaseModel):
+    item_ids: List[int]
+    status: Optional[str] = None
+    review_status: Optional[str] = None
+    director_feedback: Optional[str] = None
+
+
+@app.post("/api/student-folder/items")
+def create_student_folder_item(payload: StudentFolderItemCreatePayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(
+        models.Student.id == payload.student_id,
+        models.Student.deleted_at == None
+    ).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생 정보를 찾을 수 없습니다.")
+
+    itype = (payload.item_type or "HOMEWORK").upper()
+    if itype == "TEACHER_NOTE":
+        itype = "DIRECTOR_NOTE"
+    init_status = "VERIFIED" if itype == "DIRECTOR_NOTE" else "SUBMITTED"
+
+    new_item = models.StudentActivityFolderItem(
+        student_id=student.id,
+        student_name=student.name,
+        academy_code=student.academy_code or "ILWON-2027",
+        item_type=itype,
+        curriculum_stage=payload.curriculum_stage or "수능국어 방법론 (8주)",
+        week_label=payload.week_label or "1주차",
+        title=payload.title.strip(),
+        content=(payload.content or "").strip(),
+        score_summary=(payload.score_summary or "").strip() or None,
+        hold_start_date=payload.hold_start_date,
+        hold_end_date=payload.hold_end_date,
+        image_data=payload.image_data,
+        file_name=payload.file_name,
+        status=init_status,
+        director_feedback=payload.director_feedback,
+        reviewed_at=datetime.now() if itype == "DIRECTOR_NOTE" else None
+    )
+    db.add(new_item)
+
+    # 숙제 업로드 시 과제 성실도(diligence_score) 자동 적립 (+5점)
+    if itype == "HOMEWORK":
+        student.diligence_score = (student.diligence_score or 0) + 5
+        student.weekly_diligence_points = (student.weekly_diligence_points or 0) + 5
+    elif itype == "EXAM_PHOTO":
+        student.diligence_score = (student.diligence_score or 0) + 5
+    elif itype == "HOLD_REQUEST":
+        period_str = ""
+        if payload.hold_start_date and payload.hold_end_date:
+            period_str = f" ({payload.hold_start_date} ~ {payload.hold_end_date})"
+        elif payload.hold_start_date:
+            period_str = f" ({payload.hold_start_date} ~)"
+        # 행정 신청 결재함(AdministrativeRequest)과도 실시간 동기화
+        admin_req = models.AdministrativeRequest(
+            student_id=student.id,
+            student_name=student.name,
+            request_type="LEAVE",
+            target_date=f"{payload.hold_start_date or ''} ~ {payload.hold_end_date or ''}".strip(" ~") or None,
+            leave_reason=payload.week_label or "내신 휴강",
+            details=f"[{payload.title}]{period_str} {payload.content or ''}".strip(),
+            status="PENDING"
+        )
+        db.add(admin_req)
+
+    db.commit()
+    db.refresh(new_item)
+
+    type_labels = {
+        "HOMEWORK": "일일 숙제 인증 사진이 학생 개별 폴더에 저장되었습니다. (과제 성실도 +5점)",
+        "EXAM_PHOTO": "시험결과·성적표 사진이 학생 개별 폴더에 저장되었습니다.",
+        "HOLD_REQUEST": "내신/일정 수강 홀드 신청이 접수되어 학생 폴더 및 원장님 결재함에 등록되었습니다.",
+        "DIRECTOR_NOTE": "학생 개별 폴더에 원장 기록이 추가되었습니다."
+    }
+
+    return {
+        "status": "ok",
+        "message": type_labels.get(itype, "학생 개별 폴더에 항목이 저장되었습니다."),
+        "item": {
+            "id": new_item.id,
+            "student_id": new_item.student_id,
+            "student_name": new_item.student_name,
+            "item_type": new_item.item_type,
+            "curriculum_stage": new_item.curriculum_stage,
+            "week_label": new_item.week_label,
+            "title": new_item.title,
+            "content": new_item.content,
+            "score_summary": new_item.score_summary,
+            "hold_start_date": new_item.hold_start_date,
+            "hold_end_date": new_item.hold_end_date,
+            "has_image": bool(new_item.image_data),
+            "status": new_item.status,
+            "review_status": "PENDING" if new_item.status == "SUBMITTED" else (new_item.status or "PENDING"),
+            "director_feedback": new_item.director_feedback or "",
+            "created_at": new_item.created_at.strftime("%Y-%m-%d %H:%M") if new_item.created_at else ""
+        }
+    }
+
+
+@app.get("/api/student-folder/student/{student_id}")
+def get_student_digital_folder(student_id: int, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(
+        models.Student.id == student_id,
+        models.Student.deleted_at == None
+    ).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+
+    folder_items = db.query(models.StudentActivityFolderItem).filter(
+        models.StudentActivityFolderItem.student_id == student_id,
+        models.StudentActivityFolderItem.deleted_at == None
+    ).order_by(models.StudentActivityFolderItem.id.desc()).all()
+
+    omr_subs = db.query(models.ExamOMRSubmission).filter(
+        models.ExamOMRSubmission.student_id == student_id,
+        models.ExamOMRSubmission.deleted_at == None
+    ).order_by(models.ExamOMRSubmission.exam_week.desc(), models.ExamOMRSubmission.id.desc()).all()
+
+    att_logs = db.query(models.AttendanceLog).filter(
+        models.AttendanceLog.student_id == student_id,
+        models.AttendanceLog.deleted_at == None
+    ).order_by(models.AttendanceLog.id.desc()).limit(30).all()
+
+    admin_reqs = db.query(models.AdministrativeRequest).filter(
+        models.AdministrativeRequest.student_id == student_id,
+        models.AdministrativeRequest.deleted_at == None
+    ).order_by(models.AdministrativeRequest.id.desc()).limit(20).all()
+
+    hw_count = len([x for x in folder_items if x.item_type == "HOMEWORK"])
+    exam_photo_count = len([x for x in folder_items if x.item_type == "EXAM_PHOTO"])
+    hold_count = len([x for x in folder_items if x.item_type == "HOLD_REQUEST"])
+    unreviewed_count = len([x for x in folder_items if x.status == "SUBMITTED"])
+    feedback_count = len([x for x in folder_items if x.director_feedback])
+
+    serialized_items = [
+        {
+            "id": fi.id,
+            "student_id": fi.student_id,
+            "student_name": fi.student_name or student.name,
+            "item_type": fi.item_type,
+            "curriculum_stage": fi.curriculum_stage or "",
+            "week_label": fi.week_label or "",
+            "title": fi.title,
+            "content": fi.content or "",
+            "score_summary": fi.score_summary or "",
+            "hold_start_date": fi.hold_start_date or "",
+            "hold_end_date": fi.hold_end_date or "",
+            "has_image": bool(fi.image_data),
+            "image_data": fi.image_data or "",
+            "attachment_data": fi.image_data or "",
+            "file_name": fi.file_name or "",
+            "status": fi.status or "SUBMITTED",
+            "review_status": "PENDING" if (fi.status or "SUBMITTED") == "SUBMITTED" else fi.status,
+            "director_feedback": fi.director_feedback or "",
+            "reviewed_at": fi.reviewed_at.strftime("%Y-%m-%d %H:%M") if fi.reviewed_at else "",
+            "created_at": fi.created_at.strftime("%Y-%m-%d %H:%M") if fi.created_at else ""
+        } for fi in folder_items
+    ]
+
+    parent = student.parent
+    return {
+        "status": "ok",
+        "student": {
+            "id": student.id,
+            "name": student.name,
+            "high_school": student.high_school or "미입력",
+            "school_name": student.high_school or "미입력",
+            "grade": student.grade or 3,
+            "class_group": getattr(student, "class_group", None) or "일원 국어 정규반",
+            "student_code": student.academy_code or f"ILWON-{student.id:03d}",
+            "phone": student.phone or "미등록",
+            "parent_phone": parent.phone if parent else "미등록",
+            "target_univ": student.target_univ or "미설정",
+            "enrollment_status": student.enrollment_status or "ENROLLED",
+            "leave_reason": student.leave_reason or "",
+            "diligence_score": student.diligence_score or 0,
+            "streak_days": student.streak_days or 0,
+            "created_at": student.created_at.strftime("%Y-%m-%d") if student.created_at else ""
+        },
+        "summary": {
+            "total_folder_items": len(folder_items),
+            "homework_count": hw_count,
+            "exam_photo_count": exam_photo_count,
+            "omr_exam_count": len(omr_subs),
+            "hold_request_count": hold_count,
+            "attendance_count": len(att_logs),
+            "unreviewed_count": unreviewed_count,
+            "pending_review_count": unreviewed_count,
+            "feedback_count": feedback_count
+        },
+        "items": serialized_items,
+        "folder_items": serialized_items,
+        "omr_submissions": [
+            {
+                "id": sub.id,
+                "exam_week": sub.exam_week,
+                "week_label": f"{sub.exam_week}주차",
+                "subject": sub.subject,
+                "raw_score": sub.raw_score,
+                "calculated_grade": sub.calculated_grade,
+                "wrong_count": sub.wrong_count,
+                "wrong_questions": [],
+                "director_diagnosis": sub.director_diagnosis or "",
+                "created_at": sub.created_at.strftime("%Y-%m-%d %H:%M") if sub.created_at else "",
+                "submitted_at": sub.created_at.strftime("%Y-%m-%d %H:%M") if sub.created_at else ""
+            } for sub in omr_subs
+        ],
+        "attendance_logs": [
+            {
+                "id": a.id,
+                "class_date": a.class_date,
+                "status": a.status,
+                "arrival_minutes": a.arrival_minutes or 0,
+                "created_at": a.created_at.strftime("%Y-%m-%d %H:%M") if a.created_at else "",
+                "check_in_time": a.created_at.strftime("%Y-%m-%d %H:%M") if a.created_at else (a.class_date or "")
+            } for a in att_logs
+        ],
+        "admin_requests": [
+            {
+                "id": r.id,
+                "request_type": r.request_type,
+                "details": r.details or "",
+                "target_date": r.target_date or "",
+                "leave_reason": r.leave_reason or "",
+                "status": r.status,
+                "created_at": r.created_at.strftime("%Y-%m-%d %H:%M") if r.created_at else ""
+            } for r in admin_reqs
+        ]
+    }
+
+
+@app.delete("/api/student-folder/items/{item_id}")
+def soft_delete_student_folder_item(item_id: int, db: Session = Depends(get_db)):
+    item = db.query(models.StudentActivityFolderItem).filter(
+        models.StudentActivityFolderItem.id == item_id,
+        models.StudentActivityFolderItem.deleted_at == None
+    ).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="폴더 항목을 찾을 수 없습니다.")
+    item.deleted_at = datetime.now()
+    db.commit()
+    return {"status": "ok", "message": "폴더 항목이 삭제 처리되었습니다."}
+
+
+@app.get("/api/admin/student-folders/overview")
+def get_admin_student_folders_overview(
+    academy_code: Optional[str] = "ILWON-2027",
+    item_type: Optional[str] = "ALL",
+    review_status: Optional[str] = "ALL",
+    search: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    # 1. 학원 소속 재원생/휴강생 전체 조회 (개별 디지털 폴더 대상)
+    stu_query = db.query(models.Student).filter(models.Student.deleted_at == None)
+    if academy_code and academy_code.upper() != "ALL":
+        stu_query = stu_query.filter(
+            (models.Student.academy_code == academy_code) |
+            (models.Student.pending_tenant_code == academy_code) |
+            (models.Student.leave_reason.like(f"%{academy_code}%"))
+        )
+    students = stu_query.order_by(models.Student.id.asc()).all()
+    if not students:
+        students = db.query(models.Student).filter(models.Student.deleted_at == None).order_by(models.Student.id.asc()).all()
+
+    student_ids = [s.id for s in students]
+    student_map = {s.id: s for s in students}
+
+    # 2. 전체 폴더 아이템 및 OMR/출결 집계
+    all_items = []
+    if student_ids:
+        all_items = db.query(models.StudentActivityFolderItem).filter(
+            models.StudentActivityFolderItem.student_id.in_(student_ids),
+            models.StudentActivityFolderItem.deleted_at == None
+        ).order_by(models.StudentActivityFolderItem.id.desc()).all()
+
+    omr_counts_by_student: Dict[int, int] = {}
+    if student_ids:
+        omr_rows = db.query(
+            models.ExamOMRSubmission.student_id,
+            func.count(models.ExamOMRSubmission.id)
+        ).filter(
+            models.ExamOMRSubmission.student_id.in_(student_ids),
+            models.ExamOMRSubmission.deleted_at == None
+        ).group_by(models.ExamOMRSubmission.student_id).all()
+        for sid, cnt in omr_rows:
+            omr_counts_by_student[sid] = cnt
+
+    att_counts_by_student: Dict[int, int] = {}
+    if student_ids:
+        att_rows = db.query(
+            models.AttendanceLog.student_id,
+            func.count(models.AttendanceLog.id)
+        ).filter(
+            models.AttendanceLog.student_id.in_(student_ids),
+            models.AttendanceLog.deleted_at == None
+        ).group_by(models.AttendanceLog.student_id).all()
+        for sid, cnt in att_rows:
+            att_counts_by_student[sid] = cnt
+
+    items_by_student: Dict[int, List[models.StudentActivityFolderItem]] = {}
+    for fi in all_items:
+        items_by_student.setdefault(fi.student_id, []).append(fi)
+
+    # 3. 학생별 폴더 카드 리스트 생성
+    folders = []
+    kw = (search or "").strip().lower()
+    for s in students:
+        if kw:
+            hay = f"{s.name or ''} {s.high_school or ''} {s.phone or ''} 고{s.grade or ''}".lower()
+            if kw not in hay:
+                continue
+        s_items = items_by_student.get(s.id, [])
+        hw_cnt = len([x for x in s_items if x.item_type == "HOMEWORK"])
+        ex_cnt = len([x for x in s_items if x.item_type == "EXAM_PHOTO"])
+        hold_cnt = len([x for x in s_items if x.item_type == "HOLD_REQUEST"])
+        pending_cnt = len([x for x in s_items if x.status == "SUBMITTED"])
+        latest_item = s_items[0] if s_items else None
+        latest_at_str = latest_item.created_at.strftime("%Y-%m-%d %H:%M") if (latest_item and latest_item.created_at) else ""
+
+        folders.append({
+            "student_id": s.id,
+            "name": s.name,
+            "high_school": s.high_school or "미입력",
+            "school_name": s.high_school or "미입력",
+            "grade": s.grade or 3,
+            "class_group": getattr(s, "class_group", None) or "일원 국어 정규반",
+            "student_code": s.academy_code or f"ILWON-{s.id:03d}",
+            "phone": s.phone or "-",
+            "enrollment_status": s.enrollment_status or "ENROLLED",
+            "leave_reason": s.leave_reason or "",
+            "diligence_score": s.diligence_score or 0,
+            "homework_count": hw_cnt,
+            "exam_photo_count": ex_cnt,
+            "omr_count": omr_counts_by_student.get(s.id, 0),
+            "attendance_count": att_counts_by_student.get(s.id, 0),
+            "hold_count": hold_cnt,
+            "hold_active_count": 1 if (s.enrollment_status == "ON_LEAVE") else 0,
+            "pending_count": pending_cnt,
+            "total_folder_items": len(s_items),
+            "latest_title": latest_item.title if latest_item else "최근 업로드 대기",
+            "latest_at": latest_at_str,
+            "latest_activity_at": latest_at_str or "최근 활동 대기"
+        })
+
+    # 미검수 항목이 있거나 최근 활동이 있는 폴더가 상단에 오도록 정렬
+    folders.sort(key=lambda x: (x["pending_count"], x["total_folder_items"], x["omr_count"]), reverse=True)
+
+    # 4. 일괄 검수 인박스 (Bulk Review Inbox) 필터링
+    filtered_submissions = []
+    for fi in all_items:
+        if item_type and item_type.upper() != "ALL" and fi.item_type != item_type.upper():
+            continue
+        if review_status and review_status.upper() != "ALL":
+            if review_status.upper() == "PENDING" and fi.status != "SUBMITTED":
+                continue
+            elif review_status.upper() == "VERIFIED" and fi.status == "SUBMITTED":
+                continue
+            elif review_status.upper() in ["HOLD_ACTIVE", "HOLD_COMPLETED"] and fi.status != review_status.upper():
+                continue
+        stu = student_map.get(fi.student_id)
+        if kw and stu:
+            hay = f"{stu.name or ''} {stu.high_school or ''} {fi.title or ''} {fi.week_label or ''}".lower()
+            if kw not in hay:
+                continue
+        raw_status = fi.status or "SUBMITTED"
+        filtered_submissions.append({
+            "id": fi.id,
+            "student_id": fi.student_id,
+            "student_name": stu.name if stu else (fi.student_name or f"학생 #{fi.student_id}"),
+            "high_school": stu.high_school if stu else "-",
+            "school_name": stu.high_school if stu else "-",
+            "class_group": (getattr(stu, "class_group", None) or "일원 국어 정규반") if stu else "정규반",
+            "grade": stu.grade if stu else 3,
+            "enrollment_status": stu.enrollment_status if stu else "ENROLLED",
+            "item_type": fi.item_type,
+            "curriculum_stage": fi.curriculum_stage or "",
+            "week_label": fi.week_label or "",
+            "title": fi.title,
+            "content": fi.content or "",
+            "score_summary": fi.score_summary or "",
+            "hold_start_date": fi.hold_start_date or "",
+            "hold_end_date": fi.hold_end_date or "",
+            "has_image": bool(fi.image_data),
+            "image_data": fi.image_data or "",
+            "attachment_data": fi.image_data or "",
+            "file_name": fi.file_name or "",
+            "status": raw_status,
+            "review_status": "PENDING" if raw_status == "SUBMITTED" else raw_status,
+            "director_feedback": fi.director_feedback or "",
+            "reviewed_at": fi.reviewed_at.strftime("%Y-%m-%d %H:%M") if fi.reviewed_at else "",
+            "created_at": fi.created_at.strftime("%Y-%m-%d %H:%M") if fi.created_at else ""
+        })
+
+    total_hw_all = len([x for x in all_items if x.item_type == "HOMEWORK"])
+    total_ex_all = len([x for x in all_items if x.item_type == "EXAM_PHOTO"])
+    total_pending_all = len([x for x in all_items if x.status == "SUBMITTED"])
+    active_holds_cnt = len([s for s in students if s.enrollment_status == "ON_LEAVE"])
+
+    kpi = {
+        "total_enrolled_folders": len(students),
+        "total_folders": len(students),
+        "total_submissions": len(all_items),
+        "total_homework": total_hw_all,
+        "total_exam_photos": total_ex_all,
+        "pending_reviews": total_pending_all,
+        "active_holds": active_holds_cnt,
+        "pending_homework_count": len([x for x in all_items if x.item_type == "HOMEWORK" and x.status == "SUBMITTED"]),
+        "pending_exam_photo_count": len([x for x in all_items if x.item_type == "EXAM_PHOTO" and x.status == "SUBMITTED"]),
+        "pending_hold_count": len([x for x in all_items if x.item_type == "HOLD_REQUEST" and x.status == "SUBMITTED"]),
+        "active_hold_students_count": active_holds_cnt
+    }
+
+    return {
+        "status": "ok",
+        "kpi": kpi,
+        "kpis": kpi,
+        "folders": folders,
+        "recent_submissions": filtered_submissions[:150]
+    }
+
+
+@app.post("/api/admin/student-folder/items/{item_id}/review")
+def review_student_folder_item(item_id: int, payload: StudentFolderReviewPayload, db: Session = Depends(get_db)):
+    item = db.query(models.StudentActivityFolderItem).filter(
+        models.StudentActivityFolderItem.id == item_id,
+        models.StudentActivityFolderItem.deleted_at == None
+    ).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="해당 폴더 항목을 찾을 수 없습니다.")
+
+    student = db.query(models.Student).filter(models.Student.id == item.student_id).first()
+
+    target_status = (payload.review_status or payload.status or "VERIFIED").upper()
+    item.status = target_status
+    if payload.director_feedback is not None:
+        item.director_feedback = payload.director_feedback.strip()
+    item.reviewed_at = datetime.now()
+
+    # 내신/일정 홀드 신청 승인 또는 홀드 해제 시 학생 재원 상태 자동 연동
+    if item.item_type == "HOLD_REQUEST" and student:
+        period_str = ""
+        if item.hold_start_date and item.hold_end_date:
+            period_str = f" ({item.hold_start_date} ~ {item.hold_end_date})"
+        elif item.hold_start_date:
+            period_str = f" ({item.hold_start_date} ~)"
+
+        if target_status in ["HOLD_ACTIVE", "VERIFIED"]:
+            item.status = "HOLD_ACTIVE"
+            student.enrollment_status = "ON_LEAVE"
+            student.leave_reason = f"{item.week_label or '내신 홀드'}{period_str}"
+        elif target_status == "HOLD_COMPLETED":
+            student.enrollment_status = "ENROLLED"
+            student.leave_reason = None
+        elif target_status == "REJECTED":
+            student.enrollment_status = "ENROLLED"
+
+    db.commit()
+    db.refresh(item)
+
+    if payload.send_sms and student:
+        target_phone = (student.parent.phone if student.parent and student.parent.phone else student.phone)
+        if target_phone:
+            try:
+                fb_txt = f" / 원장 코멘트: {item.director_feedback}" if item.director_feedback else ""
+                sms.send_sms(target_phone, f"[일원학원] {student.name} 학생 폴더 항목({item.title}) 검수가 완료되었습니다.{fb_txt}")
+            except Exception as e:
+                print("Folder review SMS notice:", e)
+
+    return {
+        "status": "ok",
+        "message": "학생 폴더 항목 검수 및 상태 반영이 완료되었습니다.",
+        "item": {
+            "id": item.id,
+            "status": item.status,
+            "review_status": "PENDING" if item.status == "SUBMITTED" else item.status,
+            "director_feedback": item.director_feedback or "",
+            "reviewed_at": item.reviewed_at.strftime("%Y-%m-%d %H:%M") if item.reviewed_at else ""
+        }
+    }
+
+
+@app.post("/api/admin/student-folder/batch-review")
+def batch_review_student_folder_items(payload: StudentFolderBatchReviewPayload, db: Session = Depends(get_db)):
+    if not payload.item_ids:
+        raise HTTPException(status_code=400, detail="일괄 처리할 항목을 1개 이상 선택해 주세요.")
+
+    target_status = (payload.review_status or payload.status or "VERIFIED").upper()
+    items = db.query(models.StudentActivityFolderItem).filter(
+        models.StudentActivityFolderItem.id.in_(payload.item_ids),
+        models.StudentActivityFolderItem.deleted_at == None
+    ).all()
+
+    now_dt = datetime.now()
+    for item in items:
+        if item.item_type == "HOLD_REQUEST" and target_status == "VERIFIED":
+            item.status = "HOLD_ACTIVE"
+            stu = db.query(models.Student).filter(models.Student.id == item.student_id).first()
+            if stu:
+                period_str = f" ({item.hold_start_date} ~ {item.hold_end_date})" if (item.hold_start_date and item.hold_end_date) else ""
+                stu.enrollment_status = "ON_LEAVE"
+                stu.leave_reason = f"{item.week_label or '내신 홀드'}{period_str}"
+        else:
+            item.status = target_status
+        if payload.director_feedback:
+            item.director_feedback = payload.director_feedback.strip()
+        item.reviewed_at = now_dt
+
+    db.commit()
+    return {
+        "status": "ok",
+        "message": f"선택한 {len(items)}건의 항목이 일괄 [{target_status}] 처리되었습니다.",
+        "updated_count": len(items)
+    }
+
+
 from fastapi.responses import FileResponse
 
 STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "static")
+
 
 @app.get("/")
 def get_landing_page():
