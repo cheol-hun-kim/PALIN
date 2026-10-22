@@ -15334,7 +15334,7 @@ async function loadMyStudentDigitalFolder() {
         const hdEl = document.getElementById("sf-stat-hold");
         const fbEl = document.getElementById("sf-stat-feedback");
         if (hwEl) hwEl.innerText = `${sum.homework_count || 0}건`;
-        if (exEl) exEl.innerText = `${(sum.exam_photo_count || 0) + (sum.omr_exam_count || 0)}건`;
+        if (exEl) exEl.innerText = `${sum.exam_photo_count || 0}건`;
         if (hdEl) hdEl.innerText = `${sum.hold_request_count || 0}건`;
         if (fbEl) fbEl.innerText = `${sum.feedback_count || 0}건`;
 
