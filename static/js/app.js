@@ -15131,6 +15131,23 @@ let currentStudentFolderFilter = "ALL";
 let currentStudentFolderPhotoBase64 = null;
 let currentStudentFolderPhotoName = null;
 
+
+function openStudentFolderUploadModal(initialMode = 'HOMEWORK') {
+    const modal = document.getElementById('student-folder-upload-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        switchStudentFolderUploadMode(initialMode);
+    }
+}
+
+function closeStudentFolderUploadModal() {
+    const modal = document.getElementById('student-folder-upload-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+window.openStudentFolderUploadModal = openStudentFolderUploadModal;
+window.closeStudentFolderUploadModal = closeStudentFolderUploadModal;
 function switchStudentFolderUploadMode(mode) {
     const typeInput = document.getElementById("sf-item-type");
     if (typeInput) typeInput.value = mode;
@@ -15302,6 +15319,7 @@ async function handleSubmitStudentFolderItem(e) {
             document.getElementById("sf-content-input").value = "";
             if (document.getElementById("sf-score-summary")) document.getElementById("sf-score-summary").value = "";
             clearStudentFolderPhotoPreview();
+            closeStudentFolderUploadModal();
             await loadMyStudentDigitalFolder();
         } else {
             const err = await res.json().catch(() => ({}));
@@ -15371,7 +15389,7 @@ function renderMyStudentFolderTimeline() {
         : items.filter(x => x.item_type === currentStudentFolderFilter);
 
     if (filtered.length === 0) {
-        listEl.innerHTML = `<div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 22px; background: rgba(255,255,255,0.02); border-radius: 10px; border: 1px dashed rgba(255,255,255,0.1);">아직 등록된 폴더 항목이 없습니다. 위에서 숙제 사진, 시험결과 사진 또는 내신 홀드 신청을 등록해 보세요.</div>`;
+        listEl.innerHTML = `<div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 22px; background: rgba(255,255,255,0.02); border-radius: 10px; border: 1px dashed rgba(255,255,255,0.1);">보관된 활동 결과물이 아직 없습니다. 제출된 숙제 사진, 시험 성적표 및 과거 행정신청 내역이 여기에 안전하게 보관됩니다.</div>`;
         return;
     }
 

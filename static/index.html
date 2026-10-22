@@ -2636,7 +2636,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </button>
                         <button class="subtab-btn-hub-2x2" onclick="switchHubSubTab('folder')" id="hub-tab-folder" style="grid-column: 1 / -1; padding: 12px 10px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1.5px solid rgba(245, 158, 11, 0.45); background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(99, 102, 241, 0.12));">
                             <span class="material-symbols-rounded" style="font-size: 1.3rem; color: #fbbf24;">folder_managed</span>
-                            <span style="font-size: 0.88rem; font-weight: 900;">내 활동 폴더 (숙제·시험결과 업로드 / 내신 홀드 신청)</span>
+                            <span style="font-size: 0.88rem; font-weight: 900;">내 활동 폴더 (숙제 제출물 · 시험 결과표 · 행정신청 보관함)</span>
                         </button>
                     </div>
 
@@ -3161,7 +3161,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                         <div>
                                             <div style="font-weight: 900; font-size: 0.86rem; color: #fbbf24; display: flex; align-items: center; gap: 5px;">
                                                 <span class="material-symbols-rounded" style="font-size: 1.05rem;">folder_managed</span>
-                                                <span>내 개별 디지털 폴더 열기 (숙제·시험결과 업로드 &amp; 홀드 내역)</span>
+                                                <span>내 활동 폴더 열기 (숙제 제출물 · 시험 성적표 · 행정신청 보관함)</span>
                                             </div>
                                             <div style="font-size: 0.71rem; color: var(--text-secondary); margin-top: 2px;">내가 올린 숙제 인증 사진, 시험지·성적표, 내신 홀드 내역 및 원장님 피드백 통합 보관함</div>
                                         </div>
@@ -3179,147 +3179,69 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
                         <!-- 서브탭 6: 내 개별 활동 폴더 (숙제 사진 · 시험결과 사진 · 내신 기간 홀드 통합 아카이브) -->
                         <div id="hub-view-folder" class="hub-subtab-view" style="display: none;">
-                            <div class="card" style="margin-bottom: 14px; border: 1.5px solid rgba(245, 158, 11, 0.4);">
-                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+                            <div class="card" style="margin-bottom: 14px; border: 1.5px solid rgba(245, 158, 11, 0.45); background: rgba(15, 23, 42, 0.65);">
+                                <!-- 폴더 헤더 (결과물 전용 아카이브) -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span class="material-symbols-rounded" style="color: #fbbf24; font-size: 1.5rem;">folder_managed</span>
+                                        <div>
+                                            <div style="font-size: 1rem; font-weight: 900; color: var(--text-primary);" id="sf-header-folder-title">내 개별 활동 폴더</div>
+                                            <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 1px;">제출한 숙제 결과물 · 시험 성적표 · 과거 행정신청 내역이 안전하게 보관되는 전용 아카이브입니다.</div>
+                                        </div>
+                                    </div>
                                     <div style="display: flex; align-items: center; gap: 6px;">
-                                        <span class="material-symbols-rounded" style="color: #fbbf24; font-size: 1.35rem;">folder_managed</span>
-                                        <div>
-                                            <div style="font-size: 0.96rem; font-weight: 900; color: var(--text-primary);" id="sf-header-folder-title">내 개별 디지털 폴더</div>
-                                            <div style="font-size: 0.72rem; color: var(--text-secondary);">숙제 인증 사진 · 시험결과 성적표 · 내신 기간 홀드 신청이 학생별 전용 폴더에 영구 보관됩니다.</div>
-                                        </div>
+                                        <button type="button" onclick="openStudentFolderUploadModal()" class="btn" style="padding: 6px 12px; font-size: 0.74rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff; display: inline-flex; align-items: center; gap: 4px; border-radius: 8px;">
+                                            <span class="material-symbols-rounded" style="font-size: 0.95rem;">add_circle</span>
+                                            <span>새 제출물 등록</span>
+                                        </button>
+                                        <button type="button" onclick="loadMyStudentDigitalFolder()" class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.74rem; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; border-radius: 8px;">
+                                            <span class="material-symbols-rounded" style="font-size: 0.95rem;">refresh</span>
+                                            <span>새로고침</span>
+                                        </button>
                                     </div>
-                                    <button type="button" onclick="loadMyStudentDigitalFolder()" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.74rem; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;">
-                                        <span class="material-symbols-rounded" style="font-size: 0.9rem;">refresh</span>
-                                        <span>폴더 새로고침</span>
-                                    </button>
                                 </div>
 
-                                <!-- 내 폴더 누적 활동 KPI 4분할 -->
+                                <!-- 내 폴더 누적 활동 KPI 4분할 (결과물 요약) -->
                                 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 14px;">
-                                    <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 10px; padding: 8px 6px; text-align: center;">
-                                        <div style="font-size: 0.68rem; color: var(--text-secondary); font-weight: 700;">숙제 인증</div>
-                                        <div style="font-size: 1.05rem; font-weight: 900; color: #818cf8; margin-top: 2px;" id="sf-stat-homework">0건</div>
+                                    <div onclick="filterMyStudentFolder('HOMEWORK')" style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 10px; padding: 10px 6px; text-align: center; cursor: pointer; transition: all 0.2s;">
+                                        <div style="font-size: 0.68rem; color: var(--text-secondary); font-weight: 700;">숙제 제출물</div>
+                                        <div style="font-size: 1.1rem; font-weight: 900; color: #818cf8; margin-top: 2px;" id="sf-stat-homework">0건</div>
                                     </div>
-                                    <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 10px; padding: 8px 6px; text-align: center;">
-                                        <div style="font-size: 0.68rem; color: var(--text-secondary); font-weight: 700;">시험결과 사진</div>
-                                        <div style="font-size: 1.05rem; font-weight: 900; color: #34d399; margin-top: 2px;" id="sf-stat-exam">0건</div>
+                                    <div onclick="filterMyStudentFolder('EXAM_PHOTO')" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 10px; padding: 10px 6px; text-align: center; cursor: pointer; transition: all 0.2s;">
+                                        <div style="font-size: 0.68rem; color: var(--text-secondary); font-weight: 700;">시험 결과물</div>
+                                        <div style="font-size: 1.1rem; font-weight: 900; color: #34d399; margin-top: 2px;" id="sf-stat-exam">0건</div>
                                     </div>
-                                    <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 8px 6px; text-align: center;">
-                                        <div style="font-size: 0.68rem; color: var(--text-secondary); font-weight: 700;">내신 홀드</div>
-                                        <div style="font-size: 1.05rem; font-weight: 900; color: #fbbf24; margin-top: 2px;" id="sf-stat-hold">0건</div>
+                                    <div onclick="filterMyStudentFolder('HOLD_REQUEST')" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 10px 6px; text-align: center; cursor: pointer; transition: all 0.2s;">
+                                        <div style="font-size: 0.68rem; color: var(--text-secondary); font-weight: 700;">행정신청 내역</div>
+                                        <div style="font-size: 1.1rem; font-weight: 900; color: #fbbf24; margin-top: 2px;" id="sf-stat-hold">0건</div>
                                     </div>
-                                    <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; padding: 8px 6px; text-align: center;">
+                                    <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; padding: 10px 6px; text-align: center;">
                                         <div style="font-size: 0.68rem; color: var(--text-secondary); font-weight: 700;">원장 코멘트</div>
-                                        <div style="font-size: 1.05rem; font-weight: 900; color: #38bdf8; margin-top: 2px;" id="sf-stat-feedback">0건</div>
+                                        <div style="font-size: 1.1rem; font-weight: 900; color: #38bdf8; margin-top: 2px;" id="sf-stat-feedback">0건</div>
                                     </div>
                                 </div>
 
-                                <!-- 업로드 / 신청 유형 선택 탭 -->
-                                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px;">
-                                    <button type="button" id="sf-mode-btn-HOMEWORK" onclick="switchStudentFolderUploadMode('HOMEWORK')" class="btn" style="padding: 9px 6px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff; border-radius: 8px;">
-                                        숙제 사진 업로드
-                                    </button>
-                                    <button type="button" id="sf-mode-btn-EXAM_PHOTO" onclick="switchStudentFolderUploadMode('EXAM_PHOTO')" class="btn btn-secondary" style="padding: 9px 6px; font-size: 0.78rem; font-weight: 800; border-radius: 8px;">
-                                        시험결과 업로드
-                                    </button>
-                                    <button type="button" id="sf-mode-btn-HOLD_REQUEST" onclick="switchStudentFolderUploadMode('HOLD_REQUEST')" class="btn btn-secondary" style="padding: 9px 6px; font-size: 0.78rem; font-weight: 800; border-radius: 8px;">
-                                        내신 홀드 신청
-                                    </button>
-                                </div>
-
-                                <!-- 통합 업로드 & 홀드 신청 폼 -->
-                                <form onsubmit="handleSubmitStudentFolderItem(event)" style="background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 14px;">
-                                    <input type="hidden" id="sf-item-type" value="HOMEWORK">
-
-                                    <div id="sf-mode-guide-banner" style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 8px; padding: 9px 11px; font-size: 0.75rem; color: #c7d2fe; line-height: 1.45; margin-bottom: 10px;">
-                                        하루 1~1.5시간 분량의 기출 분석 숙제를 완료한 뒤 사진을 촬영하여 업로드하면 내 폴더에 자동 기록되며 원장님이 일괄 확인합니다.
-                                    </div>
-
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
-                                        <div>
-                                            <label id="sf-stage-label" style="display: block; font-size: 0.74rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">수강 과정 / 구분</label>
-                                            <select id="sf-curriculum-stage" class="form-input" style="width: 100%; box-sizing: border-box; font-weight: 700; font-size: 0.8rem;">
-                                                <option value="수능국어 방법론 (8주)">수능국어 방법론 (8주)</option>
-                                                <option value="수능국어 실전">수능국어 실전 과정</option>
-                                                <option value="모의고사/내신 성적">모의고사 / 학교 내신</option>
-                                                <option value="내신 기간 홀드">내신 대비 수강 홀드</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label id="sf-week-label-title" style="display: block; font-size: 0.74rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">주차 / 시험 구분</label>
-                                            <input type="text" id="sf-week-label" class="form-input" placeholder="예: 방법론 3주차 / 6월 모평" value="1주차" required style="width: 100%; box-sizing: border-box; font-weight: 700; font-size: 0.8rem;">
-                                        </div>
-                                    </div>
-
-                                    <!-- 시험결과 모드 전용: 점수/등급 요약 -->
-                                    <div id="sf-score-summary-wrap" style="display: none; margin-bottom: 10px;">
-                                        <label style="display: block; font-size: 0.74rem; font-weight: 800; color: #34d399; margin-bottom: 4px;">원점수 / 등급 요약 (선택)</label>
-                                        <input type="text" id="sf-score-summary" class="form-input" placeholder="예: 원점수 96점 / 1등급 (백분위 99)" style="width: 100%; box-sizing: border-box; font-size: 0.8rem;">
-                                    </div>
-
-                                    <!-- 내신 홀드 신청 모드 전용: 홀드 시작일 ~ 종료일 -->
-                                    <div id="sf-hold-dates-wrap" style="display: none; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
-                                        <div>
-                                            <label style="display: block; font-size: 0.74rem; font-weight: 800; color: #fbbf24; margin-bottom: 4px;">홀드 시작 희망일</label>
-                                            <input type="date" id="sf-hold-start-date" class="form-input" style="width: 100%; box-sizing: border-box; font-size: 0.8rem;">
-                                        </div>
-                                        <div>
-                                            <label style="display: block; font-size: 0.74rem; font-weight: 800; color: #fbbf24; margin-bottom: 4px;">홀드 종료(복귀) 예정일</label>
-                                            <input type="date" id="sf-hold-end-date" class="form-input" style="width: 100%; box-sizing: border-box; font-size: 0.8rem;">
-                                        </div>
-                                    </div>
-
-                                    <div style="margin-bottom: 10px;">
-                                        <label id="sf-title-label" style="display: block; font-size: 0.74rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">항목 제목</label>
-                                        <input type="text" id="sf-title-input" class="form-input" placeholder="예: 방법론 1주차 일일 기출분석 숙제 완료 인증" required style="width: 100%; box-sizing: border-box; font-size: 0.82rem; font-weight: 700;">
-                                    </div>
-
-                                    <div style="margin-bottom: 10px;">
-                                        <label id="sf-content-label" style="display: block; font-size: 0.74rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">학습 복기 메모 / 상세 내용</label>
-                                        <textarea id="sf-content-input" rows="2" class="form-input" placeholder="오늘 숙제에서 고민했던 지문이나 오답 복기, 또는 내신 홀드 상세 사유를 적어주세요." style="width: 100%; box-sizing: border-box; font-size: 0.8rem; resize: vertical;"></textarea>
-                                    </div>
-
-                                    <!-- 사진 촬영 / 파일 첨부 영역 -->
-                                    <div id="sf-photo-upload-box" style="margin-bottom: 12px; background: rgba(0, 0, 0, 0.25); border: 1.5px dashed rgba(129, 140, 248, 0.45); border-radius: 10px; padding: 12px; text-align: center;">
-                                        <label for="sf-photo-file-input" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px;">
-                                            <span class="material-symbols-rounded" style="font-size: 1.6rem; color: #818cf8;">add_a_photo</span>
-                                            <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-primary);">숙제 / 시험지 / 성적표 사진 촬영 또는 이미지 선택</span>
-                                            <span style="font-size: 0.7rem; color: var(--text-secondary);">스마트폰 카메라 촬영 또는 갤러리 이미지 첨부 가능</span>
-                                        </label>
-                                        <input type="file" id="sf-photo-file-input" accept="image/*" onchange="handleStudentFolderPhotoPreview(this)" style="display: none;">
-                                        <div id="sf-photo-preview-wrap" style="display: none; margin-top: 10px; text-align: center;">
-                                            <img id="sf-photo-preview-img" src="" alt="업로드 미리보기" style="max-height: 160px; max-width: 100%; border-radius: 8px; border: 1px solid rgba(129, 140, 248, 0.5);">
-                                            <div style="margin-top: 6px;">
-                                                <button type="button" onclick="clearStudentFolderPhotoPreview()" class="btn btn-secondary" style="padding: 3px 10px; font-size: 0.7rem; color: #f87171;">사진 다시 선택</button>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <button type="submit" id="sf-submit-btn" class="btn" style="width: 100%; padding: 11px; font-size: 0.88rem; font-weight: 900; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff; border-radius: 10px;">
-                                        내 디지털 폴더에 업로드 저장
-                                    </button>
-                                </form>
-                            </div>
-
-                            <!-- 내 폴더 아카이브 타임라인 -->
-                            <div class="card" style="margin-bottom: 14px;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
-                                    <div style="font-weight: 800; font-size: 0.9rem; color: #818cf8; display: flex; align-items: center; gap: 6px;">
-                                        <span class="material-symbols-rounded">inventory_2</span>
-                                        <span>내 폴더 전체 활동 보관함</span>
+                                <!-- 결과물 필터 바 -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+                                    <div style="font-weight: 800; font-size: 0.85rem; color: #e2e8f0; display: flex; align-items: center; gap: 5px;">
+                                        <span class="material-symbols-rounded" style="font-size: 1.1rem; color: #818cf8;">inventory_2</span>
+                                        <span>활동 결과물 타임라인</span>
                                     </div>
                                     <div style="display: flex; gap: 4px; flex-wrap: wrap;">
-                                        <button type="button" onclick="filterMyStudentFolder('ALL')" id="sf-filter-ALL" class="btn" style="padding: 4px 9px; font-size: 0.72rem; font-weight: 800; background: #6366f1; color: #ffffff; border-radius: 6px;">전체</button>
-                                        <button type="button" onclick="filterMyStudentFolder('HOMEWORK')" id="sf-filter-HOMEWORK" class="btn btn-secondary" style="padding: 4px 9px; font-size: 0.72rem; font-weight: 800; border-radius: 6px;">숙제</button>
-                                        <button type="button" onclick="filterMyStudentFolder('EXAM_PHOTO')" id="sf-filter-EXAM_PHOTO" class="btn btn-secondary" style="padding: 4px 9px; font-size: 0.72rem; font-weight: 800; border-radius: 6px;">시험결과</button>
-                                        <button type="button" onclick="filterMyStudentFolder('HOLD_REQUEST')" id="sf-filter-HOLD_REQUEST" class="btn btn-secondary" style="padding: 4px 9px; font-size: 0.72rem; font-weight: 800; border-radius: 6px;">내신홀드</button>
+                                        <button type="button" onclick="filterMyStudentFolder('ALL')" id="sf-filter-ALL" class="btn" style="padding: 4px 10px; font-size: 0.72rem; font-weight: 800; background: #6366f1; color: #ffffff; border-radius: 6px;">전체 결과물</button>
+                                        <button type="button" onclick="filterMyStudentFolder('HOMEWORK')" id="sf-filter-HOMEWORK" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.72rem; font-weight: 800; border-radius: 6px;">숙제 제출물</button>
+                                        <button type="button" onclick="filterMyStudentFolder('EXAM_PHOTO')" id="sf-filter-EXAM_PHOTO" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.72rem; font-weight: 800; border-radius: 6px;">시험 결과물</button>
+                                        <button type="button" onclick="filterMyStudentFolder('HOLD_REQUEST')" id="sf-filter-HOLD_REQUEST" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.72rem; font-weight: 800; border-radius: 6px;">과거 행정신청 내역</button>
                                     </div>
                                 </div>
+
+                                <!-- 활동 결과물 카드 타임라인 리스트 (ONLY RESULTS) -->
                                 <div id="student-folder-timeline-list" style="display: flex; flex-direction: column; gap: 10px;">
-                                    <div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 18px;">내 폴더에 등록된 활동 내역을 불러오는 중입니다...</div>
+                                    <div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 22px;">내 폴더에 등록된 활동 결과물을 불러오는 중입니다...</div>
                                 </div>
                             </div>
                         </div>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -4794,7 +4716,108 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
     </div>
 
     <!-- ⏸️ 8. 학원 장기 휴강 신청 모달 -->
-    <div id="academy-leave-modal" class="trigger-modal" style="display: none;">
+    
+    <!-- 📁 학생 활동 폴더 제출물 업로드 모달 -->
+    <div id="student-folder-upload-modal" class="trigger-modal" style="display: none;">
+        <div class="trigger-content" style="max-width: 500px; max-height: 85vh; overflow-y: auto; border-color: #6366f1; background: #0f172a; padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
+                <div style="font-size: 1.05rem; font-weight: 800; color: #818cf8; display: flex; align-items: center; gap: 6px;">
+                    <span class="material-symbols-rounded">upload_file</span>
+                    <span>새 활동 결과물 등록</span>
+                </div>
+                <button type="button" onclick="closeStudentFolderUploadModal()" class="modal-close-btn">&times;</button>
+            </div>
+
+            <!-- 업로드 유형 선택 탭 -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px;">
+                <button type="button" id="sf-mode-btn-HOMEWORK" onclick="switchStudentFolderUploadMode('HOMEWORK')" class="btn" style="padding: 9px 6px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff; border-radius: 8px;">
+                    숙제 사진
+                </button>
+                <button type="button" id="sf-mode-btn-EXAM_PHOTO" onclick="switchStudentFolderUploadMode('EXAM_PHOTO')" class="btn btn-secondary" style="padding: 9px 6px; font-size: 0.78rem; font-weight: 800; border-radius: 8px;">
+                    시험결과
+                </button>
+                <button type="button" id="sf-mode-btn-HOLD_REQUEST" onclick="switchStudentFolderUploadMode('HOLD_REQUEST')" class="btn btn-secondary" style="padding: 9px 6px; font-size: 0.78rem; font-weight: 800; border-radius: 8px;">
+                    내신 홀드
+                </button>
+            </div>
+
+            <!-- 통합 업로드 & 홀드 신청 폼 -->
+            <form onsubmit="handleSubmitStudentFolderItem(event)" style="background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 14px;">
+                <input type="hidden" id="sf-item-type" value="HOMEWORK">
+
+                <div id="sf-mode-guide-banner" style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 8px; padding: 9px 11px; font-size: 0.75rem; color: #c7d2fe; line-height: 1.45; margin-bottom: 10px;">
+                    하루 1~1.5시간 분량의 기출 분석 숙제를 완료한 뒤 사진을 촬영하여 업로드하면 내 폴더에 자동 기록되며 원장님이 일괄 확인합니다.
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                    <div>
+                        <label id="sf-stage-label" style="display: block; font-size: 0.74rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">수강 과정 / 구분</label>
+                        <select id="sf-curriculum-stage" class="form-input" style="width: 100%; box-sizing: border-box; font-weight: 700; font-size: 0.8rem;">
+                            <option value="수능국어 방법론 (8주)">수능국어 방법론 (8주)</option>
+                            <option value="수능국어 실전">수능국어 실전 과정</option>
+                            <option value="모의고사/내신 성적">모의고사 / 학교 내신</option>
+                            <option value="내신 기간 홀드">내신 대비 수강 홀드</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label id="sf-week-label-title" style="display: block; font-size: 0.74rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">주차 / 시험 구분</label>
+                        <input type="text" id="sf-week-label" class="form-input" placeholder="예: 방법론 3주차 / 6월 모평" value="1주차" required style="width: 100%; box-sizing: border-box; font-weight: 700; font-size: 0.8rem;">
+                    </div>
+                </div>
+
+                <!-- 시험결과 모드 전용: 점수/등급 요약 -->
+                <div id="sf-score-summary-wrap" style="display: none; margin-bottom: 10px;">
+                    <label style="display: block; font-size: 0.74rem; font-weight: 800; color: #34d399; margin-bottom: 4px;">성적/등급 요약 (선택 입력)</label>
+                    <input type="text" id="sf-score-summary" class="form-input" placeholder="예: 원점수 94점 / 백분위 98 / 1등급" style="width: 100%; box-sizing: border-box; font-weight: 700; font-size: 0.8rem;">
+                </div>
+
+                <!-- 내신 홀드 모드 전용: 홀드 시작일 및 종료일 -->
+                <div id="sf-hold-dates-wrap" style="display: none; margin-bottom: 10px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div>
+                            <label style="display: block; font-size: 0.74rem; font-weight: 800; color: #fbbf24; margin-bottom: 4px;">홀드 시작 희망일</label>
+                            <input type="date" id="sf-hold-start-date" class="form-input" style="width: 100%; box-sizing: border-box; font-weight: 700; font-size: 0.8rem;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 0.74rem; font-weight: 800; color: #fbbf24; margin-bottom: 4px;">홀드 종료(복귀) 예정일</label>
+                            <input type="date" id="sf-hold-end-date" class="form-input" style="width: 100%; box-sizing: border-box; font-weight: 700; font-size: 0.8rem;">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <label style="display: block; font-size: 0.74rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">항목 제목</label>
+                    <input type="text" id="sf-title-input" class="form-input" placeholder="예: 방법론 1주차 일일 기출분석 숙제 완료 인증" required style="width: 100%; box-sizing: border-box; font-weight: 700; font-size: 0.8rem;">
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <label style="display: block; font-size: 0.74rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">학습 복기 메모 / 상세 내용 (선택)</label>
+                    <textarea id="sf-content-input" rows="2" class="form-input" placeholder="오늘 숙제에서 고민했던 지문이나 오답 복기, 또는 홀드 사유를 간단히 남겨주세요." style="width: 100%; box-sizing: border-box; font-size: 0.78rem;"></textarea>
+                </div>
+
+                <!-- 사진/성적표 이미지 파일 업로드 -->
+                <div id="sf-photo-upload-box" style="margin-bottom: 12px; background: rgba(0,0,0,0.25); border: 1.5px dashed rgba(255,255,255,0.2); border-radius: 10px; padding: 12px; text-align: center;">
+                    <label for="sf-photo-file-input" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                        <span class="material-symbols-rounded" style="font-size: 1.8rem; color: #818cf8;">add_a_photo</span>
+                        <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-primary);">숙제 / 시험지 / 성적표 사진 촬영 또는 이미지 선택</span>
+                        <span style="font-size: 0.7rem; color: var(--text-secondary);">스마트폰 카메라 촬영 또는 갤러리 이미지 첨부 가능</span>
+                    </label>
+                    <input type="file" id="sf-photo-file-input" accept="image/*" onchange="handleStudentFolderPhotoPreview(this)" style="display: none;">
+                    <div id="sf-photo-preview-wrap" style="display: none; margin-top: 10px; text-align: center;">
+                        <img id="sf-photo-preview-img" src="" alt="업로드 미리보기" style="max-height: 160px; max-width: 100%; border-radius: 8px; border: 1px solid rgba(129, 140, 248, 0.5);">
+                        <div style="margin-top: 6px;">
+                            <button type="button" onclick="clearStudentFolderPhotoPreview()" class="btn btn-secondary" style="padding: 3px 10px; font-size: 0.7rem; color: #f87171;">사진 다시 선택</button>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" id="sf-submit-btn" class="btn" style="width: 100%; padding: 11px; font-size: 0.88rem; font-weight: 900; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff; border-radius: 10px;">
+                    내 디지털 폴더에 업로드 저장
+                </button>
+            </form>
+        </div>
+    </div>
+<div id="academy-leave-modal" class="trigger-modal" style="display: none;">
         <div class="trigger-content" style="max-width: 480px; max-height: 85vh; overflow-y: auto; border-color: #ef4444; background: #0f172a; padding: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
                 <div style="font-size: 1.1rem; font-weight: 800; color: #f87171; display: flex; align-items: center; gap: 6px;">
