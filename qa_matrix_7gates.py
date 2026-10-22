@@ -662,9 +662,17 @@ for html_abs_path in scanned_html_files:
     rel_name = os.path.relpath(html_abs_path, ROOT_DIR)
     with open(html_abs_path, 'r', encoding='utf-8', errors='ignore') as f:
         html_text = f.read()
-    inline_scripts = re.findall(r'<script\b[^>]*>(.*?)</script>', html_text, re.DOTALL | re.IGNORECASE)
-    for s_idx, s_code in enumerate(inline_scripts, 1):
+    for s_idx, m in enumerate(re.finditer(r'<script\b([^>]*)>(.*?)</script>', html_text, re.DOTALL | re.IGNORECASE), 1):
+        s_attrs = m.group(1).lower()
+        s_code = m.group(2)
         if not s_code.strip():
+            continue
+        if 'application/ld+json' in s_attrs or 'application/json' in s_attrs:
+            try:
+                json.loads(s_code)
+            except Exception as json_err:
+                print(f"[GATE 5.2b FAIL] JSON-LD parse error in {rel_name} script tag #{s_idx}:\n{json_err}")
+                sys.exit(1)
             continue
         with tempfile.NamedTemporaryFile('w', suffix='.js', delete=False, encoding='utf-8') as tf:
             tf.write(s_code)

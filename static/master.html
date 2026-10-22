@@ -3103,6 +3103,14 @@ Deliver clear, decisive, and highly actionable college entrance counseling.`;
         }
 
 
+        // --- 갓모드 멀티 테마 호환성 함수 ---
+        function applyGodModeTheme(themeName) {
+            const validThemes = ['original', 'palantir-cyber', 'linear-obsidian', 'neo-swiss', 'vercel-mono', 'nordic-gold', 'stripe-fintech', 'tokyo-synthwave'];
+            if (!validThemes.includes(themeName)) themeName = 'original';
+            document.documentElement.setAttribute('data-theme', themeName);
+            localStorage.setItem('palin_theme', themeName);
+        }
+
         // --- 9. 쿠팡 파트너스 & B2B 커미션 갓모드 관제 함수 ---
         async function loadMasterCoupangConfig() {
             try {

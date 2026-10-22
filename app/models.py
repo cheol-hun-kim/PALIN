@@ -1137,6 +1137,8 @@ class BillingInvoice(Base):
 
     student = relationship("Student", back_populates="invoices")
 
+Invoice = BillingInvoice
+
 
 # === 🎮 16. PALIN OS Phase 11: 심리적 락인 엔진 & 크로스 트래픽 모델 ===
 

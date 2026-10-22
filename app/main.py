@@ -7874,7 +7874,7 @@ def get_master_tenants(db: Session = Depends(get_db)):
         is_demo = False
         t_paid_rev = db.query(func.sum(models.Invoice.final_amount)).filter(
             models.Invoice.status == "PAID",
-            models.Invoice.academy_code == t.code,
+            models.Invoice.tenant_code == t.code,
             models.Invoice.deleted_at == None
         ).scalar() or 0
         monthly_rev = t_paid_rev or (t.monthly_revenue or 0)
@@ -11643,7 +11643,7 @@ def create_single_billing_invoice(payload: SingleInvoiceCreatePayload, db: Sessi
     parent_phone = parent.phone if parent and parent.phone else (student.phone or "010-0000-0000")
 
     final_amt = max(0, payload.amount - payload.discount_amount)
-    split = calculate_split_settlement(final_amt, saas_fee_rate=3.3)
+    split = calculate_split_settlement(final_amt, saas_fee_rate=3.3, sms_unit_cost=15)
 
     today_tag = datetime.now().strftime("%Y%m")
     inv_count = db.query(models.BillingInvoice).count() + 1
@@ -11727,7 +11727,7 @@ def create_batch_billing_invoices(payload: BatchInvoiceCreatePayload, db: Sessio
         ).limit(50).all()
 
     total_amt = payload.tuition_amount + payload.textbook_amount
-    split = calculate_split_settlement(total_amt, saas_fee_rate=3.3)
+    split = calculate_split_settlement(total_amt, saas_fee_rate=3.3, sms_unit_cost=15)
     today_tag = datetime.now().strftime("%Y%m")
 
     created_count = 0
