@@ -11042,15 +11042,9 @@ function renderQAPosts() {
                 <!-- 상단 태그 행 -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
                     <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                        <span style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 800; border: 1px solid rgba(99,102,241,0.3);">
-                            ${sIcon} ${post.subject}
-                        </span>
-                        <span style="background: ${resolvedBg}; color: ${resolvedColor}; padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 800; border: 1px solid ${resolvedBorder};">
-                            ${resolvedText}
-                        </span>
-                        <span style="background: rgba(245,158,11,0.12); color: #fbbf24; padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 800; border: 1px solid rgba(245,158,11,0.25);">
-                            보상 ${post.reward_points}P
-                        </span>
+                        <span style="display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border-radius: 5px; font-size: 0.68rem; font-weight: 800; background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); line-height: 1;">${sIcon} ${post.subject}</span>
+                        <span style="display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border-radius: 5px; font-size: 0.68rem; font-weight: 800; background: ${resolvedBg}; color: ${resolvedColor}; border: 1px solid ${resolvedBorder}; line-height: 1;">${resolvedText}</span>
+                        <span style="display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border-radius: 5px; font-size: 0.68rem; font-weight: 800; background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); line-height: 1;">보상 ${post.reward_points}P</span>
                         ${targetBadgeHtml}
                     </div>
                     ${actionBtns}
