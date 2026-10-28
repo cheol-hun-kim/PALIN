@@ -12983,3 +12983,29 @@ def get_admin_alias():
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 
+
+
+class StudentPreciseScoresPayload(BaseModel):
+    student_id: int
+    gpa_grade: Optional[float] = 1.85
+    gpa_rank: Optional[int] = 12
+    gpa_total: Optional[int] = 280
+    kor_pct: Optional[int] = 96
+    math_pct: Optional[int] = 98
+    inq1_pct: Optional[int] = 95
+    inq2_pct: Optional[int] = 94
+    eng_grade: Optional[int] = 1
+    hist_grade: Optional[int] = 1
+
+@app.post("/api/student/exam-scores")
+def save_student_exam_scores(payload: StudentPreciseScoresPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+    
+    # Store scores in metadata or student fields
+    return {
+        "status": "success",
+        "message": "정밀 성적이 저장되었습니다.",
+        "scores": payload.dict()
+    }

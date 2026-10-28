@@ -21094,3 +21094,526 @@ document.addEventListener("DOMContentLoaded", () => {
     setInterval(pollNotifications, 30000);
 });
 
+
+// ==============================================================================
+// 🎯 [FEATURE DIRECTIVE 3] PASS-MATE 1번 탭 최상단 헤드라인 위젯:
+// '나(자녀)와 희망·마지노선 대학까지의 거리' 5갈래 입시 경로 시각화 & 실시간 순공 페널티 엔진
+// ==============================================================================
+
+let currentAdmissionViewTarget = 'TARGET'; // 'TARGET' (1지망) or 'BASELINE' (마지노선)
+let cachedAdmissionCampusData = null;
+
+// 정밀 성적 기본값 로드 (로컬 스토리지 캐시 우선)
+function getPreciseScoreData() {
+    return {
+        gpa_grade: parseFloat(localStorage.getItem('cached_score_gpa') || '1.85'),
+        gpa_rank: parseInt(localStorage.getItem('cached_score_rank') || '12', 10),
+        gpa_total: parseInt(localStorage.getItem('cached_score_total') || '280', 10),
+        kor_pct: parseInt(localStorage.getItem('cached_score_kor') || '96', 10),
+        math_pct: parseInt(localStorage.getItem('cached_score_math') || '98', 10),
+        inq1_pct: parseInt(localStorage.getItem('cached_score_inq1') || '95', 10),
+        inq2_pct: parseInt(localStorage.getItem('cached_score_inq2') || '94', 10),
+        eng_grade: parseInt(localStorage.getItem('cached_score_eng') || '1', 10),
+        hist_grade: parseInt(localStorage.getItem('cached_score_hist') || '1', 10)
+    };
+}
+
+// 1지망 vs 마지노선 뷰 전환
+function switchAdmissionTargetView(mode) {
+    currentAdmissionViewTarget = mode;
+    const btn1 = document.getElementById('btn-dist-target-1');
+    const btn2 = document.getElementById('btn-dist-target-2');
+
+    if (mode === 'TARGET') {
+        if (btn1) {
+            btn1.style.background = '#4f46e5';
+            btn1.style.borderColor = '#6366f1';
+            btn1.style.color = '#ffffff';
+        }
+        if (btn2) {
+            btn2.style.background = 'transparent';
+            btn2.style.borderColor = 'transparent';
+            btn2.style.color = '#94a3b8';
+        }
+    } else {
+        if (btn2) {
+            btn2.style.background = '#4f46e5';
+            btn2.style.borderColor = '#6366f1';
+            btn2.style.color = '#ffffff';
+        }
+        if (btn1) {
+            btn1.style.background = 'transparent';
+            btn1.style.borderColor = 'transparent';
+            btn1.style.color = '#94a3b8';
+        }
+    }
+
+    renderAdmissionPathEngine();
+}
+window.switchAdmissionTargetView = switchAdmissionTargetView;
+
+// 아코디언 드롭다운 토글
+function toggleAdmissionDetailAccordion() {
+    const panel = document.getElementById('admission-detail-panel');
+    const arrow = document.getElementById('dist-accordion-arrow-icon');
+    if (!panel) return;
+
+    if (panel.style.display === 'none' || !panel.style.display) {
+        panel.style.display = 'block';
+        if (arrow) arrow.style.transform = 'rotate(180deg)';
+    } else {
+        panel.style.display = 'none';
+        if (arrow) arrow.style.transform = 'rotate(0deg)';
+    }
+}
+window.toggleAdmissionDetailAccordion = toggleAdmissionDetailAccordion;
+
+// 성적 입력 모달 열기/닫기
+function openScoreInputModal() {
+    const modal = document.getElementById('score-input-modal');
+    if (!modal) return;
+    const scores = getPreciseScoreData();
+
+    const gpaInp = document.getElementById('input-score-gpa');
+    const rankInp = document.getElementById('input-score-rank');
+    const totalInp = document.getElementById('input-score-total');
+    const korInp = document.getElementById('input-score-kor');
+    const mathInp = document.getElementById('input-score-math');
+    const inq1Inp = document.getElementById('input-score-inq1');
+    const inq2Inp = document.getElementById('input-score-inq2');
+    const engInp = document.getElementById('input-score-eng');
+    const histInp = document.getElementById('input-score-hist');
+
+    if (gpaInp) gpaInp.value = scores.gpa_grade;
+    if (rankInp) rankInp.value = scores.gpa_rank;
+    if (totalInp) totalInp.value = scores.gpa_total;
+    if (korInp) korInp.value = scores.kor_pct;
+    if (mathInp) mathInp.value = scores.math_pct;
+    if (inq1Inp) inq1Inp.value = scores.inq1_pct;
+    if (inq2Inp) inq2Inp.value = scores.inq2_pct;
+    if (engInp) engInp.value = scores.eng_grade;
+    if (histInp) histInp.value = scores.hist_grade;
+
+    modal.style.display = 'flex';
+}
+window.openScoreInputModal = openScoreInputModal;
+
+function closeScoreInputModal() {
+    const modal = document.getElementById('score-input-modal');
+    if (modal) modal.style.display = 'none';
+}
+window.closeScoreInputModal = closeScoreInputModal;
+
+// 성적 저장 핸들러
+async function handleSavePreciseScores(e) {
+    if (e && e.preventDefault) e.preventDefault();
+
+    const gpa = parseFloat(document.getElementById('input-score-gpa')?.value || '1.85');
+    const rank = parseInt(document.getElementById('input-score-rank')?.value || '12', 10);
+    const total = parseInt(document.getElementById('input-score-total')?.value || '280', 10);
+    const kor = parseInt(document.getElementById('input-score-kor')?.value || '96', 10);
+    const math = parseInt(document.getElementById('input-score-math')?.value || '98', 10);
+    const inq1 = parseInt(document.getElementById('input-score-inq1')?.value || '95', 10);
+    const inq2 = parseInt(document.getElementById('input-score-inq2')?.value || '94', 10);
+    const eng = parseInt(document.getElementById('input-score-eng')?.value || '1', 10);
+    const hist = parseInt(document.getElementById('input-score-hist')?.value || '1', 10);
+
+    localStorage.setItem('cached_score_gpa', String(gpa));
+    localStorage.setItem('cached_score_rank', String(rank));
+    localStorage.setItem('cached_score_total', String(total));
+    localStorage.setItem('cached_score_kor', String(kor));
+    localStorage.setItem('cached_score_math', String(math));
+    localStorage.setItem('cached_score_inq1', String(inq1));
+    localStorage.setItem('cached_score_inq2', String(inq2));
+    localStorage.setItem('cached_score_eng', String(eng));
+    localStorage.setItem('cached_score_hist', String(hist));
+
+    closeScoreInputModal();
+
+    if (typeof showPalinToast === 'function') {
+        showPalinToast('🎯 내신 및 모의고사 성적이 반영되었습니다! 5갈래 입시 노선도가 갱신됩니다.', 'SUCCESS');
+    } else {
+        alert('🎯 정밀 성적이 저장되었습니다! 5갈래 입시 경로가 즉시 재계산됩니다.');
+    }
+
+    renderAdmissionPathEngine();
+}
+window.handleSavePreciseScores = handleSavePreciseScores;
+
+// 5갈래 노선도 & 순공 페널티 메인 렌더링 엔진
+async function renderAdmissionPathEngine() {
+    const cardEl = document.getElementById('admission-distance-headline-card');
+    if (!cardEl) return;
+
+    // 학부모 모드일 경우 제목을 '자녀와 대학까지의 거리'로 변경
+    const headlineTitle = document.getElementById('dist-headline-title');
+    const isParentRole = document.body.classList.contains('role-parent') || localStorage.getItem('userRole') === 'PARENT';
+    if (headlineTitle) {
+        headlineTitle.innerText = isParentRole ? "자녀와 희망·마지노선 대학까지의 거리" : "나와 희망·마지노선 대학까지의 거리 (5갈래 경로)";
+    }
+
+    const sid = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem("studentId") || "1", 10);
+
+    // 1. 순공 벤치마크 및 목표대학 데이터 페치
+    if (!cachedAdmissionCampusData) {
+        try {
+            const res = await fetch(`/api/gamification/campus-occupation?student_id=${sid}`);
+            if (res.ok) {
+                cachedAdmissionCampusData = await res.json();
+            }
+        } catch (e) {
+            console.warn("renderAdmissionPathEngine fetch error:", e);
+        }
+    }
+
+    const data = cachedAdmissionCampusData || {
+        target_info: { univ_name: "연세대학교 의예과", avg_hours: 42.5 },
+        baseline_info: { univ_name: "서울대학교 화학생물공학부", avg_hours: 36.0 },
+        my_study_info: { my_hours: 0.0, status: "DANGER", status_label: "위험 (마지노선 붕괴 위기)", alert_message: "마지노선 [서울대학교] 경쟁자 평균보다 주간 순공이 36.0시간 부족합니다!" },
+        total_network_hours: 128
+    };
+
+    const targetUnivName = data.target_info ? data.target_info.univ_name : (currentStudent?.target_univ || "연세대학교 의예과");
+    const baselineUnivName = data.baseline_info ? data.baseline_info.univ_name : (currentStudent?.baseline_univ || "서울대학교 화학생물공학부");
+
+    const targetEl1 = document.getElementById('dist-target-univ-name');
+    const targetEl2 = document.getElementById('dist-baseline-univ-name');
+    if (targetEl1) targetEl1.innerText = targetUnivName;
+    if (targetEl2) targetEl2.innerText = baselineUnivName;
+
+    // 현재 선택된 대학 (1지망 vs 마지노선)
+    const isTarget = (currentAdmissionViewTarget === 'TARGET');
+    const activeUnivName = isTarget ? targetUnivName : baselineUnivName;
+    const activeTargetHours = isTarget ? (data.target_info?.avg_hours || 42.5) : (data.baseline_info?.avg_hours || 36.0);
+    const myHours = data.my_study_info?.my_hours || 0.0;
+    const deficitHours = Math.max(0, Math.round((activeTargetHours - myHours) * 10) / 10);
+    const studyRatio = activeTargetHours > 0 ? (myHours / activeTargetHours) : 0;
+
+    // 순공 페널티 판정 등급 (달성률 80% 이상: 안전, 50~79%: 경고 1단계 강등, 50% 미만: 붕괴 2단계 강등)
+    let penaltyLevel = 'DANGER'; // 'NONE' | 'WARN' | 'DANGER'
+    if (studyRatio >= 0.8) penaltyLevel = 'NONE';
+    else if (studyRatio >= 0.5) penaltyLevel = 'WARN';
+    else penaltyLevel = 'DANGER';
+
+    // 2. 종합 상태 뱃지 & 순공 페널티 배너 갱신
+    const badgeTextEl = document.getElementById('admission-dist-badge-text');
+    const alertBox = document.getElementById('admission-penalty-alert-box');
+    const alertText = document.getElementById('admission-penalty-alert-text');
+    const deficitBadge = document.getElementById('dist-accordion-deficit-badge');
+
+    if (deficitBadge) {
+        if (deficitHours > 0) {
+            deficitBadge.innerText = `부족 -${deficitHours.toFixed(1)}시간`;
+            deficitBadge.style.color = '#fca5a5';
+            deficitBadge.style.borderColor = '#ef4444';
+            deficitBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+        } else {
+            deficitBadge.innerText = `목표 달성 완료 🏆`;
+            deficitBadge.style.color = '#6ee7b7';
+            deficitBadge.style.borderColor = '#10b981';
+            deficitBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+        }
+    }
+
+    if (penaltyLevel === 'DANGER') {
+        if (badgeTextEl) badgeTextEl.innerText = "위험 🚨 (마지노선 붕괴 위기)";
+        if (alertBox) {
+            alertBox.style.display = 'flex';
+            alertBox.style.background = 'rgba(239, 68, 68, 0.14)';
+            alertBox.style.borderLeft = '3.5px solid #ef4444';
+        }
+        if (alertText) {
+            alertText.innerHTML = `⚡ ${activeUnivName} 경쟁자 평균보다 주간 순공이 <b style="color: #f87171;">${deficitHours.toFixed(1)}시간 부족</b>하여 정시·논술 합격선이 <b>2단계 강등</b>되었습니다!`;
+        }
+    } else if (penaltyLevel === 'WARN') {
+        if (badgeTextEl) badgeTextEl.innerText = "소신 ⚠️ (공부량 부족 경고)";
+        if (alertBox) {
+            alertBox.style.display = 'flex';
+            alertBox.style.background = 'rgba(245, 158, 11, 0.14)';
+            alertBox.style.borderLeft = '3.5px solid #f59e0b';
+        }
+        if (alertText) {
+            alertText.innerHTML = `⚠️ 주간 순공 달성률이 <b>${Math.round(studyRatio * 100)}%</b>입니다. 정시·논술 합격 가능성이 <b>1단계 강등</b> 적용 중입니다.`;
+        }
+    } else {
+        if (badgeTextEl) badgeTextEl.innerText = "안정권 유지 🟢 (순공 목표 달성)";
+        if (alertBox) alertBox.style.display = 'none';
+    }
+
+    // 3. 우측 대학 노드 텍스트 갱신
+    const svgUnivShort = document.getElementById('svg-univ-short-lbl');
+    const svgUnivTarget = document.getElementById('svg-univ-target-lbl');
+    const svgUnivCircle = document.getElementById('svg-univ-circle');
+    if (svgUnivShort) {
+        svgUnivShort.innerText = activeUnivName.includes("연세") ? "연세대" : (activeUnivName.includes("서울") ? "서울대" : activeUnivName.substring(0, 4));
+    }
+    if (svgUnivTarget) {
+        svgUnivTarget.innerText = isTarget ? "1지망" : "마지노선";
+        svgUnivTarget.setAttribute("fill", isTarget ? "#818cf8" : "#94a3b8");
+    }
+    if (svgUnivCircle) {
+        svgUnivCircle.setAttribute("stroke", isTarget ? "#6366f1" : "#0284c7");
+    }
+
+    // 4. 5갈래 전형별 정밀 판정 로직
+    const scores = getPreciseScoreData();
+    const tracks = calculate5Tracks(scores, activeUnivName, penaltyLevel);
+
+    // 5. SVG 베지어 곡선 지도 렌더링
+    renderSvgRoutes(tracks);
+
+    // 6. 3단 순공 비교 바 렌더링 (아코디언 내부)
+    renderHeadlineCampusBars(data, activeTargetHours, myHours);
+
+    // 7. 5대 전형 상세표 렌더링 (아코디언 내부)
+    render5TracksTable(tracks);
+}
+window.renderAdmissionPathEngine = renderAdmissionPathEngine;
+
+// 5갈래 전형 판정 계산식
+function calculate5Tracks(scores, univName, penaltyLevel) {
+    const isMedical = univName.includes("의예") || univName.includes("의대");
+    const isSky = univName.includes("서울") || univName.includes("연세") || univName.includes("고려");
+
+    // Track 1: 학생부 교과 (확정 실선)
+    let gpaCutSafe = isMedical ? 1.25 : (isSky ? 1.60 : 2.10);
+    let gpaCutTrack = isMedical ? 1.45 : (isSky ? 1.95 : 2.60);
+    let track1Status = 'DANGER';
+    if (scores.gpa_grade <= gpaCutSafe) track1Status = 'SAFE';
+    else if (scores.gpa_grade <= gpaCutTrack) track1Status = 'ON_TRACK';
+
+    // Track 2: 학생부 종합 (확정 실선)
+    let track2Status = 'ON_TRACK';
+    if (scores.gpa_grade <= (gpaCutSafe + 0.35)) track2Status = 'SAFE';
+    else if (scores.gpa_grade > (gpaCutTrack + 0.6)) track2Status = 'DANGER';
+
+    // Track 3: 일반 논술 (잠재 점선) - 수능 최저기준 및 순공 페널티 연동
+    let track3Base = (scores.kor_pct >= 94 && scores.math_pct >= 94) ? 'ON_TRACK' : 'DANGER';
+    let track3Status = applyPenalty(track3Base, penaltyLevel);
+
+    // Track 4: 약술형 논술 (잠재 점선)
+    let track4Base = (scores.math_pct >= 80 || scores.kor_pct >= 80) ? 'SAFE' : 'ON_TRACK';
+    let track4Status = applyPenalty(track4Base, penaltyLevel);
+
+    // Track 5: 정시 수능 (잠재 굵은 점선) - 백분위 합산 & 순공 페널티
+    let totalPct = (scores.kor_pct + scores.math_pct + scores.inq1_pct + scores.inq2_pct) / 4.0;
+    let track5Base = 'DANGER';
+    if (isMedical) {
+        if (totalPct >= 98.5) track5Base = 'SAFE';
+        else if (totalPct >= 96.5) track5Base = 'ON_TRACK';
+    } else if (isSky) {
+        if (totalPct >= 95.0) track5Base = 'SAFE';
+        else if (totalPct >= 91.5) track5Base = 'ON_TRACK';
+    } else {
+        if (totalPct >= 88.0) track5Base = 'SAFE';
+        else if (totalPct >= 82.0) track5Base = 'ON_TRACK';
+    }
+    let track5Status = applyPenalty(track5Base, penaltyLevel);
+
+    return [
+        {
+            id: 'gyogwa',
+            name: '학생부 교과',
+            type: 'SOLID',
+            yCurve: 42,
+            status: track1Status,
+            badge: track1Status === 'SAFE' ? '적정 (합격선 충족)' : (track1Status === 'ON_TRACK' ? '소신 (경쟁률 변수)' : '위험 (내신 미달)'),
+            color: getStatusColor(track1Status),
+            comment: `내신 ${scores.gpa_grade}등급 · 전교 ${scores.gpa_rank}등/${scores.gpa_total}명 확정치`
+        },
+        {
+            id: 'jonghab',
+            name: '학생부 종합',
+            type: 'SOLID',
+            yCurve: 72,
+            status: track2Status,
+            badge: track2Status === 'SAFE' ? '적정 (서류 경쟁력 우수)' : (track2Status === 'ON_TRACK' ? '소신 (생기부 역량 관건)' : '위험 (비교과 보완 필요)'),
+            color: getStatusColor(track2Status),
+            comment: `내신 및 분당 낙생고 학업역량 가중치 반영`
+        },
+        {
+            id: 'essay_general',
+            name: '일반 논술',
+            type: 'DASHED',
+            yCurve: 100,
+            status: track3Status,
+            badge: getPenaltyBadge(track3Status, penaltyLevel),
+            color: getStatusColor(track3Status),
+            comment: `수능 최저기준(3합 5) 충족 잠재치 ${penaltyLevel !== 'NONE' ? '(순공 부족 감점 적용)' : ''}`
+        },
+        {
+            id: 'essay_brief',
+            name: '약술형 논술',
+            type: 'DASHED',
+            yCurve: 128,
+            status: track4Status,
+            badge: getPenaltyBadge(track4Status, penaltyLevel),
+            color: getStatusColor(track4Status),
+            comment: `중위권 수험생 역전 전형 (국/수 1과목 3등급 이내)`
+        },
+        {
+            id: 'csat_regular',
+            name: '정시 수능 일반',
+            type: 'THICK_DASHED',
+            yCurve: 158,
+            status: track5Status,
+            badge: getPenaltyBadge(track5Status, penaltyLevel),
+            color: getStatusColor(track5Status),
+            comment: `국수탐 백분위 단순합 평균 ${Math.round(totalPct)}점 ${penaltyLevel === 'DANGER' ? '➔ 🚨 순공 0시간으로 2단계 강등' : ''}`
+        }
+    ];
+}
+
+function applyPenalty(baseStatus, penaltyLevel) {
+    if (penaltyLevel === 'NONE') return baseStatus;
+    if (penaltyLevel === 'WARN') {
+        if (baseStatus === 'SAFE') return 'ON_TRACK';
+        return 'DANGER';
+    }
+    // DANGER: 2단계 강등
+    return 'DANGER';
+}
+
+function getStatusColor(status) {
+    if (status === 'SAFE') return '#10b981'; // 초록
+    if (status === 'ON_TRACK') return '#f59e0b'; // 주황
+    return '#ef4444'; // 빨강
+}
+
+function getPenaltyBadge(status, penaltyLevel) {
+    if (penaltyLevel === 'DANGER' && status === 'DANGER') {
+        return '위험 🚨 (순공 부족 강등)';
+    }
+    if (penaltyLevel === 'WARN' && status === 'DANGER') {
+        return '소신 ⚠️ (공부량 부족 하락)';
+    }
+    if (status === 'SAFE') return '적정 (안정권)';
+    if (status === 'ON_TRACK') return '소신 (도전권)';
+    return '위험 (마지노선 미달)';
+}
+
+// SVG 베지어 곡선 및 라벨 렌더링
+function renderSvgRoutes(tracks) {
+    const group = document.getElementById('svg-routes-group');
+    if (!group) return;
+
+    let svgHtml = '';
+    const startX = 68;
+    const startY = 100;
+    const endX = 452;
+    const endY = 100;
+
+    tracks.forEach((tr, idx) => {
+        const midY = tr.yCurve;
+        const d = `M ${startX} ${startY} C 190 ${midY}, 330 ${midY}, ${endX} ${endY}`;
+        const isDashed = (tr.type === 'DASHED' || tr.type === 'THICK_DASHED');
+        const strokeWidth = (tr.type === 'THICK_DASHED') ? 3.8 : (tr.type === 'SOLID' ? 3.0 : 2.4);
+        const dashArray = (tr.type === 'THICK_DASHED') ? '8 4' : (tr.type === 'DASHED' ? '6 4' : 'none');
+        const isPulse = (tr.status === 'DANGER' && isDashed);
+
+        // Path
+        svgHtml += `
+            <path d="${d}" fill="none" stroke="${tr.color}" stroke-width="${strokeWidth}" 
+                  stroke-dasharray="${dashArray}" opacity="0.9" style="transition: all 0.3s ease; cursor: pointer;"
+                  onclick="selectAdmissionTrackCard('${tr.id}')">
+                ${isPulse ? '<animate attributeName="stroke-opacity" values="0.95;0.35;0.95" dur="1.4s" repeatCount="indefinite" />' : ''}
+            </path>
+        `;
+
+        // Midpoint Label
+        const labelX = 260;
+        const labelY = midY + (midY < 100 ? -8 : 12);
+        svgHtml += `
+            <g transform="translate(${labelX}, ${midY})">
+                <circle r="4" fill="${tr.color}" />
+                <rect x="-42" y="-10" width="84" height="20" rx="6" fill="#0f172a" stroke="${tr.color}" stroke-width="1.2" opacity="0.92" />
+                <text text-anchor="middle" dy="3.5" fill="#ffffff" font-size="9" font-weight="900">${tr.name}</text>
+            </g>
+        `;
+    });
+
+    group.innerHTML = svgHtml;
+}
+
+// 3단 순공 비교 프로그레스 바 렌더링 (아코디언 내부)
+function renderHeadlineCampusBars(data, activeTargetHours, myHours) {
+    const listEl = document.getElementById('headline-campus-occupation-list');
+    const totalNetworkEl = document.getElementById('headline-network-total-hours');
+    if (!listEl) return;
+
+    if (totalNetworkEl) {
+        totalNetworkEl.innerText = `주간 ${data.total_network_hours || 128}시간 집계`;
+    }
+
+    const targetInfo = data.target_info;
+    const baselineInfo = data.baseline_info;
+    const maxH = Math.max(targetInfo?.avg_hours || 1, baselineInfo?.avg_hours || 1, myHours || 1, 1);
+
+    const items = [
+        { label: "1지망 목표", name: targetInfo?.univ_name || "연세대학교 의예과", hours: targetInfo?.avg_hours || 42.5, color: "#6366f1", badge: "1지망" },
+        { label: "마지노선", name: baselineInfo?.univ_name || "서울대학교 화학생물공학부", hours: baselineInfo?.avg_hours || 36.0, color: "#0284c7", badge: "마지노선" },
+        { label: "나의 순공", name: (currentStudent?.name || "학생") + " 이번 주 공부시간", hours: myHours, color: (myHours >= 36 ? "#10b981" : "#ef4444"), badge: "MY" }
+    ];
+
+    listEl.innerHTML = items.map(item => {
+        const pct = Math.min(100, Math.round((item.hours / maxH) * 100));
+        return `
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 10px 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.68rem; font-weight: 800; background: ${item.color}33; color: ${item.color}; border: 1px solid ${item.color}66; padding: 1px 6px; border-radius: 4px;">${item.badge}</span>
+                        <span style="font-size: 0.78rem; font-weight: 800; color: #ffffff;">${item.name}</span>
+                    </div>
+                    <span style="font-size: 0.82rem; font-weight: 900; color: ${item.color};">${item.hours.toFixed(1)}시간</span>
+                </div>
+                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;">
+                    <div style="width: ${pct}%; height: 100%; background: ${item.color}; border-radius: 3px; transition: width 0.6s ease;"></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// 5대 전형 판정 상세표 렌더링
+function render5TracksTable(tracks) {
+    const tableEl = document.getElementById('admission-5tracks-table');
+    if (!tableEl) return;
+
+    tableEl.innerHTML = tracks.map(tr => {
+        return `
+            <div id="track-card-${tr.id}" style="display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-left: 3px solid ${tr.color}; border-radius: 8px;">
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.82rem; font-weight: 900; color: #ffffff;">${tr.name}</span>
+                        <span style="font-size: 0.68rem; color: #94a3b8;">${tr.type.includes('SOLID') ? '확정 실선' : '잠재 점선'}</span>
+                    </div>
+                    <div style="font-size: 0.72rem; color: #cbd5e1;">${tr.comment}</div>
+                </div>
+                <span style="font-size: 0.72rem; font-weight: 900; color: ${tr.color}; background: ${tr.color}1a; border: 1px solid ${tr.color}55; padding: 3px 8px; border-radius: 8px; white-space: nowrap;">
+                    ${tr.badge}
+                </span>
+            </div>
+        `;
+    }).join('');
+}
+
+function selectAdmissionTrackCard(trackId) {
+    const el = document.getElementById(`track-card-${trackId}`);
+    if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        el.style.backgroundColor = 'rgba(99, 102, 241, 0.2)';
+        setTimeout(() => { el.style.backgroundColor = 'rgba(255,255,255,0.03)'; }, 1000);
+    }
+}
+window.selectAdmissionTrackCard = selectAdmissionTrackCard;
+
+// 페이지 로드 시 헤드라인 위젯 자동 초기화 등록
+document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+        try {
+            renderAdmissionPathEngine();
+        } catch(e) {
+            console.warn("renderAdmissionPathEngine auto-init error:", e);
+        }
+    }, 400);
+});
