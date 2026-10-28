@@ -6361,6 +6361,8 @@ function applyRolePermissions(role) {
     const parentP3Container = document.getElementById('parent-p3-container');
 
     const navItemP1 = document.querySelector('.bottom-nav .nav-item[data-tab="page1"]');
+    const navItemP2 = document.querySelector('.bottom-nav .nav-item[data-tab="page2"]');
+    const navItemP4 = document.querySelector('.bottom-nav .nav-item[data-tab="page4"]');
     const navItemP3 = document.querySelector('.bottom-nav .nav-item[data-tab="page3"]');
 
     if (userRole === 'PARENT') {
@@ -6370,12 +6372,18 @@ function applyRolePermissions(role) {
         if (studentP3Container) studentP3Container.style.display = 'none';
         if (parentP3Container) parentP3Container.style.display = 'block';
 
-        // Update Bottom Nav for Parent: [자녀케어, 학습공간, 학부모룸, 학원관리]
+        // 4대 탭 점진적 노출: [리포트, 입시, 학원, 커뮤]
         if (navItemP1) {
-            navItemP1.innerHTML = `<span class="material-symbols-rounded nav-icon">family_restroom</span><span>자녀케어</span>`;
+            navItemP1.innerHTML = `<span class="material-symbols-rounded nav-icon">analytics</span><span>리포트</span>`;
+        }
+        if (navItemP2) {
+            navItemP2.innerHTML = `<span class="material-symbols-rounded nav-icon">explore</span><span>입시</span>`;
+        }
+        if (navItemP4) {
+            navItemP4.innerHTML = `<span class="material-symbols-rounded nav-icon">account_balance</span><span>학원</span>`;
         }
         if (navItemP3) {
-            navItemP3.innerHTML = `<span class="material-symbols-rounded nav-icon">forum</span><span>학부모룸</span>`;
+            navItemP3.innerHTML = `<span class="material-symbols-rounded nav-icon">forum</span><span>커뮤</span>`;
         }
 
         if (typeof renderParentBriefing === 'function') renderParentBriefing();
@@ -6387,12 +6395,18 @@ function applyRolePermissions(role) {
         if (studentP3Container) studentP3Container.style.display = 'block';
         if (parentP3Container) parentP3Container.style.display = 'none';
 
-        // Update Bottom Nav for Student: [생활관리, 학습공간, 커뮤니티, 학원관리]
+        // 4대 탭 점진적 노출: [생활, 입시, 학원, 커뮤]
         if (navItemP1) {
-            navItemP1.innerHTML = `<span class="material-symbols-rounded nav-icon">local_activity</span><span>생활관리</span>`;
+            navItemP1.innerHTML = `<span class="material-symbols-rounded nav-icon">local_activity</span><span>생활</span>`;
+        }
+        if (navItemP2) {
+            navItemP2.innerHTML = `<span class="material-symbols-rounded nav-icon">explore</span><span>입시</span>`;
+        }
+        if (navItemP4) {
+            navItemP4.innerHTML = `<span class="material-symbols-rounded nav-icon">account_balance</span><span>학원</span>`;
         }
         if (navItemP3) {
-            navItemP3.innerHTML = `<span class="material-symbols-rounded nav-icon">groups</span><span>커뮤니티</span>`;
+            navItemP3.innerHTML = `<span class="material-symbols-rounded nav-icon">groups</span><span>커뮤</span>`;
         }
     }
 
@@ -21105,16 +21119,21 @@ let cachedAdmissionCampusData = null;
 
 // 정밀 성적 기본값 로드 (로컬 스토리지 캐시 우선)
 function getPreciseScoreData() {
+    const rawGpa = localStorage.getItem('cached_score_gpa');
+    const rawKor = localStorage.getItem('cached_score_kor');
+    const hasScores = !!(rawGpa || rawKor);
+
     return {
-        gpa_grade: parseFloat(localStorage.getItem('cached_score_gpa') || '1.85'),
-        gpa_rank: parseInt(localStorage.getItem('cached_score_rank') || '12', 10),
-        gpa_total: parseInt(localStorage.getItem('cached_score_total') || '280', 10),
-        kor_pct: parseInt(localStorage.getItem('cached_score_kor') || '96', 10),
-        math_pct: parseInt(localStorage.getItem('cached_score_math') || '98', 10),
-        inq1_pct: parseInt(localStorage.getItem('cached_score_inq1') || '95', 10),
-        inq2_pct: parseInt(localStorage.getItem('cached_score_inq2') || '94', 10),
-        eng_grade: parseInt(localStorage.getItem('cached_score_eng') || '1', 10),
-        hist_grade: parseInt(localStorage.getItem('cached_score_hist') || '1', 10)
+        hasScores: hasScores,
+        gpa_grade: rawGpa ? parseFloat(rawGpa) : null,
+        gpa_rank: localStorage.getItem('cached_score_rank') ? parseInt(localStorage.getItem('cached_score_rank'), 10) : null,
+        gpa_total: localStorage.getItem('cached_score_total') ? parseInt(localStorage.getItem('cached_score_total'), 10) : 280,
+        kor_pct: rawKor ? parseInt(rawKor, 10) : null,
+        math_pct: localStorage.getItem('cached_score_math') ? parseInt(localStorage.getItem('cached_score_math'), 10) : null,
+        inq1_pct: localStorage.getItem('cached_score_inq1') ? parseInt(localStorage.getItem('cached_score_inq1'), 10) : null,
+        inq2_pct: localStorage.getItem('cached_score_inq2') ? parseInt(localStorage.getItem('cached_score_inq2'), 10) : null,
+        eng_grade: localStorage.getItem('cached_score_eng') ? parseInt(localStorage.getItem('cached_score_eng'), 10) : 1,
+        hist_grade: localStorage.getItem('cached_score_hist') ? parseInt(localStorage.getItem('cached_score_hist'), 10) : 1
     };
 }
 
@@ -21371,97 +21390,174 @@ async function renderAdmissionPathEngine() {
 window.renderAdmissionPathEngine = renderAdmissionPathEngine;
 
 // 5갈래 전형 판정 계산식
+function getUnivAdmissionTracks(univName) {
+    const name = (univName || '').trim();
+    // 1. 논술 미실시 대학 (서울대, 과학기술원, 교육대 등)
+    const noEssayUnivs = ["서울대", "서울대학교", "KAIST", "카이스트", "포스텍", "POSTECH", "포항공과대학교", "GIST", "UNIST", "DGIST", "한국교원대", "교육대"];
+    const isNoEssay = noEssayUnivs.some(u => name.includes(u));
+
+    // 2. 약술형 논술 시행 대학 (약 12개교)
+    const yaksulUnivs = ["가천", "수원", "상명", "삼육", "서경", "한국공학", "을지", "한국기술교육", "한신", "신한", "세종"];
+    const isYaksul = !isNoEssay && yaksulUnivs.some(u => name.includes(u));
+
+    // 3. 일반 논술 시행 대학 (연세대, 고려대, 성균관대 등 인서울 주요대)
+    return { isNoEssay, isYaksul, hasGeneralEssay: !isNoEssay && !isYaksul };
+}
+
 function calculate5Tracks(scores, univName, penaltyLevel) {
     const isMedical = univName.includes("의예") || univName.includes("의대");
     const isSky = univName.includes("서울") || univName.includes("연세") || univName.includes("고려");
+    const trackConfig = getUnivAdmissionTracks(univName);
+
+    const hasScores = scores && scores.hasScores;
+    const gpa = scores?.gpa_grade;
+    const gpaRank = scores?.gpa_rank;
+    const gpaTotal = scores?.gpa_total || 280;
+    const korPct = scores?.kor_pct;
+    const mathPct = scores?.math_pct;
+    const inq1Pct = scores?.inq1_pct;
+    const inq2Pct = scores?.inq2_pct;
 
     // Track 1: 학생부 교과 (확정 실선)
-    let gpaCutSafe = isMedical ? 1.25 : (isSky ? 1.60 : 2.10);
-    let gpaCutTrack = isMedical ? 1.45 : (isSky ? 1.95 : 2.60);
-    let track1Status = 'DANGER';
-    if (scores.gpa_grade <= gpaCutSafe) track1Status = 'SAFE';
-    else if (scores.gpa_grade <= gpaCutTrack) track1Status = 'ON_TRACK';
+    let track1Status = 'ON_TRACK';
+    let track1Badge = '성적 미입력';
+    let track1Comment = '내신 성적을 입력하시면 정확한 합격선이 계산됩니다.';
+
+    if (gpa !== null && gpa !== undefined) {
+        let gpaCutSafe = isMedical ? 1.25 : (isSky ? 1.60 : 2.10);
+        let gpaCutTrack = isMedical ? 1.45 : (isSky ? 1.95 : 2.60);
+        if (gpa <= gpaCutSafe) {
+            track1Status = 'SAFE';
+            track1Badge = '적정 (합격선 충족)';
+        } else if (gpa <= gpaCutTrack) {
+            track1Status = 'ON_TRACK';
+            track1Badge = '소신 (경쟁률 변수)';
+        } else {
+            track1Status = 'DANGER';
+            track1Badge = '위험 (내신 미달)';
+        }
+        track1Comment = `내신 ${gpa}등급` + (gpaRank ? ` · 전교 ${gpaRank}등/${gpaTotal}명 확정치` : ' 확정치');
+    }
 
     // Track 2: 학생부 종합 (확정 실선)
     let track2Status = 'ON_TRACK';
-    if (scores.gpa_grade <= (gpaCutSafe + 0.35)) track2Status = 'SAFE';
-    else if (scores.gpa_grade > (gpaCutTrack + 0.6)) track2Status = 'DANGER';
+    let track2Badge = '성적 미입력';
+    let track2Comment = '학생부 성적 입력 대기 중';
 
-    // Track 3: 일반 논술 (잠재 점선) - 수능 최저기준 및 순공 페널티 연동
-    let track3Base = (scores.kor_pct >= 94 && scores.math_pct >= 94) ? 'ON_TRACK' : 'DANGER';
-    let track3Status = applyPenalty(track3Base, penaltyLevel);
-
-    // Track 4: 약술형 논술 (잠재 점선)
-    let track4Base = (scores.math_pct >= 80 || scores.kor_pct >= 80) ? 'SAFE' : 'ON_TRACK';
-    let track4Status = applyPenalty(track4Base, penaltyLevel);
-
-    // Track 5: 정시 수능 (잠재 굵은 점선) - 백분위 합산 & 순공 페널티
-    let totalPct = (scores.kor_pct + scores.math_pct + scores.inq1_pct + scores.inq2_pct) / 4.0;
-    let track5Base = 'DANGER';
-    if (isMedical) {
-        if (totalPct >= 98.5) track5Base = 'SAFE';
-        else if (totalPct >= 96.5) track5Base = 'ON_TRACK';
-    } else if (isSky) {
-        if (totalPct >= 95.0) track5Base = 'SAFE';
-        else if (totalPct >= 91.5) track5Base = 'ON_TRACK';
-    } else {
-        if (totalPct >= 88.0) track5Base = 'SAFE';
-        else if (totalPct >= 82.0) track5Base = 'ON_TRACK';
+    if (gpa !== null && gpa !== undefined) {
+        let gpaCutSafe = isMedical ? 1.45 : (isSky ? 1.85 : 2.45);
+        let gpaCutTrack = isMedical ? 1.70 : (isSky ? 2.25 : 3.10);
+        if (gpa <= gpaCutSafe) {
+            track2Status = 'SAFE';
+            track2Badge = '적정 (서류 경쟁력 우수)';
+        } else if (gpa <= gpaCutTrack) {
+            track2Status = 'ON_TRACK';
+            track2Badge = '소신 (생기부 역량 관건)';
+        } else {
+            track2Status = 'DANGER';
+            track2Badge = '위험 (비교과 보완 필요)';
+        }
+        track2Comment = `내신 ${gpa}등급 및 고교 학업역량 가중치 반영`;
     }
-    let track5Status = applyPenalty(track5Base, penaltyLevel);
 
-    return [
+    // Track 3: 논술 전형 (대학별 맞춤: 약술형 vs 일반논술 vs 미실시)
+    let track3 = null;
+    if (!trackConfig.isNoEssay) {
+        let essayName = trackConfig.isYaksul ? '약술형 논술' : '논술 전형';
+        let track3Status = 'ON_TRACK';
+        let track3Badge = '성적 미입력';
+        let track3Comment = trackConfig.isYaksul ? '중위권 수험생 역전 전형 (국/수 1과목 3등급 이내)' : '수능 최저학력기준 및 논술 적합도';
+
+        if (korPct !== null && mathPct !== null) {
+            let track3Base = (korPct >= 92 && mathPct >= 92) ? 'ON_TRACK' : 'DANGER';
+            track3Status = applyPenalty(track3Base, penaltyLevel);
+            track3Badge = getPenaltyBadge(track3Status, penaltyLevel);
+            if (penaltyLevel === 'DANGER') {
+                track3Comment = `수능 최저기준 잠재치 ➔ ⚡ 주간 순공 부족으로 2단계 강등`;
+            }
+        }
+        track3 = {
+            id: 'essay_track',
+            name: essayName,
+            type: 'DASHED',
+            status: track3Status,
+            badge: track3Badge,
+            color: getStatusColor(track3Status),
+            comment: track3Comment
+        };
+    }
+
+    // Track 4: 정시 수능 일반 (잠재 점선)
+    let track4Status = 'ON_TRACK';
+    let track4Badge = '성적 미입력';
+    let track4Comment = '모의고사 백분위를 입력하시면 실시간 합격선이 계산됩니다.';
+
+    if (korPct !== null && mathPct !== null) {
+        const inq1 = inq1Pct || korPct;
+        const inq2 = inq2Pct || mathPct;
+        const totalPct = (korPct + mathPct + inq1 + inq2) / 4.0;
+        let track4Base = 'DANGER';
+        if (isMedical) {
+            if (totalPct >= 98.5) track4Base = 'SAFE';
+            else if (totalPct >= 96.5) track4Base = 'ON_TRACK';
+        } else if (isSky) {
+            if (totalPct >= 95.0) track4Base = 'SAFE';
+            else if (totalPct >= 91.5) track4Base = 'ON_TRACK';
+        } else {
+            if (totalPct >= 88.0) track4Base = 'SAFE';
+            else if (totalPct >= 82.0) track4Base = 'ON_TRACK';
+        }
+        track4Status = applyPenalty(track4Base, penaltyLevel);
+        track4Badge = getPenaltyBadge(track4Status, penaltyLevel);
+        track4Comment = `국수탐 백분위 평균 ${Math.round(totalPct)}점` + (penaltyLevel === 'DANGER' ? ' ➔ 🚨 순공 0시간으로 2단계 강등' : '');
+    }
+
+    const trackList = [
         {
             id: 'gyogwa',
             name: '학생부 교과',
             type: 'SOLID',
-            yCurve: 42,
             status: track1Status,
-            badge: track1Status === 'SAFE' ? '적정 (합격선 충족)' : (track1Status === 'ON_TRACK' ? '소신 (경쟁률 변수)' : '위험 (내신 미달)'),
+            badge: track1Badge,
             color: getStatusColor(track1Status),
-            comment: `내신 ${scores.gpa_grade}등급 · 전교 ${scores.gpa_rank}등/${scores.gpa_total}명 확정치`
+            comment: track1Comment
         },
         {
             id: 'jonghab',
             name: '학생부 종합',
             type: 'SOLID',
-            yCurve: 72,
             status: track2Status,
-            badge: track2Status === 'SAFE' ? '적정 (서류 경쟁력 우수)' : (track2Status === 'ON_TRACK' ? '소신 (생기부 역량 관건)' : '위험 (비교과 보완 필요)'),
+            badge: track2Badge,
             color: getStatusColor(track2Status),
-            comment: `내신 및 분당 낙생고 학업역량 가중치 반영`
-        },
-        {
-            id: 'essay_general',
-            name: '일반 논술',
-            type: 'DASHED',
-            yCurve: 100,
-            status: track3Status,
-            badge: getPenaltyBadge(track3Status, penaltyLevel),
-            color: getStatusColor(track3Status),
-            comment: `수능 최저기준(3합 5) 충족 잠재치 ${penaltyLevel !== 'NONE' ? '(순공 부족 감점 적용)' : ''}`
-        },
-        {
-            id: 'essay_brief',
-            name: '약술형 논술',
-            type: 'DASHED',
-            yCurve: 128,
-            status: track4Status,
-            badge: getPenaltyBadge(track4Status, penaltyLevel),
-            color: getStatusColor(track4Status),
-            comment: `중위권 수험생 역전 전형 (국/수 1과목 3등급 이내)`
-        },
-        {
-            id: 'csat_regular',
-            name: '정시 수능 일반',
-            type: 'THICK_DASHED',
-            yCurve: 158,
-            status: track5Status,
-            badge: getPenaltyBadge(track5Status, penaltyLevel),
-            color: getStatusColor(track5Status),
-            comment: `국수탐 백분위 단순합 평균 ${Math.round(totalPct)}점 ${penaltyLevel === 'DANGER' ? '➔ 🚨 순공 0시간으로 2단계 강등' : ''}`
+            comment: track2Comment
         }
     ];
+
+    if (track3) {
+        trackList.push(track3);
+    }
+
+    trackList.push({
+        id: 'csat_regular',
+        name: '정시 수능 일반',
+        type: 'DASHED',
+        status: track4Status,
+        badge: track4Badge,
+        color: getStatusColor(track4Status),
+        comment: track4Comment
+    });
+
+    // 균등한 Y 위치 분배 (3개일 때 vs 4개일 때)
+    const count = trackList.length;
+    trackList.forEach((tr, i) => {
+        if (count === 3) {
+            tr.yCurve = 55 + (i * 45); // 55, 100, 145
+        } else {
+            tr.yCurve = 45 + (i * 37); // 45, 82, 119, 156
+        }
+    });
+
+    return trackList;
 }
 
 function applyPenalty(baseStatus, penaltyLevel) {
@@ -21470,7 +21566,6 @@ function applyPenalty(baseStatus, penaltyLevel) {
         if (baseStatus === 'SAFE') return 'ON_TRACK';
         return 'DANGER';
     }
-    // DANGER: 2단계 강등
     return 'DANGER';
 }
 
@@ -21492,7 +21587,7 @@ function getPenaltyBadge(status, penaltyLevel) {
     return '위험 (마지노선 미달)';
 }
 
-// SVG 베지어 곡선 및 라벨 렌더링
+// SVG 베지어 곡선 및 라벨 렌더링 (모든 선 두께 2.6px로 완벽 통일!)
 function renderSvgRoutes(tracks) {
     const group = document.getElementById('svg-routes-group');
     if (!group) return;
@@ -21502,99 +21597,36 @@ function renderSvgRoutes(tracks) {
     const startY = 100;
     const endX = 452;
     const endY = 100;
+    const uniformStrokeWidth = 2.6; // 모든 선 두께 동일하게 완벽 통일!
 
-    tracks.forEach((tr, idx) => {
+    tracks.forEach((tr) => {
         const midY = tr.yCurve;
         const d = `M ${startX} ${startY} C 190 ${midY}, 330 ${midY}, ${endX} ${endY}`;
-        const isDashed = (tr.type === 'DASHED' || tr.type === 'THICK_DASHED');
-        const strokeWidth = (tr.type === 'THICK_DASHED') ? 3.8 : (tr.type === 'SOLID' ? 3.0 : 2.4);
-        const dashArray = (tr.type === 'THICK_DASHED') ? '8 4' : (tr.type === 'DASHED' ? '6 4' : 'none');
+        const isDashed = (tr.type === 'DASHED');
+        const dashArray = isDashed ? '6 4' : 'none';
         const isPulse = (tr.status === 'DANGER' && isDashed);
 
-        // Path
+        // Path (Uniform stroke-width!)
         svgHtml += `
-            <path d="${d}" fill="none" stroke="${tr.color}" stroke-width="${strokeWidth}" 
+            <path d="${d}" fill="none" stroke="${tr.color}" stroke-width="${uniformStrokeWidth}" 
                   stroke-dasharray="${dashArray}" opacity="0.9" style="transition: all 0.3s ease; cursor: pointer;"
                   onclick="selectAdmissionTrackCard('${tr.id}')">
                 ${isPulse ? '<animate attributeName="stroke-opacity" values="0.95;0.35;0.95" dur="1.4s" repeatCount="indefinite" />' : ''}
             </path>
         `;
 
-        // Midpoint Label
+        // Midpoint Label Box
         const labelX = 260;
-        const labelY = midY + (midY < 100 ? -8 : 12);
         svgHtml += `
             <g transform="translate(${labelX}, ${midY})">
-                <circle r="4" fill="${tr.color}" />
-                <rect x="-42" y="-10" width="84" height="20" rx="6" fill="#0f172a" stroke="${tr.color}" stroke-width="1.2" opacity="0.92" />
+                <circle r="3.5" fill="${tr.color}" />
+                <rect x="-42" y="-10" width="84" height="20" rx="6" fill="#0f172a" stroke="${tr.color}" stroke-width="1.2" opacity="0.94" />
                 <text text-anchor="middle" dy="3.5" fill="#ffffff" font-size="9" font-weight="900">${tr.name}</text>
             </g>
         `;
     });
 
     group.innerHTML = svgHtml;
-}
-
-// 3단 순공 비교 프로그레스 바 렌더링 (아코디언 내부)
-function renderHeadlineCampusBars(data, activeTargetHours, myHours) {
-    const listEl = document.getElementById('headline-campus-occupation-list');
-    const totalNetworkEl = document.getElementById('headline-network-total-hours');
-    if (!listEl) return;
-
-    if (totalNetworkEl) {
-        totalNetworkEl.innerText = `주간 ${data.total_network_hours || 128}시간 집계`;
-    }
-
-    const targetInfo = data.target_info;
-    const baselineInfo = data.baseline_info;
-    const maxH = Math.max(targetInfo?.avg_hours || 1, baselineInfo?.avg_hours || 1, myHours || 1, 1);
-
-    const items = [
-        { label: "1지망 목표", name: targetInfo?.univ_name || "연세대학교 의예과", hours: targetInfo?.avg_hours || 42.5, color: "#6366f1", badge: "1지망" },
-        { label: "마지노선", name: baselineInfo?.univ_name || "서울대학교 화학생물공학부", hours: baselineInfo?.avg_hours || 36.0, color: "#0284c7", badge: "마지노선" },
-        { label: "나의 순공", name: (currentStudent?.name || "학생") + " 이번 주 공부시간", hours: myHours, color: (myHours >= 36 ? "#10b981" : "#ef4444"), badge: "MY" }
-    ];
-
-    listEl.innerHTML = items.map(item => {
-        const pct = Math.min(100, Math.round((item.hours / maxH) * 100));
-        return `
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 10px 12px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 0.68rem; font-weight: 800; background: ${item.color}33; color: ${item.color}; border: 1px solid ${item.color}66; padding: 1px 6px; border-radius: 4px;">${item.badge}</span>
-                        <span style="font-size: 0.78rem; font-weight: 800; color: #ffffff;">${item.name}</span>
-                    </div>
-                    <span style="font-size: 0.82rem; font-weight: 900; color: ${item.color};">${item.hours.toFixed(1)}시간</span>
-                </div>
-                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;">
-                    <div style="width: ${pct}%; height: 100%; background: ${item.color}; border-radius: 3px; transition: width 0.6s ease;"></div>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-// 5대 전형 판정 상세표 렌더링
-function render5TracksTable(tracks) {
-    const tableEl = document.getElementById('admission-5tracks-table');
-    if (!tableEl) return;
-
-    tableEl.innerHTML = tracks.map(tr => {
-        return `
-            <div id="track-card-${tr.id}" style="display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-left: 3px solid ${tr.color}; border-radius: 8px;">
-                <div style="display: flex; flex-direction: column; gap: 2px;">
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 0.82rem; font-weight: 900; color: #ffffff;">${tr.name}</span>
-                        <span style="font-size: 0.68rem; color: #94a3b8;">${tr.type.includes('SOLID') ? '확정 실선' : '잠재 점선'}</span>
-                    </div>
-                    <div style="font-size: 0.72rem; color: #cbd5e1;">${tr.comment}</div>
-                </div>
-                <span style="font-size: 0.72rem; font-weight: 900; color: ${tr.color}; background: ${tr.color}1a; border: 1px solid ${tr.color}55; padding: 3px 8px; border-radius: 8px; white-space: nowrap;">
-                    ${tr.badge}
-                </span>
-            </div>
-        `;
-    }).join('');
 }
 
 function selectAdmissionTrackCard(trackId) {

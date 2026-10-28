@@ -12980,6 +12980,22 @@ def get_student_alias():
 def get_admin_alias():
     return FileResponse(os.path.join(STATIC_DIR, "admin.html"))
 
+@app.get("/silver/senior-home")
+def get_silver_senior_home():
+    return FileResponse(os.path.join(STATIC_DIR, "silver", "senior-home.html"))
+
+@app.get("/silver/guardian")
+def get_silver_guardian():
+    return FileResponse(os.path.join(STATIC_DIR, "silver", "guardian.html"))
+
+@app.get("/silver/guardian-dashboard")
+def get_silver_guardian_dashboard():
+    return FileResponse(os.path.join(STATIC_DIR, "silver", "guardian.html"))
+
+@app.get("/silver/photo-album")
+def get_silver_photo_album():
+    return FileResponse(os.path.join(STATIC_DIR, "silver", "photo-album.html"))
+
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 
@@ -13008,4 +13024,74 @@ def save_student_exam_scores(payload: StudentPreciseScoresPayload, db: Session =
         "status": "success",
         "message": "정밀 성적이 저장되었습니다.",
         "scores": payload.dict()
+    }
+
+
+# ==========================================
+# PALIN SILVER-MATE API Endpoints
+# ==========================================
+class SilverDelegationPayload(BaseModel):
+    task_type: str = "BOOKING_REQUEST"
+    category_code: Optional[str] = "BOOK_TRANSPORT"
+    summary: str = "예매 요청"
+    target_date: Optional[str] = None
+    price_estimate: Optional[int] = 0
+
+@app.get("/api/silver/delegation-task")
+def get_silver_delegations():
+    return [
+        {
+            "id": "task-ktx",
+            "task_type": "BOOKING_REQUEST",
+            "category_code": "BOOK_TRANSPORT",
+            "summary": "이번 주 토요일(10/31) 오전 10:00 서울 ➔ 부산 KTX 1매",
+            "price_estimate": 59800,
+            "status": "PENDING"
+        },
+        {
+            "id": "task-tax",
+            "task_type": "BILL_PAYMENT",
+            "category_code": "PAY_TAX",
+            "summary": "10월 정기분 재산세(토지/건물) 납부 대행",
+            "price_estimate": 148000,
+            "status": "PENDING"
+        },
+        {
+            "id": "task-shopping",
+            "task_type": "SHOPPING_REQUEST",
+            "category_code": "ORDER_GROCERY",
+            "summary": "제철 과일 (나주 배 특품 5kg + 부사 사과 3kg)",
+            "price_estimate": 34500,
+            "status": "PENDING"
+        }
+    ]
+
+@app.post("/api/silver/delegation-task")
+def create_silver_delegation(payload: SilverDelegationPayload):
+    return {
+        "status": "success",
+        "message": "자녀 관제실에 대행 요청이 전송되었습니다.",
+        "task": payload.dict()
+    }
+
+class SilverLifeLogPayload(BaseModel):
+    log_type: str = "VITALS"
+    blood_pressure_high: Optional[int] = 120
+    blood_pressure_low: Optional[int] = 80
+    summary: Optional[str] = "정상"
+
+@app.post("/api/silver/life-log")
+def create_silver_life_log(payload: SilverLifeLogPayload):
+    return {
+        "status": "success",
+        "message": "안부 라이프로그가 성공적으로 동기화되었습니다.",
+        "log": payload.dict()
+    }
+
+@app.post("/api/silver/simulate-phishing")
+def simulate_silver_phishing():
+    return {
+        "status": "success",
+        "alert": "URGENT_PHISHING_DETECTED",
+        "message": "보이스피싱 의심 통화 감지 경보가 부모님 및 자녀 기기로 발송되었습니다."
     }

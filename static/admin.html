@@ -90,6 +90,103 @@
             font-weight: 900;
             color: #ffffff;
         }
+        
+        /* 4대 마스터 탭 바 & 5-캡슐 Progressive Disclosure 네비게이션 */
+        .admin-master-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+            background: rgba(15, 23, 42, 0.75);
+            padding: 6px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+        .admin-master-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 8px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 0.92rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+        }
+        .admin-master-btn:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: #ffffff;
+        }
+        .admin-master-btn.active {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+            border: 1px solid rgba(165, 180, 252, 0.4);
+        }
+        .admin-master-btn .material-symbols-rounded {
+            font-size: 1.25rem;
+            color: #818cf8;
+        }
+        .admin-master-btn.active .material-symbols-rounded {
+            color: #fbbf24;
+        }
+        .admin-capsule-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding: 8px 12px;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .admin-capsule-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(15, 23, 42, 0.6);
+            color: #cbd5e1;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .admin-capsule-btn:hover {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: rgba(99, 102, 241, 0.4);
+            color: #ffffff;
+        }
+        .admin-capsule-btn.active {
+            background: rgba(99, 102, 241, 0.25);
+            border: 1.5px solid #818cf8;
+            color: #ffffff;
+            font-weight: 800;
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.25);
+        }
+        .admin-capsule-btn.active .material-symbols-rounded {
+            color: #fbbf24;
+        }
+        @media (max-width: 768px) {
+            .admin-master-bar {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 6px;
+            }
+            .admin-master-btn {
+                padding: 10px 6px;
+                font-size: 0.82rem;
+            }
+        }
+
         .admin-tab-nav {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -424,7 +521,104 @@
                 grid-template-columns: 1fr;
                 gap: 8px;
             }
-            .admin-tab-nav {
+            
+        /* 4대 마스터 탭 바 & 5-캡슐 Progressive Disclosure 네비게이션 */
+        .admin-master-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+            background: rgba(15, 23, 42, 0.75);
+            padding: 6px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+        .admin-master-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 8px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 0.92rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+        }
+        .admin-master-btn:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: #ffffff;
+        }
+        .admin-master-btn.active {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+            border: 1px solid rgba(165, 180, 252, 0.4);
+        }
+        .admin-master-btn .material-symbols-rounded {
+            font-size: 1.25rem;
+            color: #818cf8;
+        }
+        .admin-master-btn.active .material-symbols-rounded {
+            color: #fbbf24;
+        }
+        .admin-capsule-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding: 8px 12px;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .admin-capsule-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(15, 23, 42, 0.6);
+            color: #cbd5e1;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .admin-capsule-btn:hover {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: rgba(99, 102, 241, 0.4);
+            color: #ffffff;
+        }
+        .admin-capsule-btn.active {
+            background: rgba(99, 102, 241, 0.25);
+            border: 1.5px solid #818cf8;
+            color: #ffffff;
+            font-weight: 800;
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.25);
+        }
+        .admin-capsule-btn.active .material-symbols-rounded {
+            color: #fbbf24;
+        }
+        @media (max-width: 768px) {
+            .admin-master-bar {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 6px;
+            }
+            .admin-master-btn {
+                padding: 10px 6px;
+                font-size: 0.82rem;
+            }
+        }
+
+        .admin-tab-nav {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 6px;
             }
@@ -531,8 +725,33 @@
                 </div>
             </div>
 
-            <!-- 10대 통합 탭 네비게이션 (로열 인디고 & 앰버 골드 통일 테마) -->
-            <div class="admin-tab-nav" id="admin-tab-nav-bar">
+            <!-- 4대 마스터 탭 바 (Progressive Disclosure) -->
+            <div class="admin-master-bar" id="admin-master-tab-bar">
+                <button type="button" class="admin-master-btn active" onclick="switchMasterTab('master-today')" id="master-btn-today">
+                    <span class="material-symbols-rounded">dashboard</span>
+                    <span>1. 오늘의 관제</span>
+                </button>
+                <button type="button" class="admin-master-btn" onclick="switchMasterTab('master-crm')" id="master-btn-crm">
+                    <span class="material-symbols-rounded">groups</span>
+                    <span>2. 원생·학부모 CRM</span>
+                </button>
+                <button type="button" class="admin-master-btn" onclick="switchMasterTab('master-content')" id="master-btn-content">
+                    <span class="material-symbols-rounded">menu_book</span>
+                    <span>3. 수업·컨텐츠</span>
+                </button>
+                <button type="button" class="admin-master-btn" onclick="switchMasterTab('master-operation')" id="master-btn-operation">
+                    <span class="material-symbols-rounded">business_center</span>
+                    <span>4. 학원 운영관리</span>
+                </button>
+            </div>
+
+            <!-- 5-Capsule Segmented Sub-Nav Bar -->
+            <div class="admin-capsule-bar" id="admin-capsule-sub-bar">
+                <!-- Injected via renderAdminCapsules() -->
+            </div>
+
+            <!-- Legacy 10대 탭 네비게이션 (하위 호환 보존용 숨김 처리) -->
+            <div class="admin-tab-nav" id="admin-tab-nav-bar" style="display: none !important;">
                 <button class="admin-cockpit-tab-btn active" onclick="switchAdminCockpitTab('tab-schedule')" id="tab-btn-schedule">
                     <span class="material-symbols-rounded" style="font-size: 1rem;">calendar_month</span>
                     <span id="tab-label-schedule">1. 원장 스케줄러</span>
@@ -2974,6 +3193,7 @@
 
         // 8번 특화 탭 클릭 핸들러
         function switchAdminSpecialTab() {
+            if (typeof syncMasterAndCapsuleForTab === 'function') syncMasterAndCapsuleForTab('tab-special');
             // 모든 탭 숨기기 및 비활성화
             document.querySelectorAll('.cockpit-tab-view').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.admin-cockpit-tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -3696,7 +3916,129 @@
             }).catch(() => alert('수여 실패'));
         }
 
+        
+        // =========================================================================
+        // PALIN PASS-MATE: 4대 마스터 탭 & 5-Capsule Progressive Disclosure 엔진
+        // =========================================================================
+        const masterCategories = {
+            'master-today': {
+                name: '오늘의 관제',
+                icon: 'dashboard',
+                defaultTab: 'tab-schedule',
+                capsules: [
+                    { id: 'tab-schedule', label: '1. 원장 스케줄러', icon: 'calendar_month', action: "switchAdminCockpitTab('tab-schedule')" },
+                    { id: 'tab-attendance', label: '2. 출결관리 & 승인대기', icon: 'wifi_tethering', action: "switchAdminCockpitTab('tab-attendance')" },
+                    { id: 'tab-marketing', label: '3. 성적역전 카드뉴스', icon: 'auto_awesome', action: "switchAdminCockpitTab('tab-marketing')" }
+                ]
+            },
+            'master-crm': {
+                name: '원생·학부모 CRM',
+                icon: 'groups',
+                defaultTab: 'tab-students',
+                capsules: [
+                    { id: 'tab-students', label: '1. 원생 관리 & CRM 드로어', icon: 'groups', action: "switchAdminCockpitTab('tab-students')" }
+                ]
+            },
+            'master-content': {
+                name: '수업·컨텐츠',
+                icon: 'menu_book',
+                defaultTab: 'tab-curriculum',
+                capsules: [
+                    { id: 'tab-curriculum', label: '1. 수업 및 과제 관리', icon: 'campaign', action: "switchAdminCockpitTab('tab-curriculum')" },
+                    { id: 'tab-special', label: '2. 모의고사 & 특화 관제', icon: 'assignment', action: "switchAdminSpecialTab()" }
+                ]
+            },
+            'master-operation': {
+                name: '학원 운영관리',
+                icon: 'business_center',
+                defaultTab: 'tab-studycafe-seats',
+                capsules: [
+                    { id: 'tab-studycafe-seats', label: '1. 좌석·교실배치 관제', icon: 'chair', action: "switchAdminCockpitTab('tab-studycafe-seats')" },
+                    { id: 'tab-finance', label: '2. 수업료 & 수납ERP', icon: 'payments', action: "switchAdminCockpitTab('tab-finance')" },
+                    { id: 'tab-tutors', label: '3. 튜터·직원 관리', icon: 'school', action: "switchAdminCockpitTab('tab-tutors')" },
+                    { id: 'tab-procurement', label: '4. 비품·교재·렌탈', icon: 'shopping_cart', action: "switchAdminCockpitTab('tab-procurement')" }
+                ]
+            }
+        };
+
+        const tabToMasterMap = {
+            'tab-schedule': 'master-today',
+            'tab-attendance': 'master-today',
+            'tab-marketing': 'master-today',
+            'tab-students': 'master-crm',
+            'tab-curriculum': 'master-content',
+            'tab-special': 'master-content',
+            'tab-exams': 'master-content',
+            'tab-middle-achievement': 'master-content',
+            'tab-elem-routines': 'master-content',
+            'tab-studycafe-seats': 'master-operation',
+            'tab-finance': 'master-operation',
+            'tab-tutors': 'master-operation',
+            'tab-procurement': 'master-operation'
+        };
+
+        let currentActiveMaster = 'master-today';
+        let currentActiveSubTab = 'tab-schedule';
+
+        function switchMasterTab(masterId, targetSubTab) {
+            currentActiveMaster = masterId;
+            const cat = masterCategories[masterId];
+            if (!cat) return;
+
+            // 1. 마스터 버튼 액티브 클래스 동기화
+            document.querySelectorAll('.admin-master-btn').forEach(btn => btn.classList.remove('active'));
+            const masterBtn = document.getElementById(masterId.replace('master-', 'master-btn-'));
+            if (masterBtn) masterBtn.classList.add('active');
+
+            // 2. 대상 서브 탭 결정
+            const subToOpen = targetSubTab || cat.defaultTab;
+
+            // 3. 서브 캡슐 바 렌더링
+            renderAdminCapsules(masterId, subToOpen);
+
+            // 4. 서브 탭 실행
+            if (subToOpen === 'tab-special') {
+                switchAdminSpecialTab();
+            } else {
+                switchAdminCockpitTab(subToOpen);
+            }
+        }
+
+        function renderAdminCapsules(masterId, activeSubId) {
+            const bar = document.getElementById('admin-capsule-sub-bar');
+            if (!bar) return;
+            const cat = masterCategories[masterId];
+            if (!cat) return;
+
+            bar.innerHTML = cat.capsules.map(c => {
+                const isActive = (c.id === activeSubId);
+                return `
+                    <button type="button" class="admin-capsule-btn ${isActive ? 'active' : ''}" 
+                            id="capsule-btn-${c.id}" onclick="${c.action}">
+                        <span class="material-symbols-rounded" style="font-size: 1rem;">${c.icon}</span>
+                        <span>${c.label}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function syncMasterAndCapsuleForTab(tabId) {
+            let masterId = tabToMasterMap[tabId] || 'master-today';
+            currentActiveMaster = masterId;
+            currentActiveSubTab = tabId;
+
+            // 마스터 버튼 동기화
+            document.querySelectorAll('.admin-master-btn').forEach(btn => btn.classList.remove('active'));
+            const masterBtn = document.getElementById(masterId.replace('master-', 'master-btn-'));
+            if (masterBtn) masterBtn.classList.add('active');
+
+            // 캡슐 바 렌더링 & 액티브 설정
+            renderAdminCapsules(masterId, tabId);
+        }
+
         function switchAdminCockpitTab(tabId) {
+            syncMasterAndCapsuleForTab(tabId);
+
             document.querySelectorAll('.cockpit-tab-view').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.admin-cockpit-tab-btn').forEach(btn => btn.classList.remove('active'));
             const target = document.getElementById(tabId);
@@ -8325,7 +8667,13 @@ function printStudentDossier() {
             <script>
                 window.onload = function() { window.print(); };
             <\/script>
-        </body>
+        
+        // 초기 마스터 & 캡슐 바 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAdminCapsules('master-today', 'tab-schedule');
+        });
+
+</body>
         </html>
     `);
     printWin.document.close();
@@ -9779,5 +10127,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 600);
 });
 </script>
+
+        // 초기 마스터 & 캡슐 바 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAdminCapsules('master-today', 'tab-schedule');
+        });
+
 </body>
 </html>
