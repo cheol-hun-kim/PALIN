@@ -12980,19 +12980,22 @@ def get_student_alias():
 def get_admin_alias():
     return FileResponse(os.path.join(STATIC_DIR, "admin.html"))
 
+@app.get("/silver")
+@app.get("/silvermate")
 @app.get("/silver/senior-home")
+@app.get("/silvermate/senior-home")
 def get_silver_senior_home():
     return FileResponse(os.path.join(STATIC_DIR, "silver", "senior-home.html"))
 
 @app.get("/silver/guardian")
+@app.get("/silvermate/guardian")
+@app.get("/silver/guardian-dashboard")
+@app.get("/silvermate/guardian-dashboard")
 def get_silver_guardian():
     return FileResponse(os.path.join(STATIC_DIR, "silver", "guardian.html"))
 
-@app.get("/silver/guardian-dashboard")
-def get_silver_guardian_dashboard():
-    return FileResponse(os.path.join(STATIC_DIR, "silver", "guardian.html"))
-
 @app.get("/silver/photo-album")
+@app.get("/silvermate/photo-album")
 def get_silver_photo_album():
     return FileResponse(os.path.join(STATIC_DIR, "silver", "photo-album.html"))
 

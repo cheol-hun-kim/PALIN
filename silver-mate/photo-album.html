@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PALIN SILVER-MATE | 추억의 디지털 사진관</title>
+    <!-- Google Fonts & Material Symbols -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols-Rounded:opsz,wght,FILL,GRAD@24..48,400..800,0..1,0" />
+
+    <style>
+        :root {
+            --bg-album: #0f172a;
+            --card-album: #1e293b;
+            --card-border: rgba(255, 255, 255, 0.1);
+            --primary-accent: #a855f7;
+            --accent-glow: rgba(168, 85, 247, 0.25);
+            --text-main: #f8fafc;
+            --text-sub: #cbd5e1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: var(--bg-album);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 16px calc(36px + env(safe-area-inset-bottom, 20px));
+            overflow-x: hidden;
+        }
+
+        .album-container {
+            width: 100%;
+            max-width: 860px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* 상단 탑바 */
+        .album-top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            padding: 12px 18px;
+            border-radius: 20px;
+        }
+
+        .album-logo-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.25rem;
+            font-weight: 900;
+        }
+
+        .album-top-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-pill {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-pill:hover {
+            background: rgba(168, 85, 247, 0.25);
+            border-color: #a855f7;
+        }
+
+        /* 🎙️ 말로 찾는 음성 사진 검색창 */
+        .voice-search-card {
+            background: linear-gradient(135deg, #2e1065, #1e1b4b);
+            border: 1.5px solid rgba(168, 85, 247, 0.35);
+            border-radius: 22px;
+            padding: 18px 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .voice-search-text {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .btn-voice-search {
+            background: linear-gradient(135deg, #9333ea, #a855f7);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 16px;
+            font-size: 1.05rem;
+            font-weight: 900;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 16px rgba(168, 85, 247, 0.4);
+            white-space: nowrap;
+        }
+
+        /* 4대 대형 카테고리 탭 (Zero-UI 고대비 디자인) */
+        .album-tabs-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        @media (max-width: 640px) {
+            .album-tabs-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .album-tab-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 14px 10px;
+            color: var(--text-sub);
+            font-weight: 800;
+            font-size: 0.95rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .album-tab-btn.active {
+            background: rgba(168, 85, 247, 0.18);
+            border-color: #a855f7;
+            color: #ffffff;
+            box-shadow: 0 0 16px rgba(168, 85, 247, 0.25);
+        }
+
+        .album-tab-icon {
+            font-size: 1.8rem;
+        }
+
+        /* 갤러리 그리드 */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+            margin-top: 6px;
+        }
+
+        .photo-card {
+            background: var(--card-album);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .photo-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(168, 85, 247, 0.5);
+        }
+
+        .photo-img-box {
+            width: 100%;
+            height: 180px;
+            background-color: #334155;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .photo-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-badge-tag {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 8px;
+        }
+
+        .photo-meta-box {
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .photo-title {
+            font-size: 1.05rem;
+            font-weight: 900;
+            color: #ffffff;
+        }
+
+        .photo-desc {
+            font-size: 0.82rem;
+            color: #cbd5e1;
+            line-height: 1.35;
+        }
+
+        .photo-date {
+            font-size: 0.72rem;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        /* 🎬 전체화면 디지털 액자 모달 */
+        #slideshow-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000000;
+            z-index: 99999;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 24px;
+        }
+
+        .slideshow-img-container {
+            flex: 1;
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .slideshow-img-container img {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+            object-fit: contain;
+        }
+
+        .slideshow-caption-box {
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 18px 28px;
+            text-align: center;
+            max-width: 720px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .slideshow-controls {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="album-container">
+        
+        <!-- 탑바 -->
+        <header class="album-top-bar">
+            <div class="album-logo-title">
+                <span class="material-symbols-rounded" style="color: #c084fc; font-size: 1.8rem;">photo_library</span>
+                <div>
+                    <span style="color: #ffffff;">추억의 <b style="color: #c084fc;">디지털 사진관</b></span>
+                    <span style="font-size: 0.72rem; color: #cbd5e1; display: block; font-weight: 600;">어머님의 소중한 삶과 가족의 추억</span>
+                </div>
+            </div>
+
+            <div class="album-top-actions">
+                <button type="button" class="btn-pill" onclick="startSlideshow()" style="background: rgba(168, 85, 247, 0.25); border-color: #a855f7; color: #f3e8ff;">
+                    <span class="material-symbols-rounded" style="font-size: 1.1rem; color: #c084fc;">smart_display</span>
+                    디지털 액자 보기
+                </button>
+                <a href="/silver/senior-home" class="btn-pill">
+                    <span class="material-symbols-rounded" style="font-size: 1.1rem;">arrow_back</span>
+                    큰글씨 홈
+                </a>
+            </div>
+        </header>
+
+        <!-- 🎙️ 말로 찾는 음성 사진 검색창 -->
+        <section class="voice-search-card">
+            <div class="voice-search-text">
+                <div style="font-size: 1.25rem; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 8px;">
+                    <span class="material-symbols-rounded" style="color: #c084fc;">mic</span>
+                    "말로 사진을 찾아드릴게요"
+                </div>
+                <div style="font-size: 0.95rem; color: #e9d5ff; font-weight: 600;">
+                    예: "작년 가을 설악산 단풍 사진", "우리 민수 돌잔치", "어버이날 카네이션"
+                </div>
+            </div>
+            <button type="button" class="btn-voice-search" onclick="simulateVoiceSearch()">
+                <span class="material-symbols-rounded" style="font-size: 1.4rem;">mic</span>
+                말하기
+            </button>
+        </section>
+
+        <!-- 4대 AI 클러스터 대형 탭 -->
+        <nav class="album-tabs-grid">
+            <button type="button" class="album-tab-btn active" id="tab-person" onclick="switchCategory('person')">
+                <span class="material-symbols-rounded album-tab-icon" style="color: #f472b6;">face</span>
+                <span>👨‍👩‍👧‍👦 사람별 보기</span>
+            </button>
+            <button type="button" class="album-tab-btn" id="tab-travel" onclick="switchCategory('travel')">
+                <span class="material-symbols-rounded album-tab-icon" style="color: #38bdf8;">landscape</span>
+                <span>⛰️ 장소·여행별</span>
+            </button>
+            <button type="button" class="album-tab-btn" id="tab-theme" onclick="switchCategory('theme')">
+                <span class="material-symbols-rounded album-tab-icon" style="color: #fbbf24;">celebration</span>
+                <span>🌺 주제·행사별</span>
+            </button>
+            <button type="button" class="album-tab-btn" id="tab-cleanup" onclick="switchCategory('cleanup')">
+                <span class="material-symbols-rounded album-tab-icon" style="color: #4ade80;">auto_awesome</span>
+                <span>✨ AI 사진정리</span>
+            </button>
+        </nav>
+
+        <!-- 갤러리 사진 목록 그리드 -->
+        <main class="gallery-grid" id="gallery-container">
+            <!-- JS 동적 생성 -->
+        </main>
+
+    </div>
+
+    <!-- 🎬 전체화면 디지털 액자 모달 -->
+    <div id="slideshow-modal">
+        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; max-width: 900px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="material-symbols-rounded" style="color: #c084fc;">photo_frame</span>
+                <span style="font-size: 1rem; font-weight: 800; color: #ffffff;">추억의 디지털 액자 (슬라이드쇼 중)</span>
+            </div>
+            <button type="button" onclick="stopSlideshow()" style="background: rgba(255,255,255,0.15); border: none; color: white; padding: 8px 16px; border-radius: 12px; font-weight: 800; cursor: pointer;">
+                ✕ 액자 닫기
+            </button>
+        </div>
+
+        <div class="slideshow-img-container">
+            <img id="slideshow-current-img" src="https://images.unsplash.com/photo-1511895426328-dc8714191300?w=1000&auto=format&fit=crop&q=80" alt="추억 사진">
+        </div>
+
+        <div class="slideshow-caption-box">
+            <div id="slideshow-title" style="font-size: 1.5rem; font-weight: 900; color: #ffffff; margin-bottom: 6px;">
+                손주 민수와 함께한 제주도 협재 해수욕장
+            </div>
+            <div id="slideshow-sub" style="font-size: 1.05rem; color: #cbd5e1; font-weight: 700;">
+                2024년 5월 12일 가족 나들이
+            </div>
+        </div>
+
+        <div class="slideshow-controls">
+            <button type="button" onclick="prevSlide()" class="btn-pill" style="padding: 10px 18px; font-size: 1rem;">
+                <span class="material-symbols-rounded">arrow_back_ios</span> 이전 사진
+            </button>
+            <button type="button" onclick="speakCurrentCaption()" class="btn-pill" style="padding: 10px 18px; font-size: 1rem; background: #9333ea; border-color: #a855f7;">
+                <span class="material-symbols-rounded">volume_up</span> 음성으로 듣기
+            </button>
+            <button type="button" onclick="nextSlide()" class="btn-pill" style="padding: 10px 18px; font-size: 1rem;">
+                다음 사진 <span class="material-symbols-rounded">arrow_forward_ios</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 사진 데이터베이스 샘플
+        const photoDatabase = {
+            person: [
+                {
+                    title: "손주 민수 백일 기념",
+                    desc: "우리 집의 첫 보물 민수의 백일 잔칫날",
+                    date: "2023년 4월 18일",
+                    tag: "손주 민수",
+                    img: "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=600&auto=format&fit=crop&q=80"
+                },
+                {
+                    title: "큰아들 철훈이 학위 수여식",
+                    desc: "자랑스러운 아들과 온 가족이 교정에서 함께",
+                    date: "2019년 2월 24일",
+                    tag: "큰아들",
+                    img: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80"
+                },
+                {
+                    title: "여고 동창생들과 봄나들이",
+                    desc: "남산골 한옥마을에서 40년 지기 친구들과",
+                    date: "2022년 5월 10일",
+                    tag: "친구 모임",
+                    img: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&auto=format&fit=crop&q=80"
+                }
+            ],
+            travel: [
+                {
+                    title: "제주도 협재 바닷가 노을",
+                    desc: "에메랄드빛 바다와 부드러운 백사장 산책",
+                    date: "2024년 5월 12일",
+                    tag: "제주도",
+                    img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80"
+                },
+                {
+                    title: "설악산 단풍 여행 케이블카",
+                    desc: "울긋불긋 물든 설악의 절경을 감상하며",
+                    date: "2023년 10월 22일",
+                    tag: "강원도 설악산",
+                    img: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=600&auto=format&fit=crop&q=80"
+                },
+                {
+                    title: "부산 해운대 동백섬 산책",
+                    desc: "시원한 파도 소리를 들으며 아들과 걸었던 길",
+                    date: "2024년 2월 15일",
+                    tag: "부산",
+                    img: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop&q=80"
+                }
+            ],
+            theme: [
+                {
+                    title: "베란다 국화꽃 만개",
+                    desc: "정성껏 물 주어 키운 가을 노란 국화 화분",
+                    date: "2024년 10월 15일",
+                    tag: "화초·정원",
+                    img: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=600&auto=format&fit=crop&q=80"
+                },
+                {
+                    title: "칠순 생신 온 가족 잔치",
+                    desc: "한정식집에서 모여 함께 촛불 끄던 날",
+                    date: "2022년 9월 14일",
+                    tag: "생신 잔치",
+                    img: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&auto=format&fit=crop&q=80"
+                }
+            ],
+            cleanup: [
+                {
+                    title: "흔들린 사진 4장 정리 권장",
+                    desc: "AI가 초점이 맞지 않는 사진을 자동으로 감지했습니다.",
+                    date: "2024년 10월 집계",
+                    tag: "정리 추천",
+                    img: "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=600&auto=format&fit=crop&q=80"
+                },
+                {
+                    title: "옛날 흑백사진 AI 컬러 복원",
+                    desc: "1970년대 어머니 청년 시절 사진을 선명한 컬러로 복원 완료",
+                    date: "복원 완료",
+                    tag: "AI 복원",
+                    img: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80"
+                }
+            ]
+        };
+
+        let currentCategory = 'person';
+        let currentSlideIdx = 0;
+        let slidePhotos = [];
+
+        function renderGallery() {
+            const container = document.getElementById('gallery-container');
+            const items = photoDatabase[currentCategory] || [];
+            slidePhotos = items;
+
+            container.innerHTML = items.map((p, idx) => `
+                <div class="photo-card" onclick="openPhotoDetail(${idx})">
+                    <div class="photo-img-box">
+                        <img src="${p.img}" alt="${p.title}" loading="lazy">
+                        <span class="photo-badge-tag">${p.tag}</span>
+                    </div>
+                    <div class="photo-meta-box">
+                        <div class="photo-title">${p.title}</div>
+                        <div class="photo-desc">${p.desc}</div>
+                        <div class="photo-date">${p.date}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function switchCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.album-tab-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById(`tab-${cat}`);
+            if (activeBtn) activeBtn.classList.add('active');
+            renderGallery();
+        }
+
+        function simulateVoiceSearch() {
+            alert("🎙️ [음성 검색 시작]\n\n\"작년 가을 단풍 사진 보여줘\"\n\n검색 결과: 설악산 단풍 여행 사진 1건을 찾았습니다.");
+            switchCategory('travel');
+        }
+
+        function openPhotoDetail(idx) {
+            currentSlideIdx = idx;
+            startSlideshow();
+        }
+
+        // 슬라이드쇼 기능
+        let slideTimer = null;
+
+        function startSlideshow() {
+            document.getElementById('slideshow-modal').style.display = 'flex';
+            updateSlideView();
+            clearInterval(slideTimer);
+            slideTimer = setInterval(nextSlide, 7000);
+        }
+
+        function stopSlideshow() {
+            document.getElementById('slideshow-modal').style.display = 'none';
+            clearInterval(slideTimer);
+        }
+
+        function updateSlideView() {
+            if (!slidePhotos || slidePhotos.length === 0) return;
+            const current = slidePhotos[currentSlideIdx % slidePhotos.length];
+            document.getElementById('slideshow-current-img').src = current.img;
+            document.getElementById('slideshow-title').innerText = current.title;
+            document.getElementById('slideshow-sub').innerText = `${current.date} • ${current.desc}`;
+        }
+
+        function nextSlide() {
+            if (!slidePhotos || slidePhotos.length === 0) return;
+            currentSlideIdx = (currentSlideIdx + 1) % slidePhotos.length;
+            updateSlideView();
+        }
+
+        function prevSlide() {
+            if (!slidePhotos || slidePhotos.length === 0) return;
+            currentSlideIdx = (currentSlideIdx - 1 + slidePhotos.length) % slidePhotos.length;
+            updateSlideView();
+        }
+
+        function speakCurrentCaption() {
+            if (!slidePhotos || slidePhotos.length === 0) return;
+            const current = slidePhotos[currentSlideIdx % slidePhotos.length];
+            const textToSpeak = `${current.title}. ${current.desc}`;
+            if ('speechSynthesis' in window) {
+                const utter = new SpeechSynthesisUtterance(textToSpeak);
+                utter.lang = 'ko-KR';
+                utter.rate = 0.88;
+                window.speechSynthesis.speak(utter);
+            } else {
+                alert(`🔊 ${textToSpeak}`);
+            }
+        }
+
+        // 초기 렌더링
+        renderGallery();
+    </script>
+</body>
+</html>
