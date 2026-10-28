@@ -825,9 +825,13 @@ body {
 
 @media (min-width: 1024px) {
     .mobile-frame {
-        max-width: 1024px;
+        max-width: 1480px;
+        width: 95%;
         height: 96vh;
-        border-radius: 32px;
+        border-radius: 20px;
+        border: 1px solid var(--glass-border);
+        margin: 2vh auto;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
     }
 }
 

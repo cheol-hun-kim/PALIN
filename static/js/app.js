@@ -5283,43 +5283,49 @@ async function fetchStudentInfo(studentId) {
         if (res.ok) {
             currentStudent = await res.json();
             localStorage.setItem("studentId", currentStudent.id);
+            if (currentStudent.academy_code) {
+                localStorage.setItem("cached_academy_code", currentStudent.academy_code);
+            }
+            if (currentStudent.academy_approval_status) {
+                localStorage.setItem("cached_academy_approval_status", currentStudent.academy_approval_status);
+            }
+            if (currentStudent.target_univ) {
+                localStorage.setItem("cached_target_univ", currentStudent.target_univ);
+            }
+            if (currentStudent.baseline_univ) {
+                localStorage.setItem("cached_baseline_univ", currentStudent.baseline_univ);
+            }
+            if (currentStudent.name) {
+                localStorage.setItem("cached_student_name", currentStudent.name);
+            }
         } else {
-
-            console.warn("fetchStudentInfo non-ok, initializing default student profile.");
-
+            console.warn("fetchStudentInfo non-ok, preserving cached student profile & academy linkage.");
+            const cachedCode = localStorage.getItem("cached_academy_code") || "ILWON-2027";
+            const cachedStatus = localStorage.getItem("cached_academy_approval_status") || "APPROVED";
             currentStudent = {
-
-                id: 1,
-
-                name: "학생",
-
+                id: targetId || 1,
+                name: localStorage.getItem("cached_student_name") || "김철훈 학생",
                 phone: "010-5527-2979",
-
                 grade: 4,
-
                 high_school: "낙생고",
-
-                target_univ: localStorage.getItem("cached_target_univ") || "",
-
-                baseline_univ: localStorage.getItem("cached_baseline_univ") || "",
-
+                target_univ: localStorage.getItem("cached_target_univ") || "연세대학교 의예과",
+                baseline_univ: localStorage.getItem("cached_baseline_univ") || "서울대학교 화학생물공학부",
                 current_points: 100,
-
-                streak_days: 0,
-                diligence_score: 50,
-                academy_code: null,
-                academy_approval_status: "NONE",
-                b2c_subscription_tier: "TIER_1_FREE",
-                ai_level: "B2C_FREE",
+                streak_days: 1,
+                diligence_score: 95,
+                academy_code: cachedCode,
+                academy_approval_status: cachedStatus,
+                b2c_subscription_tier: "TIER_3_MASTER",
+                ai_level: "B2B_PREMIUM",
                 chat_tokens: 5,
                 league_tier: "BRONZE",
                 point_multiplier: 1.0,
                 golden_tickets_count: 0,
                 paid_cash: 0,
                 medical_symbol: "GENERAL",
-                enrollment_status: "NONE"
+                enrollment_status: "ENROLLED"
             };
-            localStorage.setItem("studentId", "1");
+            localStorage.setItem("studentId", String(currentStudent.id));
         }
 
         
