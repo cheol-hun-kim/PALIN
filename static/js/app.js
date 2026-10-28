@@ -21268,7 +21268,7 @@ async function renderAdmissionPathEngine() {
     const headlineTitle = document.getElementById('dist-headline-title');
     const isParentRole = document.body.classList.contains('role-parent') || localStorage.getItem('userRole') === 'PARENT';
     if (headlineTitle) {
-        headlineTitle.innerText = isParentRole ? "자녀와 희망·마지노선 대학까지의 거리" : "나와 희망·마지노선 대학까지의 거리 (5갈래 경로)";
+        headlineTitle.innerText = isParentRole ? "자녀와 희망·마지노선 대학까지의 거리" : "나와 희망·마지노선 대학까지의 거리";
     }
 
     const sid = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem("studentId") || "1", 10);
@@ -21359,16 +21359,28 @@ async function renderAdmissionPathEngine() {
         if (alertBox) alertBox.style.display = 'none';
     }
 
-    // 3. 우측 대학 노드 텍스트 갱신
+    // 3. 우측 대학 노드 텍스트 갱신 (1지망 vs 마지노선 정확히 반영)
     const svgUnivShort = document.getElementById('svg-univ-short-lbl');
     const svgUnivTarget = document.getElementById('svg-univ-target-lbl');
     const svgUnivCircle = document.getElementById('svg-univ-circle');
     if (svgUnivShort) {
-        svgUnivShort.innerText = activeUnivName.includes("연세") ? "연세대" : (activeUnivName.includes("서울") ? "서울대" : activeUnivName.substring(0, 4));
+        let shortText = "목표대";
+        if (activeUnivName.includes("서울")) shortText = "서울대";
+        else if (activeUnivName.includes("연세")) shortText = "연세대";
+        else if (activeUnivName.includes("고려")) shortText = "고려대";
+        else if (activeUnivName.includes("의예") || activeUnivName.includes("의대")) shortText = "의예과";
+        else if (activeUnivName.includes("성균관")) shortText = "성균관대";
+        else if (activeUnivName.includes("서강")) shortText = "서강대";
+        else if (activeUnivName.includes("한양")) shortText = "한양대";
+        else if (activeUnivName.includes("중앙")) shortText = "중앙대";
+        else if (activeUnivName.includes("경희")) shortText = "경희대";
+        else if (activeUnivName.includes("가천")) shortText = "가천대";
+        else shortText = activeUnivName.replace("대학교", "").replace("대학", "").trim().substring(0, 4);
+        svgUnivShort.innerText = shortText;
     }
     if (svgUnivTarget) {
         svgUnivTarget.innerText = isTarget ? "1지망" : "마지노선";
-        svgUnivTarget.setAttribute("fill", isTarget ? "#818cf8" : "#94a3b8");
+        svgUnivTarget.setAttribute("fill", isTarget ? "#818cf8" : "#38bdf8");
     }
     if (svgUnivCircle) {
         svgUnivCircle.setAttribute("stroke", isTarget ? "#6366f1" : "#0284c7");
@@ -21627,6 +21639,69 @@ function renderSvgRoutes(tracks) {
     });
 
     group.innerHTML = svgHtml;
+}
+
+
+// 3단 순공 비교 프로그레스 바 렌더링 (아코디언 내부)
+function renderHeadlineCampusBars(data, activeTargetHours, myHours) {
+    const listEl = document.getElementById('headline-campus-occupation-list');
+    const totalNetworkEl = document.getElementById('headline-network-total-hours');
+    if (!listEl) return;
+
+    if (totalNetworkEl) {
+        totalNetworkEl.innerText = `주간 ${data.total_network_hours || 128}시간 집계`;
+    }
+
+    const targetInfo = data.target_info;
+    const baselineInfo = data.baseline_info;
+    const maxH = Math.max(targetInfo?.avg_hours || 1, baselineInfo?.avg_hours || 1, myHours || 1, 1);
+
+    const items = [
+        { label: "1지망 목표", name: targetInfo?.univ_name || "연세대학교 의예과", hours: targetInfo?.avg_hours || 42.5, color: "#6366f1", badge: "1지망" },
+        { label: "마지노선", name: baselineInfo?.univ_name || "서울대학교 화학생물공학부", hours: baselineInfo?.avg_hours || 36.0, color: "#0284c7", badge: "마지노선" },
+        { label: "나의 순공", name: (currentStudent?.name || "학생") + " 이번 주 공부시간", hours: myHours, color: (myHours >= (baselineInfo?.avg_hours || 36.0) ? "#10b981" : "#ef4444"), badge: "MY" }
+    ];
+
+    listEl.innerHTML = items.map(item => {
+        const pct = Math.min(100, Math.round((item.hours / maxH) * 100));
+        return `
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 10px 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.68rem; font-weight: 800; background: ${item.color}33; color: ${item.color}; border: 1px solid ${item.color}66; padding: 1px 6px; border-radius: 4px;">${item.badge}</span>
+                        <span style="font-size: 0.78rem; font-weight: 800; color: #ffffff;">${item.name}</span>
+                    </div>
+                    <span style="font-size: 0.82rem; font-weight: 900; color: ${item.color};">${item.hours.toFixed(1)}시간</span>
+                </div>
+                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;">
+                    <div style="width: ${pct}%; height: 100%; background: ${item.color}; border-radius: 3px; transition: width 0.6s ease;"></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// 세부 전형 판정 상세표 렌더링
+function render5TracksTable(tracks) {
+    const tableEl = document.getElementById('admission-5tracks-table');
+    if (!tableEl) return;
+
+    tableEl.innerHTML = tracks.map(tr => {
+        return `
+            <div id="track-card-${tr.id}" style="display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-left: 3px solid ${tr.color}; border-radius: 8px;">
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.82rem; font-weight: 900; color: #ffffff;">${tr.name}</span>
+                        <span style="font-size: 0.68rem; color: #94a3b8;">${tr.type.includes('SOLID') ? '확정 실선' : '잠재 점선'}</span>
+                    </div>
+                    <div style="font-size: 0.72rem; color: #cbd5e1;">${tr.comment}</div>
+                </div>
+                <span style="font-size: 0.72rem; font-weight: 900; color: ${tr.color}; background: ${tr.color}1a; border: 1px solid ${tr.color}55; padding: 3px 8px; border-radius: 8px; white-space: nowrap;">
+                    ${tr.badge}
+                </span>
+            </div>
+        `;
+    }).join('');
 }
 
 function selectAdmissionTrackCard(trackId) {

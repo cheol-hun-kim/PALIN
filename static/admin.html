@@ -881,7 +881,7 @@
                     <div class="section-title" style="color: #34d399; display: flex; justify-content: space-between; align-items: center;">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span class="material-symbols-rounded">fact_check</span>
-                            <span>실시간 Wi-Fi 출결 로그</span>
+                            <span>현장 출결 기록부 (4자리 비밀번호 인증 내역)</span>
                             <span id="attendance-log-badge" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 10px; background: rgba(16, 185, 129, 0.15); color: #34d399; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">출결 기록부</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 6px;">
@@ -902,7 +902,7 @@
                                     <th>수업일자</th>
                                     <th>체크 시각</th>
                                     <th>출결 상태</th>
-                                    <th>접속 IP</th>
+                                    <th>인증 방식</th>
                                     <th>학부모 통보</th>
                                 </tr>
                             </thead>
@@ -2267,7 +2267,7 @@
             </div>
 
             <!-- TAB 9: 9. 성적 역전 마케팅 자동 생성기 -->
-            <div id="tab-marketing" class="cockpit-tab-view" style="display: none;">
+            <div id="tab-marketing" class="cockpit-tab-view" style="display: none !important;">
                 <div class="kpi-card" style="border: 1.5px solid #f472b6; background: rgba(244, 114, 182, 0.03);">
                     <div class="section-title" style="color: #f472b6; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                         <div style="display: flex; align-items: center; gap: 6px;">
@@ -3927,8 +3927,7 @@
                 defaultTab: 'tab-schedule',
                 capsules: [
                     { id: 'tab-schedule', label: '1. 원장 스케줄러', icon: 'calendar_month', action: "switchAdminCockpitTab('tab-schedule')" },
-                    { id: 'tab-attendance', label: '2. 출결관리 & 승인대기', icon: 'wifi_tethering', action: "switchAdminCockpitTab('tab-attendance')" },
-                    { id: 'tab-marketing', label: '3. 성적역전 카드뉴스', icon: 'auto_awesome', action: "switchAdminCockpitTab('tab-marketing')" }
+                    { id: 'tab-attendance', label: '2. 현장 4자리 출결관리', icon: 'pin', action: "switchAdminCockpitTab('tab-attendance')" }
                 ]
             },
             'master-crm': {
@@ -3964,8 +3963,7 @@
         const tabToMasterMap = {
             'tab-schedule': 'master-today',
             'tab-attendance': 'master-today',
-            'tab-marketing': 'master-today',
-            'tab-students': 'master-crm',
+                        'tab-students': 'master-crm',
             'tab-curriculum': 'master-content',
             'tab-special': 'master-content',
             'tab-exams': 'master-content',
@@ -8667,13 +8665,7 @@ function printStudentDossier() {
             <script>
                 window.onload = function() { window.print(); };
             <\/script>
-        
-        // 초기 마스터 & 캡슐 바 초기화
-        document.addEventListener('DOMContentLoaded', () => {
-            renderAdminCapsules('master-today', 'tab-schedule');
-        });
-
-</body>
+        </body>
         </html>
     `);
     printWin.document.close();
@@ -10122,16 +10114,13 @@ window.deleteAdminStudentFolderItem = deleteAdminStudentFolderItem;
 document.addEventListener('DOMContentLoaded', () => {
     localStorage.removeItem('palin_theme');
     document.documentElement.removeAttribute('data-theme');
+    if (typeof renderAdminCapsules === 'function') {
+        renderAdminCapsules('master-today', 'tab-schedule');
+    }
     setTimeout(() => {
         loadAdminStudentFoldersOverview();
     }, 600);
 });
 </script>
-
-        // 초기 마스터 & 캡슐 바 초기화
-        document.addEventListener('DOMContentLoaded', () => {
-            renderAdminCapsules('master-today', 'tab-schedule');
-        });
-
 </body>
 </html>
