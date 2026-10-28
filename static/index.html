@@ -950,9 +950,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <!-- 🎯 [FEATURE DIRECTIVE 3] PASS-MATE 1번 탭 최상단 헤드라인 위젯: -->
                 <!-- '나와 희망·마지노선 대학까지의 거리' 5갈래 입시 경로 시각화 & 실시간 순공 페널티 엔진 -->
                 <!-- ============================================================================== -->
-                <div id="admission-distance-headline-card" class="card" style="margin-bottom: 14px; padding: 18px 16px; border-radius: 18px; border: 1.5px solid rgba(99, 102, 241, 0.45); background: radial-gradient(circle at 50% 0%, rgba(30, 27, 75, 0.75) 0%, rgba(15, 23, 42, 0.98) 100%); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); position: relative; overflow: hidden;">
-                    <!-- 배경 은은한 네온 블러 -->
-                    <div style="position: absolute; top: -40px; right: -40px; width: 130px; height: 130px; background: rgba(99, 102, 241, 0.25); filter: blur(35px); pointer-events: none;"></div>
+                <div id="admission-distance-headline-card" class="card" style="margin-bottom: 14px; padding: 18px 16px; border-radius: 18px; border: 1.5px solid rgba(99, 102, 241, 0.35); background: #0f172a; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); position: relative; overflow: hidden;">
 
                     <!-- 1행: 헤더 (제목 + 실시간 종합 판정 뱃지) -->
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
@@ -964,17 +962,17 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <!-- 종합 판정 뱃지 (실시간 순공 페널티 반영) -->
                         <div id="admission-dist-overall-badge" style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 900; background: rgba(239, 68, 68, 0.18); border: 1.5px solid #ef4444; color: #fca5a5;">
                             <span class="material-symbols-rounded" style="font-size: 0.85rem;">warning</span>
-                            <span id="admission-dist-badge-text">위험 🚨 (마지노선 붕괴 위기)</span>
+                            <span id="admission-dist-badge-text">위험 (마지노선 붕괴 위기)</span>
                         </div>
                     </div>
 
                     <!-- 2행: 1지망 목표 vs 마지노선 듀얼 스위처 -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: rgba(0,0,0,0.4); padding: 4px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 12px;">
                         <button type="button" id="btn-dist-target-1" onclick="switchAdmissionTargetView('TARGET')" style="padding: 8px 6px; font-size: 0.78rem; font-weight: 800; border-radius: 8px; border: 1.5px solid #6366f1; background: #4f46e5; color: white; cursor: pointer; transition: all 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center;">
-                            🎯 1지망: <span id="dist-target-univ-name">연세대학교 의예과</span>
+                            <span class="material-symbols-rounded" style="font-size: 0.9rem; vertical-align: middle;">flag</span> 1지망: <span id="dist-target-univ-name">연세대학교 의예과</span>
                         </button>
                         <button type="button" id="btn-dist-target-2" onclick="switchAdmissionTargetView('BASELINE')" style="padding: 8px 6px; font-size: 0.78rem; font-weight: 800; border-radius: 8px; border: 1.5px solid transparent; background: transparent; color: #94a3b8; cursor: pointer; transition: all 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center;">
-                            🛡️ 마지노선: <span id="dist-baseline-univ-name">서울대학교 화학생물공학부</span>
+                            <span class="material-symbols-rounded" style="font-size: 0.9rem; vertical-align: middle;">verified_user</span> 마지노선: <span id="dist-baseline-univ-name">서울대학교 화학생물공학부</span>
                         </button>
                     </div>
 
@@ -1034,14 +1032,17 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                     <span>점선: 수능/논술(잠재치·순공연동)</span>
                                 </span>
                             </div>
-                            <span style="color: #cbd5e1; font-weight: 700;">클릭 시 전형별 상세</span>
+                            <button type="button" onclick="toggleAdmissionDetailAccordion(true)" style="background: rgba(99, 102, 241, 0.18); border: 1px solid rgba(99, 102, 241, 0.4); color: #c7d2fe; padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; transition: all 0.2s;">
+                                <span>전형별 상세 분석</span>
+                                <span class="material-symbols-rounded" style="font-size: 0.85rem;">open_in_new</span>
+                            </button>
                         </div>
                     </div>
 
                     <!-- 4행: 실시간 순공 페널티 긴급 알림 띠 배너 -->
                     <div id="admission-penalty-alert-box" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; background: rgba(239, 68, 68, 0.12); border-left: 3.5px solid #ef4444; border: 1px solid rgba(239, 68, 68, 0.25); font-size: 0.74rem; color: #fca5a5; line-height: 1.4; margin-bottom: 12px;">
                         <span class="material-symbols-rounded" style="color: #f87171; font-size: 1.15rem; flex-shrink: 0;">bolt</span>
-                        <span id="admission-penalty-alert-text">⚡ 경쟁자 평균보다 주간 순공이 <b>36.0시간 부족</b>하여 정시·논술 합격선이 2단계 강등되었습니다!</span>
+                        <span id="admission-penalty-alert-text">경쟁자 평균보다 주간 순공이 <b>36.0시간 부족</b>하여 정시·논술 합격선이 2단계 강등되었습니다!</span>
                     </div>
 
                     <!-- 5행: 아코디언 드롭다운 트리거 버튼 바 -->

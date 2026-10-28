@@ -911,7 +911,7 @@
                     </div>
                 </div>
 
-                <!-- 🎓 대학교식 3분 타임어택 현장 출결 인증번호 카드 -->
+                <!-- 대학교식 3분 타임어택 현장 출결 인증번호 카드 -->
                 <div class="kpi-card" style="border-color: rgba(56, 189, 248, 0.4); background: linear-gradient(135deg, rgba(56, 189, 248, 0.06), rgba(99, 102, 241, 0.04)); margin-bottom: 16px; padding: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">
                         <div style="display: flex; align-items: center; gap: 8px;">
@@ -968,7 +968,7 @@
                 </div>
             </div>
 
-            <!-- TAB 3: 💰 3. 수업료 & 결제선생 Fintech 수납ERP (5-Screen System) -->
+            <!-- TAB 3: 3. 수업료 & 결제선생 Fintech 수납ERP (5-Screen System) -->
             <div id="tab-finance" class="cockpit-tab-view" style="display: none;">
                 
                 <!-- Screen 1: 청구서 관리 & 분할 정산 대시보드 KPI -->
@@ -1732,7 +1732,7 @@
                     </div>
                 </div>
 
-                <!-- 🎯 [수능 파이널 특화] 수강실적 종합 스코어보드 & 수능 직전 무료 수능연습 우선선발 통제소 -->
+                <!-- [수능 파이널 특화] 수강실적 종합 스코어보드 & 수능 직전 무료 수능연습 우선선발 통제소 -->
                 <div class="kpi-card" style="border: 1.5px solid rgba(245, 158, 11, 0.45); background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), rgba(99, 102, 241, 0.05)); margin-bottom: 16px; padding: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
                         <div style="display: flex; align-items: center; gap: 8px;">
@@ -1756,7 +1756,7 @@
                             <div style="display: flex; align-items: center; gap: 6px; background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(245, 158, 11, 0.4); padding: 4px 8px; border-radius: 8px;">
                                 <span style="font-size: 0.74rem; color: #fbbf24; font-weight: 800;">선별 대상:</span>
                                 <select id="csat-priority-grade-filter" onchange="loadCsatPriorityRankings()" style="background: rgba(0,0,0,0.6); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 6px; color: #ffffff; font-weight: 800; font-size: 0.76rem; padding: 4px 6px; cursor: pointer;">
-                                    <option value="CSAT_ONLY" selected>🎯 당해 수능응시 (고3/N수만)</option>
+                                    <option value="CSAT_ONLY" selected>당해 수능응시 (고3/N수만)</option>
                                     <option value="GRADE_3">고등학교 3학년만</option>
                                     <option value="GRADE_4">N수생(졸업생)만</option>
                                     <option value="ALL">전체 재원생 (고1~N수)</option>
@@ -1772,6 +1772,10 @@
                             <button type="button" onclick="openPromotionModal()" class="btn" style="padding: 7px 12px; font-size: 0.76rem; font-weight: 800; background: rgba(99, 102, 241, 0.15); border: 1.5px solid #818cf8; color: #c7d2fe; border-radius: 8px; display: flex; align-items: center; gap: 4px;" title="12월 31일/신학기 도래 시 학년 일괄 진급 관리">
                                 <span class="material-symbols-rounded" style="font-size: 0.95rem; color: #818cf8;">upgrade</span>
                                 <span>새학년 일괄 진급</span>
+                            </button>
+                            <button type="button" onclick="toggleCsatPrioritySection()" id="btn-toggle-csat-priority" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.74rem; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; border-color: rgba(245, 158, 11, 0.4); color: #fbbf24; cursor: pointer;">
+                                <span id="text-toggle-csat-priority">접기</span>
+                                <span class="material-symbols-rounded" id="icon-toggle-csat-priority" style="font-size: 1.1rem; transition: transform 0.2s;">expand_less</span>
                             </button>
                             <button type="button" onclick="toggleCsatWeightSettings()" class="btn btn-secondary" style="padding: 7px 12px; font-size: 0.76rem; font-weight: 800; color: #cbd5e1; border-color: rgba(255,255,255,0.15); display: flex; align-items: center; gap: 4px;">
                                 <span class="material-symbols-rounded" style="font-size: 0.95rem;">tune</span>
@@ -1792,6 +1796,7 @@
                         </div>
                     </div>
 
+                    <div id="csat-priority-content-collapsible">
                     <!-- 가중치 미세 조정 패널 (접이식) -->
                     <div id="csat-weight-panel" style="display: none; background: rgba(0, 0, 0, 0.4); border: 1px dashed rgba(245, 158, 11, 0.35); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px;">
                         <div style="font-size: 0.75rem; color: #fbbf24; font-weight: 800; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">
@@ -1867,6 +1872,7 @@
                             </tbody>
                         </table>
                     </div>
+                    </div> <!-- /#csat-priority-content-collapsible -->
                 </div>
 
                 <div class="kpi-card" style="margin-bottom: 16px;">
@@ -1913,18 +1919,16 @@
                     </div>
                 </div>
 
-                <div class="grid-two-col">
-                    <div class="kpi-card">
-                        <div class="section-title" style="color: #34d399;">
-                            <span class="material-symbols-rounded">alarm_on</span>
-                            <span>기상/취침 미션 피드</span>
-                        </div>
-                        <div id="mission-feed" style="display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto;"></div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="section-title" style="color: #60a5fa;">
-                            <span class="material-symbols-rounded">timer</span>
-                            <span>몰입 순공 세션 피드</span>
+                <div style="margin-bottom: 16px;">
+                    <!-- 기상/취침 내역은 학부모/원장 전달용 개별 레포트에만 적립 (대시보드 피드 비노출) -->
+                    <div id="mission-feed" style="display: none;"></div>
+                    <div class="kpi-card" style="border: 1px solid rgba(255,255,255,0.08);">
+                        <div class="section-title" style="color: #60a5fa; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span class="material-symbols-rounded">timer</span>
+                                <span>몰입 순공 세션 실시간 피드</span>
+                            </div>
+                            <span style="font-size: 0.72rem; color: #94a3b8;">원생 실시간 측정 로그</span>
                         </div>
                         <div id="study-feed" style="display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto;"></div>
                     </div>
@@ -4126,6 +4130,24 @@
             if (text) text.innerText = isHidden ? '접기' : '펼치기';
             if (icon) icon.innerText = isHidden ? 'expand_less' : 'expand_more';
         }
+
+        
+        function toggleCsatPrioritySection() {
+            const content = document.getElementById('csat-priority-content-collapsible');
+            const text = document.getElementById('text-toggle-csat-priority');
+            const icon = document.getElementById('icon-toggle-csat-priority');
+            if (!content) return;
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                if (text) text.innerText = '접기';
+                if (icon) icon.style.transform = 'rotate(0deg)';
+            } else {
+                content.style.display = 'none';
+                if (text) text.innerText = '펼치기';
+                if (icon) icon.style.transform = 'rotate(180deg)';
+            }
+        }
+        window.toggleCsatPrioritySection = toggleCsatPrioritySection;
 
         function toggleStudentTableDropdown() {
             const container = document.getElementById('student-table-collapsible');

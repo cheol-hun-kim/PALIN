@@ -21172,14 +21172,22 @@ function switchAdmissionTargetView(mode) {
 window.switchAdmissionTargetView = switchAdmissionTargetView;
 
 // 아코디언 드롭다운 토글
-function toggleAdmissionDetailAccordion() {
+function toggleAdmissionDetailAccordion(forceOpen) {
     const panel = document.getElementById('admission-detail-panel');
     const arrow = document.getElementById('dist-accordion-arrow-icon');
     if (!panel) return;
 
+    if (forceOpen === true) {
+        panel.style.display = 'block';
+        if (arrow) arrow.style.transform = 'rotate(180deg)';
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        return;
+    }
+
     if (panel.style.display === 'none' || !panel.style.display) {
         panel.style.display = 'block';
         if (arrow) arrow.style.transform = 'rotate(180deg)';
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } else {
         panel.style.display = 'none';
         if (arrow) arrow.style.transform = 'rotate(0deg)';
@@ -21327,7 +21335,7 @@ async function renderAdmissionPathEngine() {
             deficitBadge.style.borderColor = '#ef4444';
             deficitBadge.style.background = 'rgba(239, 68, 68, 0.2)';
         } else {
-            deficitBadge.innerText = `목표 달성 완료 🏆`;
+            deficitBadge.innerText = `목표 달성 완료`;
             deficitBadge.style.color = '#6ee7b7';
             deficitBadge.style.borderColor = '#10b981';
             deficitBadge.style.background = 'rgba(16, 185, 129, 0.2)';
@@ -21335,27 +21343,27 @@ async function renderAdmissionPathEngine() {
     }
 
     if (penaltyLevel === 'DANGER') {
-        if (badgeTextEl) badgeTextEl.innerText = "위험 🚨 (마지노선 붕괴 위기)";
+        if (badgeTextEl) badgeTextEl.innerText = "위험 (마지노선 붕괴 위기)";
         if (alertBox) {
             alertBox.style.display = 'flex';
             alertBox.style.background = 'rgba(239, 68, 68, 0.14)';
             alertBox.style.borderLeft = '3.5px solid #ef4444';
         }
         if (alertText) {
-            alertText.innerHTML = `⚡ ${activeUnivName} 경쟁자 평균보다 주간 순공이 <b style="color: #f87171;">${deficitHours.toFixed(1)}시간 부족</b>하여 정시·논술 합격선이 <b>2단계 강등</b>되었습니다!`;
+            alertText.innerHTML = `${activeUnivName} 경쟁자 평균보다 주간 순공이 <b style="color: #f87171;">${deficitHours.toFixed(1)}시간 부족</b>하여 정시·논술 합격선이 <b>2단계 강등</b>되었습니다!`;
         }
     } else if (penaltyLevel === 'WARN') {
-        if (badgeTextEl) badgeTextEl.innerText = "소신 ⚠️ (공부량 부족 경고)";
+        if (badgeTextEl) badgeTextEl.innerText = "소신 (공부량 부족 경고)";
         if (alertBox) {
             alertBox.style.display = 'flex';
             alertBox.style.background = 'rgba(245, 158, 11, 0.14)';
             alertBox.style.borderLeft = '3.5px solid #f59e0b';
         }
         if (alertText) {
-            alertText.innerHTML = `⚠️ 주간 순공 달성률이 <b>${Math.round(studyRatio * 100)}%</b>입니다. 정시·논술 합격 가능성이 <b>1단계 강등</b> 적용 중입니다.`;
+            alertText.innerHTML = `주간 순공 달성률이 <b>${Math.round(studyRatio * 100)}%</b>입니다. 정시·논술 합격 가능성이 <b>1단계 강등</b> 적용 중입니다.`;
         }
     } else {
-        if (badgeTextEl) badgeTextEl.innerText = "안정권 유지 🟢 (순공 목표 달성)";
+        if (badgeTextEl) badgeTextEl.innerText = "안정권 유지 (순공 목표 달성)";
         if (alertBox) alertBox.style.display = 'none';
     }
 
@@ -21589,10 +21597,10 @@ function getStatusColor(status) {
 
 function getPenaltyBadge(status, penaltyLevel) {
     if (penaltyLevel === 'DANGER' && status === 'DANGER') {
-        return '위험 🚨 (순공 부족 강등)';
+        return '위험 (순공 부족 강등)';
     }
     if (penaltyLevel === 'WARN' && status === 'DANGER') {
-        return '소신 ⚠️ (공부량 부족 하락)';
+        return '소신 (공부량 부족 하락)';
     }
     if (status === 'SAFE') return '적정 (안정권)';
     if (status === 'ON_TRACK') return '소신 (도전권)';
@@ -21705,12 +21713,20 @@ function render5TracksTable(tracks) {
 }
 
 function selectAdmissionTrackCard(trackId) {
-    const el = document.getElementById(`track-card-${trackId}`);
-    if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        el.style.backgroundColor = 'rgba(99, 102, 241, 0.2)';
-        setTimeout(() => { el.style.backgroundColor = 'rgba(255,255,255,0.03)'; }, 1000);
-    }
+    toggleAdmissionDetailAccordion(true);
+    setTimeout(() => {
+        const el = document.getElementById(`track-card-${trackId}`);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.style.transition = 'all 0.3s ease';
+            el.style.backgroundColor = 'rgba(99, 102, 241, 0.25)';
+            el.style.borderColor = '#818cf8';
+            setTimeout(() => {
+                el.style.backgroundColor = 'rgba(255,255,255,0.03)';
+                el.style.borderColor = 'rgba(255,255,255,0.06)';
+            }, 1600);
+        }
+    }, 150);
 }
 window.selectAdmissionTrackCard = selectAdmissionTrackCard;
 
