@@ -1,719 +1,737 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PALIN SILVER-MATE | 자녀 안부 & 원격 효도 관제실</title>
-    <!-- Google Fonts & Material Symbols -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols-Rounded:opsz,wght,FILL,GRAD@24..48,400..800,0..1,0" />
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+ <title>PALIN SILVER-MATE | 자녀 안부 & 원격 효도 관제실</title>
+ <!-- Google Fonts & Material Symbols -->
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
-    <style>
-        :root {
-            --bg-guardian: #0a0f1d;
-            --card-guardian: #111827;
-            --card-border: rgba(255, 255, 255, 0.08);
-            --primary-accent: #6366f1;
-            --accent-glow: rgba(99, 102, 241, 0.25);
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-        }
+ <style>
+ :root {
+ --bg-guardian: #0a0f1d;
+ --card-guardian: #111827;
+ --card-border: rgba(255, 255, 255, 0.08);
+ --primary-accent: #6366f1;
+ --accent-glow: rgba(99, 102, 241, 0.25);
+ --success-color: #10b981;
+ --warning-color: #f59e0b;
+ --danger-color: #ef4444;
+ --text-main: #f8fafc;
+ --text-muted: #94a3b8;
+ }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ user-select: none;
+ -webkit-tap-highlight-color: transparent;
+ }
 
-        body {
-            font-family: 'Pretendard', sans-serif;
-            background-color: var(--bg-guardian);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 16px 16px calc(30px + env(safe-area-inset-bottom, 20px));
-            overflow-x: hidden;
-        }
+ body {
+ font-family: 'Pretendard', sans-serif;
+ background-color: var(--bg-guardian);
+ color: var(--text-main);
+ min-height: 100vh;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ padding: 16px 16px calc(30px + env(safe-area-inset-bottom, 20px));
+ overflow-x: hidden;
+ }
 
-        .guardian-container {
-            width: 100%;
-            max-width: 780px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
+ .guardian-container {
+ width: 100%;
+ max-width: 780px;
+ display: flex;
+ flex-direction: column;
+ gap: 16px;
+ }
 
-        /* 상단 네비게이션 & 빠른 전환 바 */
-        .top-nav-bar {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(17, 24, 39, 0.8);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--card-border);
-            padding: 10px 16px;
-            border-radius: 16px;
-        }
+ /* 상단 네비게이션 & 빠른 전환 바 */
+ .top-nav-bar {
+ width: 100%;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ background: rgba(17, 24, 39, 0.8);
+ backdrop-filter: blur(12px);
+ border: 1px solid var(--card-border);
+ padding: 10px 16px;
+ border-radius: 16px;
+ }
 
-        .nav-logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.95rem;
-            font-weight: 900;
-            letter-spacing: -0.02em;
-        }
+ .nav-logo {
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ font-size: 0.95rem;
+ font-weight: 900;
+ letter-spacing: -0.02em;
+ }
 
-        .nav-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+ .nav-actions {
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ }
 
-        .nav-pill-btn {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #cbd5e1;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.76rem;
-            font-weight: 700;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
+ .nav-pill-btn {
+ background: rgba(255, 255, 255, 0.06);
+ border: 1px solid rgba(255, 255, 255, 0.12);
+ color: #cbd5e1;
+ padding: 5px 12px;
+ border-radius: 20px;
+ font-size: 0.76rem;
+ font-weight: 700;
+ text-decoration: none;
+ display: inline-flex;
+ align-items: center;
+ gap: 4px;
+ transition: all 0.2s ease;
+ cursor: pointer;
+ }
 
-        .nav-pill-btn:hover {
-            background: rgba(99, 102, 241, 0.2);
-            border-color: #6366f1;
-            color: #ffffff;
-        }
+ .nav-pill-btn:hover {
+ background: rgba(99, 102, 241, 0.2);
+ border-color: #6366f1;
+ color: #ffffff;
+ }
 
-        /* 🚨 실시간 보이스피싱 및 위험 감지 배너 */
-        #urgent-phishing-banner {
-            display: none;
-            background: linear-gradient(135deg, #7f1d1d, #991b1b);
-            border: 2px solid #ef4444;
-            box-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
-            border-radius: 18px;
-            padding: 16px 18px;
-            animation: pulse-border 1.4s infinite;
-        }
+ /* 실시간 보이스피싱 및 위험 감지 배너 */
+ #urgent-phishing-banner {
+ display: none;
+ background: linear-gradient(135deg, #7f1d1d, #991b1b);
+ border: 2px solid #ef4444;
+ box-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
+ border-radius: 18px;
+ padding: 16px 18px;
+ animation: pulse-border 1.4s infinite;
+ }
 
-        @keyframes pulse-border {
-            0% { transform: scale(1); box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
-            50% { transform: scale(1.008); box-shadow: 0 0 32px rgba(239, 68, 68, 0.7); }
-            100% { transform: scale(1); box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
-        }
+ @keyframes pulse-border {
+ 0% { transform: scale(1); box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
+ 50% { transform: scale(1.008); box-shadow: 0 0 32px rgba(239, 68, 68, 0.7); }
+ 100% { transform: scale(1); box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
+ }
 
-        .urgent-grid-actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 8px;
-            margin-top: 12px;
-        }
+ .urgent-grid-actions {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+ gap: 8px;
+ margin-top: 12px;
+ }
 
-        .urgent-action-btn {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            padding: 10px;
-            border-radius: 10px;
-            font-size: 0.82rem;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
+ .urgent-action-btn {
+ background: rgba(0, 0, 0, 0.4);
+ border: 1px solid rgba(255, 255, 255, 0.2);
+ color: #ffffff;
+ padding: 10px;
+ border-radius: 10px;
+ font-size: 0.82rem;
+ font-weight: 800;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ gap: 6px;
+ cursor: pointer;
+ transition: background 0.2s;
+ }
 
-        .urgent-action-btn:hover {
-            background: rgba(0, 0, 0, 0.7);
-        }
+ .urgent-action-btn:hover {
+ background: rgba(0, 0, 0, 0.7);
+ }
 
-        /* 👑 부모님 안부 메인 카드 */
-        .parent-profile-card {
-            background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            border-radius: 20px;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
+ /* 부모님 안부 메인 카드 */
+ .parent-profile-card {
+ background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+ border: 1px solid rgba(99, 102, 241, 0.3);
+ border-radius: 20px;
+ padding: 20px;
+ position: relative;
+ overflow: hidden;
+ }
 
-        .profile-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+ .profile-row {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ }
 
-        .parent-info-group {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
+ .parent-info-group {
+ display: flex;
+ align-items: center;
+ gap: 14px;
+ }
 
-        .parent-avatar {
-            width: 58px;
-            height: 58px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ec4899, #8b5cf6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            box-shadow: 0 4px 14px rgba(236, 72, 153, 0.35);
-        }
+ .parent-avatar {
+ width: 58px;
+ height: 58px;
+ border-radius: 50%;
+ background: linear-gradient(135deg, #ec4899, #8b5cf6);
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ font-size: 1.8rem;
+ box-shadow: 0 4px 14px rgba(236, 72, 153, 0.35);
+ }
 
-        .parent-status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid #10b981;
-            color: #34d399;
-            font-size: 0.75rem;
-            font-weight: 800;
-            padding: 2px 8px;
-            border-radius: 12px;
-        }
+ .parent-status-badge {
+ display: inline-flex;
+ align-items: center;
+ gap: 5px;
+ background: rgba(16, 185, 129, 0.15);
+ border: 1px solid #10b981;
+ color: #34d399;
+ font-size: 0.75rem;
+ font-weight: 800;
+ padding: 2px 8px;
+ border-radius: 12px;
+ }
 
-        /* 비침습적 라이프시그널 4분할 그리드 */
-        .life-signals-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-top: 18px;
-        }
+ /* 비침습적 라이프시그널 4분할 그리드 */
+ .life-signals-grid {
+ display: grid;
+ grid-template-columns: repeat(4, 1fr);
+ gap: 10px;
+ margin-top: 18px;
+ }
 
-        @media (max-width: 600px) {
-            .life-signals-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
+ @media (max-width: 600px) {
+ .life-signals-grid {
+ grid-template-columns: repeat(2, 1fr);
+ }
+ }
 
-        .signal-card {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 14px;
-            padding: 12px 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
+ .signal-card {
+ background: rgba(255, 255, 255, 0.04);
+ border: 1px solid rgba(255, 255, 255, 0.06);
+ border-radius: 14px;
+ padding: 12px 14px;
+ display: flex;
+ flex-direction: column;
+ gap: 4px;
+ }
 
-        .signal-header {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.72rem;
-            color: var(--text-muted);
-            font-weight: 700;
-        }
+ .signal-header {
+ display: flex;
+ align-items: center;
+ gap: 6px;
+ font-size: 0.72rem;
+ color: var(--text-muted);
+ font-weight: 700;
+ }
 
-        .signal-val {
-            font-size: 1.15rem;
-            font-weight: 900;
-            color: #ffffff;
-        }
+ .signal-val {
+ font-size: 1.15rem;
+ font-weight: 900;
+ color: #ffffff;
+ }
 
-        .signal-sub {
-            font-size: 0.68rem;
-            color: #94a3b8;
-        }
+ .signal-sub {
+ font-size: 0.68rem;
+ color: #94a3b8;
+ }
 
-        /* 💌 비동기 안부 연락함 (Non-Intrusive Ping Inbox) */
-        .ping-section {
-            background: var(--card-guardian);
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 18px 20px;
-        }
+ /* 비동기 안부 연락함 (Non-Intrusive Ping Inbox) */
+ .ping-section {
+ background: var(--card-guardian);
+ border: 1px solid var(--card-border);
+ border-radius: 20px;
+ padding: 18px 20px;
+ }
 
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
+ .section-header {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ margin-bottom: 12px;
+ }
 
-        .section-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 1.05rem;
-            font-weight: 900;
-        }
+ .section-title {
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ font-size: 1.05rem;
+ font-weight: 900;
+ }
 
-        .ping-card {
-            background: linear-gradient(135deg, rgba(236, 72, 153, 0.08), rgba(99, 102, 241, 0.05));
-            border: 1.5px solid rgba(236, 72, 153, 0.25);
-            border-radius: 16px;
-            padding: 14px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 10px;
-        }
+ .ping-card {
+ background: linear-gradient(135deg, rgba(236, 72, 153, 0.08), rgba(99, 102, 241, 0.05));
+ border: 1.5px solid rgba(236, 72, 153, 0.25);
+ border-radius: 16px;
+ padding: 14px 16px;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ gap: 12px;
+ margin-bottom: 10px;
+ }
 
-        .ping-content {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
+ .ping-content {
+ display: flex;
+ flex-direction: column;
+ gap: 4px;
+ }
 
-        .ping-quick-replies {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
+ .ping-quick-replies {
+ display: flex;
+ gap: 6px;
+ flex-wrap: wrap;
+ }
 
-        .reply-pill-btn {
-            background: rgba(236, 72, 153, 0.15);
-            border: 1px solid rgba(236, 72, 153, 0.4);
-            color: #fbcfe8;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.76rem;
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
+ .reply-pill-btn {
+ background: rgba(236, 72, 153, 0.15);
+ border: 1px solid rgba(236, 72, 153, 0.4);
+ color: #fbcfe8;
+ padding: 6px 12px;
+ border-radius: 20px;
+ font-size: 0.76rem;
+ font-weight: 800;
+ cursor: pointer;
+ transition: all 0.2s;
+ }
 
-        .reply-pill-btn:hover {
-            background: #ec4899;
-            color: #ffffff;
-        }
+ .reply-pill-btn:hover {
+ background: #ec4899;
+ color: #ffffff;
+ }
 
-        /* ⚡ 원격 대행 승인 큐 (Delegation Approval Queue) */
-        .queue-section {
-            background: var(--card-guardian);
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 18px 20px;
-        }
+ /* 원격 대행 승인 큐 (Delegation Approval Queue) */
+ .queue-section {
+ background: var(--card-guardian);
+ border: 1px solid var(--card-border);
+ border-radius: 20px;
+ padding: 18px 20px;
+ }
 
-        .queue-item {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            transition: border-color 0.2s;
-        }
+ .queue-item {
+ background: rgba(255, 255, 255, 0.02);
+ border: 1px solid rgba(255, 255, 255, 0.07);
+ border-radius: 16px;
+ padding: 16px;
+ margin-bottom: 12px;
+ display: flex;
+ flex-direction: column;
+ gap: 10px;
+ transition: border-color 0.2s;
+ }
 
-        .queue-item:hover {
-            border-color: rgba(99, 102, 241, 0.4);
-        }
+ .queue-item:hover {
+ border-color: rgba(99, 102, 241, 0.4);
+ }
 
-        .queue-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+ .queue-top {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ }
 
-        .queue-badge {
-            font-size: 0.72rem;
-            font-weight: 800;
-            padding: 3px 8px;
-            border-radius: 8px;
-            text-transform: uppercase;
-        }
+ .queue-badge {
+ font-size: 0.72rem;
+ font-weight: 800;
+ padding: 3px 8px;
+ border-radius: 8px;
+ text-transform: uppercase;
+ }
 
-        .badge-booking { background: rgba(99, 102, 241, 0.2); color: #818cf8; border: 1px solid #6366f1; }
-        .badge-bill { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
-        .badge-shopping { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+ .badge-booking { background: rgba(99, 102, 241, 0.2); color: #818cf8; border: 1px solid #6366f1; }
+ .badge-bill { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+ .badge-shopping { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
 
-        .queue-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            margin-top: 4px;
-        }
+ .queue-actions {
+ display: flex;
+ justify-content: flex-end;
+ gap: 8px;
+ margin-top: 4px;
+ }
 
-        .btn-approve {
-            background: linear-gradient(135deg, #4f46e5, #6366f1);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 10px;
-            font-size: 0.84rem;
-            font-weight: 800;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
+ .btn-approve {
+ background: linear-gradient(135deg, #4f46e5, #6366f1);
+ color: white;
+ border: none;
+ padding: 8px 16px;
+ border-radius: 10px;
+ font-size: 0.84rem;
+ font-weight: 800;
+ cursor: pointer;
+ display: flex;
+ align-items: center;
+ gap: 4px;
+ }
 
-        .btn-approve:hover {
-            opacity: 0.92;
-        }
+ .btn-approve:hover {
+ opacity: 0.92;
+ }
 
-        .btn-reject {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #94a3b8;
-            padding: 8px 14px;
-            border-radius: 10px;
-            font-size: 0.84rem;
-            font-weight: 700;
-            cursor: pointer;
-        }
+ .btn-reject {
+ background: rgba(255, 255, 255, 0.06);
+ border: 1px solid rgba(255, 255, 255, 0.12);
+ color: #94a3b8;
+ padding: 8px 14px;
+ border-radius: 10px;
+ font-size: 0.84rem;
+ font-weight: 700;
+ cursor: pointer;
+ }
 
-        /* 📸 하단 사진첩 바로가기 배너 */
-        .photo-banner {
-            background: linear-gradient(135deg, #3b0764, #1e1b4b);
-            border: 1px solid rgba(168, 85, 247, 0.3);
-            border-radius: 18px;
-            padding: 16px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            text-decoration: none;
-            color: inherit;
-        }
-    </style>
+ /* 하단 사진첩 바로가기 배너 */
+ .photo-banner {
+ background: linear-gradient(135deg, #3b0764, #1e1b4b);
+ border: 1px solid rgba(168, 85, 247, 0.3);
+ border-radius: 18px;
+ padding: 16px 20px;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ text-decoration: none;
+ color: inherit;
+ }
+ 
+ .material-symbols-rounded {
+ font-family: 'Material Symbols Rounded', -apple-system, sans-serif;
+ font-weight: normal;
+ font-style: normal;
+ font-size: 24px;
+ line-height: 1;
+ letter-spacing: normal;
+ text-transform: none;
+ display: inline-block;
+ white-space: nowrap;
+ word-wrap: normal;
+ direction: ltr;
+ -webkit-font-feature-settings: 'liga';
+ -webkit-font-smoothing: antialiased;
+ vertical-align: middle;
+ }
+ 
+ </style>
 </head>
 <body>
 
-    <div class="guardian-container">
-        
-        <!-- 상단 네비게이션 및 시스템 전환 -->
-        <header class="top-nav-bar">
-            <div class="nav-logo">
-                <span class="material-symbols-rounded" style="color: #6366f1; font-size: 1.4rem;">elderly</span>
-                <span style="color: #ffffff;">PALIN <b style="color: #818cf8;">SILVER-MATE</b></span>
-                <span style="font-size: 0.72rem; color: #94a3b8; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;">자녀 관제탑</span>
-            </div>
+ <div class="guardian-container">
+ 
+ <!-- 상단 네비게이션 및 시스템 전환 -->
+ <header class="top-nav-bar">
+ <div class="nav-logo">
+ <span class="material-symbols-rounded" style="color: #6366f1; font-size: 1.4rem;">elderly</span>
+ <span style="color: #ffffff;">PALIN <b style="color: #818cf8;">SILVER-MATE</b></span>
+ <span style="font-size: 0.72rem; color: #94a3b8; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;">자녀 관제탑</span>
+ </div>
 
-            <div class="nav-actions">
-                <button type="button" class="nav-pill-btn" onclick="triggerTestPhishing()" style="background: rgba(239,68,68,0.15); border-color: #ef4444; color: #fca5a5;">
-                    <span class="material-symbols-rounded" style="font-size: 0.95rem;">crisis_alert</span>
-                    피싱 테스트
-                </button>
-                <a href="/silver/senior-home" class="nav-pill-btn">
-                    <span class="material-symbols-rounded" style="font-size: 0.95rem;">settings_accessibility</span>
-                    부모님 화면
-                </a>
-                <a href="/app" class="nav-pill-btn">
-                    <span class="material-symbols-rounded" style="font-size: 0.95rem;">hub</span>
-                    관제 홈
-                </a>
-            </div>
-        </header>
+ <div class="nav-actions">
+ <button type="button" class="nav-pill-btn" onclick="triggerTestPhishing()" style="background: rgba(239,68,68,0.15); border-color: #ef4444; color: #fca5a5;">
+ <span class="material-symbols-rounded" style="font-size: 0.95rem;">crisis_alert</span>
+ 피싱 테스트
+ </button>
+ <a href="/silver/senior-home" class="nav-pill-btn">
+ <span class="material-symbols-rounded" style="font-size: 0.95rem;">settings_accessibility</span>
+ 부모님 화면
+ </a>
+ <a href="/app" class="nav-pill-btn">
+ <span class="material-symbols-rounded" style="font-size: 0.95rem;">hub</span>
+ 관제 홈
+ </a>
+ </div>
+ </header>
 
-        <!-- 🚨 실시간 보이스피싱 및 위험 감지 배너 (이벤트 발생 시 즉시 활성화) -->
-        <section id="urgent-phishing-banner">
-            <div style="display: flex; align-items: flex-start; gap: 12px;">
-                <span class="material-symbols-rounded" style="color: #ffffff; font-size: 2.2rem;">warning</span>
-                <div style="flex: 1;">
-                    <div style="font-size: 1.15rem; font-weight: 900; color: #ffffff;">
-                        ⚠️ [긴급] 어머니 폰에서 보이스피싱 의심 통화가 감지되었습니다!
-                    </div>
-                    <div style="font-size: 0.86rem; color: #fecaca; margin-top: 4px; line-height: 1.4;">
-                        AI 보이스피싱 방어망이 검찰/금융기관 사칭 키워드를 탐지하여 부모님 화면에 경고창을 띄우고 통화를 차단 권고했습니다.
-                    </div>
+ <!-- 실시간 보이스피싱 및 위험 감지 배너 (이벤트 발생 시 즉시 활성화) -->
+ <section id="urgent-phishing-banner">
+ <div style="display: flex; align-items: flex-start; gap: 12px;">
+ <span class="material-symbols-rounded" style="color: #ffffff; font-size: 2.2rem;">warning</span>
+ <div style="flex: 1;">
+ <div style="font-size: 1.15rem; font-weight: 900; color: #ffffff;">
+ [긴급] 어머니 폰에서 보이스피싱 의심 통화가 감지되었습니다!
+ </div>
+ <div style="font-size: 0.86rem; color: #fecaca; margin-top: 4px; line-height: 1.4;">
+ AI 보이스피싱 방어망이 검찰/금융기관 사칭 키워드를 탐지하여 부모님 화면에 경고창을 띄우고 통화를 차단 권고했습니다.
+ </div>
 
-                    <div class="urgent-grid-actions">
-                        <button type="button" class="urgent-action-btn" onclick="callMotherDirectly()">
-                            <span class="material-symbols-rounded" style="color: #4ade80;">call</span>
-                            어머니께 즉시 전화
-                        </button>
-                        <button type="button" class="urgent-action-btn" onclick="blockSuspiciousNumber()">
-                            <span class="material-symbols-rounded" style="color: #f87171;">block</span>
-                            의심번호 원격 차단
-                        </button>
-                        <button type="button" class="urgent-action-btn" onclick="freezeAccounts()">
-                            <span class="material-symbols-rounded" style="color: #facc15;">lock</span>
-                            30분 금융거래 잠금
-                        </button>
-                        <button type="button" class="urgent-action-btn" onclick="dismissBanner()">
-                            닫기
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
+ <div class="urgent-grid-actions">
+ <button type="button" class="urgent-action-btn" onclick="callMotherDirectly()">
+ <span class="material-symbols-rounded" style="color: #4ade80;">call</span>
+ 어머니께 즉시 전화
+ </button>
+ <button type="button" class="urgent-action-btn" onclick="blockSuspiciousNumber()">
+ <span class="material-symbols-rounded" style="color: #f87171;">block</span>
+ 의심번호 원격 차단
+ </button>
+ <button type="button" class="urgent-action-btn" onclick="freezeAccounts()">
+ <span class="material-symbols-rounded" style="color: #facc15;">lock</span>
+ 30분 금융거래 잠금
+ </button>
+ <button type="button" class="urgent-action-btn" onclick="dismissBanner()">
+ 닫기
+ </button>
+ </div>
+ </div>
+ </div>
+ </section>
 
-        <!-- 👑 부모님 안부 메인 카드 -->
-        <section class="parent-profile-card">
-            <div class="profile-row">
-                <div class="parent-info-group">
-                    <div class="parent-avatar">👵</div>
-                    <div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-size: 1.3rem; font-weight: 900; color: #ffffff;">김옥자 여사님</span>
-                            <span style="font-size: 0.85rem; color: #94a3b8; font-weight: 700;">(만 72세 / 어머니)</span>
-                            <span class="parent-status-badge">
-                                <span class="material-symbols-rounded" style="font-size: 0.9rem;">check_circle</span>
-                                안전 상태
-                            </span>
-                        </div>
-                        <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 3px;">
-                            📍 경기 성남시 분당구 수내동 거주 &nbsp;•&nbsp; 지병: 본태성 고혈압
-                        </div>
-                    </div>
-                </div>
-                <button type="button" onclick="callMotherDirectly()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #ffffff; padding: 8px 14px; border-radius: 12px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                    <span class="material-symbols-rounded" style="color: #34d399; font-size: 1.1rem;">call</span>
-                    전화걸기
-                </button>
-            </div>
+ <!-- 부모님 안부 메인 카드 -->
+ <section class="parent-profile-card">
+ <div class="profile-row">
+ <div class="parent-info-group">
+ <div class="parent-avatar"></div>
+ <div>
+ <div style="display: flex; align-items: center; gap: 8px;">
+ <span style="font-size: 1.3rem; font-weight: 900; color: #ffffff;">김옥자 여사님</span>
+ <span style="font-size: 0.85rem; color: #94a3b8; font-weight: 700;">(만 72세 / 어머니)</span>
+ <span class="parent-status-badge">
+ <span class="material-symbols-rounded" style="font-size: 0.9rem;">check_circle</span>
+ 안전 상태
+ </span>
+ </div>
+ <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 3px;">
+ 📍 경기 성남시 분당구 수내동 거주 &nbsp;•&nbsp; 지병: 본태성 고혈압
+ </div>
+ </div>
+ </div>
+ <button type="button" onclick="callMotherDirectly()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #ffffff; padding: 8px 14px; border-radius: 12px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+ <span class="material-symbols-rounded" style="color: #34d399; font-size: 1.1rem;">call</span>
+ 전화걸기
+ </button>
+ </div>
 
-            <!-- 비침습적 라이프시그널 4분할 지표 -->
-            <div class="life-signals-grid">
-                <div class="signal-card">
-                    <div class="signal-header">
-                        <span class="material-symbols-rounded" style="font-size: 1rem; color: #fbbf24;">wb_sunny</span>
-                        기상 감지
-                    </div>
-                    <div class="signal-val">06:45</div>
-                    <div class="signal-sub">침실 조명 점등 기준</div>
-                </div>
+ <!-- 비침습적 라이프시그널 4분할 지표 -->
+ <div class="life-signals-grid">
+ <div class="signal-card">
+ <div class="signal-header">
+ <span class="material-symbols-rounded" style="font-size: 1rem; color: #fbbf24;">wb_sunny</span>
+ 기상 감지
+ </div>
+ <div class="signal-val">06:45</div>
+ <div class="signal-sub">침실 조명 점등 기준</div>
+ </div>
 
-                <div class="signal-card">
-                    <div class="signal-header">
-                        <span class="material-symbols-rounded" style="font-size: 1rem; color: #38bdf8;">medication</span>
-                        아침 복약
-                    </div>
-                    <div class="signal-val" style="color: #34d399;">복용 완료</div>
-                    <div class="signal-sub">07:20 고혈압·위장약</div>
-                </div>
+ <div class="signal-card">
+ <div class="signal-header">
+ <span class="material-symbols-rounded" style="font-size: 1rem; color: #38bdf8;">medication</span>
+ 아침 복약
+ </div>
+ <div class="signal-val" style="color: #34d399;">복용 완료</div>
+ <div class="signal-sub">07:20 고혈압·위장약</div>
+ </div>
 
-                <div class="signal-card">
-                    <div class="signal-header">
-                        <span class="material-symbols-rounded" style="font-size: 1rem; color: #ec4899;">directions_walk</span>
-                        오늘 걸음
-                    </div>
-                    <div class="signal-val">3,850보</div>
-                    <div class="signal-sub">목표 5,000보 (77%)</div>
-                </div>
+ <div class="signal-card">
+ <div class="signal-header">
+ <span class="material-symbols-rounded" style="font-size: 1rem; color: #ec4899;">directions_walk</span>
+ 오늘 걸음
+ </div>
+ <div class="signal-val">3,850보</div>
+ <div class="signal-sub">목표 5,000보 (77%)</div>
+ </div>
 
-                <div class="signal-card">
-                    <div class="signal-header">
-                        <span class="material-symbols-rounded" style="font-size: 1rem; color: #a78bfa;">smartphone</span>
-                        폰 배터리 / 활동
-                    </div>
-                    <div class="signal-val">84%</div>
-                    <div class="signal-sub">15분 전 활성 사용</div>
-                </div>
-            </div>
-        </section>
+ <div class="signal-card">
+ <div class="signal-header">
+ <span class="material-symbols-rounded" style="font-size: 1rem; color: #a78bfa;">smartphone</span>
+ 폰 배터리 / 활동
+ </div>
+ <div class="signal-val">84%</div>
+ <div class="signal-sub">15분 전 활성 사용</div>
+ </div>
+ </div>
+ </section>
 
-        <!-- 💌 비동기 안부 연락함 (Non-Intrusive Ping Inbox) -->
-        <section class="ping-section">
-            <div class="section-header">
-                <div class="section-title">
-                    <span class="material-symbols-rounded" style="color: #ec4899;">mark_email_unread</span>
-                    <span>안부 연락함 (비동기 Ping)</span>
-                </div>
-                <span style="font-size: 0.75rem; color: var(--text-muted);">부담 없이 남겨두신 마음</span>
-            </div>
+ <!-- 비동기 안부 연락함 (Non-Intrusive Ping Inbox) -->
+ <section class="ping-section">
+ <div class="section-header">
+ <div class="section-title">
+ <span class="material-symbols-rounded" style="color: #ec4899;">mark_email_unread</span>
+ <span>안부 연락함 (비동기 Ping)</span>
+ </div>
+ <span style="font-size: 0.75rem; color: var(--text-muted);">부담 없이 남겨두신 마음</span>
+ </div>
 
-            <div id="ping-list-container">
-                <!-- Ping 아이템 1 -->
-                <div class="ping-card">
-                    <div class="ping-content">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-size: 0.95rem; font-weight: 900; color: #ffffff;">💌 "시간 날 때 전화해~"</span>
-                            <span style="font-size: 0.72rem; color: #f472b6; font-weight: 700;">오늘 오전 10:15 도착</span>
-                        </div>
-                        <div style="font-size: 0.78rem; color: #cbd5e1;">
-                            어머니께서 버튼을 누르셨습니다. 퇴근길 편한 시간에 목소리 들려주세요.
-                        </div>
-                    </div>
-                    <div class="ping-quick-replies">
-                        <button type="button" class="reply-pill-btn" onclick="sendQuickReply('엄마 퇴근길에 7시에 전화할게요!')">
-                            "7시에 전화할게요!"
-                        </button>
-                        <button type="button" class="reply-pill-btn" onclick="sendQuickReply('네 어머니 이따 집 가서 연락드릴게요~')">
-                            "이따 집 가서 연락할게요"
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
+ <div id="ping-list-container">
+ <!-- Ping 아이템 1 -->
+ <div class="ping-card">
+ <div class="ping-content">
+ <div style="display: flex; align-items: center; gap: 8px;">
+ <span style="font-size: 0.95rem; font-weight: 900; color: #ffffff;"> "시간 날 때 전화해~"</span>
+ <span style="font-size: 0.72rem; color: #f472b6; font-weight: 700;">오늘 오전 10:15 도착</span>
+ </div>
+ <div style="font-size: 0.78rem; color: #cbd5e1;">
+ 어머니께서 버튼을 누르셨습니다. 퇴근길 편한 시간에 목소리 들려주세요.
+ </div>
+ </div>
+ <div class="ping-quick-replies">
+ <button type="button" class="reply-pill-btn" onclick="sendQuickReply('엄마 퇴근길에 7시에 전화할게요!')">
+ "7시에 전화할게요!"
+ </button>
+ <button type="button" class="reply-pill-btn" onclick="sendQuickReply('네 어머니 이따 집 가서 연락드릴게요~')">
+ "이따 집 가서 연락할게요"
+ </button>
+ </div>
+ </div>
+ </div>
+ </section>
 
-        <!-- ⚡ 원격 대행 승인 큐 (Delegation Approval Queue) -->
-        <section class="queue-section">
-            <div class="section-header">
-                <div class="section-title">
-                    <span class="material-symbols-rounded" style="color: #818cf8;">task_alt</span>
-                    <span>원격 효도 승인 대기열 (<span id="queue-count" style="color: #6366f1;">3</span>건)</span>
-                </div>
-                <span style="font-size: 0.75rem; color: var(--text-muted);">부모님이 요청하신 예약/결제 대행</span>
-            </div>
+ <!-- 원격 대행 승인 큐 (Delegation Approval Queue) -->
+ <section class="queue-section">
+ <div class="section-header">
+ <div class="section-title">
+ <span class="material-symbols-rounded" style="color: #818cf8;">task_alt</span>
+ <span>원격 효도 승인 대기열 (<span id="queue-count" style="color: #6366f1;">3</span>건)</span>
+ </div>
+ <span style="font-size: 0.75rem; color: var(--text-muted);">부모님이 요청하신 예약/결제 대행</span>
+ </div>
 
-            <div id="queue-list-container">
-                <!-- 대행 1: 기차 예매 -->
-                <div class="queue-item" id="task-ktx">
-                    <div class="queue-top">
-                        <span class="queue-badge badge-booking">🚄 교통·예매 대행</span>
-                        <span style="font-size: 0.74rem; color: #94a3b8;">방금 전 부모님 음성 접수</span>
-                    </div>
-                    <div>
-                        <div style="font-size: 0.98rem; font-weight: 900; color: #ffffff;">
-                            이번 주 토요일(10/31) 오전 10:00 서울 ➔ 부산 KTX 1매
-                        </div>
-                        <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 3px;">
-                            일반실 1호차 8A 창가석 • 예상 결제금액: <b style="color: #818cf8;">59,800원</b>
-                        </div>
-                    </div>
-                    <div class="queue-actions">
-                        <button type="button" class="btn-reject" onclick="rejectTask('task-ktx', '시간 변경 문의')">시간 변경</button>
-                        <button type="button" class="btn-approve" onclick="approveTask('task-ktx', 'KTX 티켓 결제')">
-                            <span class="material-symbols-rounded" style="font-size: 1rem;">credit_card</span>
-                            원클릭 결제·발권
-                        </button>
-                    </div>
-                </div>
+ <div id="queue-list-container">
+ <!-- 대행 1: 기차 예매 -->
+ <div class="queue-item" id="task-ktx">
+ <div class="queue-top">
+ <span class="queue-badge badge-booking"> 교통·예매 대행</span>
+ <span style="font-size: 0.74rem; color: #94a3b8;">방금 전 부모님 음성 접수</span>
+ </div>
+ <div>
+ <div style="font-size: 0.98rem; font-weight: 900; color: #ffffff;">
+ 이번 주 토요일(10/31) 오전 10:00 서울 ➔ 부산 KTX 1매
+ </div>
+ <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 3px;">
+ 일반실 1호차 8A 창가석 • 예상 결제금액: <b style="color: #818cf8;">59,800원</b>
+ </div>
+ </div>
+ <div class="queue-actions">
+ <button type="button" class="btn-reject" onclick="rejectTask('task-ktx', '시간 변경 문의')">시간 변경</button>
+ <button type="button" class="btn-approve" onclick="approveTask('task-ktx', 'KTX 티켓 결제')">
+ <span class="material-symbols-rounded" style="font-size: 1rem;">credit_card</span>
+ 원클릭 결제·발권
+ </button>
+ </div>
+ </div>
 
-                <!-- 대행 2: 세금 고지서 -->
-                <div class="queue-item" id="task-tax">
-                    <div class="queue-top">
-                        <span class="queue-badge badge-bill">📄 고지서 대행</span>
-                        <span style="font-size: 0.74rem; color: #94a3b8;">카메라 스캔 접수</span>
-                    </div>
-                    <div>
-                        <div style="font-size: 0.98rem; font-weight: 900; color: #ffffff;">
-                            10월 정기분 재산세(토지/건물) 납부 대행
-                        </div>
-                        <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 3px;">
-                            성남시 분당구청 • 납부 기한 10월 31일 • 납부액: <b style="color: #fbbf24;">148,000원</b>
-                        </div>
-                    </div>
-                    <div class="queue-actions">
-                        <button type="button" class="btn-reject" onclick="rejectTask('task-tax', '영수증 직접 확인')">상세 보기</button>
-                        <button type="button" class="btn-approve" onclick="approveTask('task-tax', '재산세 납부')">
-                            <span class="material-symbols-rounded" style="font-size: 1rem;">payments</span>
-                            간편결제 납부 대행
-                        </button>
-                    </div>
-                </div>
+ <!-- 대행 2: 세금 고지서 -->
+ <div class="queue-item" id="task-tax">
+ <div class="queue-top">
+ <span class="queue-badge badge-bill"> 고지서 대행</span>
+ <span style="font-size: 0.74rem; color: #94a3b8;">카메라 스캔 접수</span>
+ </div>
+ <div>
+ <div style="font-size: 0.98rem; font-weight: 900; color: #ffffff;">
+ 10월 정기분 재산세(토지/건물) 납부 대행
+ </div>
+ <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 3px;">
+ 성남시 분당구청 • 납부 기한 10월 31일 • 납부액: <b style="color: #fbbf24;">148,000원</b>
+ </div>
+ </div>
+ <div class="queue-actions">
+ <button type="button" class="btn-reject" onclick="rejectTask('task-tax', '영수증 직접 확인')">상세 보기</button>
+ <button type="button" class="btn-approve" onclick="approveTask('task-tax', '재산세 납부')">
+ <span class="material-symbols-rounded" style="font-size: 1rem;">payments</span>
+ 간편결제 납부 대행
+ </button>
+ </div>
+ </div>
 
-                <!-- 대행 3: 제철 장보기 -->
-                <div class="queue-item" id="task-shopping">
-                    <div class="queue-top">
-                        <span class="queue-badge badge-shopping">🛒 장보기 부탁</span>
-                        <span style="font-size: 0.74rem; color: #94a3b8;">어제 오후 접수</span>
-                    </div>
-                    <div>
-                        <div style="font-size: 0.98rem; font-weight: 900; color: #ffffff;">
-                            제철 과일 (나주 배 특품 5kg + 부사 사과 3kg)
-                        </div>
-                        <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 3px;">
-                            어머니 댁 직배송 • 권장 스토어: 쿠팡 로켓프레시 (34,500원)
-                        </div>
-                    </div>
-                    <div class="queue-actions">
-                        <button type="button" class="btn-reject" onclick="rejectTask('task-shopping', '품목 수정')">품목 수정</button>
-                        <button type="button" class="btn-approve" onclick="approveTask('task-shopping', '과일 주문 배송')">
-                            <span class="material-symbols-rounded" style="font-size: 1rem;">local_shipping</span>
-                            쿠팡 원클릭 주문
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
+ <!-- 대행 3: 제철 장보기 -->
+ <div class="queue-item" id="task-shopping">
+ <div class="queue-top">
+ <span class="queue-badge badge-shopping"> 장보기 부탁</span>
+ <span style="font-size: 0.74rem; color: #94a3b8;">어제 오후 접수</span>
+ </div>
+ <div>
+ <div style="font-size: 0.98rem; font-weight: 900; color: #ffffff;">
+ 제철 과일 (나주 배 특품 5kg + 부사 사과 3kg)
+ </div>
+ <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 3px;">
+ 어머니 댁 직배송 • 권장 스토어: 쿠팡 로켓프레시 (34,500원)
+ </div>
+ </div>
+ <div class="queue-actions">
+ <button type="button" class="btn-reject" onclick="rejectTask('task-shopping', '품목 수정')">품목 수정</button>
+ <button type="button" class="btn-approve" onclick="approveTask('task-shopping', '과일 주문 배송')">
+ <span class="material-symbols-rounded" style="font-size: 1rem;">local_shipping</span>
+ 쿠팡 원클릭 주문
+ </button>
+ </div>
+ </div>
+ </div>
+ </section>
 
-        <!-- 📸 하단 사진첩 바로가기 배너 -->
-        <a href="/silver/photo-album" class="photo-banner">
-            <div style="display: flex; align-items: center; gap: 14px;">
-                <span class="material-symbols-rounded" style="color: #c084fc; font-size: 2.2rem;">photo_library</span>
-                <div>
-                    <div style="font-size: 1rem; font-weight: 900; color: #ffffff;">추억의 디지털 사진관 바로가기</div>
-                    <div style="font-size: 0.78rem; color: #d8b4fe; margin-top: 2px;">손주 사진, 제주도 가족여행 사진을 부모님 태블릿 액자로 원격 전송하세요</div>
-                </div>
-            </div>
-            <span class="material-symbols-rounded" style="color: #c084fc;">arrow_forward</span>
-        </a>
+ <!-- 하단 사진첩 바로가기 배너 -->
+ <a href="/silver/photo-album" class="photo-banner">
+ <div style="display: flex; align-items: center; gap: 14px;">
+ <span class="material-symbols-rounded" style="color: #c084fc; font-size: 2.2rem;">photo_library</span>
+ <div>
+ <div style="font-size: 1rem; font-weight: 900; color: #ffffff;">추억의 디지털 사진관 바로가기</div>
+ <div style="font-size: 0.78rem; color: #d8b4fe; margin-top: 2px;">손주 사진, 제주도 가족여행 사진을 부모님 태블릿 액자로 원격 전송하세요</div>
+ </div>
+ </div>
+ <span class="material-symbols-rounded" style="color: #c084fc;">arrow_forward</span>
+ </a>
 
-    </div>
+ </div>
 
-    <script>
-        // 1. 긴급 보이스피싱 배너 시뮬레이션
-        function triggerTestPhishing() {
-            const banner = document.getElementById('urgent-phishing-banner');
-            banner.style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+ <script>
+ // 1. 긴급 보이스피싱 배너 시뮬레이션
+ function triggerTestPhishing() {
+ const banner = document.getElementById('urgent-phishing-banner');
+ banner.style.display = 'block';
+ window.scrollTo({ top: 0, behavior: 'smooth' });
+ }
 
-        function dismissBanner() {
-            document.getElementById('urgent-phishing-banner').style.display = 'none';
-        }
+ function dismissBanner() {
+ document.getElementById('urgent-phishing-banner').style.display = 'none';
+ }
 
-        function callMotherDirectly() {
-            alert("📞 어머니(010-5527-2979)께 긴급 직통 전화를 겁니다.");
-        }
+ function callMotherDirectly() {
+ alert(" 어머니(010-5527-2979)께 긴급 직통 전화를 겁니다.");
+ }
 
-        function blockSuspiciousNumber() {
-            alert("🛡️ [원격 번호 차단 완료]\n\n의심 발신번호(010-9876-5432)가 어머니 스마트폰 및 통신사 차단 목록에 등록되었습니다.");
-            dismissBanner();
-        }
+ function blockSuspiciousNumber() {
+ alert(" [원격 번호 차단 완료]\n\n의심 발신번호(010-9876-5432)가 어머니 스마트폰 및 통신사 차단 목록에 등록되었습니다.");
+ dismissBanner();
+ }
 
-        function freezeAccounts() {
-            alert("🔒 [금융거래 안심 잠금]\n\n어머니의 주요 등록 은행 계좌의 비대면 1회 이체 한도가 30분 동안 안전하게 0원으로 임시 동결되었습니다.");
-            dismissBanner();
-        }
+ function freezeAccounts() {
+ alert("🔒 [금융거래 안심 잠금]\n\n어머니의 주요 등록 은행 계좌의 비대면 1회 이체 한도가 30분 동안 안전하게 0원으로 임시 동결되었습니다.");
+ dismissBanner();
+ }
 
-        // 2. 비동기 Ping 빠른 답장
-        function sendQuickReply(msg) {
-            alert(`💌 어머니께 답장을 전송했습니다:\n"${msg}"\n\n부모님 화면에 알림이 표시됩니다.`);
-        }
+ // 2. 비동기 Ping 빠른 답장
+ function sendQuickReply(msg) {
+ alert(` 어머니께 답장을 전송했습니다:\n"${msg}"\n\n부모님 화면에 알림이 표시됩니다.`);
+ }
 
-        // 3. 원격 승인 큐 처리
-        let remainingCount = 3;
-        function approveTask(itemId, title) {
-            const el = document.getElementById(itemId);
-            if (el) {
-                el.style.transition = 'all 0.4s ease';
-                el.style.opacity = '0.4';
-                el.style.transform = 'translateX(20px)';
-                setTimeout(() => {
-                    el.remove();
-                    remainingCount = Math.max(0, remainingCount - 1);
-                    document.getElementById('queue-count').innerText = remainingCount;
-                    alert(`✅ [승인 및 결제 완료]\n'${title}' 건이 성공적으로 처리되었습니다.\n어머니께 완료 알림이 전달되었습니다.`);
-                }, 400);
-            }
-        }
+ // 3. 원격 승인 큐 처리
+ let remainingCount = 3;
+ function approveTask(itemId, title) {
+ const el = document.getElementById(itemId);
+ if (el) {
+ el.style.transition = 'all 0.4s ease';
+ el.style.opacity = '0.4';
+ el.style.transform = 'translateX(20px)';
+ setTimeout(() => {
+ el.remove();
+ remainingCount = Math.max(0, remainingCount - 1);
+ document.getElementById('queue-count').innerText = remainingCount;
+ alert(`✅ [승인 및 결제 완료]\n'${title}' 건이 성공적으로 처리되었습니다.\n어머니께 완료 알림이 전달되었습니다.`);
+ }, 400);
+ }
+ }
 
-        function rejectTask(itemId, reason) {
-            alert(`ℹ️ '${reason}' 사유로 부모님과 통화 후 재진행합니다.`);
-        }
+ function rejectTask(itemId, reason) {
+ alert(`ℹ️ '${reason}' 사유로 부모님과 통화 후 재진행합니다.`);
+ }
 
-        // 4. 실시간 대행 작업 폴링
-        async function fetchLiveDelegations() {
-            try {
-                const res = await fetch('/api/silver/delegation-task');
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data && data.length > 0) {
-                        // Dynamic rendering can update queue
-                    }
-                }
-            } catch(e) {}
-        }
-        setInterval(fetchLiveDelegations, 10000);
-    </script>
+ // 4. 실시간 대행 작업 폴링
+ async function fetchLiveDelegations() {
+ try {
+ const res = await fetch('/api/silver/delegation-task');
+ if (res.ok) {
+ const data = await res.json();
+ if (data && data.length > 0) {
+ // Dynamic rendering can update queue
+ }
+ }
+ } catch(e) {}
+ }
+ setInterval(fetchLiveDelegations, 10000);
+ </script>
 </body>
 </html>
