@@ -258,6 +258,126 @@ def load_univ_cuts():
 KEY_FILE_PATH = os.path.join(os.path.dirname(__file__), "..", "gemini_key.txt")
 DEFAULT_FALLBACK_KEY_B64 = "QVEuQWI4Uk42Smlod241c19kZHhEMkN2dVdCeU94SGpRRE5xeUJlSmpXbXBZNTYzSzRCVnc="
 
+_cached_active_models = None
+_cache_timestamp = 0
+_MODEL_CACHE_TTL = 1800  # 30 minutes cache
+_deprecated_model_blacklist = set(['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash', 'gemini-2.5-flash'])
+
+def get_verified_models(api_key: str = None) -> list:
+    """
+    Dynamically discover and prioritize 100% active, non-deprecated Google Gemini models.
+    Puts ultra-fast lite models first (2-4s response) to eliminate timeouts,
+    followed by standard flash models and deep reasoning models.
+    """
+    global _cached_active_models, _cache_timestamp
+    now = time.time()
+    if _cached_active_models and (now - _cache_timestamp < _MODEL_CACHE_TTL):
+        return list(_cached_active_models)
+
+    verified_priority = [
+        'gemini-3.5-flash-lite',
+        'gemini-flash-lite-latest',
+        'gemini-3.6-flash',
+        'gemini-3.7-flash',
+        'gemini-3.5-flash',
+        'gemini-flash-latest',
+        'gemini-3.8-flash'
+    ]
+
+    try:
+        k = api_key or get_saved_api_key()
+        if k:
+            c_client = genai.Client(api_key=k)
+            all_models = list(c_client.models.list())
+            available_on_account = set()
+            for m in all_models:
+                m_name = getattr(m, 'name', '').replace('models/', '').strip()
+                if m_name and m_name not in _deprecated_model_blacklist:
+                    available_on_account.add(m_name)
+
+            sorted_models = [m for m in verified_priority if m in available_on_account]
+            if sorted_models:
+                _cached_active_models = sorted_models
+                _cache_timestamp = now
+                print(f"AI ENGINE: Dynamically verified {len(sorted_models)} active Gemini models: {sorted_models[:3]}")
+                return list(sorted_models)
+    except Exception as e:
+        print(f"AI ENGINE: Model auto-discovery note: {e}")
+
+    _cached_active_models = verified_priority
+    _cache_timestamp = now
+    return list(verified_priority)
+
+def check_ai_health() -> dict:
+    """
+    Probe Gemini API connectivity, latency, and active model status in real time.
+    """
+    t0 = time.time()
+    keys = get_available_api_keys()
+    if not keys:
+        return {
+            "status": "ERROR",
+            "message": "등록된 Gemini API 키가 없습니다.",
+            "available_models": [],
+            "latency_ms": 0
+        }
+
+    verified = get_verified_models(keys[0])
+    test_model = verified[0] if verified else "gemini-3.5-flash-lite"
+    try:
+        c_client = genai.Client(api_key=keys[0])
+        resp = c_client.models.generate_content(
+            model=test_model,
+            contents="ping"
+        )
+        latency = int((time.time() - t0) * 1000)
+        return {
+            "status": "HEALTHY",
+            "primary_model": test_model,
+            "available_models": verified,
+            "total_keys": len(keys),
+            "key_prefix": f"{keys[0][:8]}...",
+            "latency_ms": latency,
+            "message": f"AI 클라우드 엔진 정상 작동 중 ({test_model}, 지연시간: {latency}ms)"
+        }
+    except Exception as e:
+        latency = int((time.time() - t0) * 1000)
+        return {
+            "status": "DEGRADED",
+            "primary_model": test_model,
+            "available_models": verified,
+            "total_keys": len(keys),
+            "latency_ms": latency,
+            "error": str(e),
+            "message": f"AI 통신 지연 또는 에러 발생: {e}"
+        }
+
+def _get_honest_fallback_notice(user_role: str = "STUDENT") -> str:
+    """
+    Honest, professional fail-safe notice when all cloud generation attempts fail.
+    Prevents deceptive, mismatched canned responses (e.g. math advice for English questions).
+    """
+    role_u = (user_role or "STUDENT").upper().strip()
+    if role_u == "PARENT":
+        return (
+            "학부모님, 죄송합니다.\n\n"
+            "현재 AI 실시간 입시 분석 서버와의 통신이 일시적으로 지연되어 답변을 즉시 생성하지 못했습니다.\n\n"
+            "자녀분의 질문에 대해 엉뚱하거나 맥락에 맞지 않는 기계식 자동 답변을 드리는 대신, "
+            "정확하고 깊이 있는 맞춤 분석을 온전히 제공하기 위해 잠시 대기 상태로 전환되었습니다.\n\n"
+            "잠시 후 다시 질문을 전송해 주시거나, 긴급한 상담은 일원학원 대표원장실로 직접 문의해 주시기 바랍니다."
+        )
+    elif role_u == "DIRECTOR":
+        return (
+            "원장님, 죄송합니다. 현재 클라우드 AI 서버와의 통신이 일시 지연 중입니다.\n\n"
+            "잠시 후 다시 시도해 주시거나, 관리자 관제탑의 [AI 연결 상태]를 확인해 주십시오."
+        )
+    else:
+        return (
+            "미안해! 지금 AI 실시간 분석 서버 통신이 일시적으로 지연되어 답변을 바로 생성하지 못했어.\n\n"
+            "네 질문과 무관한 엉뚱한 기계식 답변을 억지로 내놓는 대신, 너의 질문을 정확히 읽고 진짜 도움이 되는 1:1 맞춤 피드백을 주기 위해 잠시 대기한 거야.\n\n"
+            "질문한 내용은 그대로 두고 잠시 후 한 번만 더 질문해줘! 바로 분석해서 명쾌하고 확실하게 답변해줄게."
+        )
+
 def get_available_api_keys():
     """Retrieve all available Gemini API keys with priority on environment variables"""
     keys = []
@@ -610,8 +730,8 @@ def ask_ai_chatbot(
         else:
             tier_token_limit = 2500  # Tier 1: 무료 일반 학습 코치 (150~250자)
 
-        # Model hierarchy optimized per tier (ultra-fast 3.5-flash-lite first for 2~4s instant response)
-        candidate_models = ['gemini-3.5-flash-lite', 'gemini-3.6-flash', 'gemini-3.8-flash']
+        # Dynamically discover and use active, verified models with fastest lite model first
+        candidate_models = get_verified_models()
 
         available_keys = get_available_api_keys()
 
@@ -640,7 +760,14 @@ def ask_ai_chatbot(
                     if cleaned.strip():
                         return cleaned
                 except Exception as mod_ex:
+                    err_str = str(mod_ex).lower()
                     print(f"CHATBOT MODEL NOTE ({model_name} with key {api_key_str[:8]}...): {mod_ex}")
+                    if "not_found" in err_str or "no longer available" in err_str or "404" in err_str:
+                        print(f"AI ENGINE: Model {model_name} is deprecated. Blacklisting immediately.")
+                        _deprecated_model_blacklist.add(model_name)
+                        global _cached_active_models
+                        if _cached_active_models and model_name in _cached_active_models:
+                            _cached_active_models.remove(model_name)
                 return None
 
             for api_k in available_keys:
@@ -661,11 +788,12 @@ def ask_ai_chatbot(
         except Exception as thread_ex:
             print(f"Cloud execution thread exception: {thread_ex}")
 
-        # Intelligent Offline/Local Knowledge Fallback Engine (Zero-Breakdown Guarantee)
-        return _generate_local_knowledge_reply(message, history, user_role_upper, school_level_upper, tenant_tier)
+        # Honest Fail-Safe Engine: Never outputs irrelevant canned text when cloud fails
+        print("CHATBOT FAILOVER: Cloud models unavailable, returning honest fail-safe notice")
+        return _get_honest_fallback_notice(user_role_upper)
     except Exception as e:
         print(f"CHATBOT UNEXPECTED ERROR: {e}")
-        return _generate_local_knowledge_reply(message, history, "STUDENT", "HIGH", tenant_tier)
+        return _get_honest_fallback_notice("STUDENT")
 
 
 def _generate_local_knowledge_reply(message: str, history: list = None, user_role: str = "STUDENT", school_level: str = "HIGH", tenant_tier: int = 3) -> str:

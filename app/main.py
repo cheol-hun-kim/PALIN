@@ -132,6 +132,11 @@ async def add_anti_cache_headers(request: Request, call_next):
 from app.infra_guard import router as infra_router
 app.include_router(infra_router)
 
+@app.get("/api/admin/ai/health")
+def handle_ai_health():
+    """Real-time Gemini AI connectivity, active model discovery, and latency probe"""
+    return ai.check_ai_health()
+
 @app.get("/api/health")
 def handle_health():
     db_type = "sqlite" if database.engine.dialect.name == "sqlite" else "postgresql"
