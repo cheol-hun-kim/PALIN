@@ -52,6 +52,25 @@
             background: #334155;
             border-radius: 3px;
         }
+    
+        /* 👑 Creator-Exclusive (1286orbital21@gmail.com / SUPER_ADMIN) vs General Users Isolation */
+        .creator-only,
+        .creator-only-flex,
+        .creator-only-inline-flex {
+            display: none !important;
+        }
+        body.is-creator .creator-only {
+            display: block !important;
+        }
+        body.is-creator .creator-only-flex {
+            display: flex !important;
+        }
+        body.is-creator .creator-only-inline-flex {
+            display: inline-flex !important;
+        }
+        body.is-creator .general-only {
+            display: none !important;
+        }
     </style>
 </head>
 <body class="min-h-screen bg-[#0b0f19] text-slate-100 antialiased flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
@@ -114,7 +133,8 @@
                     </div>
                     <h2 class="text-2xl font-black text-white">나(Hub)를 중심으로 연결된 우리 가족 관제망</h2>
                     <p class="text-xs md:text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
-                        화면 정중앙의 <strong>'나(Me)'</strong>를 중심으로 <strong>[PASS-MATE: 입시·학업]</strong>, <strong>[BIZ-MATE: 사업·경영]</strong>, <strong>[SILVER-MATE: 부모님 안심]</strong>이 동심원 궤도로 연동됩니다. 실제로 추가·인증된 서비스만 궤도에 불이 켜집니다.
+                        <span class="general-only">화면 정중앙의 <strong>'나(Me)'</strong>를 중심으로 <strong>[PASS-MATE: 초·중·고 입시 &amp; 학업 관제 OS]</strong>가 실시간 궤도로 가동됩니다.</span>
+                        <span class="creator-only" style="display: none;">화면 정중앙의 <strong>'나(Me)'</strong>를 중심으로 <strong>[PALIN 12대 MATE 전 생애 주기 관제망]</strong>이 가동 중입니다. (👑 제작자 전용 마스터 뷰)</span>
                     </p>
                 </div>
                 <div class="flex items-center gap-2 flex-shrink-0">
@@ -122,7 +142,7 @@
                         <span class="material-symbols-rounded text-sm text-emerald-400">school</span>
                         <span>[PASS-MATE] 포커스</span>
                     </button>
-                    <button type="button" onclick="focusNodeInUniverse('silver')" class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 border border-pink-500/40 transition flex items-center gap-1.5 cursor-pointer">
+                    <button type="button" onclick="focusNodeInUniverse('silver')" class="creator-only-inline-flex px-3.5 py-2 rounded-xl text-xs font-extrabold bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 border border-pink-500/40 transition flex items-center gap-1.5 cursor-pointer">
                         <span class="material-symbols-rounded text-sm text-pink-400">elderly</span>
                         <span>[SILVER-MATE] 포커스</span>
                     </button>
@@ -145,7 +165,7 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                         <span>PASS-MATE</span>
                     </span>
-                    <span class="inline-flex items-center gap-1.5 text-pink-400 bg-pink-500/10 border border-pink-500/20 px-2.5 py-1 rounded-full whitespace-nowrap" id="orbit-status-silver">
+                    <span class="creator-only-inline-flex inline-flex items-center gap-1.5 text-pink-400 bg-pink-500/10 border border-pink-500/20 px-2.5 py-1 rounded-full whitespace-nowrap" id="orbit-status-silver">
                         <span class="w-1.5 h-1.5 rounded-full bg-pink-500"></span>
                         <span>SILVER-MATE</span>
                     </span>
@@ -222,7 +242,7 @@
                 </div>
 
                 <!-- 우측 날개 노드: 부모님 [SILVER-MATE] (모바일 w-[125px], 데스크톱 w-[210px] 겹침 방지) -->
-                <div id="orbit-node-silver-container" class="absolute right-2 sm:right-6 md:right-14 top-1/2 -translate-y-1/2 z-20 w-[125px] sm:w-[175px] md:w-[210px]">
+                <div id="orbit-node-silver-container" class="creator-only absolute right-2 sm:right-6 md:right-14 top-1/2 -translate-y-1/2 z-20 w-[125px] sm:w-[175px] md:w-[210px]">
                     <!-- A. 미등록 상태: '+ SILVER-MATE 추가하기' -->
                     <div id="silver-node-unverified" onclick="handleSilverNodeClick(false)" class="group cursor-pointer bg-slate-900/90 hover:bg-slate-900 border-2 border-dashed border-pink-500/50 hover:border-pink-400 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl shadow transition-all transform hover:-translate-y-1">
                         <div class="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
@@ -269,7 +289,7 @@
                 </div>
 
                 <!-- 상단 궤도 노드: BIZ-MATE -->
-                <div id="orbit-node-biz-container" class="absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-10">
+                <div id="orbit-node-biz-container" class="creator-only absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-10">
                     <div id="biz-node-unverified" onclick="openBizVerifyModal()" class="cursor-pointer bg-slate-900/80 hover:bg-slate-900 border border-dashed border-amber-500/40 hover:border-amber-400 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-center shadow transition flex items-center gap-1.5 sm:gap-2">
                         <span class="material-symbols-rounded text-xs sm:text-sm text-amber-400/80">add_business</span>
                         <div class="text-left">
@@ -294,7 +314,7 @@
                 </div>
 
                 <!-- 하단 궤도 노드: 자산 & 연금 [MONEY-MATE] (연동 대기 슬롯) -->
-                <div class="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10">
+                <div class="creator-only absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10">
                     <div class="bg-slate-900/50 border border-dashed border-slate-700 px-3 py-1.5 rounded-xl text-center flex items-center gap-2">
                         <span class="material-symbols-rounded text-sm text-blue-400/70">savings</span>
                         <div class="text-left">
@@ -354,7 +374,7 @@
             </div>
 
             <!-- 카드 B: SILVER-MATE 관제 데스크 -->
-            <div id="card-silver-deck" class="bg-gradient-to-br from-pink-950/40 via-slate-900 to-slate-900 border-2 border-pink-500/40 rounded-2xl p-6 shadow-xl relative overflow-hidden flex flex-col justify-between transition-all duration-300">
+            <div id="card-silver-deck" class="creator-only-flex bg-gradient-to-br from-pink-950/40 via-slate-900 to-slate-900 border-2 border-pink-500/40 rounded-2xl p-6 shadow-xl relative overflow-hidden flex flex-col justify-between transition-all duration-300">
                 <div>
                     <div class="flex justify-between items-start mb-4">
                         <div class="flex items-center gap-3">
@@ -396,6 +416,225 @@
                 </div>
             </div>
 
+        </div>
+
+        <!-- 👑 [CREATOR EXCLUSIVE] 12대 MATE 전 생애 주기 마스터 관제망 (1286orbital21@gmail.com 전용) -->
+        <div id="creator-12mate-showcase" class="creator-only bg-slate-900/95 border-2 border-amber-500/40 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden mt-8">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800 mb-6">
+                <div>
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-black border border-amber-500/40 mb-2">
+                        <span class="material-symbols-rounded text-sm text-amber-400">workspace_premium</span>
+                        <span>👑 제작자 전용 마스터 모드 (1286orbital21@gmail.com)</span>
+                    </div>
+                    <h3 class="text-xl font-black text-white flex items-center gap-2">
+                        <span>인간 100세 전 생애 12대 MATE 제품군 총괄 관계망</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">인간의 탄생(0세)부터 학업, 대학, 취업, 피트니스, 의료, 결혼, 주거, 사업, 자산, 은퇴, 사후까지 12대 OS가 100% 매핑되어 있습니다.</p>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <a href="/corporate" target="_blank" class="px-4 py-2 rounded-xl text-xs font-extrabold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-lg shadow-amber-500/20 transition flex items-center gap-1.5 cursor-pointer">
+                        <span class="material-symbols-rounded text-sm">rocket_launch</span>
+                        <span>12대 풀 로드맵 &amp; B2B 관제실 열기 ↗</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 12-Product Matrix Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                
+                <!-- 1. KID-MATE -->
+                <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 hover:border-slate-700 transition flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xl">👶</span>
+                            <span class="text-[9px] font-bold text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">0~7세</span>
+                        </div>
+                        <div class="text-xs font-black text-white">KID-MATE</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">영유아 안심 보육 OS</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-slate-900 flex items-center justify-between text-[10px]">
+                        <span class="text-slate-500">기획 단계</span>
+                        <span class="text-slate-500 font-bold">R&amp;D</span>
+                    </div>
+                </div>
+
+                <!-- 2. PASS-MATE (Active Live) -->
+                <div onclick="location.href='/passmate'" class="bg-gradient-to-br from-emerald-950/40 via-slate-950 to-slate-950 border-2 border-emerald-500/50 rounded-2xl p-3.5 shadow-lg shadow-emerald-950/30 hover:border-emerald-400 transition cursor-pointer flex flex-col justify-between transform hover:-translate-y-0.5">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xl">🎓</span>
+                            <span class="text-[9px] font-black text-emerald-300 bg-emerald-500/20 border border-emerald-500/40 px-1.5 py-0.5 rounded">LIVE ACTIVE</span>
+                        </div>
+                        <div class="text-xs font-black text-white">PASS-MATE</div>
+                        <div class="text-[10px] text-emerald-400 font-bold mt-0.5">초중고 입시·순공 관제</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-emerald-500/20 flex items-center justify-between text-[10px]">
+                        <span class="text-emerald-300 font-bold">플래그십 가동 중</span>
+                        <span class="text-emerald-400 font-black">진입 ↗</span>
+                    </div>
+                </div>
+
+                <!-- 3. UNIV-MATE -->
+                <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 hover:border-slate-700 transition flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xl">🏛️</span>
+                            <span class="text-[9px] font-bold text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">20~26세</span>
+                        </div>
+                        <div class="text-xs font-black text-white">UNIV-MATE</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">대학생 학점 &amp; 커뮤니티</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-slate-900 flex items-center justify-between text-[10px]">
+                        <span class="text-slate-500">에타 연계</span>
+                        <span class="text-slate-500 font-bold">R&amp;D</span>
+                    </div>
+                </div>
+
+                <!-- 4. CAREER-MATE -->
+                <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 hover:border-slate-700 transition flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xl">💼</span>
+                            <span class="text-[9px] font-bold text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">취준·직장</span>
+                        </div>
+                        <div class="text-xs font-black text-white">CAREER-MATE</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">취업·이직·스킬 로드맵</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-slate-900 flex items-center justify-between text-[10px]">
+                        <span class="text-slate-500">AI 매칭</span>
+                        <span class="text-slate-500 font-bold">R&amp;D</span>
+                    </div>
+                </div>
+
+                <!-- 5. FIT-MATE -->
+                <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 hover:border-slate-700 transition flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xl">🏋️</span>
+                            <span class="text-[9px] font-bold text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">전 연령</span>
+                        </div>
+                        <div class="text-xs font-black text-white">FIT-MATE</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">운동·피트니스 루틴</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-slate-900 flex items-center justify-between text-[10px]">
+                        <span class="text-slate-500">스트릭 연동</span>
+                        <span class="text-slate-500 font-bold">R&amp;D</span>
+                    </div>
+                </div>
+
+                <!-- 6. MEDI-MATE -->
+                <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 hover:border-slate-700 transition flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xl">🏥</span>
+                            <span class="text-[9px] font-bold text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">의료·건강</span>
+                        </div>
+                        <div class="text-xs font-black text-white">MEDI-MATE</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">의무기록 &amp; 처방전 관제</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-slate-900 flex items-center justify-between text-[10px]">
+                        <span class="text-slate-500">마이헬스</span>
+                        <span class="text-slate-500 font-bold">R&amp;D</span>
+                    </div>
+                </div>
+
+                <!-- 7. MARRY-MATE -->
+                <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 hover:border-slate-700 transition flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xl">💍</span>
+                            <span class="text-[9px] font-bold text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">25~45세</span>
+                        </div>
+                        <div class="text-xs font-black text-white">MARRY-MATE</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">결혼·웨딩·패밀리 구축</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-slate-900 flex items-center justify-between text-[10px]">
+                        <span class="text-slate-500">패밀리 트리</span>
+                        <span class="text-slate-500 font-bold">R&amp;D</span>
+                    </div>
+                </div>
+
+                <!-- 8. HOME-MATE -->
+                <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 hover:border-slate-700 transition flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xl">🏡</span>
+                            <span class="text-[9px] font-bold text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">부동산</span>
+                        </div>
+                        <div class="text-xs font-black text-white">HOME-MATE</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">청약·주거·등기 안심</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-slate-900 flex items-center justify-between text-[10px]">
+                        <span class="text-slate-500">프롭테크</span>
+                        <span class="text-slate-500 font-bold">R&amp;D</span>
+                    </div>
+                </div>
+
+                <!-- 9. BIZ-MATE (Verified) -->
+                <div onclick="openBizVerifyModal()" class="bg-gradient-to-br from-amber-950/30 via-slate-950 to-slate-950 border border-amber-500/50 rounded-2xl p-3.5 hover:border-amber-400 transition cursor-pointer flex flex-col justify-between transform hover:-translate-y-0.5">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xl">🏢</span>
+                            <span class="text-[9px] font-black text-amber-300 bg-amber-500/20 border border-amber-500/40 px-1.5 py-0.5 rounded">VERIFIED</span>
+                        </div>
+                        <div class="text-xs font-black text-white">BIZ-MATE</div>
+                        <div class="text-[10px] text-amber-300 font-bold mt-0.5">사업장·가맹·매출 관제</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-amber-500/20 flex items-center justify-between text-[10px]">
+                        <span class="text-amber-300 font-bold">사업자 인증 연동</span>
+                        <span class="text-amber-400 font-black">관리 ↗</span>
+                    </div>
+                </div>
+
+                <!-- 10. MONEY-MATE -->
+                <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 hover:border-slate-700 transition flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xl">💰</span>
+                            <span class="text-[9px] font-bold text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">자산·연금</span>
+                        </div>
+                        <div class="text-xs font-black text-white">MONEY-MATE</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">마이데이터 자산 관제</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-slate-900 flex items-center justify-between text-[10px]">
+                        <span class="text-slate-500">마이데이터</span>
+                        <span class="text-slate-500 font-bold">R&amp;D</span>
+                    </div>
+                </div>
+
+                <!-- 11. SILVER-MATE (Connected) -->
+                <div onclick="handleSilverNodeClick(true)" class="bg-gradient-to-br from-pink-950/30 via-slate-950 to-slate-950 border border-pink-500/50 rounded-2xl p-3.5 hover:border-pink-400 transition cursor-pointer flex flex-col justify-between transform hover:-translate-y-0.5">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xl">👵</span>
+                            <span class="text-[9px] font-black text-pink-300 bg-pink-500/20 border border-pink-500/40 px-1.5 py-0.5 rounded">CONNECTED</span>
+                        </div>
+                        <div class="text-xs font-black text-white">SILVER-MATE</div>
+                        <div class="text-[10px] text-pink-300 font-bold mt-0.5">시니어 안부·효도 관제</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-pink-500/20 flex items-center justify-between text-[10px]">
+                        <span class="text-pink-300 font-bold">보호자 관제탑</span>
+                        <span class="text-pink-400 font-black">입장 ↗</span>
+                    </div>
+                </div>
+
+                <!-- 12. AFTER-MATE -->
+                <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 hover:border-slate-700 transition flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xl">🕊️</span>
+                            <span class="text-[9px] font-bold text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">시니어+</span>
+                        </div>
+                        <div class="text-xs font-black text-white">AFTER-MATE</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">상조·유언·디지털 유산</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-slate-900 flex items-center justify-between text-[10px]">
+                        <span class="text-slate-500">생애 완결</span>
+                        <span class="text-slate-500 font-bold">R&amp;D</span>
+                    </div>
+                </div>
+
+            </div>
         </div>
 
     </main>
@@ -695,6 +934,7 @@
         // 페이지 로드 시 실시간 인증 및 오빗 상태 로드
         document.addEventListener('DOMContentLoaded', async () => {
             loadUserFromStorage();
+            updateCreatorMode();
             if (!currentUser || !currentUser.id) {
                 // 비로그인 상태 시 통합 로그인 / 10초 간편가입 모달 즉시 팝업
                 openUnifiedAuthModal('LOGIN');
@@ -708,7 +948,48 @@
                 try {
                     currentUser = JSON.parse(raw);
                     updateHeaderUserUI();
+                    updateCreatorMode();
                 } catch(e) {}
+            }
+        }
+
+        
+        // 👑 제작자(1286orbital21@gmail.com / SUPER_ADMIN) 전용 마스터 모드 판별
+        function isMasterCreator() {
+            let u = currentUser;
+            if (!u) {
+                const raw = localStorage.getItem("unified_user");
+                if (raw) {
+                    try { u = JSON.parse(raw); } catch(e) {}
+                }
+            }
+            if (!u) return false;
+            const email = (u.email || '').toLowerCase().trim();
+            const role = (u.role || '').toUpperCase().trim();
+            const phone = (u.phone || '').replace(/[^0-9]/g, '');
+            const name = (u.name || '').trim();
+
+            return (
+                email === '1286orbital21@gmail.com' ||
+                email === '1286ok@naver.com' ||
+                role === 'SUPER_ADMIN' ||
+                role === 'MASTER' ||
+                phone === '01055272979' ||
+                phone.endsWith('55272979') ||
+                name === '최고관리자'
+            );
+        }
+
+        function updateCreatorMode() {
+            const isCreator = isMasterCreator();
+            if (isCreator) {
+                document.body.classList.add('is-creator');
+                const passDeck = document.getElementById('card-pass-deck');
+                if (passDeck) passDeck.classList.remove('md:col-span-2');
+            } else {
+                document.body.classList.remove('is-creator');
+                const passDeck = document.getElementById('card-pass-deck');
+                if (passDeck) passDeck.classList.add('md:col-span-2');
             }
         }
 
@@ -764,6 +1045,7 @@
                             localStorage.setItem("unified_user", JSON.stringify(currentUser));
                         }
                         updateHeaderUserUI();
+                    updateCreatorMode();
                     }
 
                     // A. PASS-MATE 노드 렌더링
@@ -942,6 +1224,7 @@
 
                     closeUnifiedAuthModal();
                     updateHeaderUserUI();
+                    updateCreatorMode();
                     await refreshUnifiedOrbitStatus();
                     alert(`'${data.user.name}'님 환영합니다! 자기중심 관계도가 활성화되었습니다.`);
                 } else {
@@ -1047,6 +1330,7 @@
 
                     closeUnifiedAuthModal();
                     updateHeaderUserUI();
+                    updateCreatorMode();
                     await refreshUnifiedOrbitStatus();
                     alert(`'${name}'님의 기본 통합 계정이 생성되었습니다!
 이제 필요하신 서비스(+ 추가하기)를 선택하여 관계도에 연결하세요.`);
@@ -1069,6 +1353,7 @@
             localStorage.removeItem("userId");
             localStorage.removeItem("userPhone");
             updateHeaderUserUI();
+                    updateCreatorMode();
             refreshUnifiedOrbitStatus();
         }
 
@@ -1222,8 +1507,8 @@
             const btn = document.getElementById('btn-submit-biz-verify');
             if (btn) btn.innerText = "국세청 인증 확인 중...";
 
-            try {
-                const res = await fetch('/api/biz/verify' + (sid ? `?student_id=${sid}` : ''), {
+            async function performVerifyCall() {
+                return await fetch('/api/biz/verify' + (sid ? `?student_id=${sid}` : ''), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1232,12 +1517,26 @@
                         owner_name: owner
                     })
                 });
+            }
+
+            try {
+                let res;
+                try {
+                    res = await performVerifyCall();
+                } catch(netErr) {
+                    // 1회 자동 재시도 (Render 콜드 스타트 대응)
+                    await new Promise(r => setTimeout(r, 1200));
+                    res = await performVerifyCall();
+                }
 
                 if (res.ok) {
                     const result = await res.json();
                     localStorage.setItem("verified_biz_name", name);
+                    localStorage.setItem("verified_biz_no", no);
+                    if (owner) localStorage.setItem("verified_biz_owner", owner);
                     renderBizNode({ is_active: true, biz_name: name });
                     closeBizVerifyModal();
+                    await refreshUnifiedOrbitStatus();
                     alert(`'${name}' 사업자 인증이 완료되었습니다. 자기중심 관계도에 활성화되었습니다.`);
                 } else {
                     let errMsg = '사업자 인증에 실패했습니다. 번호를 확인해주세요.';
@@ -1252,7 +1551,7 @@
                 }
             } catch (err) {
                 console.error("Biz verify connection error:", err);
-                alert('인증 서버 통신 중 문제가 발생했습니다. 네트워크 상태를 확인 후 다시 시도해주세요.');
+                alert('인증 서버 통신 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
             } finally {
                 if (btn) btn.innerHTML = '<span class="material-symbols-rounded text-sm">verified</span><span>사업자 인증 및 관계도에 활성화</span>';
             }

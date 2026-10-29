@@ -1205,13 +1205,13 @@ def unified_login(payload: schemas.UnifiedLoginRequest, db: Session = Depends(ge
     provided_pw = payload.password.strip()
 
     # 1. 👑 SUPER_ADMIN CHECK
-    if clean_email == "1286orbital21@gmail.com":
+    if clean_email in ("1286orbital21@gmail.com", "1286ok@naver.com") or clean_digits in ("01055272979", "55272979"):
         if provided_pw in ("12Yonsei21*", "12862386"):
             token = f"jwt_super_admin_{int(datetime.now().timestamp())}"
             return {
                 "status": "success",
                 "token": token,
-                "user": {"id": 1, "name": "최고관리자", "email": clean_email, "phone": "01055272979", "role": "SUPER_ADMIN"},
+                "user": {"id": 1, "name": "최고관리자", "email": "1286orbital21@gmail.com", "phone": "01055272979", "role": "SUPER_ADMIN"},
                 "activated_modules": {"passmate": True, "passmate_role": "SUPER_ADMIN", "bizmate": True, "silvermate": True},
                 "redirect_url": "/universe"
             }
@@ -1423,7 +1423,7 @@ def get_unified_status(user_id: Optional[int] = None, phone: Optional[str] = Non
         user = db.query(models.UnifiedUser).filter(models.UnifiedUser.phone == clean_p).first()
 
     # 2. Check for SUPER_ADMIN (user_id == 1 or phone == 01055272979)
-    is_super_admin = (user_id == 1) or (clean_p in ("01055272979", "010-5527-2979"))
+    is_super_admin = (user_id == 1) or (clean_p in ("01055272979", "010-5527-2979", "55272979")) or (user and ((user.email and user.email.lower() == "1286orbital21@gmail.com") or user.role == "SUPER_ADMIN"))
     if not user and is_super_admin:
         user = db.query(models.UnifiedUser).filter((models.UnifiedUser.id == 1) | (models.UnifiedUser.phone == "01055272979")).first()
         if not user:
@@ -13656,10 +13656,20 @@ from fastapi.responses import FileResponse
 STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "static")
 
 
+def get_no_cache_response(file_path: str):
+    return FileResponse(
+        file_path,
+        headers={
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        }
+    )
+
 @app.get("/")
 def get_portal_root():
     # PALIN Portal -> Universe Hub (Ego-centric Universe)
-    return FileResponse(os.path.join(STATIC_DIR, "universe.html"))
+    return get_no_cache_response(os.path.join(STATIC_DIR, "universe.html"))
 
 @app.get("/landing")
 def get_landing_alias():
@@ -13684,7 +13694,7 @@ def get_admin_alias():
 @app.get("/family")
 def get_universe_page():
     # 일반 사용자용 순수 자기중심 관계도 (12대 로드맵 노출 차단)
-    return FileResponse(os.path.join(STATIC_DIR, "universe.html"))
+    return get_no_cache_response(os.path.join(STATIC_DIR, "universe.html"))
 
 @app.get("/corporate")
 @app.get("/roadmap")
@@ -13849,16 +13859,26 @@ def verify_and_save_biz(payload: BizVerifyPayload, student_id: Optional[int] = N
     if not validate_korean_biz_no(clean_no):
         raise HTTPException(status_code=400, detail="국세청 사업자등록번호 체크섬 검증에 실패했습니다. 올바른 사업자번호를 확인해주세요.")
 
-    # 3. 인증 내역 DB 저장
-    biz = models.BizVerification(
-        student_id=student_id or 1,
-        biz_name=clean_name,
-        biz_no=clean_no,
-        owner_name=payload.owner_name or "대표자"
-    )
-    db.add(biz)
-    db.commit()
-    db.refresh(biz)
+    # 3. 인증 내역 DB 저장 (중복 방지 및 갱신)
+    effective_sid = student_id or 1
+    existing = db.query(models.BizVerification).filter(models.BizVerification.biz_no == clean_no).first()
+    if existing:
+        existing.biz_name = clean_name
+        existing.owner_name = payload.owner_name or "대표자"
+        existing.student_id = effective_sid
+        db.commit()
+        db.refresh(existing)
+        biz = existing
+    else:
+        biz = models.BizVerification(
+            student_id=effective_sid,
+            biz_name=clean_name,
+            biz_no=clean_no,
+            owner_name=payload.owner_name or "대표자"
+        )
+        db.add(biz)
+        db.commit()
+        db.refresh(biz)
 
     return {
         "status": "success",
@@ -13870,7 +13890,7 @@ def verify_and_save_biz(payload: BizVerifyPayload, student_id: Optional[int] = N
 
 @app.get("/passmate")
 def get_passmate_page():
-    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+    return get_no_cache_response(os.path.join(STATIC_DIR, "index.html"))
 
 @app.get("/silver")
 @app.get("/silvermate")
