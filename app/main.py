@@ -9604,8 +9604,10 @@ def get_campus_occupation(student_id: Optional[int] = None, db: Session = Depend
         if not raw_name or raw_name.strip() in ["-", "미설정"]:
             return "목표대학 미설정", "#6366f1", "미설정"
         name = raw_name.strip()
-        if "의예" in name or "의대" in name or "의학" in name or "치의" in name or "한의" in name:
-            return "메디컬 의예과", "#0ea5e9", "메디컬"
+        if "메디컬" in name or "의예" in name or "의대" in name or "의학" in name or "치의" in name or "한의" in name or "약대" in name or "수의" in name:
+            return "메디컬 (의·치·한·약·수)", "#0ea5e9", "메디컬"
+        elif "인서울" in name or "한성" in name or "서경" in name or "삼육" in name or "서울여대" in name:
+            return "인서울 대학 (한성·서경·삼육·서울여대)", "#6366f1", "인서울"
         elif "서울" in name or "SNU" in name.upper():
             return "서울대학교", "#1e3a8a", "서울대"
         elif "연세" in name or "연대" in name:
@@ -9748,10 +9750,14 @@ def get_campus_occupation(student_id: Optional[int] = None, db: Session = Depend
         target_student_cnt = target_data["student_count"]
     else:
         # Realistic calibrated benchmark based on prestige level
-        if any(sky in target_canon for sky in ["서울", "연세", "고려", "메디컬", "KAIST", "POSTECH"]):
+        if any(sky in target_canon for sky in ["서울", "연세", "고려", "KAIST", "POSTECH"]):
             target_avg_hours = 42.5
+        elif "메디컬" in target_canon:
+            target_avg_hours = 41.5
         elif any(tier2 in target_canon for tier2 in ["서강", "성균관", "한양"]):
             target_avg_hours = 37.0
+        elif "인서울" in target_canon:
+            target_avg_hours = 28.5
         else:
             target_avg_hours = 33.5
         target_student_cnt = max(target_data["student_count"] if target_data else 1, 12)
@@ -9762,10 +9768,14 @@ def get_campus_occupation(student_id: Optional[int] = None, db: Session = Depend
         baseline_avg_hours = round((baseline_data["total_seconds"] / baseline_data["student_count"]) / 3600.0, 1)
         baseline_student_cnt = baseline_data["student_count"]
     else:
-        if any(sky in baseline_canon for sky in ["서울", "연세", "고려", "메디컬"]):
+        if any(sky in baseline_canon for sky in ["서울", "연세", "고려"]):
             baseline_avg_hours = 36.0
+        elif "메디컬" in baseline_canon:
+            baseline_avg_hours = 35.0
         elif any(tier2 in baseline_canon for tier2 in ["중앙", "경희", "외대", "시립"]):
             baseline_avg_hours = 28.5
+        elif "인서울" in baseline_canon:
+            baseline_avg_hours = 24.0
         else:
             baseline_avg_hours = 24.0
         baseline_student_cnt = max(baseline_data["student_count"] if baseline_data else 1, 8)

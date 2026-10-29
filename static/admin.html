@@ -1184,25 +1184,73 @@
                             </div>
                         </div>
                         <div style="display: flex; gap: 6px;">
+                            <button type="button" onclick="openAdminTimetableImageModal()" class="btn" style="padding: 7px 13px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border-radius: 8px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                <span class="material-symbols-rounded" style="font-size: 1rem;">image</span>
+                                <span>시간표 이미지 보기/인쇄</span>
+                            </button>
                             <button type="button" onclick="openAdminCreateClassModal()" class="btn" style="padding: 7px 14px; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000000; border-radius: 8px; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);">
                                 + 신규 수업/분반 등록
                             </button>
                         </div>
                     </div>
 
-                    <!-- 과목 필터 칩스 -->
-                    <div style="display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px;" id="admin-class-subject-filters">
-                        <button type="button" class="btn active" onclick="filterAdminClasses('ALL', this)" style="padding: 5px 12px; font-size: 0.72rem; font-weight: 800; background: #6366f1; color: white;">전체 보기</button>
-                        <button type="button" class="btn btn-secondary" onclick="filterAdminClasses('수학', this)" style="padding: 5px 12px; font-size: 0.72rem; font-weight: 800;">수학</button>
-                        <button type="button" class="btn btn-secondary" onclick="filterAdminClasses('국어', this)" style="padding: 5px 12px; font-size: 0.72rem; font-weight: 800;">국어</button>
-                        <button type="button" class="btn btn-secondary" onclick="filterAdminClasses('영어', this)" style="padding: 5px 12px; font-size: 0.72rem; font-weight: 800;">영어</button>
-                        <button type="button" class="btn btn-secondary" onclick="filterAdminClasses('과탐', this)" style="padding: 5px 12px; font-size: 0.72rem; font-weight: 800;">과학/과탐</button>
-                        <button type="button" class="btn btn-secondary" onclick="filterAdminClasses('사탐', this)" style="padding: 5px 12px; font-size: 0.72rem; font-weight: 800;">사회/사탐</button>
+                    <!-- 대형학원 다수 수업 & 강사별 필터 & 에타식 뷰 스위처 툴바 -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
+                        <!-- 좌측: 강사 드롭다운 & 과목 필터 -->
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <label style="font-size: 0.75rem; font-weight: 800; color: #fbbf24; display: flex; align-items: center; gap: 4px;">
+                                    <span class="material-symbols-rounded" style="font-size: 0.95rem;">person</span>
+                                    <span>강사별 선택:</span>
+                                </label>
+                                <select id="admin-class-teacher-filter" onchange="filterAdminClassesByTeacher(this.value)" class="form-input" style="width: 150px; height: 32px; font-size: 0.76rem; padding: 2px 8px; background: #0f172a; border-color: rgba(245, 158, 11, 0.4); color: #ffffff; border-radius: 6px;">
+                                    <option value="ALL">전체 강사진 (통합)</option>
+                                </select>
+                            </div>
+                            <!-- 과목 필터 칩스 -->
+                            <div style="display: flex; gap: 5px; overflow-x: auto;" id="admin-class-subject-filters">
+                                <button type="button" class="btn active" onclick="filterAdminClasses('ALL', this)" style="padding: 4px 10px; font-size: 0.72rem; font-weight: 800; background: #6366f1; color: white;">전체 보기</button>
+                                <button type="button" class="btn btn-secondary" onclick="filterAdminClasses('수학', this)" style="padding: 4px 10px; font-size: 0.72rem; font-weight: 800;">수학</button>
+                                <button type="button" class="btn btn-secondary" onclick="filterAdminClasses('국어', this)" style="padding: 4px 10px; font-size: 0.72rem; font-weight: 800;">국어</button>
+                                <button type="button" class="btn btn-secondary" onclick="filterAdminClasses('영어', this)" style="padding: 4px 10px; font-size: 0.72rem; font-weight: 800;">영어</button>
+                                <button type="button" class="btn btn-secondary" onclick="filterAdminClasses('과탐', this)" style="padding: 4px 10px; font-size: 0.72rem; font-weight: 800;">과학/과탐</button>
+                                <button type="button" class="btn btn-secondary" onclick="filterAdminClasses('사탐', this)" style="padding: 4px 10px; font-size: 0.72rem; font-weight: 800;">사회/사탐</button>
+                            </div>
+                        </div>
+
+                        <!-- 우측: 뷰 모드 스위처 (카드형 vs 에타식 주간 시간표) -->
+                        <div style="display: flex; gap: 4px; background: rgba(0,0,0,0.4); padding: 3px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                            <button type="button" id="btn-admin-class-view-grid" onclick="switchAdminClassViewMode('GRID')" style="padding: 5px 12px; font-size: 0.74rem; font-weight: 800; background: #6366f1; color: #ffffff; border: 1px solid #818cf8; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;">
+                                <span class="material-symbols-rounded" style="font-size: 0.9rem;">grid_view</span>
+                                <span>📋 분반 카드형</span>
+                            </button>
+                            <button type="button" id="btn-admin-class-view-timetable" onclick="switchAdminClassViewMode('TIMETABLE')" style="padding: 5px 12px; font-size: 0.74rem; font-weight: 800; background: transparent; color: #94a3b8; border: 1px solid transparent; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;">
+                                <span class="material-symbols-rounded" style="font-size: 0.9rem;">calendar_month</span>
+                                <span>📅 에타식 주간 시간표</span>
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- 수업/분반 카드 리스트 컨테이너 -->
+                    <!-- 1) 수업/분반 카드 리스트 컨테이너 -->
                     <div id="admin-classes-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px;">
                         <div style="font-size: 0.75rem; color: #94a3b8; padding: 15px 0;">수업 시간표를 불러오는 중입니다...</div>
+                    </div>
+
+                    <!-- 2) 에타식 주간 시간표 뷰 (월~일 7열, 강사별/동시간대 다수 분반 완벽 대응) -->
+                    <div id="admin-classes-timetable-view" style="display: none; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; overflow-x: auto;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="material-symbols-rounded" style="color: #fbbf24; font-size: 1.15rem;">schedule</span>
+                                <span id="admin-timetable-view-heading" style="font-size: 0.85rem; font-weight: 800; color: #ffffff;">주간 종합 수업 시간표</span>
+                                <span id="admin-timetable-teacher-badge" style="font-size: 0.7rem; font-weight: 800; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.3);">전체 강사진 통합</span>
+                            </div>
+                            <div style="font-size: 0.72rem; color: #94a3b8;">
+                                <span id="admin-timetable-view-count" style="font-weight: 800; color: #fbbf24;">0개</span> 분반 배치됨 · 같은 요일/시간대 수업도 강사별로 분리 정렬됩니다.
+                            </div>
+                        </div>
+                        <div id="admin-timetable-grid-cols" style="display: grid; grid-template-columns: repeat(7, minmax(130px, 1fr)); gap: 8px; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 8px; min-height: 240px;">
+                            <!-- 월~일 7열 자바스크립트 동적 렌더링 -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1584,7 +1632,7 @@
                         </div>
 
                         <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                            <input type="text" id="admin-folder-search-input" oninput="loadAdminStudentFoldersOverview()" placeholder="학생명 / 학교명 검색..." class="form-input" style="width: 170px; height: 36px; font-size: 0.78rem; padding: 4px 10px;">
+                            <input type="text" id="admin-folder-search-input" oninput="loadAdminStudentFoldersOverview()" placeholder="학생명 / 학교명 검색..." class="form-input" style="width: 160px; height: 36px; font-size: 0.78rem; padding: 4px 10px;">
                             <button type="button" id="btn-folder-view-grid" onclick="switchAdminFolderHubMode('GRID')" class="btn" style="padding: 7px 12px; font-size: 0.76rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff; border-radius: 8px;">
                                 학생별 폴더 탐색기
                             </button>
@@ -1594,9 +1642,16 @@
                             <button type="button" onclick="loadAdminStudentFoldersOverview()" class="btn btn-secondary" style="padding: 7px 11px; font-size: 0.76rem; font-weight: 800; border-radius: 8px;">
                                 새로고침
                             </button>
+                            <!-- 카드 접기/펼치기 버튼 -->
+                            <button type="button" onclick="toggleAdminFoldersHubCard()" id="btn-toggle-folders-hub" class="btn btn-secondary" style="padding: 7px 10px; font-size: 0.76rem; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; border-color: rgba(99, 102, 241, 0.4); color: #a5b4fc; cursor: pointer;">
+                                <span id="text-toggle-folders-hub">접기</span>
+                                <span class="material-symbols-rounded" id="icon-toggle-folders-hub" style="font-size: 1rem; transition: transform 0.2s;">expand_less</span>
+                            </button>
                         </div>
                     </div>
 
+                    <!-- 접이식 바디 컨테이너 -->
+                    <div id="admin-folders-hub-collapsible-body">
                     <!-- 5대 실시간 폴더 KPI 바 -->
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 8px; margin-bottom: 14px;">
                         <div style="background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 12px;">
@@ -1666,6 +1721,7 @@
                             <div style="text-align: center; color: #94a3b8; font-size: 0.8rem; padding: 24px;">업로드 내역을 불러오는 중입니다...</div>
                         </div>
                     </div>
+                    </div> <!-- admin-folders-hub-collapsible-body 끝 -->
                 </div>
 
                 <div class="kpi-card" style="border: 1.5px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.03); margin-bottom: 16px;">
@@ -1740,19 +1796,28 @@
                             <span style="font-size: 1.05rem; font-weight: 900; color: #ffffff;">재원생 종합 관리 통제소</span>
                         </div>
                         
-                        <!-- 탭 스위처: 기본 명부 vs 수능연습 선발 스코어보드 -->
-                        <div style="display: flex; gap: 6px; align-items: center; background: rgba(0,0,0,0.4); padding: 3px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
-                            <button type="button" id="tab-btn-mode-roster" onclick="switchStudentCockpitTab('ROSTER')" style="padding: 5px 12px; font-size: 0.76rem; font-weight: 800; background: #4f46e5; border: 1px solid #6366f1; color: white; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;">
-                                <span class="material-symbols-rounded" style="font-size: 0.95rem;">badge</span>
-                                <span>원생 기본 명부</span>
-                            </button>
-                            <button type="button" id="tab-btn-mode-csat" onclick="switchStudentCockpitTab('CSAT')" style="padding: 5px 12px; font-size: 0.76rem; font-weight: 800; background: transparent; border: 1px solid transparent; color: #fbbf24; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;">
-                                <span class="material-symbols-rounded" style="font-size: 0.95rem; color: #fbbf24;">leaderboard</span>
-                                <span>재원생 성실도 순위 빌보드</span>
+                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                            <!-- 탭 스위처: 기본 명부 vs 재원생 성실도 순위 빌보드 -->
+                            <div style="display: flex; gap: 6px; align-items: center; background: rgba(0,0,0,0.4); padding: 3px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
+                                <button type="button" id="tab-btn-mode-roster" onclick="switchStudentCockpitTab('ROSTER')" style="padding: 5px 12px; font-size: 0.76rem; font-weight: 800; background: #4f46e5; border: 1px solid #6366f1; color: white; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;">
+                                    <span class="material-symbols-rounded" style="font-size: 0.95rem;">badge</span>
+                                    <span>원생 기본 명부</span>
+                                </button>
+                                <button type="button" id="tab-btn-mode-csat" onclick="switchStudentCockpitTab('CSAT')" style="padding: 5px 12px; font-size: 0.76rem; font-weight: 800; background: transparent; border: 1px solid transparent; color: #fbbf24; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;">
+                                    <span class="material-symbols-rounded" style="font-size: 0.95rem; color: #fbbf24;">leaderboard</span>
+                                    <span>재원생 성실도 순위 빌보드</span>
+                                </button>
+                            </div>
+                            <!-- 카드 전체 접기/펼치기 버튼 -->
+                            <button type="button" onclick="toggleStudentCockpitCard()" id="btn-toggle-cockpit-card" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.74rem; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; border-color: rgba(129, 140, 248, 0.4); color: #818cf8; cursor: pointer;">
+                                <span id="text-toggle-cockpit-card">접기</span>
+                                <span class="material-symbols-rounded" id="icon-toggle-cockpit-card" style="font-size: 1rem; transition: transform 0.2s;">expand_less</span>
                             </button>
                         </div>
                     </div>
 
+                    <!-- 접이식 바디 컨테이너 -->
+                    <div id="student-cockpit-collapsible-body">
                     <!-- VIEW 1: 원생 기본 명부 뷰 -->
                     <div id="student-cockpit-view-roster" style="display: block;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
@@ -1919,21 +1984,13 @@
                             </table>
                         </div>
                     </div>
+                    </div> <!-- student-cockpit-collapsible-body 끝 -->
                 </div>
 
-                <div style="margin-bottom: 16px;">
-                    <!-- 기상/취침 내역은 학부모/원장 전달용 개별 레포트에만 적립 (대시보드 피드 비노출) -->
-                    <div id="mission-feed" style="display: none;"></div>
-                    <div class="kpi-card" style="border: 1px solid rgba(255,255,255,0.08);">
-                        <div class="section-title" style="color: #60a5fa; display: flex; justify-content: space-between; align-items: center;">
-                            <div style="display: flex; align-items: center; gap: 6px;">
-                                <span class="material-symbols-rounded">timer</span>
-                                <span>몰입 순공 세션 실시간 피드</span>
-                            </div>
-                            <span style="font-size: 0.72rem; color: #94a3b8;">원생 실시간 측정 로그</span>
-                        </div>
-                        <div id="study-feed" style="display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto;"></div>
-                    </div>
+                <!-- 몰입 순공 실시간 피드는 개별 학생 활동기록에 적립되므로 대시보드에서는 숨김 처리 -->
+                <div style="display: none;">
+                    <div id="mission-feed"></div>
+                    <div id="study-feed"></div>
                 </div>
             </div>
 
@@ -4187,6 +4244,9 @@
             if (modal) modal.style.display = 'none';
         }
 
+        let currentAdminClassTeacherFilter = 'ALL';
+        let currentAdminClassViewMode = 'GRID';
+
         async function loadAdminClassesList() {
             const grid = document.getElementById('admin-classes-grid');
             const totalBadge = document.getElementById('admin-class-total-badge');
@@ -4202,10 +4262,41 @@
                     totalBadge.innerText = `${adminClassesCache.length}개 분반 운영 중`;
                 }
 
-                renderAdminClassesGrid();
+                // 강사 목록 드롭다운 자동 갱신
+                const teacherSelect = document.getElementById('admin-class-teacher-filter');
+                if (teacherSelect && adminClassesCache) {
+                    const teachers = [...new Set(adminClassesCache.map(c => (c.instructor_name || '').trim()).filter(Boolean))].sort();
+                    const curVal = teacherSelect.value || 'ALL';
+                    let opts = '<option value="ALL">전체 강사진 (통합)</option>';
+                    teachers.forEach(t => {
+                        opts += `<option value="${t}">${t} 선생님</option>`;
+                    });
+                    teacherSelect.innerHTML = opts;
+                    if (teachers.includes(curVal)) {
+                        teacherSelect.value = curVal;
+                    }
+                }
+
+                renderAdminClassesViews();
             } catch (e) {
                 console.warn('loadAdminClassesList error:', e);
             }
+        }
+
+        function getFilteredAdminClasses() {
+            let list = adminClassesCache || [];
+            if (currentAdminClassFilter && currentAdminClassFilter !== 'ALL') {
+                list = list.filter(c => c.subject === currentAdminClassFilter);
+            }
+            if (currentAdminClassTeacherFilter && currentAdminClassTeacherFilter !== 'ALL') {
+                list = list.filter(c => (c.instructor_name || '').trim() === currentAdminClassTeacherFilter.trim());
+            }
+            return list;
+        }
+
+        function filterAdminClassesByTeacher(teacher) {
+            currentAdminClassTeacherFilter = teacher || 'ALL';
+            renderAdminClassesViews();
         }
 
         function filterAdminClasses(subject, el) {
@@ -4222,7 +4313,49 @@
                 el.style.background = '#6366f1';
                 el.style.color = '#ffffff';
             }
+            renderAdminClassesViews();
+        }
+
+        function switchAdminClassViewMode(mode) {
+            currentAdminClassViewMode = mode;
+            const gridView = document.getElementById('admin-classes-grid');
+            const timeView = document.getElementById('admin-classes-timetable-view');
+            const btnGrid = document.getElementById('btn-admin-class-view-grid');
+            const btnTime = document.getElementById('btn-admin-class-view-timetable');
+
+            if (mode === 'TIMETABLE') {
+                if (gridView) gridView.style.display = 'none';
+                if (timeView) timeView.style.display = 'block';
+                if (btnGrid) {
+                    btnGrid.style.background = 'transparent';
+                    btnGrid.style.color = '#94a3b8';
+                    btnGrid.style.borderColor = 'transparent';
+                }
+                if (btnTime) {
+                    btnTime.style.background = '#6366f1';
+                    btnTime.style.color = '#ffffff';
+                    btnTime.style.borderColor = '#818cf8';
+                }
+            } else {
+                if (gridView) gridView.style.display = 'grid';
+                if (timeView) timeView.style.display = 'none';
+                if (btnGrid) {
+                    btnGrid.style.background = '#6366f1';
+                    btnGrid.style.color = '#ffffff';
+                    btnGrid.style.borderColor = '#818cf8';
+                }
+                if (btnTime) {
+                    btnTime.style.background = 'transparent';
+                    btnTime.style.color = '#94a3b8';
+                    btnTime.style.borderColor = 'transparent';
+                }
+            }
+            renderAdminClassesViews();
+        }
+
+        function renderAdminClassesViews() {
             renderAdminClassesGrid();
+            renderAdminClassesTimetable();
         }
 
         function renderAdminClassesGrid() {
@@ -4230,13 +4363,10 @@
             if (!grid) return;
 
             const dayNames = ['월', '화', '수', '목', '금', '토', '일'];
-            let filtered = adminClassesCache;
-            if (currentAdminClassFilter !== 'ALL') {
-                filtered = adminClassesCache.filter(c => c.subject === currentAdminClassFilter);
-            }
+            const filtered = getFilteredAdminClasses();
 
             if (filtered.length === 0) {
-                grid.innerHTML = '<div style="font-size: 0.8rem; color: #94a3b8; padding: 20px; grid-column: 1/-1; text-align: center;">등록된 수업/분반이 없습니다. [+ 신규 수업/분반 등록] 버튼을 눌러 개설해 주세요.</div>';
+                grid.innerHTML = '<div style="font-size: 0.8rem; color: #94a3b8; padding: 20px; grid-column: 1/-1; text-align: center;">조건에 맞는 등록된 수업/분반이 없습니다. [+ 신규 수업/분반 등록] 버튼을 눌러 개설해 주세요.</div>';
                 return;
             }
 
@@ -4254,7 +4384,7 @@
                             </div>
                             <div style="font-size: 0.88rem; font-weight: 900; color: #ffffff; line-height: 1.25; margin-bottom: 4px;">${c.course_name}</div>
                             <div style="font-size: 0.75rem; color: #cbd5e1; font-weight: 700; margin-bottom: 2px;">
-                                <span style="color: #38bdf8;">${dayName}요일 ${c.start_time} ~ ${c.end_time}</span> · ${c.instructor_name}
+                                <span style="color: #38bdf8;">${dayName}요일 ${c.start_time} ~ ${c.end_time}</span> · <span style="color: #fde68a;">${c.instructor_name}</span>
                             </div>
                             <div style="font-size: 0.7rem; color: #94a3b8;">
                                 분반: <strong style="color: #fde68a;">${c.division_remark || '정규반'}</strong> (${c.classroom || '본원'})
@@ -4267,6 +4397,196 @@
                     </div>
                 `;
             }).join('');
+        }
+
+        function renderAdminClassesTimetable() {
+            const gridCols = document.getElementById('admin-timetable-grid-cols');
+            const countBadge = document.getElementById('admin-timetable-view-count');
+            const teacherBadge = document.getElementById('admin-timetable-teacher-badge');
+            if (!gridCols) return;
+
+            const filtered = getFilteredAdminClasses();
+            if (countBadge) countBadge.innerText = `${filtered.length}개`;
+            if (teacherBadge) {
+                teacherBadge.innerText = currentAdminClassTeacherFilter === 'ALL' 
+                    ? '전체 강사진 통합' 
+                    : `${currentAdminClassTeacherFilter} 선생님`;
+            }
+
+            const dayNames = ['월', '화', '수', '목', '금', '토', '일'];
+            gridCols.innerHTML = dayNames.map((dayName, dayIdx) => {
+                const dayClasses = filtered.filter(c => c.day_of_week === dayIdx)
+                    .sort((a, b) => (a.start_time || '').localeCompare(b.start_time || ''));
+                const isWeekend = dayIdx >= 5;
+                const headerColor = isWeekend ? (dayIdx === 5 ? '#38bdf8' : '#f87171') : '#94a3b8';
+
+                let cardsHtml = '';
+                if (dayClasses.length === 0) {
+                    cardsHtml = '<div style="font-size: 0.65rem; color: #475569; text-align: center; padding: 30px 0; border: 1px dashed rgba(255,255,255,0.05); border-radius: 6px;">수업 없음</div>';
+                } else {
+                    cardsHtml = dayClasses.map(c => {
+                        let bg = 'rgba(99, 102, 241, 0.12)';
+                        let border = 'rgba(99, 102, 241, 0.35)';
+                        let subjColor = '#818cf8';
+                        if (c.subject === '수학') { bg = 'rgba(14, 165, 233, 0.12)'; border = 'rgba(14, 165, 233, 0.35)'; subjColor = '#38bdf8'; }
+                        else if (c.subject === '영어') { bg = 'rgba(16, 185, 129, 0.12)'; border = 'rgba(16, 185, 129, 0.35)'; subjColor = '#34d399'; }
+                        else if (c.subject === '과탐' || c.subject === '과학') { bg = 'rgba(245, 158, 11, 0.12)'; border = 'rgba(245, 158, 11, 0.35)'; subjColor = '#fbbf24'; }
+                        else if (c.subject === '사탐' || c.subject === '사회') { bg = 'rgba(244, 63, 94, 0.12)'; border = 'rgba(244, 63, 94, 0.35)'; subjColor = '#fb7185'; }
+
+                        return `
+                            <div style="background: ${bg}; border: 1px solid ${border}; border-radius: 8px; padding: 7px; margin-bottom: 6px; display: flex; flex-direction: column; gap: 3px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 0.58rem; font-weight: 800; background: rgba(255,255,255,0.12); color: ${subjColor}; padding: 1px 4px; border-radius: 3px;">${c.subject}</span>
+                                    <span style="font-size: 0.58rem; color: #94a3b8; font-weight: 700;">${c.classroom || '본원'}</span>
+                                </div>
+                                <div style="font-size: 0.74rem; font-weight: 900; color: #ffffff; line-height: 1.25;">${c.course_name}</div>
+                                <div style="font-size: 0.65rem; font-weight: 800; color: #38bdf8; display: flex; justify-content: space-between; align-items: center;">
+                                    <span>⏰ ${c.start_time}~${c.end_time}</span>
+                                    <span style="color: #fde68a;">${c.instructor_name}</span>
+                                </div>
+                                <div style="font-size: 0.6rem; color: #94a3b8; display: flex; justify-content: space-between; border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 3px; margin-top: 2px;">
+                                    <span>${c.division_remark || '정규'}</span>
+                                    <span style="color: #34d399; font-weight: 700;">${c.current_enrolled || 0}/${c.max_capacity || 30}명</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                return `
+                    <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 6px; display: flex; flex-direction: column; min-height: 220px;">
+                        <div style="text-align: center; font-size: 0.74rem; font-weight: 900; color: ${headerColor}; padding-bottom: 6px; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+                            ${dayName}요일
+                        </div>
+                        <div style="display: flex; flex-direction: column; flex: 1;">
+                            ${cardsHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openAdminTimetableImageModal() {
+            const modal = document.getElementById('admin-timetable-image-modal');
+            const sheetTitle = document.getElementById('print-sheet-title');
+            const instructorBadge = document.getElementById('print-sheet-instructor-badge');
+            const timestamp = document.getElementById('print-sheet-timestamp');
+            const printGrid = document.getElementById('print-sheet-timetable-grid');
+            if (!modal) return;
+
+            const teacher = currentAdminClassTeacherFilter === 'ALL' ? '전체 강사진 통합' : `${currentAdminClassTeacherFilter} 선생님 전용`;
+            if (instructorBadge) instructorBadge.innerText = teacher;
+            if (sheetTitle) sheetTitle.innerText = `일원학원 주간 수업 시간표 (${teacher})`;
+            if (timestamp) {
+                const now = new Date();
+                timestamp.innerText = `발행일: ${now.getFullYear()}. ${now.getMonth() + 1}. ${now.getDate()}`;
+            }
+
+            const filtered = getFilteredAdminClasses();
+            const dayNames = ['월', '화', '수', '목', '금', '토', '일'];
+
+            if (printGrid) {
+                printGrid.innerHTML = dayNames.map((dayName, dayIdx) => {
+                    const dayClasses = filtered.filter(c => c.day_of_week === dayIdx)
+                        .sort((a, b) => (a.start_time || '').localeCompare(b.start_time || ''));
+                    const isWeekend = dayIdx >= 5;
+                    const headerColor = isWeekend ? (dayIdx === 5 ? '#38bdf8' : '#f87171') : '#ffffff';
+
+                    let cardsHtml = '';
+                    if (dayClasses.length === 0) {
+                        cardsHtml = '<div style="font-size: 0.65rem; color: #475569; text-align: center; padding: 36px 0; border: 1px dashed rgba(255,255,255,0.06); border-radius: 6px;">-</div>';
+                    } else {
+                        cardsHtml = dayClasses.map(c => {
+                            let bg = 'rgba(99, 102, 241, 0.16)';
+                            let border = 'rgba(99, 102, 241, 0.4)';
+                            let subjColor = '#818cf8';
+                            if (c.subject === '수학') { bg = 'rgba(14, 165, 233, 0.16)'; border = 'rgba(14, 165, 233, 0.4)'; subjColor = '#38bdf8'; }
+                            else if (c.subject === '영어') { bg = 'rgba(16, 185, 129, 0.16)'; border = 'rgba(16, 185, 129, 0.4)'; subjColor = '#34d399'; }
+                            else if (c.subject === '과탐' || c.subject === '과학') { bg = 'rgba(245, 158, 11, 0.16)'; border = 'rgba(245, 158, 11, 0.4)'; subjColor = '#fbbf24'; }
+                            else if (c.subject === '사탐' || c.subject === '사회') { bg = 'rgba(244, 63, 94, 0.16)'; border = 'rgba(244, 63, 94, 0.4)'; subjColor = '#fb7185'; }
+
+                            return `
+                                <div style="background: ${bg}; border: 1.5px solid ${border}; border-radius: 8px; padding: 8px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 3px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span style="font-size: 0.6rem; font-weight: 900; background: rgba(255,255,255,0.15); color: ${subjColor}; padding: 1px 5px; border-radius: 4px;">${c.subject}</span>
+                                        <span style="font-size: 0.62rem; color: #cbd5e1; font-weight: 700;">${c.classroom || '본원'}</span>
+                                    </div>
+                                    <div style="font-size: 0.78rem; font-weight: 900; color: #ffffff; line-height: 1.25;">${c.course_name}</div>
+                                    <div style="font-size: 0.68rem; font-weight: 800; color: #38bdf8; display: flex; justify-content: space-between; align-items: center;">
+                                        <span>⏰ ${c.start_time} ~ ${c.end_time}</span>
+                                        <span style="color: #fde68a;">${c.instructor_name}</span>
+                                    </div>
+                                    <div style="font-size: 0.62rem; color: #94a3b8; display: flex; justify-content: space-between; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 4px; margin-top: 2px;">
+                                        <span>${c.division_remark || '정규'}</span>
+                                        <span style="color: #34d399; font-weight: 800;">${c.current_enrolled || 0} / ${c.max_capacity || 30}명</span>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+
+                    return `
+                        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; min-height: 260px;">
+                            <div style="text-align: center; font-size: 0.78rem; font-weight: 900; color: ${headerColor}; padding-bottom: 6px; margin-bottom: 8px; border-bottom: 1.5px solid rgba(255,255,255,0.1);">
+                                ${dayName}요일
+                            </div>
+                            <div style="display: flex; flex-direction: column; flex: 1;">
+                                ${cardsHtml}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closeAdminTimetableImageModal() {
+            const modal = document.getElementById('admin-timetable-image-modal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        async function downloadAdminTimetableImage() {
+            const sheet = document.getElementById('admin-timetable-printable-sheet');
+            if (!sheet) return;
+
+            const teacherName = currentAdminClassTeacherFilter === 'ALL' ? '전체강사진' : currentAdminClassTeacherFilter;
+
+            function doCapture() {
+                if (typeof html2canvas === 'undefined') {
+                    alert('이미지 캡처 모듈을 불러오지 못했습니다. [인쇄 / PDF 출력]을 이용해 주세요.');
+                    return;
+                }
+                html2canvas(sheet, {
+                    scale: 2,
+                    backgroundColor: '#0f172a',
+                    useCORS: true
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = `일원학원_수업시간표_${teacherName}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                }).catch(err => {
+                    console.error('html2canvas error:', err);
+                    alert('이미지 생성 중 오류가 발생했습니다: ' + err.message);
+                });
+            }
+
+            if (typeof html2canvas === 'undefined') {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+                script.onload = () => doCapture();
+                script.onerror = () => {
+                    alert('캡처 라이브러리(html2canvas) 로드에 실패했습니다. [인쇄 / PDF 출력]을 이용해 주세요.');
+                };
+                document.head.appendChild(script);
+            } else {
+                doCapture();
+            }
+        }
+
+        function printAdminTimetable() {
+            window.print();
         }
 
         async function handleSubmitCreateClass(e) {
@@ -5163,7 +5483,9 @@
                         <td>${l.class_date}</td>
                         <td style="font-weight: 700; color: #818cf8;">${l.check_in_time}</td>
                         <td><span style="background:${statusColor}; color:white; padding:2px 6px; border-radius:4px; font-weight:800; font-size:0.72rem;">${statusLabel}</span></td>
-                        <td style="font-family: monospace; font-size: 0.72rem; color: #94a3b8;">${l.ip_address}</td>
+                        <td>
+                            <span style="background: rgba(99,102,241,0.15); color: #c7d2fe; padding: 2px 7px; border-radius: 4px; font-weight: 800; font-size: 0.72rem; border: 1px solid rgba(99,102,241,0.3);">4자리 PIN 인증</span>
+                        </td>
                         <td>${l.sms_sent ? '<span style="color:#34d399; font-weight:700;">발송됨</span>' : '<span style="color:#64748b;">-</span>'}</td>
                     </tr>
                 `}).join('');
@@ -8685,7 +9007,67 @@ function printStudentDossier() {
             <script>
                 window.onload = function() { window.print(); };
             <\/script>
-        </body>
+            <!-- 🖼️ 학원 정규 수업 시간표 이미지 보기 & 고화질 인쇄/저장 모달 -->
+    <div id="admin-timetable-image-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); z-index: 10000; align-items: center; justify-content: center; padding: 16px;">
+        <div style="background: #0f172a; border: 1.5px solid rgba(255,255,255,0.15); border-radius: 16px; width: 100%; max-width: 1160px; max-height: 94vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);">
+            <!-- 모달 헤더 바 -->
+            <div style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="material-symbols-rounded" style="color: #10b981; font-size: 1.4rem;">calendar_view_week</span>
+                    <div>
+                        <div style="font-size: 0.95rem; font-weight: 900; color: #ffffff;" id="admin-timetable-modal-title">일원학원 정규 강좌 주간 시간표 포스터</div>
+                        <div style="font-size: 0.72rem; color: #94a3b8;">대형학원 동시간대 다수 분반 & 강사별 클린 포스터 뷰 (이미지 저장 / PDF 인쇄)</div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button type="button" onclick="downloadAdminTimetableImage()" class="btn" style="padding: 7px 14px; font-size: 0.76rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border-radius: 8px; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 8px rgba(16,185,129,0.3); cursor: pointer;">
+                        <span class="material-symbols-rounded" style="font-size: 1rem;">download</span>
+                        <span>이미지(PNG) 다운로드</span>
+                    </button>
+                    <button type="button" onclick="printAdminTimetable()" class="btn btn-secondary" style="padding: 7px 14px; font-size: 0.76rem; font-weight: 800; border-radius: 8px; display: inline-flex; align-items: center; gap: 5px; border-color: rgba(255,255,255,0.2); cursor: pointer;">
+                        <span class="material-symbols-rounded" style="font-size: 1rem;">print</span>
+                        <span>인쇄 / PDF 출력</span>
+                    </button>
+                    <button type="button" onclick="closeAdminTimetableImageModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.4rem; cursor: pointer; padding: 4px 8px;" title="닫기">✕</button>
+                </div>
+            </div>
+
+            <!-- 모달 본문 (시간표 포스터 시트 컨테이너) -->
+            <div style="flex: 1; overflow-y: auto; padding: 20px; background: #090d16;">
+                <!-- 인쇄/캡처 대상 시트: 고대비 프리미엄 포스터 스타일 -->
+                <div id="admin-timetable-printable-sheet" style="background: #0f172a; border: 2px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 22px; min-width: 960px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                    <!-- 포스터 상단 헤더 -->
+                    <div style="border-bottom: 2px solid rgba(255,255,255,0.15); padding-bottom: 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: flex-end;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                <span style="background: #f59e0b; color: #000000; font-weight: 900; font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.5px;">ILWON ACADEMY</span>
+                                <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 700;">2027 대입 실전 정규 커리큘럼</span>
+                            </div>
+                            <h2 style="font-size: 1.35rem; font-weight: 900; color: #ffffff; margin: 0;" id="print-sheet-title">일원학원 정규 수업 주간 시간표</h2>
+                        </div>
+                        <div style="text-align: right;">
+                            <div id="print-sheet-instructor-badge" style="font-size: 0.85rem; font-weight: 900; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 12px; border-radius: 6px; display: inline-block; margin-bottom: 4px;">
+                                전체 강사진 통합
+                            </div>
+                            <div style="font-size: 0.68rem; color: #64748b;" id="print-sheet-timestamp">발행일: 2026. 10. 29</div>
+                        </div>
+                    </div>
+
+                    <!-- 7열 에타 주간 그리드 본체 -->
+                    <div id="print-sheet-timetable-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;">
+                        <!-- 동적 렌더링 -->
+                    </div>
+
+                    <!-- 포스터 하단 안내 문구 -->
+                    <div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; font-size: 0.68rem; color: #94a3b8;">
+                        <span>* 대형학원 다수 분반 운영 지침: 동시간대 진행 수업은 강사별 지정 강의실에서 동시 진행됩니다.</span>
+                        <span style="color: #64748b;">일원학원 원장 관제실 & PassMate LMS 연동 시스템</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
         </html>
     `);
     printWin.document.close();
@@ -9625,6 +10007,30 @@ function jumpToAdminStudentFoldersHub() {
     }, 100);
 }
 
+function toggleAdminFoldersHubCard() {
+    const body = document.getElementById('admin-folders-hub-collapsible-body');
+    const txt = document.getElementById('text-toggle-folders-hub');
+    const icon = document.getElementById('icon-toggle-folders-hub');
+    if (!body) return;
+    const isHidden = (body.style.display === 'none');
+    if (isHidden) {
+        body.style.display = 'block';
+        if (txt) txt.innerText = '접기';
+        if (icon) {
+            icon.innerText = 'expand_less';
+            icon.style.transform = 'rotate(0deg)';
+        }
+    } else {
+        body.style.display = 'none';
+        if (txt) txt.innerText = '펼치기';
+        if (icon) {
+            icon.innerText = 'expand_more';
+            icon.style.transform = 'rotate(180deg)';
+        }
+    }
+}
+window.toggleAdminFoldersHubCard = toggleAdminFoldersHubCard;
+
 function switchAdminFolderHubMode(mode) {
     const gridView = document.getElementById('admin-folders-grid-view');
     const inboxView = document.getElementById('admin-folders-inbox-view');
@@ -9686,7 +10092,28 @@ async function loadAdminStudentFoldersOverview() {
     }
 }
 
-function filterAdminFolderGrid() {
+let currentAdminFolderFilter = 'ALL';
+
+function filterAdminFolderGrid(filterType) {
+    currentAdminFolderFilter = filterType || 'ALL';
+    
+    // 버튼 활성 스타일 실시간 업데이트
+    ['ALL', 'PENDING', 'HOLD'].forEach(type => {
+        const btn = document.getElementById(`af-grid-filter-${type}`);
+        if (!btn) return;
+        if (type === currentAdminFolderFilter) {
+            btn.className = "btn";
+            btn.style.background = "#6366f1";
+            btn.style.color = "#ffffff";
+            btn.style.borderColor = "#818cf8";
+        } else {
+            btn.className = "btn btn-secondary";
+            btn.style.background = "transparent";
+            btn.style.color = "#94a3b8";
+            btn.style.borderColor = "rgba(255, 255, 255, 0.15)";
+        }
+    });
+
     renderAdminStudentFoldersGrid();
 }
 
@@ -9696,6 +10123,15 @@ function renderAdminStudentFoldersGrid() {
 
     const q = (document.getElementById('admin-folder-search-input')?.value || '').trim().toLowerCase();
     const filtered = adminStudentFoldersCache.filter(f => {
+        // 1) 탭 필터링 (미검수만 / 홀드만)
+        if (currentAdminFolderFilter === 'PENDING') {
+            if (!f.pending_count || f.pending_count <= 0) return false;
+        } else if (currentAdminFolderFilter === 'HOLD') {
+            const isHold = f.enrollment_status === 'ON_LEAVE' || (f.hold_active_count || 0) > 0;
+            if (!isHold) return false;
+        }
+
+        // 2) 검색어 필터링
         if (!q) return true;
         const hay = `${f.name || ''} ${f.school_name || ''} ${f.class_group || ''} ${f.student_code || ''}`.toLowerCase();
         return hay.includes(q);
@@ -10147,6 +10583,38 @@ document.addEventListener('DOMContentLoaded', () => {
 // =========================================================================
 let currentStatusModalStudent = null;
 
+function toggleStudentCockpitCard() {
+    const body = document.getElementById('student-cockpit-collapsible-body');
+    const icon = document.getElementById('icon-toggle-cockpit-card');
+    const text = document.getElementById('text-toggle-cockpit-card');
+    if (!body) return;
+    if (body.style.display === 'none') {
+        body.style.display = 'block';
+        if (text) text.innerText = '접기';
+        if (icon) icon.innerText = 'expand_less';
+    } else {
+        body.style.display = 'none';
+        if (text) text.innerText = '펼치기';
+        if (icon) icon.innerText = 'expand_more';
+    }
+}
+
+function toggleAdminFoldersHubCard() {
+    const body = document.getElementById('admin-folders-hub-collapsible-body');
+    const icon = document.getElementById('icon-toggle-folders-hub');
+    const text = document.getElementById('text-toggle-folders-hub');
+    if (!body) return;
+    if (body.style.display === 'none') {
+        body.style.display = 'block';
+        if (text) text.innerText = '접기';
+        if (icon) icon.innerText = 'expand_less';
+    } else {
+        body.style.display = 'none';
+        if (text) text.innerText = '펼치기';
+        if (icon) icon.innerText = 'expand_more';
+    }
+}
+
 function switchStudentCockpitTab(tab) {
     const rosterView = document.getElementById('student-cockpit-view-roster');
     const csatView = document.getElementById('student-cockpit-view-csat');
@@ -10529,5 +10997,65 @@ window.executeBatchStudentActionDirect = executeBatchStudentActionDirect;
         </div>
     </div>
 
+    <!-- 🖼️ 학원 정규 수업 시간표 이미지 보기 & 고화질 인쇄/저장 모달 -->
+    <div id="admin-timetable-image-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); z-index: 10000; align-items: center; justify-content: center; padding: 16px;">
+        <div style="background: #0f172a; border: 1.5px solid rgba(255,255,255,0.15); border-radius: 16px; width: 100%; max-width: 1160px; max-height: 94vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);">
+            <!-- 모달 헤더 바 -->
+            <div style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="material-symbols-rounded" style="color: #10b981; font-size: 1.4rem;">calendar_view_week</span>
+                    <div>
+                        <div style="font-size: 0.95rem; font-weight: 900; color: #ffffff;" id="admin-timetable-modal-title">일원학원 정규 강좌 주간 시간표 포스터</div>
+                        <div style="font-size: 0.72rem; color: #94a3b8;">대형학원 동시간대 다수 분반 & 강사별 클린 포스터 뷰 (이미지 저장 / PDF 인쇄)</div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button type="button" onclick="downloadAdminTimetableImage()" class="btn" style="padding: 7px 14px; font-size: 0.76rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border-radius: 8px; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 8px rgba(16,185,129,0.3); cursor: pointer;">
+                        <span class="material-symbols-rounded" style="font-size: 1rem;">download</span>
+                        <span>이미지(PNG) 다운로드</span>
+                    </button>
+                    <button type="button" onclick="printAdminTimetable()" class="btn btn-secondary" style="padding: 7px 14px; font-size: 0.76rem; font-weight: 800; border-radius: 8px; display: inline-flex; align-items: center; gap: 5px; border-color: rgba(255,255,255,0.2); cursor: pointer;">
+                        <span class="material-symbols-rounded" style="font-size: 1rem;">print</span>
+                        <span>인쇄 / PDF 출력</span>
+                    </button>
+                    <button type="button" onclick="closeAdminTimetableImageModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.4rem; cursor: pointer; padding: 4px 8px;" title="닫기">✕</button>
+                </div>
+            </div>
+
+            <!-- 모달 본문 (시간표 포스터 시트 컨테이너) -->
+            <div style="flex: 1; overflow-y: auto; padding: 20px; background: #090d16;">
+                <!-- 인쇄/캡처 대상 시트: 고대비 프리미엄 포스터 스타일 -->
+                <div id="admin-timetable-printable-sheet" style="background: #0f172a; border: 2px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 22px; min-width: 960px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                    <!-- 포스터 상단 헤더 -->
+                    <div style="border-bottom: 2px solid rgba(255,255,255,0.15); padding-bottom: 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: flex-end;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                <span style="background: #f59e0b; color: #000000; font-weight: 900; font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.5px;">ILWON ACADEMY</span>
+                                <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 700;">2027 대입 실전 정규 커리큘럼</span>
+                            </div>
+                            <h2 style="font-size: 1.35rem; font-weight: 900; color: #ffffff; margin: 0;" id="print-sheet-title">일원학원 정규 수업 주간 시간표</h2>
+                        </div>
+                        <div style="text-align: right;">
+                            <div id="print-sheet-instructor-badge" style="font-size: 0.85rem; font-weight: 900; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 12px; border-radius: 6px; display: inline-block; margin-bottom: 4px;">
+                                전체 강사진 통합
+                            </div>
+                            <div style="font-size: 0.68rem; color: #64748b;" id="print-sheet-timestamp">발행일: 2026. 10. 29</div>
+                        </div>
+                    </div>
+
+                    <!-- 7열 에타 주간 그리드 본체 -->
+                    <div id="print-sheet-timetable-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;">
+                        <!-- 동적 렌더링 -->
+                    </div>
+
+                    <!-- 포스터 하단 안내 문구 -->
+                    <div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; font-size: 0.68rem; color: #94a3b8;">
+                        <span>* 대형학원 다수 분반 운영 지침: 동시간대 진행 수업은 강사별 지정 강의실에서 동시 진행됩니다.</span>
+                        <span style="color: #64748b;">일원학원 원장 관제실 & PassMate LMS 연동 시스템</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

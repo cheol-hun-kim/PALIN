@@ -21388,7 +21388,9 @@ function renderAdmissionPathEngine() {
     const svgUnivCircle = document.getElementById('svg-univ-circle');
     if (svgUnivShort) {
         let shortText = "목표대";
-        if (activeUnivName.includes("서울")) shortText = "서울대";
+        if (activeUnivName.includes("메디컬")) shortText = "메디컬";
+        else if (activeUnivName.includes("인서울")) shortText = "인서울";
+        else if (activeUnivName.includes("서울")) shortText = "서울대";
         else if (activeUnivName.includes("연세")) shortText = "연세대";
         else if (activeUnivName.includes("고려")) shortText = "고려대";
         else if (activeUnivName.includes("의예") || activeUnivName.includes("의대")) shortText = "의예과";
@@ -21447,15 +21449,16 @@ function getUnivAdmissionTracks(univName) {
     const noEssayUnivs = ["서울대", "서울대학교", "KAIST", "카이스트", "포스텍", "POSTECH", "포항공과대학교", "GIST", "UNIST", "DGIST", "한국교원대", "교육대"];
     const isNoEssay = noEssayUnivs.some(u => name.includes(u));
 
-    const yaksulUnivs = ["가천", "수원", "상명", "삼육", "서경", "한국공학", "을지", "한국기술교육", "한신", "신한", "세종"];
+    const yaksulUnivs = ["가천", "수원", "상명", "삼육", "서경", "한국공학", "을지", "한국기술교육", "한신", "신한", "세종", "인서울"];
     const isYaksul = !isNoEssay && yaksulUnivs.some(u => name.includes(u));
 
     return { isNoEssay, isYaksul, hasGeneralEssay: !isNoEssay && !isYaksul };
 }
 
 function calculate5Tracks(scores, univName, penaltyLevel) {
-    const isMedical = univName.includes("의예") || univName.includes("의대");
-    const isSky = univName.includes("서울") || univName.includes("연세") || univName.includes("고려");
+    const isMedical = univName.includes("메디컬") || univName.includes("의예") || univName.includes("의대") || univName.includes("치대") || univName.includes("한의") || univName.includes("약대");
+    const isSky = !isMedical && (univName.includes("서울") || univName.includes("연세") || univName.includes("고려") || univName.includes("KAIST") || univName.includes("포스텍"));
+    const isSeoulBroad = !isMedical && !isSky && (univName.includes("인서울") || univName.includes("한성") || univName.includes("서경") || univName.includes("삼육") || univName.includes("서울여대"));
     const trackConfig = getUnivAdmissionTracks(univName);
 
     const gpa = scores?.gpa_grade;
@@ -21475,8 +21478,8 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
     let track1Comment = '내신 성적을 입력하시면 정확한 합격선이 계산됩니다.';
 
     if (hasGpa) {
-        let gpaCutSafe = isMedical ? 1.25 : (isSky ? 1.60 : 2.10);
-        let gpaCutTrack = isMedical ? 1.45 : (isSky ? 1.95 : 2.60);
+        let gpaCutSafe = isMedical ? 1.45 : (isSky ? 1.60 : (isSeoulBroad ? 3.20 : 2.10));
+        let gpaCutTrack = isMedical ? 1.65 : (isSky ? 1.95 : (isSeoulBroad ? 3.80 : 2.60));
         if (gpa <= gpaCutSafe) {
             track1Status = 'SAFE';
             track1Badge = '확정적 적정';
@@ -21487,7 +21490,13 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
             track1Status = 'DANGER';
             track1Badge = '확정적 위험';
         }
-        track1Comment = `내신 ${gpa}등급` + (gpaRank ? ` · 전교 ${gpaRank}등/${gpaTotal}명 확정치` : ' 확정치');
+        if (isSeoulBroad) {
+            track1Comment = `내신 ${gpa}등급 · 한성대·서경대·삼육대·서울여대 교과 컷 기준`;
+        } else if (isMedical) {
+            track1Comment = `내신 ${gpa}등급 · 메디컬(한의대·약대 등) 마지노선 교과 컷 기준`;
+        } else {
+            track1Comment = `내신 ${gpa}등급` + (gpaRank ? ` · 전교 ${gpaRank}등/${gpaTotal}명 확정치` : ' 확정치');
+        }
     }
 
     // Track 2: 학생부 종합 (확정 결과)
@@ -21496,8 +21505,8 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
     let track2Comment = '학생부 성적 입력 대기 중';
 
     if (hasGpa) {
-        let gpaCutSafe = isMedical ? 1.45 : (isSky ? 1.85 : 2.45);
-        let gpaCutTrack = isMedical ? 1.70 : (isSky ? 2.25 : 3.10);
+        let gpaCutSafe = isMedical ? 1.65 : (isSky ? 1.85 : (isSeoulBroad ? 3.50 : 2.45));
+        let gpaCutTrack = isMedical ? 1.95 : (isSky ? 2.25 : (isSeoulBroad ? 4.30 : 3.10));
         if (gpa <= gpaCutSafe) {
             track2Status = 'SAFE';
             track2Badge = '확정적 적정';
@@ -21508,7 +21517,13 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
             track2Status = 'DANGER';
             track2Badge = '확정적 위험';
         }
-        track2Comment = `내신 ${gpa}등급 및 고교 학업역량 가중치 반영`;
+        if (isSeoulBroad) {
+            track2Comment = `내신 ${gpa}등급 · 인서울 하한선 학종 서류 종합평가 반영`;
+        } else if (isMedical) {
+            track2Comment = `내신 ${gpa}등급 · 메디컬 계열 학종 서류 종합평가 반영`;
+        } else {
+            track2Comment = `내신 ${gpa}등급 및 고교 학업역량 가중치 반영`;
+        }
     }
 
     // Track 3: 논술 전형 (대학별 맞춤: 약술형 vs 일반논술 vs 미실시)
@@ -21517,16 +21532,25 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
         let essayName = trackConfig.isYaksul ? '약술형 논술' : '논술 전형';
         let track3Status = 'UNENTERED';
         let track3Badge = '성적 미입력';
-        let track3Comment = trackConfig.isYaksul ? '중위권 수험생 역전 전형 (국/수 1과목 3등급 이내)' : '수능 최저학력기준 및 논술 적합도';
+        let track3Comment = trackConfig.isYaksul ? '중위권 수험생 역전 전형 (국/수 1과목 3~4등급 이내)' : '수능 최저학력기준 및 논술 적합도';
 
         if (hasCsat) {
-            let track3Base = (korPct >= 92 && mathPct >= 92) ? 'SAFE' : ((korPct >= 85 || mathPct >= 85) ? 'ON_TRACK' : 'DANGER');
+            let track3Base;
+            if (isSeoulBroad) {
+                track3Base = (korPct >= 77 || mathPct >= 77) ? 'SAFE' : ((korPct >= 65 || mathPct >= 65) ? 'ON_TRACK' : 'DANGER');
+                track3Comment = `인서울 약술형 논술 수능 최저 진단 (국어 ${korPct}%, 수학 ${mathPct}%)`;
+            } else if (isMedical) {
+                track3Base = (korPct >= 95 && mathPct >= 95) ? 'SAFE' : ((korPct >= 89 && mathPct >= 89) ? 'ON_TRACK' : 'DANGER');
+                track3Comment = `메디컬 수능 최저 진단 (국어 ${korPct}%, 수학 ${mathPct}%)`;
+            } else {
+                track3Base = (korPct >= 92 && mathPct >= 92) ? 'SAFE' : ((korPct >= 85 || mathPct >= 85) ? 'ON_TRACK' : 'DANGER');
+                track3Comment = `국어 ${korPct}%, 수학 ${mathPct}% 기반 수능 최저 진단`;
+            }
+
             track3Status = applyPenalty(track3Base, penaltyLevel);
             track3Badge = getPenaltyBadge(track3Status, penaltyLevel, 'DASHED');
             if (penaltyLevel === 'DANGER' && track3Base === 'SAFE') {
                 track3Comment = `수능 최저 충족권 · 주간 순공 보완 권장`;
-            } else {
-                track3Comment = `국어 ${korPct}%, 수학 ${mathPct}% 기반 수능 최저 진단`;
             }
         }
         track3 = {
@@ -21551,11 +21575,14 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
         const totalPct = (korPct + mathPct + inq1 + inq2) / 4.0;
         let track4Base = 'DANGER';
         if (isMedical) {
-            if (totalPct >= 98.5) track4Base = 'SAFE';
-            else if (totalPct >= 96.5) track4Base = 'ON_TRACK';
+            if (totalPct >= 96.0) track4Base = 'SAFE';
+            else if (totalPct >= 93.5) track4Base = 'ON_TRACK';
         } else if (isSky) {
             if (totalPct >= 95.0) track4Base = 'SAFE';
             else if (totalPct >= 91.5) track4Base = 'ON_TRACK';
+        } else if (isSeoulBroad) {
+            if (totalPct >= 76.0) track4Base = 'SAFE';
+            else if (totalPct >= 70.0) track4Base = 'ON_TRACK';
         } else {
             if (totalPct >= 88.0) track4Base = 'SAFE';
             else if (totalPct >= 82.0) track4Base = 'ON_TRACK';
@@ -21791,3 +21818,79 @@ if (typeof document !== 'undefined') {
         }
     });
 }
+
+// ==============================================================================
+// 🎯 [ADMISSION TARGET MODAL] 목표 대학 및 광역(인서울/메디컬) 선택 모달 제어 함수
+// ==============================================================================
+function openAdmissionUnivSelectModal() {
+    const modal = document.getElementById('admission-target-select-modal');
+    if (!modal) return;
+
+    const tInput = document.getElementById('modal-target-univ-input');
+    const bInput = document.getElementById('modal-baseline-univ-input');
+
+    const currentTarget = (window.currentStudent && window.currentStudent.target_univ) || localStorage.getItem("cached_target_univ") || "연세대학교 의예과";
+    const currentBase = (window.currentStudent && window.currentStudent.baseline_univ) || localStorage.getItem("cached_baseline_univ") || "서울대학교 화학생물공학부";
+
+    if (tInput) tInput.value = currentTarget;
+    if (bInput) bInput.value = currentBase;
+
+    modal.style.display = 'flex';
+}
+window.openAdmissionUnivSelectModal = openAdmissionUnivSelectModal;
+
+function closeAdmissionUnivSelectModal() {
+    const modal = document.getElementById('admission-target-select-modal');
+    if (modal) modal.style.display = 'none';
+}
+window.closeAdmissionUnivSelectModal = closeAdmissionUnivSelectModal;
+
+function selectAdmissionTargetChip(type, univName) {
+    if (type === 'TARGET') {
+        const inp = document.getElementById('modal-target-univ-input');
+        if (inp) inp.value = univName;
+    } else {
+        const inp = document.getElementById('modal-baseline-univ-input');
+        if (inp) inp.value = univName;
+    }
+}
+window.selectAdmissionTargetChip = selectAdmissionTargetChip;
+
+async function handleSaveAdmissionTargets(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const tVal = document.getElementById('modal-target-univ-input')?.value.trim();
+    const bVal = document.getElementById('modal-baseline-univ-input')?.value.trim();
+
+    if (!tVal || !bVal) {
+        alert("1지망과 마지노선 대학을 모두 입력해 주세요.");
+        return;
+    }
+
+    if (window.currentStudent) {
+        window.currentStudent.target_univ = tVal;
+        window.currentStudent.baseline_univ = bVal;
+    }
+
+    localStorage.setItem("cached_target_univ", tVal);
+    localStorage.setItem("cached_baseline_univ", bVal);
+    cachedAdmissionCampusData = null; // 최신 설정 반영을 위해 캐시 무효화
+
+    const sid = (window.currentStudent && window.currentStudent.id) || localStorage.getItem("studentId");
+    if (sid && !isNaN(parseInt(sid, 10))) {
+        try {
+            await fetch(`/api/student/${sid}/update-univ`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ target_univ: tVal, baseline_univ: bVal })
+            });
+        } catch (err) {
+            console.warn("Target univ update API error:", err);
+        }
+    }
+
+    closeAdmissionUnivSelectModal();
+    if (typeof renderAdmissionPathEngine === 'function') {
+        renderAdmissionPathEngine();
+    }
+}
+window.handleSaveAdmissionTargets = handleSaveAdmissionTargets;
