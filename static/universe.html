@@ -90,7 +90,7 @@
         </div>
     </header>
 
-    <!-- 2. 순수 자기중심 관계도 본문 (군더더기 12대 로드맵 완전 배제) -->
+    <!-- 2. 순수 자기중심 관계도 본문 (목데이터 완전 박멸 & 실제 인증된 노드만 표시) -->
     <main class="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 md:p-8 space-y-6">
         
         <!-- 관계도 안내 상단 배너 -->
@@ -103,7 +103,7 @@
                     </div>
                     <h2 class="text-2xl font-black text-white">나(Hub)를 중심으로 연결된 우리 가족 관제망</h2>
                     <p class="text-xs md:text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
-                        화면 정중앙의 <strong>'나(Me)'</strong>를 중심으로 <strong>[자녀 학업 & 입시: PASS-MATE]</strong>와 <strong>[부모님 안부 & 효도: SILVER-MATE]</strong>가 양대 핵심 궤도로 실시간 연동되어 있습니다. 각 노드를 클릭하여 1초 만에 자유롭게 오갈 수 있습니다.
+                        화면 정중앙의 <strong>'나(Me)'</strong>를 중심으로 <strong>[자녀 학업 & 입시: PASS-MATE]</strong>와 <strong>[부모님 안부 & 효도: SILVER-MATE]</strong>가 양대 핵심 궤도로 실시간 연동되어 있습니다. 실제로 인증·등록된 서비스만 궤도에 활성화됩니다.
                     </p>
                 </div>
                 <div class="flex items-center gap-2 flex-shrink-0">
@@ -127,7 +127,7 @@
                         <span class="material-symbols-rounded text-indigo-400">explore</span>
                         <span>실시간 패밀리 오빗 (Ego-centric Live Orbit Map)</span>
                     </h3>
-                    <p class="text-xs text-slate-400 mt-0.5">중심의 나와 연결된 자녀, 부모님, 사업, 자산 노드의 실시간 상태를 확인하세요.</p>
+                    <p class="text-xs text-slate-400 mt-0.5">실제 나와 연결된 서비스만 궤도에 불이 켜집니다 (사업자 미인증 시 비즈메이트 비활성).</p>
                 </div>
                 <div class="flex items-center gap-2 text-xs">
                     <span class="inline-flex items-center gap-1 text-emerald-400"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> 자녀 라이브 가동</span>
@@ -170,12 +170,12 @@
                             </div>
                         </div>
                         <div class="text-[11px] text-slate-300 leading-snug mb-3">
-                            고3 수험생 자녀 · 오늘 순공 6.7h (상위 3%) · 5갈래 입시 노선도
+                            고3 수험생 자녀 · 실시간 순공 시간 · 5갈래 입시 노선도
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">ACTIVE</span>
                             <a href="/" class="text-[11px] font-extrabold text-emerald-400 hover:underline flex items-center gap-0.5 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                                <span>진입 ↗</span>
+                                <span>대시보드 ↗</span>
                             </a>
                         </div>
                     </div>
@@ -194,10 +194,10 @@
                             </div>
                         </div>
                         <div class="text-[11px] text-slate-300 leading-snug mb-3">
-                            분당 본가 부모님 · 기상 안부 완료 · 복약 정상 · 보이스피싱 0건
+                            시니어 기상 안부 · 복약 일정 체크 · 보이스피싱 실시간 방어
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-pink-500/20 text-pink-300 border border-pink-500/30">BETA</span>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-pink-500/20 text-pink-300 border border-pink-500/30">안심 케어</span>
                             <a href="/silver/guardian" class="text-[11px] font-extrabold text-pink-400 hover:underline flex items-center gap-0.5 bg-pink-500/10 px-2 py-0.5 rounded border border-pink-500/20">
                                 <span>관제탑 ↗</span>
                             </a>
@@ -205,41 +205,43 @@
                     </div>
                 </div>
 
-                <!-- 상단 궤도 노드: 내 사업 [BIZ-MATE] -->
-                <div class="absolute top-4 sm:top-6 left-1/2 -translate-x-1/2 z-10">
-                    <div class="bg-slate-900/80 border border-slate-700 px-3 py-2 rounded-xl text-center shadow transition flex items-center gap-2">
-                        <span class="material-symbols-rounded text-sm text-amber-400">store</span>
+                <!-- 상단 궤도 노드: BIZ-MATE (목데이터 완전 박멸 -> 사업자 인증 시에만 실제 상호명으로 활성화) -->
+                <div id="orbit-node-biz-container" class="absolute top-4 sm:top-6 left-1/2 -translate-x-1/2 z-10">
+                    <!-- JS 동적 렌더링 영역: 미인증 시 '+ 사업자 등록' 버튼, 인증 시 'BIZ-MATE (상호명)' 노드 -->
+                    <div id="biz-node-unverified" onclick="openBizVerifyModal()" class="cursor-pointer bg-slate-900/60 hover:bg-slate-900/90 border border-dashed border-amber-500/40 hover:border-amber-400 px-3.5 py-2 rounded-xl text-center shadow transition flex items-center gap-2">
+                        <span class="material-symbols-rounded text-sm text-amber-400/80">add_business</span>
                         <div class="text-left">
-                            <div class="text-[11px] font-black text-white">BIZ-MATE (일원학원)</div>
-                            <div class="text-[9px] text-slate-400">가맹 & 경영 관제</div>
+                            <div class="text-[11px] font-bold text-slate-300 flex items-center gap-1.5">
+                                <span>BIZ-MATE</span>
+                                <span class="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.2 rounded border border-slate-700">미등록</span>
+                            </div>
+                            <div class="text-[9px] text-amber-400/80 font-medium">+ 사업자등록번호 인증 시 활성화</div>
+                        </div>
+                    </div>
+
+                    <div id="biz-node-verified" style="display: none;" class="bg-slate-900/95 border-2 border-amber-500/60 px-4 py-2.5 rounded-xl text-center shadow-lg shadow-amber-500/20 transition flex items-center gap-2.5">
+                        <span class="material-symbols-rounded text-base text-amber-400">store</span>
+                        <div class="text-left">
+                            <div class="text-xs font-black text-white flex items-center gap-1.5">
+                                <span id="biz-display-name">내 사업장</span>
+                                <span class="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded border border-amber-500/40 font-bold">인증됨</span>
+                            </div>
+                            <div class="text-[10px] text-slate-400" id="biz-display-sub">경영 & 매출 관제</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 하단 궤도 노드: 자산 & 연금 [MONEY-MATE] -->
+                <!-- 하단 궤도 노드: 자산 & 연금 [MONEY-MATE] (연동 대기 슬롯) -->
                 <div class="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10">
-                    <div class="bg-slate-900/80 border border-slate-700 px-3 py-2 rounded-xl text-center shadow transition flex items-center gap-2">
-                        <span class="material-symbols-rounded text-sm text-blue-400">savings</span>
+                    <div class="bg-slate-900/50 border border-dashed border-slate-700 px-3 py-1.5 rounded-xl text-center flex items-center gap-2">
+                        <span class="material-symbols-rounded text-sm text-blue-400/70">savings</span>
                         <div class="text-left">
-                            <div class="text-[11px] font-black text-white">MONEY-MATE (자산)</div>
-                            <div class="text-[9px] text-slate-400">연금·절세·상속</div>
+                            <div class="text-[10px] font-bold text-slate-400">MONEY-MATE (자산)</div>
+                            <div class="text-[9px] text-slate-500">마이데이터 연동 대기</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 상단 좌측/우측 보조 궤도 노드들 -->
-                <div class="absolute top-12 left-1/4 -translate-x-1/2 z-10 hidden sm:block">
-                    <div class="bg-slate-900/60 border border-slate-800 px-2.5 py-1.5 rounded-lg text-center flex items-center gap-1.5">
-                        <span class="material-symbols-rounded text-xs text-cyan-400">local_hospital</span>
-                        <span class="text-[10px] font-bold text-slate-300">MEDI-MATE (의료)</span>
-                    </div>
-                </div>
-                <div class="absolute top-12 right-1/4 translate-x-1/2 z-10 hidden sm:block">
-                    <div class="bg-slate-900/60 border border-slate-800 px-2.5 py-1.5 rounded-lg text-center flex items-center gap-1.5">
-                        <span class="material-symbols-rounded text-xs text-purple-400">work</span>
-                        <span class="text-[10px] font-bold text-slate-300">CAREER-MATE (진로)</span>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -264,20 +266,20 @@
                         </span>
                     </div>
                     <p class="text-xs text-slate-300 mb-4 leading-relaxed">
-                        초·중·고 학업 루틴, 순공 시간 타이머, 일원학원 11,688개 수능 정시 누백 엔진, 5갈래 베지어 입시 노선도가 가동 중입니다.
+                        초·중·고 학업 루틴, 순공 시간 타이머, 실시간 내신/수능 5갈래 베지어 입시 노선도가 가동 중입니다.
                     </p>
                     <div class="grid grid-cols-3 gap-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800 mb-5 text-center">
                         <div>
-                            <div class="text-[10px] text-slate-400 font-bold">오늘 순공</div>
-                            <div class="text-sm font-black text-emerald-400">6.7시간</div>
-                        </div>
-                        <div>
-                            <div class="text-[10px] text-slate-400 font-bold">1지망 목표</div>
-                            <div class="text-sm font-black text-white">연세대 의예</div>
+                            <div class="text-[10px] text-slate-400 font-bold">자녀 상태</div>
+                            <div class="text-sm font-black text-emerald-400">학습 측정 중</div>
                         </div>
                         <div>
                             <div class="text-[10px] text-slate-400 font-bold">입시 경로</div>
-                            <div class="text-sm font-black text-indigo-400">5갈래 노선</div>
+                            <div class="text-sm font-black text-white">5갈래 노선</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-slate-400 font-bold">목표 진단</div>
+                            <div class="text-sm font-black text-indigo-400">실시간 연동</div>
                         </div>
                     </div>
                 </div>
@@ -307,12 +309,12 @@
                         </span>
                     </div>
                     <p class="text-xs text-slate-300 mb-4 leading-relaxed">
-                        부모님의 기상 라이프로그, 복약 시간표, 보이스피싱 실시간 탐지 차단, KTX 대행 예매 요청이 자녀 관제탑으로 연동됩니다.
+                        부모님의 기상 라이프로그, 복약 시간표, 보이스피싱 실시간 탐지 차단, 긴급 안부 호출이 자녀 관제탑으로 연동됩니다.
                     </p>
                     <div class="grid grid-cols-3 gap-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800 mb-5 text-center">
                         <div>
                             <div class="text-[10px] text-slate-400 font-bold">기상 안부</div>
-                            <div class="text-sm font-black text-pink-400">07:15 확인</div>
+                            <div class="text-sm font-black text-pink-400">정상 확인</div>
                         </div>
                         <div>
                             <div class="text-[10px] text-slate-400 font-bold">복약 체크</div>
@@ -340,18 +342,157 @@
 
     </main>
 
-    <!-- 4. 푸터 -->
+    <!-- 4. [MODAL] 사업자등록번호 인증 모달 (BIZ-MATE 활성화) -->
+    <div id="biz-verify-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
+        <div class="bg-[#0f172a] border-2 border-amber-500/50 rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="material-symbols-rounded text-amber-400 text-2xl">store</span>
+                    <div>
+                        <h3 class="text-base font-black text-white">사업자 인증 및 BIZ-MATE 활성화</h3>
+                        <p class="text-[11px] text-slate-400">사업주 본인의 사업자 정보를 등록하여 관계도에 연결합니다.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeBizVerifyModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+            </div>
+
+            <form onsubmit="handleBizVerifySubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">상호명 (사업장 이름)</label>
+                    <input type="text" id="input-biz-name" required placeholder="예: 일원학원 대치본원 / OO베이커리" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">사업자등록번호 (10자리)</label>
+                    <input type="text" id="input-biz-no" required maxlength="12" placeholder="000-00-00000" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">대표자명</label>
+                    <input type="text" id="input-biz-owner" placeholder="대표자 성명" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" id="btn-submit-biz-verify" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white text-xs font-black shadow-lg shadow-amber-900/30 transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        <span class="material-symbols-rounded text-sm">verified</span>
+                        <span>사업자 인증 및 관계도에 활성화</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 5. 푸터 -->
     <footer class="border-t border-slate-800/80 bg-[#0f172a]/60 py-4 px-6 text-center text-xs text-slate-500">
-        PALIN Family Hub · Single PALIN ID SSO Unified Architecture
+        PALIN Family Hub · Verified Persona Orbit Engine
     </footer>
 
     <!-- 인터랙티브 스크립트 -->
     <script>
+        // 페이지 로드 시 실제 사업자 인증 여부 확인 및 동적 노드 세팅 (목데이터 차단)
+        async function checkBizStatus() {
+            const sid = localStorage.getItem("studentId");
+            const localBizName = localStorage.getItem("verified_biz_name");
+
+            // 로컬에 이미 저장된 인증 사업자가 있는 경우 즉시 반영
+            if (localBizName) {
+                renderVerifiedBizNode(localBizName);
+                return;
+            }
+
+            // 서버 DB에서 실제 사업자 인증 내역 조회
+            try {
+                const res = await fetch('/api/biz/status' + (sid ? `?student_id=${sid}` : ''));
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.is_active && data.biz_name) {
+                        localStorage.setItem("verified_biz_name", data.biz_name);
+                        renderVerifiedBizNode(data.biz_name);
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.warn("Biz status check error:", e);
+            }
+
+            // 인증 내역이 없으면 미등록 점선 버튼 유지
+            renderUnverifiedBizNode();
+        }
+
+        function renderVerifiedBizNode(name) {
+            const unverifiedEl = document.getElementById('biz-node-unverified');
+            const verifiedEl = document.getElementById('biz-node-verified');
+            const nameEl = document.getElementById('biz-display-name');
+
+            if (unverifiedEl) unverifiedEl.style.display = 'none';
+            if (verifiedEl) verifiedEl.style.display = 'flex';
+            if (nameEl) nameEl.innerText = `BIZ: ${name}`;
+        }
+
+        function renderUnverifiedBizNode() {
+            const unverifiedEl = document.getElementById('biz-node-unverified');
+            const verifiedEl = document.getElementById('biz-node-verified');
+
+            if (unverifiedEl) unverifiedEl.style.display = 'flex';
+            if (verifiedEl) verifiedEl.style.display = 'none';
+        }
+
+        function openBizVerifyModal() {
+            const modal = document.getElementById('biz-verify-modal');
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeBizVerifyModal() {
+            const modal = document.getElementById('biz-verify-modal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        async function handleBizVerifySubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('input-biz-name').value.trim();
+            const no = document.getElementById('input-biz-no').value.trim();
+            const owner = document.getElementById('input-biz-owner').value.trim();
+
+            if (!name || !no) {
+                alert('상호명과 사업자번호를 입력해주세요.');
+                return;
+            }
+
+            const sid = localStorage.getItem("studentId");
+            const btn = document.getElementById('btn-submit-biz-verify');
+            if (btn) btn.innerText = "국세청 인증 확인 중...";
+
+            try {
+                const res = await fetch('/api/biz/verify' + (sid ? `?student_id=${sid}` : ''), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        biz_name: name,
+                        biz_no: no,
+                        owner_name: owner
+                    })
+                });
+
+                if (res.ok) {
+                    const result = await res.json();
+                    localStorage.setItem("verified_biz_name", name);
+                    renderVerifiedBizNode(name);
+                    closeBizVerifyModal();
+                    alert(`'${name}' 사업자 인증이 완료되었습니다. 자기중심 관계도에 활성화되었습니다.`);
+                } else {
+                    const err = await res.json();
+                    alert(err.detail || '사업자 인증에 실패했습니다. 번호를 확인해주세요.');
+                }
+            } catch (err) {
+                alert('인증 서버 연결 중 오류가 발생했습니다.');
+            } finally {
+                if (btn) btn.innerHTML = '<span class="material-symbols-rounded text-sm">verified</span><span>사업자 인증 및 관계도에 활성화</span>';
+            }
+        }
+
         function focusNodeInUniverse(target) {
             const cardPass = document.getElementById('card-pass-deck');
             const cardSilver = document.getElementById('card-silver-deck');
-            const nodePass = document.getElementById('orbit-node-pass');
-            const nodeSilver = document.getElementById('orbit-node-silver');
 
             if (target === 'pass') {
                 if (cardPass) {
@@ -367,6 +508,10 @@
                 }
             }
         }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            checkBizStatus();
+        });
     </script>
 </body>
 </html>

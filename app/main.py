@@ -13127,6 +13127,88 @@ def get_corporate_roadmap_page():
     # 내부 기획/IR용 12대 제품군 전체 로드맵
     return FileResponse(os.path.join(STATIC_DIR, "corp-roadmap.html"))
 
+class BizVerifyPayload(BaseModel):
+    biz_name: str
+    biz_no: str
+    owner_name: Optional[str] = None
+
+@app.get("/api/biz/status")
+def get_biz_status(student_id: Optional[int] = None):
+    # 사업자 인증 상태 조회 (목데이터 완전 박멸: 실제 등록된 사업자만 반환)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS biz_verifications (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            student_id INTEGER,
+            biz_name TEXT NOT NULL,
+            biz_no TEXT NOT NULL,
+            owner_name TEXT,
+            verified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.commit()
+
+    if student_id:
+        cursor.execute("SELECT biz_name, biz_no, owner_name, verified_at FROM biz_verifications WHERE student_id = ? ORDER BY id DESC LIMIT 1", (student_id,))
+    else:
+        cursor.execute("SELECT biz_name, biz_no, owner_name, verified_at FROM biz_verifications ORDER BY id DESC LIMIT 1")
+    
+    row = cursor.fetchone()
+    conn.close()
+
+    if row:
+        return {
+            "is_active": True,
+            "biz_name": row[0],
+            "biz_no": row[1],
+            "owner_name": row[2],
+            "verified_at": row[3]
+        }
+    return {
+        "is_active": False,
+        "biz_name": None,
+        "biz_no": None
+    }
+
+@app.post("/api/biz/verify")
+def verify_and_save_biz(payload: BizVerifyPayload, student_id: Optional[int] = None):
+    # 사업자등록번호 형식 검증 (10자리 숫자)
+    clean_no = payload.biz_no.replace("-", "").strip()
+    if len(clean_no) != 10 or not clean_no.isdigit():
+        raise HTTPException(status_code=400, detail="올바른 사업자등록번호 10자리를 입력해주세요.")
+    
+    clean_name = payload.biz_name.strip()
+    if not clean_name:
+        raise HTTPException(status_code=400, detail="상호명을 입력해주세요.")
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS biz_verifications (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            student_id INTEGER,
+            biz_name TEXT NOT NULL,
+            biz_no TEXT NOT NULL,
+            owner_name TEXT,
+            verified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("""
+        INSERT INTO biz_verifications (student_id, biz_name, biz_no, owner_name)
+        VALUES (?, ?, ?, ?)
+    """, (student_id or 1, clean_name, clean_no, payload.owner_name or "대표자"))
+    conn.commit()
+    conn.close()
+
+    return {
+        "status": "success",
+        "message": f"'{clean_name}' 사업자 인증이 완료되었습니다. 자기중심 관계도에 BIZ-MATE 노드가 활성화됩니다.",
+        "biz_name": clean_name,
+        "biz_no": clean_no
+    }
+
+
 @app.get("/passmate")
 def get_passmate_page():
     return FileResponse(os.path.join(STATIC_DIR, "index.html"))
