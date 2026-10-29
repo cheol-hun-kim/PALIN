@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PALIN Family Hub - 나(Hub) 중심 패밀리 관계도</title>
+    <title>PALIN PASS-MATE - 나(Me) 중심 초·중·고 입시 관제 OS</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -100,10 +100,10 @@
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <span class="text-base font-black tracking-tight text-white">PALIN Family Hub</span>
-                        <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">자기중심 관계도</span>
+                        <span class="text-base font-black tracking-tight text-white">PALIN OS Hub</span>
+                        <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">입시 관제 궤도망</span>
                     </div>
-                    <div class="text-[10px] text-slate-400 font-medium">나(Me) 중심 통합 라이프 관제탑</div>
+                    <div class="text-[10px] text-slate-400 font-medium">나(Me) 중심 초·중·고 입시 &amp; 학업 관제탑</div>
                 </div>
             </a>
         </div>
@@ -145,11 +145,11 @@
                 <div>
                     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold border border-indigo-500/30 mb-2">
                         <span class="material-symbols-rounded text-sm">hub</span>
-                        <span>패밀리 라이프 관제: 자기중심 관계도 (Ego-centric Family Hub)</span>
+                        <span>초정밀 학업 관제: 자기중심 입시 궤도 (Ego-centric Admissions Hub)</span>
                     </div>
-                    <h2 class="text-2xl font-black text-white">나(Hub)를 중심으로 연결된 우리 가족 관제망</h2>
+                    <h2 class="text-2xl font-black text-white">나(Me)를 중심으로 펼쳐지는 초정밀 입시 관제망</h2>
                     <p class="text-xs md:text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
-                        <span class="general-only">화면 정중앙의 <strong>'나(Me)'</strong>를 중심으로 <strong>[PASS-MATE: 초·중·고 입시 &amp; 학업 관제 OS]</strong>가 실시간 궤도로 가동됩니다.</span>
+                        <span class="general-only">수험생 <strong>'나(Me)'</strong>를 중심으로 실시간 내신·수능 5갈래 입시 노선과 순공 관제 엔진 <strong>[PASS-MATE]</strong>가 1:1 전담 가동됩니다.</span>
                         <span class="creator-only" style="display: none;">화면 정중앙의 <strong>'나(Me)'</strong>를 중심으로 <strong>[PALIN 12대 MATE 전 생애 주기 관제망]</strong>이 가동 중입니다. (👑 제작자 전용 마스터 뷰)</span>
                     </p>
                 </div>
@@ -172,9 +172,9 @@
                 <div>
                     <h3 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
                         <span class="material-symbols-rounded text-indigo-400 text-xl">explore</span>
-                        <span>실시간 패밀리 오빗 (Ego-centric Live Orbit Map)</span>
+                        <span>실시간 입시 관제 오빗 (Ego-centric Live Orbit Map)</span>
                     </h3>
-                    <p class="text-[11px] text-slate-400 mt-0.5">실제 나와 연결된 서비스만 궤도에 활성화됩니다. 미등록 서비스는 '+ 추가하기'를 눌러 연결하세요.</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">수험생 본인과 실제 연동된 입시 관제망만 궤도에 활성화됩니다. 미연동 시 '+ 추가'를 눌러 가동하세요.</p>
                 </div>
                 <div class="flex items-center gap-2 text-xs flex-wrap sm:flex-nowrap">
                     <span class="inline-flex items-center gap-1.5 text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full whitespace-nowrap" id="orbit-status-pass">
@@ -205,8 +205,8 @@
                         </div>
                     </div>
                     <div class="mt-1 sm:mt-2 text-center">
-                        <span class="text-[8.5px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.2 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40" id="hub-user-role">패밀리 마스터</span>
-                        <div class="text-[9px] sm:text-[11px] text-slate-400 font-bold mt-0.5 hidden sm:block" id="hub-user-phone">단일 PALIN ID 연동</div>
+                        <span class="text-[8.5px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.2 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40" id="hub-user-role">수험생 본인</span>
+                        <div class="text-[9px] sm:text-[11px] text-slate-400 font-bold mt-0.5 hidden sm:block" id="hub-user-phone">수험생 전용 고유계정</div>
                     </div>
                 </div>
 
@@ -1017,18 +1017,28 @@
             const coreName = document.getElementById('hub-user-name');
             const corePhone = document.getElementById('hub-user-phone');
 
+            const hubUserRole = document.getElementById('hub-user-role');
             if (currentUser && currentUser.name) {
                 if (btnLogin) btnLogin.style.display = 'none';
                 if (boxInfo) boxInfo.style.display = 'flex';
                 if (nameEl) nameEl.innerText = `${currentUser.name} 님`;
                 if (roleEl) roleEl.innerText = currentUser.role || 'MEMBER';
                 if (coreName) coreName.innerText = currentUser.name;
-                if (corePhone) corePhone.innerText = currentUser.phone ? formatPhone(currentUser.phone) : '단일 PALIN ID 연동';
+                if (corePhone) corePhone.innerText = currentUser.phone ? formatPhone(currentUser.phone) : '수험생 전용 고유계정';
+                if (hubUserRole) {
+                    const r = (currentUser.role || '').toUpperCase();
+                    if (r === 'SUPER_ADMIN') hubUserRole.innerText = '최고관리자';
+                    else if (r === 'STUDENT') hubUserRole.innerText = '수험생 회원';
+                    else if (r === 'PARENT') hubUserRole.innerText = '학부모 회원';
+                    else if (r === 'DIRECTOR' || r === 'TENANT_ADMIN') hubUserRole.innerText = '원장님';
+                    else hubUserRole.innerText = '정회원';
+                }
             } else {
                 if (btnLogin) btnLogin.style.display = 'flex';
                 if (boxInfo) boxInfo.style.display = 'none';
                 if (coreName) coreName.innerText = '나 (Me)';
                 if (corePhone) corePhone.innerText = '로그인 후 연동';
+                if (hubUserRole) hubUserRole.innerText = '수험생 본인';
             }
         }
 
