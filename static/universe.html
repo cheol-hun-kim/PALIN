@@ -40,6 +40,55 @@
             font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
             vertical-align: middle;
         }
+        
+        /* ⚡ SVG Beams & Real-time Connective Telemetry */
+        @keyframes beamFlow {
+            0% { stroke-dashoffset: 32; }
+            100% { stroke-dashoffset: 0; }
+        }
+        .beam-active-emerald {
+            stroke: #10b981;
+            stroke-width: 2.5;
+            stroke-dasharray: 8 6;
+            animation: beamFlow 1.2s linear infinite;
+            filter: drop-shadow(0 0 6px rgba(16,185,129,0.7));
+            opacity: 0.9;
+        }
+        .beam-active-indigo {
+            stroke: #818cf8;
+            stroke-width: 2.5;
+            stroke-dasharray: 8 6;
+            animation: beamFlow 1.4s linear infinite;
+            filter: drop-shadow(0 0 6px rgba(99,102,241,0.7));
+            opacity: 0.9;
+        }
+        .beam-active-amber {
+            stroke: #fbbf24;
+            stroke-width: 2.5;
+            stroke-dasharray: 8 6;
+            animation: beamFlow 1.4s linear infinite;
+            filter: drop-shadow(0 0 6px rgba(245,158,11,0.7));
+            opacity: 0.9;
+        }
+        .beam-inactive {
+            stroke: #334155 !important;
+            stroke-width: 1.2 !important;
+            stroke-dasharray: 4 6 !important;
+            opacity: 0.28 !important;
+            filter: none !important;
+            animation: none !important;
+        }
+        .node-linked-glow {
+            border-style: solid !important;
+            transition: all 0.3s ease;
+        }
+        .node-unlinked-dim {
+            border-style: dashed !important;
+            border-color: rgba(51, 65, 85, 0.8) !important;
+            background-color: rgba(15, 23, 42, 0.6) !important;
+            opacity: 0.85 !important;
+        }
+
         /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
@@ -187,7 +236,42 @@
             </div>
 
             <!-- SVG & 우주 노드 관계도 캔버스 (모바일 겹침 100% 방지 컴팩트 궤도) -->
-            <div class="relative w-full min-h-[440px] sm:min-h-[500px] bg-slate-950/80 rounded-2xl border border-slate-800/80 flex items-center justify-center p-2 sm:p-4 overflow-hidden">
+            <div id="orbit-canvas-wrapper" class="relative w-full min-h-[450px] sm:min-h-[520px] bg-slate-950/80 rounded-2xl border border-slate-800/80 flex items-center justify-center p-2 sm:p-4 overflow-hidden">
+                                <!-- ⚡ 실시간 3자 궤도 에너지 연결 빔 (SVG Connective Light Beams) -->
+                <svg id="orbit-beam-svg" class="absolute inset-0 w-full h-full pointer-events-none z-10" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glow-emerald" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="3" result="blur" />
+                            <feMerge>
+                                <feMergeNode in="blur" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
+                        <filter id="glow-indigo" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="3" result="blur" />
+                            <feMerge>
+                                <feMergeNode in="blur" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
+                        <filter id="glow-amber" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="3" result="blur" />
+                            <feMerge>
+                                <feMergeNode in="blur" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    <!-- 외곽 삼각 연결 루프 (PASS-MATE ⇄ 교육기관 ⇄ 가족) -->
+                    <path id="svg-triad-loop" d="" fill="none" stroke="#334155" stroke-dasharray="4 6" stroke-width="1.2" opacity="0.3" />
+                    <!-- 빔 1: 중심(나) ⇄ 좌측(PASS-MATE) -->
+                    <path id="svg-beam-pass" d="" fill="none" class="beam-active-emerald" />
+                    <!-- 빔 2: 중심(나) ⇄ 우측(가족 안심망) -->
+                    <path id="svg-beam-parent" d="" fill="none" class="beam-active-indigo" />
+                    <!-- 빔 3: 중심(나) ⇄ 상단(교육기관망) -->
+                    <path id="svg-beam-academy" d="" fill="none" class="beam-active-amber" />
+                </svg>
+
                 <!-- 동심원 궤도선 (CSS) -->
                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <div class="w-[200px] h-[200px] sm:w-[280px] sm:h-[280px] md:w-[320px] md:h-[320px] rounded-full border border-indigo-500/15"></div>
@@ -195,7 +279,7 @@
                 </div>
 
                 <!-- 중앙 코어 노드: 나 (Me / 패밀리 허브) -->
-                <div class="relative z-20 flex flex-col items-center">
+                <div id="hub-core-node" class="relative z-20 flex flex-col items-center">
                     <div class="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 p-0.5 sm:p-1 shadow-[0_0_30px_rgba(99,102,241,0.5)] flex items-center justify-center animate-pulse">
                         <div class="w-full h-full rounded-full bg-slate-950 flex flex-col items-center justify-center">
                             <span class="material-symbols-rounded text-lg sm:text-2xl md:text-3xl text-indigo-400">person</span>
@@ -255,14 +339,15 @@
                     </div>
                 </div>
 
-                <!-- 🛰️ [위성 1] 우측 궤도 위성 노드: 부모님 / 자녀 연동 위성 (역할 반응형) -->
-                <div id="triad-satellite-1" onclick="openTriadModal('sat1')" class="absolute right-2 sm:right-6 md:right-14 top-1/2 -translate-y-1/2 z-20 w-[125px] sm:w-[175px] md:w-[200px] cursor-pointer group">
-                    <div class="bg-slate-900/90 hover:bg-slate-900 border border-slate-700/80 hover:border-indigo-400/80 p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl shadow-xl transition-all transform hover:-translate-y-1">
+                <!-- 👨‍👩‍👧 가족 안심망 노드: 부모님 / 자녀 연동 (역할 반응형) -->
+                <div id="triad-satellite-1" onclick="openTriadModal('sat1')" class="absolute right-2 sm:right-6 md:right-14 top-1/2 -translate-y-1/2 z-20 w-[125px] sm:w-[175px] md:w-[205px] cursor-pointer group">
+                    <div id="sat1-card-box" class="bg-slate-900/90 hover:bg-slate-900 border-2 border-indigo-500/70 hover:border-indigo-400 p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl shadow-xl transition-all transform hover:-translate-y-1">
                         <div class="flex items-center justify-between mb-1.5">
                             <span class="text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 flex items-center gap-1">
-                                <span>🛰️ 위성 1</span>
+                                <span class="material-symbols-rounded text-[11px]">family_restroom</span>
+                                <span>가족 안심망</span>
                             </span>
-                            <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" id="sat1-pulse-dot"></span>
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping" id="sat1-pulse-dot"></span>
                         </div>
                         <div class="flex items-center gap-1.5 sm:gap-2 mb-1">
                             <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-black shrink-0">
@@ -277,7 +362,7 @@
                             주간 순공 시간표 &amp; 5갈래 대입 노선 실시간 공유
                         </div>
                         <div class="flex items-center justify-between pt-1 border-t border-slate-800">
-                            <span class="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.2 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/30" id="sat1-badge">안심 연동 중</span>
+                            <span class="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.2 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/30" id="sat1-badge">실시간 동기화</span>
                             <span class="text-[8.5px] sm:text-[10px] font-extrabold text-indigo-400 flex items-center gap-0.5">
                                 <span>관리 ↗</span>
                             </span>
@@ -285,22 +370,24 @@
                     </div>
                 </div>
 
-                <!-- 🛰️ [위성 2] 상단 궤도 위성 노드: 소속 학원 / 학부모 연동 위성 (역할 반응형) -->
+                <!-- 🏫 교육기관망 노드: 소속 학원 · 독서실 (다중 연동 지원) -->
                 <div id="triad-satellite-2" onclick="openTriadModal('sat2')" class="absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-10 cursor-pointer group">
-                    <div class="bg-slate-900/90 hover:bg-slate-900 border border-slate-700/80 hover:border-amber-400/80 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-center shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
+                    <div id="sat2-card-box" class="bg-slate-900/90 hover:bg-slate-900 border-2 border-amber-500/70 hover:border-amber-400 px-3 sm:px-4 py-1.5 sm:py-2.5 rounded-xl text-center shadow-lg transition-all flex items-center gap-2.5 transform hover:-translate-y-0.5">
                         <div class="flex items-center gap-1.5">
-                            <span class="text-[7.5px] sm:text-[9px] font-black px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                                <span>🛰️ 위성 2</span>
+                            <span class="text-[7.5px] sm:text-[9px] font-black px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1">
+                                <span class="material-symbols-rounded text-[11px]">domain</span>
+                                <span>교육기관망</span>
                             </span>
                             <span class="material-symbols-rounded text-sm sm:text-base text-amber-400" id="sat2-icon">domain</span>
                         </div>
                         <div class="text-left">
-                            <div class="text-[10px] sm:text-[11px] font-black text-white flex items-center gap-1">
+                            <div class="text-[10px] sm:text-[11px] font-black text-white flex items-center gap-1.5">
                                 <span id="sat2-title">소속 학원 · 독서실</span>
-                                <span class="text-[8px] sm:text-[9px] bg-amber-500/20 text-amber-300 px-1 py-0.2 rounded border border-amber-500/40 font-bold" id="sat2-badge">출석부 동기화</span>
+                                <span class="text-[8px] sm:text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded border border-amber-500/40 font-bold" id="sat2-badge">출석부 동기화</span>
                             </div>
-                            <div class="text-[8.5px] sm:text-[9.5px] text-slate-400" id="sat2-desc">출결 · 자습 좌석 · 결제선생 행정 연동</div>
+                            <div class="text-[8.5px] sm:text-[9.5px] text-slate-400" id="sat2-desc">출결 · 자습 좌석 · 수납 고지 연동</div>
                         </div>
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping ml-1" id="sat2-pulse-dot"></span>
                     </div>
                 </div>
 
@@ -381,7 +468,7 @@
                         </span>
                     </div>
                     <p class="text-xs text-slate-300 mb-4 leading-relaxed" id="deck-triad-desc">
-                        수험생의 실시간 순공 시간표와 5갈래 대입 노선, 학부모 안심 주간 리포트, 소속 학원 및 독서실 출석부·자습 좌석·결제선생 청구서가 실시간 텔레메트리로 상호 동기화됩니다.
+                        수험생의 실시간 순공 시간표와 5갈래 대입 노선, 학부모 안심 주간 리포트, 소속 학원 및 독서실 출석부·자습 좌석·수강료 고지서가 실시간 텔레메트리로 상호 동기화됩니다.
                     </p>
                     <div class="grid grid-cols-3 gap-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800 mb-5 text-center">
                         <div>
@@ -394,7 +481,7 @@
                         </div>
                         <div>
                             <div class="text-[10px] text-slate-400 font-bold" id="deck-triad-kpi3-label">학부모 ⇄ 학원</div>
-                            <div class="text-sm font-black text-amber-300" id="deck-triad-kpi3-val">결제선생 연동</div>
+                            <div class="text-sm font-black text-amber-300" id="deck-triad-kpi3-val">수납 고지 연동</div>
                         </div>
                     </div>
                 </div>
@@ -644,40 +731,62 @@
                 <button type="button" onclick="closeTriadModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
             </div>
 
-            <div class="space-y-4">
-                <!-- 카드 1: 부모님 안심 연동 -->
-                <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
+            <div class="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
+                <!-- 카드 1: 가족 안심 연동 (학부모 리포트) -->
+                <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div class="flex items-center gap-3">
-                        <span class="w-9 h-9 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-black">
+                        <span class="w-10 h-10 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-black shrink-0">
                             <span class="material-symbols-rounded text-xl">family_restroom</span>
                         </span>
                         <div>
-                            <div class="text-xs font-black text-white">부모님 안심 연동 (학부모 리포트)</div>
-                            <div class="text-[10px] text-slate-400 mt-0.5">실시간 순공 시간표 &amp; 5갈래 대입 노선도 공유</div>
+                            <div class="flex items-center gap-2">
+                                <div class="text-xs font-black text-white">가족 안심 연동 (학부모 리포트)</div>
+                                <span id="modal-parent-status-badge" class="text-[9.5px] font-black px-2 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">연동 가동 중</span>
+                            </div>
+                            <div class="text-[10px] text-slate-400 mt-0.5" id="modal-parent-status-sub">어머니 계정 연동됨 · 실시간 순공 시간표 &amp; 5갈래 대입 노선 공유 중</div>
                         </div>
                     </div>
-                    <span class="text-[10px] font-black px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">연동 가동 중</span>
+                    <button type="button" onclick="toggleParentLinkState()" class="px-2.5 py-1.5 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 text-[11px] font-bold border border-indigo-500/40 transition shrink-0">
+                        연동 상태 변경
+                    </button>
                 </div>
 
-                <!-- 카드 2: 소속 학원 연동 -->
-                <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <span class="w-9 h-9 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-black">
-                            <span class="material-symbols-rounded text-xl">domain</span>
-                        </span>
-                        <div>
-                            <div class="text-xs font-black text-white" id="modal-academy-title">소속 학원 · 독서실</div>
-                            <div class="text-[10px] text-slate-400 mt-0.5">출석부 동기화, 자습실 좌석 현황, 보강 신청, 결제선생 청구서 수납</div>
+                <!-- 카드 2: 내가 등록한 소속 학원 & 독서실 목록 (다중 연동 지원) -->
+                <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4">
+                    <div class="flex items-center justify-between mb-2.5 pb-2 border-b border-slate-800/80">
+                        <div class="flex items-center gap-2">
+                            <span class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-black">
+                                <span class="material-symbols-rounded text-base">domain</span>
+                            </span>
+                            <div class="text-xs font-black text-white">소속 학원 &amp; 독서실 연동 목록</div>
                         </div>
+                        <span id="modal-academies-count-badge" class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">2개소 연동 중</span>
                     </div>
-                    <span class="text-[10px] font-black px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">Tier 4 정회원</span>
+
+                    <!-- 동적 학원/독서실 리스트 컨테이너 -->
+                    <div id="modal-academies-list-container" class="space-y-2 mb-3">
+                        <!-- JS 렌더링 영역 -->
+                    </div>
+
+                    <!-- 새 학원/독서실 추가 입력 폼 -->
+                    <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex flex-col sm:flex-row gap-2 items-center">
+                        <select id="input-new-academy-type" class="px-2 py-1.5 rounded bg-slate-900 border border-slate-700 text-slate-300 text-xs font-bold">
+                            <option value="학원">학원</option>
+                            <option value="독서실">독서실</option>
+                            <option value="스터디카페">스터디카페</option>
+                        </select>
+                        <input type="text" id="input-new-academy-name" placeholder="학원 또는 독서실 이름/코드 (예: 대치 수학학원)" class="flex-1 w-full px-2.5 py-1.5 rounded bg-slate-900 border border-slate-700 text-slate-200 text-xs focus:border-amber-400 outline-none">
+                        <button type="button" onclick="addNewConnectedAcademy()" class="w-full sm:w-auto px-3 py-1.5 rounded bg-amber-600 hover:bg-amber-500 text-white text-xs font-extrabold transition shrink-0">
+                            + 연동 등록
+                        </button>
+                    </div>
                 </div>
 
                 <!-- 카드 3: 초대 링크 복사 -->
                 <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
                     <div class="text-xs font-bold text-slate-300 mb-2 flex items-center gap-1.5">
                         <span class="material-symbols-rounded text-indigo-400 text-sm">link</span>
-                        <span>가족 &amp; 학원 1초 간편 초대 링크</span>
+                        <span>가족 &amp; 교육기관 1초 간편 초대 링크</span>
                     </div>
                     <div class="flex gap-2">
                         <input type="text" id="input-triad-invite-url" readonly value="https://palin-os.onrender.com/?invite=palin-triad" class="flex-1 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 text-xs font-mono">
@@ -686,7 +795,7 @@
                             <span>복사</span>
                         </button>
                     </div>
-                    <p class="text-[10px] text-slate-500 mt-1.5">* 링크를 복사하여 카카오톡이나 문자로 부모님 또는 학원 선생님께 전송하시면 즉시 궤도에 연결됩니다.</p>
+                    <p class="text-[10px] text-slate-500 mt-1.5">* 링크를 복사하여 카카오톡이나 문자로 부모님 또는 학원/독서실 관리자께 전송하시면 즉시 궤도에 연동됩니다.</p>
                 </div>
 
                 <button type="button" onclick="closeTriadModal()" class="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition">
@@ -1049,13 +1158,266 @@
         }
 
         
-        // --- 🛰️ 3자 실시간 연동 편대 (수험생 ⇄ 학부모 ⇄ 학원) 제어 ---
+                // --- ⚡ 3자 실시간 연동 편대 (수험생 ⇄ 학부모 ⇄ 학원/독서실) 고급 제어 ---
+        let isParentLinkedState = true; // 기본 연동 활성화 상태 (토글 가능)
+        const DEFAULT_ACADEMIES_KEY = 'palin_connected_academies';
+
+        function getConnectedAcademies() {
+            try {
+                const raw = localStorage.getItem(DEFAULT_ACADEMIES_KEY);
+                if (raw) return JSON.parse(raw);
+            } catch (e) {
+                console.warn('Failed to parse academies list:', e);
+            }
+            // 초기 기본값: 2개 기관 (학원 1곳, 독서실 1곳)
+            const initList = [
+                { id: 'acad-1', name: '일원학원 (수능국어)', type: '학원', status: '출석부 연동 중' },
+                { id: 'acad-2', name: '대치 하이엔드 독서실', type: '독서실', status: '좌석 관제 연동 중' }
+            ];
+            localStorage.setItem(DEFAULT_ACADEMIES_KEY, JSON.stringify(initList));
+            return initList;
+        }
+
+        function saveConnectedAcademies(list) {
+            localStorage.setItem(DEFAULT_ACADEMIES_KEY, JSON.stringify(list));
+            renderConnectedAcademiesModal();
+            updateTriadOrbitUI();
+        }
+
+        function renderConnectedAcademiesModal() {
+            const list = getConnectedAcademies();
+            const container = document.getElementById('modal-academies-list-container');
+            const badge = document.getElementById('modal-academies-count-badge');
+            if (badge) badge.innerText = `${list.length}개소 연동 중`;
+
+            if (!container) return;
+            if (list.length === 0) {
+                container.innerHTML = `
+                    <div class="p-3 text-center text-slate-400 text-xs bg-slate-950/60 rounded-lg border border-dashed border-slate-800">
+                        현재 등록된 소속 학원이나 독서실이 없습니다.<br>
+                        <span class="text-[11px] text-amber-400 font-bold">아래 폼에서 학원명이나 초대 코드를 입력해 연동하세요.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = list.map((item, idx) => {
+                const icon = item.type === '독서실' || item.type === '스터디카페' ? 'local_library' : 'school';
+                return `
+                    <div class="bg-slate-950/80 border border-slate-800 hover:border-slate-700 p-2.5 rounded-lg flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-7 h-7 rounded bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                                <span class="material-symbols-rounded text-base">${icon}</span>
+                            </span>
+                            <div>
+                                <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <span>${item.name}</span>
+                                    <span class="text-[9px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 border border-slate-700">${item.type}</span>
+                                </div>
+                                <div class="text-[10px] text-slate-400 mt-0.5">${item.status} · 출결 & 좌석 실시간 동기화</div>
+                            </div>
+                        </div>
+                        <button type="button" onclick="removeConnectedAcademy(${idx})" class="text-[10px] font-bold text-rose-400 hover:text-rose-300 px-2 py-1 rounded bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 transition">
+                            해제
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function addNewConnectedAcademy() {
+            const nameInput = document.getElementById('input-new-academy-name');
+            const typeSelect = document.getElementById('input-new-academy-type');
+            const name = (nameInput ? nameInput.value : '').trim();
+            const type = typeSelect ? typeSelect.value : '학원';
+
+            if (!name) {
+                alert('연동할 학원 또는 독서실 이름을 입력해 주세요.');
+                if (nameInput) nameInput.focus();
+                return;
+            }
+
+            const list = getConnectedAcademies();
+            list.push({
+                id: 'acad-' + Date.now(),
+                name: name,
+                type: type,
+                status: type === '학원' ? '출석부 연동 중' : '좌석 관제 연동 중'
+            });
+            saveConnectedAcademies(list);
+            if (nameInput) nameInput.value = '';
+        }
+
+        function removeConnectedAcademy(idx) {
+            const list = getConnectedAcademies();
+            if (idx >= 0 && idx < list.length) {
+                const item = list[idx];
+                if (confirm(`'${item.name}' 연동을 해제하시겠습니까?`)) {
+                    list.splice(idx, 1);
+                    saveConnectedAcademies(list);
+                }
+            }
+        }
+
+        function toggleParentLinkState() {
+            isParentLinkedState = !isParentLinkedState;
+            const badge = document.getElementById('modal-parent-status-badge');
+            const sub = document.getElementById('modal-parent-status-sub');
+            if (isParentLinkedState) {
+                if (badge) {
+                    badge.innerText = '연동 가동 중';
+                    badge.className = 'text-[9.5px] font-black px-2 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+                }
+                if (sub) sub.innerText = '학부모 계정 연동됨 · 실시간 순공 시간표 & 5갈래 대입 노선 공유 중';
+            } else {
+                if (badge) {
+                    badge.innerText = '미연동 (초대 대기)';
+                    badge.className = 'text-[9.5px] font-black px-2 py-0.2 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
+                }
+                if (sub) sub.innerText = '아직 가족 계정이 연결되지 않았습니다. 초대 링크를 전달하세요.';
+            }
+            updateTriadOrbitUI();
+        }
+
+        // SVG 에너지 빔 좌표 실시간 재계산 및 렌더링
+        function updateOrbitBeams() {
+            const container = document.getElementById('orbit-canvas-wrapper');
+            const core = document.getElementById('hub-core-node');
+            const passNode = document.getElementById('orbit-node-pass-container');
+            const parentNode = document.getElementById('triad-satellite-1');
+            const academyNode = document.getElementById('triad-satellite-2');
+
+            if (!container || !core || !passNode || !parentNode || !academyNode) return;
+
+            const cRect = container.getBoundingClientRect();
+            const getCenter = (el) => {
+                const r = el.getBoundingClientRect();
+                return {
+                    x: r.left + r.width / 2 - cRect.left,
+                    y: r.top + r.height / 2 - cRect.top
+                };
+            };
+
+            const pCore = getCenter(core);
+            const pPass = getCenter(passNode);
+            const pParent = getCenter(parentNode);
+            const pAcad = getCenter(academyNode);
+
+            const beamPass = document.getElementById('svg-beam-pass');
+            const beamParent = document.getElementById('svg-beam-parent');
+            const beamAcad = document.getElementById('svg-beam-academy');
+            const triadLoop = document.getElementById('svg-triad-loop');
+
+            if (beamPass) beamPass.setAttribute('d', `M ${pCore.x} ${pCore.y} L ${pPass.x} ${pPass.y}`);
+            if (beamParent) beamParent.setAttribute('d', `M ${pCore.x} ${pCore.y} L ${pParent.x} ${pParent.y}`);
+            if (beamAcad) beamAcad.setAttribute('d', `M ${pCore.x} ${pCore.y} L ${pAcad.x} ${pAcad.y}`);
+            if (triadLoop) {
+                triadLoop.setAttribute('d', `M ${pPass.x} ${pPass.y} Q ${pCore.x} ${pAcad.y - 20} ${pAcad.x} ${pAcad.y} Q ${pParent.x + 15} ${pAcad.y} ${pParent.x} ${pParent.y} Q ${pCore.x} ${pCore.y + 40} ${pPass.x} ${pPass.y}`);
+            }
+        }
+
+        // 연동 상태에 따른 오빗 노드 UI 및 빔 스타일 동기화
+        function updateTriadOrbitUI() {
+            const beamParent = document.getElementById('svg-beam-parent');
+            const beamAcad = document.getElementById('svg-beam-academy');
+            const sat1Box = document.getElementById('sat1-card-box');
+            const sat1Badge = document.getElementById('sat1-badge');
+            const sat1Pulse = document.getElementById('sat1-pulse-dot');
+
+            const sat2Box = document.getElementById('sat2-card-box');
+            const sat2Title = document.getElementById('sat2-title');
+            const sat2Badge = document.getElementById('sat2-badge');
+            const sat2Desc = document.getElementById('sat2-desc');
+            const sat2Pulse = document.getElementById('sat2-pulse-dot');
+
+            // 1. 가족 연동 상태 반영
+            if (isParentLinkedState) {
+                if (beamParent) {
+                    beamParent.className.baseVal = 'beam-active-indigo';
+                }
+                if (sat1Box) {
+                    sat1Box.classList.remove('node-unlinked-dim');
+                    sat1Box.classList.add('node-linked-glow');
+                    sat1Box.style.borderColor = 'rgba(99, 102, 241, 0.7)';
+                    sat1Box.style.boxShadow = '0 0 25px rgba(99, 102, 241, 0.35)';
+                }
+                if (sat1Badge) {
+                    sat1Badge.innerText = '실시간 동기화';
+                    sat1Badge.className = 'text-[8px] sm:text-[9px] font-bold px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/40';
+                }
+                if (sat1Pulse) sat1Pulse.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-ping';
+            } else {
+                if (beamParent) {
+                    beamParent.className.baseVal = 'beam-inactive';
+                }
+                if (sat1Box) {
+                    sat1Box.classList.add('node-unlinked-dim');
+                    sat1Box.classList.remove('node-linked-glow');
+                    sat1Box.style.borderColor = 'rgba(51, 65, 85, 0.8)';
+                    sat1Box.style.boxShadow = 'none';
+                }
+                if (sat1Badge) {
+                    sat1Badge.innerText = '미연동 (+초대)';
+                    sat1Badge.className = 'text-[8px] sm:text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 border border-slate-700';
+                }
+                if (sat1Pulse) sat1Pulse.className = 'w-2 h-2 rounded-full bg-slate-600';
+            }
+
+            // 2. 교육기관(학원/독서실) 다중 연동 상태 반영
+            const academies = getConnectedAcademies();
+            if (academies.length > 0) {
+                if (beamAcad) {
+                    beamAcad.className.baseVal = 'beam-active-amber';
+                }
+                if (sat2Box) {
+                    sat2Box.classList.remove('node-unlinked-dim');
+                    sat2Box.classList.add('node-linked-glow');
+                    sat2Box.style.borderColor = 'rgba(245, 158, 11, 0.7)';
+                    sat2Box.style.boxShadow = '0 0 25px rgba(245, 158, 11, 0.3)';
+                }
+                if (sat2Title) {
+                    sat2Title.innerText = academies.length === 1 ? academies[0].name : `${academies[0].name} 외 ${academies.length - 1}곳`;
+                }
+                if (sat2Badge) {
+                    sat2Badge.innerText = academies.length === 1 ? '출석부 동기화' : `${academies.length}개소 동기화`;
+                    sat2Badge.className = 'text-[8px] sm:text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded border border-amber-500/40 font-bold';
+                }
+                if (sat2Desc) {
+                    sat2Desc.innerText = '출결 · 자습 좌석 · 수납 고지 연동';
+                }
+                if (sat2Pulse) sat2Pulse.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-ping ml-1';
+            } else {
+                if (beamAcad) {
+                    beamAcad.className.baseVal = 'beam-inactive';
+                }
+                if (sat2Box) {
+                    sat2Box.classList.add('node-unlinked-dim');
+                    sat2Box.classList.remove('node-linked-glow');
+                    sat2Box.style.borderColor = 'rgba(51, 65, 85, 0.8)';
+                    sat2Box.style.boxShadow = 'none';
+                }
+                if (sat2Title) sat2Title.innerText = '소속 학원 · 독서실';
+                if (sat2Badge) {
+                    sat2Badge.innerText = '미등록 (+코드)';
+                    sat2Badge.className = 'text-[8px] sm:text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.2 rounded border border-slate-700 font-bold';
+                }
+                if (sat2Desc) {
+                    sat2Desc.innerText = '학원·독서실 코드 등록 시 출결/좌석 자동 연동';
+                }
+                if (sat2Pulse) sat2Pulse.className = 'w-2 h-2 rounded-full bg-slate-600 ml-1';
+            }
+
+            // 빔 다시 그리기
+            requestAnimationFrame(updateOrbitBeams);
+        }
+
         function openTriadModal(target) {
+            renderConnectedAcademiesModal();
             const m = document.getElementById('triad-sync-modal');
             const titleEl = document.getElementById('triad-modal-title');
             if (titleEl) {
-                if (target === 'sat1') titleEl.innerText = '부모님 안심 연동 관제';
-                else if (target === 'sat2') titleEl.innerText = '소속 학원 · 독서실 출결 & 행정 연동';
+                if (target === 'sat1') titleEl.innerText = '가족 안심 연동 관제';
+                else if (target === 'sat2') titleEl.innerText = '소속 학원 & 독서실 연동 목록';
                 else titleEl.innerText = '3자 실시간 연동 편대 관리';
             }
             if (m) m.style.display = 'flex';
@@ -1064,6 +1426,7 @@
         function closeTriadModal() {
             const m = document.getElementById('triad-sync-modal');
             if (m) m.style.display = 'none';
+            updateTriadOrbitUI();
         }
 
         function copyTriadInviteLink() {
@@ -1089,12 +1452,8 @@
             const sat1Title = document.getElementById('sat1-title');
             const sat1Sub = document.getElementById('sat1-role-sub');
             const sat1Desc = document.getElementById('sat1-desc');
-            const sat1Badge = document.getElementById('sat1-badge');
             const sat1Icon = document.getElementById('sat1-icon');
 
-            const sat2Title = document.getElementById('sat2-title');
-            const sat2Badge = document.getElementById('sat2-badge');
-            const sat2Desc = document.getElementById('sat2-desc');
             const sat2Icon = document.getElementById('sat2-icon');
 
             const kpi1Label = document.getElementById('deck-triad-kpi1-label');
@@ -1104,22 +1463,13 @@
             const kpi3Label = document.getElementById('deck-triad-kpi3-label');
             const kpi3Val = document.getElementById('deck-triad-kpi3-val');
 
-            // 동적 학원/독서실 명칭 (프로필에 등록된 기관명이 있으면 해당 기관명, 없으면 표준 '소속 학원 · 독서실')
-            const userAcademy = (currentUser && (currentUser.academy_name || currentUser.tenant_name || currentUser.academy)) || '소속 학원 · 독서실';
-            const modalAcademyTitle = document.getElementById('modal-academy-title');
-            if (modalAcademyTitle) modalAcademyTitle.innerText = userAcademy;
-
             if (r === 'PARENT') {
                 // 학부모 중심 뷰
                 if (sat1Title) sat1Title.innerText = "자녀 수험생 연동";
                 if (sat1Sub) sat1Sub.innerText = "순공 & 대입 노선";
                 if (sat1Desc) sat1Desc.innerText = "자녀의 실시간 학습 시간표 & 5갈래 대입 노선 관제";
-                if (sat1Badge) sat1Badge.innerText = "실시간 관제 중";
                 if (sat1Icon) sat1Icon.innerText = "school";
 
-                if (sat2Title) sat2Title.innerText = (userAcademy === '소속 학원 · 독서실') ? "학원 · 독서실 소통" : `${userAcademy} 소통`;
-                if (sat2Badge) sat2Badge.innerText = "행정 동기화";
-                if (sat2Desc) sat2Desc.innerText = "출결 알림 · 결제선생 청구서 수납 연동";
                 if (sat2Icon) sat2Icon.innerText = "domain";
 
                 if (kpi1Label) kpi1Label.innerText = "자녀 학습";
@@ -1127,18 +1477,14 @@
                 if (kpi2Label) kpi2Label.innerText = "학원 · 독서실";
                 if (kpi2Val) kpi2Val.innerText = "출결 알림 가동";
                 if (kpi3Label) kpi3Label.innerText = "수업료 · 이용료";
-                if (kpi3Val) kpi3Val.innerText = "결제선생 연동";
+                if (kpi3Val) kpi3Val.innerText = "수납 고지 연동";
             } else if (r === 'DIRECTOR' || r === 'TENANT_ADMIN') {
                 // 학원장 / 독서실장 중심 뷰
                 if (sat1Title) sat1Title.innerText = "재원생 학습 관제";
                 if (sat1Sub) sat1Sub.innerText = "전원 자습 현황";
                 if (sat1Desc) sat1Desc.innerText = "재원생 전원 실시간 순공 시간표 & OMR 진단";
-                if (sat1Badge) sat1Badge.innerText = "재원생 관제 중";
                 if (sat1Icon) sat1Icon.innerText = "groups";
 
-                if (sat2Title) sat2Title.innerText = "학부모 소통 · 수납";
-                if (sat2Badge) sat2Badge.innerText = "수납 자동화";
-                if (sat2Desc) sat2Desc.innerText = "학부모 결제선생 청구서 & 출결 알림톡 연동";
                 if (sat2Icon) sat2Icon.innerText = "support_agent";
 
                 if (kpi1Label) kpi1Label.innerText = "재원생";
@@ -1146,18 +1492,14 @@
                 if (kpi2Label) kpi2Label.innerText = "출석부";
                 if (kpi2Val) kpi2Val.innerText = "100% 실시간 동기화";
                 if (kpi3Label) kpi3Label.innerText = "수납 관리";
-                if (kpi3Val) kpi3Val.innerText = "결제선생 청구서";
+                if (kpi3Val) kpi3Val.innerText = "수납 고지서";
             } else {
                 // 수험생(학생) 중심 뷰 (기본값)
                 if (sat1Title) sat1Title.innerText = "부모님 안심 연동";
                 if (sat1Sub) sat1Sub.innerText = "학부모 리포트";
                 if (sat1Desc) sat1Desc.innerText = "주간 순공 시간표 & 5갈래 대입 노선 실시간 공유";
-                if (sat1Badge) sat1Badge.innerText = "안심 연동 중";
                 if (sat1Icon) sat1Icon.innerText = "family_restroom";
 
-                if (sat2Title) sat2Title.innerText = userAcademy;
-                if (sat2Badge) sat2Badge.innerText = "출석부 동기화";
-                if (sat2Desc) sat2Desc.innerText = "출결 · 자습 좌석 · 결제선생 행정 연동";
                 if (sat2Icon) sat2Icon.innerText = "domain";
 
                 if (kpi1Label) kpi1Label.innerText = "학생 ⇄ 부모님";
@@ -1165,8 +1507,10 @@
                 if (kpi2Label) kpi2Label.innerText = "학생 ⇄ 학원·독서실";
                 if (kpi2Val) kpi2Val.innerText = "출석부·좌석 연동";
                 if (kpi3Label) kpi3Label.innerText = "학부모 ⇄ 학원";
-                if (kpi3Val) kpi3Val.innerText = "결제선생 연동";
+                if (kpi3Val) kpi3Val.innerText = "수납 고지 연동";
             }
+
+            updateTriadOrbitUI();
         }
 
         function updateHeaderUserUI() {
