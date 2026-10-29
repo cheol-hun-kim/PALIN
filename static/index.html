@@ -962,7 +962,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <!-- 종합 판정 뱃지 (실시간 순공 페널티 반영) -->
                         <div id="admission-dist-overall-badge" style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 900; background: rgba(239, 68, 68, 0.18); border: 1.5px solid #ef4444; color: #fca5a5;">
                             <span class="material-symbols-rounded" style="font-size: 0.85rem;">warning</span>
-                            <span id="admission-dist-badge-text">위험 (마지노선 붕괴 위기)</span>
+                            <span id="admission-dist-badge-text">위험</span>
                         </div>
                     </div>
 
@@ -1020,37 +1020,37 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </svg>
 
                         <!-- 범례 가이드 바 -->
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding: 4px 6px; font-size: 0.68rem; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.06);">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <span style="display: flex; align-items: center; gap: 4px;">
-                                    <span style="display: inline-block; width: 14px; height: 3px; background: #10b981; border-radius: 2px;"></span>
-                                    <span style="font-size: 0.74rem;">실선: 확정 결과 (내신)</span>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding: 10px 10px 6px 10px; font-size: 0.82rem; color: #cbd5e1; border-top: 1px solid rgba(255,255,255,0.08); flex-wrap: wrap; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 14px;">
+                                <span style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="display: inline-block; width: 16px; height: 3px; background: #10b981; border-radius: 2px;"></span>
+                                    <span style="font-size: 0.82rem; font-weight: 700; color: #e2e8f0;">실선: 확정 결과 (내신)</span>
                                 </span>
-                                <span style="display: flex; align-items: center; gap: 4px;">
-                                    <span style="display: inline-block; width: 14px; height: 3px; border-top: 2px dashed #94a3b8;"></span>
-                                    <span style="font-size: 0.74rem;">점선: 잠정 결과 (수능·순공 연동)</span>
+                                <span style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="display: inline-block; width: 18px; height: 0; border-top: 3px dashed #818cf8; vertical-align: middle;"></span>
+                                    <span style="font-size: 0.82rem; font-weight: 700; color: #e2e8f0;">점선: 잠정 결과 (수능·순공 연동)</span>
                                 </span>
                             </div>
-                            <button type="button" onclick="toggleAdmissionDetailAccordion(true)" style="background: rgba(99, 102, 241, 0.18); border: 1px solid rgba(99, 102, 241, 0.4); color: #c7d2fe; padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; transition: all 0.2s;">
+                            <button type="button" onclick="toggleAdmissionDetailAccordion(true)" style="background: rgba(99, 102, 241, 0.18); border: 1px solid rgba(99, 102, 241, 0.4); color: #c7d2fe; padding: 5px 10px; border-radius: 6px; font-size: 0.74rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; transition: all 0.2s;">
                                 <span>전형별 상세 분석</span>
-                                <span class="material-symbols-rounded" style="font-size: 0.85rem;">open_in_new</span>
+                                <span class="material-symbols-rounded" style="font-size: 0.9rem;">open_in_new</span>
                             </button>
                         </div>
                     </div>
 
                     <!-- 4행: 실시간 순공 페널티 긴급 알림 띠 배너 -->
-                    <div id="admission-penalty-alert-box" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; background: rgba(239, 68, 68, 0.12); border-left: 3.5px solid #ef4444; border: 1px solid rgba(239, 68, 68, 0.25); font-size: 0.74rem; color: #fca5a5; line-height: 1.4; margin-bottom: 12px;">
-                        <span class="material-symbols-rounded" style="color: #f87171; font-size: 1.15rem; flex-shrink: 0;">bolt</span>
-                        <span id="admission-penalty-alert-text">경쟁자 평균보다 주간 순공이 <b>36.0시간 부족</b>하여 정시·논술 합격선이 2단계 강등되었습니다!</span>
+                    <div id="admission-penalty-alert-box" style="display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 11px 14px; border-radius: 10px; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.28); font-size: 0.82rem; font-weight: 700; color: #c7d2fe; line-height: 1.4; margin-bottom: 8px; box-sizing: border-box;">
+                        <span class="material-symbols-rounded" style="color: #f87171; font-size: 1.25rem; flex-shrink: 0;">bolt</span>
+                        <span id="admission-penalty-alert-text">경쟁자 평균보다 주간 순공이 <b style="color: #f87171;">36.0시간 부족</b>합니다. 성적 유지와 실전 감각을 위해 순공 시간 보완을 권장합니다.</span>
                     </div>
 
                     <!-- 5행: 아코디언 드롭다운 트리거 버튼 바 -->
-                    <button type="button" id="btn-toggle-admission-detail" onclick="toggleAdmissionDetailAccordion()" style="width: 100%; padding: 10px 14px; border-radius: 10px; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.3); color: #c7d2fe; font-size: 0.78rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;">
-                        <span style="display: flex; align-items: center; gap: 6px;">
-                            <span class="material-symbols-rounded" id="dist-accordion-arrow-icon" style="font-size: 1.1rem; transition: transform 0.25s ease;">expand_more</span>
+                    <button type="button" id="btn-toggle-admission-detail" onclick="toggleAdmissionDetailAccordion()" style="width: 100%; min-height: 48px; padding: 11px 14px; border-radius: 10px; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.28); color: #c7d2fe; font-size: 0.82rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s; box-sizing: border-box;">
+                        <span style="display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-rounded" id="dist-accordion-arrow-icon" style="font-size: 1.2rem; transition: transform 0.25s ease;">expand_more</span>
                             <span>목표·마지노선 순공 벤치마크 및 세부 전형 상세 진단</span>
                         </span>
-                        <span id="dist-accordion-deficit-badge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid #ef4444; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 900;">부족 -36.0시간</span>
+                        <span id="dist-accordion-deficit-badge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid #ef4444; padding: 3px 10px; border-radius: 8px; font-size: 0.74rem; font-weight: 900; white-space: nowrap;">부족 -36.0시간</span>
                     </button>
 
                     <!-- 6행: 아코디언 드롭다운 펼침 패널 -->

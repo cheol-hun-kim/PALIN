@@ -5282,6 +5282,7 @@ async function fetchStudentInfo(studentId) {
 
         if (res.ok) {
             currentStudent = await res.json();
+            cachedAdmissionCampusData = null; // 모바일/PC 실시간 동기화를 위해 캐시 초기화
             localStorage.setItem("studentId", currentStudent.id);
             if (currentStudent.academy_code) {
                 localStorage.setItem("cached_academy_code", currentStudent.academy_code);
@@ -5551,6 +5552,7 @@ function toggleParentAuthMode() {
 
 function resetSessionState() {
     isDemoMode = false;
+    cachedAdmissionCampusData = null;
     currentActiveFacility = currentStudent?.academy_code || "ILWON-2027";
     
     // 1. AI 챗봇 메시지 DOM 및 히스토리 완전 초기화 (chat-box & chat-messages 양방향 초기화)
@@ -21335,19 +21337,40 @@ function renderAdmissionPathEngine() {
     }
 
     if (deficitHours > 0) {
-        if (badgeTextEl) badgeTextEl.innerText = isTarget ? "소신 (순공 보완 권장)" : "마지노선 관리 중";
+        if (badgeTextEl) {
+            badgeTextEl.innerText = isTarget ? "소신" : "적정";
+            const badgeContainer = document.getElementById('admission-dist-overall-badge');
+            if (badgeContainer) {
+                if (isTarget) {
+                    badgeContainer.style.background = 'rgba(245, 158, 11, 0.18)';
+                    badgeContainer.style.borderColor = '#f59e0b';
+                    badgeContainer.style.color = '#fde68a';
+                } else {
+                    badgeContainer.style.background = 'rgba(16, 185, 129, 0.18)';
+                    badgeContainer.style.borderColor = '#10b981';
+                    badgeContainer.style.color = '#a7f3d0';
+                }
+            }
+        }
         if (alertBox) {
             alertBox.style.display = 'flex';
             alertBox.style.background = 'rgba(99, 102, 241, 0.12)';
-            alertBox.style.borderLeft = '3.5px solid #818cf8';
-            alertBox.style.borderColor = 'rgba(99, 102, 241, 0.25)';
+            alertBox.style.borderColor = 'rgba(99, 102, 241, 0.28)';
             alertBox.style.color = '#c7d2fe';
         }
         if (alertText) {
             alertText.innerHTML = `${activeUnivName} 합격권 대비 주간 순공이 <b style="color: #f87171;">${deficitHours.toFixed(1)}시간 부족</b>합니다. 성적 유지와 실전 감각을 위해 순공 시간 보완을 권장합니다.`;
         }
     } else {
-        if (badgeTextEl) badgeTextEl.innerText = "안정권 유지 (순공 목표 달성)";
+        if (badgeTextEl) {
+            badgeTextEl.innerText = "안정";
+            const badgeContainer = document.getElementById('admission-dist-overall-badge');
+            if (badgeContainer) {
+                badgeContainer.style.background = 'rgba(16, 185, 129, 0.18)';
+                badgeContainer.style.borderColor = '#10b981';
+                badgeContainer.style.color = '#a7f3d0';
+            }
+        }
         if (alertBox) alertBox.style.display = 'none';
     }
 
@@ -21402,7 +21425,7 @@ function renderAdmissionPathEngine() {
             .then(fetchedData => {
                 if (fetchedData) {
                     cachedAdmissionCampusData = fetchedData;
-                    renderHeadlineCampusBars(fetchedData, activeTargetHours, fetchedData.my_study_info?.my_hours || myHours);
+                    renderAdmissionPathEngine();
                 }
             })
             .catch(err => console.warn("Background campus data fetch:", err));
@@ -21448,13 +21471,13 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
         let gpaCutTrack = isMedical ? 1.45 : (isSky ? 1.95 : 2.60);
         if (gpa <= gpaCutSafe) {
             track1Status = 'SAFE';
-            track1Badge = '적정 (합격선 충족)';
+            track1Badge = '확정적 적정';
         } else if (gpa <= gpaCutTrack) {
             track1Status = 'ON_TRACK';
-            track1Badge = '소신 (경쟁률 변수)';
+            track1Badge = '확정적 소신';
         } else {
             track1Status = 'DANGER';
-            track1Badge = '위험 (내신 미달)';
+            track1Badge = '위험';
         }
         track1Comment = `내신 ${gpa}등급` + (gpaRank ? ` · 전교 ${gpaRank}등/${gpaTotal}명 확정치` : ' 확정치');
     }
@@ -21469,13 +21492,13 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
         let gpaCutTrack = isMedical ? 1.70 : (isSky ? 2.25 : 3.10);
         if (gpa <= gpaCutSafe) {
             track2Status = 'SAFE';
-            track2Badge = '적정 (서류 경쟁력 우수)';
+            track2Badge = '확정적 적정';
         } else if (gpa <= gpaCutTrack) {
             track2Status = 'ON_TRACK';
-            track2Badge = '소신 (생기부 역량 관건)';
+            track2Badge = '확정적 소신';
         } else {
             track2Status = 'DANGER';
-            track2Badge = '위험 (비교과 보완 필요)';
+            track2Badge = '위험';
         }
         track2Comment = `내신 ${gpa}등급 및 고교 학업역량 가중치 반영`;
     }
@@ -21491,9 +21514,9 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
         if (hasCsat) {
             let track3Base = (korPct >= 92 && mathPct >= 92) ? 'SAFE' : ((korPct >= 85 || mathPct >= 85) ? 'ON_TRACK' : 'DANGER');
             track3Status = applyPenalty(track3Base, penaltyLevel);
-            track3Badge = getPenaltyBadge(track3Status, penaltyLevel);
+            track3Badge = getPenaltyBadge(track3Status, penaltyLevel, 'DASHED');
             if (penaltyLevel === 'DANGER' && track3Base === 'SAFE') {
-                track3Comment = `수능 최저 충족권 (주간 순공 보완 권장)`;
+                track3Comment = `수능 최저 충족권 · 주간 순공 보완 권장`;
             } else {
                 track3Comment = `국어 ${korPct}%, 수학 ${mathPct}% 기반 수능 최저 진단`;
             }
@@ -21530,9 +21553,9 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
             else if (totalPct >= 82.0) track4Base = 'ON_TRACK';
         }
         track4Status = applyPenalty(track4Base, penaltyLevel);
-        track4Badge = getPenaltyBadge(track4Status, penaltyLevel);
+        track4Badge = getPenaltyBadge(track4Status, penaltyLevel, 'DASHED');
         if (track4Base === 'SAFE' && penaltyLevel === 'DANGER') {
-            track4Comment = `국수탐 백분위 평균 ${Math.round(totalPct)}점 (주간 순공 부족으로 소신 조정)`;
+            track4Comment = `국수탐 백분위 평균 ${Math.round(totalPct)}점 · 주간 순공 부족으로 소신 조정`;
         } else {
             track4Comment = `국수탐 백분위 평균 ${Math.round(totalPct)}점`;
         }
@@ -21607,13 +21630,11 @@ function getStatusColor(status) {
     return '#64748b'; // UNENTERED: 중립 세련된 회색
 }
 
-function getPenaltyBadge(status, penaltyLevel) {
+function getPenaltyBadge(status, penaltyLevel, trackType = 'DASHED') {
     if (status === 'UNENTERED') return '성적 미입력';
-    if (status === 'SAFE') return '적정 (합격권)';
-    if (status === 'ON_TRACK') {
-        return penaltyLevel === 'DANGER' ? '소신 (순공 보완)' : '소신 (도전권)';
-    }
-    return '위험 (합격선 미달)';
+    if (status === 'SAFE') return trackType === 'SOLID' ? '확정적 적정' : '잠정적 적정';
+    if (status === 'ON_TRACK') return trackType === 'SOLID' ? '확정적 소신' : '잠정적 소신';
+    return '위험';
 }
 
 // SVG 베지어 곡선 지도 렌더링
@@ -21747,3 +21768,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }, 400);
 });
+
+// PC ↔ 모바일 간 실시간 활동 내역 및 순공/전산 연동 자동 동기화 리스너
+if (typeof document !== 'undefined') {
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+            const sid = localStorage.getItem("studentId");
+            if (sid && !isNaN(parseInt(sid, 10)) && localStorage.getItem("jwtToken")) {
+                cachedAdmissionCampusData = null;
+                if (typeof fetchStudentInfo === 'function') {
+                    fetchStudentInfo(parseInt(sid, 10));
+                }
+            }
+        }
+    });
+}
