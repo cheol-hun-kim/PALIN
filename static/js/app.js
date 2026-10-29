@@ -14302,6 +14302,17 @@ function updateAcademyGNBVisibility() {
             } else if (currentStudent.enrollment_status === "WITHDRAWN") {
                 badge.innerText = "퇴원생";
                 badge.style.background = "#64748b";
+                if (leaveNotice) {
+                    leaveNotice.style.display = "block";
+                    var lTitle = leaveNotice.querySelector('div[style*="font-weight: 800"]');
+                    var lSub = leaveNotice.querySelector('div[style*="font-size: 0.75rem"]');
+                    if (lTitle) lTitle.innerText = "현재 일원학원 퇴원(하차) 상태입니다.";
+                    if (lSub) lSub.innerText = "정규반 복귀를 희망하실 경우 우측 [학원 복귀 신청]을 누르시면 원장실 대기열로 즉시 접수됩니다.";
+                }
+                if (mainArea) {
+                    mainArea.style.opacity = "0.4";
+                    mainArea.style.pointerEvents = "none";
+                }
             } else {
                 badge.innerText = "재원생";
                 badge.style.background = "#10b981";
@@ -14325,8 +14336,13 @@ function updateAcademyGNBVisibility() {
                 if (formArea) formArea.style.display = "none";
                 if (pendingArea) pendingArea.style.display = "flex";
             } else if (isRejected) {
-                if (unlinkedTitle) unlinkedTitle.innerText = "❌ 가맹 등록 반려됨";
+                if (unlinkedTitle) unlinkedTitle.innerText = "가맹 등록 반려됨";
                 if (unlinkedDesc) unlinkedDesc.innerHTML = "학원 관리자에 의해 가맹 등록 요청이 반려되었습니다.<br>학원 코드를 다시 확인하시거나 원장님께 문의 후 다시 등록해 주세요.";
+                if (formArea) formArea.style.display = "flex";
+                if (pendingArea) pendingArea.style.display = "none";
+            } else if (currentStudent && currentStudent.enrollment_status === "WITHDRAWN") {
+                if (unlinkedTitle) unlinkedTitle.innerText = "일원학원 수강 복귀 신청";
+                if (unlinkedDesc) unlinkedDesc.innerHTML = "이전에 등록하셨던 일원학원 정규반 복귀를 희망하실 경우 아래 복귀 신청을 누르시면 원장실 대기열로 즉시 접수됩니다.<br>원장님 승인 및 수납 확인 시 일원학원 플래그십 권한이 즉시 원상 복구됩니다.";
                 if (formArea) formArea.style.display = "flex";
                 if (pendingArea) pendingArea.style.display = "none";
             } else {

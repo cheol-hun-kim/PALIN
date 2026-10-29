@@ -7201,7 +7201,12 @@ def update_admin_request_status(request_id: int, payload: RequestStatusUpdatePay
         student = db.query(models.Student).filter(models.Student.id == req.student_id).first()
         if student:
             student.enrollment_status = "ENROLLED"
-            student.ai_level = "B2B_PREMIUM"
+            student.academy_code = "ILWON-2027"
+            student.academy_approval_status = "APPROVED"
+            student.ai_level = "TIER_4_ILWON"
+            student.b2c_subscription_tier = "TIER_3_MASTER"
+            student.has_unlimited_chat = True
+            student.chat_tokens = 999
             
     db.commit()
     db.refresh(req)
