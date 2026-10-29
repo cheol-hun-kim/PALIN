@@ -529,6 +529,13 @@ with open(os.path.join(ROOT_DIR, 'app', 'main.py'), 'r', encoding='utf-8') as f:
     main_py_content = f.read()
 
 assert 'TIER_1_ACADEMY' in main_py_content and 'TIER_2_ACADEMY' in main_py_content and 'TIER_3_ACADEMY' in main_py_content and 'TIER_4_ILWON' in main_py_content, "Missing 7-tier backend support in main.py"
+
+with open(os.path.join(ROOT_DIR, 'static', 'universe.html'), 'r', encoding='utf-8') as f:
+    universe_html_content = f.read()
+
+assert 'toggleParentLinkState' not in universe_html_content, "Fake toggleParentLinkState must not exist in universe.html"
+assert 'id="parent-sync-modal"' in universe_html_content and 'id="academy-sync-modal"' in universe_html_content, "Parent and Academy sync modals must be completely separated"
+assert 'whitespace-nowrap' in universe_html_content and 'break-keep' in universe_html_content, "Mobile typography defense (whitespace-nowrap & break-keep) must be enforced in universe.html"
 print("[GATE 4.4 PASS] Mobile Viewport Zero-Clipping & 7-Tier God-Mode Integrity verified!")
 
 # Gate 4.5: Strict Dual-Tier Rule (B2C Tier 1~3 & B2B Tier 1~4) Defense
