@@ -13127,43 +13127,42 @@ def get_corporate_roadmap_page():
     # 내부 기획/IR용 12대 제품군 전체 로드맵
     return FileResponse(os.path.join(STATIC_DIR, "corp-roadmap.html"))
 
+def get_db_connection():
+    from app import database
+    return database.sqlite_engine.raw_connection()
+
+def validate_korean_biz_no(biz_no: str) -> bool:
+    clean = biz_no.replace("-", "").strip()
+    if len(clean) != 10 or not clean.isdigit():
+        return False
+    digits = [int(c) for c in clean]
+    weights = [1, 3, 7, 1, 3, 7, 1, 3, 5]
+    total = sum(d * w for d, w in zip(digits[:8], weights[:8]))
+    p9 = digits[8] * 5
+    total += (p9 // 10) + (p9 % 10)
+    check_digit = (10 - (total % 10)) % 10
+    return digits[9] == check_digit
+
 class BizVerifyPayload(BaseModel):
     biz_name: str
     biz_no: str
     owner_name: Optional[str] = None
 
 @app.get("/api/biz/status")
-def get_biz_status(student_id: Optional[int] = None):
+def get_biz_status(student_id: Optional[int] = None, db: Session = Depends(get_db)):
     # 사업자 인증 상태 조회 (목데이터 완전 박멸: 실제 등록된 사업자만 반환)
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS biz_verifications (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            student_id INTEGER,
-            biz_name TEXT NOT NULL,
-            biz_no TEXT NOT NULL,
-            owner_name TEXT,
-            verified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    conn.commit()
-
+    query = db.query(models.BizVerification)
     if student_id:
-        cursor.execute("SELECT biz_name, biz_no, owner_name, verified_at FROM biz_verifications WHERE student_id = ? ORDER BY id DESC LIMIT 1", (student_id,))
-    else:
-        cursor.execute("SELECT biz_name, biz_no, owner_name, verified_at FROM biz_verifications ORDER BY id DESC LIMIT 1")
-    
-    row = cursor.fetchone()
-    conn.close()
+        query = query.filter(models.BizVerification.student_id == student_id)
+    row = query.order_by(models.BizVerification.id.desc()).first()
 
     if row:
         return {
             "is_active": True,
-            "biz_name": row[0],
-            "biz_no": row[1],
-            "owner_name": row[2],
-            "verified_at": row[3]
+            "biz_name": row.biz_name,
+            "biz_no": row.biz_no,
+            "owner_name": row.owner_name,
+            "verified_at": row.verified_at.isoformat() if row.verified_at else None
         }
     return {
         "is_active": False,
@@ -13188,38 +13187,26 @@ class SilverBindPayload(BaseModel):
     user_phone: Optional[str] = None
 
 @app.post("/api/silver/invite")
-def create_silver_invite(payload: SilverInvitePayload):
+def create_silver_invite(payload: SilverInvitePayload, db: Session = Depends(get_db)):
     # 6자리 간편 효도 연결 코드 생성 (예: 582-914)
     import random
     raw_code = f"{random.randint(100, 999)}-{random.randint(100, 999)}"
     
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS silver_family_bindings (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            invite_code TEXT UNIQUE NOT NULL,
-            inviter_role TEXT NOT NULL,
-            inviter_name TEXT NOT NULL,
-            senior_name TEXT,
-            guardian_name TEXT,
-            senior_phone TEXT,
-            guardian_phone TEXT,
-            status TEXT DEFAULT 'PENDING',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            bound_at TIMESTAMP
-        )
-    """)
-    
     senior_name = payload.inviter_name if payload.inviter_role == 'SENIOR' else payload.senior_nickname
     guardian_name = payload.inviter_name if payload.inviter_role == 'GUARDIAN' else "자녀 보호자"
 
-    cursor.execute("""
-        INSERT INTO silver_family_bindings (invite_code, inviter_role, inviter_name, senior_name, guardian_name)
-        VALUES (?, ?, ?, ?, ?)
-    """, (raw_code, payload.inviter_role, payload.inviter_name, senior_name, guardian_name))
-    conn.commit()
-    conn.close()
+    binding = models.SilverFamilyBinding(
+        invite_code=raw_code,
+        inviter_role=payload.inviter_role,
+        inviter_name=payload.inviter_name,
+        senior_name=senior_name,
+        guardian_name=guardian_name,
+        senior_phone=payload.target_phone,
+        status='PENDING'
+    )
+    db.add(binding)
+    db.commit()
+    db.refresh(binding)
 
     # 원클릭 접속 딥링크
     invite_url = f"/silver/senior-home?bind={raw_code}" if payload.inviter_role == 'GUARDIAN' else f"/silver/guardian?bind={raw_code}"
@@ -13233,46 +13220,22 @@ def create_silver_invite(payload: SilverInvitePayload):
     }
 
 @app.post("/api/silver/bind")
-def bind_silver_family(payload: SilverBindPayload):
+def bind_silver_family(payload: SilverBindPayload, db: Session = Depends(get_db)):
     clean_code = payload.invite_code.strip()
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS silver_family_bindings (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            invite_code TEXT UNIQUE NOT NULL,
-            inviter_role TEXT NOT NULL,
-            inviter_name TEXT NOT NULL,
-            senior_name TEXT,
-            guardian_name TEXT,
-            senior_phone TEXT,
-            guardian_phone TEXT,
-            status TEXT DEFAULT 'PENDING',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            bound_at TIMESTAMP
-        )
-    """)
+    binding = db.query(models.SilverFamilyBinding).filter(models.SilverFamilyBinding.invite_code == clean_code).first()
     
-    cursor.execute("SELECT id, inviter_role, senior_name, guardian_name, status FROM silver_family_bindings WHERE invite_code = ?", (clean_code,))
-    row = cursor.fetchone()
-    
-    if not row:
-        conn.close()
+    if not binding:
         raise HTTPException(status_code=404, detail="유효하지 않거나 만료된 효도 연결 코드입니다.")
 
-    binding_id, inviter_role, senior_name, guardian_name, current_status = row
-    
     # 바인딩 완료 업데이트
-    updated_senior = payload.user_name if payload.user_role == 'SENIOR' else senior_name
-    updated_guardian = payload.user_name if payload.user_role == 'GUARDIAN' else guardian_name
+    updated_senior = payload.user_name if payload.user_role == 'SENIOR' else binding.senior_name
+    updated_guardian = payload.user_name if payload.user_role == 'GUARDIAN' else binding.guardian_name
 
-    cursor.execute("""
-        UPDATE silver_family_bindings
-        SET status = 'BOUND', senior_name = ?, guardian_name = ?, bound_at = CURRENT_TIMESTAMP
-        WHERE id = ?
-    """, (updated_senior, updated_guardian, binding_id))
-    conn.commit()
-    conn.close()
+    binding.status = 'BOUND'
+    binding.senior_name = updated_senior
+    binding.guardian_name = updated_guardian
+    binding.bound_at = datetime.now()
+    db.commit()
 
     return {
         "status": "success",
@@ -13283,41 +13246,21 @@ def bind_silver_family(payload: SilverBindPayload):
     }
 
 @app.get("/api/silver/status")
-def get_silver_family_status(code: Optional[str] = None):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS silver_family_bindings (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            invite_code TEXT UNIQUE NOT NULL,
-            inviter_role TEXT NOT NULL,
-            inviter_name TEXT NOT NULL,
-            senior_name TEXT,
-            guardian_name TEXT,
-            senior_phone TEXT,
-            guardian_phone TEXT,
-            status TEXT DEFAULT 'PENDING',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            bound_at TIMESTAMP
-        )
-    """)
-    
+def get_silver_family_status(code: Optional[str] = None, db: Session = Depends(get_db)):
+    query = db.query(models.SilverFamilyBinding)
     if code:
-        cursor.execute("SELECT senior_name, guardian_name, status, bound_at, invite_code FROM silver_family_bindings WHERE invite_code = ? ORDER BY id DESC LIMIT 1", (code,))
+        row = query.filter(models.SilverFamilyBinding.invite_code == code.strip()).order_by(models.SilverFamilyBinding.id.desc()).first()
     else:
-        cursor.execute("SELECT senior_name, guardian_name, status, bound_at, invite_code FROM silver_family_bindings WHERE status = 'BOUND' ORDER BY id DESC LIMIT 1")
-    
-    row = cursor.fetchone()
-    conn.close()
+        row = query.filter(models.SilverFamilyBinding.status == 'BOUND').order_by(models.SilverFamilyBinding.id.desc()).first()
 
     if row:
         return {
-            "is_connected": (row[2] == 'BOUND'),
-            "senior_name": row[0],
-            "guardian_name": row[1],
-            "status": row[2],
-            "bound_at": row[3],
-            "invite_code": row[4]
+            "is_connected": (row.status == 'BOUND'),
+            "senior_name": row.senior_name,
+            "guardian_name": row.guardian_name,
+            "status": row.status,
+            "bound_at": row.bound_at.isoformat() if row.bound_at else None,
+            "invite_code": row.invite_code
         }
     return {
         "is_connected": False,
@@ -13327,8 +13270,8 @@ def get_silver_family_status(code: Optional[str] = None):
     }
 
 @app.post("/api/biz/verify")
-def verify_and_save_biz(payload: BizVerifyPayload, student_id: Optional[int] = None):
-    # 사업자등록번호 형식 검증 (10자리 숫자)
+def verify_and_save_biz(payload: BizVerifyPayload, student_id: Optional[int] = None, db: Session = Depends(get_db)):
+    # 1. 사업자등록번호 형식 검증 (10자리 숫자)
     clean_no = payload.biz_no.replace("-", "").strip()
     if len(clean_no) != 10 or not clean_no.isdigit():
         raise HTTPException(status_code=400, detail="올바른 사업자등록번호 10자리를 입력해주세요.")
@@ -13337,32 +13280,28 @@ def verify_and_save_biz(payload: BizVerifyPayload, student_id: Optional[int] = N
     if not clean_name:
         raise HTTPException(status_code=400, detail="상호명을 입력해주세요.")
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS biz_verifications (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            student_id INTEGER,
-            biz_name TEXT NOT NULL,
-            biz_no TEXT NOT NULL,
-            owner_name TEXT,
-            verified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    cursor.execute("""
-        INSERT INTO biz_verifications (student_id, biz_name, biz_no, owner_name)
-        VALUES (?, ?, ?, ?)
-    """, (student_id or 1, clean_name, clean_no, payload.owner_name or "대표자"))
-    conn.commit()
-    conn.close()
+    # 2. 국세청 사업자등록번호 체크섬 공식 검증
+    if not validate_korean_biz_no(clean_no):
+        raise HTTPException(status_code=400, detail="국세청 사업자등록번호 체크섬 검증에 실패했습니다. 올바른 사업자번호를 확인해주세요.")
+
+    # 3. 인증 내역 DB 저장
+    biz = models.BizVerification(
+        student_id=student_id or 1,
+        biz_name=clean_name,
+        biz_no=clean_no,
+        owner_name=payload.owner_name or "대표자"
+    )
+    db.add(biz)
+    db.commit()
+    db.refresh(biz)
 
     return {
         "status": "success",
         "message": f"'{clean_name}' 사업자 인증이 완료되었습니다. 자기중심 관계도에 BIZ-MATE 노드가 활성화됩니다.",
         "biz_name": clean_name,
-        "biz_no": clean_no
+        "biz_no": clean_no,
+        "owner_name": biz.owner_name
     }
-
 
 @app.get("/passmate")
 def get_passmate_page():

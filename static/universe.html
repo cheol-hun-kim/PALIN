@@ -480,11 +480,19 @@
                     closeBizVerifyModal();
                     alert(`'${name}' 사업자 인증이 완료되었습니다. 자기중심 관계도에 활성화되었습니다.`);
                 } else {
-                    const err = await res.json();
-                    alert(err.detail || '사업자 인증에 실패했습니다. 번호를 확인해주세요.');
+                    let errMsg = '사업자 인증에 실패했습니다. 번호를 확인해주세요.';
+                    try {
+                        const err = await res.json();
+                        if (err && err.detail) errMsg = err.detail;
+                    } catch (parseErr) {
+                        const rawText = await res.text().catch(() => '');
+                        if (rawText) errMsg = rawText;
+                    }
+                    alert(errMsg);
                 }
             } catch (err) {
-                alert('인증 서버 연결 중 오류가 발생했습니다.');
+                console.error("Biz verify connection error:", err);
+                alert('인증 서버 통신 중 문제가 발생했습니다. 네트워크 상태를 확인 후 다시 시도해주세요.');
             } finally {
                 if (btn) btn.innerHTML = '<span class="material-symbols-rounded text-sm">verified</span><span>사업자 인증 및 관계도에 활성화</span>';
             }

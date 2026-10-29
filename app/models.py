@@ -1202,3 +1202,33 @@ class StudentActivityFolderItem(Base):
 
     student = relationship("Student")
 
+# === 🏢 18. 사업자 인증 및 실버메이트 안심케어 바인딩 모델 ===
+
+class BizVerification(Base):
+    """사업자 인증 내역 모델 (BIZ-MATE 사업자등록번호 검증 연동)"""
+    __tablename__ = "biz_verifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    student_id = Column(Integer, nullable=True, index=True)
+    biz_name = Column(String, nullable=False)
+    biz_no = Column(String, nullable=False, index=True)
+    owner_name = Column(String, nullable=True)
+    verified_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class SilverFamilyBinding(Base):
+    """실버메이트 양방향 가족 연결 모델 (자녀 ⇄ 노부모 안심 케어 연결)"""
+    __tablename__ = "silver_family_bindings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    invite_code = Column(String, unique=True, nullable=False, index=True)
+    inviter_role = Column(String, nullable=False) # 'GUARDIAN' or 'SENIOR'
+    inviter_name = Column(String, nullable=False)
+    senior_name = Column(String, nullable=True)
+    guardian_name = Column(String, nullable=True)
+    senior_phone = Column(String, nullable=True)
+    guardian_phone = Column(String, nullable=True)
+    status = Column(String, default="PENDING", index=True) # 'PENDING' | 'BOUND'
+    bound_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
