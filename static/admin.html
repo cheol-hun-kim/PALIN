@@ -1180,7 +1180,7 @@
                                 <span id="admin-class-total-badge" style="font-size: 0.68rem; font-weight: 800; background: rgba(245, 158, 11, 0.2); color: #fbbf24; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(245, 158, 11, 0.4);">12개 분반 운영 중</span>
                             </div>
                             <div style="font-size: 0.72rem; color: #94a3b8;">
-                                과목, 담당 선생님, 요일/시간, 분반 비고를 등록하면 학생 앱 '정규 반 변경' 에타식 시간표에 실시간 반영됩니다.
+                                과목, 담당 선생님, 요일/시간, 분반 비고를 등록하면 학생 앱 '정규 반 변경' 주간 시간표에 실시간 반영됩니다.
                             </div>
                         </div>
                         <div style="display: flex; gap: 6px;">
@@ -1194,7 +1194,7 @@
                         </div>
                     </div>
 
-                    <!-- 대형학원 다수 수업 & 강사별 필터 & 에타식 뷰 스위처 툴바 -->
+                    <!-- 대형학원 다수 수업 & 강사별 필터 & 주간 시간표 뷰 스위처 툴바 -->
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
                         <!-- 좌측: 강사 드롭다운 & 과목 필터 -->
                         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
@@ -1218,7 +1218,7 @@
                             </div>
                         </div>
 
-                        <!-- 우측: 뷰 모드 스위처 (카드형 vs 에타식 주간 시간표) -->
+                        <!-- 우측: 뷰 모드 스위처 (카드형 vs 주간 시간표) -->
                         <div style="display: flex; gap: 4px; background: rgba(0,0,0,0.4); padding: 3px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
                             <button type="button" id="btn-admin-class-view-grid" onclick="switchAdminClassViewMode('GRID')" style="padding: 5px 12px; font-size: 0.74rem; font-weight: 800; background: #6366f1; color: #ffffff; border: 1px solid #818cf8; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;">
                                 <span class="material-symbols-rounded" style="font-size: 0.9rem;">grid_view</span>
@@ -1226,7 +1226,7 @@
                             </button>
                             <button type="button" id="btn-admin-class-view-timetable" onclick="switchAdminClassViewMode('TIMETABLE')" style="padding: 5px 12px; font-size: 0.74rem; font-weight: 800; background: transparent; color: #94a3b8; border: 1px solid transparent; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;">
                                 <span class="material-symbols-rounded" style="font-size: 0.9rem;">calendar_month</span>
-                                <span>📅 에타식 주간 시간표</span>
+                                <span>📅 주간 시간표</span>
                             </button>
                         </div>
                     </div>
@@ -1236,7 +1236,7 @@
                         <div style="font-size: 0.75rem; color: #94a3b8; padding: 15px 0;">수업 시간표를 불러오는 중입니다...</div>
                     </div>
 
-                    <!-- 2) 에타식 주간 시간표 뷰 (월~일 7열, 강사별/동시간대 다수 분반 완벽 대응) -->
+                    <!-- 2) 주간 종합 시간표 뷰 (월~일 7열, 강사별/동시간대 다수 분반 완벽 대응) -->
                     <div id="admin-classes-timetable-view" style="display: none; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; overflow-x: auto;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
                             <div style="display: flex; align-items: center; gap: 8px;">
@@ -1808,16 +1808,8 @@
                                     <span>재원생 성실도 순위 빌보드</span>
                                 </button>
                             </div>
-                            <!-- 카드 전체 접기/펼치기 버튼 -->
-                            <button type="button" onclick="toggleStudentCockpitCard()" id="btn-toggle-cockpit-card" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.74rem; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; border-color: rgba(129, 140, 248, 0.4); color: #818cf8; cursor: pointer;">
-                                <span id="text-toggle-cockpit-card">접기</span>
-                                <span class="material-symbols-rounded" id="icon-toggle-cockpit-card" style="font-size: 1rem; transition: transform 0.2s;">expand_less</span>
-                            </button>
                         </div>
                     </div>
-
-                    <!-- 접이식 바디 컨테이너 -->
-                    <div id="student-cockpit-collapsible-body">
                     <!-- VIEW 1: 원생 기본 명부 뷰 -->
                     <div id="student-cockpit-view-roster" style="display: block;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
@@ -1984,7 +1976,6 @@
                             </table>
                         </div>
                     </div>
-                    </div> <!-- student-cockpit-collapsible-body 끝 -->
                 </div>
 
                 <!-- 몰입 순공 실시간 피드는 개별 학생 활동기록에 적립되므로 대시보드에서는 숨김 처리 -->
@@ -9053,7 +9044,7 @@ function printStudentDossier() {
                         </div>
                     </div>
 
-                    <!-- 7열 에타 주간 그리드 본체 -->
+                    <!-- 7열 주간 그리드 본체 -->
                     <div id="print-sheet-timetable-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;">
                         <!-- 동적 렌더링 -->
                     </div>
@@ -11043,7 +11034,7 @@ window.executeBatchStudentActionDirect = executeBatchStudentActionDirect;
                         </div>
                     </div>
 
-                    <!-- 7열 에타 주간 그리드 본체 -->
+                    <!-- 7열 주간 그리드 본체 -->
                     <div id="print-sheet-timetable-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;">
                         <!-- 동적 렌더링 -->
                     </div>

@@ -6619,7 +6619,7 @@ def get_equivalent_classes(
         models.AcademyClassSchedule.start_time.asc()
     ).all()
 
-    # 에타식 시간표 렌더링에 적합한 메타데이터 가공
+    # 주간 시간표 렌더링에 적합한 메타데이터 가공
     timetable_blocks = []
     day_names = ["월", "화", "수", "목", "금", "토", "일"]
     for c in classes:

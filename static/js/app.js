@@ -21867,18 +21867,96 @@ if (typeof document !== 'undefined') {
 // ==============================================================================
 // 🎯 [ADMISSION TARGET MODAL] 목표 대학 및 광역(인서울/메디컬) 선택 모달 제어 함수
 // ==============================================================================
-function openAdmissionUnivSelectModal() {
+async function openAdmissionUnivSelectModal() {
     const modal = document.getElementById('admission-target-select-modal');
     if (!modal) return;
 
-    const tInput = document.getElementById('modal-target-univ-input');
-    const bInput = document.getElementById('modal-baseline-univ-input');
+    // 대학/학과 마스터 데이터가 아직 없으면 동기 로드
+    if (!UNIVERSITY_DEPARTMENTS || Object.keys(UNIVERSITY_DEPARTMENTS).length === 0) {
+        try {
+            const res = await fetch("/api/univ-data");
+            if (res.ok) {
+                UNIVERSITY_DEPARTMENTS = await res.json();
+            }
+        } catch (e) {
+            console.warn("fetchUnivData error:", e);
+        }
+    }
+
+    // 광역 프리셋 가상 대학 데이터 보강
+    if (UNIVERSITY_DEPARTMENTS) {
+        if (!UNIVERSITY_DEPARTMENTS["인서울 대학 (한성·서경·삼육·서울여대)"]) {
+            UNIVERSITY_DEPARTMENTS["인서울 대학 (한성·서경·삼육·서울여대)"] = ["(광역 전공)", "인문계열", "자연계열", "경영/사회계열", "IT/공학계열"];
+        }
+        if (!UNIVERSITY_DEPARTMENTS["메디컬 (의·치·한·약·수)"]) {
+            UNIVERSITY_DEPARTMENTS["메디컬 (의·치·한·약·수)"] = ["(광역 메디컬)", "의예과", "치의예과", "한의예과", "약학과", "수의예과"];
+        }
+    }
 
     const currentTarget = (window.currentStudent && window.currentStudent.target_univ) || localStorage.getItem("cached_target_univ") || "연세대학교 의예과";
     const currentBase = (window.currentStudent && window.currentStudent.baseline_univ) || localStorage.getItem("cached_baseline_univ") || "서울대학교 화학생물공학부";
 
-    if (tInput) tInput.value = currentTarget;
-    if (bInput) bInput.value = currentBase;
+    // 1지망 파싱
+    let tUniv = "", tDept = "";
+    if (currentTarget.includes("인서울")) {
+        tUniv = "인서울 대학 (한성·서경·삼육·서울여대)";
+        tDept = "(광역 전공)";
+    } else if (currentTarget.includes("메디컬")) {
+        tUniv = "메디컬 (의·치·한·약·수)";
+        tDept = "(광역 메디컬)";
+    } else {
+        const parts = currentTarget.trim().split(" ");
+        tUniv = parts[0] || "연세대학교";
+        tDept = parts.slice(1).join(" ") || "의예과";
+    }
+
+    // 마지노선 파싱
+    let bUniv = "", bDept = "";
+    if (currentBase.includes("인서울")) {
+        bUniv = "인서울 대학 (한성·서경·삼육·서울여대)";
+        bDept = "(광역 전공)";
+    } else if (currentBase.includes("메디컬")) {
+        bUniv = "메디컬 (의·치·한·약·수)";
+        bDept = "(광역 메디컬)";
+    } else {
+        const parts = currentBase.trim().split(" ");
+        bUniv = parts[0] || "서울대학교";
+        bDept = parts.slice(1).join(" ") || "화학생물공학부";
+    }
+
+    // 회원가입 모달과 100% 동일한 드롭다운 연결기 가동
+    setupUnivDeptSelectors("modal-target-univ", "modal-target-dept", tUniv, tDept);
+    setupUnivDeptSelectors("modal-baseline-univ", "modal-baseline-dept", bUniv, bDept);
+
+    // 변경 리스너를 달아 실시간 확정 결과 프리뷰 동기화
+    const tUnivEl = document.getElementById("modal-target-univ");
+    const tDeptEl = document.getElementById("modal-target-dept");
+    if (tUnivEl) {
+        const origChange = tUnivEl.onchange;
+        tUnivEl.onchange = () => {
+            if (origChange) origChange();
+            updateAdmissionModalPreview('TARGET');
+        };
+    }
+    if (tDeptEl) {
+        tDeptEl.onchange = () => updateAdmissionModalPreview('TARGET');
+    }
+
+    const bUnivEl = document.getElementById("modal-baseline-univ");
+    const bDeptEl = document.getElementById("modal-baseline-dept");
+    if (bUnivEl) {
+        const origChange = bUnivEl.onchange;
+        bUnivEl.onchange = () => {
+            if (origChange) origChange();
+            updateAdmissionModalPreview('BASELINE');
+        };
+    }
+    if (bDeptEl) {
+        bDeptEl.onchange = () => updateAdmissionModalPreview('BASELINE');
+    }
+
+    updateAdmissionModalPreview('TARGET');
+    updateAdmissionModalPreview('BASELINE');
 
     modal.style.display = 'flex';
 }
@@ -21890,26 +21968,120 @@ function closeAdmissionUnivSelectModal() {
 }
 window.closeAdmissionUnivSelectModal = closeAdmissionUnivSelectModal;
 
-function selectAdmissionTargetChip(type, univName) {
+function updateAdmissionModalPreview(type) {
     if (type === 'TARGET') {
-        const inp = document.getElementById('modal-target-univ-input');
-        if (inp) inp.value = univName;
+        const uEl = document.getElementById("modal-target-univ");
+        const dEl = document.getElementById("modal-target-dept");
+        const pEl = document.getElementById("modal-target-preview-text");
+        if (!pEl) return;
+        const u = (uEl && uEl.value) || "";
+        const d = (dEl && dEl.value) || "";
+        if (!u) { pEl.innerText = "대학 및 학과를 선택하세요"; return; }
+        if (u.includes("인서울") || u.includes("메디컬")) {
+            pEl.innerText = u;
+        } else {
+            const cleanD = (d && d !== '__CUSTOM__' && !d.startsWith('(') && d !== '학과 선택') ? d : '';
+            pEl.innerText = `${u} ${cleanD}`.trim();
+        }
     } else {
-        const inp = document.getElementById('modal-baseline-univ-input');
-        if (inp) inp.value = univName;
+        const uEl = document.getElementById("modal-baseline-univ");
+        const dEl = document.getElementById("modal-baseline-dept");
+        const pEl = document.getElementById("modal-baseline-preview-text");
+        if (!pEl) return;
+        const u = (uEl && uEl.value) || "";
+        const d = (dEl && dEl.value) || "";
+        if (!u) { pEl.innerText = "대학 및 학과를 선택하세요"; return; }
+        if (u.includes("인서울") || u.includes("메디컬")) {
+            pEl.innerText = u;
+        } else {
+            const cleanD = (d && d !== '__CUSTOM__' && !d.startsWith('(') && d !== '학과 선택') ? d : '';
+            pEl.innerText = `${u} ${cleanD}`.trim();
+        }
     }
+}
+window.updateAdmissionModalPreview = updateAdmissionModalPreview;
+
+function selectAdmissionTargetChip(type, univName) {
+    const isTarget = type === 'TARGET';
+    const univSelId = isTarget ? 'modal-target-univ' : 'modal-baseline-univ';
+    const deptSelId = isTarget ? 'modal-target-dept' : 'modal-baseline-dept';
+
+    let targetUniv = univName;
+    let targetDept = "";
+
+    if (univName === '인서울 대학' || univName.includes('인서울')) {
+        targetUniv = '인서울 대학 (한성·서경·삼육·서울여대)';
+        targetDept = '(광역 전공)';
+    } else if (univName === '메디컬' || univName.includes('메디컬')) {
+        targetUniv = '메디컬 (의·치·한·약·수)';
+        targetDept = '(광역 메디컬)';
+    } else if (univName.includes('서울대')) {
+        targetUniv = '서울대학교';
+        targetDept = isTarget ? '의예과' : '화학생물공학부';
+    } else if (univName.includes('연세대')) {
+        targetUniv = '연세대학교';
+        targetDept = isTarget ? '의예과' : '경영학과';
+    } else if (univName.includes('고려대')) {
+        targetUniv = '고려대학교';
+        targetDept = isTarget ? '의과대학' : '경영대학';
+    } else if (univName.includes('성균관대')) {
+        targetUniv = '성균관대학교';
+        targetDept = isTarget ? '의예과' : '반도체시스템공학과';
+    } else if (univName.includes('가천대')) {
+        targetUniv = '가천대학교';
+        targetDept = isTarget ? '의예과' : '간호학과';
+    } else {
+        targetUniv = univName;
+    }
+
+    setupUnivDeptSelectors(univSelId, deptSelId, targetUniv, targetDept);
+
+    // 리스너 재부착
+    const uEl = document.getElementById(univSelId);
+    const dEl = document.getElementById(deptSelId);
+    if (uEl) {
+        const origChange = uEl.onchange;
+        uEl.onchange = () => {
+            if (origChange) origChange();
+            updateAdmissionModalPreview(type);
+        };
+    }
+    if (dEl) {
+        dEl.onchange = () => updateAdmissionModalPreview(type);
+    }
+
+    updateAdmissionModalPreview(type);
 }
 window.selectAdmissionTargetChip = selectAdmissionTargetChip;
 
 async function handleSaveAdmissionTargets(e) {
     if (e && e.preventDefault) e.preventDefault();
-    const tVal = document.getElementById('modal-target-univ-input')?.value.trim();
-    const bVal = document.getElementById('modal-baseline-univ-input')?.value.trim();
 
-    if (!tVal || !bVal) {
-        alert("1지망과 마지노선 대학을 모두 입력해 주세요.");
+    const tUnivEl = document.getElementById('modal-target-univ');
+    const tDeptEl = document.getElementById('modal-target-dept');
+    const bUnivEl = document.getElementById('modal-baseline-univ');
+    const bDeptEl = document.getElementById('modal-baseline-dept');
+
+    const tUniv = tUnivEl?.value?.trim() || "";
+    let tDept = tDeptEl?.value?.trim() || "";
+    if (tDept === '__CUSTOM__' || tDept.startsWith('(') || tDept === '학과 선택') tDept = "";
+
+    const bUniv = bUnivEl?.value?.trim() || "";
+    let bDept = bDeptEl?.value?.trim() || "";
+    if (bDept === '__CUSTOM__' || bDept.startsWith('(') || bDept === '학과 선택') bDept = "";
+
+    if (!tUniv || !bUniv) {
+        alert("1지망 목표 대학과 안정 마지노선 대학을 모두 선택해 주세요.");
         return;
     }
+
+    const tVal = (tUniv.includes("인서울") || tUniv.includes("메디컬")) 
+        ? tUniv 
+        : `${tUniv} ${tDept}`.trim();
+
+    const bVal = (bUniv.includes("인서울") || bUniv.includes("메디컬")) 
+        ? bUniv 
+        : `${bUniv} ${bDept}`.trim();
 
     if (window.currentStudent) {
         window.currentStudent.target_univ = tVal;
