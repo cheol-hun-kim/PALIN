@@ -12125,6 +12125,7 @@ function switchAdmissionTab(tab) {
         }
 
     } else if (tab === 'report') {
+        showReportPrepModal();
 
         if (susiSection) susiSection.style.display = 'none';
 
@@ -13120,23 +13121,24 @@ let selectedReportTier = 3;
 
 let isVIPInPerson = false;
 
-function openReportTierModal() {
+function showReportPrepModal() {
+    const modal = document.getElementById("report-prep-modal");
+    if (modal) {
+        modal.style.display = "flex";
+    } else {
+        alert(`[서비스 준비 중 안내]
 
-    if (!currentStudent) return;
+현재 2027 수능 시즌 대비 맞춤형 대입 전략 백서 및 1:1 컨설팅 리포트 엔진의 정밀 고도화 작업이 진행 중입니다.
 
-    const modal = document.getElementById("report-tier-modal");
-
-    if (!modal) return;
-
-    document.getElementById("tier-modal-my-cash").innerText = (currentStudent.paid_cash || 0).toLocaleString();
-
-    document.getElementById("tier-modal-my-tickets").innerText = currentStudent.free_report_tickets || 0;
-
-    selectTier(3); // 기본값 Tier 3 BEST 선택
-
-    modal.style.display = "flex";
-
+불완전한 리포트 제공을 방지하기 위해 품질 검증을 거친 후 더욱 완성도 높은 리포트로 곧 정식 오픈될 예정입니다. 이용에 참고 부탁드립니다.`);
+    }
 }
+window.showReportPrepModal = showReportPrepModal;
+
+function openReportTierModal() {
+    showReportPrepModal();
+}
+window.openReportTierModal = openReportTierModal;
 
 function selectTier(tier) {
 
@@ -13255,6 +13257,8 @@ function updateTierModalPayAmount() {
 }
 
 async function executeTierOrder() {
+    showReportPrepModal();
+    return;
 
     if (!currentStudent) return;
 
