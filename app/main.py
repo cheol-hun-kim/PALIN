@@ -12230,6 +12230,77 @@ def sync_student_payment_status(payload: StudentPaymentSyncPayload, db: Session 
     }
 
 
+@app.get("/api/billing/sync-student-requests")
+def get_student_requests_for_sheet_sync(limit: int = 50, db: Session = Depends(get_db)):
+    """
+    구글 스프레드시트 출석부 자동 연동용 원생 행정신청(휴강, 요일변경, 동영상보강, 출결보강 등) 내역 조회 API
+    """
+    requests = db.query(models.AdministrativeRequest)\
+        .filter(models.AdministrativeRequest.deleted_at == None)\
+        .order_by(models.AdministrativeRequest.created_at.desc())\
+        .limit(limit)\
+        .all()
+
+    req_type_names = {
+        "VOD": "동영상 보강",
+        "ATTENDANCE": "보강/결석",
+        "CLASS_CHANGE": "수강 요일변경",
+        "LEAVE": "내신 휴강",
+        "RETURN": "정상 복귀"
+    }
+
+    result = []
+    for r in requests:
+        student = db.query(models.Student).filter(models.Student.id == r.student_id).first()
+        student_name = student.name if student else (r.student_name or f"학생#{r.student_id}")
+        student_phone = student.phone if student else ""
+        parent_phone = (student.parent.phone if (student and student.parent) else "") or ""
+
+        # Clean phone numbers
+        clean_s = re.sub(r"[^0-9]", "", str(student_phone or ""))
+        clean_p = re.sub(r"[^0-9]", "", str(parent_phone or ""))
+
+        type_kr = req_type_names.get(r.request_type, r.request_type)
+        date_str = r.target_date or (r.created_at.strftime("%m/%d") if r.created_at else "")
+        reason_str = r.leave_reason or r.details or ""
+
+        # Format summary memo to be appended to Google Sheet Column H (메모)
+        if r.request_type == "LEAVE":
+            summary_memo = f"[휴강: {date_str}] {reason_str}".strip()
+        elif r.request_type == "CLASS_CHANGE":
+            summary_memo = f"[반변경: {reason_str} ({date_str})]".strip()
+        elif r.request_type == "VOD":
+            summary_memo = f"[동영상보강: {date_str}] {reason_str}".strip()
+        elif r.request_type == "ATTENDANCE":
+            summary_memo = f"[보강/결석: {date_str}] {reason_str}".strip()
+        elif r.request_type == "RETURN":
+            summary_memo = f"[복귀완료: {date_str}]".strip()
+        else:
+            summary_memo = f"[{type_kr}: {date_str}] {reason_str}".strip()
+
+        result.append({
+            "id": r.id,
+            "student_id": r.student_id,
+            "student_name": student_name,
+            "student_phone": clean_s,
+            "parent_phone": clean_p,
+            "request_type": r.request_type,
+            "request_type_kr": type_kr,
+            "target_date": r.target_date or "",
+            "details": r.details or "",
+            "leave_reason": r.leave_reason or "",
+            "summary_memo": summary_memo,
+            "status": r.status,
+            "created_at": r.created_at.strftime("%Y-%m-%d %H:%M") if r.created_at else ""
+        })
+
+    return {
+        "status": "success",
+        "total": len(result),
+        "requests": result
+    }
+
+
 @app.post("/api/billing/tenant/settlement-account")
 def update_tenant_settlement_account(payload: SettlementAccountUpdatePayload, db: Session = Depends(get_db)):
     """

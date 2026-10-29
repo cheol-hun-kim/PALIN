@@ -5046,7 +5046,7 @@
 
                     tr.innerHTML = `
                         <td style="text-align: center;">
-                            <input type="checkbox" class="admin-student-row-cb" value="${s.id}" style="cursor: pointer;">
+                            <input type="checkbox" class="admin-student-row-cb admin-student-checkbox" value="${s.id}" style="cursor: pointer;">
                         </td>
                         <td>#${s.id}</td>
                         <td style="font-weight: 700; color: #f8fafc; white-space: nowrap;">
@@ -10768,7 +10768,7 @@ function handleStudentModalOpenFolder() {
 }
 
 function openBatchStatusModal() {
-    const checked = Array.from(document.querySelectorAll('.admin-student-checkbox:checked')).map(el => Number(el.value));
+    const checked = Array.from(document.querySelectorAll('.admin-student-row-cb:checked, .admin-student-checkbox:checked')).map(el => Number(el.value));
     if (checked.length === 0) {
         alert('선택된 원생이 없습니다. 명부 왼쪽의 체크박스를 1명 이상 선택해 주세요.');
         return;
@@ -10785,7 +10785,7 @@ function closeBatchStatusModal() {
 }
 
 async function executeBatchStudentActionDirect(action) {
-    const checked = Array.from(document.querySelectorAll('.admin-student-checkbox:checked')).map(el => Number(el.value));
+    const checked = Array.from(document.querySelectorAll('.admin-student-row-cb:checked, .admin-student-checkbox:checked')).map(el => Number(el.value));
     if (checked.length === 0) {
         alert('선택된 원생이 없습니다.');
         return;
