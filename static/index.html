@@ -193,6 +193,22 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
     filter: none !important;
     opacity: 0.75 !important;
 }
+
+        /* 🌌 자기중심 관계도 & SILVER-MATE 페르소나 격리 규칙:
+           - 학생(기본): 입시 몰입을 위해 관계도 및 SILVER 관련 일체 비노출 (Zero-Distraction)
+           - 학부모(body.role-parent) / 관리자: 자녀 입시 & 조부모 효도 양방향 관제 허브로 활성화
+        */
+        .hub-family-only {
+            display: none !important;
+        }
+        body.role-parent .hub-family-only,
+        body.role-admin .hub-family-only {
+            display: flex !important;
+        }
+        body.role-parent .hub-family-only-block,
+        body.role-admin .hub-family-only-block {
+            display: block !important;
+        }
 </style>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,900&family=Cinzel:wght@900&display=swap">
 <style>
@@ -836,8 +852,8 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <span class="logo-subtext">by PALIN</span>
                     </div>
                 </a>
-                <!-- PALIN 생태계 빠른 전환 캡슐 (자기중심 관계도 & SILVER-MATE 1초 전환) -->
-                <div style="display: flex; align-items: center; gap: 4px;">
+                <!-- PALIN 생태계 빠른 전환 캡슐 (학부모 전용 관제 허브) -->
+                <div class="hub-family-only" style="align-items: center; gap: 4px;">
                     <a href="/universe" class="btn" style="text-decoration: none; padding: 4px 7px; font-size: 0.72rem; font-weight: 800; background: rgba(99, 102, 241, 0.16); border: 1px solid rgba(99, 102, 241, 0.38); color: #c7d2fe; border-radius: 8px; display: inline-flex; align-items: center; gap: 3px;" title="나를 중심으로 펼쳐지는 12대 PALIN 자기중심 관계도">
                         <span class="material-symbols-rounded" style="font-size: 0.85rem; color: #818cf8;">hub</span>
                         <span>관계도</span>
@@ -960,7 +976,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <!-- ============================================================================== -->
                 <!-- 🌌 [HUB BANNER] 나(Hub) 중심 패밀리 관계도 & PASS/SILVER 1초 전환 대형 배너 -->
                 <!-- ============================================================================== -->
-                <a href="/universe" style="text-decoration: none; display: block; margin-bottom: 12px;" title="나를 중심으로 자녀 입시와 부모님 안부를 총괄하는 자기중심 관계도로 이동">
+                <a href="/universe" class="hub-family-only-block" style="text-decoration: none; margin-bottom: 12px;" title="나를 중심으로 자녀 입시와 부모님 안부를 총괄하는 자기중심 관계도로 이동">
                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 14px; background: linear-gradient(135deg, rgba(79, 70, 229, 0.3), rgba(15, 23, 42, 0.9)); border: 1.5px solid rgba(129, 140, 248, 0.5); box-shadow: 0 4px 18px rgba(79, 70, 229, 0.25); transition: all 0.2s ease;">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <span class="material-symbols-rounded" style="color: #a5b4fc; font-size: 1.6rem; background: rgba(99, 102, 241, 0.25); padding: 7px; border-radius: 10px; border: 1px solid rgba(129, 140, 248, 0.4);">hub</span>
@@ -995,7 +1011,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <span class="material-symbols-rounded" style="color: #818cf8; font-size: 1.25rem;">near_me</span>
                             <span style="font-size: 0.94rem; font-weight: 900; color: #ffffff; letter-spacing: -0.3px;" id="dist-headline-title">나와 대학까지의 거리</span>
-                            <a href="/universe" style="text-decoration: none; font-size: 0.72rem; color: #c7d2fe; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(129, 140, 248, 0.4); padding: 3px 8px; border-radius: 6px; font-weight: 800; display: inline-flex; align-items: center; gap: 3px;" title="나를 중심으로 자녀 입시와 부모님 안부를 총괄하는 자기중심 관계도로 이동">
+                            <a href="/universe" class="hub-family-only" style="text-decoration: none; font-size: 0.72rem; color: #c7d2fe; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(129, 140, 248, 0.4); padding: 3px 8px; border-radius: 6px; font-weight: 800; align-items: center; gap: 3px;" title="나를 중심으로 자녀 입시와 부모님 안부를 총괄하는 자기중심 관계도로 이동">
                                 <span class="material-symbols-rounded" style="font-size: 0.82rem;">hub</span>
                                 <span>자기중심 관계도 ↗</span>
                             </a>
@@ -4102,7 +4118,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <span class="material-symbols-rounded nav-icon">groups</span>
                 <span id="nav-label-page3">커뮤</span>
             </div>
-            <a href="/universe" class="nav-item" style="text-decoration: none; color: inherit;" title="나를 중심으로 자녀 입시와 부모님 안부를 총괄하는 자기중심 관계도">
+            <a href="/universe" class="nav-item hub-family-only" style="text-decoration: none; color: inherit; flex-direction: column;" title="나를 중심으로 자녀 입시와 부모님 안부를 총괄하는 자기중심 관계도">
                 <span class="material-symbols-rounded nav-icon" style="color: #818cf8;">hub</span>
                 <span style="color: #a5b4fc; font-weight: 800;">관계도</span>
             </a>
