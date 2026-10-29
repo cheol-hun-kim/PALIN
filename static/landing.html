@@ -138,10 +138,10 @@
 
       <!-- Dynamic Header Button -->
       <div class="flex items-center gap-2">
-        <a href="/app" id="header-btn-student" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-md shadow-purple-900/30 transition flex items-center gap-1.5">
+        <button type="button" onclick="openPassmateOnboardingModal('STUDENT')" id="header-btn-student" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-md shadow-purple-900/30 transition flex items-center gap-1.5 cursor-pointer">
           <span>학생 포털 시작</span>
           <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-        </a>
+        </button>
         <button onclick="showParentDemoModal()" id="header-btn-parent" class="hidden px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-md shadow-purple-900/30 transition flex items-center gap-1.5">
           <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
           <span>학부모 리포트 시연</span>
@@ -537,10 +537,10 @@
           더 이상 시행착오로 수험생활을 낭비하지 마세요.
         </h3>
         
-        <a href="/app" class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm shadow-lg shadow-purple-900/40 transition transform hover:scale-105">
+        <button type="button" onclick="openPassmateOnboardingModal('STUDENT')" class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm shadow-lg shadow-purple-900/40 transition transform hover:scale-105 cursor-pointer">
           <span>학생 전용 포털 무료로 시작하기</span>
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
-        </a>
+        </button>
       </div>
     </section>
 
@@ -943,9 +943,9 @@
               <li class="flex items-center gap-2 text-slate-500"><i data-lucide="minus" class="w-4 h-4 text-slate-600"></i><span>단일 전형 심층 진단 리포트 (16,900원 별도)</span></li>
             </ul>
           </div>
-          <a href="/app" class="mt-8 w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold text-center transition block">
+          <button type="button" onclick="openPassmateOnboardingModal('STUDENT')" class="mt-8 w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer">
             무료로 바로 시작
-          </a>
+          </button>
         </div>
 
         <!-- B2C Tier 2 -->
@@ -987,9 +987,9 @@
               <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-yellow-400"></i><span>대입 정밀 전략 올인원 백서 (풀 RAG)</span></li>
             </ul>
           </div>
-          <a href="/app" class="mt-8 w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold text-center shadow-md shadow-purple-900/30 transition block">
+          <button type="button" onclick="openPassmateOnboardingModal('STUDENT')" class="mt-8 w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer shadow-lg shadow-purple-900/30">
             마스터 풀패키지 시작
-          </a>
+          </button>
         </div>
 
       </div>

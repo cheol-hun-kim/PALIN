@@ -1,6 +1,32 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <!-- 🛡️ PALIN Unified Session Guard (Universe-First Flow) -->
+    <script>
+    (function() {
+        try {
+            var raw = localStorage.getItem("unified_user");
+            var token = localStorage.getItem("authToken");
+            var sid = localStorage.getItem("studentId");
+            var bypass = sessionStorage.getItem("passmate_dev_bypass");
+            
+            // 1. If not authenticated at all, redirect to / (Universe Hub triggers unified login modal)
+            if (!raw && !token && !sid && !bypass) {
+                window.location.replace('/');
+                return;
+            }
+            // 2. If logged in with unified user but not active in passmate, redirect to intro
+            if (raw) {
+                var u = JSON.parse(raw);
+                if (u && u.is_passmate_active === false && !sid && !bypass) {
+                    window.location.replace('/passmate/intro');
+                    return;
+                }
+            }
+        } catch(e) {}
+    })();
+    </script>
+
     <meta charset="UTF-8">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
@@ -408,7 +434,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             }
         </style>
 
-        <div id="register-overlay">
+        <div id="register-overlay" style="display: none !important;">
             <div class="auth-card-wrapper">
                 <!-- 브랜드 헤더 -->
                 <div style="text-align: center; margin-bottom: 4px;">
@@ -984,12 +1010,15 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <span class="material-symbols-rounded" style="color: #818cf8; font-size: 1.25rem;">near_me</span>
                             <span style="font-size: 0.94rem; font-weight: 900; color: #ffffff; letter-spacing: -0.3px;" id="dist-headline-title">나와 대학까지의 거리</span>
-                            
                         </div>
                         
-                        <!-- 우측 컨트롤: 종합 판정 뱃지 (기존 거추장스러운 버튼 제거) -->
+                        <!-- 우측 컨트롤: [내 성적 입력] 모달 팝업 버튼 + 종합 판정 뱃지 -->
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <div id="admission-dist-overall-badge" style="display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 12px; font-size: 0.76rem; font-weight: 900; background: rgba(239, 68, 68, 0.18); border: 1.5px solid #ef4444; color: #fca5a5;">
+                            <button type="button" onclick="openScoreInputModal()" id="btn-open-score-input" style="display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 10px; font-size: 0.76rem; font-weight: 800; background: rgba(99, 102, 241, 0.22); border: 1.5px solid rgba(129, 140, 248, 0.5); color: #e0e7ff; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(99,102,241,0.38)'" onmouseout="this.style.background='rgba(99,102,241,0.22)'">
+                                <span class="material-symbols-rounded" style="font-size: 0.95rem; color: #818cf8;">edit_note</span>
+                                <span>내 성적 입력</span>
+                            </button>
+                            <div id="admission-dist-overall-badge"  style="display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 12px; font-size: 0.76rem; font-weight: 900; background: rgba(239, 68, 68, 0.18); border: 1.5px solid #ef4444; color: #fca5a5;">
                                 <span class="material-symbols-rounded" style="font-size: 0.9rem;">warning</span>
                                 <span id="admission-dist-badge-text">위험</span>
                             </div>
@@ -1083,7 +1112,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     </div>
 
                     <!-- 4행: 표면 상시 노출 성적 정밀 입력/수정 바 (기존 거대 버튼 완전 대체 & 표면 즉시 입력) -->
-                    <div id="surface-score-input-container" style="background: rgba(15, 23, 42, 0.75); border: 1.5px solid rgba(99, 102, 241, 0.28); border-radius: 12px; padding: 12px 14px; margin-top: 10px; margin-bottom: 10px; box-sizing: border-box;">
+                    <div id="surface-score-input-container" style="display: none; background: rgba(15, 23, 42, 0.75); border: 1.5px solid rgba(99, 102, 241, 0.28); border-radius: 12px; padding: 12px 14px; margin-top: 10px; margin-bottom: 10px; box-sizing: border-box;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
                             <div style="display: flex; align-items: center; gap: 6px; font-size: 0.84rem; font-weight: 900; color: #e0e7ff;">
                                 <span class="material-symbols-rounded" style="color: #818cf8; font-size: 1.1rem;">tune</span>
@@ -6981,11 +7010,11 @@ document.addEventListener("DOMContentLoaded", function() {
                         </div>
                         <div>
                             <label style="font-size: 0.68rem; color: #94a3b8; display: block; margin-bottom: 3px;">전교 석차</label>
-                            <input type="number" min="1" max="1000" id="input-score-rank" class="form-input" placeholder="예: 12" style="width: 100%; box-sizing: border-box; text-align: center; font-weight: 800;" required>
+                            <input type="number" min="1" max="1000" id="input-score-rank" class="form-input" placeholder="선택 (기본: 15)" style="width: 100%; box-sizing: border-box; text-align: center; font-weight: 800;">
                         </div>
                         <div>
                             <label style="font-size: 0.68rem; color: #94a3b8; display: block; margin-bottom: 3px;">전교생 수</label>
-                            <input type="number" min="10" max="2000" id="input-score-total" class="form-input" placeholder="예: 280" style="width: 100%; box-sizing: border-box; text-align: center; font-weight: 800;" required>
+                            <input type="number" min="10" max="2000" id="input-score-total" class="form-input" placeholder="선택 (기본: 250)" style="width: 100%; box-sizing: border-box; text-align: center; font-weight: 800;">
                         </div>
                     </div>
                 </div>

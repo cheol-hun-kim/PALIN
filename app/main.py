@@ -13658,11 +13658,9 @@ STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file
 
 
 @app.get("/")
-def get_landing_page():
-    landing_path = os.path.join(STATIC_DIR, "landing.html")
-    if os.path.exists(landing_path):
-        return FileResponse(landing_path)
-    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+def get_portal_root():
+    # PALIN Portal -> Universe Hub (Ego-centric Universe)
+    return FileResponse(os.path.join(STATIC_DIR, "universe.html"))
 
 @app.get("/landing")
 def get_landing_alias():
@@ -13934,16 +13932,7 @@ def register_silver_senior_member(payload: SilverSeniorRegisterPayload, db: Sess
         "senior_name": payload.senior_name
     }
 
-@app.get("/")
-def get_root_page():
-    # PALIN Portal -> Universe Hub (나(Me) 중심 자기중심 관계도)
-    return FileResponse(os.path.join(STATIC_DIR, "universe.html"))
 
-@app.get("/universe")
-@app.get("/hub")
-@app.get("/family")
-def get_universe_page():
-    return FileResponse(os.path.join(STATIC_DIR, "universe.html"))
 
 @app.get("/passmate/intro")
 @app.get("/passmate/landing")
