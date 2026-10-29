@@ -10213,11 +10213,9 @@ def get_campus_occupation(student_id: Optional[int] = None, db: Session = Depend
         if not raw_name or raw_name.strip() in ["-", "미설정"]:
             return "목표대학 미설정", "#6366f1", "미설정"
         name = raw_name.strip()
-        if "메디컬" in name or "의예" in name or "의대" in name or "의학" in name or "치의" in name or "한의" in name or "약대" in name or "수의" in name:
-            return "메디컬 (의·치·한·약·수)", "#0ea5e9", "메디컬"
-        elif "인서울" in name or "한성" in name or "서경" in name or "삼육" in name or "서울여대" in name:
-            return "인서울 대학 (한성·서경·삼육·서울여대)", "#6366f1", "인서울"
-        elif "서울" in name or "SNU" in name.upper():
+        
+        # 1. 개별 대학 매칭 우선 (예: '연세대학교 의예과'는 '연세대학교'로 매칭)
+        if "서울" in name or "SNU" in name.upper():
             return "서울대학교", "#1e3a8a", "서울대"
         elif "연세" in name or "연대" in name:
             return "연세대학교", "#2563eb", "연세대"
@@ -10261,6 +10259,23 @@ def get_campus_occupation(student_id: Optional[int] = None, db: Session = Depend
             return "인하대학교", "#0369a1", "인하대"
         elif "가천" in name:
             return "가천대학교", "#0284c7", "가천대"
+        elif "이화" in name:
+            return "이화여자대학교", "#047857", "이화여대"
+        elif "숙명" in name:
+            return "숙명여자대학교", "#1e40af", "숙명여대"
+        elif "부산" in name:
+            return "부산대학교", "#1d4ed8", "부산대"
+        elif "경북" in name:
+            return "경북대학교", "#dc2626", "경북대"
+        elif "전남" in name:
+            return "전남대학교", "#059669", "전남대"
+        elif "충남" in name:
+            return "충남대학교", "#0284c7", "충남대"
+        # 2. 광역 프리셋 (특정 대학명이 없을 때만 적용, 긴 부연설명 없이 깔끔하게 '메디컬')
+        elif "메디컬" in name or "의예" in name or "의대" in name or "의학" in name or "치의" in name or "한의" in name or "약대" in name or "수의" in name:
+            return "메디컬", "#0ea5e9", "메디컬"
+        elif "인서울" in name or "한성" in name or "서경" in name or "삼육" in name or "서울여대" in name:
+            return "인서울 대학", "#6366f1", "인서울"
         else:
             first_word = name.split()[0] if name.split() else name
             return first_word, "#6366f1", first_word

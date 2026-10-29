@@ -21222,9 +21222,9 @@ async function handleSaveSurfaceScores(e) {
     }
 
     if (typeof showPalinToast === 'function') {
-        showPalinToast('내신 및 모의고사 성적이 반영되었습니다. 5갈래 입시 노선도가 갱신됩니다.', 'SUCCESS');
+        showPalinToast('내신 및 모의고사 성적이 반영되었습니다. 맞춤 대입 컨설팅(등대) 분석이 갱신됩니다.', 'SUCCESS');
     } else {
-        alert('정밀 성적이 저장되었습니다. 5갈래 입시 경로가 즉시 재계산됩니다.');
+        alert('정밀 성적이 저장되었습니다. 맞춤 대입 컨설팅(등대) 분석이 즉시 재계산됩니다.');
     }
 
     renderAdmissionPathEngine();
@@ -21234,8 +21234,8 @@ window.handleSaveSurfaceScores = handleSaveSurfaceScores;
 // 광역 목표 간편 원클릭 프리셋 적용 핸들러 (인서울 대학 vs 메디컬 전체)
 async function quickApplyBroadTarget(type) {
     const broadName = (type === 'SEOUL') 
-        ? "인서울 대학 (한성·서경·삼육·서울여대)" 
-        : "메디컬 (의·치·한·약·수)";
+        ? "인서울 대학" 
+        : "메디컬";
     
     if (currentAdmissionViewTarget === 'TARGET') {
         localStorage.setItem("cached_target_univ", broadName);
@@ -21262,7 +21262,7 @@ async function quickApplyBroadTarget(type) {
     }
 
     if (typeof showPalinToast === 'function') {
-        showPalinToast(`목표가 '${broadName}'(으)로 설정되었습니다. 5갈래 합격선이 즉시 재계산됩니다.`, 'SUCCESS');
+        showPalinToast(`목표가 '${broadName}'(으)로 설정되었습니다. 맞춤 대입 합격선이 즉시 재계산됩니다.`, 'SUCCESS');
     }
     renderAdmissionPathEngine();
 }
@@ -21421,9 +21421,9 @@ async function handleSavePreciseScores(e) {
     closeScoreInputModal();
 
     if (typeof showPalinToast === 'function') {
-        showPalinToast('내신 및 모의고사 성적이 반영되었습니다. 5갈래 입시 노선도가 갱신됩니다.', 'SUCCESS');
+        showPalinToast('내신 및 모의고사 성적이 반영되었습니다. 맞춤 대입 컨설팅(등대) 분석이 갱신됩니다.', 'SUCCESS');
     } else {
-        alert('정밀 성적이 저장되었습니다. 5갈래 입시 경로가 즉시 재계산됩니다.');
+        alert('정밀 성적이 저장되었습니다. 맞춤 대입 컨설팅(등대) 분석이 즉시 재계산됩니다.');
     }
 
     renderAdmissionPathEngine();
@@ -21455,8 +21455,29 @@ function renderAdmissionPathEngine() {
         total_network_hours: 128
     };
 
-    const targetUnivName = data.target_info?.univ_name || localTarget;
-    const baselineUnivName = data.baseline_info?.univ_name || localBaseline;
+    function cleanUnivDisplay(name) {
+        if (!name) return "목표대 미설정";
+        let s = name.trim();
+        if (s.includes("메디컬")) return "메디컬";
+        if (s.includes("인서울")) return "인서울 대학";
+        const known = [
+            "서울대학교", "연세대학교", "고려대학교", "성균관대학교", "서강대학교",
+            "한양대학교", "중앙대학교", "경희대학교", "한국외국어대학교", "서울시립대학교",
+            "건국대학교", "동국대학교", "홍익대학교", "국민대학교", "숭실대학교",
+            "세종대학교", "단국대학교", "아주대학교", "인하대학교", "가천대학교",
+            "이화여자대학교", "숙명여자대학교", "부산대학교", "경북대학교", "전남대학교", "충남대학교",
+            "KAIST", "POSTECH", "카이스트", "포스텍"
+        ];
+        for (const u of known) {
+            if (s.includes(u)) return u;
+        }
+        const parts = s.split(" ");
+        if (parts[0].includes("대")) return parts[0];
+        return parts[0];
+    }
+
+    const targetUnivName = cleanUnivDisplay(data.target_info?.univ_name || localTarget);
+    const baselineUnivName = cleanUnivDisplay(data.baseline_info?.univ_name || localBaseline);
 
     const targetEl1 = document.getElementById('dist-target-univ-name');
     const targetEl2 = document.getElementById('dist-baseline-univ-name');
@@ -21569,7 +21590,6 @@ function renderAdmissionPathEngine() {
         else if (activeUnivName.includes("서울")) shortText = "서울대";
         else if (activeUnivName.includes("연세")) shortText = "연세대";
         else if (activeUnivName.includes("고려")) shortText = "고려대";
-        else if (activeUnivName.includes("의예") || activeUnivName.includes("의대")) shortText = "의예과";
         else if (activeUnivName.includes("성균관")) shortText = "성균관대";
         else if (activeUnivName.includes("서강")) shortText = "서강대";
         else if (activeUnivName.includes("한양")) shortText = "한양대";
@@ -22020,12 +22040,14 @@ async function openAdmissionUnivSelectModal() {
 
     // 광역 프리셋 가상 대학 데이터 보강
     if (UNIVERSITY_DEPARTMENTS) {
-        if (!UNIVERSITY_DEPARTMENTS["인서울 대학 (한성·서경·삼육·서울여대)"]) {
-            UNIVERSITY_DEPARTMENTS["인서울 대학 (한성·서경·삼육·서울여대)"] = ["(광역 전공)", "인문계열", "자연계열", "경영/사회계열", "IT/공학계열"];
+        if (!UNIVERSITY_DEPARTMENTS["인서울 대학"]) {
+            UNIVERSITY_DEPARTMENTS["인서울 대학"] = ["(광역 전공)", "인문계열", "자연계열", "경영/사회계열", "IT/공학계열"];
         }
-        if (!UNIVERSITY_DEPARTMENTS["메디컬 (의·치·한·약·수)"]) {
-            UNIVERSITY_DEPARTMENTS["메디컬 (의·치·한·약·수)"] = ["(광역 메디컬)", "의예과", "치의예과", "한의예과", "약학과", "수의예과"];
+        if (!UNIVERSITY_DEPARTMENTS["메디컬"]) {
+            UNIVERSITY_DEPARTMENTS["메디컬"] = ["(광역 메디컬)", "의예과", "치의예과", "한의예과", "약학과", "수의예과"];
         }
+        UNIVERSITY_DEPARTMENTS["인서울 대학 (한성·서경·삼육·서울여대)"] = UNIVERSITY_DEPARTMENTS["인서울 대학"];
+        UNIVERSITY_DEPARTMENTS["메디컬 (의·치·한·약·수)"] = UNIVERSITY_DEPARTMENTS["메디컬"];
     }
 
     const currentTarget = (window.currentStudent && window.currentStudent.target_univ) || localStorage.getItem("cached_target_univ") || "연세대학교 의예과";
@@ -22034,10 +22056,10 @@ async function openAdmissionUnivSelectModal() {
     // 1지망 파싱
     let tUniv = "", tDept = "";
     if (currentTarget.includes("인서울")) {
-        tUniv = "인서울 대학 (한성·서경·삼육·서울여대)";
+        tUniv = "인서울 대학";
         tDept = "(광역 전공)";
     } else if (currentTarget.includes("메디컬")) {
-        tUniv = "메디컬 (의·치·한·약·수)";
+        tUniv = "메디컬";
         tDept = "(광역 메디컬)";
     } else {
         const parts = currentTarget.trim().split(" ");
@@ -22048,10 +22070,10 @@ async function openAdmissionUnivSelectModal() {
     // 마지노선 파싱
     let bUniv = "", bDept = "";
     if (currentBase.includes("인서울")) {
-        bUniv = "인서울 대학 (한성·서경·삼육·서울여대)";
+        bUniv = "인서울 대학";
         bDept = "(광역 전공)";
     } else if (currentBase.includes("메디컬")) {
-        bUniv = "메디컬 (의·치·한·약·수)";
+        bUniv = "메디컬";
         bDept = "(광역 메디컬)";
     } else {
         const parts = currentBase.trim().split(" ");
@@ -22145,10 +22167,10 @@ function selectAdmissionTargetChip(type, univName) {
     let targetDept = "";
 
     if (univName === '인서울 대학' || univName.includes('인서울')) {
-        targetUniv = '인서울 대학 (한성·서경·삼육·서울여대)';
+        targetUniv = '인서울 대학';
         targetDept = '(광역 전공)';
     } else if (univName === '메디컬' || univName.includes('메디컬')) {
-        targetUniv = '메디컬 (의·치·한·약·수)';
+        targetUniv = '메디컬';
         targetDept = '(광역 메디컬)';
     } else if (univName.includes('서울대')) {
         targetUniv = '서울대학교';
