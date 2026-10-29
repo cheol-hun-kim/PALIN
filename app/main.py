@@ -1431,7 +1431,7 @@ def get_unified_status(user_id: Optional[int] = None, phone: Optional[str] = Non
                         "is_active": True,
                         "role": "STUDENT",
                         "label": f"{st.high_school or '고교'} {st.grade or '수험생'}",
-                        "dashboard_url": "/"
+                        "dashboard_url": "/passmate"
                     },
                     "bizmate": {"is_active": False, "biz_name": None},
                     "silvermate": {"is_active": False}
@@ -1577,7 +1577,7 @@ def activate_passmate_module(payload: schemas.PassMateActivateRequest, db: Sessi
             "message": f"'{user.name}' 학생의 PASS-MATE 입시 & 루틴 관제가 활성화되었습니다!",
             "role": "STUDENT",
             "student_id": existing_st.id,
-            "dashboard_url": "/"
+            "dashboard_url": "/passmate"
         }
 
     elif role == "PARENT":
@@ -13893,6 +13893,67 @@ def get_silver_guardian():
 @app.get("/silvermate/photo-album")
 def get_silver_photo_album():
     return FileResponse(os.path.join(STATIC_DIR, "silver", "photo-album.html"))
+
+class SilverSeniorRegisterPayload(BaseModel):
+    user_id: Optional[int] = None
+    guardian_name: str
+    guardian_phone: str
+    senior_name: str
+    senior_phone: Optional[str] = None
+    relationship: Optional[str] = "부모님"
+    medical_condition: Optional[str] = None
+    medication_times: Optional[str] = None
+
+@app.post("/api/silver/register")
+def register_silver_senior_member(payload: SilverSeniorRegisterPayload, db: Session = Depends(get_db)):
+    clean_g_phone = re.sub(r'[^0-9]', '', payload.guardian_phone)
+    clean_s_phone = re.sub(r'[^0-9]', '', payload.senior_phone or "")
+    
+    import random
+    code = f"{random.randint(100, 999)}-{random.randint(100, 999)}"
+    
+    binding = models.SilverFamilyBinding(
+        invite_code=code,
+        inviter_role="GUARDIAN",
+        inviter_name=payload.guardian_name,
+        senior_name=payload.senior_name,
+        guardian_name=payload.guardian_name,
+        senior_phone=clean_s_phone,
+        guardian_phone=clean_g_phone,
+        status="BOUND",
+        bound_at=datetime.utcnow()
+    )
+    db.add(binding)
+    db.commit()
+    db.refresh(binding)
+    
+    return {
+        "status": "success",
+        "message": f"'{payload.senior_name}' 부모님 안심 케어가 정상 등록되었습니다. 자기중심 관계도에 SILVER-MATE가 활성화됩니다.",
+        "invite_code": code,
+        "senior_name": payload.senior_name
+    }
+
+@app.get("/")
+def get_root_page():
+    # PALIN Portal -> Universe Hub (나(Me) 중심 자기중심 관계도)
+    return FileResponse(os.path.join(STATIC_DIR, "universe.html"))
+
+@app.get("/universe")
+@app.get("/hub")
+@app.get("/family")
+def get_universe_page():
+    return FileResponse(os.path.join(STATIC_DIR, "universe.html"))
+
+@app.get("/passmate/intro")
+@app.get("/passmate/landing")
+def get_passmate_intro_page():
+    return FileResponse(os.path.join(STATIC_DIR, "landing.html"))
+
+@app.get("/silvermate/intro")
+@app.get("/silver/intro")
+def get_silver_intro_page():
+    return FileResponse(os.path.join(STATIC_DIR, "silver", "intro.html"))
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
 

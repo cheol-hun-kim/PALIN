@@ -709,7 +709,7 @@
           자녀의 정직한 노력, 투명하게 확인하세요.
         </h3>
         
-        <button onclick="showParentDemoModal()" class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm shadow-lg shadow-purple-900/40 transition transform hover:scale-105">
+        <button onclick="openLandingOnboardingModal()" class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold cursor-pointer">
           <i data-lucide="smartphone" class="w-4 h-4"></i>
           <span>학부모 안심 리포트 시뮬레이션 열기</span>
         </button>
@@ -1761,5 +1761,266 @@
       lucide.createIcons();
     }
   </script>
+
+<!-- ====================================================================== -->
+<!-- 🎯 PASS-MATE 상세 등록 온보딩 모달 (시작하기 클릭 시) -->
+<!-- ====================================================================== -->
+<div id="passmate-onboarding-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
+    <div class="bg-[#0f172a] border-2 border-emerald-500/50 rounded-2xl p-6 w-full max-w-lg shadow-2xl relative max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+            <div class="flex items-center gap-2.5">
+                <span class="material-symbols-rounded text-emerald-400 text-2xl">school</span>
+                <div>
+                    <h3 class="text-base font-black text-white">PASS-MATE 상세 등록 및 시작하기</h3>
+                    <p class="text-[11px] text-slate-400">초·중·고 학업 루틴 &amp; 대입 5갈래 관제망을 연결합니다.</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeLandingOnboardingModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+        </div>
+
+        <!-- 기본 정보 확인 (이름, 연락처, 이메일) -->
+        <div class="bg-slate-900/90 border border-slate-700/60 rounded-xl p-3 mb-4 space-y-1.5">
+            <div class="text-[10.5px] font-extrabold text-slate-400">기본 연동 계정</div>
+            <div class="grid grid-cols-3 gap-2 text-xs">
+                <div>
+                    <span class="text-[10px] text-slate-500 block">이름</span>
+                    <span class="font-bold text-white truncate block" id="pm-prefill-name">-</span>
+                </div>
+                <div>
+                    <span class="text-[10px] text-slate-500 block">연락처</span>
+                    <span class="font-bold text-white truncate block" id="pm-prefill-phone">-</span>
+                </div>
+                <div>
+                    <span class="text-[10px] text-slate-500 block">이메일</span>
+                    <span class="font-bold text-white truncate block" id="pm-prefill-email">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 페르소나 선택 탭 (학생 / 학부모 / 학원장) -->
+        <div class="mb-4">
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">이용 목적 (페르소나) 선택</label>
+            <div class="grid grid-cols-3 gap-2">
+                <button type="button" id="btn-role-student" onclick="selectLandingRole('STUDENT')" class="py-2.5 px-2 rounded-xl text-xs font-black border-2 border-emerald-500 bg-emerald-500/20 text-emerald-300 transition flex flex-col items-center gap-1 cursor-pointer">
+                    <span class="material-symbols-rounded text-lg">person</span>
+                    <span>학생 (본인)</span>
+                </button>
+                <button type="button" id="btn-role-parent" onclick="selectLandingRole('PARENT')" class="py-2.5 px-2 rounded-xl text-xs font-bold border border-slate-700 bg-slate-900 text-slate-300 hover:text-white transition flex flex-col items-center gap-1 cursor-pointer">
+                    <span class="material-symbols-rounded text-lg">family_restroom</span>
+                    <span>학부모 (보호자)</span>
+                </button>
+                <button type="button" id="btn-role-director" onclick="selectLandingRole('DIRECTOR')" class="py-2.5 px-2 rounded-xl text-xs font-bold border border-slate-700 bg-slate-900 text-slate-300 hover:text-white transition flex flex-col items-center gap-1 cursor-pointer">
+                    <span class="material-symbols-rounded text-lg">admin_panel_settings</span>
+                    <span>학원장 (B2B)</span>
+                </button>
+            </div>
+        </div>
+
+        <form onsubmit="handleLandingOnboardSubmit(event)" class="space-y-3.5">
+            <!-- 1. 학생 섹션 -->
+            <div id="section-role-student" class="space-y-3">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">고등학교 성명</label>
+                        <input type="text" id="pm-st-school" placeholder="예: 낙생고등학교" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">학년</label>
+                        <select id="pm-st-grade" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                            <option value="1">1학년</option>
+                            <option value="2">2학년</option>
+                            <option value="3" selected>3학년</option>
+                            <option value="4">N수생</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">1지망 희망대학</label>
+                        <input type="text" id="pm-st-target" placeholder="예: 연세대학교 의예과" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">마지노선 대학</label>
+                        <input type="text" id="pm-st-baseline" placeholder="예: 서울대 화학생물공학부" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">학원 코드 (선택)</label>
+                        <input type="text" id="pm-st-academy" placeholder="일원학원 등 소속코드" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">학부모님 연락처</label>
+                        <input type="tel" id="pm-st-parent-phone" placeholder="010-0000-0000" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 학부모 섹션 -->
+            <div id="section-role-parent" style="display: none;" class="space-y-3">
+                <div class="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-[11px] text-emerald-300 leading-relaxed">
+                    자녀분의 이름과 연락처를 입력하시면 실시간 학습량 및 출결 안심 알림이 연결됩니다.
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">자녀 이름</label>
+                    <input type="text" id="pm-pa-child-name" placeholder="예: 김철훈" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">자녀 연락처</label>
+                    <input type="tel" id="pm-pa-child-phone" placeholder="010-0000-0000" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                </div>
+            </div>
+
+            <!-- 3. 학원장 섹션 -->
+            <div id="section-role-director" style="display: none;" class="space-y-3">
+                <div class="p-3 rounded-xl bg-amber-950/50 border border-amber-500/40 text-xs text-amber-200 leading-relaxed">
+                    <div class="font-black text-amber-300 mb-1 flex items-center gap-1">
+                        <span class="material-symbols-rounded text-sm">lock</span>
+                        <span>학원장 관제실 B2B 라이선스 안내</span>
+                    </div>
+                    학원장 관제실은 B2B 엔터프라이즈 결제 승인 후 활성화됩니다. 신청 접수 후 본사 승인 절차가 진행됩니다.
+                    <div class="mt-2 text-[11px] text-amber-300/90 font-bold">
+                        승인 문의: 1286ok@naver.com · 직통: 010-5527-2979
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">학원명 (상호)</label>
+                    <input type="text" id="pm-dir-academy-name" placeholder="예: 일원학원 대치본원" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">학원 소재지 (지역)</label>
+                    <input type="text" id="pm-dir-region" placeholder="예: 서울 강남구 대치동" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <button type="submit" id="btn-submit-pm-activate" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black shadow-lg shadow-emerald-900/30 transition flex items-center justify-center gap-1.5 cursor-pointer">
+                    <span class="material-symbols-rounded text-sm">verified</span>
+                    <span id="btn-submit-pm-text">PASS-MATE 시작하기</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    let selectedLandingRole = 'STUDENT';
+
+    function openLandingOnboardingModal() {
+        const rawUser = localStorage.getItem("unified_user");
+        let currentUser = null;
+        if (rawUser) {
+            try { currentUser = JSON.parse(rawUser); } catch(e) {}
+        }
+
+        if (!currentUser || !currentUser.id) {
+            alert('로그인 또는 간편가입 후 상세 등록을 진행하실 수 있습니다. 통합 허브로 이동합니다.');
+            location.href = '/?action=login';
+            return;
+        }
+
+        document.getElementById('pm-prefill-name').innerText = currentUser.name || '-';
+        document.getElementById('pm-prefill-phone').innerText = currentUser.phone || '-';
+        document.getElementById('pm-prefill-email').innerText = currentUser.email || '-';
+
+        selectLandingRole('STUDENT');
+        const modal = document.getElementById('passmate-onboarding-modal');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeLandingOnboardingModal() {
+        const modal = document.getElementById('passmate-onboarding-modal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    function selectLandingRole(role) {
+        selectedLandingRole = role;
+        const btnSt = document.getElementById('btn-role-student');
+        const btnPa = document.getElementById('btn-role-parent');
+        const btnDir = document.getElementById('btn-role-director');
+        const secSt = document.getElementById('section-role-student');
+        const secPa = document.getElementById('section-role-parent');
+        const secDir = document.getElementById('section-role-director');
+
+        [btnSt, btnPa, btnDir].forEach(b => {
+            if (b) b.className = 'py-2.5 px-2 rounded-xl text-xs font-bold border border-slate-700 bg-slate-900 text-slate-300 hover:text-white transition flex flex-col items-center gap-1 cursor-pointer';
+        });
+
+        if (secSt) secSt.style.display = 'none';
+        if (secPa) secPa.style.display = 'none';
+        if (secDir) secDir.style.display = 'none';
+
+        if (role === 'STUDENT') {
+            if (btnSt) btnSt.className = 'py-2.5 px-2 rounded-xl text-xs font-black border-2 border-emerald-500 bg-emerald-500/20 text-emerald-300 transition flex flex-col items-center gap-1 cursor-pointer';
+            if (secSt) secSt.style.display = 'block';
+        } else if (role === 'PARENT') {
+            if (btnPa) btnPa.className = 'py-2.5 px-2 rounded-xl text-xs font-black border-2 border-emerald-500 bg-emerald-500/20 text-emerald-300 transition flex flex-col items-center gap-1 cursor-pointer';
+            if (secPa) secPa.style.display = 'block';
+        } else if (role === 'DIRECTOR') {
+            if (btnDir) btnDir.className = 'py-2.5 px-2 rounded-xl text-xs font-black border-2 border-amber-500 bg-amber-500/20 text-amber-300 transition flex flex-col items-center gap-1 cursor-pointer';
+            if (secDir) secDir.style.display = 'block';
+        }
+    }
+
+    async function handleLandingOnboardSubmit(e) {
+        e.preventDefault();
+        const rawUser = localStorage.getItem("unified_user");
+        let currentUser = null;
+        if (rawUser) {
+            try { currentUser = JSON.parse(rawUser); } catch(e) {}
+        }
+        if (!currentUser || !currentUser.id) return alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+
+        const payload = {
+            user_id: currentUser.id,
+            role: selectedLandingRole
+        };
+
+        if (selectedLandingRole === 'STUDENT') {
+            payload.high_school = document.getElementById('pm-st-school').value.trim();
+            payload.grade = document.getElementById('pm-st-grade').value;
+            payload.target_univ_1 = document.getElementById('pm-st-target').value.trim();
+            payload.target_univ_fail = document.getElementById('pm-st-baseline').value.trim();
+            payload.academy_code = document.getElementById('pm-st-academy').value.trim();
+            payload.parent_phone = document.getElementById('pm-st-parent-phone').value.trim();
+        } else if (selectedLandingRole === 'PARENT') {
+            payload.child_name = document.getElementById('pm-pa-child-name').value.trim();
+            payload.child_phone = document.getElementById('pm-pa-child-phone').value.trim();
+        } else if (selectedLandingRole === 'DIRECTOR') {
+            payload.academy_name = document.getElementById('pm-dir-academy-name').value.trim();
+            payload.academy_region = document.getElementById('pm-dir-region').value.trim();
+        }
+
+        const btn = document.getElementById('btn-submit-pm-activate');
+        if (btn) btn.innerText = '등록 중...';
+
+        try {
+            const res = await fetch('/api/passmate/activate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (res.ok) {
+                if (data.is_locked) {
+                    alert(`${data.message}\n\n[본사 승인 문의]\n이메일: ${data.contact_email}\n직통전화: ${data.contact_phone}`);
+                    location.href = '/';
+                } else {
+                    alert(data.message || 'PASS-MATE 등록이 완료되었습니다. 메인 대시보드로 이동합니다!');
+                    location.href = '/passmate';
+                }
+            } else {
+                alert(data.detail || '등록 처리에 실패했습니다.');
+            }
+        } catch (err) {
+            alert('서버 연결 중 오류가 발생했습니다.');
+        } finally {
+            if (btn) btn.innerText = 'PASS-MATE 시작하기';
+        }
+    }
+</script>
+
 </body>
 </html>

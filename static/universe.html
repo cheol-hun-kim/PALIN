@@ -132,157 +132,163 @@
 
         <!-- 인터랙티브 자기중심 시각적 관계도 다이어그램 -->
         <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
                 <div>
-                    <h3 class="text-lg font-black text-white flex items-center gap-2">
-                        <span class="material-symbols-rounded text-indigo-400">explore</span>
+                    <h3 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                        <span class="material-symbols-rounded text-indigo-400 text-xl">explore</span>
                         <span>실시간 패밀리 오빗 (Ego-centric Live Orbit Map)</span>
                     </h3>
-                    <p class="text-xs text-slate-400 mt-0.5">실제 나와 연결된 서비스만 궤도에 활성화됩니다. 미등록 서비스는 '+ 추가하기'를 눌러 연결하세요.</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">실제 나와 연결된 서비스만 궤도에 활성화됩니다. 미등록 서비스는 '+ 추가하기'를 눌러 연결하세요.</p>
                 </div>
-                <div class="flex items-center gap-2 text-xs">
-                    <span class="inline-flex items-center gap-1 text-emerald-400" id="orbit-status-pass"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> PASS-MATE 연동</span>
-                    <span class="inline-flex items-center gap-1 text-pink-400 ml-2" id="orbit-status-silver"><span class="w-2 h-2 rounded-full bg-pink-500"></span> SILVER-MATE 연동</span>
+                <div class="flex items-center gap-2 text-xs flex-wrap sm:flex-nowrap">
+                    <span class="inline-flex items-center gap-1.5 text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full whitespace-nowrap" id="orbit-status-pass">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        <span>PASS-MATE</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 text-pink-400 bg-pink-500/10 border border-pink-500/20 px-2.5 py-1 rounded-full whitespace-nowrap" id="orbit-status-silver">
+                        <span class="w-1.5 h-1.5 rounded-full bg-pink-500"></span>
+                        <span>SILVER-MATE</span>
+                    </span>
                 </div>
             </div>
 
-            <!-- SVG & 우주 노드 관계도 캔버스 -->
-            <div class="relative w-full min-h-[460px] md:min-h-[500px] bg-slate-950/80 rounded-2xl border border-slate-800/80 flex items-center justify-center p-4 overflow-hidden">
+            <!-- SVG & 우주 노드 관계도 캔버스 (모바일 겹침 100% 방지 컴팩트 궤도) -->
+            <div class="relative w-full min-h-[440px] sm:min-h-[500px] bg-slate-950/80 rounded-2xl border border-slate-800/80 flex items-center justify-center p-2 sm:p-4 overflow-hidden">
                 <!-- 동심원 궤도선 (CSS) -->
                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div class="w-[260px] h-[260px] md:w-[320px] md:h-[320px] rounded-full border border-indigo-500/15"></div>
-                    <div class="absolute w-[440px] h-[440px] md:w-[540px] md:h-[540px] rounded-full border border-dashed border-slate-800/80"></div>
+                    <div class="w-[200px] h-[200px] sm:w-[280px] sm:h-[280px] md:w-[320px] md:h-[320px] rounded-full border border-indigo-500/15"></div>
+                    <div class="absolute w-[320px] h-[320px] sm:w-[440px] sm:h-[440px] md:w-[540px] md:h-[540px] rounded-full border border-dashed border-slate-800/80"></div>
                 </div>
 
                 <!-- 중앙 코어 노드: 나 (Me / 패밀리 허브) -->
                 <div class="relative z-20 flex flex-col items-center">
-                    <div class="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 p-1 shadow-[0_0_40px_rgba(99,102,241,0.6)] flex items-center justify-center animate-pulse">
+                    <div class="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 p-0.5 sm:p-1 shadow-[0_0_30px_rgba(99,102,241,0.5)] flex items-center justify-center animate-pulse">
                         <div class="w-full h-full rounded-full bg-slate-950 flex flex-col items-center justify-center">
-                            <span class="material-symbols-rounded text-2xl md:text-3xl text-indigo-400">person</span>
-                            <span class="text-[11px] font-black text-white tracking-tight" id="hub-user-name">나 (Me)</span>
+                            <span class="material-symbols-rounded text-lg sm:text-2xl md:text-3xl text-indigo-400">person</span>
+                            <span class="text-[9px] sm:text-[11px] font-black text-white tracking-tight" id="hub-user-name">나 (Me)</span>
                         </div>
                     </div>
-                    <div class="mt-2 text-center">
-                        <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40" id="hub-user-role">패밀리 마스터</span>
-                        <div class="text-[11px] text-slate-400 font-bold mt-0.5" id="hub-user-phone">단일 PALIN ID 연동</div>
+                    <div class="mt-1 sm:mt-2 text-center">
+                        <span class="text-[8.5px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.2 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40" id="hub-user-role">패밀리 마스터</span>
+                        <div class="text-[9px] sm:text-[11px] text-slate-400 font-bold mt-0.5 hidden sm:block" id="hub-user-phone">단일 PALIN ID 연동</div>
                     </div>
                 </div>
 
-                <!-- 좌측 핵심 날개 노드: PASS-MATE (동적 점진적 프로파일링 연동) -->
-                <div id="orbit-node-pass-container" class="absolute left-4 sm:left-10 md:left-20 top-1/2 -translate-y-1/2 z-20" style="max-width: 220px;">
-                    <!-- A. 미등록 상태: '+ PASS-MATE 추가하기' 점선 카드 -->
-                    <div id="pass-node-unverified" onclick="openPassmateOnboardingModal()" class="group cursor-pointer bg-slate-900/90 hover:bg-slate-900 border-2 border-dashed border-emerald-500/50 hover:border-emerald-400 p-4 rounded-2xl shadow transition-all transform hover:-translate-y-1">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black">
-                                <span class="material-symbols-rounded text-lg">school</span>
+                <!-- 좌측 날개 노드: PASS-MATE (모바일 w-[125px], 데스크톱 w-[210px] 겹침 방지) -->
+                <div id="orbit-node-pass-container" class="absolute left-2 sm:left-6 md:left-14 top-1/2 -translate-y-1/2 z-20 w-[125px] sm:w-[175px] md:w-[210px]">
+                    <!-- A. 미등록 상태: '+ PASS-MATE 추가하기' -->
+                    <div id="pass-node-unverified" onclick="handlePassmateNodeClick(false)" class="group cursor-pointer bg-slate-900/90 hover:bg-slate-900 border-2 border-dashed border-emerald-500/50 hover:border-emerald-400 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl shadow transition-all transform hover:-translate-y-1">
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
+                            <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black shrink-0">
+                                <span class="material-symbols-rounded text-sm sm:text-lg">school</span>
                             </span>
-                            <div>
-                                <div class="text-xs font-black text-white group-hover:text-emerald-300 transition">PASS-MATE</div>
-                                <div class="text-[10px] text-slate-400 font-bold">입시 & 학업 관제</div>
+                            <div class="min-w-0">
+                                <div class="text-[11px] sm:text-xs font-black text-white group-hover:text-emerald-300 transition truncate">PASS-MATE</div>
+                                <div class="text-[8.5px] sm:text-[10px] text-slate-400 font-bold truncate">입시 &amp; 학업</div>
                             </div>
                         </div>
-                        <div class="text-[11px] text-slate-300 leading-snug mb-3">
-                            초·중·고 학업 루틴 · 순공 타이머 · 11,688개 대학 대입 합격 진단
+                        <div class="hidden sm:block text-[11px] text-slate-300 leading-snug mb-3">
+                            초·중·고 학업 루틴 · 순공 타이머 · 대입 5갈래 노선도
                         </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">미등록</span>
-                            <span class="text-[11px] font-black text-emerald-400 flex items-center gap-0.5 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                                <span>+ 추가하기</span>
+                        <div class="flex items-center justify-between pt-0.5">
+                            <span class="text-[8.5px] sm:text-[10px] font-bold px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 border border-slate-700">미등록</span>
+                            <span class="text-[9px] sm:text-[11px] font-black text-emerald-400 flex items-center gap-0.5 bg-emerald-500/10 px-1.5 sm:px-2 py-0.2 rounded border border-emerald-500/20">
+                                <span>+ 추가</span>
                             </span>
                         </div>
                     </div>
 
                     <!-- B. 활성화 완료 상태: 'PASS-MATE ACTIVE' 카드 -->
-                    <div id="pass-node-verified" style="display: none;" onclick="focusNodeInUniverse('pass')" class="group cursor-pointer bg-slate-900/95 hover:bg-slate-900 border-2 border-emerald-500/60 hover:border-emerald-400 p-4 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.25)] transition-all transform hover:-translate-y-1">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black">
-                                <span class="material-symbols-rounded text-lg">school</span>
+                    <div id="pass-node-verified" style="display: none;" onclick="handlePassmateNodeClick(true)" class="group cursor-pointer bg-slate-900/95 hover:bg-slate-900 border-2 border-emerald-500/60 hover:border-emerald-400 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.25)] transition-all transform hover:-translate-y-1">
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
+                            <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black shrink-0">
+                                <span class="material-symbols-rounded text-sm sm:text-lg">school</span>
                             </span>
-                            <div>
-                                <div class="text-xs font-black text-white group-hover:text-emerald-300 transition">PASS-MATE</div>
-                                <div class="text-[10px] text-emerald-400 font-bold" id="pass-node-role-label">학생 입시 관제</div>
+                            <div class="min-w-0">
+                                <div class="text-[11px] sm:text-xs font-black text-white group-hover:text-emerald-300 transition truncate">PASS-MATE</div>
+                                <div class="text-[8.5px] sm:text-[10px] text-emerald-400 font-bold truncate" id="pass-node-role-label">학습 측정 중</div>
                             </div>
                         </div>
-                        <div class="text-[11px] text-slate-300 leading-snug mb-3" id="pass-node-desc">
+                        <div class="hidden sm:block text-[11px] text-slate-300 leading-snug mb-3" id="pass-node-desc">
                             실시간 순공 시간 · 5갈래 입시 노선도 가동 중
                         </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">ACTIVE</span>
-                            <a id="pass-node-dashboard-link" href="/" class="text-[11px] font-extrabold text-emerald-400 hover:underline flex items-center gap-0.5 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                                <span>대시보드 ↗</span>
-                            </a>
+                        <div class="flex items-center justify-between pt-0.5">
+                            <span class="text-[8.5px] sm:text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">ACTIVE</span>
+                            <span class="text-[9px] sm:text-[11px] font-extrabold text-emerald-400 flex items-center gap-0.5 bg-emerald-500/10 px-1.5 sm:px-2 py-0.2 rounded border border-emerald-500/20">
+                                <span>입장 ↗</span>
+                            </span>
                         </div>
                     </div>
                 </div>
 
-                <!-- 우측 핵심 날개 노드: 부모님 [SILVER-MATE] -->
-                <div id="orbit-node-silver-container" class="absolute right-4 sm:right-10 md:right-20 top-1/2 -translate-y-1/2 z-20" style="max-width: 220px;">
+                <!-- 우측 날개 노드: 부모님 [SILVER-MATE] (모바일 w-[125px], 데스크톱 w-[210px] 겹침 방지) -->
+                <div id="orbit-node-silver-container" class="absolute right-2 sm:right-6 md:right-14 top-1/2 -translate-y-1/2 z-20 w-[125px] sm:w-[175px] md:w-[210px]">
                     <!-- A. 미등록 상태: '+ SILVER-MATE 추가하기' -->
-                    <div id="silver-node-unverified" onclick="openSilverInviteModal()" class="group cursor-pointer bg-slate-900/90 hover:bg-slate-900 border-2 border-dashed border-pink-500/50 hover:border-pink-400 p-4 rounded-2xl shadow transition-all transform hover:-translate-y-1">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="w-8 h-8 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center font-black">
-                                <span class="material-symbols-rounded text-lg">elderly</span>
+                    <div id="silver-node-unverified" onclick="handleSilverNodeClick(false)" class="group cursor-pointer bg-slate-900/90 hover:bg-slate-900 border-2 border-dashed border-pink-500/50 hover:border-pink-400 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl shadow transition-all transform hover:-translate-y-1">
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
+                            <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center font-black shrink-0">
+                                <span class="material-symbols-rounded text-sm sm:text-lg">elderly</span>
                             </span>
-                            <div>
-                                <div class="text-xs font-black text-white group-hover:text-pink-300 transition">SILVER-MATE</div>
-                                <div class="text-[10px] text-slate-400 font-bold">부모님 안심 & 효도</div>
+                            <div class="min-w-0">
+                                <div class="text-[11px] sm:text-xs font-black text-white group-hover:text-pink-300 transition truncate">SILVER-MATE</div>
+                                <div class="text-[8.5px] sm:text-[10px] text-slate-400 font-bold truncate">부모님 안심</div>
                             </div>
                         </div>
-                        <div class="text-[11px] text-slate-300 leading-snug mb-3">
+                        <div class="hidden sm:block text-[11px] text-slate-300 leading-snug mb-3">
                             기상 안부 · 복약 시간표 · 보이스피싱 실시간 방어
                         </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">미등록</span>
-                            <span class="text-[11px] font-black text-pink-400 flex items-center gap-0.5 bg-pink-500/10 px-2 py-0.5 rounded border border-pink-500/20">
-                                <span>+ 추가하기</span>
+                        <div class="flex items-center justify-between pt-0.5">
+                            <span class="text-[8.5px] sm:text-[10px] font-bold px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 border border-slate-700">미등록</span>
+                            <span class="text-[9px] sm:text-[11px] font-black text-pink-400 flex items-center gap-0.5 bg-pink-500/10 px-1.5 sm:px-2 py-0.2 rounded border border-pink-500/20">
+                                <span>+ 추가</span>
                             </span>
                         </div>
                     </div>
 
                     <!-- B. 활성화 상태 -->
-                    <div id="silver-node-verified" style="display: none;" onclick="focusNodeInUniverse('silver')" class="group cursor-pointer bg-slate-900/95 hover:bg-slate-900 border-2 border-pink-500/60 hover:border-pink-400 p-4 rounded-2xl shadow-[0_0_30px_rgba(236,72,153,0.25)] transition-all transform hover:-translate-y-1">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="w-8 h-8 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center font-black">
-                                <span class="material-symbols-rounded text-lg">elderly</span>
+                    <div id="silver-node-verified" style="display: none;" onclick="handleSilverNodeClick(true)" class="group cursor-pointer bg-slate-900/95 hover:bg-slate-900 border-2 border-pink-500/60 hover:border-pink-400 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl shadow-[0_0_30px_rgba(236,72,153,0.25)] transition-all transform hover:-translate-y-1">
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
+                            <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center font-black shrink-0">
+                                <span class="material-symbols-rounded text-sm sm:text-lg">elderly</span>
                             </span>
-                            <div>
-                                <div class="text-xs font-black text-white group-hover:text-pink-300 transition">SILVER-MATE</div>
-                                <div class="text-[10px] text-pink-400 font-bold" id="silver-node-name">부모님 안심 케어</div>
+                            <div class="min-w-0">
+                                <div class="text-[11px] sm:text-xs font-black text-white group-hover:text-pink-300 transition truncate">SILVER-MATE</div>
+                                <div class="text-[8.5px] sm:text-[10px] text-pink-400 font-bold truncate" id="silver-node-name">부모님 안심 케어</div>
                             </div>
                         </div>
-                        <div class="text-[11px] text-slate-300 leading-snug mb-3">
+                        <div class="hidden sm:block text-[11px] text-slate-300 leading-snug mb-3">
                             시니어 기상 안부 · 복약 일정 체크 · 긴급 안부 호출
                         </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-pink-500/20 text-pink-300 border border-pink-500/30">안심 케어</span>
-                            <a href="/silver/guardian" class="text-[11px] font-extrabold text-pink-400 hover:underline flex items-center gap-0.5 bg-pink-500/10 px-2 py-0.5 rounded border border-pink-500/20">
-                                <span>관제탑 ↗</span>
-                            </a>
+                        <div class="flex items-center justify-between pt-0.5">
+                            <span class="text-[8.5px] sm:text-[10px] font-bold px-1.5 py-0.2 rounded bg-pink-500/20 text-pink-300 border border-pink-500/30">안심 케어</span>
+                            <span class="text-[9px] sm:text-[11px] font-extrabold text-pink-400 flex items-center gap-0.5 bg-pink-500/10 px-1.5 sm:px-2 py-0.2 rounded border border-pink-500/20">
+                                <span>관제 ↗</span>
+                            </span>
                         </div>
                     </div>
                 </div>
 
-                <!-- 상단 궤도 노드: BIZ-MATE (목데이터 완전 박멸 -> 사업자 인증 시에만 실제 상호명으로 활성화) -->
-                <div id="orbit-node-biz-container" class="absolute top-4 sm:top-6 left-1/2 -translate-x-1/2 z-10">
-                    <div id="biz-node-unverified" onclick="openBizVerifyModal()" class="cursor-pointer bg-slate-900/60 hover:bg-slate-900/90 border border-dashed border-amber-500/40 hover:border-amber-400 px-3.5 py-2 rounded-xl text-center shadow transition flex items-center gap-2">
-                        <span class="material-symbols-rounded text-sm text-amber-400/80">add_business</span>
+                <!-- 상단 궤도 노드: BIZ-MATE -->
+                <div id="orbit-node-biz-container" class="absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-10">
+                    <div id="biz-node-unverified" onclick="openBizVerifyModal()" class="cursor-pointer bg-slate-900/80 hover:bg-slate-900 border border-dashed border-amber-500/40 hover:border-amber-400 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-center shadow transition flex items-center gap-1.5 sm:gap-2">
+                        <span class="material-symbols-rounded text-xs sm:text-sm text-amber-400/80">add_business</span>
                         <div class="text-left">
-                            <div class="text-[11px] font-bold text-slate-300 flex items-center gap-1.5">
+                            <div class="text-[10px] sm:text-[11px] font-bold text-slate-300 flex items-center gap-1">
                                 <span>BIZ-MATE</span>
-                                <span class="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.2 rounded border border-slate-700">미등록</span>
+                                <span class="text-[8px] sm:text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.2 rounded border border-slate-700">미등록</span>
                             </div>
-                            <div class="text-[9px] text-amber-400/80 font-medium">+ 사업자등록번호 인증 시 활성화</div>
+                            <div class="text-[8.5px] sm:text-[9px] text-amber-400/80 font-medium">+ 사업자 인증</div>
                         </div>
                     </div>
 
-                    <div id="biz-node-verified" style="display: none;" class="bg-slate-900/95 border-2 border-amber-500/60 px-4 py-2.5 rounded-xl text-center shadow-lg shadow-amber-500/20 transition flex items-center gap-2.5">
-                        <span class="material-symbols-rounded text-base text-amber-400">store</span>
+                    <div id="biz-node-verified" style="display: none;" class="bg-slate-900/95 border-2 border-amber-500/60 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-center shadow-lg shadow-amber-500/20 transition flex items-center gap-2">
+                        <span class="material-symbols-rounded text-sm sm:text-base text-amber-400">store</span>
                         <div class="text-left">
-                            <div class="text-xs font-black text-white flex items-center gap-1.5">
+                            <div class="text-[11px] sm:text-xs font-black text-white flex items-center gap-1">
                                 <span id="biz-display-name">내 사업장</span>
-                                <span class="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded border border-amber-500/40 font-bold">인증됨</span>
+                                <span class="text-[8.5px] sm:text-[9px] bg-amber-500/20 text-amber-300 px-1 py-0.2 rounded border border-amber-500/40 font-bold">인증됨</span>
                             </div>
-                            <div class="text-[10px] text-slate-400" id="biz-display-sub">경영 & 매출 관제</div>
+                            <div class="text-[9px] sm:text-[10px] text-slate-400" id="biz-display-sub">경영 &amp; 매출 관제</div>
                         </div>
                     </div>
                 </div>
@@ -689,6 +695,10 @@
         // 페이지 로드 시 실시간 인증 및 오빗 상태 로드
         document.addEventListener('DOMContentLoaded', async () => {
             loadUserFromStorage();
+            if (!currentUser || !currentUser.id) {
+                // 비로그인 상태 시 통합 로그인 / 10초 간편가입 모달 즉시 팝업
+                openUnifiedAuthModal('LOGIN');
+            }
             await refreshUnifiedOrbitStatus();
         });
 
@@ -770,6 +780,29 @@
             }
         }
 
+        
+        // PASS-MATE & SILVER-MATE 노드 클릭 핸들러 (제품소개 -> 온보딩 -> 메인 대시보드 직행)
+        let passmateActiveUrl = '/passmate';
+        let silvermateActiveUrl = '/silver/guardian';
+
+        function handlePassmateNodeClick(isActive) {
+            if (isActive) {
+                // 활성화된 상태: 제품소개 건너뛰고 PASS-MATE 메인 대시보드로 직행!
+                location.href = passmateActiveUrl || '/passmate';
+            } else {
+                // 미등록 상태: 제품 설명 및 기능소개 페이지로 이동
+                location.href = '/passmate/intro';
+            }
+        }
+
+        function handleSilverNodeClick(isActive) {
+            if (isActive) {
+                location.href = silvermateActiveUrl || '/silver/guardian';
+            } else {
+                location.href = '/silvermate/intro';
+            }
+        }
+
         function renderPassmateNode(pm) {
             const unverified = document.getElementById('pass-node-unverified');
             const verified = document.getElementById('pass-node-verified');
@@ -785,7 +818,7 @@
                 if (verified) verified.style.display = 'block';
                 if (labelEl) labelEl.innerText = pm.label || 'PASS-MATE ACTIVE';
                 if (descEl) descEl.innerText = `${pm.label} · 순공 타이머 & 5갈래 입시 노선 가동 중`;
-                if (dashLink) dashLink.href = pm.dashboard_url || '/';
+                passmateActiveUrl = pm.dashboard_url || '/passmate'; if (dashLink) dashLink.href = passmateActiveUrl;
                 if (deckBadge) {
                     deckBadge.innerText = 'ACTIVE LIVE';
                     deckBadge.className = 'text-xs font-black px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
@@ -826,7 +859,7 @@
             }
         }
 
-        function renderSilverNode(sm) {
+        function renderSilverNode(sm) { if (sm && sm.is_active) { silvermateActiveUrl = '/silver/guardian'; }
             const unverified = document.getElementById('silver-node-unverified');
             const verified = document.getElementById('silver-node-verified');
             const nameEl = document.getElementById('silver-node-name');
