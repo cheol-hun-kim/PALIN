@@ -296,10 +296,10 @@
                         </div>
                         <div class="text-left">
                             <div class="text-[10px] sm:text-[11px] font-black text-white flex items-center gap-1">
-                                <span id="sat2-title">소속 학원 (일원학원)</span>
+                                <span id="sat2-title">소속 학원 · 독서실</span>
                                 <span class="text-[8px] sm:text-[9px] bg-amber-500/20 text-amber-300 px-1 py-0.2 rounded border border-amber-500/40 font-bold" id="sat2-badge">출석부 동기화</span>
                             </div>
-                            <div class="text-[8.5px] sm:text-[9.5px] text-slate-400" id="sat2-desc">출결·보강·결제선생 행정 자동 연동</div>
+                            <div class="text-[8.5px] sm:text-[9.5px] text-slate-400" id="sat2-desc">출결 · 자습 좌석 · 결제선생 행정 연동</div>
                         </div>
                     </div>
                 </div>
@@ -381,7 +381,7 @@
                         </span>
                     </div>
                     <p class="text-xs text-slate-300 mb-4 leading-relaxed" id="deck-triad-desc">
-                        수험생의 실시간 순공 시간표와 5갈래 대입 노선, 학부모 안심 주간 리포트, 소속 학원(일원학원) 출석부 및 결제선생 청구서가 실시간 텔레메트리로 상호 동기화됩니다.
+                        수험생의 실시간 순공 시간표와 5갈래 대입 노선, 학부모 안심 주간 리포트, 소속 학원 및 독서실 출석부·자습 좌석·결제선생 청구서가 실시간 텔레메트리로 상호 동기화됩니다.
                     </p>
                     <div class="grid grid-cols-3 gap-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800 mb-5 text-center">
                         <div>
@@ -666,8 +666,8 @@
                             <span class="material-symbols-rounded text-xl">domain</span>
                         </span>
                         <div>
-                            <div class="text-xs font-black text-white">소속 학원 (일원학원)</div>
-                            <div class="text-[10px] text-slate-400 mt-0.5">출석부 동기화, 보강/휴강 신청, 결제선생 청구서 수납</div>
+                            <div class="text-xs font-black text-white" id="modal-academy-title">소속 학원 · 독서실</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5">출석부 동기화, 자습실 좌석 현황, 보강 신청, 결제선생 청구서 수납</div>
                         </div>
                     </div>
                     <span class="text-[10px] font-black px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">Tier 4 정회원</span>
@@ -1055,7 +1055,7 @@
             const titleEl = document.getElementById('triad-modal-title');
             if (titleEl) {
                 if (target === 'sat1') titleEl.innerText = '부모님 안심 연동 관제';
-                else if (target === 'sat2') titleEl.innerText = '소속 학원(일원학원) 출결 & 행정 연동';
+                else if (target === 'sat2') titleEl.innerText = '소속 학원 · 독서실 출결 & 행정 연동';
                 else titleEl.innerText = '3자 실시간 연동 편대 관리';
             }
             if (m) m.style.display = 'flex';
@@ -1104,6 +1104,11 @@
             const kpi3Label = document.getElementById('deck-triad-kpi3-label');
             const kpi3Val = document.getElementById('deck-triad-kpi3-val');
 
+            // 동적 학원/독서실 명칭 (프로필에 등록된 기관명이 있으면 해당 기관명, 없으면 표준 '소속 학원 · 독서실')
+            const userAcademy = (currentUser && (currentUser.academy_name || currentUser.tenant_name || currentUser.academy)) || '소속 학원 · 독서실';
+            const modalAcademyTitle = document.getElementById('modal-academy-title');
+            if (modalAcademyTitle) modalAcademyTitle.innerText = userAcademy;
+
             if (r === 'PARENT') {
                 // 학부모 중심 뷰
                 if (sat1Title) sat1Title.innerText = "자녀 수험생 연동";
@@ -1112,32 +1117,32 @@
                 if (sat1Badge) sat1Badge.innerText = "실시간 관제 중";
                 if (sat1Icon) sat1Icon.innerText = "school";
 
-                if (sat2Title) sat2Title.innerText = "학원·담임 소통 (일원학원)";
+                if (sat2Title) sat2Title.innerText = (userAcademy === '소속 학원 · 독서실') ? "학원 · 독서실 소통" : `${userAcademy} 소통`;
                 if (sat2Badge) sat2Badge.innerText = "행정 동기화";
                 if (sat2Desc) sat2Desc.innerText = "출결 알림 · 결제선생 청구서 수납 연동";
                 if (sat2Icon) sat2Icon.innerText = "domain";
 
                 if (kpi1Label) kpi1Label.innerText = "자녀 학습";
                 if (kpi1Val) kpi1Val.innerText = "순공 실시간 수신";
-                if (kpi2Label) kpi2Label.innerText = "학원 출결";
-                if (kpi2Val) kpi2Val.innerText = "자동 알림 가동";
-                if (kpi3Label) kpi3Label.innerText = "수업료";
+                if (kpi2Label) kpi2Label.innerText = "학원 · 독서실";
+                if (kpi2Val) kpi2Val.innerText = "출결 알림 가동";
+                if (kpi3Label) kpi3Label.innerText = "수업료 · 이용료";
                 if (kpi3Val) kpi3Val.innerText = "결제선생 연동";
             } else if (r === 'DIRECTOR' || r === 'TENANT_ADMIN') {
-                // 학원장 중심 뷰
+                // 학원장 / 독서실장 중심 뷰
                 if (sat1Title) sat1Title.innerText = "재원생 학습 관제";
-                if (sat1Sub) sat1Sub.innerText = "161명 자습 현황";
+                if (sat1Sub) sat1Sub.innerText = "전원 자습 현황";
                 if (sat1Desc) sat1Desc.innerText = "재원생 전원 실시간 순공 시간표 & OMR 진단";
-                if (sat1Badge) sat1Badge.innerText = "161명 관제 중";
+                if (sat1Badge) sat1Badge.innerText = "재원생 관제 중";
                 if (sat1Icon) sat1Icon.innerText = "groups";
 
-                if (sat2Title) sat2Title.innerText = "학부모 소통·수납";
+                if (sat2Title) sat2Title.innerText = "학부모 소통 · 수납";
                 if (sat2Badge) sat2Badge.innerText = "수납 자동화";
-                if (sat2Desc) sat2Desc.innerText = "141명 학부모 결제선생 청구서 & 출결 알림";
+                if (sat2Desc) sat2Desc.innerText = "학부모 결제선생 청구서 & 출결 알림톡 연동";
                 if (sat2Icon) sat2Icon.innerText = "support_agent";
 
                 if (kpi1Label) kpi1Label.innerText = "재원생";
-                if (kpi1Val) kpi1Val.innerText = "161명 전원 관제";
+                if (kpi1Val) kpi1Val.innerText = "전원 실시간 관제";
                 if (kpi2Label) kpi2Label.innerText = "출석부";
                 if (kpi2Val) kpi2Val.innerText = "100% 실시간 동기화";
                 if (kpi3Label) kpi3Label.innerText = "수납 관리";
@@ -1150,15 +1155,15 @@
                 if (sat1Badge) sat1Badge.innerText = "안심 연동 중";
                 if (sat1Icon) sat1Icon.innerText = "family_restroom";
 
-                if (sat2Title) sat2Title.innerText = "소속 학원 (일원학원)";
+                if (sat2Title) sat2Title.innerText = userAcademy;
                 if (sat2Badge) sat2Badge.innerText = "출석부 동기화";
-                if (sat2Desc) sat2Desc.innerText = "출결·보강·결제선생 행정 자동 연동";
+                if (sat2Desc) sat2Desc.innerText = "출결 · 자습 좌석 · 결제선생 행정 연동";
                 if (sat2Icon) sat2Icon.innerText = "domain";
 
                 if (kpi1Label) kpi1Label.innerText = "학생 ⇄ 부모님";
                 if (kpi1Val) kpi1Val.innerText = "안심 리포트";
-                if (kpi2Label) kpi2Label.innerText = "학생 ⇄ 학원";
-                if (kpi2Val) kpi2Val.innerText = "출석부 동기화";
+                if (kpi2Label) kpi2Label.innerText = "학생 ⇄ 학원·독서실";
+                if (kpi2Val) kpi2Val.innerText = "출석부·좌석 연동";
                 if (kpi3Label) kpi3Label.innerText = "학부모 ⇄ 학원";
                 if (kpi3Val) kpi3Val.innerText = "결제선생 연동";
             }
