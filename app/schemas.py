@@ -653,3 +653,36 @@ class AcademyClassScheduleResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+# === 🌐 20. 단일 통합 계정 & 점진적 서비스 활성화 스키마 ===
+
+class UnifiedRegisterRequest(BaseModel):
+    name: str
+    phone: str
+    email: str
+    password: str
+    password_confirm: str
+    otp_code: Optional[str] = None
+
+class UnifiedLoginRequest(BaseModel):
+    identifier: str # Phone or Email
+    password: str
+
+class PassMateActivateRequest(BaseModel):
+    role: str # 'STUDENT' | 'PARENT' | 'DIRECTOR'
+    user_id: Optional[int] = None
+    # 학생 필드
+    high_school: Optional[str] = None
+    grade: Optional[str] = None
+    target_univ_1: Optional[str] = None
+    target_univ_fail: Optional[str] = None
+    academy_code: Optional[str] = None
+    parent_phone: Optional[str] = None
+    # 학부모 필드
+    child_name: Optional[str] = None
+    child_phone: Optional[str] = None
+    # 학원장 필드
+    academy_name: Optional[str] = None
+    academy_region: Optional[str] = None
+    director_phone: Optional[str] = None
+

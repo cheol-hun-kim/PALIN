@@ -59,7 +59,7 @@
     <!-- 1. 초깔끔 미니멀 패밀리 허브 헤더 -->
     <header class="sticky top-0 z-50 bg-[#0f172a]/90 backdrop-blur-md border-b border-indigo-500/20 px-4 sm:px-8 py-3.5 flex items-center justify-between">
         <div class="flex items-center gap-3">
-            <a href="/" class="flex items-center gap-2.5 text-white hover:opacity-90 transition" title="PASS-MATE 홈으로 돌아가기">
+            <a href="/universe" class="flex items-center gap-2.5 text-white hover:opacity-90 transition" title="자기중심 관계도 홈">
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
                     <span class="material-symbols-rounded text-xl text-white">hub</span>
                 </div>
@@ -68,24 +68,35 @@
                         <span class="text-base font-black tracking-tight text-white">PALIN Family Hub</span>
                         <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">자기중심 관계도</span>
                     </div>
-                    <div class="text-[10px] text-slate-400 font-medium">나(Me) 중심 자녀 학업 ⇄ 부모님 안부 통합 관제탑</div>
+                    <div class="text-[10px] text-slate-400 font-medium">나(Me) 중심 통합 라이프 관제탑</div>
                 </div>
             </a>
         </div>
 
-        <!-- 우측 빠른 이동 액션 버튼들 -->
+        <!-- 우측 빠른 이동 및 통합 계정 액션 버튼들 -->
         <div class="flex items-center gap-2">
-            <a href="/" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 transition flex items-center gap-1.5" title="자녀 입시 대시보드로 이동">
-                <span class="material-symbols-rounded text-sm text-emerald-400">school</span>
-                <span>PASS-MATE</span>
-            </a>
-            <a href="/silver/guardian" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-pink-500/15 hover:bg-pink-500/25 text-pink-300 border border-pink-500/30 transition flex items-center gap-1.5" title="부모님 안부 관제탑으로 이동">
-                <span class="material-symbols-rounded text-sm text-pink-400">elderly</span>
-                <span>SILVER-MATE</span>
-            </a>
-            <a href="/" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1" title="메인 화면으로 복귀">
+            <!-- 비로그인 상태일 때 -->
+            <button type="button" id="btn-header-login" onclick="openUnifiedAuthModal('LOGIN')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md transition flex items-center gap-1.5 cursor-pointer">
+                <span class="material-symbols-rounded text-sm">login</span>
+                <span>로그인 / 간편가입</span>
+            </button>
+
+            <!-- 로그인 완료 상태일 때 -->
+            <div id="header-user-info" style="display: none;" class="flex items-center gap-2">
+                <div class="hidden sm:flex items-center gap-1.5 bg-slate-800/90 border border-slate-700 px-2.5 py-1 rounded-lg">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span class="text-xs font-bold text-white" id="header-user-name">회원님</span>
+                    <span class="text-[10px] text-indigo-300 font-semibold" id="header-user-role">MEMBER</span>
+                </div>
+                <button type="button" onclick="handleLogout()" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1 cursor-pointer" title="로그아웃">
+                    <span class="material-symbols-rounded text-sm">logout</span>
+                    <span class="hidden sm:inline">로그아웃</span>
+                </button>
+            </div>
+
+            <a href="/" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1" title="메인 홈으로">
                 <span class="material-symbols-rounded text-sm">home</span>
-                <span class="hidden sm:inline">홈으로</span>
+                <span class="hidden sm:inline">홈</span>
             </a>
         </div>
     </header>
@@ -103,17 +114,17 @@
                     </div>
                     <h2 class="text-2xl font-black text-white">나(Hub)를 중심으로 연결된 우리 가족 관제망</h2>
                     <p class="text-xs md:text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
-                        화면 정중앙의 <strong>'나(Me)'</strong>를 중심으로 <strong>[자녀 학업 & 입시: PASS-MATE]</strong>와 <strong>[부모님 안부 & 효도: SILVER-MATE]</strong>가 양대 핵심 궤도로 실시간 연동되어 있습니다. 실제로 인증·등록된 서비스만 궤도에 활성화됩니다.
+                        화면 정중앙의 <strong>'나(Me)'</strong>를 중심으로 <strong>[PASS-MATE: 입시·학업]</strong>, <strong>[BIZ-MATE: 사업·경영]</strong>, <strong>[SILVER-MATE: 부모님 안심]</strong>이 동심원 궤도로 연동됩니다. 실제로 추가·인증된 서비스만 궤도에 불이 켜집니다.
                     </p>
                 </div>
                 <div class="flex items-center gap-2 flex-shrink-0">
                     <button type="button" onclick="focusNodeInUniverse('pass')" class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 transition flex items-center gap-1.5 cursor-pointer">
                         <span class="material-symbols-rounded text-sm text-emerald-400">school</span>
-                        <span>자녀 [PASS-MATE] 포커스</span>
+                        <span>[PASS-MATE] 포커스</span>
                     </button>
                     <button type="button" onclick="focusNodeInUniverse('silver')" class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 border border-pink-500/40 transition flex items-center gap-1.5 cursor-pointer">
                         <span class="material-symbols-rounded text-sm text-pink-400">elderly</span>
-                        <span>부모님 [SILVER-MATE] 포커스</span>
+                        <span>[SILVER-MATE] 포커스</span>
                     </button>
                 </div>
             </div>
@@ -127,16 +138,16 @@
                         <span class="material-symbols-rounded text-indigo-400">explore</span>
                         <span>실시간 패밀리 오빗 (Ego-centric Live Orbit Map)</span>
                     </h3>
-                    <p class="text-xs text-slate-400 mt-0.5">실제 나와 연결된 서비스만 궤도에 불이 켜집니다 (사업자 미인증 시 비즈메이트 비활성).</p>
+                    <p class="text-xs text-slate-400 mt-0.5">실제 나와 연결된 서비스만 궤도에 활성화됩니다. 미등록 서비스는 '+ 추가하기'를 눌러 연결하세요.</p>
                 </div>
                 <div class="flex items-center gap-2 text-xs">
-                    <span class="inline-flex items-center gap-1 text-emerald-400"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> 자녀 라이브 가동</span>
-                    <span class="inline-flex items-center gap-1 text-pink-400 ml-2"><span class="w-2 h-2 rounded-full bg-pink-500"></span> 부모님 안심 케어</span>
+                    <span class="inline-flex items-center gap-1 text-emerald-400" id="orbit-status-pass"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> PASS-MATE 연동</span>
+                    <span class="inline-flex items-center gap-1 text-pink-400 ml-2" id="orbit-status-silver"><span class="w-2 h-2 rounded-full bg-pink-500"></span> SILVER-MATE 연동</span>
                 </div>
             </div>
 
             <!-- SVG & 우주 노드 관계도 캔버스 -->
-            <div class="relative w-full min-h-[440px] md:min-h-[480px] bg-slate-950/80 rounded-2xl border border-slate-800/80 flex items-center justify-center p-4 overflow-hidden">
+            <div class="relative w-full min-h-[460px] md:min-h-[500px] bg-slate-950/80 rounded-2xl border border-slate-800/80 flex items-center justify-center p-4 overflow-hidden">
                 <!-- 동심원 궤도선 (CSS) -->
                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <div class="w-[260px] h-[260px] md:w-[320px] md:h-[320px] rounded-full border border-indigo-500/15"></div>
@@ -148,33 +159,56 @@
                     <div class="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 p-1 shadow-[0_0_40px_rgba(99,102,241,0.6)] flex items-center justify-center animate-pulse">
                         <div class="w-full h-full rounded-full bg-slate-950 flex flex-col items-center justify-center">
                             <span class="material-symbols-rounded text-2xl md:text-3xl text-indigo-400">person</span>
-                            <span class="text-[11px] font-black text-white tracking-tight">나 (Me)</span>
+                            <span class="text-[11px] font-black text-white tracking-tight" id="hub-user-name">나 (Me)</span>
                         </div>
                     </div>
                     <div class="mt-2 text-center">
-                        <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">3050 패밀리 허브</span>
-                        <div class="text-[11px] text-slate-400 font-bold mt-0.5">단일 PALIN ID 연동</div>
+                        <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40" id="hub-user-role">패밀리 마스터</span>
+                        <div class="text-[11px] text-slate-400 font-bold mt-0.5" id="hub-user-phone">단일 PALIN ID 연동</div>
                     </div>
                 </div>
 
-                <!-- 좌측 핵심 날개 노드: 자녀 [PASS-MATE] -->
-                <div id="orbit-node-pass" class="absolute left-4 sm:left-10 md:left-20 top-1/2 -translate-y-1/2 z-20" style="max-width: 220px;">
-                    <div onclick="focusNodeInUniverse('pass')" class="group cursor-pointer bg-slate-900/95 hover:bg-slate-900 border-2 border-emerald-500/60 hover:border-emerald-400 p-4 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.25)] transition-all transform hover:-translate-y-1">
+                <!-- 좌측 핵심 날개 노드: PASS-MATE (동적 점진적 프로파일링 연동) -->
+                <div id="orbit-node-pass-container" class="absolute left-4 sm:left-10 md:left-20 top-1/2 -translate-y-1/2 z-20" style="max-width: 220px;">
+                    <!-- A. 미등록 상태: '+ PASS-MATE 추가하기' 점선 카드 -->
+                    <div id="pass-node-unverified" onclick="openPassmateOnboardingModal()" class="group cursor-pointer bg-slate-900/90 hover:bg-slate-900 border-2 border-dashed border-emerald-500/50 hover:border-emerald-400 p-4 rounded-2xl shadow transition-all transform hover:-translate-y-1">
                         <div class="flex items-center gap-2 mb-2">
                             <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black">
                                 <span class="material-symbols-rounded text-lg">school</span>
                             </span>
                             <div>
                                 <div class="text-xs font-black text-white group-hover:text-emerald-300 transition">PASS-MATE</div>
-                                <div class="text-[10px] text-emerald-400 font-bold">자녀 입시 & 학업</div>
+                                <div class="text-[10px] text-slate-400 font-bold">입시 & 학업 관제</div>
                             </div>
                         </div>
                         <div class="text-[11px] text-slate-300 leading-snug mb-3">
-                            고3 수험생 자녀 · 실시간 순공 시간 · 5갈래 입시 노선도
+                            초·중·고 학업 루틴 · 순공 타이머 · 11,688개 대학 대입 합격 진단
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">미등록</span>
+                            <span class="text-[11px] font-black text-emerald-400 flex items-center gap-0.5 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                                <span>+ 추가하기</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- B. 활성화 완료 상태: 'PASS-MATE ACTIVE' 카드 -->
+                    <div id="pass-node-verified" style="display: none;" onclick="focusNodeInUniverse('pass')" class="group cursor-pointer bg-slate-900/95 hover:bg-slate-900 border-2 border-emerald-500/60 hover:border-emerald-400 p-4 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.25)] transition-all transform hover:-translate-y-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black">
+                                <span class="material-symbols-rounded text-lg">school</span>
+                            </span>
+                            <div>
+                                <div class="text-xs font-black text-white group-hover:text-emerald-300 transition">PASS-MATE</div>
+                                <div class="text-[10px] text-emerald-400 font-bold" id="pass-node-role-label">학생 입시 관제</div>
+                            </div>
+                        </div>
+                        <div class="text-[11px] text-slate-300 leading-snug mb-3" id="pass-node-desc">
+                            실시간 순공 시간 · 5갈래 입시 노선도 가동 중
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">ACTIVE</span>
-                            <a href="/" class="text-[11px] font-extrabold text-emerald-400 hover:underline flex items-center gap-0.5 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                            <a id="pass-node-dashboard-link" href="/" class="text-[11px] font-extrabold text-emerald-400 hover:underline flex items-center gap-0.5 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                                 <span>대시보드 ↗</span>
                             </a>
                         </div>
@@ -182,19 +216,42 @@
                 </div>
 
                 <!-- 우측 핵심 날개 노드: 부모님 [SILVER-MATE] -->
-                <div id="orbit-node-silver" class="absolute right-4 sm:right-10 md:right-20 top-1/2 -translate-y-1/2 z-20" style="max-width: 220px;">
-                    <div onclick="focusNodeInUniverse('silver')" class="group cursor-pointer bg-slate-900/95 hover:bg-slate-900 border-2 border-pink-500/60 hover:border-pink-400 p-4 rounded-2xl shadow-[0_0_30px_rgba(236,72,153,0.25)] transition-all transform hover:-translate-y-1">
+                <div id="orbit-node-silver-container" class="absolute right-4 sm:right-10 md:right-20 top-1/2 -translate-y-1/2 z-20" style="max-width: 220px;">
+                    <!-- A. 미등록 상태: '+ SILVER-MATE 추가하기' -->
+                    <div id="silver-node-unverified" onclick="openSilverInviteModal()" class="group cursor-pointer bg-slate-900/90 hover:bg-slate-900 border-2 border-dashed border-pink-500/50 hover:border-pink-400 p-4 rounded-2xl shadow transition-all transform hover:-translate-y-1">
                         <div class="flex items-center gap-2 mb-2">
                             <span class="w-8 h-8 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center font-black">
                                 <span class="material-symbols-rounded text-lg">elderly</span>
                             </span>
                             <div>
                                 <div class="text-xs font-black text-white group-hover:text-pink-300 transition">SILVER-MATE</div>
-                                <div class="text-[10px] text-pink-400 font-bold">부모님 안부 & 효도</div>
+                                <div class="text-[10px] text-slate-400 font-bold">부모님 안심 & 효도</div>
                             </div>
                         </div>
                         <div class="text-[11px] text-slate-300 leading-snug mb-3">
-                            시니어 기상 안부 · 복약 일정 체크 · 보이스피싱 실시간 방어
+                            기상 안부 · 복약 시간표 · 보이스피싱 실시간 방어
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">미등록</span>
+                            <span class="text-[11px] font-black text-pink-400 flex items-center gap-0.5 bg-pink-500/10 px-2 py-0.5 rounded border border-pink-500/20">
+                                <span>+ 추가하기</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- B. 활성화 상태 -->
+                    <div id="silver-node-verified" style="display: none;" onclick="focusNodeInUniverse('silver')" class="group cursor-pointer bg-slate-900/95 hover:bg-slate-900 border-2 border-pink-500/60 hover:border-pink-400 p-4 rounded-2xl shadow-[0_0_30px_rgba(236,72,153,0.25)] transition-all transform hover:-translate-y-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="w-8 h-8 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center font-black">
+                                <span class="material-symbols-rounded text-lg">elderly</span>
+                            </span>
+                            <div>
+                                <div class="text-xs font-black text-white group-hover:text-pink-300 transition">SILVER-MATE</div>
+                                <div class="text-[10px] text-pink-400 font-bold" id="silver-node-name">부모님 안심 케어</div>
+                            </div>
+                        </div>
+                        <div class="text-[11px] text-slate-300 leading-snug mb-3">
+                            시니어 기상 안부 · 복약 일정 체크 · 긴급 안부 호출
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-pink-500/20 text-pink-300 border border-pink-500/30">안심 케어</span>
@@ -207,7 +264,6 @@
 
                 <!-- 상단 궤도 노드: BIZ-MATE (목데이터 완전 박멸 -> 사업자 인증 시에만 실제 상호명으로 활성화) -->
                 <div id="orbit-node-biz-container" class="absolute top-4 sm:top-6 left-1/2 -translate-x-1/2 z-10">
-                    <!-- JS 동적 렌더링 영역: 미인증 시 '+ 사업자 등록' 버튼, 인증 시 'BIZ-MATE (상호명)' 노드 -->
                     <div id="biz-node-unverified" onclick="openBizVerifyModal()" class="cursor-pointer bg-slate-900/60 hover:bg-slate-900/90 border border-dashed border-amber-500/40 hover:border-amber-400 px-3.5 py-2 rounded-xl text-center shadow transition flex items-center gap-2">
                         <span class="material-symbols-rounded text-sm text-amber-400/80">add_business</span>
                         <div class="text-left">
@@ -257,11 +313,11 @@
                                 <span class="material-symbols-rounded text-xl">school</span>
                             </div>
                             <div>
-                                <div class="text-xs font-extrabold text-emerald-400">자녀 학업 & 대입 관제 OS</div>
+                                <div class="text-xs font-extrabold text-emerald-400">초·중·고 학업 & 대입 관제 OS</div>
                                 <h3 class="text-xl font-black text-white">PASS-MATE</h3>
                             </div>
                         </div>
-                        <span class="text-xs font-black px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                        <span id="deck-pass-badge" class="text-xs font-black px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
                             ACTIVE LIVE
                         </span>
                     </div>
@@ -270,8 +326,8 @@
                     </p>
                     <div class="grid grid-cols-3 gap-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800 mb-5 text-center">
                         <div>
-                            <div class="text-[10px] text-slate-400 font-bold">자녀 상태</div>
-                            <div class="text-sm font-black text-emerald-400">학습 측정 중</div>
+                            <div class="text-[10px] text-slate-400 font-bold">연동 상태</div>
+                            <div class="text-sm font-black text-emerald-400" id="deck-pass-status-text">학습 측정 중</div>
                         </div>
                         <div>
                             <div class="text-[10px] text-slate-400 font-bold">입시 경로</div>
@@ -284,7 +340,7 @@
                     </div>
                 </div>
                 <div>
-                    <a href="/" class="w-full text-center py-3 px-4 rounded-xl text-xs font-extrabold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/30 transition flex items-center justify-center gap-2">
+                    <a id="btn-deck-pass-action" href="/" class="w-full text-center py-3 px-4 rounded-xl text-xs font-extrabold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/30 transition flex items-center justify-center gap-2">
                         <span class="material-symbols-rounded text-base">dashboard</span>
                         <span>PASS-MATE 대시보드로 이동</span>
                     </a>
@@ -318,22 +374,18 @@
                         </div>
                         <div>
                             <div class="text-[10px] text-slate-400 font-bold">복약 체크</div>
-                            <div class="text-sm font-black text-emerald-400">정상 복용</div>
+                            <div class="text-sm font-black text-white">시간표 가동</div>
                         </div>
                         <div>
-                            <div class="text-[10px] text-slate-400 font-bold">피싱 방어</div>
-                            <div class="text-sm font-black text-cyan-400">0건 (안전)</div>
+                            <div class="text-[10px] text-slate-400 font-bold">효도 케어</div>
+                            <div class="text-sm font-black text-pink-300">실시간 연동</div>
                         </div>
                     </div>
                 </div>
-                <div class="flex gap-2">
-                    <a href="/silver/guardian" class="flex-1 text-center py-3 px-4 rounded-xl text-xs font-extrabold bg-pink-600 hover:bg-pink-500 text-white shadow-lg shadow-pink-900/30 transition flex items-center justify-center gap-1.5">
-                        <span class="material-symbols-rounded text-base">family_restroom</span>
-                        <span>자녀 효도 관제탑으로 이동</span>
-                    </a>
-                    <a href="/silver/senior-home" class="py-3 px-3.5 rounded-xl text-xs font-extrabold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center justify-center gap-1" title="부모님용 큰글씨 홈 화면 보기">
-                        <span class="material-symbols-rounded text-base">settings_accessibility</span>
-                        <span>부모님 화면</span>
+                <div>
+                    <a href="/silver/guardian" class="w-full text-center py-3 px-4 rounded-xl text-xs font-extrabold bg-pink-600 hover:bg-pink-500 text-white shadow-lg shadow-pink-900/30 transition flex items-center justify-center gap-2">
+                        <span class="material-symbols-rounded text-base">visibility</span>
+                        <span>실버메이트 안심 관제탑으로 이동</span>
                     </a>
                 </div>
             </div>
@@ -342,8 +394,248 @@
 
     </main>
 
-    <!-- 4. [MODAL] 사업자등록번호 인증 모달 (BIZ-MATE 활성화) -->
-    <div id="biz-verify-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
+    <!-- ====================================================================== -->
+    <!-- 4. [MODAL 1] 단일 통합 로그인 & 10초 간편가입 모달 -->
+    <!-- ====================================================================== -->
+    <div id="unified-auth-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
+        <div class="bg-[#0f172a] border-2 border-indigo-500/50 rounded-2xl p-6 sm:p-7 w-full max-w-md shadow-2xl relative">
+            <div class="flex justify-between items-center mb-5 border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="material-symbols-rounded text-indigo-400 text-2xl">hub</span>
+                    <div>
+                        <h3 class="text-base font-black text-white" id="auth-modal-title">PALIN 통합 계정</h3>
+                        <p class="text-[11px] text-slate-400">단 하나의 계정으로 나(Hub) 중심 관계도를 펼칩니다.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeUnifiedAuthModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+            </div>
+
+            <!-- 로그인 / 간편가입 탭 스위처 -->
+            <div class="grid grid-cols-2 gap-1.5 p-1 bg-slate-900 rounded-xl mb-4 border border-slate-800">
+                <button type="button" id="tab-auth-login" onclick="switchAuthTab('LOGIN')" class="py-2 text-xs font-black rounded-lg transition cursor-pointer bg-indigo-600 text-white shadow">
+                    간편 로그인
+                </button>
+                <button type="button" id="tab-auth-register" onclick="switchAuthTab('REGISTER')" class="py-2 text-xs font-bold rounded-lg transition cursor-pointer text-slate-400 hover:text-white">
+                    10초 간편가입
+                </button>
+            </div>
+
+            <!-- A. 로그인 폼 -->
+            <form id="form-unified-login" onsubmit="handleUnifiedLoginSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">아이디 (휴대폰 번호 또는 이메일)</label>
+                    <input type="text" id="login-identifier" required placeholder="010-0000-0000 또는 이메일" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-indigo-400 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">비밀번호</label>
+                    <input type="password" id="login-password" required placeholder="비밀번호를 입력하세요" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-indigo-400 focus:outline-none">
+                </div>
+                <div class="pt-2">
+                    <button type="submit" id="btn-submit-unified-login" class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-black shadow-lg shadow-indigo-900/30 transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        <span class="material-symbols-rounded text-sm">login</span>
+                        <span>로그인 및 관계도 열기</span>
+                    </button>
+                </div>
+                <div class="text-center pt-1">
+                    <button type="button" onclick="switchAuthTab('REGISTER')" class="text-xs text-indigo-400 hover:underline">
+                        처음이신가요? <strong>10초 간편 회원가입 →</strong>
+                    </button>
+                </div>
+            </form>
+
+            <!-- B. 10초 간편가입 폼 -->
+            <form id="form-unified-register" onsubmit="handleUnifiedRegisterSubmit(event)" style="display: none;" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">성명 (이름)</label>
+                    <input type="text" id="reg-name" required placeholder="본인 성함 (예: 김철훈)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-indigo-400 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">본인 휴대폰 번호 (연락처)</label>
+                    <input type="tel" id="reg-phone" required placeholder="010-0000-0000" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-indigo-400 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">이메일 주소</label>
+                    <div class="flex gap-2">
+                        <input type="email" id="reg-email" required placeholder="example@email.com" class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-indigo-400 focus:outline-none">
+                        <button type="button" onclick="sendRegisterEmailOtp()" id="btn-send-reg-otp" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold rounded-xl transition flex-shrink-0 cursor-pointer">
+                            인증발송
+                        </button>
+                    </div>
+                </div>
+                <div id="box-reg-otp" style="display: none;">
+                    <label class="block text-xs font-bold text-slate-300 mb-1">이메일 인증번호 6자리</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="reg-otp-code" maxlength="6" placeholder="인증번호 6자리" class="flex-1 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                        <button type="button" onclick="verifyRegisterEmailOtp()" id="btn-verify-reg-otp" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition flex-shrink-0 cursor-pointer">
+                            확인
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">비밀번호 설정</label>
+                    <input type="password" id="reg-password" required minlength="4" placeholder="비밀번호 (4자리 이상)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-indigo-400 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">비밀번호 확인</label>
+                    <input type="password" id="reg-password-confirm" required minlength="4" placeholder="비밀번호 재입력" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-indigo-400 focus:outline-none">
+                </div>
+                <div class="pt-2">
+                    <button type="submit" id="btn-submit-unified-reg" class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-black shadow-lg shadow-indigo-900/30 transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        <span class="material-symbols-rounded text-sm">person_add</span>
+                        <span>10초 회원가입 완료 및 관계도 열기</span>
+                    </button>
+                </div>
+                <div class="text-center pt-1">
+                    <button type="button" onclick="switchAuthTab('LOGIN')" class="text-xs text-indigo-400 hover:underline">
+                        이미 계정이 있으신가요? <strong>로그인하기 →</strong>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ====================================================================== -->
+    <!-- 5. [MODAL 2] PASS-MATE 점진적 프로파일링 / 서비스 추가하기 모달 -->
+    <!-- ====================================================================== -->
+    <div id="passmate-onboarding-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
+        <div class="bg-[#0f172a] border-2 border-emerald-500/50 rounded-2xl p-6 sm:p-7 w-full max-w-lg shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="material-symbols-rounded text-emerald-400 text-2xl">school</span>
+                    <div>
+                        <h3 class="text-base font-black text-white">PASS-MATE 입시 & 학업 관제 활성화</h3>
+                        <p class="text-[11px] text-slate-400">회원 유형을 선택하고 추가 정보를 입력하여 관계도에 연결합니다.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closePassmateOnboardingModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+            </div>
+
+            <!-- 기본 가입 정보 (자동 완성 & 읽기 전용) -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 mb-4 space-y-1.5">
+                <div class="text-[10px] font-bold text-slate-400 flex items-center gap-1">
+                    <span class="material-symbols-rounded text-xs text-indigo-400">check_circle</span>
+                    <span>통합 계정 기본 정보 (자동 연동)</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-xs">
+                    <div><span class="text-slate-500">이름:</span> <strong id="pm-prefill-name" class="text-white">-</strong></div>
+                    <div><span class="text-slate-500">연락처:</span> <strong id="pm-prefill-phone" class="text-white">-</strong></div>
+                    <div class="truncate"><span class="text-slate-500">이메일:</span> <strong id="pm-prefill-email" class="text-white">-</strong></div>
+                </div>
+            </div>
+
+            <!-- 신분/회원 유형 3-Way 셀렉터 -->
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-slate-300 mb-2">회원 유형 선택</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <button type="button" id="btn-role-student" onclick="selectPassmateRole('STUDENT')" class="py-2.5 px-2 rounded-xl text-xs font-black border-2 border-emerald-500 bg-emerald-500/20 text-emerald-300 transition flex flex-col items-center gap-1 cursor-pointer">
+                        <span class="material-symbols-rounded text-base">person</span>
+                        <span>🧑‍🎓 학생 (수험생)</span>
+                    </button>
+                    <button type="button" id="btn-role-parent" onclick="selectPassmateRole('PARENT')" class="py-2.5 px-2 rounded-xl text-xs font-bold border border-slate-700 bg-slate-900 text-slate-300 hover:text-white transition flex flex-col items-center gap-1 cursor-pointer">
+                        <span class="material-symbols-rounded text-base">diversity_1</span>
+                        <span>👨‍👩‍👧 학부모</span>
+                    </button>
+                    <button type="button" id="btn-role-director" onclick="selectPassmateRole('DIRECTOR')" class="py-2.5 px-2 rounded-xl text-xs font-bold border border-slate-700 bg-slate-900 text-slate-300 hover:text-white transition flex flex-col items-center gap-1 cursor-pointer">
+                        <span class="material-symbols-rounded text-base">corporate_fare</span>
+                        <span>🏢 학원장</span>
+                    </button>
+                </div>
+            </div>
+
+            <form onsubmit="handlePassmateActivateSubmit(event)" class="space-y-4">
+                
+                <!-- A. 학생 회원 전용 입력 항목 -->
+                <div id="section-role-student" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">고등학교 / 중학교명</label>
+                        <input type="text" id="pm-st-school" required placeholder="예: 낙생고등학교 / 대치중학교" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">학년</label>
+                            <select id="pm-st-grade" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                                <option value="고3">고등학교 3학년</option>
+                                <option value="고2">고등학교 2학년</option>
+                                <option value="고1">고등학교 1학년</option>
+                                <option value="N수">N수 / 재수생</option>
+                                <option value="중3">중학교 3학년</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">가맹 학원 코드 (선택)</label>
+                            <input type="text" id="pm-st-academy" value="ILWON-2027" placeholder="ILWON-2027" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">1지망 목표 대학 / 학과</label>
+                        <input type="text" id="pm-st-target" required placeholder="예: 연세대학교 의예과 / 서울대학교 컴퓨터공학부" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">마지노선 대학 (절대 사수선)</label>
+                        <input type="text" id="pm-st-baseline" placeholder="예: 서강대학교 기계공학과 / 성균관대학교" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">부모님 연락처 (선택 - 자동 연동용)</label>
+                        <input type="tel" id="pm-st-parent-phone" placeholder="010-0000-0000" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- B. 학부모 회원 전용 입력 항목 -->
+                <div id="section-role-parent" style="display: none;" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">자녀(학생) 성명</label>
+                        <input type="text" id="pm-pa-child-name" placeholder="학생 이름 (예: 김수험)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">자녀(학생) 휴대폰 번호</label>
+                        <input type="tel" id="pm-pa-child-phone" placeholder="010-0000-0000" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                    </div>
+                    <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs">
+                        💡 <strong>자동 연동 안내:</strong> 자녀가 PASS-MATE에 가입되어 있는 경우, 자녀의 휴대폰 번호로 3초 만에 실시간 성적 및 순공 데이터가 연동됩니다.
+                    </div>
+                </div>
+
+                <!-- C. 학원장 전용 항목 (B2B 결제 전 잠금 및 본사 승인 안내) -->
+                <div id="section-role-director" style="display: none;" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">운영 학원명</label>
+                        <input type="text" id="pm-dir-academy-name" placeholder="예: 일원학원 대치본원 / OO수학전문학원" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">학원 소재 지역</label>
+                        <input type="text" id="pm-dir-region" placeholder="예: 서울 강남구 / 경기 성남시 분당구" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                    </div>
+                    
+                    <!-- 🔒 B2B 결제 잠금 & 본사 이메일 연락처 안내 배너 (유저 요구사항 100% 반영) -->
+                    <div class="bg-amber-950/40 border border-amber-500/50 rounded-xl p-4 text-left space-y-2.5">
+                        <div class="flex items-center gap-2 text-amber-400 font-extrabold text-xs">
+                            <span class="material-symbols-rounded text-sm">lock</span>
+                            <span>학원장 관제실(B2B) 엔터프라이즈 라이선스 승인 안내</span>
+                        </div>
+                        <p class="text-[11px] text-slate-300 leading-relaxed">
+                            학원장 관제실은 <strong>엔터프라이즈 정회원 라이선스 결제 및 본사 인가</strong> 후 활성화됩니다. 아래 버튼으로 사전 접수 후 본사로 연락 주시면 즉시 결제 및 세팅이 진행됩니다.
+                        </p>
+                        <div class="text-[11px] text-amber-300 font-bold space-y-1 bg-slate-900/90 p-3 rounded-lg border border-amber-500/30">
+                            <div>📧 본사 라이선스 승인 이메일: <a href="mailto:1286ok@naver.com" class="underline text-white font-black">1286ok@naver.com</a> (김철훈 대표)</div>
+                            <div>📞 대표 직통 유선 번호: <a href="tel:01055272979" class="underline text-white font-black">010-5527-2979</a></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" id="btn-submit-pm-activate" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white text-xs font-black shadow-lg shadow-emerald-900/30 transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        <span class="material-symbols-rounded text-sm">verified</span>
+                        <span id="btn-submit-pm-text">PASS-MATE 학생 관제 활성화 및 대시보드 입장</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ====================================================================== -->
+    <!-- 6. [MODAL 3] 사업자등록번호 인증 모달 (BIZ-MATE 활성화) -->
+    <!-- ====================================================================== -->
+    <div id="biz-verify-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
         <div class="bg-[#0f172a] border-2 border-amber-500/50 rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
             <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
                 <div class="flex items-center gap-2.5">
@@ -359,7 +651,7 @@
             <form onsubmit="handleBizVerifySubmit(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1.5">상호명 (사업장 이름)</label>
-                    <input type="text" id="input-biz-name" required placeholder="예: 일원학원 대치본원 / OO베이커리" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                    <input type="text" id="input-biz-name" required placeholder="예: 일원학원 주식회사" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
                 </div>
 
                 <div>
@@ -369,7 +661,7 @@
 
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1.5">대표자명</label>
-                    <input type="text" id="input-biz-owner" placeholder="대표자 성명" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                    <input type="text" id="input-biz-owner" placeholder="대표자 성명 (예: 김철훈)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
                 </div>
 
                 <div class="pt-2">
@@ -382,61 +674,489 @@
         </div>
     </div>
 
-    <!-- 5. 푸터 -->
+    <!-- 7. 푸터 -->
     <footer class="border-t border-slate-800/80 bg-[#0f172a]/60 py-4 px-6 text-center text-xs text-slate-500">
-        PALIN Family Hub · Verified Persona Orbit Engine
+        PALIN Family Hub · Unified Identity Orbit Engine
     </footer>
 
-    <!-- 인터랙티브 스크립트 -->
+    <!-- ====================================================================== -->
+    <!-- 8. 인터랙티브 스크립트 -->
+    <!-- ====================================================================== -->
     <script>
-        // 페이지 로드 시 실제 사업자 인증 여부 확인 및 동적 노드 세팅 (목데이터 차단)
-        async function checkBizStatus() {
-            const sid = localStorage.getItem("studentId");
-            const localBizName = localStorage.getItem("verified_biz_name");
+        let currentUser = null;
+        let selectedPassmateRole = 'STUDENT';
 
-            // 로컬에 이미 저장된 인증 사업자가 있는 경우 즉시 반영
-            if (localBizName) {
-                renderVerifiedBizNode(localBizName);
+        // 페이지 로드 시 실시간 인증 및 오빗 상태 로드
+        document.addEventListener('DOMContentLoaded', async () => {
+            loadUserFromStorage();
+            await refreshUnifiedOrbitStatus();
+        });
+
+        function loadUserFromStorage() {
+            const raw = localStorage.getItem("unified_user");
+            if (raw) {
+                try {
+                    currentUser = JSON.parse(raw);
+                    updateHeaderUserUI();
+                } catch(e) {}
+            }
+        }
+
+        function updateHeaderUserUI() {
+            const btnLogin = document.getElementById('btn-header-login');
+            const boxInfo = document.getElementById('header-user-info');
+            const nameEl = document.getElementById('header-user-name');
+            const roleEl = document.getElementById('header-user-role');
+            const coreName = document.getElementById('hub-user-name');
+            const corePhone = document.getElementById('hub-user-phone');
+
+            if (currentUser && currentUser.name) {
+                if (btnLogin) btnLogin.style.display = 'none';
+                if (boxInfo) boxInfo.style.display = 'flex';
+                if (nameEl) nameEl.innerText = `${currentUser.name} 님`;
+                if (roleEl) roleEl.innerText = currentUser.role || 'MEMBER';
+                if (coreName) coreName.innerText = currentUser.name;
+                if (corePhone) corePhone.innerText = currentUser.phone ? formatPhone(currentUser.phone) : '단일 PALIN ID 연동';
+            } else {
+                if (btnLogin) btnLogin.style.display = 'flex';
+                if (boxInfo) boxInfo.style.display = 'none';
+                if (coreName) coreName.innerText = '나 (Me)';
+                if (corePhone) corePhone.innerText = '로그인 후 연동';
+            }
+        }
+
+        function formatPhone(p) {
+            const clean = (p || '').replace(/[^0-9]/g, '');
+            if (clean.length === 11) return `${clean.slice(0,3)}-${clean.slice(3,7)}-${clean.slice(7)}`;
+            if (clean.length === 10) return `${clean.slice(0,3)}-${clean.slice(3,6)}-${clean.slice(6)}`;
+            return p;
+        }
+
+        // 통합 오빗 상태 실시간 새로고침
+        async function refreshUnifiedOrbitStatus() {
+            const sid = currentUser ? currentUser.id : localStorage.getItem("userId");
+            const phone = currentUser ? currentUser.phone : localStorage.getItem("userPhone");
+
+            try {
+                const q = sid ? `?user_id=${sid}` : (phone ? `?phone=${phone}` : '');
+                const res = await fetch('/api/auth/unified/status' + q);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.is_logged_in) {
+                        if (!currentUser) {
+                            currentUser = {
+                                id: sid || 1,
+                                name: data.name,
+                                phone: data.phone,
+                                email: data.email,
+                                role: data.role
+                            };
+                            localStorage.setItem("unified_user", JSON.stringify(currentUser));
+                        }
+                        updateHeaderUserUI();
+                    }
+
+                    // A. PASS-MATE 노드 렌더링
+                    renderPassmateNode(data.passmate);
+
+                    // B. BIZ-MATE 노드 렌더링
+                    renderBizNode(data.bizmate);
+
+                    // C. SILVER-MATE 노드 렌더링
+                    renderSilverNode(data.silvermate);
+                }
+            } catch (err) {
+                console.warn("Orbit status fetch note:", err);
+            }
+        }
+
+        function renderPassmateNode(pm) {
+            const unverified = document.getElementById('pass-node-unverified');
+            const verified = document.getElementById('pass-node-verified');
+            const labelEl = document.getElementById('pass-node-role-label');
+            const descEl = document.getElementById('pass-node-desc');
+            const dashLink = document.getElementById('pass-node-dashboard-link');
+            const deckBadge = document.getElementById('deck-pass-badge');
+            const deckStatusText = document.getElementById('deck-pass-status-text');
+            const btnDeckAction = document.getElementById('btn-deck-pass-action');
+
+            if (pm && pm.is_active) {
+                if (unverified) unverified.style.display = 'none';
+                if (verified) verified.style.display = 'block';
+                if (labelEl) labelEl.innerText = pm.label || 'PASS-MATE ACTIVE';
+                if (descEl) descEl.innerText = `${pm.label} · 순공 타이머 & 5갈래 입시 노선 가동 중`;
+                if (dashLink) dashLink.href = pm.dashboard_url || '/';
+                if (deckBadge) {
+                    deckBadge.innerText = 'ACTIVE LIVE';
+                    deckBadge.className = 'text-xs font-black px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+                }
+                if (deckStatusText) deckStatusText.innerText = pm.label || '학습 측정 중';
+                if (btnDeckAction) {
+                    btnDeckAction.href = pm.dashboard_url || '/';
+                    btnDeckAction.innerHTML = '<span class="material-symbols-rounded text-base">dashboard</span><span>대시보드로 이동</span>';
+                }
+            } else {
+                if (unverified) unverified.style.display = 'block';
+                if (verified) verified.style.display = 'none';
+                if (deckBadge) {
+                    deckBadge.innerText = '미등록 대기';
+                    deckBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
+                }
+                if (deckStatusText) deckStatusText.innerText = '프로필 필요';
+                if (btnDeckAction) {
+                    btnDeckAction.removeAttribute('href');
+                    btnDeckAction.onclick = () => openPassmateOnboardingModal();
+                    btnDeckAction.innerHTML = '<span class="material-symbols-rounded text-base">add_circle</span><span>+ PASS-MATE 추가하기</span>';
+                }
+            }
+        }
+
+        function renderBizNode(bm) {
+            const unverified = document.getElementById('biz-node-unverified');
+            const verified = document.getElementById('biz-node-verified');
+            const nameEl = document.getElementById('biz-display-name');
+
+            if (bm && bm.is_active && bm.biz_name) {
+                if (unverified) unverified.style.display = 'none';
+                if (verified) verified.style.display = 'flex';
+                if (nameEl) nameEl.innerText = `BIZ: ${bm.biz_name}`;
+            } else {
+                if (unverified) unverified.style.display = 'flex';
+                if (verified) verified.style.display = 'none';
+            }
+        }
+
+        function renderSilverNode(sm) {
+            const unverified = document.getElementById('silver-node-unverified');
+            const verified = document.getElementById('silver-node-verified');
+            const nameEl = document.getElementById('silver-node-name');
+
+            if (sm && sm.is_active) {
+                if (unverified) unverified.style.display = 'none';
+                if (verified) verified.style.display = 'block';
+                if (nameEl && sm.senior_name) nameEl.innerText = `${sm.senior_name} 안심 케어`;
+            } else {
+                if (unverified) unverified.style.display = 'block';
+                if (verified) verified.style.display = 'none';
+            }
+        }
+
+        // --- AUTH MODAL CONTROLS ---
+        function openUnifiedAuthModal(tab = 'LOGIN') {
+            const m = document.getElementById('unified-auth-modal');
+            if (m) m.style.display = 'flex';
+            switchAuthTab(tab);
+        }
+
+        function closeUnifiedAuthModal() {
+            const m = document.getElementById('unified-auth-modal');
+            if (m) m.style.display = 'none';
+        }
+
+        function switchAuthTab(tab) {
+            const tabLogin = document.getElementById('tab-auth-login');
+            const tabReg = document.getElementById('tab-auth-register');
+            const formLogin = document.getElementById('form-unified-login');
+            const formReg = document.getElementById('form-unified-register');
+            const titleEl = document.getElementById('auth-modal-title');
+
+            if (tab === 'LOGIN') {
+                if (tabLogin) tabLogin.className = 'py-2 text-xs font-black rounded-lg transition cursor-pointer bg-indigo-600 text-white shadow';
+                if (tabReg) tabReg.className = 'py-2 text-xs font-bold rounded-lg transition cursor-pointer text-slate-400 hover:text-white';
+                if (formLogin) formLogin.style.display = 'block';
+                if (formReg) formReg.style.display = 'none';
+                if (titleEl) titleEl.innerText = 'PALIN 통합 로그인';
+            } else {
+                if (tabLogin) tabLogin.className = 'py-2 text-xs font-bold rounded-lg transition cursor-pointer text-slate-400 hover:text-white';
+                if (tabReg) tabReg.className = 'py-2 text-xs font-black rounded-lg transition cursor-pointer bg-indigo-600 text-white shadow';
+                if (formLogin) formLogin.style.display = 'none';
+                if (formReg) formReg.style.display = 'block';
+                if (titleEl) titleEl.innerText = '10초 간편 회원가입';
+            }
+        }
+
+        async function handleUnifiedLoginSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('login-identifier').value.trim();
+            const pw = document.getElementById('login-password').value.trim();
+            const btn = document.getElementById('btn-submit-unified-login');
+
+            if (!id || !pw) return alert('아이디(연락처/이메일)와 비밀번호를 입력해주세요.');
+
+            if (btn) btn.innerText = '로그인 중...';
+
+            try {
+                const res = await fetch('/api/auth/unified/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ identifier: id, password: pw })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    currentUser = data.user;
+                    localStorage.setItem("unified_user", JSON.stringify(currentUser));
+                    localStorage.setItem("authToken", data.token);
+                    if (data.user.id) localStorage.setItem("userId", data.user.id);
+                    if (data.user.phone) localStorage.setItem("userPhone", data.user.phone);
+
+                    closeUnifiedAuthModal();
+                    updateHeaderUserUI();
+                    await refreshUnifiedOrbitStatus();
+                    alert(`'${data.user.name}'님 환영합니다! 자기중심 관계도가 활성화되었습니다.`);
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    alert(err.detail || '로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.');
+                }
+            } catch (err) {
+                alert('서버 연결 중 문제가 발생했습니다.');
+            } finally {
+                if (btn) btn.innerHTML = '<span class="material-symbols-rounded text-sm">login</span><span>로그인 및 관계도 열기</span>';
+            }
+        }
+
+        async function sendRegisterEmailOtp() {
+            const email = document.getElementById('reg-email').value.trim();
+            const btn = document.getElementById('btn-send-reg-otp');
+            if (!email || !email.includes('@')) return alert('올바른 이메일 주소를 입력해주세요.');
+
+            if (btn) btn.innerText = '발송 중...';
+            try {
+                const res = await fetch('/api/auth/unified/send-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (res.ok) {
+                    alert(data.message || '인증번호가 발송되었습니다. 메일함을 확인해주세요.');
+                    document.getElementById('box-reg-otp').style.display = 'block';
+                } else {
+                    alert(data.detail || '인증번호 발송에 실패했습니다.');
+                }
+            } catch (e) {
+                alert('인증 서버 연결 중 오류가 발생했습니다.');
+            } finally {
+                if (btn) btn.innerText = '재발송';
+            }
+        }
+
+        async function verifyRegisterEmailOtp() {
+            const email = document.getElementById('reg-email').value.trim();
+            const code = document.getElementById('reg-otp-code').value.trim();
+            if (!code || code.length < 6) return alert('6자리 인증번호를 입력해주세요.');
+
+            try {
+                const res = await fetch('/api/auth/unified/verify-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, code: code })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (res.ok) {
+                    alert('이메일 인증이 완료되었습니다.');
+                    const btn = document.getElementById('btn-verify-reg-otp');
+                    if (btn) {
+                        btn.innerText = '인증완료 ✓';
+                        btn.className = 'px-3 py-2 bg-emerald-700 text-white text-xs font-bold rounded-xl flex-shrink-0 cursor-default';
+                        btn.disabled = true;
+                    }
+                } else {
+                    alert(data.detail || '인증번호가 일치하지 않습니다.');
+                }
+            } catch (e) {
+                alert('인증 확인 중 오류가 발생했습니다.');
+            }
+        }
+
+        async function handleUnifiedRegisterSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value.trim();
+            const phone = document.getElementById('reg-phone').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const pw = document.getElementById('reg-password').value.trim();
+            const pwConfirm = document.getElementById('reg-password-confirm').value.trim();
+            const btn = document.getElementById('btn-submit-unified-reg');
+
+            if (!name || !phone || !email || !pw) return alert('모든 필수 정보를 입력해주세요.');
+            if (pw !== pwConfirm) return alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+            if (pw.length < 4) return alert('비밀번호는 최소 4자리 이상이어야 합니다.');
+
+            if (btn) btn.innerText = '계정 생성 중...';
+
+            try {
+                const res = await fetch('/api/auth/unified/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: name,
+                        phone: phone,
+                        email: email,
+                        password: pw,
+                        password_confirm: pwConfirm
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    currentUser = data.user;
+                    localStorage.setItem("unified_user", JSON.stringify(currentUser));
+                    localStorage.setItem("authToken", data.token);
+                    if (data.user.id) localStorage.setItem("userId", data.user.id);
+                    if (data.user.phone) localStorage.setItem("userPhone", data.user.phone);
+
+                    closeUnifiedAuthModal();
+                    updateHeaderUserUI();
+                    await refreshUnifiedOrbitStatus();
+                    alert(`'${name}'님의 기본 통합 계정이 생성되었습니다!
+이제 필요하신 서비스(+ 추가하기)를 선택하여 관계도에 연결하세요.`);
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    alert(err.detail || '회원가입에 실패했습니다.');
+                }
+            } catch (err) {
+                alert('서버 통신 중 문제가 발생했습니다.');
+            } finally {
+                if (btn) btn.innerHTML = '<span class="material-symbols-rounded text-sm">person_add</span><span>10초 회원가입 완료 및 관계도 열기</span>';
+            }
+        }
+
+        function handleLogout() {
+            if (!confirm('로그아웃 하시겠습니까?')) return;
+            currentUser = null;
+            localStorage.removeItem("unified_user");
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("userId");
+            localStorage.removeItem("userPhone");
+            updateHeaderUserUI();
+            refreshUnifiedOrbitStatus();
+        }
+
+        // --- PASS-MATE ONBOARDING MODAL CONTROLS ---
+        function openPassmateOnboardingModal() {
+            if (!currentUser) {
+                alert('PASS-MATE를 추가하기 전에 먼저 기본 통합 계정으로 로그인 또는 10초 간편가입을 진행해 주세요.');
+                openUnifiedAuthModal('REGISTER');
                 return;
             }
 
-            // 서버 DB에서 실제 사업자 인증 내역 조회
-            try {
-                const res = await fetch('/api/biz/status' + (sid ? `?student_id=${sid}` : ''));
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data && data.is_active && data.biz_name) {
-                        localStorage.setItem("verified_biz_name", data.biz_name);
-                        renderVerifiedBizNode(data.biz_name);
-                        return;
-                    }
-                }
-            } catch (e) {
-                console.warn("Biz status check error:", e);
+            document.getElementById('pm-prefill-name').innerText = currentUser.name || '-';
+            document.getElementById('pm-prefill-phone').innerText = currentUser.phone ? formatPhone(currentUser.phone) : '-';
+            document.getElementById('pm-prefill-email').innerText = currentUser.email || '-';
+
+            selectPassmateRole('STUDENT');
+
+            const m = document.getElementById('passmate-onboarding-modal');
+            if (m) m.style.display = 'flex';
+        }
+
+        function closePassmateOnboardingModal() {
+            const m = document.getElementById('passmate-onboarding-modal');
+            if (m) m.style.display = 'none';
+        }
+
+        function selectPassmateRole(role) {
+            selectedPassmateRole = role;
+            const btnSt = document.getElementById('btn-role-student');
+            const btnPa = document.getElementById('btn-role-parent');
+            const btnDir = document.getElementById('btn-role-director');
+
+            const secSt = document.getElementById('section-role-student');
+            const secPa = document.getElementById('section-role-parent');
+            const secDir = document.getElementById('section-role-director');
+            const submitText = document.getElementById('btn-submit-pm-text');
+
+            // Reset classes
+            [btnSt, btnPa, btnDir].forEach(b => {
+                if (b) b.className = 'py-2.5 px-2 rounded-xl text-xs font-bold border border-slate-700 bg-slate-900 text-slate-300 hover:text-white transition flex flex-col items-center gap-1 cursor-pointer';
+            });
+
+            if (secSt) secSt.style.display = 'none';
+            if (secPa) secPa.style.display = 'none';
+            if (secDir) secDir.style.display = 'none';
+
+            if (role === 'STUDENT') {
+                if (btnSt) btnSt.className = 'py-2.5 px-2 rounded-xl text-xs font-black border-2 border-emerald-500 bg-emerald-500/20 text-emerald-300 transition flex flex-col items-center gap-1 cursor-pointer';
+                if (secSt) secSt.style.display = 'block';
+                if (submitText) submitText.innerText = 'PASS-MATE 학생 관제 활성화 및 대시보드 입장';
+            } else if (role === 'PARENT') {
+                if (btnPa) btnPa.className = 'py-2.5 px-2 rounded-xl text-xs font-black border-2 border-emerald-500 bg-emerald-500/20 text-emerald-300 transition flex flex-col items-center gap-1 cursor-pointer';
+                if (secPa) secPa.style.display = 'block';
+                if (submitText) submitText.innerText = 'PASS-MATE 학부모 안심 케어 활성화 및 관제탑 입장';
+            } else if (role === 'DIRECTOR') {
+                if (btnDir) btnDir.className = 'py-2.5 px-2 rounded-xl text-xs font-black border-2 border-amber-500 bg-amber-500/20 text-amber-300 transition flex flex-col items-center gap-1 cursor-pointer';
+                if (secDir) secDir.style.display = 'block';
+                if (submitText) submitText.innerText = '학원장 관제실 사용 신청 접수 (결제 및 승인 대기)';
+            }
+        }
+
+        async function handlePassmateActivateSubmit(e) {
+            e.preventDefault();
+            if (!currentUser || !currentUser.id) {
+                alert('로그인 세션이 만료되었습니다. 다시 로그인해 주세요.');
+                return;
             }
 
-            // 인증 내역이 없으면 미등록 점선 버튼 유지
-            renderUnverifiedBizNode();
+            const payload = {
+                user_id: currentUser.id,
+                role: selectedPassmateRole
+            };
+
+            if (selectedPassmateRole === 'STUDENT') {
+                payload.high_school = document.getElementById('pm-st-school').value.trim();
+                payload.grade = document.getElementById('pm-st-grade').value;
+                payload.target_univ_1 = document.getElementById('pm-st-target').value.trim();
+                payload.target_univ_fail = document.getElementById('pm-st-baseline').value.trim();
+                payload.academy_code = document.getElementById('pm-st-academy').value.trim();
+                payload.parent_phone = document.getElementById('pm-st-parent-phone').value.trim();
+            } else if (selectedPassmateRole === 'PARENT') {
+                payload.child_name = document.getElementById('pm-pa-child-name').value.trim();
+                payload.child_phone = document.getElementById('pm-pa-child-phone').value.trim();
+            } else if (selectedPassmateRole === 'DIRECTOR') {
+                payload.academy_name = document.getElementById('pm-dir-academy-name').value.trim();
+                payload.academy_region = document.getElementById('pm-dir-region').value.trim();
+            }
+
+            const btn = document.getElementById('btn-submit-pm-activate');
+            if (btn) btn.innerText = '처리 중...';
+
+            try {
+                const res = await fetch('/api/passmate/activate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    if (data.is_locked) {
+                        // 학원장 B2B 결제 전 잠금 안내
+                        alert(`${data.message}
+
+[본사 승인 문의]
+이메일: ${data.contact_email}
+직통전화: ${data.contact_phone}`);
+                    } else {
+                        alert(data.message || 'PASS-MATE가 성공적으로 활성화되었습니다!');
+                    }
+                    closePassmateOnboardingModal();
+                    await refreshUnifiedOrbitStatus();
+                    if (!data.is_locked && data.dashboard_url) {
+                        if (confirm('지금 바로 대시보드로 이동하시겠습니까?')) {
+                            location.href = data.dashboard_url;
+                        }
+                    }
+                } else {
+                    alert(data.detail || '활성화 처리에 실패했습니다.');
+                }
+            } catch (err) {
+                alert('서버 연결 중 오류가 발생했습니다.');
+            } finally {
+                if (btn) btn.innerHTML = '<span class="material-symbols-rounded text-sm">verified</span><span>' + (document.getElementById('btn-submit-pm-text')?.innerText || '완료') + '</span>';
+            }
         }
 
-        function renderVerifiedBizNode(name) {
-            const unverifiedEl = document.getElementById('biz-node-unverified');
-            const verifiedEl = document.getElementById('biz-node-verified');
-            const nameEl = document.getElementById('biz-display-name');
-
-            if (unverifiedEl) unverifiedEl.style.display = 'none';
-            if (verifiedEl) verifiedEl.style.display = 'flex';
-            if (nameEl) nameEl.innerText = `BIZ: ${name}`;
-        }
-
-        function renderUnverifiedBizNode() {
-            const unverifiedEl = document.getElementById('biz-node-unverified');
-            const verifiedEl = document.getElementById('biz-node-verified');
-
-            if (unverifiedEl) unverifiedEl.style.display = 'flex';
-            if (verifiedEl) verifiedEl.style.display = 'none';
-        }
-
+        // --- BIZ-MATE MODAL CONTROLS ---
         function openBizVerifyModal() {
             const modal = document.getElementById('biz-verify-modal');
             if (modal) modal.style.display = 'flex';
@@ -458,7 +1178,7 @@
                 return;
             }
 
-            const sid = localStorage.getItem("studentId");
+            const sid = currentUser ? currentUser.id : localStorage.getItem("userId");
             const btn = document.getElementById('btn-submit-biz-verify');
             if (btn) btn.innerText = "국세청 인증 확인 중...";
 
@@ -476,7 +1196,7 @@
                 if (res.ok) {
                     const result = await res.json();
                     localStorage.setItem("verified_biz_name", name);
-                    renderVerifiedBizNode(name);
+                    renderBizNode({ is_active: true, biz_name: name });
                     closeBizVerifyModal();
                     alert(`'${name}' 사업자 인증이 완료되었습니다. 자기중심 관계도에 활성화되었습니다.`);
                 } else {
@@ -498,6 +1218,11 @@
             }
         }
 
+        function openSilverInviteModal() {
+            alert('부모님(시니어)과 안심 케어를 연결합니다. 실버메이트 관제탑으로 이동합니다.');
+            location.href = '/silver/guardian';
+        }
+
         function focusNodeInUniverse(target) {
             const cardPass = document.getElementById('card-pass-deck');
             const cardSilver = document.getElementById('card-silver-deck');
@@ -516,10 +1241,6 @@
                 }
             }
         }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            checkBizStatus();
-        });
     </script>
 </body>
 </html>
