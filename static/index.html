@@ -997,7 +997,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 
                 <!-- ============================================================================== -->
                 <!-- 🎯 [FEATURE DIRECTIVE 3] PASS-MATE 1번 탭 최상단 헤드라인 위젯: -->
-                <!-- '나와 희망·마지노선 대학까지의 거리' 5갈래 입시 경로 시각화 & 실시간 순공 페널티 엔진 -->
+                <!-- '나와 희망·마지노선 대학까지의 거리' 맞춤 대입 등대(컨설팅) 시각화 & 실시간 순공 페널티 엔진 -->
                 <!-- ============================================================================== -->
                 <div id="admission-distance-headline-card" class="card" style="margin-bottom: 14px; padding: 18px 16px; border-radius: 18px; border: 1.5px solid rgba(99, 102, 241, 0.35); background: #0f172a; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); position: relative; overflow: hidden;">
 
@@ -1043,9 +1043,9 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </button>
                     </div>
 
-                    <!-- 3행: 5갈래 인터랙티브 SVG 노선도 지도 (확정 실선 vs 잠재 점선) -->
+                    <!-- 3행: 맞춤 대입 등대 인터랙티브 SVG 노선도 지도 (확정 실선 vs 잠재 점선) -->
                     <div id="admission-map-container" style="position: relative; width: 100%; min-height: 200px; background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px 8px; box-sizing: border-box; overflow: hidden;">
-                        <!-- SVG 5갈래 베지어 곡선 지도 (동적 렌더링) -->
+                        <!-- SVG 맞춤 대입 등대 베지어 곡선 지도 (동적 렌더링) -->
                         <svg id="admission-svg-map" viewBox="0 0 520 200" style="width: 100%; height: auto; display: block; overflow: visible;">
                             <!-- Defs for glow and gradients -->
                             <defs>
@@ -1115,7 +1115,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 <span>내 성적 실시간 반영 (표면 입력)</span>
                             </div>
                             <div style="font-size: 0.72rem; color: #94a3b8;">
-                                * 수치 수정 후 [반영] 시 5갈래 노선도와 합격선이 즉시 재계산됩니다
+                                * 수치 수정 후 [반영] 시 목표 대학 맞춤 대입 등대(합격선)가 즉시 재계산됩니다
                             </div>
                         </div>
                         <form id="surface-score-form" onsubmit="handleSaveSurfaceScores(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(78px, 1fr)) auto; gap: 8px; align-items: center;">
@@ -6957,7 +6957,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     <span class="material-symbols-rounded" style="color: #818cf8; font-size: 1.35rem;">edit_note</span>
                     <div>
                         <div style="font-size: 1.05rem; font-weight: 900; color: #ffffff;">정밀 성적 입력 및 업데이트</div>
-                        <div style="font-size: 0.72rem; color: #94a3b8;">5갈래 대학 합격 경로 판정에 즉시 반영됩니다</div>
+                        <div style="font-size: 0.72rem; color: #94a3b8;">목표 대학 맞춤 대입 등대 및 합격 판정에 즉시 반영됩니다</div>
                     </div>
                 </div>
                 <button type="button" onclick="closeScoreInputModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.4rem; cursor: pointer;">✕</button>
@@ -7038,7 +7038,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 <!-- 제출 버튼 -->
                 <button type="submit" class="btn" style="width: 100%; padding: 12px; font-size: 0.9rem; font-weight: 900; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border-radius: 12px; margin-top: 4px; box-shadow: 0 4px 16px rgba(99,102,241,0.4);">
-                    성적 저장 및 5갈래 경로 즉시 재계산
+                    성적 저장 및 맞춤 대입 등대 즉시 재계산
                 </button>
             </form>
         </div>

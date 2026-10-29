@@ -196,7 +196,7 @@
                     </div>
                     <h2 class="text-2xl font-black text-white">나(Me)를 중심으로 펼쳐지는 초정밀 입시 관제망</h2>
                     <p class="text-xs md:text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
-                        <span class="general-only">수험생 <strong>'나(Me)'</strong>를 중심으로 실시간 내신·수능 5갈래 입시 노선과 순공 관제 엔진 <strong>[PASS-MATE]</strong>가 1:1 전담 가동됩니다.</span>
+                        <span class="general-only">수험생 <strong>'나(Me)'</strong>를 중심으로 실시간 내신·수능 맞춤 대입 등대(컨설팅)와 순공 관제 엔진 <strong>[PASS-MATE]</strong>가 1:1 전담 가동됩니다.</span>
                         <span class="creator-only" style="display: none;">화면 정중앙의 <strong>'나(Me)'</strong>를 중심으로 <strong>[PALIN 12대 MATE 전 생애 주기 관제망]</strong>이 가동 중입니다. (👑 제작자 전용 마스터 뷰)</span>
                     </p>
                 </div>
@@ -306,7 +306,7 @@
                             </div>
                         </div>
                         <div class="hidden sm:block text-[11px] text-slate-300 leading-snug mb-3">
-                            초·중·고 학업 루틴 · 순공 타이머 · 대입 5갈래 노선도
+                            초·중·고 학업 루틴 · 순공 타이머 · 맞춤 대입 등대 & 대입 컨설팅
                         </div>
                         <div class="flex items-center justify-between pt-0.5">
                             <span class="text-[8.5px] sm:text-[10px] font-bold px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 border border-slate-700">미등록</span>
@@ -328,7 +328,7 @@
                             </div>
                         </div>
                         <div class="hidden sm:block text-[11px] text-slate-300 leading-snug mb-3" id="pass-node-desc">
-                            실시간 순공 시간 · 5갈래 입시 노선도 가동 중
+                            실시간 순공 시간 · 목표 대학 맞춤 대입 등대 가동 중
                         </div>
                         <div class="flex items-center justify-between pt-0.5">
                             <span class="text-[8.5px] sm:text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">ACTIVE</span>
@@ -359,7 +359,7 @@
                             </div>
                         </div>
                         <div class="hidden sm:block text-[10px] text-slate-300 leading-snug mb-2" id="sat1-desc">
-                            주간 순공 시간표 &amp; 5갈래 대입 노선 실시간 공유
+                            주간 순공 시간표 &amp; 목표 대학 대입 컨설팅 방향성 실시간 공유
                         </div>
                         <div class="flex items-center justify-between pt-1 border-t border-slate-800">
                             <span class="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.2 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/30" id="sat1-badge">실시간 동기화</span>
@@ -425,7 +425,7 @@
                         </span>
                     </div>
                     <p class="text-xs text-slate-300 mb-4 leading-relaxed">
-                        초·중·고 학업 루틴, 순공 시간 타이머, 실시간 내신/수능 5갈래 베지어 입시 노선도가 가동 중입니다.
+                        초·중·고 학업 루틴, 순공 시간 타이머, 실시간 내신/수능 목표 대학 맞춤 대입 등대(컨설팅)가 가동 중입니다.
                     </p>
                     <div class="grid grid-cols-3 gap-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800 mb-5 text-center">
                         <div>
@@ -434,7 +434,7 @@
                         </div>
                         <div>
                             <div class="text-[10px] text-slate-400 font-bold">입시 경로</div>
-                            <div class="text-sm font-black text-white">5갈래 노선</div>
+                            <div class="text-sm font-black text-white">대입 등대</div>
                         </div>
                         <div>
                             <div class="text-[10px] text-slate-400 font-bold">목표 진단</div>
@@ -468,7 +468,7 @@
                         </span>
                     </div>
                     <p class="text-xs text-slate-300 mb-4 leading-relaxed" id="deck-triad-desc">
-                        수험생의 실시간 순공 시간표와 5갈래 대입 노선, 학부모 안심 주간 리포트, 소속 학원 및 독서실 출석부·자습 좌석·수강료 고지서가 실시간 텔레메트리로 상호 동기화됩니다.
+                        수험생의 실시간 순공 시간표와 맞춤 대입 등대(컨설팅), 학부모 안심 주간 리포트, 소속 학원 및 독서실 출석부·자습 좌석·수강료 고지서가 실시간 텔레메트리로 상호 동기화됩니다.
                     </p>
                     <div class="grid grid-cols-3 gap-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800 mb-5 text-center">
                         <div>
@@ -1272,7 +1272,7 @@
                     badge.innerText = '연동 가동 중';
                     badge.className = 'text-[9.5px] font-black px-2 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
                 }
-                if (sub) sub.innerText = '학부모 계정 연동됨 · 실시간 순공 시간표 & 5갈래 대입 노선 공유 중';
+                if (sub) sub.innerText = '학부모 계정 연동됨 · 실시간 순공 시간표 & 목표 대학 대입 컨설팅 방향성 공유 중';
             } else {
                 if (badge) {
                     badge.innerText = '미연동 (초대 대기)';
@@ -1471,7 +1471,7 @@
                 // 학부모 중심 뷰
                 if (sat1Title) sat1Title.innerText = "자녀 수험생 연동";
                 if (sat1Sub) sat1Sub.innerText = "순공 & 대입 노선";
-                if (sat1Desc) sat1Desc.innerText = "자녀의 실시간 학습 시간표 & 5갈래 대입 노선 관제";
+                if (sat1Desc) sat1Desc.innerText = "자녀의 실시간 학습 시간표 & 목표 대학 대입 컨설팅 방향성 관제";
                 if (sat1Icon) sat1Icon.innerText = "school";
 
                 if (sat2Icon) sat2Icon.innerText = "domain";
@@ -1501,7 +1501,7 @@
                 // 수험생(학생) 중심 뷰 (기본값)
                 if (sat1Title) sat1Title.innerText = "부모님 안심 연동";
                 if (sat1Sub) sat1Sub.innerText = "학부모 리포트";
-                if (sat1Desc) sat1Desc.innerText = "주간 순공 시간표 & 5갈래 대입 노선 실시간 공유";
+                if (sat1Desc) sat1Desc.innerText = "주간 순공 시간표 & 목표 대학 대입 컨설팅 방향성 실시간 공유";
                 if (sat1Icon) sat1Icon.innerText = "family_restroom";
 
                 if (sat2Icon) sat2Icon.innerText = "domain";
@@ -1637,7 +1637,7 @@
                 if (unverified) unverified.style.display = 'none';
                 if (verified) verified.style.display = 'block';
                 if (labelEl) labelEl.innerText = pm.label || 'PASS-MATE ACTIVE';
-                if (descEl) descEl.innerText = `${pm.label} · 순공 타이머 & 5갈래 입시 노선 가동 중`;
+                if (descEl) descEl.innerText = `${pm.label} · 순공 타이머 & 맞춤 대입 등대 가동 중`;
                 passmateActiveUrl = pm.dashboard_url || '/passmate'; if (dashLink) dashLink.href = passmateActiveUrl;
                 if (deckBadge) {
                     deckBadge.innerText = 'ACTIVE LIVE';
