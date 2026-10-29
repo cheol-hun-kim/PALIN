@@ -21137,6 +21137,9 @@ document.addEventListener("DOMContentLoaded", () => {
 // '나(자녀)와 희망·마지노선 대학까지의 거리' 5갈래 입시 경로 시각화 & 실시간 순공 페널티 엔진
 // ==============================================================================
 
+// 🎯 [FEATURE DIRECTIVE 3] 나와 희망·마지노선 대학까지의 거리 5갈래 입시 경로 시각화 & 실시간 순공 페널티 엔진
+// ==============================================================================
+
 let currentAdmissionViewTarget = 'TARGET'; // 'TARGET' (1지망) or 'BASELINE' (마지노선)
 let cachedAdmissionCampusData = null;
 
@@ -21148,19 +21151,124 @@ function getPreciseScoreData() {
 
     return {
         hasScores: hasScores,
-        gpa_grade: rawGpa ? parseFloat(rawGpa) : null,
-        gpa_rank: localStorage.getItem('cached_score_rank') ? parseInt(localStorage.getItem('cached_score_rank'), 10) : null,
-        gpa_total: localStorage.getItem('cached_score_total') ? parseInt(localStorage.getItem('cached_score_total'), 10) : 280,
-        kor_pct: rawKor ? parseInt(rawKor, 10) : null,
-        math_pct: localStorage.getItem('cached_score_math') ? parseInt(localStorage.getItem('cached_score_math'), 10) : null,
-        inq1_pct: localStorage.getItem('cached_score_inq1') ? parseInt(localStorage.getItem('cached_score_inq1'), 10) : null,
-        inq2_pct: localStorage.getItem('cached_score_inq2') ? parseInt(localStorage.getItem('cached_score_inq2'), 10) : null,
-        eng_grade: localStorage.getItem('cached_score_eng') ? parseInt(localStorage.getItem('cached_score_eng'), 10) : 1,
-        hist_grade: localStorage.getItem('cached_score_hist') ? parseInt(localStorage.getItem('cached_score_hist'), 10) : 1
+        gpa_grade: parseFloat(rawGpa || '1.85'),
+        gpa_rank: parseInt(localStorage.getItem('cached_score_rank') || '12', 10),
+        gpa_total: parseInt(localStorage.getItem('cached_score_total') || '280', 10),
+        kor_pct: parseInt(rawKor || '96', 10),
+        math_pct: parseInt(localStorage.getItem('cached_score_math') || '98', 10),
+        inq1_pct: parseInt(localStorage.getItem('cached_score_inq1') || '95', 10),
+        inq2_pct: parseInt(localStorage.getItem('cached_score_inq2') || '94', 10),
+        eng_grade: parseInt(localStorage.getItem('cached_score_eng') || '1', 10),
+        hist_grade: parseInt(localStorage.getItem('cached_score_hist') || '1', 10)
     };
 }
+window.getPreciseScoreData = getPreciseScoreData;
 
-// 1지망 vs 마지노선 뷰 전환
+// 표면 상시 노출 성적 입력 폼에 현재 저장된 성적 동기화 세팅
+function syncSurfaceScoreInputs() {
+    const scores = getPreciseScoreData();
+    const gpaInp = document.getElementById('surf-score-gpa');
+    const korInp = document.getElementById('surf-score-kor');
+    const mathInp = document.getElementById('surf-score-math');
+    const inq1Inp = document.getElementById('surf-score-inq1');
+    const inq2Inp = document.getElementById('surf-score-inq2');
+
+    if (gpaInp && document.activeElement !== gpaInp) gpaInp.value = scores.gpa_grade;
+    if (korInp && document.activeElement !== korInp) korInp.value = scores.kor_pct;
+    if (mathInp && document.activeElement !== mathInp) mathInp.value = scores.math_pct;
+    if (inq1Inp && document.activeElement !== inq1Inp) inq1Inp.value = scores.inq1_pct;
+    if (inq2Inp && document.activeElement !== inq2Inp) inq2Inp.value = scores.inq2_pct;
+}
+window.syncSurfaceScoreInputs = syncSurfaceScoreInputs;
+
+// 표면 상시 노출 성적 폼 저장 핸들러 (원클릭 즉시 반영 및 크로스 플랫폼 동기화)
+async function handleSaveSurfaceScores(e) {
+    if (e && e.preventDefault) e.preventDefault();
+
+    const gpa = parseFloat(document.getElementById('surf-score-gpa')?.value || '1.85');
+    const kor = parseInt(document.getElementById('surf-score-kor')?.value || '96', 10);
+    const math = parseInt(document.getElementById('surf-score-math')?.value || '98', 10);
+    const inq1 = parseInt(document.getElementById('surf-score-inq1')?.value || '95', 10);
+    const inq2 = parseInt(document.getElementById('surf-score-inq2')?.value || '94', 10);
+
+    localStorage.setItem('cached_score_gpa', String(gpa));
+    localStorage.setItem('cached_score_kor', String(kor));
+    localStorage.setItem('cached_score_math', String(math));
+    localStorage.setItem('cached_score_inq1', String(inq1));
+    localStorage.setItem('cached_score_inq2', String(inq2));
+
+    // DB 영구 저장 및 모바일/PC 실시간 동기화
+    const sid = (window.currentStudent && window.currentStudent.id) || localStorage.getItem("studentId");
+    if (sid && !isNaN(parseInt(sid, 10))) {
+        try {
+            await fetch(`/api/student/${sid}/admission-scores`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    gpa_grade: gpa,
+                    gpa_rank: parseInt(localStorage.getItem('cached_score_rank') || '12', 10),
+                    gpa_total: parseInt(localStorage.getItem('cached_score_total') || '280', 10),
+                    kor_pct: kor,
+                    math_pct: math,
+                    inq1_pct: inq1,
+                    inq2_pct: inq2,
+                    eng_grade: parseInt(localStorage.getItem('cached_score_eng') || '1', 10),
+                    hist_grade: parseInt(localStorage.getItem('cached_score_hist') || '1', 10)
+                })
+            });
+        } catch (scoreSaveErr) {
+            console.warn("Admission scores DB save error:", scoreSaveErr);
+        }
+    }
+
+    if (typeof showPalinToast === 'function') {
+        showPalinToast('내신 및 모의고사 성적이 반영되었습니다. 5갈래 입시 노선도가 갱신됩니다.', 'SUCCESS');
+    } else {
+        alert('정밀 성적이 저장되었습니다. 5갈래 입시 경로가 즉시 재계산됩니다.');
+    }
+
+    renderAdmissionPathEngine();
+}
+window.handleSaveSurfaceScores = handleSaveSurfaceScores;
+
+// 광역 목표 간편 원클릭 프리셋 적용 핸들러 (인서울 대학 vs 메디컬 전체)
+async function quickApplyBroadTarget(type) {
+    const broadName = (type === 'SEOUL') 
+        ? "인서울 대학 (한성·서경·삼육·서울여대)" 
+        : "메디컬 (의·치·한·약·수)";
+    
+    if (currentAdmissionViewTarget === 'TARGET') {
+        localStorage.setItem("cached_target_univ", broadName);
+        if (window.currentStudent) window.currentStudent.target_univ = broadName;
+    } else {
+        localStorage.setItem("cached_baseline_univ", broadName);
+        if (window.currentStudent) window.currentStudent.baseline_univ = broadName;
+    }
+
+    const sid = (window.currentStudent && window.currentStudent.id) || localStorage.getItem("studentId");
+    if (sid && !isNaN(parseInt(sid, 10))) {
+        try {
+            await fetch(`/api/student/${sid}/target-univ`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    target_univ: (window.currentStudent && window.currentStudent.target_univ) || localStorage.getItem("cached_target_univ") || broadName,
+                    baseline_univ: (window.currentStudent && window.currentStudent.baseline_univ) || localStorage.getItem("cached_baseline_univ") || broadName
+                })
+            });
+        } catch(e) {
+            console.warn("quickApplyBroadTarget API error:", e);
+        }
+    }
+
+    if (typeof showPalinToast === 'function') {
+        showPalinToast(`목표가 '${broadName}'(으)로 설정되었습니다. 5갈래 합격선이 즉시 재계산됩니다.`, 'SUCCESS');
+    }
+    renderAdmissionPathEngine();
+}
+window.quickApplyBroadTarget = quickApplyBroadTarget;
+
+// 1지망 vs 마지노선 탭 전환
 function switchAdmissionTargetView(mode) {
     currentAdmissionViewTarget = mode;
     const btn1 = document.getElementById('btn-dist-target-1');
@@ -21194,7 +21302,7 @@ function switchAdmissionTargetView(mode) {
 }
 window.switchAdmissionTargetView = switchAdmissionTargetView;
 
-// 아코디언 드롭다운 토글
+// 아코디언 드롭다운 토글 및 페이지 접기
 function toggleAdmissionDetailAccordion(forceOpen) {
     const panel = document.getElementById('admission-detail-panel');
     const arrow = document.getElementById('dist-accordion-arrow-icon');
@@ -21262,7 +21370,7 @@ function closeScoreInputModal() {
 }
 window.closeScoreInputModal = closeScoreInputModal;
 
-// 성적 저장 핸들러
+// 성적 저장 핸들러 (모달용)
 async function handleSavePreciseScores(e) {
     if (e && e.preventDefault) e.preventDefault();
 
@@ -21369,10 +21477,11 @@ function renderAdmissionPathEngine() {
     else if (studyRatio >= 0.5) penaltyLevel = 'WARN';
     else penaltyLevel = 'DANGER';
 
-    // 2. 종합 상태 뱃지 & 순공 페널티 배너 갱신
+    // 2. 종합 상태 뱃지 & 순공 페널티 배너 갱신 (완벽한 쌍둥이 카드 대칭)
     const badgeTextEl = document.getElementById('admission-dist-badge-text');
     const alertBox = document.getElementById('admission-penalty-alert-box');
     const alertText = document.getElementById('admission-penalty-alert-text');
+    const alertBadge = document.getElementById('admission-penalty-alert-badge');
     const deficitBadge = document.getElementById('dist-accordion-deficit-badge');
 
     if (deficitBadge) {
@@ -21386,6 +21495,20 @@ function renderAdmissionPathEngine() {
             deficitBadge.style.color = '#6ee7b7';
             deficitBadge.style.borderColor = '#10b981';
             deficitBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+        }
+    }
+
+    if (alertBadge) {
+        if (deficitHours > 0) {
+            alertBadge.innerText = `순공 부족`;
+            alertBadge.style.color = '#fca5a5';
+            alertBadge.style.borderColor = '#ef4444';
+            alertBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+        } else {
+            alertBadge.innerText = `순공 달성`;
+            alertBadge.style.color = '#6ee7b7';
+            alertBadge.style.borderColor = '#10b981';
+            alertBadge.style.background = 'rgba(16, 185, 129, 0.2)';
         }
     }
 
@@ -21424,7 +21547,15 @@ function renderAdmissionPathEngine() {
                 badgeContainer.style.color = '#a7f3d0';
             }
         }
-        if (alertBox) alertBox.style.display = 'none';
+        if (alertBox) {
+            alertBox.style.display = 'flex';
+            alertBox.style.background = 'rgba(16, 185, 129, 0.1)';
+            alertBox.style.borderColor = 'rgba(16, 185, 129, 0.28)';
+            alertBox.style.color = '#a7f3d0';
+        }
+        if (alertText) {
+            alertText.innerHTML = `${activeUnivName} 합격권 주간 순공 시간을 훌륭히 달성하였습니다. 현 성적 페이스를 유지하십시오.`;
+        }
     }
 
     // 3. 우측 대학 노드 텍스트 갱신 (1지망 vs 마지노선 즉각적 렌더링)
@@ -21467,10 +21598,13 @@ function renderAdmissionPathEngine() {
     // 5. SVG 베지어 곡선 지도 렌더링
     renderSvgRoutes(tracks);
 
-    // 6. 3단 순공 비교 바 렌더링 (아코디언 내부)
+    // 6. 표면 성적 입력 인풋 동기화
+    syncSurfaceScoreInputs();
+
+    // 7. 3단 순공 비교 바 렌더링 (아코디언 내부)
     renderHeadlineCampusBars(data, activeTargetHours, myHours);
 
-    // 7. 전형 상세표 렌더링 (아코디언 내부)
+    // 8. 전형 상세표 렌더링 (아코디언 내부)
     render5TracksTable(tracks);
 
     // 백그라운드 서버 데이터 동기화 (캐시 없을 시 비동기 패치 후 부드럽게 업데이트)
@@ -21517,7 +21651,7 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
     const hasGpa = (gpa !== null && gpa !== undefined && !isNaN(gpa) && gpa > 0);
     const hasCsat = (korPct !== null && mathPct !== null && !isNaN(korPct) && !isNaN(mathPct));
 
-    // Track 1: 학생부 교과 (확정 결과)
+    // Track 1: 학생부 교과 (확정 결과 - 괄호 일체 제거)
     let track1Status = 'UNENTERED';
     let track1Badge = '성적 미입력';
     let track1Comment = '내신 성적을 입력하시면 정확한 합격선이 계산됩니다.';
@@ -21544,7 +21678,7 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
         }
     }
 
-    // Track 2: 학생부 종합 (확정 결과)
+    // Track 2: 학생부 종합 (확정 결과 - 괄호 일체 제거)
     let track2Status = 'UNENTERED';
     let track2Badge = '성적 미입력';
     let track2Comment = '학생부 성적 입력 대기 중';
@@ -21571,7 +21705,7 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
         }
     }
 
-    // Track 3: 논술 전형 (대학별 맞춤: 약술형 vs 일반논술 vs 미실시)
+    // Track 3: 논술 전형 (잠정 결과 - 괄호 일체 제거)
     let track3 = null;
     if (!trackConfig.isNoEssay) {
         let essayName = trackConfig.isYaksul ? '약술형 논술' : '논술 전형';
@@ -21609,7 +21743,7 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
         };
     }
 
-    // Track 4: 정시 수능 일반 (잠정 결과)
+    // Track 4: 정시 수능 일반 (잠정 결과 - 괄호 일체 제거)
     let track4Status = 'UNENTERED';
     let track4Badge = '성적 미입력';
     let track4Comment = '모의고사 백분위를 입력하시면 실시간 합격선이 계산됩니다.';
@@ -21707,9 +21841,10 @@ function getStatusColor(status) {
     if (status === 'SAFE') return '#10b981'; // 초록
     if (status === 'ON_TRACK') return '#f59e0b'; // 주황
     if (status === 'DANGER') return '#ef4444'; // 빨강
-    return '#64748b'; // UNENTERED: 중립 세련된 회색
+    return '#64748b'; // UNENTERED: 중립 회색
 }
 
+// 뱃지 판정 통일 규칙: 실선(확정적 적정/소신/위험), 점선(잠정적 적정/소신/위험) - 괄호 일체 없음
 function getPenaltyBadge(status, penaltyLevel, trackType = 'DASHED') {
     if (status === 'UNENTERED') return '성적 미입력';
     if (status === 'SAFE') return trackType === 'SOLID' ? '확정적 적정' : '잠정적 적정';
@@ -21797,7 +21932,7 @@ function renderHeadlineCampusBars(data, activeTargetHours, myHours) {
 }
 window.renderHeadlineCampusBars = renderHeadlineCampusBars;
 
-// 세부 전형 판정 상세표 렌더링 (설명 크기 시원하게 확대 + 점선/실선 중복 문구 제거)
+// 세부 전형 판정 상세표 렌더링 (괄호 설명구 일체 제거 & 통일된 6대 배지)
 function render5TracksTable(tracks) {
     const tableEl = document.getElementById('admission-5tracks-table');
     if (!tableEl) return;
@@ -21818,7 +21953,6 @@ function render5TracksTable(tracks) {
         `;
     }).join('');
 }
-
 
 function selectAdmissionTrackCard(trackId) {
     toggleAdmissionDetailAccordion(true);
@@ -21863,6 +21997,7 @@ if (typeof document !== 'undefined') {
         }
     });
 }
+
 
 // ==============================================================================
 // 🎯 [ADMISSION TARGET MODAL] 목표 대학 및 광역(인서울/메디컬) 선택 모달 제어 함수

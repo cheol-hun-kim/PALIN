@@ -76,17 +76,33 @@
                 <p class="text-slate-400 text-sm mt-1">인간의 탄생(0세)부터 입시, 취업, 피트니스, 의료, 사업, 자산, 은퇴, 사후(100세+)까지 전 생애 12개 영역 통합 관제 생태계</p>
             </div>
             
-            <!-- Global Mode Switcher -->
-            <div class="flex items-center gap-2 bg-slate-900/90 border border-slate-700 p-2 rounded-xl">
-                <button onclick="switchViewMode('products')" id="btn-mode-products" class="text-xs font-extrabold px-3 py-1.5 rounded-lg bg-indigo-600 text-white transition">
-                    📱 12대 제품 실시간 탐색
+            <!-- Global Mode Switcher & Direct Gateway Pills -->
+            <div class="flex items-center gap-2 bg-slate-900/90 border border-slate-700 p-2 rounded-xl flex-wrap">
+                <button onclick="switchViewMode('egocentric')" id="btn-mode-egocentric" class="text-xs font-extrabold px-3 py-1.5 rounded-lg bg-indigo-600 text-white transition flex items-center gap-1.5">
+                    <span class="material-symbols-rounded text-sm">hub</span>
+                    <span>자기중심 관계도</span>
                 </button>
-                <button onclick="switchViewMode('matrix')" id="btn-mode-matrix" class="text-xs font-extrabold px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">
-                    🔗 12대 데이터 상호 연동 맵
+                <button onclick="switchViewMode('products')" id="btn-mode-products" class="text-xs font-extrabold px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition flex items-center gap-1.5">
+                    <span class="material-symbols-rounded text-sm">phone_iphone</span>
+                    <span>12대 제품군 탐색</span>
                 </button>
-                <button onclick="simulateGraduation()" class="text-xs font-black bg-gradient-to-r from-amber-500 to-emerald-500 text-black px-3 py-1.5 rounded-lg shadow hover:opacity-90 transition">
-                    🎓 생애 자동 전환 시뮬레이션
+                <button onclick="switchViewMode('matrix')" id="btn-mode-matrix" class="text-xs font-extrabold px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition flex items-center gap-1.5">
+                    <span class="material-symbols-rounded text-sm">grid_view</span>
+                    <span>데이터 연동 맵</span>
                 </button>
+                <button onclick="simulateGraduation()" class="text-xs font-black bg-gradient-to-r from-amber-500 to-emerald-500 text-black px-3 py-1.5 rounded-lg shadow hover:opacity-90 transition flex items-center gap-1">
+                    <span class="material-symbols-rounded text-sm">auto_mode</span>
+                    <span>생애 전환</span>
+                </button>
+                <div class="h-4 w-px bg-slate-700 hidden lg:block"></div>
+                <a href="/" class="text-xs font-black bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 px-3 py-1.5 rounded-lg transition inline-flex items-center gap-1">
+                    <span class="material-symbols-rounded text-xs text-emerald-400">school</span>
+                    <span>PASS-MATE 진입</span>
+                </a>
+                <a href="/silver/guardian" class="text-xs font-black bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 border border-pink-500/40 px-3 py-1.5 rounded-lg transition inline-flex items-center gap-1">
+                    <span class="material-symbols-rounded text-xs text-pink-400">elderly</span>
+                    <span>SILVER-MATE 진입</span>
+                </a>
             </div>
         </div>
 
@@ -101,6 +117,259 @@
             </div>
         </div>
     </div>
+
+    <!-- VIEW 0: Ego-centric Relationship Universe (나 중심의 패밀리 & 라이프스타일 관계도) -->
+    <div id="view-egocentric" class="max-w-7xl mx-auto space-y-6">
+        
+        <!-- 관계도 안내 상단 배너 -->
+        <div class="bg-gradient-to-r from-indigo-950/70 via-slate-900 to-slate-900 border border-indigo-500/30 rounded-2xl p-6 relative overflow-hidden">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold border border-indigo-500/30 mb-2">
+                        <span class="material-symbols-rounded text-sm">hub</span>
+                        <span>PALIN OS 생태계 관제탑: 자기중심 관계도 (Ego-centric Universe)</span>
+                    </div>
+                    <h2 class="text-2xl font-black text-white">나(Hub)를 중심으로 연결된 12대 라이프스타일 & 패밀리 관제망</h2>
+                    <p class="text-xs md:text-sm text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                        화면 정중앙의 '나(Me)'를 중심으로 <strong>[자녀 학업 & 입시 관제: PASS-MATE]</strong>와 <strong>[부모님 안부 & 시니어 효도: SILVER-MATE]</strong>가 양대 핵심 위성으로 실시간 연동되어 있습니다. 두 시스템을 클릭하여 자유롭게 오갈 수 있습니다.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="focusNodeInUniverse('pass')" class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 transition flex items-center gap-1.5 cursor-pointer">
+                        <span class="material-symbols-rounded text-sm text-emerald-400">school</span>
+                        <span>PASS-MATE 포커스</span>
+                    </button>
+                    <button type="button" onclick="focusNodeInUniverse('silver')" class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 border border-pink-500/40 transition flex items-center gap-1.5 cursor-pointer">
+                        <span class="material-symbols-rounded text-sm text-pink-400">elderly</span>
+                        <span>SILVER-MATE 포커스</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 인터랙티브 자기중심 시각적 관계도 다이어그램 -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="text-lg font-black text-white flex items-center gap-2">
+                        <span class="material-symbols-rounded text-indigo-400">explore</span>
+                        <span>실시간 패밀리 오빗 (Ego-centric Live Orbit Map)</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-0.5">중심의 나와 연결된 자녀, 부모님, 사업, 자산 노드의 실시간 상태를 확인하세요.</p>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                    <span class="inline-flex items-center gap-1 text-emerald-400"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> 라이브 가동</span>
+                    <span class="inline-flex items-center gap-1 text-pink-400 ml-2"><span class="w-2 h-2 rounded-full bg-pink-500"></span> 안심 케어</span>
+                </div>
+            </div>
+
+            <!-- SVG & Canvas 우주 노드 관계도 캔버스 -->
+            <div class="relative w-full min-h-[420px] md:min-h-[460px] bg-slate-950/80 rounded-2xl border border-slate-800/80 flex items-center justify-center p-4 overflow-hidden">
+                <!-- 동심원 궤도선 (CSS) -->
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div class="w-[260px] h-[260px] md:w-[320px] md:h-[320px] rounded-full border border-indigo-500/15"></div>
+                    <div class="absolute w-[440px] h-[440px] md:w-[540px] md:h-[540px] rounded-full border border-dashed border-slate-800/80"></div>
+                </div>
+
+                <!-- 중앙 코어 노드: 나 (Me / 패밀리 허브) -->
+                <div class="relative z-20 flex flex-col items-center">
+                    <div class="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 p-1 shadow-[0_0_40px_rgba(99,102,241,0.6)] flex items-center justify-center animate-pulse">
+                        <div class="w-full h-full rounded-full bg-slate-950 flex flex-col items-center justify-center">
+                            <span class="material-symbols-rounded text-2xl md:text-3xl text-indigo-400">person</span>
+                            <span class="text-[11px] font-black text-white tracking-tight">나 (Me)</span>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-center">
+                        <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">3050 패밀리 허브</span>
+                        <div class="text-[11px] text-slate-400 font-bold mt-0.5">단일 PALIN ID 연동</div>
+                    </div>
+                </div>
+
+                <!-- 좌측 핵심 날개 노드: 자녀 [PASS-MATE] -->
+                <div class="absolute left-4 sm:left-10 md:left-20 top-1/2 -translate-y-1/2 z-20" style="max-width: 200px;">
+                    <div onclick="focusNodeInUniverse('pass')" class="group cursor-pointer bg-slate-900/90 hover:bg-slate-900 border-2 border-emerald-500/60 hover:border-emerald-400 p-4 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.25)] transition-all transform hover:-translate-y-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black">
+                                <span class="material-symbols-rounded text-lg">school</span>
+                            </span>
+                            <div>
+                                <div class="text-xs font-black text-white group-hover:text-emerald-300 transition">PASS-MATE</div>
+                                <div class="text-[10px] text-emerald-400 font-bold">자녀 입시 & 학업</div>
+                            </div>
+                        </div>
+                        <div class="text-[11px] text-slate-300 leading-snug mb-3">
+                            고3 수험생 자녀 · 오늘 순공 6.7h (상위 3%) · 5갈래 입시 노선도
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">ACTIVE</span>
+                            <a href="/" class="text-[10px] font-extrabold text-emerald-400 hover:underline flex items-center gap-0.5">진입 ↗</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 우측 핵심 날개 노드: 부모님 [SILVER-MATE] -->
+                <div class="absolute right-4 sm:right-10 md:right-20 top-1/2 -translate-y-1/2 z-20" style="max-width: 200px;">
+                    <div onclick="focusNodeInUniverse('silver')" class="group cursor-pointer bg-slate-900/90 hover:bg-slate-900 border-2 border-pink-500/60 hover:border-pink-400 p-4 rounded-2xl shadow-[0_0_30px_rgba(236,72,153,0.25)] transition-all transform hover:-translate-y-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="w-8 h-8 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center font-black">
+                                <span class="material-symbols-rounded text-lg">elderly</span>
+                            </span>
+                            <div>
+                                <div class="text-xs font-black text-white group-hover:text-pink-300 transition">SILVER-MATE</div>
+                                <div class="text-[10px] text-pink-400 font-bold">부모님 안부 & 효도</div>
+                            </div>
+                        </div>
+                        <div class="text-[11px] text-slate-300 leading-snug mb-3">
+                            분당 본가 부모님 · 기상 안부 완료 · 복약 정상 · 보이스피싱 0건
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-pink-500/20 text-pink-300 border border-pink-500/30">BETA</span>
+                            <a href="/silver/guardian" class="text-[10px] font-extrabold text-pink-400 hover:underline flex items-center gap-0.5">관제탑 ↗</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 상단 궤도 노드: 내 사업 [BIZ-MATE] -->
+                <div class="absolute top-4 sm:top-6 left-1/2 -translate-x-1/2 z-10">
+                    <div onclick="selectProduct(6)" class="cursor-pointer bg-slate-900/80 hover:bg-slate-800 border border-slate-700 hover:border-amber-500/50 px-3 py-2 rounded-xl text-center shadow transition flex items-center gap-2">
+                        <span class="material-symbols-rounded text-sm text-amber-400">store</span>
+                        <div class="text-left">
+                            <div class="text-[11px] font-black text-white">BIZ-MATE (일원학원)</div>
+                            <div class="text-[9px] text-slate-400">가맹 & 경영 관제</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 하단 궤도 노드: 자산 & 연금 [MONEY-MATE] -->
+                <div class="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10">
+                    <div onclick="selectProduct(7)" class="cursor-pointer bg-slate-900/80 hover:bg-slate-800 border border-slate-700 hover:border-blue-500/50 px-3 py-2 rounded-xl text-center shadow transition flex items-center gap-2">
+                        <span class="material-symbols-rounded text-sm text-blue-400">savings</span>
+                        <div class="text-left">
+                            <div class="text-[11px] font-black text-white">MONEY-MATE (자산)</div>
+                            <div class="text-[9px] text-slate-400">연금·절세·상속</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 상단 좌측/우측 보조 궤도 노드들 -->
+                <div class="absolute top-12 left-1/4 -translate-x-1/2 z-10 hidden sm:block">
+                    <div onclick="selectProduct(5)" class="cursor-pointer bg-slate-900/60 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/50 px-2.5 py-1.5 rounded-lg text-center transition flex items-center gap-1.5">
+                        <span class="material-symbols-rounded text-xs text-cyan-400">local_hospital</span>
+                        <span class="text-[10px] font-bold text-slate-300">MEDI-MATE (의료)</span>
+                    </div>
+                </div>
+                <div class="absolute top-12 right-1/4 translate-x-1/2 z-10 hidden sm:block">
+                    <div onclick="selectProduct(2)" class="cursor-pointer bg-slate-900/60 hover:bg-slate-800 border border-slate-800 hover:border-purple-500/50 px-2.5 py-1.5 rounded-lg text-center transition flex items-center gap-1.5">
+                        <span class="material-symbols-rounded text-xs text-purple-400">work</span>
+                        <span class="text-[10px] font-bold text-slate-300">CAREER-MATE (진로)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 듀얼 토글 빠른 관제 덱 (PASS-MATE ⇄ SILVER-MATE 원클릭 스위칭 덱) -->
+        <div id="dual-control-deck" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- 카드 A: PASS-MATE 관제 데스크 -->
+            <div class="bg-gradient-to-br from-emerald-950/40 via-slate-900 to-slate-900 border-2 border-emerald-500/40 rounded-2xl p-6 shadow-xl relative overflow-hidden flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                                <span class="material-symbols-rounded text-xl">school</span>
+                            </div>
+                            <div>
+                                <div class="text-xs font-extrabold text-emerald-400">자녀 학업 & 대입 관제 OS</div>
+                                <h3 class="text-xl font-black text-white">PASS-MATE</h3>
+                            </div>
+                        </div>
+                        <span class="text-xs font-black px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                            ACTIVE LIVE
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-300 mb-4 leading-relaxed">
+                        초·중·고 학업 루틴, 순공 시간 타이머, 일원학원 11,688개 수능 정시 누백 엔진, 5갈래 베지어 입시 노선도가 가동 중입니다.
+                    </p>
+                    <div class="grid grid-cols-3 gap-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800 mb-5 text-center">
+                        <div>
+                            <div class="text-[10px] text-slate-400 font-bold">오늘 순공</div>
+                            <div class="text-sm font-black text-emerald-400">6.7시간</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-slate-400 font-bold">1지망 목표</div>
+                            <div class="text-sm font-black text-white">연세대 의예</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-slate-400 font-bold">입시 경로</div>
+                            <div class="text-sm font-black text-indigo-400">5갈래 노선</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <a href="/" class="flex-1 text-center py-2.5 px-4 rounded-xl text-xs font-extrabold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/30 transition flex items-center justify-center gap-1.5">
+                        <span class="material-symbols-rounded text-sm">dashboard</span>
+                        <span>PASS-MATE 대시보드 바로가기</span>
+                    </a>
+                    <button type="button" onclick="selectProduct(1)" class="py-2.5 px-3 rounded-xl text-xs font-extrabold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition" title="12대 폰 목업에서 프리뷰 보기">
+                        <span class="material-symbols-rounded text-sm">phone_iphone</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 카드 B: SILVER-MATE 관제 데스크 -->
+            <div class="bg-gradient-to-br from-pink-950/40 via-slate-900 to-slate-900 border-2 border-pink-500/40 rounded-2xl p-6 shadow-xl relative overflow-hidden flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center">
+                                <span class="material-symbols-rounded text-xl">elderly</span>
+                            </div>
+                            <div>
+                                <div class="text-xs font-extrabold text-pink-400">시니어 안부 & 원격 효도 관제 OS</div>
+                                <h3 class="text-xl font-black text-white">SILVER-MATE</h3>
+                            </div>
+                        </div>
+                        <span class="text-xs font-black px-2.5 py-1 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/40">
+                            BETA READY
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-300 mb-4 leading-relaxed">
+                        부모님의 기상 라이프로그, 복약 시간표, 보이스피싱 실시간 탐지 차단, KTX 대행 예매 요청이 자녀 관제탑으로 연동됩니다.
+                    </p>
+                    <div class="grid grid-cols-3 gap-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800 mb-5 text-center">
+                        <div>
+                            <div class="text-[10px] text-slate-400 font-bold">기상 안부</div>
+                            <div class="text-sm font-black text-pink-400">07:15 확인</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-slate-400 font-bold">복약 체크</div>
+                            <div class="text-sm font-black text-emerald-400">정상 복용</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-slate-400 font-bold">피싱 방어</div>
+                            <div class="text-sm font-black text-cyan-400">0건 (안전)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <a href="/silver/guardian" class="flex-1 text-center py-2.5 px-4 rounded-xl text-xs font-extrabold bg-pink-600 hover:bg-pink-500 text-white shadow-lg shadow-pink-900/30 transition flex items-center justify-center gap-1.5">
+                        <span class="material-symbols-rounded text-sm">family_restroom</span>
+                        <span>자녀 효도 관제탑 바로가기</span>
+                    </a>
+                    <a href="/silver/senior-home" class="py-2.5 px-3 rounded-xl text-xs font-extrabold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center justify-center gap-1" title="부모님용 초대형 버튼 화면 보기">
+                        <span class="material-symbols-rounded text-sm">settings_accessibility</span>
+                        <span>부모님 화면</span>
+                    </a>
+                    <button type="button" onclick="selectProduct(10)" class="py-2.5 px-3 rounded-xl text-xs font-extrabold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition" title="12대 폰 목업에서 프리뷰 보기">
+                        <span class="material-symbols-rounded text-sm">phone_iphone</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
 
     <!-- VIEW 1: Main Dynamic Showcase View (2-Column: B2C Mobile App vs B2B Specialist Cockpit) -->
     <div id="view-products" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -844,26 +1113,62 @@
             currentSelectedIdx = idx;
             switchViewMode('products');
             initShowcase();
+        switchViewMode('egocentric');
         }
 
         function switchViewMode(mode) {
+            const vEgo = document.getElementById("view-egocentric");
             const vProducts = document.getElementById("view-products");
             const vMatrix = document.getElementById("view-matrix");
+            const timelineNav = document.getElementById("timeline-nav-section");
+
+            const btnEgo = document.getElementById("btn-mode-egocentric");
             const btnProd = document.getElementById("btn-mode-products");
             const btnMat = document.getElementById("btn-mode-matrix");
 
-            if (mode === 'products') {
-                vProducts.style.display = "grid";
-                vMatrix.style.display = "none";
-                btnProd.className = "text-xs font-extrabold px-3 py-1.5 rounded-lg bg-indigo-600 text-white transition";
-                btnMat.className = "text-xs font-extrabold px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+            const activeCls = "text-xs font-extrabold px-3 py-1.5 rounded-lg bg-indigo-600 text-white transition flex items-center gap-1.5";
+            const inactiveCls = "text-xs font-extrabold px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition flex items-center gap-1.5";
+
+            if (mode === 'egocentric') {
+                if (vEgo) vEgo.style.display = "block";
+                if (vProducts) vProducts.style.display = "none";
+                if (vMatrix) vMatrix.style.display = "none";
+                if (timelineNav) timelineNav.style.display = "none";
+                if (btnEgo) btnEgo.className = activeCls;
+                if (btnProd) btnProd.className = inactiveCls;
+                if (btnMat) btnMat.className = inactiveCls;
+            } else if (mode === 'products') {
+                if (vEgo) vEgo.style.display = "none";
+                if (vProducts) vProducts.style.display = "grid";
+                if (vMatrix) vMatrix.style.display = "none";
+                if (timelineNav) timelineNav.style.display = "block";
+                if (btnEgo) btnEgo.className = inactiveCls;
+                if (btnProd) btnProd.className = activeCls;
+                if (btnMat) btnMat.className = inactiveCls;
             } else {
-                vProducts.style.display = "none";
-                vMatrix.style.display = "block";
-                btnProd.className = "text-xs font-extrabold px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
-                btnMat.className = "text-xs font-extrabold px-3 py-1.5 rounded-lg bg-indigo-600 text-white transition";
+                if (vEgo) vEgo.style.display = "none";
+                if (vProducts) vProducts.style.display = "none";
+                if (vMatrix) vMatrix.style.display = "block";
+                if (timelineNav) timelineNav.style.display = "none";
+                if (btnEgo) btnEgo.className = inactiveCls;
+                if (btnProd) btnProd.className = inactiveCls;
+                if (btnMat) btnMat.className = activeCls;
             }
         }
+        window.switchViewMode = switchViewMode;
+
+        function focusNodeInUniverse(nodeKey) {
+            if (nodeKey === 'pass') {
+                selectProduct(1);
+            } else if (nodeKey === 'silver') {
+                selectProduct(10);
+            }
+            const deck = document.getElementById('dual-control-deck');
+            if (deck) {
+                deck.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+        window.focusNodeInUniverse = focusNodeInUniverse;
 
         function renderActiveProduct() {
             const p = ALL_12_PRODUCTS[currentSelectedIdx];
