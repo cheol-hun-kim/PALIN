@@ -13115,8 +13115,17 @@ def get_admin_alias():
 
 @app.get("/universe")
 @app.get("/universe.html")
+@app.get("/hub")
+@app.get("/family")
 def get_universe_page():
+    # 일반 사용자용 순수 자기중심 관계도 (12대 로드맵 노출 차단)
     return FileResponse(os.path.join(STATIC_DIR, "universe.html"))
+
+@app.get("/corporate")
+@app.get("/roadmap")
+def get_corporate_roadmap_page():
+    # 내부 기획/IR용 12대 제품군 전체 로드맵
+    return FileResponse(os.path.join(STATIC_DIR, "corp-roadmap.html"))
 
 @app.get("/passmate")
 def get_passmate_page():
