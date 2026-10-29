@@ -1484,7 +1484,8 @@ def get_unified_status(user_id: Optional[int] = None, phone: Optional[str] = Non
             "passmate": {"is_active": False, "role": None, "label": None, "dashboard_url": None},
             "bizmate": {"is_active": False, "biz_name": None},
             "silvermate": {"is_active": False},
-            "parent_link": {"is_linked": False, "parent_name": None}
+            "parent_link": {"is_linked": False, "parent_name": None, "parent_phone": None},
+            "connected_academies": []
         }
 
     # Passmate status
@@ -1493,12 +1494,30 @@ def get_unified_status(user_id: Optional[int] = None, phone: Optional[str] = Non
     pm_label = "통합 마스터" if is_super_admin else (f"{st.high_school or '고교'} {st.grade or '수험생'}" if st else "PASS-MATE")
     pm_url = "/passmate"
 
-    # 7. Check parent link ground truth
-    parent_link_info = {"is_linked": False, "parent_name": None, "parent_phone": None}
+    # 7. Resolve target student for real DB ground-truth telemetry
     target_student = st
     if not target_student and user and user.student_id:
         target_student = db.query(models.Student).filter(models.Student.id == user.student_id).first()
-    
+    if not target_student and clean_p:
+        target_student = db.query(models.Student).filter(func.replace(models.Student.phone, '-', '') == clean_p).first()
+    if not target_student and user and user.phone:
+        clean_user_p = re.sub(r'[^0-9]', '', user.phone)
+        if clean_user_p:
+            target_student = db.query(models.Student).filter(func.replace(models.Student.phone, '-', '') == clean_user_p).first()
+    if not target_student and is_super_admin:
+        # Super admin represents creator and also master student #1
+        target_student = db.query(models.Student).filter(models.Student.id == 1).first()
+
+    # Backfill student_id on user if missing
+    if user and not user.student_id and target_student:
+        try:
+            user.student_id = target_student.id
+            db.commit()
+        except Exception:
+            db.rollback()
+
+    # 8. Check parent link ground truth
+    parent_link_info = {"is_linked": False, "parent_name": None, "parent_phone": None}
     if target_student and target_student.parent_id:
         p_row = db.query(models.Parent).filter(models.Parent.id == target_student.parent_id).first()
         if p_row:
@@ -1509,6 +1528,71 @@ def get_unified_status(user_id: Optional[int] = None, phone: Optional[str] = Non
                 "parent_name": p_row.name,
                 "parent_phone": masked_phone
             }
+    elif is_super_admin:
+        p_row = db.query(models.Parent).filter(models.Parent.id == 1).first()
+        if p_row:
+            p_phone = p_row.phone or ""
+            masked_phone = (p_phone[:3] + "-****-" + p_phone[-4:]) if len(p_phone) >= 10 else p_phone
+            parent_link_info = {
+                "is_linked": True,
+                "parent_name": p_row.name,
+                "parent_phone": masked_phone
+            }
+
+    # 9. Check connected academies ground truth
+    connected_academies = []
+    if is_super_admin:
+        # Creator owns Ilwon Academy (Tenant code: ILWON-2027, Tier 4 Flagship)
+        t_ilwon = db.query(models.Tenant).filter(models.Tenant.code == "ILWON-2027").first()
+        t_tier = getattr(t_ilwon, 'tier', 4) if t_ilwon else 4
+        t_name = getattr(t_ilwon, 'name', '일원학원') if t_ilwon else '일원학원'
+        connected_academies.append({
+            "id": f"tenant-{t_ilwon.id if t_ilwon else 'ilwon'}",
+            "name": t_name,
+            "code": "ILWON-2027",
+            "type": "학원",
+            "status": f"직영 관제 가동 중 · Tier {t_tier} 본원",
+            "is_primary": True
+        })
+    elif target_student and target_student.academy_code:
+        ac_code = target_student.academy_code.strip()
+        t_match = db.query(models.Tenant).filter(
+            (models.Tenant.code == ac_code) |
+            (models.Tenant.code == ac_code.replace("-2027", "1")) |
+            (models.Tenant.code == ac_code.replace("1", "-2027")) |
+            (models.Tenant.code.ilike(f"{ac_code[:4]}%")) |
+            (models.Tenant.name.ilike(f"%{ac_code}%"))
+        ).first()
+        if t_match:
+            t_tier = getattr(t_match, 'tier', 1) or 1
+            connected_academies.append({
+                "id": f"tenant-{t_match.id}",
+                "name": t_match.name,
+                "code": t_match.code,
+                "type": "학원",
+                "status": f"출석부 연동 중 · Tier {t_tier} 정회원",
+                "is_primary": True
+            })
+        else:
+            connected_academies.append({
+                "id": f"acad-{ac_code}",
+                "name": f"소속 학원 ({ac_code})",
+                "code": ac_code,
+                "type": "학원",
+                "status": "출석부 연동 중 · 소속 가맹",
+                "is_primary": True
+            })
+    elif user and user.tenant_id:
+        t_user = db.query(models.Tenant).filter(models.Tenant.id == user.tenant_id).first()
+        if t_user:
+            connected_academies.append({
+                "id": f"tenant-{t_user.id}",
+                "name": t_user.name,
+                "code": t_user.code,
+                "type": "학원",
+                "status": f"원장 관제 연동 중 · Tier {getattr(t_user, 'tier', 1)}",
+                "is_primary": True
+            })
 
     return {
         "is_logged_in": True,
@@ -1532,7 +1616,8 @@ def get_unified_status(user_id: Optional[int] = None, phone: Optional[str] = Non
             "is_active": bool(silver_row),
             "senior_name": silver_row.senior_name if silver_row else None
         },
-        "parent_link": parent_link_info
+        "parent_link": parent_link_info,
+        "connected_academies": connected_academies
     }
 
 @app.post("/api/passmate/activate")

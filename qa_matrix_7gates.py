@@ -1377,6 +1377,24 @@ assert len(tenants_list) >= 1, f"Expected at least 1 tenant in master list, got 
 ilwon_t = next((t for t in tenants_list if t["code"] == "ILWON-2027"), None)
 assert ilwon_t is not None, "Flagship tenant ILWON-2027 must exist in master tenants list"
 assert ilwon_t["tier"] == 4 or ilwon_t["tier"] == "4", "ILWON-2027 must be Tier 4 flagship"
+
+# Creator Orbit Telemetry Ground-Truth Verification
+creator_orbit_res = client.get("/api/auth/unified/status?user_id=1")
+assert creator_orbit_res.status_code == 200, f"Creator orbit status failed: {creator_orbit_res.text}"
+creator_orbit_data = creator_orbit_res.json()
+assert creator_orbit_data["is_logged_in"] is True, "Creator must be logged in"
+assert creator_orbit_data["parent_link"]["is_linked"] is True, "Creator linked parent must be ground-truth verified"
+assert len(creator_orbit_data.get("connected_academies", [])) >= 1, "Creator must have ILWON-2027 as connected academy"
+assert creator_orbit_data["connected_academies"][0]["code"] == "ILWON-2027", "Creator primary academy must be ILWON-2027"
+
+# Anonymous Visitor Clean Orbit (Zero Fake Mock Injection)
+anon_orbit_res = client.get("/api/auth/unified/status")
+assert anon_orbit_res.status_code == 200
+anon_orbit_data = anon_orbit_res.json()
+assert anon_orbit_data["is_logged_in"] is False
+assert anon_orbit_data["parent_link"]["is_linked"] is False
+assert len(anon_orbit_data.get("connected_academies", [])) == 0, "Anonymous visitor must have 0 connected academies"
+
 print("[GATE 7.12 PASS] Master God-Mode Flagship Academy (ILWON-2027 Tier 4) & Multi-Tenant B2B Integrity 100% Verified!")
 
 # --- GATE 7.13: Live Real File Upload, Exact Byte-for-Byte SHA-256 Persistence & Honest 404 Rejection ---

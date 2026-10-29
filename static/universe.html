@@ -1247,27 +1247,39 @@
                         // --- ⚡ 3자 실시간 연동 편대 (수험생 ⇄ PASS-MATE ⇄ 가족/학원) 고급 제어 ---
         let isParentLinkedState = false; // 기본 미연동 상태 (가족 초대 시 활성화)
         const DEFAULT_ACADEMIES_KEY = 'palin_connected_academies';
+        let serverConnectedAcademies = [];
 
         function getConnectedAcademies() {
+            let localList = [];
             try {
                 const raw = localStorage.getItem(DEFAULT_ACADEMIES_KEY);
                 if (raw) {
-                    const parsed = JSON.parse(raw);
-                    const cleaned = parsed.filter(item => item && item.name && !item.name.includes('일원') && !item.name.toLowerCase().includes('ilwon'));
-                    if (cleaned.length !== parsed.length) {
-                        localStorage.setItem(DEFAULT_ACADEMIES_KEY, JSON.stringify(cleaned));
-                    }
-                    return cleaned;
+                    localList = JSON.parse(raw);
+                    if (!Array.isArray(localList)) localList = [];
                 }
             } catch (e) {
                 console.warn('Failed to parse academies list:', e);
             }
-            localStorage.setItem(DEFAULT_ACADEMIES_KEY, JSON.stringify([]));
-            return [];
+
+            // DB 실시간 연동 교육기관(본원) + 로컬 부가 등록기관(독서실 등) 통합
+            const combined = [...serverConnectedAcademies];
+            for (const item of localList) {
+                if (!item || !item.name) continue;
+                const exists = combined.some(c => 
+                    (c.code && item.code && c.code.toUpperCase() === item.code.toUpperCase()) ||
+                    (c.name && item.name && c.name.trim() === item.name.trim())
+                );
+                if (!exists) {
+                    combined.push(item);
+                }
+            }
+            return combined;
         }
 
         function saveConnectedAcademies(list) {
-            localStorage.setItem(DEFAULT_ACADEMIES_KEY, JSON.stringify(list));
+            // 로컬 추가 항목만 별도 보존
+            const localOnly = list.filter(item => !item.is_primary && !serverConnectedAcademies.some(s => s.id === item.id));
+            localStorage.setItem(DEFAULT_ACADEMIES_KEY, JSON.stringify(localOnly));
             renderConnectedAcademiesModal();
             updateTriadOrbitUI();
         }
@@ -1292,21 +1304,27 @@
 
             container.innerHTML = list.map((item, idx) => {
                 const icon = item.type === '독서실' || item.type === '스터디카페' ? 'local_library' : 'school';
+                const isCreator = isMasterCreator();
+                const primaryBadge = item.is_primary 
+                    ? `<span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold whitespace-nowrap">${isCreator ? '직영 본원' : '소속 가맹 본원'}</span>` 
+                    : '';
                 return `
                     <div class="bg-slate-950/80 border border-slate-800 hover:border-slate-700 p-2.5 rounded-lg flex items-center justify-between">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-7 h-7 rounded bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="w-7 h-7 rounded bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0">
                                 <span class="material-symbols-rounded text-base">${icon}</span>
                             </span>
-                            <div>
-                                <div class="text-xs font-bold text-white flex items-center gap-1.5">
-                                    <span>${item.name}</span>
-                                    <span class="text-[9px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 border border-slate-700">${item.type}</span>
+                            <div class="min-w-0">
+                                <div class="text-xs font-bold text-white flex items-center gap-1.5 flex-wrap">
+                                    <span class="whitespace-nowrap">${item.name}</span>
+                                    ${item.code ? `<span class="text-[9px] font-mono px-1 py-0.2 rounded bg-slate-800 text-amber-400/90 border border-slate-700 whitespace-nowrap">${item.code}</span>` : ''}
+                                    <span class="text-[9px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 border border-slate-700 whitespace-nowrap">${item.type}</span>
+                                    ${primaryBadge}
                                 </div>
-                                <div class="text-[10px] text-slate-400 mt-0.5">${item.status} · 출결 & 좌석 실시간 동기화</div>
+                                <div class="text-[10px] text-slate-400 mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis">${item.status} · 출결 & 좌석 실시간 동기화</div>
                             </div>
                         </div>
-                        <button type="button" onclick="removeConnectedAcademy(${idx})" class="text-[10px] font-bold text-rose-400 hover:text-rose-300 px-2 py-1 rounded bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 transition">
+                        <button type="button" onclick="removeConnectedAcademy(${idx})" class="text-[10px] font-bold text-rose-400 hover:text-rose-300 px-2 py-1 rounded bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 transition shrink-0 ml-2 whitespace-nowrap">
                             해제
                         </button>
                     </div>
@@ -1314,7 +1332,7 @@
             }).join('');
         }
 
-        function addNewConnectedAcademy() {
+        async function addNewConnectedAcademy() {
             const nameInput = document.getElementById('input-new-academy-name');
             const typeSelect = document.getElementById('input-new-academy-type');
             const name = (nameInput ? nameInput.value : '').trim();
@@ -1326,15 +1344,50 @@
                 return;
             }
 
-            const list = getConnectedAcademies();
-            list.push({
+            const sid = (currentUser && currentUser.id) || localStorage.getItem('userId') || '1';
+
+            // 1. 서버 학원 코드 등록 API 연동 시도
+            try {
+                const res = await fetch('/api/academy/link', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        student_id: parseInt(sid),
+                        academy_code: name
+                    })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    alert(data.message || `'${data.tenant_name || name}' 학원과 실시간 연동되었습니다!`);
+                    await refreshUnifiedOrbitStatus();
+                    if (nameInput) nameInput.value = '';
+                    return;
+                }
+            } catch (e) {
+                console.warn('Academy link API check note:', e);
+            }
+
+            // 2. 독서실/스터디카페 등 로컬 부가 시설 등록
+            let localList = [];
+            try {
+                const raw = localStorage.getItem(DEFAULT_ACADEMIES_KEY);
+                if (raw) localList = JSON.parse(raw);
+                if (!Array.isArray(localList)) localList = [];
+            } catch(e) {}
+
+            const isIlwon = name.toUpperCase() === 'ILWON-2027' || name.includes('일원');
+            localList.push({
                 id: 'acad-' + Date.now(),
-                name: name,
+                name: isIlwon ? '일원학원' : name,
+                code: isIlwon ? 'ILWON-2027' : '',
                 type: type,
-                status: type === '학원' ? '출석부 연동 중' : '좌석 관제 연동 중'
+                status: isIlwon ? '출석부 연동 중 · 정회원' : (type === '학원' ? '출석부 연동 중' : '좌석 관제 연동 중')
             });
-            saveConnectedAcademies(list);
+            localStorage.setItem(DEFAULT_ACADEMIES_KEY, JSON.stringify(localList));
+            renderConnectedAcademiesModal();
+            updateTriadOrbitUI();
             if (nameInput) nameInput.value = '';
+            alert(`'${isIlwon ? '일원학원' : name}' 연동이 등록되었습니다.`);
         }
 
         function removeConnectedAcademy(idx) {
@@ -1342,8 +1395,16 @@
             if (idx >= 0 && idx < list.length) {
                 const item = list[idx];
                 if (confirm(`'${item.name}' 연동을 해제하시겠습니까?`)) {
-                    list.splice(idx, 1);
-                    saveConnectedAcademies(list);
+                    if (item.is_primary) {
+                        serverConnectedAcademies = serverConnectedAcademies.filter(a => a.id !== item.id && a.name !== item.name);
+                    }
+                    try {
+                        let localList = JSON.parse(localStorage.getItem(DEFAULT_ACADEMIES_KEY) || '[]');
+                        localList = localList.filter(a => a.id !== item.id && a.name !== item.name);
+                        localStorage.setItem(DEFAULT_ACADEMIES_KEY, JSON.stringify(localList));
+                    } catch(e) {}
+                    renderConnectedAcademiesModal();
+                    updateTriadOrbitUI();
                 }
             }
         }
@@ -1412,7 +1473,8 @@
             const inp = document.getElementById('input-academy-invite-url');
             const uid = (currentUser && currentUser.id) || localStorage.getItem('userId') || '1';
             const currentHost = window.location.origin;
-            if (inp) inp.value = `${currentHost}/?invite=academy&code=INST-${uid}`;
+            const primaryCode = isMasterCreator() ? 'ILWON-2027' : ((serverConnectedAcademies[0] && serverConnectedAcademies[0].code) || `INST-${uid}`);
+            if (inp) inp.value = `${currentHost}/?invite=academy&code=${primaryCode}`;
             if (m) m.style.display = 'flex';
         }
 
@@ -1774,6 +1836,12 @@
                         isParentLinkedState = !!data.parent_link.is_linked;
                         parentLinkedInfo = data.parent_link;
                     }
+
+                    // E. 소속 학원 실제 연동 상태 동기화 (DB Ground Truth)
+                    if (data.connected_academies && Array.isArray(data.connected_academies)) {
+                        serverConnectedAcademies = data.connected_academies;
+                    }
+                    renderConnectedAcademiesModal();
                     updateTriadOrbitUI();
                 }
             } catch (err) {
