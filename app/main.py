@@ -1946,12 +1946,54 @@ class UpdateUnivPayload(BaseModel):
 def update_univ(student_id: int, payload: UpdateUnivPayload, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.id == student_id).first()
     if not student:
-        raise HTTPException(status_code=404, detail="\ud559\uc0dd\uc744 \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.")
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
     student.target_univ = payload.target_univ
     student.baseline_univ = payload.baseline_univ
     db.commit()
     db.refresh(student)
     return student
+
+class AdmissionScoresPayload(BaseModel):
+    gpa_grade: Optional[float] = None
+    gpa_rank: Optional[int] = None
+    gpa_total: Optional[int] = None
+    kor_pct: Optional[int] = None
+    math_pct: Optional[int] = None
+    inq1_pct: Optional[int] = None
+    inq2_pct: Optional[int] = None
+    eng_grade: Optional[int] = None
+    hist_grade: Optional[int] = None
+
+@app.post("/api/student/{student_id}/admission-scores")
+def save_admission_scores(student_id: int, payload: AdmissionScoresPayload, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
+    cfg_key = f"student_admission_scores_{student_id}"
+    cfg = db.query(models.SystemConfig).filter(models.SystemConfig.config_key == cfg_key).first()
+    score_data = json.dumps(payload.model_dump() if hasattr(payload, 'model_dump') else payload.dict(), ensure_ascii=False)
+    if not cfg:
+        cfg = models.SystemConfig(
+            config_key=cfg_key,
+            config_value=score_data,
+            description=f"Student {student_id} precision admission scores"
+        )
+        db.add(cfg)
+    else:
+        cfg.config_value = score_data
+    db.commit()
+    return {"status": "success", "data": json.loads(score_data)}
+
+@app.get("/api/student/{student_id}/admission-scores")
+def get_admission_scores(student_id: int, db: Session = Depends(get_db)):
+    cfg_key = f"student_admission_scores_{student_id}"
+    cfg = db.query(models.SystemConfig).filter(models.SystemConfig.config_key == cfg_key).first()
+    if not cfg:
+        return {"status": "empty", "data": None}
+    try:
+        return {"status": "success", "data": json.loads(cfg.config_value)}
+    except Exception:
+        return {"status": "empty", "data": None}
 
 @app.delete("/api/student/{student_id}")
 @app.delete("/api/students/{student_id}")

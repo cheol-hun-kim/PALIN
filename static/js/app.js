@@ -5290,14 +5290,35 @@ async function fetchStudentInfo(studentId) {
             if (currentStudent.academy_approval_status) {
                 localStorage.setItem("cached_academy_approval_status", currentStudent.academy_approval_status);
             }
-            if (currentStudent.target_univ) {
+            if (currentStudent.target_univ && currentStudent.target_univ !== "-") {
                 localStorage.setItem("cached_target_univ", currentStudent.target_univ);
             }
-            if (currentStudent.baseline_univ) {
+            if (currentStudent.baseline_univ && currentStudent.baseline_univ !== "-") {
                 localStorage.setItem("cached_baseline_univ", currentStudent.baseline_univ);
             }
             if (currentStudent.name) {
                 localStorage.setItem("cached_student_name", currentStudent.name);
+            }
+            // 모바일/PC 크로스 디바이스 성적 실시간 연동
+            try {
+                const scoreSyncRes = await fetch(`/api/student/${currentStudent.id}/admission-scores`);
+                if (scoreSyncRes.ok) {
+                    const scoreSyncJson = await scoreSyncRes.json();
+                    if (scoreSyncJson && scoreSyncJson.data) {
+                        const sd = scoreSyncJson.data;
+                        if (sd.gpa_grade !== null && sd.gpa_grade !== undefined) localStorage.setItem('cached_score_gpa', String(sd.gpa_grade));
+                        if (sd.gpa_rank !== null && sd.gpa_rank !== undefined) localStorage.setItem('cached_score_rank', String(sd.gpa_rank));
+                        if (sd.gpa_total !== null && sd.gpa_total !== undefined) localStorage.setItem('cached_score_total', String(sd.gpa_total));
+                        if (sd.kor_pct !== null && sd.kor_pct !== undefined) localStorage.setItem('cached_score_kor', String(sd.kor_pct));
+                        if (sd.math_pct !== null && sd.math_pct !== undefined) localStorage.setItem('cached_score_math', String(sd.math_pct));
+                        if (sd.inq1_pct !== null && sd.inq1_pct !== undefined) localStorage.setItem('cached_score_inq1', String(sd.inq1_pct));
+                        if (sd.inq2_pct !== null && sd.inq2_pct !== undefined) localStorage.setItem('cached_score_inq2', String(sd.inq2_pct));
+                        if (sd.eng_grade !== null && sd.eng_grade !== undefined) localStorage.setItem('cached_score_eng', String(sd.eng_grade));
+                        if (sd.hist_grade !== null && sd.hist_grade !== undefined) localStorage.setItem('cached_score_hist', String(sd.hist_grade));
+                    }
+                }
+            } catch (scoreSyncErr) {
+                console.warn("Admission scores cross-device sync notice:", scoreSyncErr);
             }
         } else {
             console.warn("fetchStudentInfo non-ok, preserving cached student profile & academy linkage.");
@@ -21265,12 +21286,36 @@ async function handleSavePreciseScores(e) {
     localStorage.setItem('cached_score_eng', String(eng));
     localStorage.setItem('cached_score_hist', String(hist));
 
+    // DB 영구 저장 및 모바일/PC 실시간 동기화
+    const sid = (window.currentStudent && window.currentStudent.id) || localStorage.getItem("studentId");
+    if (sid && !isNaN(parseInt(sid, 10))) {
+        try {
+            await fetch(`/api/student/${sid}/admission-scores`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    gpa_grade: gpa,
+                    gpa_rank: rank,
+                    gpa_total: total,
+                    kor_pct: kor,
+                    math_pct: math,
+                    inq1_pct: inq1,
+                    inq2_pct: inq2,
+                    eng_grade: eng,
+                    hist_grade: hist
+                })
+            });
+        } catch (scoreSaveErr) {
+            console.warn("Admission scores DB save error:", scoreSaveErr);
+        }
+    }
+
     closeScoreInputModal();
 
     if (typeof showPalinToast === 'function') {
-        showPalinToast('🎯 내신 및 모의고사 성적이 반영되었습니다! 5갈래 입시 노선도가 갱신됩니다.', 'SUCCESS');
+        showPalinToast('내신 및 모의고사 성적이 반영되었습니다. 5갈래 입시 노선도가 갱신됩니다.', 'SUCCESS');
     } else {
-        alert('🎯 정밀 성적이 저장되었습니다! 5갈래 입시 경로가 즉시 재계산됩니다.');
+        alert('정밀 성적이 저장되었습니다. 5갈래 입시 경로가 즉시 재계산됩니다.');
     }
 
     renderAdmissionPathEngine();
