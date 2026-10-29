@@ -1575,28 +1575,25 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                  ========================================== -->
             <div id="page2" class="page-view" style="display: none;">
                 <!-- 학습공간 5대 서브탭 네비게이션: AI 챗봇 단일 대형 버튼(상단) + 4대 기능 2x2 서브 그리드(하단) -->
-                <div id="p2-tabs" style="margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px;">
-                    <!-- 1. 최상단: 가장 많이 쓰는 [AI 챗봇] 단일 버튼 (높이 42px 고정) -->
-                    <button class="tab-btn subtab-main-btn active" data-sub="chat" onclick="switchSubTabPage2('chat')">
-                        <span class="material-symbols-rounded" style="font-size: 1.15rem;">smart_toy</span>
-                        <span>수능/내신 마스터 AI 1:1 챗봇</span>
-                    </button>
-
-                    <!-- 2. 하단: 4대 핵심 서브 기능 (2x2 그리드, 높이 42px 고정) -->
+                <div id="p2-tabs" style="margin-bottom: 14px;">
+                    <!-- 4대 핵심 학습 기능 (깔끔한 2x2 균등 그리드) -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                        <button class="tab-btn subtab-main-btn" data-sub="predict" onclick="switchSubTabPage2('predict')">
+                        <button class="tab-btn subtab-main-btn active" data-sub="chat" onclick="switchSubTabPage2('chat')" style="height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            <span class="material-symbols-rounded" style="font-size: 1.15rem;">smart_toy</span>
+                            <span>수능/내신 AI 챗봇</span>
+                        </button>
+                        <button class="tab-btn subtab-main-btn" data-sub="predict" onclick="switchSubTabPage2('predict')" style="height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px;">
                             <span class="material-symbols-rounded" style="font-size: 1.1rem;">analytics</span>
                             <span>합격 예측</span>
                         </button>
-                        <button class="tab-btn subtab-main-btn" data-sub="calendar" onclick="switchSubTabPage2('calendar')">
+                        <button class="tab-btn subtab-main-btn" data-sub="calendar" onclick="switchSubTabPage2('calendar')" style="height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px;">
                             <span class="material-symbols-rounded" style="font-size: 1.1rem;">calendar_month</span>
                             <span>입시 캘린더</span>
                         </button>
-                        <button class="tab-btn subtab-main-btn" data-sub="archive" onclick="switchSubTabPage2('archive')">
+                        <button class="tab-btn subtab-main-btn" data-sub="archive" onclick="switchSubTabPage2('archive')" style="height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px;">
                             <span class="material-symbols-rounded" style="font-size: 1.1rem;">menu_book</span>
                             <span>기출문제</span>
                         </button>
-
                     </div>
                 </div>
 
@@ -3484,25 +3481,21 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <!-- 2페이지: 학습공간 화면 -->
                 <div id="mid-page2" class="page-view" style="display: none;">
                     <!-- 중등 학습공간 서브탭: 상단 AI 챗봇 + 2x2 서브 그리드 -->
-                    <div id="mid-p2-tabs" style="margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px;">
-                        <!-- 1. 최상단: [특목·자사고 마스터 AI 1:1 코치] 단일 버튼 (높이 42px 고정) -->
-                        <button class="tab-btn subtab-main-btn active" data-midsub="chat" onclick="switchSubTabPageMid('chat')">
-                            <span class="material-symbols-rounded" style="font-size: 1.15rem;">smart_toy</span>
-                            <span>특목·자사고 마스터 AI 1:1 코치</span>
-                        </button>
-
-                        <!-- 2. 하단: 4대 핵심 서브 기능 (2x2 그리드, 높이 42px 고정) -->
+                    <div id="mid-p2-tabs" style="margin-bottom: 14px;">
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                            <button class="tab-btn subtab-main-btn" data-midsub="compass" onclick="switchSubTabPageMid('compass')">
+                            <button class="tab-btn subtab-main-btn active" data-midsub="chat" onclick="switchSubTabPageMid('chat')" style="height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <span class="material-symbols-rounded" style="font-size: 1.15rem;">smart_toy</span>
+                                <span>특목·자사고 AI 코치</span>
+                            </button>
+                            <button class="tab-btn subtab-main-btn" data-midsub="compass" onclick="switchSubTabPageMid('compass')" style="height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px;">
                                 <span class="material-symbols-rounded" style="font-size: 1.1rem;">explore</span>
                                 <span>특목고 나침반</span>
                             </button>
-
-                            <button class="tab-btn subtab-main-btn" data-midsub="tracker" onclick="switchSubTabPageMid('tracker')">
+                            <button class="tab-btn subtab-main-btn" data-midsub="tracker" onclick="switchSubTabPageMid('tracker')" style="height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px;">
                                 <span class="material-symbols-rounded" style="font-size: 1.1rem;">grade</span>
                                 <span>내신 올A 진단</span>
                             </button>
-                            <button class="tab-btn subtab-main-btn" data-midsub="archive" onclick="switchSubTabPageMid('archive')">
+                            <button class="tab-btn subtab-main-btn" data-midsub="archive" onclick="switchSubTabPageMid('archive')" style="height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px;">
                                 <span class="material-symbols-rounded" style="font-size: 1.1rem;">menu_book</span>
                                 <span>중등 기출족보</span>
                             </button>

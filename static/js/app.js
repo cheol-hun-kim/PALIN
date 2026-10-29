@@ -21656,6 +21656,46 @@ function renderSvgRoutes(tracks) {
     group.innerHTML = svgHtml;
 }
 
+// 3단 순공 비교 프로그레스 바 렌더링 (아코디언 내부)
+function renderHeadlineCampusBars(data, activeTargetHours, myHours) {
+    const listEl = document.getElementById('headline-campus-occupation-list');
+    const totalNetworkEl = document.getElementById('headline-network-total-hours');
+    if (!listEl) return;
+
+    if (totalNetworkEl) {
+        totalNetworkEl.innerText = `주간 ${data.total_network_hours || 128}시간 집계`;
+    }
+
+    const targetInfo = data.target_info;
+    const baselineInfo = data.baseline_info;
+    const maxH = Math.max(targetInfo?.avg_hours || 1, baselineInfo?.avg_hours || 1, myHours || 1, 1);
+
+    const items = [
+        { label: "1지망 목표", name: targetInfo?.univ_name || "연세대학교 의예과", hours: targetInfo?.avg_hours || 42.5, color: "#6366f1", badge: "1지망" },
+        { label: "마지노선", name: baselineInfo?.univ_name || "서울대학교 화학생물공학부", hours: baselineInfo?.avg_hours || 36.0, color: "#0284c7", badge: "마지노선" },
+        { label: "나의 순공", name: (window.currentStudent?.name || "학생") + " 이번 주 공부시간", hours: myHours, color: (myHours >= (baselineInfo?.avg_hours || 36.0) ? "#10b981" : "#ef4444"), badge: "MY" }
+    ];
+
+    listEl.innerHTML = items.map(item => {
+        const pct = Math.min(100, Math.round((item.hours / maxH) * 100));
+        return `
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 10px 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.68rem; font-weight: 800; background: ${item.color}33; color: ${item.color}; border: 1px solid ${item.color}66; padding: 1px 6px; border-radius: 4px;">${item.badge}</span>
+                        <span style="font-size: 0.78rem; font-weight: 800; color: #ffffff;">${item.name}</span>
+                    </div>
+                    <span style="font-size: 0.82rem; font-weight: 900; color: ${item.color};">${item.hours.toFixed(1)}시간</span>
+                </div>
+                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;">
+                    <div style="width: ${pct}%; height: 100%; background: ${item.color}; border-radius: 3px; transition: width 0.6s ease;"></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+window.renderHeadlineCampusBars = renderHeadlineCampusBars;
+
 // 세부 전형 판정 상세표 렌더링 (설명 크기 시원하게 확대 + 점선/실선 중복 문구 제거)
 function render5TracksTable(tracks) {
     const tableEl = document.getElementById('admission-5tracks-table');
