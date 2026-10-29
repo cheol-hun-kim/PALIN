@@ -68,6 +68,10 @@
 - **Gate 3**: 상태 동기화 & 렌더링 지연(Stale State) 리페치 검사
 - **Gate 4.1~4.3**: 동적 테마(WCAG AA 4.5:1), Zero-Flash 격리 & Day Mode 고대비(White-on-White 박멸) 검사
 - **Gate 5.1~5.3**: 백엔드/프론트엔드 풀스택 컴파일 & Node.js 런타임 0-TDZ/Hoisting 검증
+- **Gate 5.4**: 프론트엔드 글로벌 스코프 및 챗봇 런타임 안정성 검증
+- **Gate 5.5**: **직전 코드 무유실 비교 및 기능 전수 보존 검증기 (Code Preservation & Anti-Loss Diff Auditor) [절대 헌법]**
+  - 모든 코드 수정, 신규 기능 추가, 통합 코드 전체 재작성 시 반드시 **직전 버전(HEAD/기존 코드베이스) 대비 기존에 구현되어 있던 함수, 엔드포인트, 웹앱 라우터(`doGet`, `doPost`, 마스터 DB 누적, SMS 발송, 출석부 동기화 등)가 단 1개라도 누락되거나 축소·유실되지 않았는지 직전 코드와 1:1 전수 비교**를 강제한다.
+  - 파일 라인 수의 비정상적 급감(Truncation)이나 기존 필수 함수/심볼 누락 감지 시 7-Gate 즉시 FAIL 처리 및 배포를 원천 차단한다.
 - **Gate 6.1~6.3**: 데이터베이스 직결, **회원정보 무유실 (Zero User Data Loss: 180명 전원 온전성)** 및 **전체 회원 전수 불꽃/프로필/성실도 일괄 정합성 전수조사 (Universal Population Audit: Zero Single-Account Bias)**
 - **Gate 7.1~7.8**: 마스터 엄격 보안, Dashboard 실시간 학생 로드, Soft Delete 사이클, 신규 B2C 0분 기준, **스트릭 무제한 승격(8일, 15일, 28일)**, **실시간 Q&A 수정/삭제/환불 사이클**, **가맹 기관 연동 트랜잭션**, **원장 관제실 5종 실시간 텔레메트리 연동 (Dashboard, Notices, Attendance, Enrollment, Wifi)** E2E 풀검증 (200 OK 필수)
 

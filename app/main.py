@@ -13113,6 +13113,15 @@ def get_student_alias():
 def get_admin_alias():
     return FileResponse(os.path.join(STATIC_DIR, "admin.html"))
 
+@app.get("/universe")
+@app.get("/universe.html")
+def get_universe_page():
+    return FileResponse(os.path.join(STATIC_DIR, "universe.html"))
+
+@app.get("/passmate")
+def get_passmate_page():
+    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+
 @app.get("/silver")
 @app.get("/silvermate")
 @app.get("/silver/senior-home")
