@@ -21267,8 +21267,8 @@ async function handleSavePreciseScores(e) {
 }
 window.handleSavePreciseScores = handleSavePreciseScores;
 
-// 5갈래 노선도 & 순공 페널티 메인 렌더링 엔진
-async function renderAdmissionPathEngine() {
+// 5갈래 노선도 & 순공 페널티 메인 렌더링 엔진 (즉시 렌더링 + 비동기 백그라운드 갱신)
+function renderAdmissionPathEngine() {
     const cardEl = document.getElementById('admission-distance-headline-card');
     if (!cardEl) return;
 
@@ -21281,27 +21281,19 @@ async function renderAdmissionPathEngine() {
 
     const sid = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem("studentId") || "1", 10);
 
-    // 1. 순공 벤치마크 및 목표대학 데이터 페치
-    if (!cachedAdmissionCampusData) {
-        try {
-            const res = await fetch(`/api/gamification/campus-occupation?student_id=${sid}`);
-            if (res.ok) {
-                cachedAdmissionCampusData = await res.json();
-            }
-        } catch (e) {
-            console.warn("renderAdmissionPathEngine fetch error:", e);
-        }
-    }
+    // 기본 로컬/캐시 데이터 준비 (0ms 즉시 렌더링)
+    const localTarget = (window.currentStudent && window.currentStudent.target_univ) || localStorage.getItem("cached_target_univ") || "연세대학교 의예과";
+    const localBaseline = (window.currentStudent && window.currentStudent.baseline_univ) || localStorage.getItem("cached_baseline_univ") || "서울대학교 화학생물공학부";
 
     const data = cachedAdmissionCampusData || {
-        target_info: { univ_name: "연세대학교 의예과", avg_hours: 42.5 },
-        baseline_info: { univ_name: "서울대학교 화학생물공학부", avg_hours: 36.0 },
-        my_study_info: { my_hours: 0.0, status: "DANGER", status_label: "위험 (마지노선 붕괴 위기)", alert_message: "마지노선 [서울대학교] 경쟁자 평균보다 주간 순공이 36.0시간 부족합니다!" },
+        target_info: { univ_name: localTarget, avg_hours: 42.5 },
+        baseline_info: { univ_name: localBaseline, avg_hours: 36.0 },
+        my_study_info: { my_hours: 0.0, status: "DANGER", status_label: "순공 보완 권장", alert_message: "합격선 유지를 위해 순공 보완을 권장합니다." },
         total_network_hours: 128
     };
 
-    const targetUnivName = data.target_info ? data.target_info.univ_name : (currentStudent?.target_univ || "연세대학교 의예과");
-    const baselineUnivName = data.baseline_info ? data.baseline_info.univ_name : (currentStudent?.baseline_univ || "서울대학교 화학생물공학부");
+    const targetUnivName = data.target_info?.univ_name || localTarget;
+    const baselineUnivName = data.baseline_info?.univ_name || localBaseline;
 
     const targetEl1 = document.getElementById('dist-target-univ-name');
     const targetEl2 = document.getElementById('dist-baseline-univ-name');
@@ -21316,7 +21308,7 @@ async function renderAdmissionPathEngine() {
     const deficitHours = Math.max(0, Math.round((activeTargetHours - myHours) * 10) / 10);
     const studyRatio = activeTargetHours > 0 ? (myHours / activeTargetHours) : 0;
 
-    // 순공 페널티 판정 등급 (달성률 80% 이상: 안전, 50~79%: 경고 1단계 강등, 50% 미만: 붕괴 2단계 강등)
+    // 순공 페널티 등급 (성적이 우수하면 과도한 강등 배제, 순공 부족 시 부드러운 소신 조정)
     let penaltyLevel = 'DANGER'; // 'NONE' | 'WARN' | 'DANGER'
     if (studyRatio >= 0.8) penaltyLevel = 'NONE';
     else if (studyRatio >= 0.5) penaltyLevel = 'WARN';
@@ -21342,32 +21334,24 @@ async function renderAdmissionPathEngine() {
         }
     }
 
-    if (penaltyLevel === 'DANGER') {
-        if (badgeTextEl) badgeTextEl.innerText = "위험 (마지노선 붕괴 위기)";
+    if (deficitHours > 0) {
+        if (badgeTextEl) badgeTextEl.innerText = isTarget ? "소신 (순공 보완 권장)" : "마지노선 관리 중";
         if (alertBox) {
             alertBox.style.display = 'flex';
-            alertBox.style.background = 'rgba(239, 68, 68, 0.14)';
-            alertBox.style.borderLeft = '3.5px solid #ef4444';
+            alertBox.style.background = 'rgba(99, 102, 241, 0.12)';
+            alertBox.style.borderLeft = '3.5px solid #818cf8';
+            alertBox.style.borderColor = 'rgba(99, 102, 241, 0.25)';
+            alertBox.style.color = '#c7d2fe';
         }
         if (alertText) {
-            alertText.innerHTML = `${activeUnivName} 경쟁자 평균보다 주간 순공이 <b style="color: #f87171;">${deficitHours.toFixed(1)}시간 부족</b>하여 정시·논술 합격선이 <b>2단계 강등</b>되었습니다!`;
-        }
-    } else if (penaltyLevel === 'WARN') {
-        if (badgeTextEl) badgeTextEl.innerText = "소신 (공부량 부족 경고)";
-        if (alertBox) {
-            alertBox.style.display = 'flex';
-            alertBox.style.background = 'rgba(245, 158, 11, 0.14)';
-            alertBox.style.borderLeft = '3.5px solid #f59e0b';
-        }
-        if (alertText) {
-            alertText.innerHTML = `주간 순공 달성률이 <b>${Math.round(studyRatio * 100)}%</b>입니다. 정시·논술 합격 가능성이 <b>1단계 강등</b> 적용 중입니다.`;
+            alertText.innerHTML = `${activeUnivName} 합격권 대비 주간 순공이 <b style="color: #f87171;">${deficitHours.toFixed(1)}시간 부족</b>합니다. 성적 유지와 실전 감각을 위해 순공 시간 보완을 권장합니다.`;
         }
     } else {
         if (badgeTextEl) badgeTextEl.innerText = "안정권 유지 (순공 목표 달성)";
         if (alertBox) alertBox.style.display = 'none';
     }
 
-    // 3. 우측 대학 노드 텍스트 갱신 (1지망 vs 마지노선 정확히 반영)
+    // 3. 우측 대학 노드 텍스트 갱신 (1지망 vs 마지노선 즉각적 렌더링)
     const svgUnivShort = document.getElementById('svg-univ-short-lbl');
     const svgUnivTarget = document.getElementById('svg-univ-target-lbl');
     const svgUnivCircle = document.getElementById('svg-univ-circle');
@@ -21384,17 +21368,21 @@ async function renderAdmissionPathEngine() {
         else if (activeUnivName.includes("경희")) shortText = "경희대";
         else if (activeUnivName.includes("가천")) shortText = "가천대";
         else shortText = activeUnivName.replace("대학교", "").replace("대학", "").trim().substring(0, 4);
-        svgUnivShort.innerText = shortText;
+        
+        svgUnivShort.textContent = shortText;
+        svgUnivShort.innerHTML = shortText;
     }
     if (svgUnivTarget) {
-        svgUnivTarget.innerText = isTarget ? "1지망" : "마지노선";
+        const targetLabel = isTarget ? "1지망" : "마지노선";
+        svgUnivTarget.textContent = targetLabel;
+        svgUnivTarget.innerHTML = targetLabel;
         svgUnivTarget.setAttribute("fill", isTarget ? "#818cf8" : "#38bdf8");
     }
     if (svgUnivCircle) {
         svgUnivCircle.setAttribute("stroke", isTarget ? "#6366f1" : "#0284c7");
     }
 
-    // 4. 5갈래 전형별 정밀 판정 로직
+    // 4. 전형별 정밀 판정 로직
     const scores = getPreciseScoreData();
     const tracks = calculate5Tracks(scores, activeUnivName, penaltyLevel);
 
@@ -21404,23 +21392,33 @@ async function renderAdmissionPathEngine() {
     // 6. 3단 순공 비교 바 렌더링 (아코디언 내부)
     renderHeadlineCampusBars(data, activeTargetHours, myHours);
 
-    // 7. 5대 전형 상세표 렌더링 (아코디언 내부)
+    // 7. 전형 상세표 렌더링 (아코디언 내부)
     render5TracksTable(tracks);
+
+    // 백그라운드 서버 데이터 동기화 (캐시 없을 시 비동기 패치 후 부드럽게 업데이트)
+    if (!cachedAdmissionCampusData) {
+        fetch(`/api/gamification/campus-occupation?student_id=${sid}`)
+            .then(res => res.ok ? res.json() : null)
+            .then(fetchedData => {
+                if (fetchedData) {
+                    cachedAdmissionCampusData = fetchedData;
+                    renderHeadlineCampusBars(fetchedData, activeTargetHours, fetchedData.my_study_info?.my_hours || myHours);
+                }
+            })
+            .catch(err => console.warn("Background campus data fetch:", err));
+    }
 }
 window.renderAdmissionPathEngine = renderAdmissionPathEngine;
 
-// 5갈래 전형 판정 계산식
+// 전형 판정 계산식 (성적 미입력 시 중립 회색, 모의고사 우수자 과도한 강등 방지)
 function getUnivAdmissionTracks(univName) {
     const name = (univName || '').trim();
-    // 1. 논술 미실시 대학 (서울대, 과학기술원, 교육대 등)
     const noEssayUnivs = ["서울대", "서울대학교", "KAIST", "카이스트", "포스텍", "POSTECH", "포항공과대학교", "GIST", "UNIST", "DGIST", "한국교원대", "교육대"];
     const isNoEssay = noEssayUnivs.some(u => name.includes(u));
 
-    // 2. 약술형 논술 시행 대학 (약 12개교)
     const yaksulUnivs = ["가천", "수원", "상명", "삼육", "서경", "한국공학", "을지", "한국기술교육", "한신", "신한", "세종"];
     const isYaksul = !isNoEssay && yaksulUnivs.some(u => name.includes(u));
 
-    // 3. 일반 논술 시행 대학 (연세대, 고려대, 성균관대 등 인서울 주요대)
     return { isNoEssay, isYaksul, hasGeneralEssay: !isNoEssay && !isYaksul };
 }
 
@@ -21429,7 +21427,6 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
     const isSky = univName.includes("서울") || univName.includes("연세") || univName.includes("고려");
     const trackConfig = getUnivAdmissionTracks(univName);
 
-    const hasScores = scores && scores.hasScores;
     const gpa = scores?.gpa_grade;
     const gpaRank = scores?.gpa_rank;
     const gpaTotal = scores?.gpa_total || 280;
@@ -21438,12 +21435,15 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
     const inq1Pct = scores?.inq1_pct;
     const inq2Pct = scores?.inq2_pct;
 
-    // Track 1: 학생부 교과 (확정 실선)
-    let track1Status = 'ON_TRACK';
+    const hasGpa = (gpa !== null && gpa !== undefined && !isNaN(gpa) && gpa > 0);
+    const hasCsat = (korPct !== null && mathPct !== null && !isNaN(korPct) && !isNaN(mathPct));
+
+    // Track 1: 학생부 교과 (확정 결과)
+    let track1Status = 'UNENTERED';
     let track1Badge = '성적 미입력';
     let track1Comment = '내신 성적을 입력하시면 정확한 합격선이 계산됩니다.';
 
-    if (gpa !== null && gpa !== undefined) {
+    if (hasGpa) {
         let gpaCutSafe = isMedical ? 1.25 : (isSky ? 1.60 : 2.10);
         let gpaCutTrack = isMedical ? 1.45 : (isSky ? 1.95 : 2.60);
         if (gpa <= gpaCutSafe) {
@@ -21459,12 +21459,12 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
         track1Comment = `내신 ${gpa}등급` + (gpaRank ? ` · 전교 ${gpaRank}등/${gpaTotal}명 확정치` : ' 확정치');
     }
 
-    // Track 2: 학생부 종합 (확정 실선)
-    let track2Status = 'ON_TRACK';
+    // Track 2: 학생부 종합 (확정 결과)
+    let track2Status = 'UNENTERED';
     let track2Badge = '성적 미입력';
     let track2Comment = '학생부 성적 입력 대기 중';
 
-    if (gpa !== null && gpa !== undefined) {
+    if (hasGpa) {
         let gpaCutSafe = isMedical ? 1.45 : (isSky ? 1.85 : 2.45);
         let gpaCutTrack = isMedical ? 1.70 : (isSky ? 2.25 : 3.10);
         if (gpa <= gpaCutSafe) {
@@ -21484,16 +21484,18 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
     let track3 = null;
     if (!trackConfig.isNoEssay) {
         let essayName = trackConfig.isYaksul ? '약술형 논술' : '논술 전형';
-        let track3Status = 'ON_TRACK';
+        let track3Status = 'UNENTERED';
         let track3Badge = '성적 미입력';
         let track3Comment = trackConfig.isYaksul ? '중위권 수험생 역전 전형 (국/수 1과목 3등급 이내)' : '수능 최저학력기준 및 논술 적합도';
 
-        if (korPct !== null && mathPct !== null) {
-            let track3Base = (korPct >= 92 && mathPct >= 92) ? 'ON_TRACK' : 'DANGER';
+        if (hasCsat) {
+            let track3Base = (korPct >= 92 && mathPct >= 92) ? 'SAFE' : ((korPct >= 85 || mathPct >= 85) ? 'ON_TRACK' : 'DANGER');
             track3Status = applyPenalty(track3Base, penaltyLevel);
             track3Badge = getPenaltyBadge(track3Status, penaltyLevel);
-            if (penaltyLevel === 'DANGER') {
-                track3Comment = `수능 최저기준 잠재치 ➔ ⚡ 주간 순공 부족으로 2단계 강등`;
+            if (penaltyLevel === 'DANGER' && track3Base === 'SAFE') {
+                track3Comment = `수능 최저 충족권 (주간 순공 보완 권장)`;
+            } else {
+                track3Comment = `국어 ${korPct}%, 수학 ${mathPct}% 기반 수능 최저 진단`;
             }
         }
         track3 = {
@@ -21507,12 +21509,12 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
         };
     }
 
-    // Track 4: 정시 수능 일반 (잠재 점선)
-    let track4Status = 'ON_TRACK';
+    // Track 4: 정시 수능 일반 (잠정 결과)
+    let track4Status = 'UNENTERED';
     let track4Badge = '성적 미입력';
     let track4Comment = '모의고사 백분위를 입력하시면 실시간 합격선이 계산됩니다.';
 
-    if (korPct !== null && mathPct !== null) {
+    if (hasCsat) {
         const inq1 = inq1Pct || korPct;
         const inq2 = inq2Pct || mathPct;
         const totalPct = (korPct + mathPct + inq1 + inq2) / 4.0;
@@ -21529,7 +21531,11 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
         }
         track4Status = applyPenalty(track4Base, penaltyLevel);
         track4Badge = getPenaltyBadge(track4Status, penaltyLevel);
-        track4Comment = `국수탐 백분위 평균 ${Math.round(totalPct)}점` + (penaltyLevel === 'DANGER' ? ' ➔ 🚨 순공 0시간으로 2단계 강등' : '');
+        if (track4Base === 'SAFE' && penaltyLevel === 'DANGER') {
+            track4Comment = `국수탐 백분위 평균 ${Math.round(totalPct)}점 (주간 순공 부족으로 소신 조정)`;
+        } else {
+            track4Comment = `국수탐 백분위 평균 ${Math.round(totalPct)}점`;
+        }
     }
 
     const trackList = [
@@ -21571,20 +21577,25 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
     const count = trackList.length;
     trackList.forEach((tr, i) => {
         if (count === 3) {
-            tr.yCurve = 55 + (i * 45); // 55, 100, 145
+            tr.yCurve = 55 + (i * 45);
         } else {
-            tr.yCurve = 45 + (i * 37); // 45, 82, 119, 156
+            tr.yCurve = 45 + (i * 37);
         }
     });
 
     return trackList;
 }
 
+// 모의고사 성적이 우수하면 순공 부족이어도 과도한 강등 방지 (SAFE -> ON_TRACK까지만 소신 조정)
 function applyPenalty(baseStatus, penaltyLevel) {
     if (penaltyLevel === 'NONE') return baseStatus;
-    if (penaltyLevel === 'WARN') {
-        if (baseStatus === 'SAFE') return 'ON_TRACK';
-        return 'DANGER';
+    if (baseStatus === 'SAFE') {
+        if (penaltyLevel === 'DANGER') return 'ON_TRACK';
+        return 'SAFE';
+    }
+    if (baseStatus === 'ON_TRACK') {
+        if (penaltyLevel === 'DANGER') return 'DANGER';
+        return 'ON_TRACK';
     }
     return 'DANGER';
 }
@@ -21592,22 +21603,20 @@ function applyPenalty(baseStatus, penaltyLevel) {
 function getStatusColor(status) {
     if (status === 'SAFE') return '#10b981'; // 초록
     if (status === 'ON_TRACK') return '#f59e0b'; // 주황
-    return '#ef4444'; // 빨강
+    if (status === 'DANGER') return '#ef4444'; // 빨강
+    return '#64748b'; // UNENTERED: 중립 세련된 회색
 }
 
 function getPenaltyBadge(status, penaltyLevel) {
-    if (penaltyLevel === 'DANGER' && status === 'DANGER') {
-        return '위험 (순공 부족 강등)';
+    if (status === 'UNENTERED') return '성적 미입력';
+    if (status === 'SAFE') return '적정 (합격권)';
+    if (status === 'ON_TRACK') {
+        return penaltyLevel === 'DANGER' ? '소신 (순공 보완)' : '소신 (도전권)';
     }
-    if (penaltyLevel === 'WARN' && status === 'DANGER') {
-        return '소신 (공부량 부족 하락)';
-    }
-    if (status === 'SAFE') return '적정 (안정권)';
-    if (status === 'ON_TRACK') return '소신 (도전권)';
-    return '위험 (마지노선 미달)';
+    return '위험 (합격선 미달)';
 }
 
-// SVG 베지어 곡선 및 라벨 렌더링 (모든 선 두께 2.6px로 완벽 통일!)
+// SVG 베지어 곡선 지도 렌더링
 function renderSvgRoutes(tracks) {
     const group = document.getElementById('svg-routes-group');
     if (!group) return;
@@ -21617,30 +21626,28 @@ function renderSvgRoutes(tracks) {
     const startY = 100;
     const endX = 452;
     const endY = 100;
-    const uniformStrokeWidth = 2.6; // 모든 선 두께 동일하게 완벽 통일!
+    const uniformStrokeWidth = 2.6;
 
     tracks.forEach((tr) => {
         const midY = tr.yCurve;
         const d = `M ${startX} ${startY} C 190 ${midY}, 330 ${midY}, ${endX} ${endY}`;
-        const isDashed = (tr.type === 'DASHED');
+        const isDashed = (tr.type === 'DASHED' || tr.status === 'UNENTERED');
         const dashArray = isDashed ? '6 4' : 'none';
-        const isPulse = (tr.status === 'DANGER' && isDashed);
+        const isPulse = (tr.status === 'DANGER' && tr.type === 'DASHED');
 
-        // Path (Uniform stroke-width!)
         svgHtml += `
             <path d="${d}" fill="none" stroke="${tr.color}" stroke-width="${uniformStrokeWidth}" 
-                  stroke-dasharray="${dashArray}" opacity="0.9" style="transition: all 0.3s ease; cursor: pointer;"
+                  stroke-dasharray="${dashArray}" opacity="${tr.status === 'UNENTERED' ? '0.5' : '0.9'}" style="transition: all 0.3s ease; cursor: pointer;"
                   onclick="selectAdmissionTrackCard('${tr.id}')">
                 ${isPulse ? '<animate attributeName="stroke-opacity" values="0.95;0.35;0.95" dur="1.4s" repeatCount="indefinite" />' : ''}
             </path>
         `;
 
-        // Midpoint Label Box
         const labelX = 260;
         svgHtml += `
-            <g transform="translate(${labelX}, ${midY})">
+            <g transform="translate(${labelX}, ${midY})" style="cursor: pointer;" onclick="selectAdmissionTrackCard('${tr.id}')">
                 <circle r="3.5" fill="${tr.color}" />
-                <rect x="-42" y="-10" width="84" height="20" rx="6" fill="#0f172a" stroke="${tr.color}" stroke-width="1.2" opacity="0.94" />
+                <rect x="-42" y="-10" width="84" height="20" rx="6" fill="#0f172a" stroke="${tr.color}" stroke-width="1.2" opacity="0.95" />
                 <text text-anchor="middle" dy="3.5" fill="#ffffff" font-size="9" font-weight="900">${tr.name}</text>
             </g>
         `;
@@ -21649,68 +21656,28 @@ function renderSvgRoutes(tracks) {
     group.innerHTML = svgHtml;
 }
 
-
-// 3단 순공 비교 프로그레스 바 렌더링 (아코디언 내부)
-function renderHeadlineCampusBars(data, activeTargetHours, myHours) {
-    const listEl = document.getElementById('headline-campus-occupation-list');
-    const totalNetworkEl = document.getElementById('headline-network-total-hours');
-    if (!listEl) return;
-
-    if (totalNetworkEl) {
-        totalNetworkEl.innerText = `주간 ${data.total_network_hours || 128}시간 집계`;
-    }
-
-    const targetInfo = data.target_info;
-    const baselineInfo = data.baseline_info;
-    const maxH = Math.max(targetInfo?.avg_hours || 1, baselineInfo?.avg_hours || 1, myHours || 1, 1);
-
-    const items = [
-        { label: "1지망 목표", name: targetInfo?.univ_name || "연세대학교 의예과", hours: targetInfo?.avg_hours || 42.5, color: "#6366f1", badge: "1지망" },
-        { label: "마지노선", name: baselineInfo?.univ_name || "서울대학교 화학생물공학부", hours: baselineInfo?.avg_hours || 36.0, color: "#0284c7", badge: "마지노선" },
-        { label: "나의 순공", name: (currentStudent?.name || "학생") + " 이번 주 공부시간", hours: myHours, color: (myHours >= (baselineInfo?.avg_hours || 36.0) ? "#10b981" : "#ef4444"), badge: "MY" }
-    ];
-
-    listEl.innerHTML = items.map(item => {
-        const pct = Math.min(100, Math.round((item.hours / maxH) * 100));
-        return `
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 10px 12px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 0.68rem; font-weight: 800; background: ${item.color}33; color: ${item.color}; border: 1px solid ${item.color}66; padding: 1px 6px; border-radius: 4px;">${item.badge}</span>
-                        <span style="font-size: 0.78rem; font-weight: 800; color: #ffffff;">${item.name}</span>
-                    </div>
-                    <span style="font-size: 0.82rem; font-weight: 900; color: ${item.color};">${item.hours.toFixed(1)}시간</span>
-                </div>
-                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;">
-                    <div style="width: ${pct}%; height: 100%; background: ${item.color}; border-radius: 3px; transition: width 0.6s ease;"></div>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-// 세부 전형 판정 상세표 렌더링
+// 세부 전형 판정 상세표 렌더링 (설명 크기 시원하게 확대 + 점선/실선 중복 문구 제거)
 function render5TracksTable(tracks) {
     const tableEl = document.getElementById('admission-5tracks-table');
     if (!tableEl) return;
 
     tableEl.innerHTML = tracks.map(tr => {
         return `
-            <div id="track-card-${tr.id}" style="display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-left: 3px solid ${tr.color}; border-radius: 8px;">
-                <div style="display: flex; flex-direction: column; gap: 2px;">
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 0.82rem; font-weight: 900; color: #ffffff;">${tr.name}</span>
-                        <span style="font-size: 0.68rem; color: #94a3b8;">${tr.type.includes('SOLID') ? '확정 실선' : '잠재 점선'}</span>
+            <div id="track-card-${tr.id}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-left: 3.5px solid ${tr.color}; border-radius: 10px; margin-bottom: 8px;">
+                <div style="display: flex; flex-direction: column; gap: 3px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 0.96rem; font-weight: 900; color: #ffffff;">${tr.name}</span>
                     </div>
-                    <div style="font-size: 0.72rem; color: #cbd5e1;">${tr.comment}</div>
+                    <div style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.4;">${tr.comment}</div>
                 </div>
-                <span style="font-size: 0.72rem; font-weight: 900; color: ${tr.color}; background: ${tr.color}1a; border: 1px solid ${tr.color}55; padding: 3px 8px; border-radius: 8px; white-space: nowrap;">
+                <span style="font-size: 0.78rem; font-weight: 900; color: ${tr.color}; background: ${tr.color}1a; border: 1px solid ${tr.color}55; padding: 4px 10px; border-radius: 8px; white-space: nowrap; margin-left: 12px;">
                     ${tr.badge}
                 </span>
             </div>
         `;
     }).join('');
 }
+
 
 function selectAdmissionTrackCard(trackId) {
     toggleAdmissionDetailAccordion(true);

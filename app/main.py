@@ -9676,6 +9676,17 @@ def get_campus_occupation(student_id: Optional[int] = None, db: Session = Depend
             "student_count": 0
         }
 
+    # Optimized: single bulk query for weekly study duration
+    study_seconds_by_student = dict(
+        db.query(
+            models.StudySession.student_id,
+            func.coalesce(func.sum(models.StudySession.duration_sec), 0)
+        ).filter(
+            models.StudySession.created_at >= week_start,
+            models.StudySession.deleted_at == None
+        ).group_by(models.StudySession.student_id).all()
+    )
+
     for st in students:
         canon_name, col, short_n = get_canonical_univ(st.target_univ)
         if canon_name not in univ_map:
@@ -9688,13 +9699,7 @@ def get_campus_occupation(student_id: Optional[int] = None, db: Session = Depend
             }
         univ_map[canon_name]["student_count"] += 1
         
-        # Calculate weekly study seconds
-        sess = db.query(models.StudySession).filter(
-            models.StudySession.student_id == st.id,
-            models.StudySession.created_at >= week_start,
-            models.StudySession.deleted_at == None
-        ).all()
-        st_sec = sum((s.duration_sec or 0) for s in sess)
+        st_sec = int(study_seconds_by_student.get(st.id, 0))
         univ_map[canon_name]["total_seconds"] += st_sec
 
     campus_list = list(univ_map.values())

@@ -714,7 +714,7 @@
                         <span class="material-symbols-rounded" style="font-size: 1rem; color: #fbbf24;">sync</span>
                         <span>갱신</span>
                     </button>
-                    <a href="/" class="btn" style="padding: 7px 13px; font-size: 0.8rem; font-weight: 700; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); color: #c7d2fe; border-radius: 8px; text-decoration: none; display: flex; align-items: center; gap: 5px; cursor: pointer; transition: all 0.2s;">
+                    <a href="/app" class="btn" style="padding: 7px 13px; font-size: 0.8rem; font-weight: 700; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); color: #c7d2fe; border-radius: 8px; text-decoration: none; display: flex; align-items: center; gap: 5px; cursor: pointer; transition: all 0.2s;">
                         <span class="material-symbols-rounded" style="font-size: 1rem; color: #818cf8;">smartphone</span>
                         <span>학생 화면</span>
                     </a>
@@ -881,7 +881,7 @@
                     <div class="section-title" style="color: #34d399; display: flex; justify-content: space-between; align-items: center;">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span class="material-symbols-rounded">fact_check</span>
-                            <span>현장 출결 기록부 (4자리 비밀번호 인증 내역)</span>
+                            <span>현장 출결 기록부</span>
                             <span id="attendance-log-badge" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 10px; background: rgba(16, 185, 129, 0.15); color: #34d399; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3);">출결 기록부</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 6px;">
@@ -917,8 +917,8 @@
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span class="material-symbols-rounded" style="font-size: 1.5rem; color: #38bdf8;">pin</span>
                             <div>
-                                <div style="font-size: 1.05rem; font-weight: 900; color: #ffffff;">현장 실시간 3분 출결 인증번호 (대학교 전자출결 방식)</div>
-                                <div style="font-size: 0.74rem; color: #94a3b8;">출석 후 도망(출튀) 방지 및 실시간 현장 재확인용 3분 타임어택 코드</div>
+                                <div style="font-size: 1.05rem; font-weight: 900; color: #ffffff;">현장 실시간 출결 인증번호</div>
+                                <div style="font-size: 0.74rem; color: #94a3b8;">수업 현장 4자리 인증번호 (3분 유효)</div>
                             </div>
                         </div>
                         <button onclick="generateAttendanceOtpNow()" class="btn" style="padding: 10px 18px; font-size: 0.88rem; font-weight: 900; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border-radius: 12px; box-shadow: 0 4px 14px rgba(2,132,199,0.4); display: flex; align-items: center; gap: 6px;">
@@ -927,24 +927,22 @@
                         </button>
                     </div>
 
-                    <div style="display: flex; align-items: center; justify-content: space-around; background: rgba(0, 0, 0, 0.45); border: 1.5px solid rgba(56, 189, 248, 0.3); border-radius: 16px; padding: 20px 24px; flex-wrap: wrap; gap: 16px;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 0.76rem; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">칠판 안내용 4자리 인증번호</div>
-                            <div id="admin-otp-code-display" style="font-size: 3rem; font-weight: 900; letter-spacing: 12px; color: #38bdf8; font-family: monospace; text-shadow: 0 0 20px rgba(56,189,248,0.5);">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; background: rgba(0, 0, 0, 0.45); border: 1.5px solid rgba(56, 189, 248, 0.3); border-radius: 16px; padding: 14px;">
+                        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 14px 8px; text-align: center;">
+                            <div style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">4자리 인증번호</div>
+                            <div id="admin-otp-code-display" style="font-size: 2.3rem; font-weight: 900; letter-spacing: 6px; color: #38bdf8; font-family: monospace; text-shadow: 0 0 16px rgba(56,189,248,0.5); line-height: 1.2;">
                                 ----
                             </div>
                         </div>
-                        <div style="width: 1px; height: 60px; background: rgba(255,255,255,0.1);" class="hide-mobile"></div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 0.76rem; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">남은 유효 시간</div>
-                            <div id="admin-otp-timer-display" style="font-size: 2.2rem; font-weight: 900; color: #f59e0b; font-family: monospace;">
+                        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 14px 8px; text-align: center;">
+                            <div style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">남은 유효 시간</div>
+                            <div id="admin-otp-timer-display" style="font-size: 2.1rem; font-weight: 900; color: #f59e0b; font-family: monospace; line-height: 1.2;">
                                 00:00
                             </div>
                         </div>
-                        <div style="width: 1px; height: 60px; background: rgba(255,255,255,0.1);" class="hide-mobile"></div>
-                        <div style="text-align: center; min-width: 120px;">
-                            <div style="font-size: 0.76rem; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">인증 완료 학생</div>
-                            <div id="admin-otp-verified-count" style="font-size: 2.2rem; font-weight: 900; color: #10b981;">
+                        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 14px 8px; text-align: center;">
+                            <div style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">인증 완료 학생</div>
+                            <div id="admin-otp-verified-count" style="font-size: 2.1rem; font-weight: 900; color: #10b981; line-height: 1.2;">
                                 0명
                             </div>
                         </div>

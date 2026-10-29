@@ -1004,8 +1004,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             <g id="svg-node-student" transform="translate(42, 100)">
                                 <circle r="26" fill="#1e1b4b" stroke="#818cf8" stroke-width="2.5" />
                                 <circle r="21" fill="#312e81" />
-                                <text text-anchor="middle" dy="-2" fill="#c7d2fe" font-size="10" font-weight="900">나 (MY)</text>
-                                <text text-anchor="middle" dy="11" fill="#fbbf24" font-size="8.5" font-weight="800" id="svg-student-grade-lbl">고3·N수</text>
+                                <text text-anchor="middle" dy="5" fill="#ffffff" font-size="14" font-weight="900">나</text>
                             </g>
 
                             <!-- 우측 도착 노드: 목표 대학 -->
@@ -1025,11 +1024,11 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <span style="display: flex; align-items: center; gap: 4px;">
                                     <span style="display: inline-block; width: 14px; height: 3px; background: #10b981; border-radius: 2px;"></span>
-                                    <span>실선: 내신(확정치)</span>
+                                    <span style="font-size: 0.74rem;">실선: 확정 결과 (내신)</span>
                                 </span>
                                 <span style="display: flex; align-items: center; gap: 4px;">
-                                    <span style="display: inline-block; width: 14px; height: 3px; border-top: 2px dashed #f87171;"></span>
-                                    <span>점선: 수능/논술(잠재치·순공연동)</span>
+                                    <span style="display: inline-block; width: 14px; height: 3px; border-top: 2px dashed #94a3b8;"></span>
+                                    <span style="font-size: 0.74rem;">점선: 잠정 결과 (수능·순공 연동)</span>
                                 </span>
                             </div>
                             <button type="button" onclick="toggleAdmissionDetailAccordion(true)" style="background: rgba(99, 102, 241, 0.18); border: 1px solid rgba(99, 102, 241, 0.4); color: #c7d2fe; padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; transition: all 0.2s;">
@@ -1597,10 +1596,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             <span class="material-symbols-rounded" style="font-size: 1.1rem;">menu_book</span>
                             <span>기출문제</span>
                         </button>
-                        <button class="tab-btn subtab-main-btn" data-sub="tracer" onclick="switchSubTabPage2('tracer')">
-                            <span class="material-symbols-rounded" style="font-size: 1.1rem;">manage_search</span>
-                            <span>내신 출처추적</span>
-                        </button>
+
                     </div>
                 </div>
 
@@ -2085,7 +2081,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 </div>
 
                 <!-- 2-D: 내신 기출 출처 정밀 추적기 & 학교별 출제 바이블 (Exam Source Tracer & School Bible) -->
-                <div id="p2-tracer" class="subtab-view-p2" style="display: none; padding-bottom: 100px;">
+                <div id="p2-tracer" class="subtab-view-p2" style="display: none !important;" style="display: none; padding-bottom: 100px;">
                     <div class="card" style="padding: 16px;">
                         <div class="card-title" style="color: #818cf8; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between;">
                             <div style="display: flex; align-items: center; gap: 6px;">
@@ -3501,10 +3497,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 <span class="material-symbols-rounded" style="font-size: 1.1rem;">explore</span>
                                 <span>특목고 나침반</span>
                             </button>
-                            <button class="tab-btn subtab-main-btn" data-midsub="tracer" onclick="switchSubTabPageMid('tracer')">
-                                <span class="material-symbols-rounded" style="font-size: 1.1rem;">manage_search</span>
-                                <span>내신 출처추적</span>
-                            </button>
+
                             <button class="tab-btn subtab-main-btn" data-midsub="tracker" onclick="switchSubTabPageMid('tracker')">
                                 <span class="material-symbols-rounded" style="font-size: 1.1rem;">grade</span>
                                 <span>내신 올A 진단</span>
