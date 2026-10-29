@@ -741,9 +741,9 @@
                         <div>
                             <div class="flex items-center gap-2">
                                 <div class="text-xs font-black text-white">가족 안심 연동 (학부모 리포트)</div>
-                                <span id="modal-parent-status-badge" class="text-[9.5px] font-black px-2 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">연동 가동 중</span>
+                                <span id="modal-parent-status-badge" class="text-[9.5px] font-black px-2 py-0.2 rounded-full bg-slate-800 text-slate-400 border border-slate-700">미연동 (초대 대기)</span>
                             </div>
-                            <div class="text-[10px] text-slate-400 mt-0.5" id="modal-parent-status-sub">어머니 계정 연동됨 · 실시간 순공 시간표 &amp; 5갈래 대입 노선 공유 중</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5" id="modal-parent-status-sub">아직 학부모 계정이 연결되지 않았습니다. 초대 링크를 전달하세요.</div>
                         </div>
                     </div>
                     <button type="button" onclick="toggleParentLinkState()" class="px-2.5 py-1.5 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 text-[11px] font-bold border border-indigo-500/40 transition shrink-0">
@@ -775,7 +775,7 @@
                             <option value="독서실">독서실</option>
                             <option value="스터디카페">스터디카페</option>
                         </select>
-                        <input type="text" id="input-new-academy-name" placeholder="학원 또는 독서실 이름/코드 (예: 대치 수학학원)" class="flex-1 w-full px-2.5 py-1.5 rounded bg-slate-900 border border-slate-700 text-slate-200 text-xs focus:border-amber-400 outline-none">
+                        <input type="text" id="input-new-academy-name" placeholder="소속 학원 또는 독서실 이름/코드 입력 (예: 미래에듀학원)" class="flex-1 w-full px-2.5 py-1.5 rounded bg-slate-900 border border-slate-700 text-slate-200 text-xs focus:border-amber-400 outline-none">
                         <button type="button" onclick="addNewConnectedAcademy()" class="w-full sm:w-auto px-3 py-1.5 rounded bg-amber-600 hover:bg-amber-500 text-white text-xs font-extrabold transition shrink-0">
                             + 연동 등록
                         </button>
@@ -1029,7 +1029,7 @@
                             학원장 관제실은 <strong>엔터프라이즈 정회원 라이선스 결제 및 본사 인가</strong> 후 활성화됩니다. 아래 버튼으로 사전 접수 후 본사로 연락 주시면 즉시 결제 및 세팅이 진행됩니다.
                         </p>
                         <div class="text-[11px] text-amber-300 font-bold space-y-1 bg-slate-900/90 p-3 rounded-lg border border-amber-500/30">
-                            <div>📧 본사 라이선스 승인 이메일: <a href="mailto:1286ok@naver.com" class="underline text-white font-black">1286ok@naver.com</a> (김철훈 대표)</div>
+                            <div>📧 본사 라이선스 승인 이메일: <a href="mailto:1286ok@naver.com" class="underline text-white font-black">1286ok@naver.com</a> (PALIN 엔터프라이즈 운영본부)</div>
                             <div>📞 대표 직통 유선 번호: <a href="tel:01055272979" class="underline text-white font-black">010-5527-2979</a></div>
                         </div>
                     </div>
@@ -1159,23 +1159,27 @@
 
         
                 // --- ⚡ 3자 실시간 연동 편대 (수험생 ⇄ 학부모 ⇄ 학원/독서실) 고급 제어 ---
-        let isParentLinkedState = true; // 기본 연동 활성화 상태 (토글 가능)
+        let isParentLinkedState = false; // 기본 미연동 상태 (가족 초대 시 활성화)
         const DEFAULT_ACADEMIES_KEY = 'palin_connected_academies';
 
         function getConnectedAcademies() {
             try {
                 const raw = localStorage.getItem(DEFAULT_ACADEMIES_KEY);
-                if (raw) return JSON.parse(raw);
+                if (raw) {
+                    // 개인 학원명(일원 등) 완전 배제 및 사용자 직접 등록 기관만 순수 유지
+                    const parsed = JSON.parse(raw);
+                    const cleaned = parsed.filter(item => item && item.name && !item.name.includes('일원') && !item.name.toLowerCase().includes('ilwon'));
+                    if (cleaned.length !== parsed.length) {
+                        localStorage.setItem(DEFAULT_ACADEMIES_KEY, JSON.stringify(cleaned));
+                    }
+                    return cleaned;
+                }
             } catch (e) {
                 console.warn('Failed to parse academies list:', e);
             }
-            // 초기 기본값: 2개 기관 (학원 1곳, 독서실 1곳)
-            const initList = [
-                { id: 'acad-1', name: '일원학원 (수능국어)', type: '학원', status: '출석부 연동 중' },
-                { id: 'acad-2', name: '대치 하이엔드 독서실', type: '독서실', status: '좌석 관제 연동 중' }
-            ];
-            localStorage.setItem(DEFAULT_ACADEMIES_KEY, JSON.stringify(initList));
-            return initList;
+            // 미연동 순수 기본값 (외부 노출 제로 원칙: 임의 하드코딩 기관 없음)
+            localStorage.setItem(DEFAULT_ACADEMIES_KEY, JSON.stringify([]));
+            return [];
         }
 
         function saveConnectedAcademies(list) {
@@ -1194,8 +1198,8 @@
             if (list.length === 0) {
                 container.innerHTML = `
                     <div class="p-3 text-center text-slate-400 text-xs bg-slate-950/60 rounded-lg border border-dashed border-slate-800">
-                        현재 등록된 소속 학원이나 독서실이 없습니다.<br>
-                        <span class="text-[11px] text-amber-400 font-bold">아래 폼에서 학원명이나 초대 코드를 입력해 연동하세요.</span>
+                        현재 연동된 소속 학원이나 독서실이 없습니다.<br>
+                        <span class="text-[11px] text-slate-400 font-medium">아래 등록 폼에서 소속 학원명 또는 초대 코드를 입력해 실시간 연동하세요.</span>
                     </div>
                 `;
                 return;
