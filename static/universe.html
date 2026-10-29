@@ -71,12 +71,9 @@
             opacity: 0.9;
         }
         .beam-inactive {
-            stroke: #334155 !important;
-            stroke-width: 1.2 !important;
-            stroke-dasharray: 4 6 !important;
-            opacity: 0.28 !important;
-            filter: none !important;
-            animation: none !important;
+            opacity: 0 !important;
+            display: none !important;
+            visibility: hidden !important;
         }
         .node-linked-glow {
             border-style: solid !important;
@@ -194,9 +191,9 @@
                         <span class="material-symbols-rounded text-sm">hub</span>
                         <span>초정밀 학업 관제: 자기중심 입시 궤도 (Ego-centric Admissions Hub)</span>
                     </div>
-                    <h2 class="text-2xl font-black text-white">나(Me)를 중심으로 펼쳐지는 초정밀 입시 관제망</h2>
+                    <h2 class="text-2xl font-black text-white">PASS-MATE를 중심으로 펼쳐지는 3자 실시간 입시 관제망</h2>
                     <p class="text-xs md:text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
-                        <span class="general-only">수험생 <strong>'나(Me)'</strong>를 중심으로 실시간 내신·수능 맞춤 대입 등대(컨설팅)와 순공 관제 엔진 <strong>[PASS-MATE]</strong>가 1:1 전담 가동됩니다.</span>
+                        <span class="general-only">수험생 <strong>'나(Me)'</strong>, <strong>학부모</strong>, <strong>소속 학원·독서실</strong>이 <strong>[PASS-MATE]</strong> 코어 입시 OS를 중심으로 실시간 1:1 동기화됩니다.</span>
                         <span class="creator-only" style="display: none;">화면 정중앙의 <strong>'나(Me)'</strong>를 중심으로 <strong>[PALIN 12대 MATE 전 생애 주기 관제망]</strong>이 가동 중입니다. (👑 제작자 전용 마스터 뷰)</span>
                     </p>
                 </div>
@@ -236,8 +233,8 @@
             </div>
 
             <!-- SVG & 우주 노드 관계도 캔버스 (모바일 겹침 100% 방지 컴팩트 궤도) -->
-            <div id="orbit-canvas-wrapper" class="relative w-full min-h-[450px] sm:min-h-[520px] bg-slate-950/80 rounded-2xl border border-slate-800/80 flex items-center justify-center p-2 sm:p-4 overflow-hidden">
-                                <!-- ⚡ 실시간 3자 궤도 에너지 연결 빔 (SVG Connective Light Beams) -->
+            <div id="orbit-canvas-wrapper" class="relative w-full min-h-[460px] sm:min-h-[520px] bg-slate-950/80 rounded-2xl border border-slate-800/80 flex items-center justify-center p-2 sm:p-4 overflow-hidden">
+                <!-- ⚡ 실시간 3자 궤도 에너지 연결 빔 (SVG Connective Light Beams: 미연동 시 100% 완전 소거) -->
                 <svg id="orbit-beam-svg" class="absolute inset-0 w-full h-full pointer-events-none z-10" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <filter id="glow-emerald" x="-20%" y="-20%" width="140%" height="140%">
@@ -262,107 +259,91 @@
                             </feMerge>
                         </filter>
                     </defs>
-                    <!-- 외곽 삼각 연결 루프 (PASS-MATE ⇄ 교육기관 ⇄ 가족) -->
-                    <path id="svg-triad-loop" d="" fill="none" stroke="#334155" stroke-dasharray="4 6" stroke-width="1.2" opacity="0.3" />
-                    <!-- 빔 1: 중심(나) ⇄ 좌측(PASS-MATE) -->
-                    <path id="svg-beam-pass" d="" fill="none" class="beam-active-emerald" />
-                    <!-- 빔 2: 중심(나) ⇄ 우측(가족 안심망) -->
-                    <path id="svg-beam-parent" d="" fill="none" class="beam-active-indigo" />
-                    <!-- 빔 3: 중심(나) ⇄ 상단(교육기관망) -->
-                    <path id="svg-beam-academy" d="" fill="none" class="beam-active-amber" />
+                    <!-- 빔 1: 중앙(PASS-MATE) ⇄ 좌측(나 / Me) -->
+                    <path id="svg-beam-user" d="" fill="none" class="beam-inactive" />
+                    <!-- 빔 2: 중앙(PASS-MATE) ⇄ 우측(가족 안심망) -->
+                    <path id="svg-beam-parent" d="" fill="none" class="beam-inactive" />
+                    <!-- 빔 3: 중앙(PASS-MATE) ⇄ 상단(교육기관망) -->
+                    <path id="svg-beam-academy" d="" fill="none" class="beam-inactive" />
                 </svg>
 
-                <!-- 동심원 궤도선 (CSS) -->
+                <!-- 은은한 배경 동심원 궤도선 -->
                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div class="w-[200px] h-[200px] sm:w-[280px] sm:h-[280px] md:w-[320px] md:h-[320px] rounded-full border border-indigo-500/15"></div>
-                    <div class="absolute w-[320px] h-[320px] sm:w-[440px] sm:h-[440px] md:w-[540px] md:h-[540px] rounded-full border border-dashed border-slate-800/80"></div>
+                    <div class="w-[200px] h-[200px] sm:w-[280px] sm:h-[280px] md:w-[320px] md:h-[320px] rounded-full border border-indigo-500/10"></div>
+                    <div class="absolute w-[320px] h-[320px] sm:w-[440px] sm:h-[440px] md:w-[540px] md:h-[540px] rounded-full border border-slate-900/60"></div>
                 </div>
 
-                <!-- 중앙 코어 노드: 나 (Me / 패밀리 허브) -->
-                <div id="hub-core-node" class="relative z-20 flex flex-col items-center">
-                    <div class="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 p-0.5 sm:p-1 shadow-[0_0_30px_rgba(99,102,241,0.5)] flex items-center justify-center animate-pulse">
+                <!-- 🟢 [정중앙 코어 노드]: PASS-MATE (초·중·고 학업 & 대입 관제 OS) -->
+                <div id="core-node-pass" onclick="handlePassmateNodeClick(true)" class="relative z-20 flex flex-col items-center cursor-pointer group">
+                    <div class="w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 p-0.5 sm:p-1.5 shadow-[0_0_40px_rgba(16,185,129,0.55)] flex items-center justify-center animate-pulse group-hover:scale-105 transition-transform duration-300">
                         <div class="w-full h-full rounded-full bg-slate-950 flex flex-col items-center justify-center">
-                            <span class="material-symbols-rounded text-lg sm:text-2xl md:text-3xl text-indigo-400">person</span>
-                            <span class="text-[9px] sm:text-[11px] font-black text-white tracking-tight" id="hub-user-name">나 (Me)</span>
+                            <span class="material-symbols-rounded text-xl sm:text-3xl md:text-4xl text-emerald-400">school</span>
+                            <span class="text-[9.5px] sm:text-[12px] font-black text-white tracking-tight">PASS-MATE</span>
                         </div>
                     </div>
-                    <div class="mt-1 sm:mt-2 text-center">
-                        <span class="text-[8.5px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.2 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40" id="hub-user-role">수험생 본인</span>
-                        <div class="text-[9px] sm:text-[11px] text-slate-400 font-bold mt-0.5 hidden sm:block" id="hub-user-phone">수험생 전용 고유계정</div>
+                    <div class="mt-1.5 sm:mt-2.5 text-center">
+                        <span class="text-[9px] sm:text-[10.5px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                            초·중·고 학업 &amp; 대입 관제 OS
+                        </span>
+                        <div class="text-[8.5px] sm:text-[10px] text-emerald-400 font-bold mt-0.5 hidden sm:block">클릭 시 대시보드 입장 ↗</div>
                     </div>
                 </div>
 
-                <!-- 좌측 날개 노드: PASS-MATE (모바일 w-[125px], 데스크톱 w-[210px] 겹침 방지) -->
-                <div id="orbit-node-pass-container" class="absolute left-2 sm:left-6 md:left-14 top-1/2 -translate-y-1/2 z-20 w-[125px] sm:w-[175px] md:w-[210px]">
-                    <!-- A. 미등록 상태: '+ PASS-MATE 추가하기' -->
-                    <div id="pass-node-unverified" onclick="handlePassmateNodeClick(false)" class="group cursor-pointer bg-slate-900/90 hover:bg-slate-900 border-2 border-dashed border-emerald-500/50 hover:border-emerald-400 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl shadow transition-all transform hover:-translate-y-1">
-                        <div class="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
-                            <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black shrink-0">
-                                <span class="material-symbols-rounded text-sm sm:text-lg">school</span>
+                <!-- 👤 [좌측 노드]: 나 (Me / 고유 접속 계정) -->
+                <div id="orbit-node-user-me" onclick="handleUserNodeClick()" class="absolute left-2 sm:left-6 md:left-14 top-1/2 -translate-y-1/2 z-20 w-[125px] sm:w-[175px] md:w-[205px] cursor-pointer group">
+                    <div id="user-me-card-box" class="bg-slate-900/90 hover:bg-slate-900 border-2 border-emerald-500/70 hover:border-emerald-400 p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl shadow-xl transition-all transform hover:-translate-y-1">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
+                                <span class="material-symbols-rounded text-[11px]">person</span>
+                                <span>나 (Me)</span>
+                            </span>
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping" id="user-me-pulse-dot"></span>
+                        </div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-1">
+                            <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black shrink-0">
+                                <span class="material-symbols-rounded text-sm sm:text-base">account_circle</span>
                             </span>
                             <div class="min-w-0">
-                                <div class="text-[11px] sm:text-xs font-black text-white group-hover:text-emerald-300 transition truncate">PASS-MATE</div>
-                                <div class="text-[8.5px] sm:text-[10px] text-slate-400 font-bold truncate">입시 &amp; 학업</div>
+                                <div class="text-[11px] sm:text-xs font-black text-white group-hover:text-emerald-300 transition truncate" id="hub-user-name">나 (수험생)</div>
+                                <div class="text-[8px] sm:text-[9.5px] text-slate-400 truncate" id="hub-user-role">수험생 본인</div>
                             </div>
                         </div>
-                        <div class="hidden sm:block text-[11px] text-slate-300 leading-snug mb-3">
-                            초·중·고 학업 루틴 · 순공 타이머 · 맞춤 대입 등대 & 대입 컨설팅
+                        <div class="hidden sm:block text-[10px] text-slate-300 leading-snug mb-2">
+                            순공 타이머 &amp; 맞춤 대입 등대 가동 계정
                         </div>
-                        <div class="flex items-center justify-between pt-0.5">
-                            <span class="text-[8.5px] sm:text-[10px] font-bold px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 border border-slate-700">미등록</span>
-                            <span class="text-[9px] sm:text-[11px] font-black text-emerald-400 flex items-center gap-0.5 bg-emerald-500/10 px-1.5 sm:px-2 py-0.2 rounded border border-emerald-500/20">
-                                <span>+ 추가</span>
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- B. 활성화 완료 상태: 'PASS-MATE ACTIVE' 카드 -->
-                    <div id="pass-node-verified" style="display: none;" onclick="handlePassmateNodeClick(true)" class="group cursor-pointer bg-slate-900/95 hover:bg-slate-900 border-2 border-emerald-500/60 hover:border-emerald-400 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.25)] transition-all transform hover:-translate-y-1">
-                        <div class="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
-                            <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black shrink-0">
-                                <span class="material-symbols-rounded text-sm sm:text-lg">school</span>
-                            </span>
-                            <div class="min-w-0">
-                                <div class="text-[11px] sm:text-xs font-black text-white group-hover:text-emerald-300 transition truncate">PASS-MATE</div>
-                                <div class="text-[8.5px] sm:text-[10px] text-emerald-400 font-bold truncate" id="pass-node-role-label">학습 측정 중</div>
-                            </div>
-                        </div>
-                        <div class="hidden sm:block text-[11px] text-slate-300 leading-snug mb-3" id="pass-node-desc">
-                            실시간 순공 시간 · 목표 대학 맞춤 대입 등대 가동 중
-                        </div>
-                        <div class="flex items-center justify-between pt-0.5">
-                            <span class="text-[8.5px] sm:text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">ACTIVE</span>
-                            <span class="text-[9px] sm:text-[11px] font-extrabold text-emerald-400 flex items-center gap-0.5 bg-emerald-500/10 px-1.5 sm:px-2 py-0.2 rounded border border-emerald-500/20">
-                                <span>입장 ↗</span>
+                        <div class="flex items-center justify-between pt-1 border-t border-slate-800">
+                            <span class="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/30" id="user-me-badge">계정 연결됨</span>
+                            <span class="text-[8.5px] sm:text-[10px] font-extrabold text-emerald-400 flex items-center gap-0.5">
+                                <span>내 정보 ↗</span>
                             </span>
                         </div>
                     </div>
                 </div>
 
-                <!-- 👨‍👩‍👧 가족 안심망 노드: 부모님 / 자녀 연동 (역할 반응형) -->
+                <!-- 👨‍👩‍👧 [우측 노드]: 가족 안심망 (학부모 연동) -->
                 <div id="triad-satellite-1" onclick="openTriadModal('sat1')" class="absolute right-2 sm:right-6 md:right-14 top-1/2 -translate-y-1/2 z-20 w-[125px] sm:w-[175px] md:w-[205px] cursor-pointer group">
-                    <div id="sat1-card-box" class="bg-slate-900/90 hover:bg-slate-900 border-2 border-indigo-500/70 hover:border-indigo-400 p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl shadow-xl transition-all transform hover:-translate-y-1">
+                    <div id="sat1-card-box" class="bg-slate-900/90 hover:bg-slate-900 border-2 border-slate-700/80 p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl shadow-xl transition-all transform hover:-translate-y-1 node-unlinked-dim">
                         <div class="flex items-center justify-between mb-1.5">
                             <span class="text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 flex items-center gap-1">
                                 <span class="material-symbols-rounded text-[11px]">family_restroom</span>
                                 <span>가족 안심망</span>
                             </span>
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping" id="sat1-pulse-dot"></span>
+                            <span class="w-2 h-2 rounded-full bg-slate-600" id="sat1-pulse-dot"></span>
                         </div>
                         <div class="flex items-center gap-1.5 sm:gap-2 mb-1">
                             <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-black shrink-0">
                                 <span class="material-symbols-rounded text-sm sm:text-base" id="sat1-icon">family_restroom</span>
                             </span>
                             <div class="min-w-0">
-                                <div class="text-[11px] sm:text-xs font-black text-white group-hover:text-indigo-300 transition truncate" id="sat1-title">부모님 안심 연동</div>
+                                <div class="text-[11px] sm:text-xs font-black text-white group-hover:text-indigo-300 transition truncate" id="sat1-title">가족 안심망</div>
                                 <div class="text-[8px] sm:text-[9.5px] text-slate-400 truncate" id="sat1-role-sub">학부모 리포트</div>
                             </div>
                         </div>
                         <div class="hidden sm:block text-[10px] text-slate-300 leading-snug mb-2" id="sat1-desc">
-                            주간 순공 시간표 &amp; 목표 대학 대입 컨설팅 방향성 실시간 공유
+                            실시간 순공 시간표 &amp; 맞춤 대입 컨설팅 공유
                         </div>
                         <div class="flex items-center justify-between pt-1 border-t border-slate-800">
-                            <span class="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.2 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/30" id="sat1-badge">실시간 동기화</span>
+                            <span class="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 border border-slate-700" id="sat1-badge">미연동 (+초대)</span>
                             <span class="text-[8.5px] sm:text-[10px] font-extrabold text-indigo-400 flex items-center gap-0.5">
                                 <span>관리 ↗</span>
                             </span>
@@ -370,9 +351,9 @@
                     </div>
                 </div>
 
-                <!-- 🏫 교육기관망 노드: 소속 학원 · 독서실 (다중 연동 지원) -->
+                <!-- 🏫 [상단 노드]: 교육기관망 (소속 학원 · 독서실) -->
                 <div id="triad-satellite-2" onclick="openTriadModal('sat2')" class="absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-10 cursor-pointer group">
-                    <div id="sat2-card-box" class="bg-slate-900/90 hover:bg-slate-900 border-2 border-amber-500/70 hover:border-amber-400 px-3 sm:px-4 py-1.5 sm:py-2.5 rounded-xl text-center shadow-lg transition-all flex items-center gap-2.5 transform hover:-translate-y-0.5">
+                    <div id="sat2-card-box" class="bg-slate-900/90 hover:bg-slate-900 border-2 border-slate-700/80 px-3 sm:px-4 py-1.5 sm:py-2.5 rounded-xl text-center shadow-lg transition-all flex items-center gap-2.5 transform hover:-translate-y-0.5 node-unlinked-dim">
                         <div class="flex items-center gap-1.5">
                             <span class="text-[7.5px] sm:text-[9px] font-black px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1">
                                 <span class="material-symbols-rounded text-[11px]">domain</span>
@@ -383,11 +364,11 @@
                         <div class="text-left">
                             <div class="text-[10px] sm:text-[11px] font-black text-white flex items-center gap-1.5">
                                 <span id="sat2-title">소속 학원 · 독서실</span>
-                                <span class="text-[8px] sm:text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded border border-amber-500/40 font-bold" id="sat2-badge">출석부 동기화</span>
+                                <span class="text-[8px] sm:text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.2 rounded border border-slate-700 font-bold" id="sat2-badge">미등록 (+코드)</span>
                             </div>
                             <div class="text-[8.5px] sm:text-[9.5px] text-slate-400" id="sat2-desc">출결 · 자습 좌석 · 수납 고지 연동</div>
                         </div>
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping ml-1" id="sat2-pulse-dot"></span>
+                        <span class="w-2 h-2 rounded-full bg-slate-600 ml-1" id="sat2-pulse-dot"></span>
                     </div>
                 </div>
 
@@ -396,7 +377,7 @@
                     <div class="bg-slate-900/80 backdrop-blur border border-slate-800 px-3.5 py-1 rounded-full text-center flex items-center gap-2 shadow-lg">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
                         <span class="text-[9.5px] sm:text-[10.5px] text-slate-300 font-bold tracking-tight">
-                            수험생 ⇄ PASS-MATE ⇄ 부모님 ⇄ 학원 3자 실시간 텔레메트리 가동 중
+                            수험생 ⇄ PASS-MATE ⇄ 부모님 ⇄ 교육기관 3자 실시간 텔레메트리 가동 중
                         </span>
                     </div>
                 </div>
@@ -1158,7 +1139,7 @@
         }
 
         
-                // --- ⚡ 3자 실시간 연동 편대 (수험생 ⇄ 학부모 ⇄ 학원/독서실) 고급 제어 ---
+                        // --- ⚡ 3자 실시간 연동 편대 (수험생 ⇄ PASS-MATE ⇄ 가족/학원) 고급 제어 ---
         let isParentLinkedState = false; // 기본 미연동 상태 (가족 초대 시 활성화)
         const DEFAULT_ACADEMIES_KEY = 'palin_connected_academies';
 
@@ -1166,7 +1147,6 @@
             try {
                 const raw = localStorage.getItem(DEFAULT_ACADEMIES_KEY);
                 if (raw) {
-                    // 개인 학원명(일원 등) 완전 배제 및 사용자 직접 등록 기관만 순수 유지
                     const parsed = JSON.parse(raw);
                     const cleaned = parsed.filter(item => item && item.name && !item.name.includes('일원') && !item.name.toLowerCase().includes('ilwon'));
                     if (cleaned.length !== parsed.length) {
@@ -1177,7 +1157,6 @@
             } catch (e) {
                 console.warn('Failed to parse academies list:', e);
             }
-            // 미연동 순수 기본값 (외부 노출 제로 원칙: 임의 하드코딩 기관 없음)
             localStorage.setItem(DEFAULT_ACADEMIES_KEY, JSON.stringify([]));
             return [];
         }
@@ -1197,7 +1176,8 @@
             if (!container) return;
             if (list.length === 0) {
                 container.innerHTML = `
-                    <div class="p-3 text-center text-slate-400 text-xs bg-slate-950/60 rounded-lg border border-dashed border-slate-800">
+                    <div class="p-4 text-center text-slate-400 text-xs bg-slate-950/60 rounded-xl border border-dashed border-slate-800">
+                        <span class="material-symbols-rounded text-2xl text-slate-500 mb-1">domain_disabled</span><br>
                         현재 연동된 소속 학원이나 독서실이 없습니다.<br>
                         <span class="text-[11px] text-slate-400 font-medium">아래 등록 폼에서 소속 학원명 또는 초대 코드를 입력해 실시간 연동하세요.</span>
                     </div>
@@ -1272,26 +1252,34 @@
                     badge.innerText = '연동 가동 중';
                     badge.className = 'text-[9.5px] font-black px-2 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
                 }
-                if (sub) sub.innerText = '학부모 계정 연동됨 · 실시간 순공 시간표 & 목표 대학 대입 컨설팅 방향성 공유 중';
+                if (sub) sub.innerText = '학부모 계정 연동됨 · 실시간 순공 시간표 & 대입 컨설팅 방향성 공유 중';
             } else {
                 if (badge) {
                     badge.innerText = '미연동 (초대 대기)';
                     badge.className = 'text-[9.5px] font-black px-2 py-0.2 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
                 }
-                if (sub) sub.innerText = '아직 가족 계정이 연결되지 않았습니다. 초대 링크를 전달하세요.';
+                if (sub) sub.innerText = '아직 학부모 계정이 연결되지 않았습니다. 초대 링크를 전달하세요.';
             }
             updateTriadOrbitUI();
         }
 
-        // SVG 에너지 빔 좌표 실시간 재계산 및 렌더링
+        function handleUserNodeClick() {
+            if (currentUser) {
+                alert(`[${currentUser.name || '수험생'}] 계정으로 정상 연결되어 있습니다.`);
+            } else {
+                openUnifiedAuthModal('STUDENT');
+            }
+        }
+
+        // SVG 에너지 빔 좌표 실시간 재계산: 중앙(PASS-MATE)을 기준으로 3방향 빔 연결
         function updateOrbitBeams() {
             const container = document.getElementById('orbit-canvas-wrapper');
-            const core = document.getElementById('hub-core-node');
-            const passNode = document.getElementById('orbit-node-pass-container');
+            const corePass = document.getElementById('core-node-pass');
+            const userNode = document.getElementById('orbit-node-user-me');
             const parentNode = document.getElementById('triad-satellite-1');
             const academyNode = document.getElementById('triad-satellite-2');
 
-            if (!container || !core || !passNode || !parentNode || !academyNode) return;
+            if (!container || !corePass || !userNode || !parentNode || !academyNode) return;
 
             const cRect = container.getBoundingClientRect();
             const getCenter = (el) => {
@@ -1302,28 +1290,33 @@
                 };
             };
 
-            const pCore = getCenter(core);
-            const pPass = getCenter(passNode);
+            const pCore = getCenter(corePass);
+            const pUser = getCenter(userNode);
             const pParent = getCenter(parentNode);
             const pAcad = getCenter(academyNode);
 
-            const beamPass = document.getElementById('svg-beam-pass');
+            const beamUser = document.getElementById('svg-beam-user');
             const beamParent = document.getElementById('svg-beam-parent');
             const beamAcad = document.getElementById('svg-beam-academy');
-            const triadLoop = document.getElementById('svg-triad-loop');
 
-            if (beamPass) beamPass.setAttribute('d', `M ${pCore.x} ${pCore.y} L ${pPass.x} ${pPass.y}`);
+            // 중앙(PASS-MATE) ⇄ 좌측(나/Me)
+            if (beamUser) beamUser.setAttribute('d', `M ${pCore.x} ${pCore.y} L ${pUser.x} ${pUser.y}`);
+            // 중앙(PASS-MATE) ⇄ 우측(가족 안심망)
             if (beamParent) beamParent.setAttribute('d', `M ${pCore.x} ${pCore.y} L ${pParent.x} ${pParent.y}`);
+            // 중앙(PASS-MATE) ⇄ 상단(교육기관망)
             if (beamAcad) beamAcad.setAttribute('d', `M ${pCore.x} ${pCore.y} L ${pAcad.x} ${pAcad.y}`);
-            if (triadLoop) {
-                triadLoop.setAttribute('d', `M ${pPass.x} ${pPass.y} Q ${pCore.x} ${pAcad.y - 20} ${pAcad.x} ${pAcad.y} Q ${pParent.x + 15} ${pAcad.y} ${pParent.x} ${pParent.y} Q ${pCore.x} ${pCore.y + 40} ${pPass.x} ${pPass.y}`);
-            }
         }
 
-        // 연동 상태에 따른 오빗 노드 UI 및 빔 스타일 동기화
+        // 연동 상태에 따른 오빗 노드 UI 및 빔 스타일 동기화 (미연동 시 100% 완전 소거)
         function updateTriadOrbitUI() {
+            const beamUser = document.getElementById('svg-beam-user');
             const beamParent = document.getElementById('svg-beam-parent');
             const beamAcad = document.getElementById('svg-beam-academy');
+
+            const userBox = document.getElementById('user-me-card-box');
+            const userPulse = document.getElementById('user-me-pulse-dot');
+            const userBadge = document.getElementById('user-me-badge');
+
             const sat1Box = document.getElementById('sat1-card-box');
             const sat1Badge = document.getElementById('sat1-badge');
             const sat1Pulse = document.getElementById('sat1-pulse-dot');
@@ -1334,11 +1327,39 @@
             const sat2Desc = document.getElementById('sat2-desc');
             const sat2Pulse = document.getElementById('sat2-pulse-dot');
 
-            // 1. 가족 연동 상태 반영
-            if (isParentLinkedState) {
-                if (beamParent) {
-                    beamParent.className.baseVal = 'beam-active-indigo';
+            // 1. 사용자(나) ⇄ PASS-MATE 연결 빔
+            const isUserLoggedIn = !!(currentUser || localStorage.getItem('userRole') || localStorage.getItem('userId'));
+            if (isUserLoggedIn) {
+                if (beamUser) beamUser.className.baseVal = 'beam-active-emerald';
+                if (userBox) {
+                    userBox.classList.remove('node-unlinked-dim');
+                    userBox.classList.add('node-linked-glow');
+                    userBox.style.borderColor = 'rgba(16, 185, 129, 0.7)';
+                    userBox.style.boxShadow = '0 0 25px rgba(16, 185, 129, 0.35)';
                 }
+                if (userPulse) userPulse.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-ping';
+                if (userBadge) {
+                    userBadge.innerText = '계정 연결됨';
+                    userBadge.className = 'text-[8px] sm:text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/30';
+                }
+            } else {
+                if (beamUser) beamUser.className.baseVal = 'beam-inactive';
+                if (userBox) {
+                    userBox.classList.add('node-unlinked-dim');
+                    userBox.classList.remove('node-linked-glow');
+                    userBox.style.borderColor = 'rgba(51, 65, 85, 0.8)';
+                    userBox.style.boxShadow = 'none';
+                }
+                if (userPulse) userPulse.className = 'w-2 h-2 rounded-full bg-slate-600';
+                if (userBadge) {
+                    userBadge.innerText = '미로그인';
+                    userBadge.className = 'text-[8px] sm:text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 border border-slate-700';
+                }
+            }
+
+            // 2. 가족 안심망 ⇄ PASS-MATE 연결 빔 (미연동 시 100% 완전 소거)
+            if (isParentLinkedState) {
+                if (beamParent) beamParent.className.baseVal = 'beam-active-indigo';
                 if (sat1Box) {
                     sat1Box.classList.remove('node-unlinked-dim');
                     sat1Box.classList.add('node-linked-glow');
@@ -1351,9 +1372,7 @@
                 }
                 if (sat1Pulse) sat1Pulse.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-ping';
             } else {
-                if (beamParent) {
-                    beamParent.className.baseVal = 'beam-inactive';
-                }
+                if (beamParent) beamParent.className.baseVal = 'beam-inactive';
                 if (sat1Box) {
                     sat1Box.classList.add('node-unlinked-dim');
                     sat1Box.classList.remove('node-linked-glow');
@@ -1367,12 +1386,10 @@
                 if (sat1Pulse) sat1Pulse.className = 'w-2 h-2 rounded-full bg-slate-600';
             }
 
-            // 2. 교육기관(학원/독서실) 다중 연동 상태 반영
+            // 3. 교육기관망 ⇄ PASS-MATE 연결 빔 (미연동 시 100% 완전 소거)
             const academies = getConnectedAcademies();
             if (academies.length > 0) {
-                if (beamAcad) {
-                    beamAcad.className.baseVal = 'beam-active-amber';
-                }
+                if (beamAcad) beamAcad.className.baseVal = 'beam-active-amber';
                 if (sat2Box) {
                     sat2Box.classList.remove('node-unlinked-dim');
                     sat2Box.classList.add('node-linked-glow');
@@ -1391,9 +1408,7 @@
                 }
                 if (sat2Pulse) sat2Pulse.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-ping ml-1';
             } else {
-                if (beamAcad) {
-                    beamAcad.className.baseVal = 'beam-inactive';
-                }
+                if (beamAcad) beamAcad.className.baseVal = 'beam-inactive';
                 if (sat2Box) {
                     sat2Box.classList.add('node-unlinked-dim');
                     sat2Box.classList.remove('node-linked-glow');
@@ -1411,7 +1426,6 @@
                 if (sat2Pulse) sat2Pulse.className = 'w-2 h-2 rounded-full bg-slate-600 ml-1';
             }
 
-            // 빔 다시 그리기
             requestAnimationFrame(updateOrbitBeams);
         }
 
@@ -1457,7 +1471,6 @@
             const sat1Sub = document.getElementById('sat1-role-sub');
             const sat1Desc = document.getElementById('sat1-desc');
             const sat1Icon = document.getElementById('sat1-icon');
-
             const sat2Icon = document.getElementById('sat2-icon');
 
             const kpi1Label = document.getElementById('deck-triad-kpi1-label');
@@ -1468,12 +1481,10 @@
             const kpi3Val = document.getElementById('deck-triad-kpi3-val');
 
             if (r === 'PARENT') {
-                // 학부모 중심 뷰
                 if (sat1Title) sat1Title.innerText = "자녀 수험생 연동";
                 if (sat1Sub) sat1Sub.innerText = "순공 & 대입 노선";
-                if (sat1Desc) sat1Desc.innerText = "자녀의 실시간 학습 시간표 & 목표 대학 대입 컨설팅 방향성 관제";
+                if (sat1Desc) sat1Desc.innerText = "자녀의 실시간 학습 시간표 & 대입 컨설팅 방향성 관제";
                 if (sat1Icon) sat1Icon.innerText = "school";
-
                 if (sat2Icon) sat2Icon.innerText = "domain";
 
                 if (kpi1Label) kpi1Label.innerText = "자녀 학습";
@@ -1483,12 +1494,10 @@
                 if (kpi3Label) kpi3Label.innerText = "수업료 · 이용료";
                 if (kpi3Val) kpi3Val.innerText = "수납 고지 연동";
             } else if (r === 'DIRECTOR' || r === 'TENANT_ADMIN') {
-                // 학원장 / 독서실장 중심 뷰
                 if (sat1Title) sat1Title.innerText = "재원생 학습 관제";
                 if (sat1Sub) sat1Sub.innerText = "전원 자습 현황";
                 if (sat1Desc) sat1Desc.innerText = "재원생 전원 실시간 순공 시간표 & OMR 진단";
                 if (sat1Icon) sat1Icon.innerText = "groups";
-
                 if (sat2Icon) sat2Icon.innerText = "support_agent";
 
                 if (kpi1Label) kpi1Label.innerText = "재원생";
@@ -1498,12 +1507,10 @@
                 if (kpi3Label) kpi3Label.innerText = "수납 관리";
                 if (kpi3Val) kpi3Val.innerText = "수납 고지서";
             } else {
-                // 수험생(학생) 중심 뷰 (기본값)
-                if (sat1Title) sat1Title.innerText = "부모님 안심 연동";
+                if (sat1Title) sat1Title.innerText = "가족 안심망";
                 if (sat1Sub) sat1Sub.innerText = "학부모 리포트";
-                if (sat1Desc) sat1Desc.innerText = "주간 순공 시간표 & 목표 대학 대입 컨설팅 방향성 실시간 공유";
+                if (sat1Desc) sat1Desc.innerText = "주간 순공 시간표 & 대입 컨설팅 방향성 실시간 공유";
                 if (sat1Icon) sat1Icon.innerText = "family_restroom";
-
                 if (sat2Icon) sat2Icon.innerText = "domain";
 
                 if (kpi1Label) kpi1Label.innerText = "학생 ⇄ 부모님";
