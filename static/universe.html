@@ -453,7 +453,7 @@
             <form id="form-unified-register" onsubmit="handleUnifiedRegisterSubmit(event)" style="display: none;" class="space-y-3">
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1">성명 (이름)</label>
-                    <input type="text" id="reg-name" required placeholder="본인 성함 (예: 김철훈)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-indigo-400 focus:outline-none">
+                    <input type="text" id="reg-name" required placeholder="본인 성함 (예: 홍길동)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-indigo-400 focus:outline-none">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1">본인 휴대폰 번호 (연락처)</label>
@@ -605,7 +605,7 @@
                 <div id="section-role-director" style="display: none;" class="space-y-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-300 mb-1">운영 학원명</label>
-                        <input type="text" id="pm-dir-academy-name" placeholder="예: 일원학원 대치본원 / OO수학전문학원" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                        <input type="text" id="pm-dir-academy-name" placeholder="예: 한국대치입시학원 / OO수학전문학원" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-300 mb-1">학원 소재 지역</label>
@@ -657,7 +657,7 @@
             <form onsubmit="handleBizVerifySubmit(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1.5">상호명 (사업장 이름)</label>
-                    <input type="text" id="input-biz-name" required placeholder="예: 일원학원 주식회사" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                    <input type="text" id="input-biz-name" required placeholder="예: (주)에듀테크파트너스" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
                 </div>
 
                 <div>
@@ -667,7 +667,7 @@
 
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1.5">대표자명</label>
-                    <input type="text" id="input-biz-owner" placeholder="대표자 성명 (예: 김철훈)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                    <input type="text" id="input-biz-owner" placeholder="대표자 성명 (예: 홍길동)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
                 </div>
 
                 <div class="pt-2">
@@ -770,6 +770,9 @@
                     renderPassmateNode(data.passmate);
 
                     // B. BIZ-MATE 노드 렌더링
+                    if (data.bizmate && data.bizmate.is_active && data.bizmate.biz_name) {
+                        localStorage.setItem("verified_biz_name", data.bizmate.biz_name);
+                    }
                     renderBizNode(data.bizmate);
 
                     // C. SILVER-MATE 노드 렌더링
@@ -848,11 +851,15 @@
             const unverified = document.getElementById('biz-node-unverified');
             const verified = document.getElementById('biz-node-verified');
             const nameEl = document.getElementById('biz-display-name');
+            const cachedName = localStorage.getItem("verified_biz_name");
 
-            if (bm && bm.is_active && bm.biz_name) {
+            const isActive = (bm && bm.is_active && bm.biz_name) || Boolean(cachedName);
+            const bizName = (bm && bm.biz_name) || cachedName;
+
+            if (isActive && bizName) {
                 if (unverified) unverified.style.display = 'none';
                 if (verified) verified.style.display = 'flex';
-                if (nameEl) nameEl.innerText = `BIZ: ${bm.biz_name}`;
+                if (nameEl) nameEl.innerText = `BIZ: ${bizName}`;
             } else {
                 if (unverified) unverified.style.display = 'flex';
                 if (verified) verified.style.display = 'none';

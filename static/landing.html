@@ -1849,7 +1849,7 @@
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-xs font-bold text-slate-300 mb-1">학원 코드 (선택)</label>
-                        <input type="text" id="pm-st-academy" placeholder="일원학원 등 소속코드" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                        <input type="text" id="pm-st-academy" placeholder="가맹 학원 코드 (선택)" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-300 mb-1">학부모님 연락처</label>
@@ -1865,7 +1865,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1">자녀 이름</label>
-                    <input type="text" id="pm-pa-child-name" placeholder="예: 김철훈" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                    <input type="text" id="pm-pa-child-name" placeholder="예: 홍길동" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1">자녀 연락처</label>
@@ -1887,7 +1887,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1">학원명 (상호)</label>
-                    <input type="text" id="pm-dir-academy-name" placeholder="예: 일원학원 대치본원" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                    <input type="text" id="pm-dir-academy-name" placeholder="예: 한국대치입시학원 본원" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1">학원 소재지 (지역)</label>
@@ -1908,11 +1908,22 @@
 <script>
     let selectedLandingRole = 'STUDENT';
 
-    function openLandingOnboardingModal() {
+    function openPassmateOnboardingModal(preferredRole) {
+        openLandingOnboardingModal(preferredRole || 'STUDENT');
+    }
+    window.openPassmateOnboardingModal = openPassmateOnboardingModal;
+
+    function openLandingOnboardingModal(preferredRole) {
         const rawUser = localStorage.getItem("unified_user");
         let currentUser = null;
         if (rawUser) {
             try { currentUser = JSON.parse(rawUser); } catch(e) {}
+        }
+
+        // If user is already active in passmate or is SUPER_ADMIN, navigate straight to /passmate!
+        if (currentUser && (currentUser.is_passmate_active || currentUser.role === 'SUPER_ADMIN' || currentUser.role === 'STUDENT')) {
+            location.href = '/passmate';
+            return;
         }
 
         if (!currentUser || !currentUser.id) {
@@ -1921,14 +1932,18 @@
             return;
         }
 
-        document.getElementById('pm-prefill-name').innerText = currentUser.name || '-';
-        document.getElementById('pm-prefill-phone').innerText = currentUser.phone || '-';
-        document.getElementById('pm-prefill-email').innerText = currentUser.email || '-';
+        const nameEl = document.getElementById('pm-prefill-name');
+        const phoneEl = document.getElementById('pm-prefill-phone');
+        const emailEl = document.getElementById('pm-prefill-email');
+        if (nameEl) nameEl.innerText = currentUser.name || '-';
+        if (phoneEl) phoneEl.innerText = currentUser.phone || '-';
+        if (emailEl) emailEl.innerText = currentUser.email || '-';
 
-        selectLandingRole('STUDENT');
+        selectLandingRole(preferredRole || 'STUDENT');
         const modal = document.getElementById('passmate-onboarding-modal');
         if (modal) modal.style.display = 'flex';
     }
+    window.openLandingOnboardingModal = openLandingOnboardingModal;
 
     function closeLandingOnboardingModal() {
         const modal = document.getElementById('passmate-onboarding-modal');
