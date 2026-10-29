@@ -21186,6 +21186,14 @@ function toggleAdmissionDetailAccordion(forceOpen) {
         return;
     }
 
+    if (forceOpen === false) {
+        panel.style.display = 'none';
+        if (arrow) arrow.style.transform = 'rotate(0deg)';
+        const card = document.getElementById('admission-distance-headline-card');
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+    }
+
     if (panel.style.display === 'none' || !panel.style.display) {
         panel.style.display = 'block';
         if (arrow) arrow.style.transform = 'rotate(180deg)';
@@ -21477,7 +21485,7 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
             track1Badge = '확정적 소신';
         } else {
             track1Status = 'DANGER';
-            track1Badge = '위험';
+            track1Badge = '확정적 위험';
         }
         track1Comment = `내신 ${gpa}등급` + (gpaRank ? ` · 전교 ${gpaRank}등/${gpaTotal}명 확정치` : ' 확정치');
     }
@@ -21498,7 +21506,7 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
             track2Badge = '확정적 소신';
         } else {
             track2Status = 'DANGER';
-            track2Badge = '위험';
+            track2Badge = '확정적 위험';
         }
         track2Comment = `내신 ${gpa}등급 및 고교 학업역량 가중치 반영`;
     }
@@ -21634,7 +21642,7 @@ function getPenaltyBadge(status, penaltyLevel, trackType = 'DASHED') {
     if (status === 'UNENTERED') return '성적 미입력';
     if (status === 'SAFE') return trackType === 'SOLID' ? '확정적 적정' : '잠정적 적정';
     if (status === 'ON_TRACK') return trackType === 'SOLID' ? '확정적 소신' : '잠정적 소신';
-    return '위험';
+    return trackType === 'SOLID' ? '확정적 위험' : '잠정적 위험';
 }
 
 // SVG 베지어 곡선 지도 렌더링

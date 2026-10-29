@@ -959,10 +959,16 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             <span style="font-size: 0.92rem; font-weight: 900; color: #ffffff; letter-spacing: -0.3px;" id="dist-headline-title">나와 대학까지의 거리</span>
                         </div>
                         
-                        <!-- 종합 판정 뱃지 (실시간 순공 페널티 반영) -->
-                        <div id="admission-dist-overall-badge" style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 900; background: rgba(239, 68, 68, 0.18); border: 1.5px solid #ef4444; color: #fca5a5;">
-                            <span class="material-symbols-rounded" style="font-size: 0.85rem;">warning</span>
-                            <span id="admission-dist-badge-text">위험</span>
+                        <!-- 우측 컨트롤: 성적 입력/수정 버튼 + 종합 판정 뱃지 -->
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button type="button" onclick="openScoreInputModal()" style="background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(129, 140, 248, 0.45); color: #e0e7ff; padding: 4px 10px; border-radius: 10px; font-size: 0.74rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;">
+                                <span class="material-symbols-rounded" style="font-size: 0.85rem;">edit_document</span>
+                                <span>성적 입력/수정</span>
+                            </button>
+                            <div id="admission-dist-overall-badge" style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 900; background: rgba(239, 68, 68, 0.18); border: 1.5px solid #ef4444; color: #fca5a5;">
+                                <span class="material-symbols-rounded" style="font-size: 0.85rem;">warning</span>
+                                <span id="admission-dist-badge-text">위험</span>
+                            </div>
                         </div>
                     </div>
 
@@ -1031,10 +1037,16 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                     <span style="font-size: 0.82rem; font-weight: 700; color: #e2e8f0;">점선: 잠정 결과 (수능·순공 연동)</span>
                                 </span>
                             </div>
-                            <button type="button" onclick="toggleAdmissionDetailAccordion(true)" style="background: rgba(99, 102, 241, 0.18); border: 1px solid rgba(99, 102, 241, 0.4); color: #c7d2fe; padding: 5px 10px; border-radius: 6px; font-size: 0.74rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; transition: all 0.2s;">
-                                <span>전형별 상세 분석</span>
-                                <span class="material-symbols-rounded" style="font-size: 0.9rem;">open_in_new</span>
-                            </button>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <button type="button" onclick="openScoreInputModal()" style="background: linear-gradient(135deg, #6366f1, #4f46e5); border: 1px solid rgba(165, 180, 252, 0.5); color: #ffffff; padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s; box-shadow: 0 2px 8px rgba(99,102,241,0.3);">
+                                    <span class="material-symbols-rounded" style="font-size: 0.9rem;">edit_document</span>
+                                    <span>점수 입력/수정</span>
+                                </button>
+                                <button type="button" onclick="toggleAdmissionDetailAccordion(true)" style="background: rgba(99, 102, 241, 0.18); border: 1px solid rgba(99, 102, 241, 0.4); color: #c7d2fe; padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;">
+                                    <span>전형별 상세 분석</span>
+                                    <span class="material-symbols-rounded" style="font-size: 0.9rem;">open_in_new</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -1074,10 +1086,10 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </div>
                         <div id="admission-5tracks-table" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px;"></div>
 
-                        <!-- C. 정밀 성적 입력 모달 호출 버튼 -->
-                        <button type="button" onclick="openScoreInputModal()" class="btn" style="width: 100%; padding: 10px; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 10px; box-shadow: 0 4px 14px rgba(99,102,241,0.35);">
-                            <span class="material-symbols-rounded" style="font-size: 1rem;">edit_document</span>
-                            <span>내신 석차 및 모의고사 백분위 정밀 성적 입력/수정</span>
+                        <!-- C. 상세 진단 접기 버튼 (하단) -->
+                        <button type="button" onclick="toggleAdmissionDetailAccordion(false)" style="width: 100%; min-height: 46px; padding: 11px 14px; border-radius: 10px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.14); color: #cbd5e1; font-size: 0.82rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; box-sizing: border-box;">
+                            <span class="material-symbols-rounded" style="font-size: 1.15rem;">expand_less</span>
+                            <span>상세 진단 접기</span>
                         </button>
                     </div>
                 </div>
