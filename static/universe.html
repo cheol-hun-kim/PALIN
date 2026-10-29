@@ -71,9 +71,7 @@
         body.is-creator .general-only {
             display: none !important;
         }
-        body:not(.is-creator) #card-pass-deck {
-            grid-column: 1 / -1 !important;
-        }
+
         body:not(.is-creator) #orbit-node-pass-container {
             width: 140px;
         }
@@ -257,86 +255,62 @@
                     </div>
                 </div>
 
-                <!-- 우측 날개 노드: 부모님 [SILVER-MATE] (모바일 w-[125px], 데스크톱 w-[210px] 겹침 방지) -->
-                <div id="orbit-node-silver-container" class="creator-only absolute right-2 sm:right-6 md:right-14 top-1/2 -translate-y-1/2 z-20 w-[125px] sm:w-[175px] md:w-[210px]">
-                    <!-- A. 미등록 상태: '+ SILVER-MATE 추가하기' -->
-                    <div id="silver-node-unverified" onclick="handleSilverNodeClick(false)" class="group cursor-pointer bg-slate-900/90 hover:bg-slate-900 border-2 border-dashed border-pink-500/50 hover:border-pink-400 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl shadow transition-all transform hover:-translate-y-1">
-                        <div class="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
-                            <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center font-black shrink-0">
-                                <span class="material-symbols-rounded text-sm sm:text-lg">elderly</span>
+                <!-- 🛰️ [위성 1] 우측 궤도 위성 노드: 부모님 / 자녀 연동 위성 (역할 반응형) -->
+                <div id="triad-satellite-1" onclick="openTriadModal('sat1')" class="absolute right-2 sm:right-6 md:right-14 top-1/2 -translate-y-1/2 z-20 w-[125px] sm:w-[175px] md:w-[200px] cursor-pointer group">
+                    <div class="bg-slate-900/90 hover:bg-slate-900 border border-slate-700/80 hover:border-indigo-400/80 p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl shadow-xl transition-all transform hover:-translate-y-1">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 flex items-center gap-1">
+                                <span>🛰️ 위성 1</span>
+                            </span>
+                            <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" id="sat1-pulse-dot"></span>
+                        </div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-1">
+                            <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-black shrink-0">
+                                <span class="material-symbols-rounded text-sm sm:text-base" id="sat1-icon">family_restroom</span>
                             </span>
                             <div class="min-w-0">
-                                <div class="text-[11px] sm:text-xs font-black text-white group-hover:text-pink-300 transition truncate">SILVER-MATE</div>
-                                <div class="text-[8.5px] sm:text-[10px] text-slate-400 font-bold truncate">부모님 안심</div>
+                                <div class="text-[11px] sm:text-xs font-black text-white group-hover:text-indigo-300 transition truncate" id="sat1-title">부모님 안심 연동</div>
+                                <div class="text-[8px] sm:text-[9.5px] text-slate-400 truncate" id="sat1-role-sub">학부모 리포트</div>
                             </div>
                         </div>
-                        <div class="hidden sm:block text-[11px] text-slate-300 leading-snug mb-3">
-                            기상 안부 · 복약 시간표 · 보이스피싱 실시간 방어
+                        <div class="hidden sm:block text-[10px] text-slate-300 leading-snug mb-2" id="sat1-desc">
+                            주간 순공 시간표 &amp; 5갈래 대입 노선 실시간 공유
                         </div>
-                        <div class="flex items-center justify-between pt-0.5">
-                            <span class="text-[8.5px] sm:text-[10px] font-bold px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 border border-slate-700">미등록</span>
-                            <span class="text-[9px] sm:text-[11px] font-black text-pink-400 flex items-center gap-0.5 bg-pink-500/10 px-1.5 sm:px-2 py-0.2 rounded border border-pink-500/20">
-                                <span>+ 추가</span>
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- B. 활성화 상태 -->
-                    <div id="silver-node-verified" style="display: none;" onclick="handleSilverNodeClick(true)" class="group cursor-pointer bg-slate-900/95 hover:bg-slate-900 border-2 border-pink-500/60 hover:border-pink-400 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl shadow-[0_0_30px_rgba(236,72,153,0.25)] transition-all transform hover:-translate-y-1">
-                        <div class="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
-                            <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center font-black shrink-0">
-                                <span class="material-symbols-rounded text-sm sm:text-lg">elderly</span>
-                            </span>
-                            <div class="min-w-0">
-                                <div class="text-[11px] sm:text-xs font-black text-white group-hover:text-pink-300 transition truncate">SILVER-MATE</div>
-                                <div class="text-[8.5px] sm:text-[10px] text-pink-400 font-bold truncate" id="silver-node-name">부모님 안심 케어</div>
-                            </div>
-                        </div>
-                        <div class="hidden sm:block text-[11px] text-slate-300 leading-snug mb-3">
-                            시니어 기상 안부 · 복약 일정 체크 · 긴급 안부 호출
-                        </div>
-                        <div class="flex items-center justify-between pt-0.5">
-                            <span class="text-[8.5px] sm:text-[10px] font-bold px-1.5 py-0.2 rounded bg-pink-500/20 text-pink-300 border border-pink-500/30">안심 케어</span>
-                            <span class="text-[9px] sm:text-[11px] font-extrabold text-pink-400 flex items-center gap-0.5 bg-pink-500/10 px-1.5 sm:px-2 py-0.2 rounded border border-pink-500/20">
-                                <span>관제 ↗</span>
+                        <div class="flex items-center justify-between pt-1 border-t border-slate-800">
+                            <span class="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.2 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/30" id="sat1-badge">안심 연동 중</span>
+                            <span class="text-[8.5px] sm:text-[10px] font-extrabold text-indigo-400 flex items-center gap-0.5">
+                                <span>관리 ↗</span>
                             </span>
                         </div>
                     </div>
                 </div>
 
-                <!-- 상단 궤도 노드: BIZ-MATE -->
-                <div id="orbit-node-biz-container" class="creator-only absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-10">
-                    <div id="biz-node-unverified" onclick="openBizVerifyModal()" class="cursor-pointer bg-slate-900/80 hover:bg-slate-900 border border-dashed border-amber-500/40 hover:border-amber-400 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-center shadow transition flex items-center gap-1.5 sm:gap-2">
-                        <span class="material-symbols-rounded text-xs sm:text-sm text-amber-400/80">add_business</span>
-                        <div class="text-left">
-                            <div class="text-[10px] sm:text-[11px] font-bold text-slate-300 flex items-center gap-1">
-                                <span>BIZ-MATE</span>
-                                <span class="text-[8px] sm:text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.2 rounded border border-slate-700">미등록</span>
-                            </div>
-                            <div class="text-[8.5px] sm:text-[9px] text-amber-400/80 font-medium">+ 사업자 인증</div>
+                <!-- 🛰️ [위성 2] 상단 궤도 위성 노드: 소속 학원 / 학부모 연동 위성 (역할 반응형) -->
+                <div id="triad-satellite-2" onclick="openTriadModal('sat2')" class="absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-10 cursor-pointer group">
+                    <div class="bg-slate-900/90 hover:bg-slate-900 border border-slate-700/80 hover:border-amber-400/80 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-center shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[7.5px] sm:text-[9px] font-black px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                                <span>🛰️ 위성 2</span>
+                            </span>
+                            <span class="material-symbols-rounded text-sm sm:text-base text-amber-400" id="sat2-icon">domain</span>
                         </div>
-                    </div>
-
-                    <div id="biz-node-verified" style="display: none;" class="bg-slate-900/95 border-2 border-amber-500/60 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-center shadow-lg shadow-amber-500/20 transition flex items-center gap-2">
-                        <span class="material-symbols-rounded text-sm sm:text-base text-amber-400">store</span>
                         <div class="text-left">
-                            <div class="text-[11px] sm:text-xs font-black text-white flex items-center gap-1">
-                                <span id="biz-display-name">내 사업장</span>
-                                <span class="text-[8.5px] sm:text-[9px] bg-amber-500/20 text-amber-300 px-1 py-0.2 rounded border border-amber-500/40 font-bold">인증됨</span>
+                            <div class="text-[10px] sm:text-[11px] font-black text-white flex items-center gap-1">
+                                <span id="sat2-title">소속 학원 (일원학원)</span>
+                                <span class="text-[8px] sm:text-[9px] bg-amber-500/20 text-amber-300 px-1 py-0.2 rounded border border-amber-500/40 font-bold" id="sat2-badge">출석부 동기화</span>
                             </div>
-                            <div class="text-[9px] sm:text-[10px] text-slate-400" id="biz-display-sub">경영 &amp; 매출 관제</div>
+                            <div class="text-[8.5px] sm:text-[9.5px] text-slate-400" id="sat2-desc">출결·보강·결제선생 행정 자동 연동</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 하단 궤도 노드: 자산 & 연금 [MONEY-MATE] (연동 대기 슬롯) -->
-                <div class="creator-only absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10">
-                    <div class="bg-slate-900/50 border border-dashed border-slate-700 px-3 py-1.5 rounded-xl text-center flex items-center gap-2">
-                        <span class="material-symbols-rounded text-sm text-blue-400/70">savings</span>
-                        <div class="text-left">
-                            <div class="text-[10px] font-bold text-slate-400">MONEY-MATE (자산)</div>
-                            <div class="text-[9px] text-slate-500">마이데이터 연동 대기</div>
-                        </div>
+                <!-- 📡 하단 텔레메트리 캡슐: 실시간 3자 궤도망 가동 현황 -->
+                <div class="absolute bottom-3 sm:bottom-5 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
+                    <div class="bg-slate-900/80 backdrop-blur border border-slate-800 px-3.5 py-1 rounded-full text-center flex items-center gap-2 shadow-lg">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                        <span class="text-[9.5px] sm:text-[10.5px] text-slate-300 font-bold tracking-tight">
+                            수험생 ⇄ PASS-MATE ⇄ 부모님 ⇄ 학원 3자 실시간 텔레메트리 가동 중
+                        </span>
                     </div>
                 </div>
 
@@ -389,46 +363,46 @@
                 </div>
             </div>
 
-            <!-- 카드 B: SILVER-MATE 관제 데스크 -->
-            <div id="card-silver-deck" class="creator-only-flex bg-gradient-to-br from-pink-950/40 via-slate-900 to-slate-900 border-2 border-pink-500/40 rounded-2xl p-6 shadow-xl relative overflow-hidden flex flex-col justify-between transition-all duration-300">
+            <!-- 카드 B: 3자 실시간 연동 편대 관제 데스크 (수험생 ⇄ 학부모 ⇄ 학원) -->
+            <div id="card-triad-deck" class="bg-gradient-to-br from-indigo-950/40 via-slate-900 to-slate-900 border-2 border-indigo-500/40 rounded-2xl p-6 shadow-xl relative overflow-hidden flex flex-col justify-between transition-all duration-300">
                 <div>
                     <div class="flex justify-between items-start mb-4">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center">
-                                <span class="material-symbols-rounded text-xl">elderly</span>
+                            <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
+                                <span class="material-symbols-rounded text-xl">hub</span>
                             </div>
                             <div>
-                                <div class="text-xs font-extrabold text-pink-400">시니어 안부 & 원격 효도 관제 OS</div>
-                                <h3 class="text-xl font-black text-white">SILVER-MATE</h3>
+                                <div class="text-xs font-extrabold text-indigo-400">3자 실시간 연동 편대 관제</div>
+                                <h3 class="text-xl font-black text-white">FAMILY &amp; ACADEMY SYNC</h3>
                             </div>
                         </div>
-                        <span class="text-xs font-black px-2.5 py-1 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/40">
-                            BETA READY
+                        <span class="text-xs font-black px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
+                            LIVE SYNC
                         </span>
                     </div>
-                    <p class="text-xs text-slate-300 mb-4 leading-relaxed">
-                        부모님의 기상 라이프로그, 복약 시간표, 보이스피싱 실시간 탐지 차단, 긴급 안부 호출이 자녀 관제탑으로 연동됩니다.
+                    <p class="text-xs text-slate-300 mb-4 leading-relaxed" id="deck-triad-desc">
+                        수험생의 실시간 순공 시간표와 5갈래 대입 노선, 학부모 안심 주간 리포트, 소속 학원(일원학원) 출석부 및 결제선생 청구서가 실시간 텔레메트리로 상호 동기화됩니다.
                     </p>
                     <div class="grid grid-cols-3 gap-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800 mb-5 text-center">
                         <div>
-                            <div class="text-[10px] text-slate-400 font-bold">기상 안부</div>
-                            <div class="text-sm font-black text-pink-400">정상 확인</div>
+                            <div class="text-[10px] text-slate-400 font-bold" id="deck-triad-kpi1-label">학생 ⇄ 부모님</div>
+                            <div class="text-sm font-black text-indigo-400" id="deck-triad-kpi1-val">안심 리포트</div>
                         </div>
                         <div>
-                            <div class="text-[10px] text-slate-400 font-bold">복약 체크</div>
-                            <div class="text-sm font-black text-white">시간표 가동</div>
+                            <div class="text-[10px] text-slate-400 font-bold" id="deck-triad-kpi2-label">학생 ⇄ 학원</div>
+                            <div class="text-sm font-black text-emerald-400" id="deck-triad-kpi2-val">출석부 동기화</div>
                         </div>
                         <div>
-                            <div class="text-[10px] text-slate-400 font-bold">효도 케어</div>
-                            <div class="text-sm font-black text-pink-300">실시간 연동</div>
+                            <div class="text-[10px] text-slate-400 font-bold" id="deck-triad-kpi3-label">학부모 ⇄ 학원</div>
+                            <div class="text-sm font-black text-amber-300" id="deck-triad-kpi3-val">결제선생 연동</div>
                         </div>
                     </div>
                 </div>
                 <div>
-                    <a href="/silver/guardian" class="w-full text-center py-3 px-4 rounded-xl text-xs font-extrabold bg-pink-600 hover:bg-pink-500 text-white shadow-lg shadow-pink-900/30 transition flex items-center justify-center gap-2">
-                        <span class="material-symbols-rounded text-base">visibility</span>
-                        <span>실버메이트 안심 관제탑으로 이동</span>
-                    </a>
+                    <button type="button" onclick="openTriadModal('overview')" class="w-full text-center py-3 px-4 rounded-xl text-xs font-extrabold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-900/30 transition flex items-center justify-center gap-2 cursor-pointer">
+                        <span class="material-symbols-rounded text-base">share</span>
+                        <span>3자 연동 관리 &amp; 초대 링크 복사</span>
+                    </button>
                 </div>
             </div>
 
@@ -652,6 +626,75 @@
 
             </div>
         </div>
+
+    
+    <!-- ====================================================================== -->
+    <!-- 7. [MODAL 4] 3자 실시간 연동 편대 관리 모달 (수험생 ⇄ 학부모 ⇄ 학원) -->
+    <!-- ====================================================================== -->
+    <div id="triad-sync-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
+        <div class="bg-[#0f172a] border-2 border-indigo-500/50 rounded-2xl p-6 w-full max-w-lg shadow-2xl relative">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="material-symbols-rounded text-indigo-400 text-2xl">hub</span>
+                    <div>
+                        <h3 class="text-base font-black text-white" id="triad-modal-title">3자 실시간 연동 편대 관리</h3>
+                        <p class="text-[11px] text-slate-400">수험생, 학부모, 소속 학원이 하나의 PASS-MATE 궤도로 실시간 연결됩니다.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeTriadModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+            </div>
+
+            <div class="space-y-4">
+                <!-- 카드 1: 부모님 안심 연동 -->
+                <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="w-9 h-9 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-black">
+                            <span class="material-symbols-rounded text-xl">family_restroom</span>
+                        </span>
+                        <div>
+                            <div class="text-xs font-black text-white">부모님 안심 연동 (학부모 리포트)</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5">실시간 순공 시간표 &amp; 5갈래 대입 노선도 공유</div>
+                        </div>
+                    </div>
+                    <span class="text-[10px] font-black px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">연동 가동 중</span>
+                </div>
+
+                <!-- 카드 2: 소속 학원 연동 -->
+                <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="w-9 h-9 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-black">
+                            <span class="material-symbols-rounded text-xl">domain</span>
+                        </span>
+                        <div>
+                            <div class="text-xs font-black text-white">소속 학원 (일원학원)</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5">출석부 동기화, 보강/휴강 신청, 결제선생 청구서 수납</div>
+                        </div>
+                    </div>
+                    <span class="text-[10px] font-black px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">Tier 4 정회원</span>
+                </div>
+
+                <!-- 카드 3: 초대 링크 복사 -->
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                    <div class="text-xs font-bold text-slate-300 mb-2 flex items-center gap-1.5">
+                        <span class="material-symbols-rounded text-indigo-400 text-sm">link</span>
+                        <span>가족 &amp; 학원 1초 간편 초대 링크</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="input-triad-invite-url" readonly value="https://palin-os.onrender.com/?invite=palin-triad" class="flex-1 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 text-xs font-mono">
+                        <button type="button" onclick="copyTriadInviteLink()" class="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition flex items-center gap-1">
+                            <span class="material-symbols-rounded text-sm">content_copy</span>
+                            <span>복사</span>
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-1.5">* 링크를 복사하여 카카오톡이나 문자로 부모님 또는 학원 선생님께 전송하시면 즉시 궤도에 연결됩니다.</p>
+                </div>
+
+                <button type="button" onclick="closeTriadModal()" class="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition">
+                    확인 및 닫기
+                </button>
+            </div>
+        </div>
+    </div>
 
     </main>
 
@@ -1000,12 +1043,124 @@
             const isCreator = isMasterCreator();
             if (isCreator) {
                 document.body.classList.add('is-creator');
-                const passDeck = document.getElementById('card-pass-deck');
-                if (passDeck) passDeck.classList.remove('md:col-span-2');
             } else {
                 document.body.classList.remove('is-creator');
-                const passDeck = document.getElementById('card-pass-deck');
-                if (passDeck) passDeck.classList.add('md:col-span-2');
+            }
+        }
+
+        
+        // --- 🛰️ 3자 실시간 연동 편대 (수험생 ⇄ 학부모 ⇄ 학원) 제어 ---
+        function openTriadModal(target) {
+            const m = document.getElementById('triad-sync-modal');
+            const titleEl = document.getElementById('triad-modal-title');
+            if (titleEl) {
+                if (target === 'sat1') titleEl.innerText = '부모님 안심 연동 관제';
+                else if (target === 'sat2') titleEl.innerText = '소속 학원(일원학원) 출결 & 행정 연동';
+                else titleEl.innerText = '3자 실시간 연동 편대 관리';
+            }
+            if (m) m.style.display = 'flex';
+        }
+
+        function closeTriadModal() {
+            const m = document.getElementById('triad-sync-modal');
+            if (m) m.style.display = 'none';
+        }
+
+        function copyTriadInviteLink() {
+            const inp = document.getElementById('input-triad-invite-url');
+            if (inp) {
+                inp.select();
+                inp.setSelectionRange(0, 99999);
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(inp.value).then(() => {
+                        alert('연동 초대 링크가 복사되었습니다! 카카오톡이나 문자로 전달하세요.');
+                    }).catch(() => {
+                        alert('초대 링크: ' + inp.value);
+                    });
+                } else {
+                    document.execCommand('copy');
+                    alert('연동 초대 링크가 복사되었습니다!');
+                }
+            }
+        }
+
+        function renderTriadPersona(role) {
+            const r = (role || '').toUpperCase();
+            const sat1Title = document.getElementById('sat1-title');
+            const sat1Sub = document.getElementById('sat1-role-sub');
+            const sat1Desc = document.getElementById('sat1-desc');
+            const sat1Badge = document.getElementById('sat1-badge');
+            const sat1Icon = document.getElementById('sat1-icon');
+
+            const sat2Title = document.getElementById('sat2-title');
+            const sat2Badge = document.getElementById('sat2-badge');
+            const sat2Desc = document.getElementById('sat2-desc');
+            const sat2Icon = document.getElementById('sat2-icon');
+
+            const kpi1Label = document.getElementById('deck-triad-kpi1-label');
+            const kpi1Val = document.getElementById('deck-triad-kpi1-val');
+            const kpi2Label = document.getElementById('deck-triad-kpi2-label');
+            const kpi2Val = document.getElementById('deck-triad-kpi2-val');
+            const kpi3Label = document.getElementById('deck-triad-kpi3-label');
+            const kpi3Val = document.getElementById('deck-triad-kpi3-val');
+
+            if (r === 'PARENT') {
+                // 학부모 중심 뷰
+                if (sat1Title) sat1Title.innerText = "자녀 수험생 연동";
+                if (sat1Sub) sat1Sub.innerText = "순공 & 대입 노선";
+                if (sat1Desc) sat1Desc.innerText = "자녀의 실시간 학습 시간표 & 5갈래 대입 노선 관제";
+                if (sat1Badge) sat1Badge.innerText = "실시간 관제 중";
+                if (sat1Icon) sat1Icon.innerText = "school";
+
+                if (sat2Title) sat2Title.innerText = "학원·담임 소통 (일원학원)";
+                if (sat2Badge) sat2Badge.innerText = "행정 동기화";
+                if (sat2Desc) sat2Desc.innerText = "출결 알림 · 결제선생 청구서 수납 연동";
+                if (sat2Icon) sat2Icon.innerText = "domain";
+
+                if (kpi1Label) kpi1Label.innerText = "자녀 학습";
+                if (kpi1Val) kpi1Val.innerText = "순공 실시간 수신";
+                if (kpi2Label) kpi2Label.innerText = "학원 출결";
+                if (kpi2Val) kpi2Val.innerText = "자동 알림 가동";
+                if (kpi3Label) kpi3Label.innerText = "수업료";
+                if (kpi3Val) kpi3Val.innerText = "결제선생 연동";
+            } else if (r === 'DIRECTOR' || r === 'TENANT_ADMIN') {
+                // 학원장 중심 뷰
+                if (sat1Title) sat1Title.innerText = "재원생 학습 관제";
+                if (sat1Sub) sat1Sub.innerText = "161명 자습 현황";
+                if (sat1Desc) sat1Desc.innerText = "재원생 전원 실시간 순공 시간표 & OMR 진단";
+                if (sat1Badge) sat1Badge.innerText = "161명 관제 중";
+                if (sat1Icon) sat1Icon.innerText = "groups";
+
+                if (sat2Title) sat2Title.innerText = "학부모 소통·수납";
+                if (sat2Badge) sat2Badge.innerText = "수납 자동화";
+                if (sat2Desc) sat2Desc.innerText = "141명 학부모 결제선생 청구서 & 출결 알림";
+                if (sat2Icon) sat2Icon.innerText = "support_agent";
+
+                if (kpi1Label) kpi1Label.innerText = "재원생";
+                if (kpi1Val) kpi1Val.innerText = "161명 전원 관제";
+                if (kpi2Label) kpi2Label.innerText = "출석부";
+                if (kpi2Val) kpi2Val.innerText = "100% 실시간 동기화";
+                if (kpi3Label) kpi3Label.innerText = "수납 관리";
+                if (kpi3Val) kpi3Val.innerText = "결제선생 청구서";
+            } else {
+                // 수험생(학생) 중심 뷰 (기본값)
+                if (sat1Title) sat1Title.innerText = "부모님 안심 연동";
+                if (sat1Sub) sat1Sub.innerText = "학부모 리포트";
+                if (sat1Desc) sat1Desc.innerText = "주간 순공 시간표 & 5갈래 대입 노선 실시간 공유";
+                if (sat1Badge) sat1Badge.innerText = "안심 연동 중";
+                if (sat1Icon) sat1Icon.innerText = "family_restroom";
+
+                if (sat2Title) sat2Title.innerText = "소속 학원 (일원학원)";
+                if (sat2Badge) sat2Badge.innerText = "출석부 동기화";
+                if (sat2Desc) sat2Desc.innerText = "출결·보강·결제선생 행정 자동 연동";
+                if (sat2Icon) sat2Icon.innerText = "domain";
+
+                if (kpi1Label) kpi1Label.innerText = "학생 ⇄ 부모님";
+                if (kpi1Val) kpi1Val.innerText = "안심 리포트";
+                if (kpi2Label) kpi2Label.innerText = "학생 ⇄ 학원";
+                if (kpi2Val) kpi2Val.innerText = "출석부 동기화";
+                if (kpi3Label) kpi3Label.innerText = "학부모 ⇄ 학원";
+                if (kpi3Val) kpi3Val.innerText = "결제선생 연동";
             }
         }
 
@@ -1032,6 +1187,7 @@
                     else if (r === 'PARENT') hubUserRole.innerText = '학부모 회원';
                     else if (r === 'DIRECTOR' || r === 'TENANT_ADMIN') hubUserRole.innerText = '원장님';
                     else hubUserRole.innerText = '정회원';
+                    renderTriadPersona(r);
                 }
             } else {
                 if (btnLogin) btnLogin.style.display = 'flex';
