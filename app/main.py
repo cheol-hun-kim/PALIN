@@ -1483,7 +1483,8 @@ def get_unified_status(user_id: Optional[int] = None, phone: Optional[str] = Non
             "name": None,
             "passmate": {"is_active": False, "role": None, "label": None, "dashboard_url": None},
             "bizmate": {"is_active": False, "biz_name": None},
-            "silvermate": {"is_active": False}
+            "silvermate": {"is_active": False},
+            "parent_link": {"is_linked": False, "parent_name": None}
         }
 
     # Passmate status
@@ -1491,6 +1492,23 @@ def get_unified_status(user_id: Optional[int] = None, phone: Optional[str] = Non
     pm_role = "SUPER_ADMIN" if is_super_admin else ("STUDENT" if st else (user.role if user else "STUDENT"))
     pm_label = "통합 마스터" if is_super_admin else (f"{st.high_school or '고교'} {st.grade or '수험생'}" if st else "PASS-MATE")
     pm_url = "/passmate"
+
+    # 7. Check parent link ground truth
+    parent_link_info = {"is_linked": False, "parent_name": None, "parent_phone": None}
+    target_student = st
+    if not target_student and user and user.student_id:
+        target_student = db.query(models.Student).filter(models.Student.id == user.student_id).first()
+    
+    if target_student and target_student.parent_id:
+        p_row = db.query(models.Parent).filter(models.Parent.id == target_student.parent_id).first()
+        if p_row:
+            p_phone = p_row.phone or ""
+            masked_phone = (p_phone[:3] + "-****-" + p_phone[-4:]) if len(p_phone) >= 10 else p_phone
+            parent_link_info = {
+                "is_linked": True,
+                "parent_name": p_row.name,
+                "parent_phone": masked_phone
+            }
 
     return {
         "is_logged_in": True,
@@ -1513,7 +1531,8 @@ def get_unified_status(user_id: Optional[int] = None, phone: Optional[str] = Non
         "silvermate": {
             "is_active": bool(silver_row),
             "senior_name": silver_row.senior_name if silver_row else None
-        }
+        },
+        "parent_link": parent_link_info
     }
 
 @app.post("/api/passmate/activate")

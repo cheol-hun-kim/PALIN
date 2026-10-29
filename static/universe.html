@@ -333,7 +333,7 @@
                 </div>
 
                 <!-- 👨‍👩‍👧 [우측 노드]: 가족 안심망 (학부모) - 모바일 초미니멀 캡슐 / 데스크톱 상세 카드 -->
-                <div id="triad-satellite-1" onclick="openTriadModal('sat1')" class="absolute right-3 sm:right-6 md:right-14 top-1/2 -translate-y-1/2 z-20 w-auto sm:w-[175px] md:w-[205px] cursor-pointer group">
+                <div id="triad-satellite-1" onclick="openParentSyncModal()" class="absolute right-3 sm:right-6 md:right-14 top-1/2 -translate-y-1/2 z-20 w-auto sm:w-[175px] md:w-[205px] cursor-pointer group">
                     <div id="sat1-card-box" class="bg-slate-900/95 hover:bg-slate-900 border-2 border-slate-700/80 p-1.5 sm:p-3.5 rounded-2xl shadow-xl transition-all transform hover:-translate-y-1 flex flex-col items-center sm:block node-unlinked-dim">
                         <!-- 모바일 전용 초미니멀 뷰 (< sm) -->
                         <div class="sm:hidden flex flex-col items-center py-1">
@@ -376,7 +376,7 @@
                 </div>
 
                 <!-- 🏫 [상단 노드]: 교육기관망 (학원 · 독서실) - 모바일 초미니멀 캡슐 / 데스크톱 상세 카드 -->
-                <div id="triad-satellite-2" onclick="openTriadModal('sat2')" class="absolute top-3 sm:top-5 left-1/2 -translate-x-1/2 z-10 cursor-pointer group">
+                <div id="triad-satellite-2" onclick="openAcademySyncModal()" class="absolute top-3 sm:top-5 left-1/2 -translate-x-1/2 z-10 cursor-pointer group">
                     <div id="sat2-card-box" class="bg-slate-900/95 hover:bg-slate-900 border-2 border-slate-700/80 p-1.5 sm:px-4 sm:py-2.5 rounded-2xl sm:rounded-xl text-center shadow-lg transition-all flex flex-col sm:flex-row items-center gap-1 sm:gap-2.5 transform hover:-translate-y-0.5 node-unlinked-dim">
                         <!-- 모바일 전용 초미니멀 뷰 (< sm) -->
                         <div class="sm:hidden flex flex-col items-center py-1">
@@ -504,10 +504,16 @@
                     </div>
                 </div>
                 <div>
-                    <button type="button" onclick="openTriadModal('overview')" class="w-full text-center py-3 px-4 rounded-xl text-xs font-extrabold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-900/30 transition flex items-center justify-center gap-2 cursor-pointer">
-                        <span class="material-symbols-rounded text-base">share</span>
-                        <span>3자 연동 관리 &amp; 초대 링크 복사</span>
-                    </button>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="openParentSyncModal()" class="w-full text-center py-2.5 px-2 sm:px-3 rounded-xl text-xs font-black bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/40 shadow-lg transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
+                            <span class="material-symbols-rounded text-sm text-indigo-400">family_restroom</span>
+                            <span>부모님 연동</span>
+                        </button>
+                        <button type="button" onclick="openAcademySyncModal()" class="w-full text-center py-2.5 px-2 sm:px-3 rounded-xl text-xs font-black bg-amber-600/30 hover:bg-amber-600/50 text-amber-300 border border-amber-500/40 shadow-lg transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
+                            <span class="material-symbols-rounded text-sm text-amber-400">domain</span>
+                            <span>학원·독서실 연동</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -734,51 +740,111 @@
 
     
     <!-- ====================================================================== -->
-    <!-- 7. [MODAL 4] 3자 실시간 연동 편대 관리 모달 (수험생 ⇄ 학부모 ⇄ 학원) -->
+    <!-- [MODAL 4A] 가족 안심망 (학부모 연동) 전용 모달 -->
     <!-- ====================================================================== -->
-    <div id="triad-sync-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
-        <div class="bg-[#0f172a] border-2 border-indigo-500/50 rounded-2xl p-6 w-full max-w-lg shadow-2xl relative">
+    <div id="parent-sync-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
+        <div class="bg-[#0f172a] border-2 border-indigo-500/50 rounded-2xl p-5 sm:p-6 w-full max-w-md shadow-2xl relative">
             <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
                 <div class="flex items-center gap-2.5">
-                    <span class="material-symbols-rounded text-indigo-400 text-2xl">hub</span>
+                    <span class="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-black shrink-0">
+                        <span class="material-symbols-rounded text-xl">family_restroom</span>
+                    </span>
                     <div>
-                        <h3 class="text-base font-black text-white" id="triad-modal-title">3자 실시간 연동 편대 관리</h3>
-                        <p class="text-[11px] text-slate-400">수험생, 학부모, 소속 학원이 하나의 PASS-MATE 궤도로 실시간 연결됩니다.</p>
+                        <h3 class="text-base font-black text-white whitespace-nowrap">가족 안심망 (학부모 연동)</h3>
+                        <p class="text-[11px] text-slate-400 break-keep" style="word-break: keep-all;">수험생과 학부모 간 1:1 실시간 학업 리포트 공유</p>
                     </div>
                 </div>
-                <button type="button" onclick="closeTriadModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+                <button type="button" onclick="closeParentSyncModal()" class="text-slate-400 hover:text-white text-lg p-1">✕</button>
             </div>
 
-            <div class="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
-                <!-- 카드 1: 가족 안심 연동 (학부모 리포트) -->
-                <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div class="flex items-center gap-3">
-                        <span class="w-10 h-10 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-black shrink-0">
-                            <span class="material-symbols-rounded text-xl">family_restroom</span>
-                        </span>
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <div class="text-xs font-black text-white">가족 안심 연동 (학부모 리포트)</div>
-                                <span id="modal-parent-status-badge" class="text-[9.5px] font-black px-2 py-0.2 rounded-full bg-slate-800 text-slate-400 border border-slate-700">미연동 (초대 대기)</span>
-                            </div>
-                            <div class="text-[10px] text-slate-400 mt-0.5" id="modal-parent-status-sub">아직 학부모 계정이 연결되지 않았습니다. 초대 링크를 전달하세요.</div>
-                        </div>
+            <div class="space-y-3.5 max-h-[75vh] overflow-y-auto pr-1">
+                <!-- 현재 학부모 계정 연동 상태 카드 -->
+                <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4">
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <span class="text-xs font-black text-slate-200 whitespace-nowrap">학부모 계정 연동 상태</span>
+                        <span id="parent-modal-status-badge" class="text-[10px] font-black px-2.5 py-0.5 rounded-full whitespace-nowrap bg-slate-800 text-slate-400 border border-slate-700 shrink-0">미연동 (학부모 가입 대기)</span>
                     </div>
-                    <button type="button" onclick="toggleParentLinkState()" class="px-2.5 py-1.5 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 text-[11px] font-bold border border-indigo-500/40 transition shrink-0">
-                        연동 상태 변경
-                    </button>
+                    <p class="text-[11px] text-slate-300 leading-relaxed break-keep" id="parent-modal-status-desc" style="word-break: keep-all;">
+                        아직 학부모 계정이 연결되지 않았습니다. 부모님께 아래 전용 초대 링크를 전달하여 가입을 안내해 주세요.
+                    </p>
                 </div>
 
-                <!-- 카드 2: 내가 등록한 소속 학원 & 독서실 목록 (다중 연동 지원) -->
+                <!-- 부모님 전용 1초 간편 초대 링크 -->
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                    <div class="text-xs font-bold text-slate-200 mb-2 flex items-center gap-1.5 whitespace-nowrap">
+                        <span class="material-symbols-rounded text-indigo-400 text-sm">link</span>
+                        <span>부모님 전용 1초 간편 초대 링크</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="input-parent-invite-url" readonly value="" class="flex-1 min-w-0 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 text-xs font-mono">
+                        <button type="button" onclick="copyParentInviteLink()" class="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition flex items-center gap-1 shrink-0 whitespace-nowrap">
+                            <span class="material-symbols-rounded text-sm">content_copy</span>
+                            <span>링크 복사</span>
+                        </button>
+                    </div>
+                    <p class="text-[10.5px] text-slate-400 mt-2 leading-normal break-keep" style="word-break: keep-all;">
+                        * 학부모님께서 전달받은 링크로 회원가입(또는 로그인)하시면 수험생 계정과 자동으로 1:1 연동됩니다.
+                    </p>
+                </div>
+
+                <!-- 연동 시 자동 제공 안심 기능 안내 -->
+                <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3.5 space-y-2">
+                    <div class="text-[11px] font-bold text-slate-300 whitespace-nowrap">학부모 계정 연동 시 실시간 공유 항목</div>
+                    <ul class="text-[10.5px] text-slate-400 space-y-1.5 leading-relaxed break-keep" style="word-break: keep-all;">
+                        <li class="flex items-start gap-1.5">
+                            <span class="material-symbols-rounded text-xs text-indigo-400 shrink-0 mt-0.5">check_circle</span>
+                            <span><strong>주간 순공 시간표:</strong> 수험생의 일일 순공 시간 및 집중도 리포트 실시간 확인</span>
+                        </li>
+                        <li class="flex items-start gap-1.5">
+                            <span class="material-symbols-rounded text-xs text-indigo-400 shrink-0 mt-0.5">check_circle</span>
+                            <span><strong>대입 컨설팅 리포트:</strong> 1지망 목표 대학 및 마지노선 합격선 도달도 공유</span>
+                        </li>
+                        <li class="flex items-start gap-1.5">
+                            <span class="material-symbols-rounded text-xs text-indigo-400 shrink-0 mt-0.5">check_circle</span>
+                            <span><strong>안심 귀가 알림:</strong> 심야 학습 종료 및 귀가 미션 인증 실시간 알림톡 발송</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <button type="button" onclick="closeParentSyncModal()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition whitespace-nowrap">
+                    확인 및 닫기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================================== -->
+    <!-- [MODAL 4B] 소속 학원 · 독서실 연동 관리 전용 모달 -->
+    <!-- ====================================================================== -->
+    <div id="academy-sync-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
+        <div class="bg-[#0f172a] border-2 border-amber-500/50 rounded-2xl p-5 sm:p-6 w-full max-w-md shadow-2xl relative">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-black shrink-0">
+                        <span class="material-symbols-rounded text-xl">domain</span>
+                    </span>
+                    <div>
+                        <h3 class="text-base font-black text-white whitespace-nowrap">소속 학원 · 독서실 연동 관리</h3>
+                        <p class="text-[11px] text-slate-400 break-keep" style="word-break: keep-all;">출결 및 자습 좌석 실시간 동기화 기관 관리</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeAcademySyncModal()" class="text-slate-400 hover:text-white text-lg p-1">✕</button>
+            </div>
+
+            <div class="space-y-3.5 max-h-[75vh] overflow-y-auto pr-1">
+                <!-- 학원 미수강생 안심 안내 배너 -->
+                <div class="bg-amber-500/10 border border-amber-500/25 rounded-xl p-3 flex items-start gap-2.5">
+                    <span class="material-symbols-rounded text-amber-400 text-base shrink-0 mt-0.5">info</span>
+                    <p class="text-[10.5px] text-amber-200/90 leading-relaxed break-keep" style="word-break: keep-all;">
+                        학원이나 독서실을 다니지 않아도 PASS-MATE의 1:1 대입 등대와 순공 타이머 등 모든 개인 맞춤 기능은 100% 정상 작동합니다. 연동이 필요한 기관만 선택 등록하세요.
+                    </p>
+                </div>
+
+                <!-- 연동된 교육기관 목록 카드 -->
                 <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4">
                     <div class="flex items-center justify-between mb-2.5 pb-2 border-b border-slate-800/80">
-                        <div class="flex items-center gap-2">
-                            <span class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-black">
-                                <span class="material-symbols-rounded text-base">domain</span>
-                            </span>
-                            <div class="text-xs font-black text-white">소속 학원 &amp; 독서실 연동 목록</div>
-                        </div>
-                        <span id="modal-academies-count-badge" class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">2개소 연동 중</span>
+                        <span class="text-xs font-black text-white whitespace-nowrap">연동된 교육기관 목록</span>
+                        <span id="modal-academies-count-badge" class="text-[10px] font-black px-2.5 py-0.5 rounded-full whitespace-nowrap bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0">0개소 연동 중</span>
                     </div>
 
                     <!-- 동적 학원/독서실 리스트 컨테이너 -->
@@ -788,35 +854,37 @@
 
                     <!-- 새 학원/독서실 추가 입력 폼 -->
                     <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex flex-col sm:flex-row gap-2 items-center">
-                        <select id="input-new-academy-type" class="px-2 py-1.5 rounded bg-slate-900 border border-slate-700 text-slate-300 text-xs font-bold">
+                        <select id="input-new-academy-type" class="w-full sm:w-auto px-2 py-1.5 rounded bg-slate-900 border border-slate-700 text-slate-300 text-xs font-bold shrink-0 whitespace-nowrap">
                             <option value="학원">학원</option>
                             <option value="독서실">독서실</option>
                             <option value="스터디카페">스터디카페</option>
                         </select>
-                        <input type="text" id="input-new-academy-name" placeholder="소속 학원 또는 독서실 이름/코드 입력 (예: 미래에듀학원)" class="flex-1 w-full px-2.5 py-1.5 rounded bg-slate-900 border border-slate-700 text-slate-200 text-xs focus:border-amber-400 outline-none">
-                        <button type="button" onclick="addNewConnectedAcademy()" class="w-full sm:w-auto px-3 py-1.5 rounded bg-amber-600 hover:bg-amber-500 text-white text-xs font-extrabold transition shrink-0">
+                        <input type="text" id="input-new-academy-name" placeholder="소속 학원 또는 독서실 이름/코드" class="flex-1 w-full min-w-0 px-2.5 py-1.5 rounded bg-slate-900 border border-slate-700 text-slate-200 text-xs focus:border-amber-400 outline-none">
+                        <button type="button" onclick="addNewConnectedAcademy()" class="w-full sm:w-auto px-3 py-1.5 rounded bg-amber-600 hover:bg-amber-500 text-white text-xs font-extrabold transition shrink-0 whitespace-nowrap">
                             + 연동 등록
                         </button>
                     </div>
                 </div>
 
-                <!-- 카드 3: 초대 링크 복사 -->
+                <!-- 교육기관 관리자 전용 등록 링크 -->
                 <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                    <div class="text-xs font-bold text-slate-300 mb-2 flex items-center gap-1.5">
-                        <span class="material-symbols-rounded text-indigo-400 text-sm">link</span>
-                        <span>가족 &amp; 교육기관 1초 간편 초대 링크</span>
+                    <div class="text-xs font-bold text-slate-200 mb-2 flex items-center gap-1.5 whitespace-nowrap">
+                        <span class="material-symbols-rounded text-amber-400 text-sm">link</span>
+                        <span>교육기관 관리자 전용 등록 링크</span>
                     </div>
                     <div class="flex gap-2">
-                        <input type="text" id="input-triad-invite-url" readonly value="https://palin-os.onrender.com/?invite=palin-triad" class="flex-1 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 text-xs font-mono">
-                        <button type="button" onclick="copyTriadInviteLink()" class="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition flex items-center gap-1">
+                        <input type="text" id="input-academy-invite-url" readonly value="" class="flex-1 min-w-0 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 text-xs font-mono">
+                        <button type="button" onclick="copyAcademyInviteLink()" class="px-3.5 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition flex items-center gap-1 shrink-0 whitespace-nowrap">
                             <span class="material-symbols-rounded text-sm">content_copy</span>
-                            <span>복사</span>
+                            <span>링크 복사</span>
                         </button>
                     </div>
-                    <p class="text-[10px] text-slate-500 mt-1.5">* 링크를 복사하여 카카오톡이나 문자로 부모님 또는 학원/독서실 관리자께 전송하시면 즉시 궤도에 연동됩니다.</p>
+                    <p class="text-[10.5px] text-slate-400 mt-2 leading-normal break-keep" style="word-break: keep-all;">
+                        * 학원 또는 독서실 관리자께 전달하시면 출석부 및 좌석 관제 시스템과 수험생 계정이 즉시 동기화됩니다.
+                    </p>
                 </div>
 
-                <button type="button" onclick="closeTriadModal()" class="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition">
+                <button type="button" onclick="closeAcademySyncModal()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition whitespace-nowrap">
                     확인 및 닫기
                 </button>
             </div>
@@ -1280,24 +1348,96 @@
             }
         }
 
-        function toggleParentLinkState() {
-            isParentLinkedState = !isParentLinkedState;
-            const badge = document.getElementById('modal-parent-status-badge');
-            const sub = document.getElementById('modal-parent-status-sub');
+        let parentLinkedInfo = null;
+
+        function openParentSyncModal() {
+            const m = document.getElementById('parent-sync-modal');
+            const inp = document.getElementById('input-parent-invite-url');
+            const badge = document.getElementById('parent-modal-status-badge');
+            const desc = document.getElementById('parent-modal-status-desc');
+
+            const uid = (currentUser && currentUser.id) || localStorage.getItem('userId') || '1';
+            const currentHost = window.location.origin;
+            if (inp) inp.value = `${currentHost}/?invite=parent&student_id=${uid}`;
+
             if (isParentLinkedState) {
                 if (badge) {
-                    badge.innerText = '연동 가동 중';
-                    badge.className = 'text-[9.5px] font-black px-2 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+                    badge.innerText = '연동 가동 중 (실시간 동기화)';
+                    badge.className = 'text-[10px] font-black px-2.5 py-0.5 rounded-full whitespace-nowrap bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0';
                 }
-                if (sub) sub.innerText = '학부모 계정 연동됨 · 실시간 순공 시간표 & 대입 컨설팅 방향성 공유 중';
+                if (desc) {
+                    const pName = parentLinkedInfo?.parent_name ? `${parentLinkedInfo.parent_name} 학부모님` : '학부모님';
+                    desc.innerText = `${pName} 계정과 1:1 실시간 연동 중입니다. 주간 순공 시간표와 대입 컨설팅 리포트가 안전하게 공유되고 있습니다.`;
+                }
             } else {
                 if (badge) {
-                    badge.innerText = '미연동 (초대 대기)';
-                    badge.className = 'text-[9.5px] font-black px-2 py-0.2 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
+                    badge.innerText = '미연동 (학부모 가입 대기)';
+                    badge.className = 'text-[10px] font-black px-2.5 py-0.5 rounded-full whitespace-nowrap bg-slate-800 text-slate-400 border border-slate-700 shrink-0';
                 }
-                if (sub) sub.innerText = '아직 학부모 계정이 연결되지 않았습니다. 초대 링크를 전달하세요.';
+                if (desc) {
+                    desc.innerText = '아직 학부모 계정이 연결되지 않았습니다. 부모님께 아래 전용 초대 링크를 전달하여 가입을 안내해 주세요.';
+                }
             }
+
+            if (m) m.style.display = 'flex';
+        }
+
+        function closeParentSyncModal() {
+            const m = document.getElementById('parent-sync-modal');
+            if (m) m.style.display = 'none';
             updateTriadOrbitUI();
+        }
+
+        function copyParentInviteLink() {
+            const inp = document.getElementById('input-parent-invite-url');
+            if (inp) {
+                inp.select();
+                inp.setSelectionRange(0, 99999);
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(inp.value).then(() => {
+                        alert('부모님 전용 초대 링크가 복사되었습니다! 카카오톡이나 문자로 부모님께 전달하세요.');
+                    }).catch(() => {
+                        alert('초대 링크: ' + inp.value);
+                    });
+                } else {
+                    document.execCommand('copy');
+                    alert('부모님 전용 초대 링크가 복사되었습니다!');
+                }
+            }
+        }
+
+        function openAcademySyncModal() {
+            renderConnectedAcademiesModal();
+            const m = document.getElementById('academy-sync-modal');
+            const inp = document.getElementById('input-academy-invite-url');
+            const uid = (currentUser && currentUser.id) || localStorage.getItem('userId') || '1';
+            const currentHost = window.location.origin;
+            if (inp) inp.value = `${currentHost}/?invite=academy&code=INST-${uid}`;
+            if (m) m.style.display = 'flex';
+        }
+
+        function closeAcademySyncModal() {
+            const m = document.getElementById('academy-sync-modal');
+            if (m) m.style.display = 'none';
+            updateTriadOrbitUI();
+        }
+
+        function copyAcademyInviteLink() {
+            const inp = document.getElementById('input-academy-invite-url');
+            if (inp) {
+                inp.select();
+                inp.setSelectionRange(0, 99999);
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(inp.value).then(() => {
+                        alert('교육기관 관리자 등록 링크가 복사되었습니다! 학원 또는 독서실 관리자께 전달하세요.');
+                    }).catch(() => {
+                        alert('등록 링크: ' + inp.value);
+                    });
+                } else {
+                    document.execCommand('copy');
+                    alert('교육기관 등록 링크가 복사되었습니다!');
+                }
+            }
         }
 
         function handleUserNodeClick() {
@@ -1476,39 +1616,20 @@
         }
 
         function openTriadModal(target) {
-            renderConnectedAcademiesModal();
-            const m = document.getElementById('triad-sync-modal');
-            const titleEl = document.getElementById('triad-modal-title');
-            if (titleEl) {
-                if (target === 'sat1') titleEl.innerText = '가족 안심 연동 관제';
-                else if (target === 'sat2') titleEl.innerText = '소속 학원 & 독서실 연동 목록';
-                else titleEl.innerText = '3자 실시간 연동 편대 관리';
+            if (target === 'sat1' || target === 'parent') {
+                openParentSyncModal();
+            } else {
+                openAcademySyncModal();
             }
-            if (m) m.style.display = 'flex';
         }
 
         function closeTriadModal() {
-            const m = document.getElementById('triad-sync-modal');
-            if (m) m.style.display = 'none';
-            updateTriadOrbitUI();
+            closeParentSyncModal();
+            closeAcademySyncModal();
         }
 
         function copyTriadInviteLink() {
-            const inp = document.getElementById('input-triad-invite-url');
-            if (inp) {
-                inp.select();
-                inp.setSelectionRange(0, 99999);
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(inp.value).then(() => {
-                        alert('연동 초대 링크가 복사되었습니다! 카카오톡이나 문자로 전달하세요.');
-                    }).catch(() => {
-                        alert('초대 링크: ' + inp.value);
-                    });
-                } else {
-                    document.execCommand('copy');
-                    alert('연동 초대 링크가 복사되었습니다!');
-                }
-            }
+            copyParentInviteLink();
         }
 
         function renderTriadPersona(role) {
@@ -1647,6 +1768,13 @@
 
                     // C. SILVER-MATE 노드 렌더링
                     renderSilverNode(data.silvermate);
+
+                    // D. 학부모 실제 연동 상태 동기화
+                    if (data.parent_link) {
+                        isParentLinkedState = !!data.parent_link.is_linked;
+                        parentLinkedInfo = data.parent_link;
+                    }
+                    updateTriadOrbitUI();
                 }
             } catch (err) {
                 console.warn("Orbit status fetch note:", err);
