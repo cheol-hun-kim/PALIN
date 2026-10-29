@@ -21476,8 +21476,11 @@ function renderAdmissionPathEngine() {
         return parts[0];
     }
 
-    const targetUnivName = cleanUnivDisplay(data.target_info?.univ_name || localTarget);
-    const baselineUnivName = cleanUnivDisplay(data.baseline_info?.univ_name || localBaseline);
+    const rawTarget = data.target_info?.univ_name || localTarget || "연세대학교 의예과";
+    const rawBaseline = data.baseline_info?.univ_name || localBaseline || "서울대학교 화학생물공학부";
+
+    const targetUnivName = cleanUnivDisplay(rawTarget);
+    const baselineUnivName = cleanUnivDisplay(rawBaseline);
 
     const targetEl1 = document.getElementById('dist-target-univ-name');
     const targetEl2 = document.getElementById('dist-baseline-univ-name');
@@ -21487,23 +21490,86 @@ function renderAdmissionPathEngine() {
     // 현재 선택된 대학 (1지망 vs 마지노선)
     const isTarget = (currentAdmissionViewTarget === 'TARGET');
     const activeUnivName = isTarget ? targetUnivName : baselineUnivName;
-    const activeTargetHours = isTarget ? (data.target_info?.avg_hours || 42.5) : (data.baseline_info?.avg_hours || 36.0);
+    const activeRawUniv = isTarget ? rawTarget : rawBaseline;
+
+    // 권장 순공시간 기준 (대치동 실전 기준: 착석 주 84h / 순공 주 56h+ 필수 마지노선)
+    function getRecommendedStudyHours(name) {
+        const s = (name || '').trim();
+        if (s.includes("의예") || s.includes("의대") || s.includes("치의") || s.includes("치대") || s.includes("메디컬") || s.includes("한의") || s.includes("약대") || s.includes("약학") || s.includes("수의")) {
+            return 63.0; // 주 63.0시간 (일 9.0시간) - 최상위 메디컬
+        }
+        if (s.includes("서울") || s.includes("연세") || s.includes("고려") || s.includes("KAIST") || s.includes("POSTECH") || s.includes("카이스트") || s.includes("포스텍")) {
+            return 59.5; // 주 59.5시간 (일 8.5시간) - SKY / 과기원
+        }
+        if (s.includes("서강") || s.includes("성균관") || s.includes("한양")) {
+            return 56.0; // 주 56.0시간 (일 8.0시간) - 서성한 (상위권 권장 기준)
+        }
+        if (s.includes("중앙") || s.includes("경희") || s.includes("외대") || s.includes("시립") || s.includes("이화")) {
+            return 52.5; // 주 52.5시간 (일 7.5시간) - 중경외시 마지노선
+        }
+        if (s.includes("건국") || s.includes("동국") || s.includes("홍익") || s.includes("국민") || s.includes("숭실") || s.includes("세종") || s.includes("단국") || s.includes("아주") || s.includes("인하")) {
+            return 49.0; // 주 49.0시간 (일 7.0시간)
+        }
+        return 45.5;     // 주 45.5시간 (일 6.5시간) - 인서울 기본
+    }
+
+    const targetBenchmark = getRecommendedStudyHours(rawTarget);
+    const baselineBenchmark = getRecommendedStudyHours(rawBaseline);
+    const activeTargetHours = isTarget 
+        ? (data.target_info?.avg_hours ? Math.max(data.target_info.avg_hours, targetBenchmark) : targetBenchmark)
+        : (data.baseline_info?.avg_hours ? Math.max(data.baseline_info.avg_hours, baselineBenchmark) : baselineBenchmark);
+
     const myHours = data.my_study_info?.my_hours || 0.0;
     const deficitHours = Math.max(0, Math.round((activeTargetHours - myHours) * 10) / 10);
-    const studyRatio = activeTargetHours > 0 ? (myHours / activeTargetHours) : 0;
 
-    // 순공 페널티 등급 (성적이 우수하면 과도한 강등 배제, 순공 부족 시 부드러운 소신 조정)
-    let penaltyLevel = 'DANGER'; // 'NONE' | 'WARN' | 'DANGER'
-    if (studyRatio >= 0.8) penaltyLevel = 'NONE';
-    else if (studyRatio >= 0.5) penaltyLevel = 'WARN';
-    else penaltyLevel = 'DANGER';
+    // 4. 전형별 정밀 판정 로직 (순수 입시 성적 100% 팩트 기반 진단)
+    const scores = getPreciseScoreData();
+    const tracks = calculate5Tracks(scores, activeRawUniv);
 
-    // 2. 종합 상태 뱃지 & 순공 페널티 배너 갱신 (완벽한 쌍둥이 카드 대칭)
+    // 전형별 팩트 판정 종합 (교과, 종합, 정시, 논술 중 최적 합격선 산출)
+    let overallStatus = 'DANGER'; // 'SAFE' | 'ON_TRACK' | 'DANGER'
+    let overallLabel = '위험';
+
+    const hasSafeTrack = tracks.some(t => t.status === 'SAFE');
+    const hasOnTrack = tracks.some(t => t.status === 'ON_TRACK');
+
+    if (hasSafeTrack) {
+        overallStatus = 'SAFE';
+        overallLabel = '적정';
+    } else if (hasOnTrack) {
+        overallStatus = 'ON_TRACK';
+        overallLabel = '소신';
+    } else {
+        overallStatus = 'DANGER';
+        overallLabel = '위험';
+    }
+
+    // 2. 종합 상태 뱃지 (순수 성적 팩트) & 순공 경고 배너 갱신
     const badgeTextEl = document.getElementById('admission-dist-badge-text');
+    const badgeContainer = document.getElementById('admission-dist-overall-badge');
     const alertBox = document.getElementById('admission-penalty-alert-box');
     const alertText = document.getElementById('admission-penalty-alert-text');
     const alertBadge = document.getElementById('admission-penalty-alert-badge');
     const deficitBadge = document.getElementById('dist-accordion-deficit-badge');
+
+    if (badgeTextEl) {
+        badgeTextEl.innerText = overallLabel;
+    }
+    if (badgeContainer) {
+        if (overallStatus === 'SAFE') {
+            badgeContainer.style.background = 'rgba(16, 185, 129, 0.18)';
+            badgeContainer.style.borderColor = '#10b981';
+            badgeContainer.style.color = '#a7f3d0';
+        } else if (overallStatus === 'ON_TRACK') {
+            badgeContainer.style.background = 'rgba(245, 158, 11, 0.18)';
+            badgeContainer.style.borderColor = '#f59e0b';
+            badgeContainer.style.color = '#fde68a';
+        } else {
+            badgeContainer.style.background = 'rgba(239, 68, 68, 0.18)';
+            badgeContainer.style.borderColor = '#ef4444';
+            badgeContainer.style.color = '#fca5a5';
+        }
+    }
 
     if (deficitBadge) {
         if (deficitHours > 0) {
@@ -21519,54 +21585,29 @@ function renderAdmissionPathEngine() {
         }
     }
 
-    if (alertBadge) {
-        if (deficitHours > 0) {
-            alertBadge.innerText = `순공 부족`;
+    // 순공시간 부족 시 심리적 경각심 경고 배너 (순수 성적 팩트와 명확히 분리)
+    if (deficitHours > 0) {
+        if (alertBadge) {
+            alertBadge.innerText = '순공 결손 경고';
             alertBadge.style.color = '#fca5a5';
             alertBadge.style.borderColor = '#ef4444';
             alertBadge.style.background = 'rgba(239, 68, 68, 0.2)';
-        } else {
-            alertBadge.innerText = `순공 달성`;
-            alertBadge.style.color = '#6ee7b7';
-            alertBadge.style.borderColor = '#10b981';
-            alertBadge.style.background = 'rgba(16, 185, 129, 0.2)';
-        }
-    }
-
-    if (deficitHours > 0) {
-        if (badgeTextEl) {
-            badgeTextEl.innerText = isTarget ? "소신" : "적정";
-            const badgeContainer = document.getElementById('admission-dist-overall-badge');
-            if (badgeContainer) {
-                if (isTarget) {
-                    badgeContainer.style.background = 'rgba(245, 158, 11, 0.18)';
-                    badgeContainer.style.borderColor = '#f59e0b';
-                    badgeContainer.style.color = '#fde68a';
-                } else {
-                    badgeContainer.style.background = 'rgba(16, 185, 129, 0.18)';
-                    badgeContainer.style.borderColor = '#10b981';
-                    badgeContainer.style.color = '#a7f3d0';
-                }
-            }
         }
         if (alertBox) {
             alertBox.style.display = 'flex';
-            alertBox.style.background = 'rgba(99, 102, 241, 0.12)';
-            alertBox.style.borderColor = 'rgba(99, 102, 241, 0.28)';
-            alertBox.style.color = '#c7d2fe';
+            alertBox.style.background = 'rgba(239, 68, 68, 0.12)';
+            alertBox.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+            alertBox.style.color = '#fecdd3';
         }
         if (alertText) {
-            alertText.innerHTML = `${activeUnivName} 합격권 대비 주간 순공이 <b style="color: #f87171;">${deficitHours.toFixed(1)}시간 부족</b>합니다. 성적 유지와 실전 감각을 위해 순공 시간 보완을 권장합니다.`;
+            alertText.innerHTML = `${activeUnivName} 합격권 대비 주간 순공이 <b style="color: #f87171;">${deficitHours.toFixed(1)}시간 결손</b> 상태입니다. 현재 성적 팩트는 <b class="text-white">[${overallLabel}]</b>이나, <b style="color: #fca5a5;">주 56시간 미만 학습 시 수능 실전 감각 저하로 합격선이 [소신 ➔ 위험]으로 급락</b>할 수 있습니다. 순공 타이머를 즉시 가동하세요!`;
         }
     } else {
-        if (badgeTextEl) {
-            badgeTextEl.innerText = "안정";
-            const badgeContainer = document.getElementById('admission-dist-overall-badge');
-            if (badgeContainer) {
-                badgeContainer.style.background = 'rgba(16, 185, 129, 0.18)';
-                badgeContainer.style.borderColor = '#10b981';
-                badgeContainer.style.color = '#a7f3d0';
-            }
+        if (alertBadge) {
+            alertBadge.innerText = '순공 페이스 유지';
+            alertBadge.style.color = '#6ee7b7';
+            alertBadge.style.borderColor = '#10b981';
+            alertBadge.style.background = 'rgba(16, 185, 129, 0.2)';
         }
         if (alertBox) {
             alertBox.style.display = 'flex';
@@ -21575,7 +21616,7 @@ function renderAdmissionPathEngine() {
             alertBox.style.color = '#a7f3d0';
         }
         if (alertText) {
-            alertText.innerHTML = `${activeUnivName} 합격권 주간 순공 시간을 훌륭히 달성하였습니다. 현 성적 페이스를 유지하십시오.`;
+            alertText.innerHTML = `${activeUnivName} 합격권 권장 주간 순공시간(${activeTargetHours.toFixed(1)}시간)을 훌륭히 달성하였습니다. 현 성적 페이스를 흔들림 없이 유지하십시오.`;
         }
     }
 
@@ -21610,10 +21651,6 @@ function renderAdmissionPathEngine() {
     if (svgUnivCircle) {
         svgUnivCircle.setAttribute("stroke", isTarget ? "#6366f1" : "#0284c7");
     }
-
-    // 4. 전형별 정밀 판정 로직
-    const scores = getPreciseScoreData();
-    const tracks = calculate5Tracks(scores, activeUnivName, penaltyLevel);
 
     // 5. SVG 베지어 곡선 지도 렌더링
     renderSvgRoutes(tracks);
@@ -21654,11 +21691,16 @@ function getUnivAdmissionTracks(univName) {
     return { isNoEssay, isYaksul, hasGeneralEssay: !isNoEssay && !isYaksul };
 }
 
-function calculate5Tracks(scores, univName, penaltyLevel) {
-    const isMedical = univName.includes("메디컬") || univName.includes("의예") || univName.includes("의대") || univName.includes("치대") || univName.includes("한의") || univName.includes("약대");
-    const isSky = !isMedical && (univName.includes("서울") || univName.includes("연세") || univName.includes("고려") || univName.includes("KAIST") || univName.includes("포스텍"));
-    const isSeoulBroad = !isMedical && !isSky && (univName.includes("인서울") || univName.includes("한성") || univName.includes("서경") || univName.includes("삼육") || univName.includes("서울여대"));
-    const trackConfig = getUnivAdmissionTracks(univName);
+function calculate5Tracks(scores, univName) {
+    const name = (univName || '').trim();
+    const isTopMedical = name.includes("의예") || name.includes("의대") || name.includes("치의") || name.includes("치대");
+    const isGeneralMedical = !isTopMedical && (name.includes("메디컬") || name.includes("한의") || name.includes("약대") || name.includes("약학") || name.includes("수의"));
+    const isMedical = isTopMedical || isGeneralMedical;
+    const isSky = !isMedical && (name.includes("서울") || name.includes("연세") || name.includes("고려") || name.includes("KAIST") || name.includes("POSTECH") || name.includes("포스텍") || name.includes("카이스트"));
+    const isSeoSeongHan = !isMedical && !isSky && (name.includes("서강") || name.includes("성균관") || name.includes("한양"));
+    const isJungGyeong = !isMedical && !isSky && !isSeoSeongHan && (name.includes("중앙") || name.includes("경희") || name.includes("한국외") || name.includes("외대") || name.includes("시립") || name.includes("이화"));
+    const isSeoulBroad = !isMedical && !isSky && !isSeoSeongHan && !isJungGyeong;
+    const trackConfig = getUnivAdmissionTracks(name);
 
     const gpa = scores?.gpa_grade;
     const gpaRank = scores?.gpa_rank;
@@ -21671,14 +21713,35 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
     const hasGpa = (gpa !== null && gpa !== undefined && !isNaN(gpa) && gpa > 0);
     const hasCsat = (korPct !== null && mathPct !== null && !isNaN(korPct) && !isNaN(mathPct));
 
-    // Track 1: 학생부 교과 (확정 결과 - 괄호 일체 제거)
+    // Track 1: 학생부 교과 (순수 입시 성적 100% 팩트 판정)
     let track1Status = 'UNENTERED';
     let track1Badge = '성적 미입력';
     let track1Comment = '내신 성적을 입력하시면 정확한 합격선이 계산됩니다.';
 
     if (hasGpa) {
-        let gpaCutSafe = isMedical ? 1.45 : (isSky ? 1.60 : (isSeoulBroad ? 3.20 : 2.10));
-        let gpaCutTrack = isMedical ? 1.65 : (isSky ? 1.95 : (isSeoulBroad ? 3.80 : 2.60));
+        let gpaCutSafe, gpaCutTrack;
+        if (isTopMedical) {
+            gpaCutSafe = 1.05;
+            gpaCutTrack = 1.15;
+            track1Comment = `내신 ${gpa}등급 · 메이저 의예과 교과 컷(1.05~1.15) 기준`;
+        } else if (isGeneralMedical) {
+            gpaCutSafe = 1.25;
+            gpaCutTrack = 1.45;
+            track1Comment = `내신 ${gpa}등급 · 메디컬(한의·약대) 교과 컷(1.25~1.45) 기준`;
+        } else if (isSky) {
+            gpaCutSafe = 1.40;
+            gpaCutTrack = 1.70;
+            track1Comment = `내신 ${gpa}등급 · SKY 상위권 교과 컷(1.40~1.70) 기준`;
+        } else if (isSeoSeongHan || isJungGyeong) {
+            gpaCutSafe = 1.80;
+            gpaCutTrack = 2.25;
+            track1Comment = `내신 ${gpa}등급 · 서성한·중경외시 교과 컷(1.80~2.25) 기준`;
+        } else {
+            gpaCutSafe = 2.80;
+            gpaCutTrack = 3.40;
+            track1Comment = `내신 ${gpa}등급 · 인서울 4년제 교과 컷 기준`;
+        }
+
         if (gpa <= gpaCutSafe) {
             track1Status = 'SAFE';
             track1Badge = '확정적 적정';
@@ -21689,23 +21752,37 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
             track1Status = 'DANGER';
             track1Badge = '확정적 위험';
         }
-        if (isSeoulBroad) {
-            track1Comment = `내신 ${gpa}등급 · 한성대·서경대·삼육대·서울여대 교과 컷 기준`;
-        } else if (isMedical) {
-            track1Comment = `내신 ${gpa}등급 · 메디컬(한의대·약대 등) 마지노선 교과 컷 기준`;
-        } else {
-            track1Comment = `내신 ${gpa}등급` + (gpaRank ? ` · 전교 ${gpaRank}등/${gpaTotal}명 확정치` : ' 확정치');
-        }
     }
 
-    // Track 2: 학생부 종합 (확정 결과 - 괄호 일체 제거)
+    // Track 2: 학생부 종합 (순수 입시 성적 100% 팩트 판정)
     let track2Status = 'UNENTERED';
     let track2Badge = '성적 미입력';
     let track2Comment = '학생부 성적 입력 대기 중';
 
     if (hasGpa) {
-        let gpaCutSafe = isMedical ? 1.65 : (isSky ? 1.85 : (isSeoulBroad ? 3.50 : 2.45));
-        let gpaCutTrack = isMedical ? 1.95 : (isSky ? 2.25 : (isSeoulBroad ? 4.30 : 3.10));
+        let gpaCutSafe, gpaCutTrack;
+        if (isTopMedical) {
+            gpaCutSafe = 1.15;
+            gpaCutTrack = 1.35;
+            track2Comment = `내신 ${gpa}등급 · 메이저 의예과 학종 서류종합평가(1.15~1.35) 반영`;
+        } else if (isGeneralMedical) {
+            gpaCutSafe = 1.45;
+            gpaCutTrack = 1.70;
+            track2Comment = `내신 ${gpa}등급 · 메디컬 학종 서류종합평가(1.45~1.70) 반영`;
+        } else if (isSky) {
+            gpaCutSafe = 1.70;
+            gpaCutTrack = 2.10;
+            track2Comment = `내신 ${gpa}등급 · SKY 학종 서류종합평가(1.70~2.10) 반영`;
+        } else if (isSeoSeongHan || isJungGyeong) {
+            gpaCutSafe = 2.10;
+            gpaCutTrack = 2.60;
+            track2Comment = `내신 ${gpa}등급 · 서성한·중경외시 학종(2.10~2.60) 반영`;
+        } else {
+            gpaCutSafe = 3.20;
+            gpaCutTrack = 3.90;
+            track2Comment = `내신 ${gpa}등급 · 인서울 학종 서류종합평가 반영`;
+        }
+
         if (gpa <= gpaCutSafe) {
             track2Status = 'SAFE';
             track2Badge = '확정적 적정';
@@ -21716,16 +21793,9 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
             track2Status = 'DANGER';
             track2Badge = '확정적 위험';
         }
-        if (isSeoulBroad) {
-            track2Comment = `내신 ${gpa}등급 · 인서울 하한선 학종 서류 종합평가 반영`;
-        } else if (isMedical) {
-            track2Comment = `내신 ${gpa}등급 · 메디컬 계열 학종 서류 종합평가 반영`;
-        } else {
-            track2Comment = `내신 ${gpa}등급 및 고교 학업역량 가중치 반영`;
-        }
     }
 
-    // Track 3: 논술 전형 (잠정 결과 - 괄호 일체 제거)
+    // Track 3: 논술 전형 (순수 입시 성적 100% 팩트 판정)
     let track3 = null;
     if (!trackConfig.isNoEssay) {
         let essayName = trackConfig.isYaksul ? '약술형 논술' : '논술 전형';
@@ -21734,23 +21804,23 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
         let track3Comment = trackConfig.isYaksul ? '중위권 수험생 역전 전형 (국/수 1과목 3~4등급 이내)' : '수능 최저학력기준 및 논술 적합도';
 
         if (hasCsat) {
-            let track3Base;
-            if (isSeoulBroad) {
-                track3Base = (korPct >= 77 || mathPct >= 77) ? 'SAFE' : ((korPct >= 65 || mathPct >= 65) ? 'ON_TRACK' : 'DANGER');
-                track3Comment = `인서울 약술형 논술 수능 최저 진단 (국어 ${korPct}%, 수학 ${mathPct}%)`;
-            } else if (isMedical) {
-                track3Base = (korPct >= 95 && mathPct >= 95) ? 'SAFE' : ((korPct >= 89 && mathPct >= 89) ? 'ON_TRACK' : 'DANGER');
-                track3Comment = `메디컬 수능 최저 진단 (국어 ${korPct}%, 수학 ${mathPct}%)`;
+            if (isTopMedical) {
+                track3Status = (korPct >= 97 && mathPct >= 97) ? 'ON_TRACK' : 'DANGER';
+                track3Comment = `수리·과학 심화 논술 전형 (국어 ${korPct}%, 수학 ${mathPct}%) · 300:1 극상위 역전 전형`;
+            } else if (isGeneralMedical) {
+                track3Status = (korPct >= 95 && mathPct >= 95) ? 'SAFE' : ((korPct >= 90 && mathPct >= 90) ? 'ON_TRACK' : 'DANGER');
+                track3Comment = `메디컬 수능 최저 충족 진단 (국어 ${korPct}%, 수학 ${mathPct}%)`;
+            } else if (isSky) {
+                track3Status = (korPct >= 92 && mathPct >= 92) ? 'SAFE' : ((korPct >= 86 || mathPct >= 86) ? 'ON_TRACK' : 'DANGER');
+                track3Comment = `SKY 인문/수리 논술 수능 최저 충족 진단`;
+            } else if (isSeoSeongHan || isJungGyeong) {
+                track3Status = (korPct >= 88 || mathPct >= 88) ? 'SAFE' : ((korPct >= 80 || mathPct >= 80) ? 'ON_TRACK' : 'DANGER');
+                track3Comment = `상위권 대학 수능 최저 충족 진단 (국어 ${korPct}%, 수학 ${mathPct}%)`;
             } else {
-                track3Base = (korPct >= 92 && mathPct >= 92) ? 'SAFE' : ((korPct >= 85 || mathPct >= 85) ? 'ON_TRACK' : 'DANGER');
-                track3Comment = `국어 ${korPct}%, 수학 ${mathPct}% 기반 수능 최저 진단`;
+                track3Status = (korPct >= 77 || mathPct >= 77) ? 'SAFE' : ((korPct >= 65 || mathPct >= 65) ? 'ON_TRACK' : 'DANGER');
+                track3Comment = `인서울 약술형 논술 수능 최저 진단 (국어 ${korPct}%, 수학 ${mathPct}%)`;
             }
-
-            track3Status = applyPenalty(track3Base, penaltyLevel);
-            track3Badge = getPenaltyBadge(track3Status, penaltyLevel, 'DASHED');
-            if (penaltyLevel === 'DANGER' && track3Base === 'SAFE') {
-                track3Comment = `수능 최저 충족권 · 주간 순공 보완 권장`;
-            }
+            track3Badge = (track3Status === 'SAFE') ? '잠정적 적정' : ((track3Status === 'ON_TRACK') ? '잠정적 소신' : '잠정적 위험');
         }
         track3 = {
             id: 'essay_track',
@@ -21763,7 +21833,7 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
         };
     }
 
-    // Track 4: 정시 수능 일반 (잠정 결과 - 괄호 일체 제거)
+    // Track 4: 정시 수능 일반 (순수 입시 성적 100% 팩트 판정)
     let track4Status = 'UNENTERED';
     let track4Badge = '성적 미입력';
     let track4Comment = '모의고사 백분위를 입력하시면 실시간 합격선이 계산됩니다.';
@@ -21772,26 +21842,39 @@ function calculate5Tracks(scores, univName, penaltyLevel) {
         const inq1 = inq1Pct || korPct;
         const inq2 = inq2Pct || mathPct;
         const totalPct = (korPct + mathPct + inq1 + inq2) / 4.0;
-        let track4Base = 'DANGER';
-        if (isMedical) {
-            if (totalPct >= 96.0) track4Base = 'SAFE';
-            else if (totalPct >= 93.5) track4Base = 'ON_TRACK';
+        let cutSafe, cutTrack;
+
+        if (isTopMedical) {
+            cutSafe = 98.5;
+            cutTrack = 97.0;
+            track4Comment = `국수탐 백분위 평균 ${Math.round(totalPct*10)/10}점 · 메이저 의예과 정시 컷(98.5%+) 기준`;
+        } else if (isGeneralMedical) {
+            cutSafe = 96.0;
+            cutTrack = 94.0;
+            track4Comment = `국수탐 백분위 평균 ${Math.round(totalPct*10)/10}점 · 메디컬(한의·약대) 정시 컷(96.0%+) 기준`;
         } else if (isSky) {
-            if (totalPct >= 95.0) track4Base = 'SAFE';
-            else if (totalPct >= 91.5) track4Base = 'ON_TRACK';
-        } else if (isSeoulBroad) {
-            if (totalPct >= 76.0) track4Base = 'SAFE';
-            else if (totalPct >= 70.0) track4Base = 'ON_TRACK';
+            cutSafe = 94.0;
+            cutTrack = 91.0;
+            track4Comment = `국수탐 백분위 평균 ${Math.round(totalPct*10)/10}점 · SKY 상위권 정시 컷(94% 이상) 기준`;
+        } else if (isSeoSeongHan || isJungGyeong) {
+            cutSafe = 89.0;
+            cutTrack = 84.0;
+            track4Comment = `국수탐 백분위 평균 ${Math.round(totalPct*10)/10}점 · 서성한·중경외시 정시 컷(89.0%+) 기준`;
         } else {
-            if (totalPct >= 88.0) track4Base = 'SAFE';
-            else if (totalPct >= 82.0) track4Base = 'ON_TRACK';
+            cutSafe = 76.0;
+            cutTrack = 70.0;
+            track4Comment = `국수탐 백분위 평균 ${Math.round(totalPct*10)/10}점 · 인서울 4년제 정시 컷 기준`;
         }
-        track4Status = applyPenalty(track4Base, penaltyLevel);
-        track4Badge = getPenaltyBadge(track4Status, penaltyLevel, 'DASHED');
-        if (track4Base === 'SAFE' && penaltyLevel === 'DANGER') {
-            track4Comment = `국수탐 백분위 평균 ${Math.round(totalPct)}점 · 주간 순공 부족으로 소신 조정`;
+
+        if (totalPct >= cutSafe) {
+            track4Status = 'SAFE';
+            track4Badge = '잠정적 적정';
+        } else if (totalPct >= cutTrack) {
+            track4Status = 'ON_TRACK';
+            track4Badge = '잠정적 소신';
         } else {
-            track4Comment = `국수탐 백분위 평균 ${Math.round(totalPct)}점`;
+            track4Status = 'DANGER';
+            track4Badge = '잠정적 위험';
         }
     }
 

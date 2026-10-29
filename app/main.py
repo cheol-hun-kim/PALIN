@@ -10471,41 +10471,42 @@ def get_campus_occupation(student_id: Optional[int] = None, db: Session = Depend
         my_weekly_seconds = sum((s.duration_sec or 0) for s in my_sess)
     my_weekly_hours = round(my_weekly_seconds / 3600.0, 1)
 
-    # Compute Target Cohort Average Hours
+    # 대한민국 입시 실전 권장 순공 기준표 (착석 주 84h / 순공 주 56h+ 대치동 실전 기준)
+    def get_authoritative_study_benchmark(univ_name_raw: str) -> float:
+        name = (univ_name_raw or "").strip()
+        if any(k in name for k in ["의예", "의대", "치의", "치대", "메디컬", "한의", "약대", "약학", "수의"]):
+            return 63.0  # 주 63.0시간 (일 9.0시간) - 최상위 메디컬
+        if any(k in name for k in ["서울", "연세", "고려", "KAIST", "POSTECH", "카이스트", "포스텍"]):
+            return 59.5  # 주 59.5시간 (일 8.5시간) - SKY / 과기원
+        if any(k in name for k in ["서강", "성균관", "한양"]):
+            return 56.0  # 주 56.0시간 (일 8.0시간) - 서성한 (상위권 대학 권장 기준)
+        if any(k in name for k in ["중앙", "경희", "외대", "시립", "이화"]):
+            return 52.5  # 주 52.5시간 (일 7.5시간) - 중경외시 마지노선
+        if any(k in name for k in ["건국", "동국", "홍익", "국민", "숭실", "세종", "단국", "아주", "인하"]):
+            return 49.0  # 주 49.0시간 (일 7.0시간)
+        return 45.5       # 주 45.5시간 (일 6.5시간) - 인서울 기본
+
+    target_benchmark = get_authoritative_study_benchmark(my_target_raw or target_canon)
+    baseline_benchmark = get_authoritative_study_benchmark(my_baseline_raw or baseline_canon)
+
+    # Compute Target Cohort Average Hours (표본 부족 시 권장 기준치로 방어)
     target_data = univ_map.get(target_canon)
-    if target_data and target_data["student_count"] > 0 and target_data["total_seconds"] > 0:
-        target_avg_hours = round((target_data["total_seconds"] / target_data["student_count"]) / 3600.0, 1)
+    if target_data and target_data["student_count"] >= 15 and target_data["total_seconds"] > 0:
+        cohort_t = round((target_data["total_seconds"] / target_data["student_count"]) / 3600.0, 1)
+        target_avg_hours = max(cohort_t, target_benchmark)
         target_student_cnt = target_data["student_count"]
     else:
-        # Realistic calibrated benchmark based on prestige level
-        if any(sky in target_canon for sky in ["서울", "연세", "고려", "KAIST", "POSTECH"]):
-            target_avg_hours = 42.5
-        elif "메디컬" in target_canon:
-            target_avg_hours = 41.5
-        elif any(tier2 in target_canon for tier2 in ["서강", "성균관", "한양"]):
-            target_avg_hours = 37.0
-        elif "인서울" in target_canon:
-            target_avg_hours = 28.5
-        else:
-            target_avg_hours = 33.5
+        target_avg_hours = target_benchmark
         target_student_cnt = max(target_data["student_count"] if target_data else 1, 12)
 
     # Compute Baseline Cohort Average Hours
     baseline_data = univ_map.get(baseline_canon)
-    if baseline_data and baseline_data["student_count"] > 0 and baseline_data["total_seconds"] > 0:
-        baseline_avg_hours = round((baseline_data["total_seconds"] / baseline_data["student_count"]) / 3600.0, 1)
+    if baseline_data and baseline_data["student_count"] >= 15 and baseline_data["total_seconds"] > 0:
+        cohort_b = round((baseline_data["total_seconds"] / baseline_data["student_count"]) / 3600.0, 1)
+        baseline_avg_hours = max(cohort_b, baseline_benchmark)
         baseline_student_cnt = baseline_data["student_count"]
     else:
-        if any(sky in baseline_canon for sky in ["서울", "연세", "고려"]):
-            baseline_avg_hours = 36.0
-        elif "메디컬" in baseline_canon:
-            baseline_avg_hours = 35.0
-        elif any(tier2 in baseline_canon for tier2 in ["중앙", "경희", "외대", "시립"]):
-            baseline_avg_hours = 28.5
-        elif "인서울" in baseline_canon:
-            baseline_avg_hours = 24.0
-        else:
-            baseline_avg_hours = 24.0
+        baseline_avg_hours = baseline_benchmark
         baseline_student_cnt = max(baseline_data["student_count"] if baseline_data else 1, 8)
 
     # Ensure Target is strictly higher than Baseline by at least 4.0 hours for realistic gradient
