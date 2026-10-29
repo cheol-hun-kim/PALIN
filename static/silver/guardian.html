@@ -424,6 +424,10 @@
  </div>
 
  <div class="nav-actions">
+ <button type="button" class="nav-pill-btn" onclick="openSilverInviteModal()" style="background: rgba(99,102,241,0.2); border-color: #818cf8; color: #e0e7ff; font-weight: 800;">
+ <span class="material-symbols-rounded" style="font-size: 0.95rem; color: #818cf8;">person_add</span>
+ 부모님 연결 초대
+ </button>
  <button type="button" class="nav-pill-btn" onclick="triggerTestPhishing()" style="background: rgba(239,68,68,0.15); border-color: #ef4444; color: #fca5a5;">
  <span class="material-symbols-rounded" style="font-size: 0.95rem;">crisis_alert</span>
  피싱 테스트
@@ -737,5 +741,94 @@
  }
  setInterval(fetchLiveDelegations, 10000);
  </script>
+
+ <!-- [MODAL] 부모님 효도 연결 초대 모달 -->
+ <div id="silver-invite-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
+ <div style="background: #0f172a; border: 1.5px solid #6366f1; border-radius: 20px; padding: 22px; width: 100%; max-width: 440px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); position: relative;">
+ <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px;">
+ <div style="display: flex; align-items: center; gap: 8px;">
+ <span class="material-symbols-rounded" style="color: #ec4899; font-size: 1.35rem;">elderly</span>
+ <div>
+ <div style="font-size: 1.05rem; font-weight: 900; color: #ffffff;">부모님 효도 안심 케어 연결</div>
+ <div style="font-size: 0.72rem; color: #94a3b8;">부모님께 문자/카카오톡 링크를 보내 1초 만에 연결합니다</div>
+ </div>
+ </div>
+ <button type="button" onclick="closeSilverInviteModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.4rem; cursor: pointer;">✕</button>
+ </div>
+
+ <form onsubmit="handleSendSilverInvite(event)" style="display: flex; flex-direction: column; gap: 14px;">
+ <div>
+ <label style="font-size: 0.75rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 6px;">부모님 성함 또는 호칭</label>
+ <input type="text" id="silver-target-nickname" placeholder="예: 어머니, 아버지, 분당 본가" required style="width: 100%; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); color: #ffffff; font-size: 0.85rem; font-weight: 700; box-sizing: border-box;">
+ </div>
+
+ <div>
+ <label style="font-size: 0.75rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 6px;">내 이름 (자녀 호칭)</label>
+ <input type="text" id="silver-inviter-name" placeholder="예: 큰딸, 둘째 아들, 김철수" required style="width: 100%; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); color: #ffffff; font-size: 0.85rem; font-weight: 700; box-sizing: border-box;">
+ </div>
+
+ <button type="submit" id="btn-create-silver-invite" style="margin-top: 6px; padding: 12px; border-radius: 12px; background: linear-gradient(135deg, #ec4899, #db2777); border: none; color: #ffffff; font-size: 0.88rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 14px rgba(236,72,153,0.35);">
+ <span class="material-symbols-rounded" style="font-size: 1.1rem;">share</span>
+ <span>원클릭 효도 초대 링크 및 6자리 코드 생성</span>
+ </button>
+ </form>
+
+ <div id="silver-invite-result-box" style="display: none; margin-top: 14px; padding: 12px; border-radius: 12px; background: rgba(236,72,153,0.1); border: 1px dashed rgba(236,72,153,0.4); text-align: center;">
+ <div style="font-size: 0.76rem; color: #f472b6; font-weight: 800; margin-bottom: 4px;">부모님 전용 간편 효도 연결 코드</div>
+ <div id="silver-display-code" style="font-size: 1.4rem; font-weight: 900; letter-spacing: 2px; color: #ffffff; margin-bottom: 8px;">000-000</div>
+ <button type="button" onclick="copySilverInviteLink()" style="width: 100%; padding: 8px 12px; border-radius: 8px; background: #ec4899; color: white; border: none; font-size: 0.78rem; font-weight: 800; cursor: pointer;">
+ 📋 부모님께 보낼 카톡/문자 안내문 복사하기
+ </button>
+ </div>
+ </div>
+ </div>
+
+ <script>
+ function openSilverInviteModal() {
+     const modal = document.getElementById('silver-invite-modal');
+     if (modal) modal.style.display = 'flex';
+ }
+ function closeSilverInviteModal() {
+     const modal = document.getElementById('silver-invite-modal');
+     if (modal) modal.style.display = 'none';
+ }
+ async function handleSendSilverInvite(e) {
+     e.preventDefault();
+     const nickname = document.getElementById('silver-target-nickname').value.trim();
+     const myName = document.getElementById('silver-inviter-name').value.trim();
+     const btn = document.getElementById('btn-create-silver-invite');
+     if (btn) btn.innerText = "초대 코드 생성 중...";
+
+     try {
+         const res = await fetch('/api/silver/invite', {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({
+                 inviter_role: 'GUARDIAN',
+                 inviter_name: myName,
+                 senior_nickname: nickname
+             })
+         });
+         if (res.ok) {
+             const data = await res.json();
+             document.getElementById('silver-display-code').innerText = data.invite_code;
+             document.getElementById('silver-invite-result-box').style.display = 'block';
+             window.latestSilverInviteUrl = window.location.origin + data.invite_url;
+             window.latestSilverInviteMsg = `[PALIN 실버메이트 효도 안심 케어]\n${myName}님이 부모님(${nickname})을 안심 안부 케어로 초대했습니다.\n\n아래 링크를 누르시면 가입 없이 즉시 자녀와 연결됩니다:\n${window.latestSilverInviteUrl}\n(또는 연결 코드: ${data.invite_code})`;
+         }
+     } catch (err) {
+         alert('초대 생성 중 오류가 발생했습니다.');
+     } finally {
+         if (btn) btn.innerText = "원클릭 효도 초대 링크 및 6자리 코드 생성";
+     }
+ }
+ function copySilverInviteLink() {
+     if (window.latestSilverInviteMsg) {
+         navigator.clipboard.writeText(window.latestSilverInviteMsg);
+         alert('부모님께 전달할 초대 메시지와 링크가 복사되었습니다! 카카오톡이나 문자로 부모님께 보내주세요.');
+     }
+ }
+ </script>
+
 </body>
 </html>
