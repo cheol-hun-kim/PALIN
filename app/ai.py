@@ -610,11 +610,8 @@ def ask_ai_chatbot(
         else:
             tier_token_limit = 2500  # Tier 1: 무료 일반 학습 코치 (150~250자)
 
-        # Model hierarchy optimized per tier
-        if tenant_tier == 1:
-            candidate_models = ['gemini-3.5-flash-lite', 'gemini-flash-latest', 'gemini-3.8-flash']
-        else:
-            candidate_models = ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-3.5-flash-lite']
+        # Model hierarchy optimized per tier (ultra-fast 3.5-flash-lite first for 2~4s instant response)
+        candidate_models = ['gemini-3.5-flash-lite', 'gemini-3.6-flash', 'gemini-3.8-flash']
 
         available_keys = get_available_api_keys()
 
@@ -656,11 +653,11 @@ def ask_ai_chatbot(
         # Enforce 22.0s timeout: if Google API hangs, fallback immediately
         future = _genai_pool.submit(_execute_cloud_generation)
         try:
-            cloud_reply = future.result(timeout=22.0)
+            cloud_reply = future.result(timeout=25.0)
             if cloud_reply:
                 return cloud_reply
         except concurrent.futures.TimeoutError:
-            print("Cloud Gemini call timed out (>22.0s) -> Seamlessly switching to High-Quality Local Knowledge Engine")
+            print("Cloud Gemini call timed out (>25.0s) -> Seamlessly switching to High-Quality Local Knowledge Engine")
         except Exception as thread_ex:
             print(f"Cloud execution thread exception: {thread_ex}")
 
@@ -804,14 +801,46 @@ def _generate_local_knowledge_reply(message: str, history: list = None, user_rol
             "내 정규수업 [방법론 8주 과정]에서 출제원리의 틀을 잡고 실전 변수를 통제하면 국어 1등급은 반드시 나온다. 기죽지 말고 힘내자!"
         )
 
-    # 10. 고등 - 수학 / 탐구 / 취약 과목 공부법
-    if any(k in msg_clean for k in ["수학", "탐구", "과탐", "사탐", "영어", "킬러", "준킬러", "개념", "공부법"]):
+    # 10-A. 고등 - 영어 공부법 (절대평가, 어휘, 구문 독해)
+    if any(k in msg_clean for k in ["영어", "단어", "영단어", "어휘", "구문", "직독직해", "듣기", "절대평가", "빈칸", "순서삽입"]):
         return (
-            "문제를 많이 푼다고 성적이 오르는 게 절대 아니야. 기출 1권을 완벽히 씹어먹는 게 엉성하게 5권 푸는 것보다 백배 낫다.\n\n"
+            "수능 영어는 단순 암기나 감으로 때려 맞히는 시험이 아니라 철저한 '정보 처리 및 논리 독해' 시험이야.\n\n"
+            "영어 1등급을 안정적으로 쟁취하기 위한 3대 핵심 실천 전략이야:\n"
+            "1. 기출 필수 어휘 누적 복습: 모르는 단어가 나오는 순간 지문 해석은 무너져. 매일 정해진 분량을 누적 암기해서 평가원 필수 어휘를 빈틈없이 채워야 해.\n"
+            "2. 구문 독해(문장 구조 쪼개기): 길고 복잡한 문장일수록 주어, 동사, 수식어를 정확히 분석하는 직독직해 훈련을 해야 출제자의 함정이 눈에 보여.\n"
+            "3. 평가원 논리 코드 역추적: 기출문제를 풀 때 답만 맞히지 말고, '출제자가 어떤 단서를 근거로 정답 선지를 설계했는가?'를 역추적하는 훈련을 해.\n\n"
+            "사설 모의고사 양치기에 휘둘리지 말고, 오늘부터 기출 3지문씩 완벽한 구문 분석과 오답 복기부터 시작하자!"
+        )
+
+    # 10-B. 고등 - 수학 공부법 (개념 증명, 조건 해석, 오답)
+    if any(k in msg_clean for k in ["수학", "미적", "기하", "확통", "공식", "계산실수", "킬러", "준킬러"]):
+        return (
+            "문제를 많이 푼다고 수학 성적이 오르는 게 절대 아니야. 기출 1권을 완벽히 씹어먹는 게 엉성하게 5권 푸는 것보다 백배 낫다.\n\n"
             "1. 개념의 백지 증명: 공식을 눈으로 외우지 말고 빈 종이에 유도 과정과 성질을 직접 손으로 증명해봐.\n"
             "2. 조건 해석 훈련: 문제 발문의 모든 조건에 밑줄을 긋고, '출제자가 이 조건을 왜 주었는가?'를 연결하는 발상을 기록해.\n"
             "3. 3단계 오답노트: 틀린 문제는 해설지를 덮고 3일 뒤 백지 상태에서 100% 풀어내야 진짜 내 실력이 된다.\n\n"
             "지금 가장 막히는 단원이나 취약 유형부터 기출로 되돌아가자!"
+        )
+
+    # 10-C. 고등 - 탐구 과목 공부법
+    if any(k in msg_clean for k in ["탐구", "과탐", "사탐", "물리", "화학", "생명", "지구", "생윤", "사문", "한지"]):
+        return (
+            "수능 탐구는 30분 안에 20문제를 완벽히 풀어내야 하는 타임어택 시험이야.\n\n"
+            "1. 백지 개념 완벽 인출: 교과서와 수능특강의 지엽적 선지까지 스스로 백지에 구조도로 그릴 수 있어야 해.\n"
+            "2. 유형별 풀이 알고리즘 도식화: 킬러 자료 해석(도표, 가계도, 역학 등)은 문제를 보자마자 풀이 순서가 튀어나오도록 훈련해야 해.\n"
+            "3. 실전 30분 타임 트레이닝: 25분 만에 마킹까지 끝내는 연습을 기출 5개년으로 반복해.\n\n"
+            "탐구는 정시에서 대학의 간판을 바꾸는 가장 확실한 전략 과목이다. 오늘 틀린 선지부터 오답노트에 정리하자!"
+        )
+
+    # 10-D. 고등 - 전반적인 공부법 / 공부 노하우
+    if any(k in msg_clean for k in ["공부법", "어떻게 해", "어떻게 공부해", "효율적", "공부 방법", "공부 노하우", "취약"]):
+        return (
+            "공부는 무작정 양치기하는 것보다 '올바른 방향'으로 하는 게 백배 중요해.\n\n"
+            "수능 역전을 위한 3대 핵심 공부법을 당장 실천해봐:\n"
+            "1. 168시간 시간표와 PASS-MATE 순공 타이머: 하루 멍하니 앉아있는 8시간보다, 집중해서 몰입한 순공 4시간이 진짜 성적을 만든다.\n"
+            "2. 기출 1권 씹어먹기: 새로운 문제집을 계속 사지 말고, 평가원 기출의 출제 의도와 함정 설계 방식을 파고들어라.\n"
+            "3. 3단계 오답노트 백지 복기: 해설지를 눈으로 읽지 말고, 3일 뒤 백지 상태에서 스스로 100% 손으로 풀 수 있는지 검증해라.\n\n"
+            "지금 가장 고민되는 과목이나 취약 단원이 있다면 구체적으로 말해줘. 그 과목에 맞는 정밀 솔루션을 바로 짚어줄게!"
         )
 
     # 11. 고등 - 멘탈 / 슬럼프 / 불안감 / 포기
