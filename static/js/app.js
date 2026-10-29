@@ -21465,8 +21465,8 @@ function renderAdmissionPathEngine() {
     const localBaseline = (window.currentStudent && window.currentStudent.baseline_univ) || localStorage.getItem("cached_baseline_univ") || "서울대학교 화학생물공학부";
 
     const data = cachedAdmissionCampusData || {
-        target_info: { univ_name: localTarget, avg_hours: 42.5 },
-        baseline_info: { univ_name: localBaseline, avg_hours: 36.0 },
+        target_info: { univ_name: localTarget, raw_name: localTarget, avg_hours: 42.5 },
+        baseline_info: { univ_name: localBaseline, raw_name: localBaseline, avg_hours: 36.0 },
         my_study_info: { my_hours: 0.0, status: "DANGER", status_label: "순공 보완 권장", alert_message: "합격선 유지를 위해 순공 보완을 권장합니다." },
         total_network_hours: 128
     };
@@ -21476,6 +21476,17 @@ function renderAdmissionPathEngine() {
         let s = name.trim();
         if (s.includes("메디컬")) return "메디컬";
         if (s.includes("인서울")) return "인서울 대학";
+        // 의예과/의과대학의 경우 명확성을 위해 축약 표기 (모바일 뷰포트 최적화)
+        if (s.includes("의예") || s.includes("의대")) {
+            if (s.includes("연세")) return "연세대 의예과";
+            if (s.includes("서울")) return "서울대 의예과";
+            if (s.includes("고려")) return "고려대 의예과";
+            if (s.includes("울산")) return "울산대 의예과";
+            if (s.includes("성균관")) return "성균관대 의예과";
+            if (s.includes("가톨릭")) return "가톨릭대 의예과";
+            const parts = s.split(" ");
+            return parts[0].replace("대학교", "대") + " 의예과";
+        }
         const known = [
             "서울대학교", "연세대학교", "고려대학교", "성균관대학교", "서강대학교",
             "한양대학교", "중앙대학교", "경희대학교", "한국외국어대학교", "서울시립대학교",
@@ -21492,8 +21503,11 @@ function renderAdmissionPathEngine() {
         return parts[0];
     }
 
-    const rawTarget = data.target_info?.univ_name || localTarget || "연세대학교 의예과";
-    const rawBaseline = data.baseline_info?.univ_name || localBaseline || "서울대학교 화학생물공학부";
+    const studentTarget = (window.currentStudent && window.currentStudent.target_univ) || localStorage.getItem("cached_target_univ");
+    const studentBaseline = (window.currentStudent && window.currentStudent.baseline_univ) || localStorage.getItem("cached_baseline_univ");
+
+    const rawTarget = studentTarget || data.target_info?.raw_name || data.target_info?.univ_name || "연세대학교 의예과";
+    const rawBaseline = studentBaseline || data.baseline_info?.raw_name || data.baseline_info?.univ_name || "서울대학교 화학생물공학부";
 
     const targetUnivName = cleanUnivDisplay(rawTarget);
     const baselineUnivName = cleanUnivDisplay(rawBaseline);
@@ -21611,11 +21625,14 @@ function renderAdmissionPathEngine() {
         }
         if (alertBox) {
             alertBox.style.display = 'flex';
+            alertBox.style.alignItems = 'flex-start';
             alertBox.style.background = 'rgba(239, 68, 68, 0.12)';
             alertBox.style.borderColor = 'rgba(239, 68, 68, 0.35)';
             alertBox.style.color = '#fecdd3';
         }
         if (alertText) {
+            alertText.style.whiteSpace = 'normal';
+            alertText.style.wordBreak = 'keep-all';
             alertText.innerHTML = `${activeUnivName} 합격권 대비 주간 순공이 <b style="color: #f87171;">${deficitHours.toFixed(1)}시간 결손</b> 상태입니다. 현재 성적 팩트는 <b class="text-white">[${overallLabel}]</b>이나, <b style="color: #fca5a5;">주 56시간 미만 학습 시 수능 실전 감각 저하로 합격선이 [소신 ➔ 위험]으로 급락</b>할 수 있습니다. 순공 타이머를 즉시 가동하세요!`;
         }
     } else {
@@ -21627,11 +21644,14 @@ function renderAdmissionPathEngine() {
         }
         if (alertBox) {
             alertBox.style.display = 'flex';
+            alertBox.style.alignItems = 'flex-start';
             alertBox.style.background = 'rgba(16, 185, 129, 0.1)';
             alertBox.style.borderColor = 'rgba(16, 185, 129, 0.28)';
             alertBox.style.color = '#a7f3d0';
         }
         if (alertText) {
+            alertText.style.whiteSpace = 'normal';
+            alertText.style.wordBreak = 'keep-all';
             alertText.innerHTML = `${activeUnivName} 합격권 권장 주간 순공시간(${activeTargetHours.toFixed(1)}시간)을 훌륭히 달성하였습니다. 현 성적 페이스를 흔들림 없이 유지하십시오.`;
         }
     }

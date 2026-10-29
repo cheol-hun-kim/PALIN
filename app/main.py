@@ -10543,13 +10543,15 @@ def get_campus_occupation(student_id: Optional[int] = None, db: Session = Depend
         alert_message = f"1지망 [{target_short}] 지망생 상위 합격권 페이스를 유지 중입니다! (평균 대비 +{over_hrs}시간)"
 
     return {
-        "my_target_univ": target_canon,
+        "my_target_univ": my_target_raw or target_canon,
         "my_target_color": target_col,
-        "my_baseline_univ": baseline_canon,
+        "my_baseline_univ": my_baseline_raw or baseline_canon,
         "total_network_hours": total_network_hours,
         "campuses": formatted_campuses[:5],
         "target_info": {
-            "univ_name": target_canon,
+            "univ_name": my_target_raw or target_canon,
+            "canon_name": target_canon,
+            "raw_name": my_target_raw or target_canon,
             "short_name": target_short,
             "color": target_col,
             "avg_hours": target_avg_hours,
@@ -10557,7 +10559,9 @@ def get_campus_occupation(student_id: Optional[int] = None, db: Session = Depend
             "student_count": target_student_cnt
         },
         "baseline_info": {
-            "univ_name": baseline_canon,
+            "univ_name": my_baseline_raw or baseline_canon,
+            "canon_name": baseline_canon,
+            "raw_name": my_baseline_raw or baseline_canon,
             "short_name": baseline_short,
             "color": baseline_col,
             "avg_hours": baseline_avg_hours,
