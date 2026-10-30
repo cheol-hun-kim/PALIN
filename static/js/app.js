@@ -21287,16 +21287,21 @@ async function handleSaveSurfaceScores(e) {
     if (inq1 !== null) localStorage.setItem('cached_score_inq1', String(inq1));
     if (inq2 !== null) localStorage.setItem('cached_score_inq2', String(inq2));
 
+    const rawRank = localStorage.getItem('cached_score_rank');
+    const rawTotal = localStorage.getItem('cached_score_total');
+    const rawEng = localStorage.getItem('cached_score_eng');
+    const rawHist = localStorage.getItem('cached_score_hist');
+
     const scorePayload = {
         gpa_grade: gpa,
-        gpa_rank: parseInt(localStorage.getItem('cached_score_rank') || '12', 10),
-        gpa_total: parseInt(localStorage.getItem('cached_score_total') || '280', 10),
+        gpa_rank: rawRank ? parseInt(rawRank, 10) : null,
+        gpa_total: rawTotal ? parseInt(rawTotal, 10) : null,
         kor_pct: kor,
         math_pct: math,
         inq1_pct: inq1,
         inq2_pct: inq2,
-        eng_grade: parseInt(localStorage.getItem('cached_score_eng') || '1', 10),
-        hist_grade: parseInt(localStorage.getItem('cached_score_hist') || '1', 10)
+        eng_grade: rawEng ? parseInt(rawEng, 10) : null,
+        hist_grade: rawHist ? parseInt(rawHist, 10) : null
     };
 
     if (window.currentStudent) {

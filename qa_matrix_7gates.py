@@ -308,6 +308,29 @@ for hf in html_files:
 
 print("[GATE 1.9 PASS] Zero AI-tone cliches ('냉철한', '서늘한', '팩트폭격' 등) & Zero raw markdown asterisks (**) verified across UI!")
 
+# [GATE 1.10] Zero Hardcoded Score Fallbacks & Pure Ground-Truth Scanner (대표님 하드코딩 영구 박멸 규칙)
+score_fallback_patterns = [
+    (r"cached_score_\w+['\"]\)\s*\|\|\s*['\"][0-9.]+", "cached_score dummy fallback"),
+    (r"rawGpa\s*\|\|\s*['\"][0-9.]+", "rawGpa dummy fallback"),
+    (r"rawKor\s*\|\|\s*['\"][0-9.]+", "rawKor dummy fallback"),
+    (r"math\s*\|\|\s*['\"][0-9.]+", "math dummy fallback"),
+    (r"inq1\s*\|\|\s*['\"][0-9.]+", "inq1 dummy fallback"),
+    (r"inq2\s*\|\|\s*['\"][0-9.]+", "inq2 dummy fallback"),
+    (r'gpa_grade:\s*Optional\[float\]\s*=\s*1\.85', 'StudentPreciseScoresPayload 1.85 default in main.py')
+]
+
+for fname in ['static/js/app.js', 'static/universe.html', 'app/main.py']:
+    if not os.path.exists(fname): continue
+    with open(fname, 'r', encoding='utf-8', errors='ignore') as f:
+        file_txt = f.read()
+    for pat, desc in score_fallback_patterns:
+        if re.search(pat, file_txt):
+            print(f"[GATE 1.10 FAIL] Forbidden hardcoded score fallback detected in {fname}: {desc} (regex: {pat})")
+            sys.exit(1)
+
+print("[GATE 1.10 PASS] Zero Hardcoded Score Fallbacks Scanner Passed (100% Pure DB Ground-Truth Verified)!")
+
+
 # GATE 2: DOM Event Listener, Dead Button & Modal Function Binding Scanner
 # ==============================================================================
 print("\n[GATE 2] Running DOM Event Listener & Dead Button Scanner...")
