@@ -18,6 +18,13 @@
             // 2. If logged in with unified user but not active in passmate, redirect to intro
             if (raw) {
                 var u = JSON.parse(raw);
+                if (u) {
+                    var effId = String(u.id || 1);
+                    if (!localStorage.getItem("studentId")) localStorage.setItem("studentId", effId);
+                    if (!localStorage.getItem("userId")) localStorage.setItem("userId", effId);
+                    if (!localStorage.getItem("jwtToken")) localStorage.setItem("jwtToken", token || ("unified_token_" + effId));
+                    if (!localStorage.getItem("userRole")) localStorage.setItem("userRole", u.role || (u.email === "1286orbital21@gmail.com" ? "SUPER_ADMIN" : "STUDENT"));
+                }
                 if (u && u.is_passmate_active === false && !sid && !bypass) {
                     window.location.replace('/passmate/intro');
                     return;
@@ -305,7 +312,10 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
              ============================================================================ -->
         <style>
             #register-overlay {
-                display: flex;
+                display: none !important;
+                visibility: hidden !important;
+                pointer-events: none !important;
+                /* display: flex; */
                 flex-direction: column;
                 align-items: center;
                 justify-content: flex-start;
@@ -434,7 +444,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             }
         </style>
 
-        <div id="register-overlay" style="display: none !important;">
+        <div id="register-overlay" style="display: none !important; visibility: hidden !important; pointer-events: none !important;">
             <div class="auth-card-wrapper">
                 <!-- 브랜드 헤더 -->
                 <div style="text-align: center; margin-bottom: 4px;">

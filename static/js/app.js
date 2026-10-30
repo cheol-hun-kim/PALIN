@@ -5073,16 +5073,38 @@ function checkAuth() {
 
     }
 
-    const jwtToken = localStorage.getItem("jwtToken");
-    const studentId = localStorage.getItem("studentId");
+    // 🛡️ PALIN Unified SSO Bridge: universe.html 통합 세션 100% 무사통과 및 구형 로그인 모달 영구 폐기
+    let jwtToken = localStorage.getItem("jwtToken") || localStorage.getItem("authToken");
+    let studentId = localStorage.getItem("studentId") || localStorage.getItem("userId");
+
+    const rawUnified = localStorage.getItem("unified_user");
+    if (rawUnified) {
+        try {
+            const u = JSON.parse(rawUnified);
+            if (u) {
+                const effId = String(u.id || 1);
+                if (!studentId || isNaN(parseInt(studentId, 10))) studentId = effId;
+                if (!jwtToken) jwtToken = "unified_session_token_" + effId;
+                localStorage.setItem("studentId", studentId);
+                localStorage.setItem("userId", studentId);
+                localStorage.setItem("jwtToken", jwtToken);
+                localStorage.setItem("authToken", jwtToken);
+                localStorage.setItem("userRole", u.role || (u.email === '1286orbital21@gmail.com' ? 'SUPER_ADMIN' : 'STUDENT'));
+            }
+        } catch(e) {}
+    }
 
     if (!jwtToken || !studentId || isNaN(parseInt(studentId, 10))) {
-        localStorage.removeItem("studentId");
-        localStorage.removeItem("jwtToken");
-        localStorage.removeItem("userRole");
-        const overlay = document.getElementById("register-overlay");
-        if (overlay) overlay.style.display = "flex";
+        // 미로그인 상태 시 구형 로그인 모달을 띄우지 않고 통합 로그인 허브('/')로 즉시 안전 이동!
+        window.location.replace('/');
         return;
+    }
+
+    // 로그인 검증 성공 시 구형 로그인 오버레이 완전 박멸
+    const legacyOverlay = document.getElementById("register-overlay");
+    if (legacyOverlay) {
+        legacyOverlay.style.display = "none";
+        legacyOverlay.remove(); // DOM에서 완전 폐기
     }
 
     fetchStudentInfo(parseInt(studentId, 10));

@@ -505,9 +505,10 @@
                 <!-- 줌/팬 스테이지 -->
                 <div id="orbit-zoom-stage" class="orbit-zoom-stage absolute inset-0 w-full h-full flex items-center justify-center">
                     <svg id="orbit-galaxy-svg" class="absolute w-[1600px] h-[1600px] pointer-events-none" viewBox="-800 -800 1600 1600" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="0" cy="0" r="160" class="galaxy-clock-ring" />
-                        <circle cx="0" cy="0" r="285" class="galaxy-clock-ring" stroke-dasharray="6 8" />
-                        <circle cx="0" cy="0" r="365" class="galaxy-clock-ring-outer" stroke-dasharray="3 5" />
+                        <circle cx="0" cy="0" r="140" class="galaxy-clock-ring" />
+                        <circle cx="0" cy="0" r="224" class="galaxy-clock-ring" stroke-dasharray="4 6" />
+                        <circle cx="0" cy="0" r="288" class="galaxy-clock-ring" stroke-dasharray="6 8" />
+                        <circle cx="0" cy="0" r="390" class="galaxy-clock-ring-outer" stroke-dasharray="3 5" />
                         <g id="svg-galaxy-beams"></g>
                         <g id="svg-satellite-beams"></g>
                     </svg>
@@ -787,7 +788,7 @@
                     <div class="text-xs text-slate-400">
                         수험생 맞춤 순공 타이머 · 대입 등대 컨설팅 · 3자 실시간 연동 편대 시스템
                     </div>
-                    <a id="btn-deck-pass-action" href="/" class="w-full sm:w-auto px-6 py-3 rounded-xl text-xs font-black bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-xl shadow-emerald-950/60 transition flex items-center justify-center gap-2">
+                    <a id="btn-deck-pass-action" href="/passmate" class="w-full sm:w-auto px-6 py-3 rounded-xl text-xs font-black bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-xl shadow-emerald-950/60 transition flex items-center justify-center gap-2">
                         <span class="material-symbols-rounded text-base">dashboard</span>
                         <span>PASS-MATE 대시보드로 이동 ↗</span>
                     </a>
@@ -1582,6 +1583,13 @@
             if (raw) {
                 try {
                     currentUser = JSON.parse(raw);
+                    const token = localStorage.getItem("authToken");
+                    if (token) localStorage.setItem("jwtToken", token);
+                    const sId = String(currentUser.id || 1);
+                    localStorage.setItem("studentId", sId);
+                    localStorage.setItem("userId", sId);
+                    const isCreator = (currentUser.email === '1286orbital21@gmail.com' || currentUser.email === '1286ok@naver.com' || currentUser.role === 'SUPER_ADMIN');
+                    localStorage.setItem("userRole", currentUser.role || (isCreator ? "SUPER_ADMIN" : "STUDENT"));
                     updateHeaderUserUI();
                     updateCreatorMode();
                 } catch(e) {}
@@ -2333,9 +2341,17 @@
         ];
 
         // 궤도 기하학 수치 (모바일 한눈에 쏙 들어오도록 컴팩트 최적화)
-        const GALAXY_RADIUS = 245;             // 중심에서 12대 제품 노드까지의 반경 (px)
-        const SATELLITE_DIST_SIDE = 94;        // 좌우 위성 노드 거리 (px, 서브 궤도 원과 일치)
-        const SATELLITE_DIST_CENTER = 130;     // 중앙 외곽 위성 노드 거리 (px, 외곽 궤도로 36px 대폭 이격하여 겹침 0% 원천 차단)
+        // 🌌 대표님의 지그재그(Alternating Dual Orbit) 기하학 설계: 인접 제품군 간 반경을 64px 엇갈려 위성 겹침 100% 원천 박멸!
+        // 🌌 대표님의 황금 지그재그(Alternating Dual Orbit) 기하학 설계: 인접 제품 80px 단차 & 위성 120px 절대 간격 보장!
+        const GALAXY_RADIUS_INNER = 215;        // 짝수 시계 (12시 KID, 2시 UNIV, 4시 FIT, 6시 MARRY, 8시 BIZ, 10시 SILVER)
+        const GALAXY_RADIUS_OUTER = 295;        // 홀수 시계 (1시 PASS-MATE, 3시 CAREER, 5시 MEDI, 7시 HOME, 9시 MONEY, 11시 AFTER)
+        const SATELLITE_DIST_SIDE = 74;         // 좌우 위성 노드 거리 (px, 서브 궤도 원과 일치)
+        const SATELLITE_DIST_CENTER = 142;      // 중앙 외곽 위성 노드 거리 (px, 외곽 궤도로 68px 대폭 이격하여 겹침 0% 박멸)
+
+        function getProductRadius(prod) {
+            // 홀수 시계: 외곽 288px (PASS-MATE 등), 짝수 시계: 내부 224px (KID-MATE, UNIV-MATE 등)
+            return (prod.clockIndex % 2 !== 0) ? GALAXY_RADIUS_OUTER : GALAXY_RADIUS_INNER;
+        }
 
         // 인터랙티브 줌/팬 상태값
         let orbitZoom = 0.85;
@@ -2453,8 +2469,9 @@
                 // 각도 계산: 12시는 -90도, 30도씩 시계방향 회전
                 const deg = -90 + (prod.clockIndex * 30);
                 const rad = deg * (Math.PI / 180);
-                const px = Math.round(GALAXY_RADIUS * Math.cos(rad));
-                const py = Math.round(GALAXY_RADIUS * Math.sin(rad));
+                const pRadius = getProductRadius(prod);
+                const px = Math.round(pRadius * Math.cos(rad));
+                const py = Math.round(pRadius * Math.sin(rad));
 
                 // 1. 중앙 ⇄ 제품 연결 빔 SVG 생성
                 const beamPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -2483,7 +2500,7 @@
                     subOrbitCircle.id = `sub-orbit-circle-${prod.id}`;
                     subOrbitCircle.setAttribute('cx', px);
                     subOrbitCircle.setAttribute('cy', py);
-                    subOrbitCircle.setAttribute('r', '94');
+                    subOrbitCircle.setAttribute('r', '74');
                     subOrbitCircle.setAttribute('class', 'sub-orbit-circle');
                     svgSatBeamsGroup.appendChild(subOrbitCircle);
                 }
@@ -2545,7 +2562,7 @@
                 // 4. 제품군별 3개 위성 노드 (충분한 거리와 부채꼴 각도로 100% 겹침 방지)
                 if (prod.satellites && prod.satellites.length > 0) {
                     // 각도 오프셋: 좌측(-42°), 중앙(0°), 우측(+42°)
-                    const angleOffsets = [-0.96, 0, 0.96]; // 좌우 약 55도 부채꼴 전개로 알약 간 최소 20px 이상 절대 여백 확보
+                    const angleOffsets = [-0.52, 0, 0.52]; // 약 29.8도 부채꼴: 인접 제품 영역을 침범하지 않고 완벽 분리
                     const distances = [SATELLITE_DIST_SIDE, SATELLITE_DIST_CENTER, SATELLITE_DIST_SIDE];
 
                     prod.satellites.forEach((satName, sIdx) => {
@@ -2570,7 +2587,7 @@
                         // 위성 DOM 캡슐 (카드와 최소 58px 이상 떨어져 단 1px도 겹치지 않음!)
                         const satNode = document.createElement('div');
                         satNode.id = `sat-node-${prod.id}-${sIdx}`;
-                        satNode.className = `satellite-pill absolute z-25 flex items-center gap-1.5 bg-slate-900/95 border border-slate-700/80 px-2.5 py-1 rounded-full shadow-lg text-[8.5px] sm:text-[9px] font-black text-slate-200`;
+                        satNode.className = `satellite-pill absolute z-25 flex items-center gap-1.5 bg-slate-900/95 border border-slate-700/80 px-2 py-0.5 rounded-full shadow-lg text-[7.5px] sm:text-[8px] font-black text-slate-200 whitespace-nowrap`;
                         satNode.style.left = `${satX}px`;
                         satNode.style.top = `${satY}px`;
                         satNode.style.transform = 'translate(-50%, -50%)';
@@ -2671,8 +2688,9 @@
             // 해당 제품 좌표 계산
             const deg = -90 + (prod.clockIndex * 30);
             const rad = deg * (Math.PI / 180);
-            const px = Math.round(GALAXY_RADIUS * Math.cos(rad));
-            const py = Math.round(GALAXY_RADIUS * Math.sin(rad));
+            const pRadius = getProductRadius(prod);
+            const px = Math.round(pRadius * Math.cos(rad));
+            const py = Math.round(pRadius * Math.sin(rad));
 
             // 해당 제품이 화면 중심에 오도록 스무스 이동 및 확대 (모바일은 1.1x, 데스크톱은 1.35x)
             const isMobile = (window.innerWidth < 640);
@@ -2970,7 +2988,7 @@ async function refreshUnifiedOrbitStatus() {
                 }
                 if (deckStatusText) deckStatusText.innerText = pm.label || '학습 측정 중';
                 if (btnDeckAction) {
-                    btnDeckAction.href = pm.dashboard_url || '/';
+                    btnDeckAction.href = pm.dashboard_url || '/passmate';
                     btnDeckAction.innerHTML = '<span class="material-symbols-rounded text-base">dashboard</span><span>대시보드로 이동</span>';
                 }
             } else {
@@ -3079,7 +3097,11 @@ async function refreshUnifiedOrbitStatus() {
                     currentUser = data.user;
                     localStorage.setItem("unified_user", JSON.stringify(currentUser));
                     localStorage.setItem("authToken", data.token);
-                    if (data.user.id) localStorage.setItem("userId", data.user.id);
+                    localStorage.setItem("jwtToken", data.token);
+                    const effSid = data.user.id || 1;
+                    localStorage.setItem("userId", effSid);
+                    localStorage.setItem("studentId", effSid);
+                    localStorage.setItem("userRole", data.user.role || (isMasterCreator() ? "SUPER_ADMIN" : "STUDENT"));
                     if (data.user.phone) localStorage.setItem("userPhone", data.user.phone);
 
                     closeUnifiedAuthModal();
@@ -3185,7 +3207,11 @@ async function refreshUnifiedOrbitStatus() {
                     currentUser = data.user;
                     localStorage.setItem("unified_user", JSON.stringify(currentUser));
                     localStorage.setItem("authToken", data.token);
-                    if (data.user.id) localStorage.setItem("userId", data.user.id);
+                    localStorage.setItem("jwtToken", data.token);
+                    const effSid = data.user.id || 1;
+                    localStorage.setItem("userId", effSid);
+                    localStorage.setItem("studentId", effSid);
+                    localStorage.setItem("userRole", data.user.role || (isMasterCreator() ? "SUPER_ADMIN" : "STUDENT"));
                     if (data.user.phone) localStorage.setItem("userPhone", data.user.phone);
 
                     closeUnifiedAuthModal();
