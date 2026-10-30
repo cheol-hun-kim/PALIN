@@ -1430,16 +1430,16 @@
                         <span class="text-[10px] font-extrabold text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded">실시간 활성화 상태</span>
                     </div>
                     <div class="text-lg font-black text-white flex items-center gap-2">
-                        <span id="biz-view-name">일원학원 주식회사</span>
+                        <span id="biz-view-name">-</span>
                     </div>
                     <div class="mt-2.5 pt-2.5 border-t border-slate-800 grid grid-cols-2 gap-3 text-xs">
                         <div>
                             <div class="text-[10px] text-slate-400 font-bold mb-0.5">사업자등록번호</div>
-                            <div class="font-mono font-black text-slate-200" id="biz-view-no">120-88-02498</div>
+                            <div class="font-mono font-black text-slate-200" id="biz-view-no">-</div>
                         </div>
                         <div>
                             <div class="text-[10px] text-slate-400 font-bold mb-0.5">대표자명</div>
-                            <div class="font-bold text-slate-200" id="biz-view-owner">대표 원장</div>
+                            <div class="font-bold text-slate-200" id="biz-view-owner">-</div>
                         </div>
                     </div>
                 </div>
@@ -3278,25 +3278,36 @@ async function refreshUnifiedOrbitStatus() {
             }
         }
 
+        // 사업자등록번호 하이픈(000-00-00000) 포맷 함수
+        function formatBizRegNo(val) {
+            if (!val) return '-';
+            const clean = String(val).replace(/[^0-9]/g, '');
+            if (clean.length === 10) {
+                return `${clean.slice(0, 3)}-${clean.slice(3, 5)}-${clean.slice(5)}`;
+            }
+            return val;
+        }
+
         function openBizVerifyModal(forceForm = false) {
             const modal = document.getElementById('biz-verify-modal');
             if (!modal) return;
 
             const isCreator = isMasterCreator();
-            const cachedName = localStorage.getItem("verified_biz_name") || (isCreator ? "일원학원 주식회사" : "일원학원");
-            const cachedNo = localStorage.getItem("verified_biz_no") || (isCreator ? "120-88-02498" : "120-88-02498");
-            const cachedOwner = localStorage.getItem("verified_biz_owner") || (isCreator ? "대표 원장" : "대표 원장");
+            // 보안 원칙: 대표님(1286orbital21@gmail.com) 본인에게만 실제 사업자 정보가 바인딩되며, 일반 사용자에게는 절대 노출되지 않음
+            const cachedName = localStorage.getItem("verified_biz_name") || (isCreator ? "일원학원 주식회사" : "");
+            const cachedNo = localStorage.getItem("verified_biz_no") || (isCreator ? "225-88-03185" : "");
+            const cachedOwner = localStorage.getItem("verified_biz_owner") || (isCreator ? "김철훈" : "");
 
-            // 폼 필드 사전 입력 (pre-fill)
+            // 폼 필드 사전 입력 (본인 정보 또는 본인이 인증한 정보만 pre-fill)
             const inputName = document.getElementById('input-biz-name');
             const inputNo = document.getElementById('input-biz-no');
             const inputOwner = document.getElementById('input-biz-owner');
             if (inputName) inputName.value = cachedName;
-            if (inputNo) inputNo.value = cachedNo;
+            if (inputNo) inputNo.value = cachedNo ? formatBizRegNo(cachedNo) : '';
             if (inputOwner) inputOwner.value = cachedOwner;
 
             // 이미 인증된 상태인지 판별 (로컬스토리지에 저장되어 있거나 마스터 제작자인 경우)
-            const isVerified = Boolean(localStorage.getItem("verified_biz_name")) || isCreator;
+            const isVerified = Boolean(cachedName) && (Boolean(localStorage.getItem("verified_biz_name")) || isCreator);
 
             if (isVerified && !forceForm) {
                 // 인증 완료 사업장 관제실 뷰 표시
@@ -3304,7 +3315,7 @@ async function refreshUnifiedOrbitStatus() {
                 const elNo = document.getElementById('biz-view-no');
                 const elOwner = document.getElementById('biz-view-owner');
                 if (elName) elName.innerText = cachedName;
-                if (elNo) elNo.innerText = cachedNo;
+                if (elNo) elNo.innerText = formatBizRegNo(cachedNo);
                 if (elOwner) elOwner.innerText = cachedOwner;
 
                 switchBizModalView('VERIFIED');
