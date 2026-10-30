@@ -118,6 +118,61 @@
             display: none !important;
         }
 
+        /* 🌌 12대 전 생애 시계 은하계 & 줌/팬 인터랙션 스타일 */
+        .orbit-zoom-stage {
+            transform-origin: center center;
+            transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform;
+        }
+        .orbit-zoom-stage.is-dragging {
+            transition: none !important;
+        }
+        .galaxy-clock-ring {
+            stroke: rgba(99, 102, 241, 0.18);
+            stroke-width: 1.5;
+            fill: none;
+        }
+        .galaxy-clock-ring-outer {
+            stroke: rgba(148, 163, 184, 0.1);
+            stroke-width: 1;
+            fill: none;
+        }
+        .clock-product-node {
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .clock-product-node:hover {
+            transform: scale(1.1);
+            z-index: 45 !important;
+        }
+        .clock-product-node.is-focused {
+            transform: scale(1.18);
+            z-index: 50 !important;
+            filter: drop-shadow(0 0 25px rgba(99, 102, 241, 0.85));
+        }
+        .satellite-sub-node {
+            transition: all 0.25s ease;
+            opacity: 0.9;
+        }
+        .clock-product-node:hover ~ .satellite-sub-node,
+        .clock-product-node.is-focused ~ .satellite-sub-node {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        .orbit-toolbar-btn {
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(51, 65, 85, 0.8);
+            color: #cbd5e1;
+            transition: all 0.2s ease;
+        }
+        .orbit-toolbar-btn:hover {
+            background: rgba(30, 41, 59, 0.98);
+            border-color: rgba(99, 102, 241, 0.8);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
         body:not(.is-creator) #orbit-node-pass-container {
             width: 140px;
         }
@@ -210,213 +265,125 @@
             </div>
         </div>
 
-        <!-- 인터랙티브 자기중심 시각적 관계도 다이어그램 -->
-        <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+        <!-- 인터랙티브 자기중심 시각적 관계도 다이어그램 (12대 전 생애 시계 은하계 & 줌/팬 반응형 캔버스) -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl relative overflow-hidden">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
                 <div>
                     <h3 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
                         <span class="material-symbols-rounded text-indigo-400 text-xl">explore</span>
-                        <span>실시간 입시 관제 오빗 (Ego-centric Live Orbit Map)</span>
+                        <span id="orbit-view-title">인간 100세 전 생애 12대 MATE 시계 궤도망 (12-Clock Galactic Orbit)</span>
                     </h3>
-                    <p class="text-[11px] text-slate-400 mt-0.5">수험생 본인과 실제 연동된 입시 관제망만 궤도에 활성화됩니다. 미연동 시 '+ 추가'를 눌러 가동하세요.</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5" id="orbit-view-subtitle">
+                        마우스 휠 스크롤로 12개 제품군 전체 은하를 한눈에 보거나, 개별 제품을 클릭하여 3개 위성 노드에 집중할 수 있습니다.
+                    </p>
                 </div>
                 <div class="flex items-center gap-2 text-xs flex-wrap sm:flex-nowrap">
-                    <span class="inline-flex items-center gap-1.5 text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full whitespace-nowrap" id="orbit-status-pass">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                        <span>PASS-MATE</span>
+                    <!-- 12대 은하 뷰 ⇄ 단일 입시 뷰 모드 토글 -->
+                    <button type="button" id="btn-toggle-orbit-mode" onclick="toggleOrbitMode()" class="px-3 py-1.5 rounded-xl text-xs font-black bg-gradient-to-r from-amber-500/20 via-indigo-500/20 to-purple-500/20 hover:from-amber-500/30 hover:to-purple-500/30 text-amber-300 border border-amber-500/40 shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                        <span class="material-symbols-rounded text-sm text-amber-400">schedule</span>
+                        <span id="btn-toggle-orbit-text">🌌 12대 전 생애 은하 궤도망</span>
+                    </button>
+                    <span class="inline-flex items-center gap-1.5 text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full whitespace-nowrap cursor-pointer hover:bg-emerald-500/20 transition" onclick="focusClockProduct('pass')">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                        <span>PASS-MATE (1시)</span>
                     </span>
-                    <span class="creator-only-inline-flex inline-flex items-center gap-1.5 text-pink-400 bg-pink-500/10 border border-pink-500/20 px-2.5 py-1 rounded-full whitespace-nowrap" id="orbit-status-silver">
+                    <span class="creator-only-inline-flex inline-flex items-center gap-1.5 text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-full whitespace-nowrap cursor-pointer hover:bg-amber-500/20 transition" onclick="focusClockProduct('biz')">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                        <span>BIZ-MATE (8시)</span>
+                    </span>
+                    <span class="creator-only-inline-flex inline-flex items-center gap-1.5 text-pink-400 bg-pink-500/10 border border-pink-500/20 px-2.5 py-1 rounded-full whitespace-nowrap cursor-pointer hover:bg-pink-500/20 transition" onclick="focusClockProduct('silver')">
                         <span class="w-1.5 h-1.5 rounded-full bg-pink-500"></span>
-                        <span>SILVER-MATE</span>
+                        <span>SILVER-MATE (10시)</span>
                     </span>
                 </div>
             </div>
 
-            <!-- SVG & 우주 노드 관계도 캔버스 (모바일 겹침 100% 방지 컴팩트 궤도) -->
-            <div id="orbit-canvas-wrapper" class="relative w-full min-h-[460px] sm:min-h-[520px] bg-slate-950/80 rounded-2xl border border-slate-800/80 flex items-center justify-center p-2 sm:p-4 overflow-hidden">
-                <!-- ⚡ 실시간 3자 궤도 에너지 연결 빔 (SVG Connective Light Beams: 미연동 시 100% 완전 소거) -->
-                <svg id="orbit-beam-svg" class="absolute inset-0 w-full h-full pointer-events-none z-10" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <filter id="glow-emerald" x="-20%" y="-20%" width="140%" height="140%">
-                            <feGaussianBlur stdDeviation="3" result="blur" />
-                            <feMerge>
-                                <feMergeNode in="blur" />
-                                <feMergeNode in="SourceGraphic" />
-                            </feMerge>
-                        </filter>
-                        <filter id="glow-indigo" x="-20%" y="-20%" width="140%" height="140%">
-                            <feGaussianBlur stdDeviation="3" result="blur" />
-                            <feMerge>
-                                <feMergeNode in="blur" />
-                                <feMergeNode in="SourceGraphic" />
-                            </feMerge>
-                        </filter>
-                        <filter id="glow-amber" x="-20%" y="-20%" width="140%" height="140%">
-                            <feGaussianBlur stdDeviation="3" result="blur" />
-                            <feMerge>
-                                <feMergeNode in="blur" />
-                                <feMergeNode in="SourceGraphic" />
-                            </feMerge>
-                        </filter>
-                    </defs>
-                    <!-- 빔 1: 중앙(PASS-MATE) ⇄ 좌측(나 / Me) -->
-                    <path id="svg-beam-user" d="" fill="none" class="beam-inactive" />
-                    <!-- 빔 2: 중앙(PASS-MATE) ⇄ 우측(가족 안심망) -->
-                    <path id="svg-beam-parent" d="" fill="none" class="beam-inactive" />
-                    <!-- 빔 3: 중앙(PASS-MATE) ⇄ 상단(교육기관망) -->
-                    <path id="svg-beam-academy" d="" fill="none" class="beam-inactive" />
-                </svg>
-
-                <!-- 은은한 배경 동심원 궤도선 -->
-                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div class="w-[200px] h-[200px] sm:w-[280px] sm:h-[280px] md:w-[320px] md:h-[320px] rounded-full border border-indigo-500/10"></div>
-                    <div class="absolute w-[320px] h-[320px] sm:w-[440px] sm:h-[440px] md:w-[540px] md:h-[540px] rounded-full border border-slate-900/60"></div>
+            <!-- SVG & 우주 노드 관계도 캔버스 (반응형 줌/팬 & 12대 제품 시계 궤도망) -->
+            <div id="orbit-canvas-wrapper" class="relative w-full min-h-[580px] sm:min-h-[660px] md:min-h-[740px] bg-slate-950/95 rounded-3xl border border-slate-800/80 flex items-center justify-center p-2 sm:p-4 overflow-hidden select-none cursor-grab active:cursor-grabbing">
+                
+                <!-- 플로팅 온스크린 줌 컨트롤 툴바 (우측 상단) -->
+                <div class="absolute top-4 right-4 z-40 flex items-center gap-1.5 bg-slate-900/90 backdrop-blur-md p-1.5 rounded-2xl border border-slate-700/80 shadow-2xl">
+                    <button type="button" onclick="zoomOrbit(0.15)" class="orbit-toolbar-btn w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold cursor-pointer" title="확대 (Zoom In)">
+                        <span class="material-symbols-rounded text-base">zoom_in</span>
+                    </button>
+                    <button type="button" onclick="zoomOrbit(-0.15)" class="orbit-toolbar-btn w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold cursor-pointer" title="축소 (Zoom Out)">
+                        <span class="material-symbols-rounded text-base">zoom_out</span>
+                    </button>
+                    <div class="w-px h-5 bg-slate-800 mx-0.5"></div>
+                    <button type="button" onclick="zoomOrbitToFit()" class="orbit-toolbar-btn px-2.5 h-8 rounded-xl flex items-center gap-1 text-[11px] font-bold cursor-pointer" title="12개 제품군 전체 은하 조망">
+                        <span class="material-symbols-rounded text-sm text-indigo-400">fit_screen</span>
+                        <span class="hidden sm:inline">12대 은하 전체조망</span>
+                    </button>
+                    <button type="button" onclick="resetOrbitZoom()" class="orbit-toolbar-btn px-2.5 h-8 rounded-xl flex items-center gap-1 text-[11px] font-bold cursor-pointer" title="나(Me) 중심 1.0x 리셋">
+                        <span class="material-symbols-rounded text-sm text-emerald-400">my_location</span>
+                        <span class="hidden sm:inline">나(Me) 리셋</span>
+                    </button>
+                    <span id="zoom-level-badge" class="text-[10px] font-mono text-slate-400 px-2 py-0.5 rounded bg-slate-950/60 border border-slate-800 hidden sm:inline-block">100%</span>
                 </div>
 
-                <!-- 🟢 [정중앙 코어 노드]: PASS-MATE (초·중·고 학업 & 대입 관제 OS) -->
-                <div id="core-node-pass" onclick="handlePassmateNodeClick(true)" class="relative z-20 flex flex-col items-center cursor-pointer group">
-                    <div class="w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 p-0.5 sm:p-1.5 shadow-[0_0_40px_rgba(16,185,129,0.55)] flex items-center justify-center animate-pulse group-hover:scale-105 transition-transform duration-300">
-                        <div class="w-full h-full rounded-full bg-slate-950 flex flex-col items-center justify-center">
-                            <span class="material-symbols-rounded text-2xl sm:text-3xl md:text-4xl text-emerald-400">school</span>
-                            <span class="text-[9.5px] sm:text-[12px] font-black text-white tracking-tight">PASS-MATE</span>
-                        </div>
-                    </div>
-                    <div class="mt-1.5 sm:mt-2 text-center">
-                        <span class="text-[8.5px] sm:text-[10.5px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 whitespace-nowrap">
-                            입시 관제 OS
-                        </span>
-                        <div class="text-[8.5px] sm:text-[10px] text-emerald-400 font-bold mt-0.5 hidden sm:block">클릭 시 대시보드 입장 ↗</div>
-                    </div>
+                <!-- 특정 제품 포커스 시 나타나는 '전체 은하로 복귀' 플로팅 배너 -->
+                <div id="orbit-focus-banner" style="display: none;" class="absolute top-4 left-4 z-40 flex items-center gap-2 bg-indigo-950/90 border border-indigo-500/60 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-2xl">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span id="orbit-focus-target-name" class="text-xs font-black text-white">PASS-MATE 집중 관제 모드</span>
+                    <button type="button" onclick="zoomOrbitToFit()" class="ml-2 px-2.5 py-1 rounded-lg text-[10px] font-black bg-indigo-600 hover:bg-indigo-500 text-white transition flex items-center gap-1 cursor-pointer">
+                        <span class="material-symbols-rounded text-xs">arrow_back</span>
+                        <span>12대 전체 은하 복귀</span>
+                    </button>
                 </div>
 
-                <!-- 👤 [좌측 노드]: 나 (Me / 고유 접속 계정) - 모바일 초미니멀 캡슐 / 데스크톱 상세 카드 -->
-                <div id="orbit-node-user-me" onclick="handleUserNodeClick()" class="absolute left-3 sm:left-6 md:left-14 top-1/2 -translate-y-1/2 z-20 w-auto sm:w-[175px] md:w-[205px] cursor-pointer group">
-                    <div id="user-me-card-box" class="bg-slate-900/95 hover:bg-slate-900 border-2 border-emerald-500/70 hover:border-emerald-400 p-1.5 sm:p-3.5 rounded-2xl shadow-xl transition-all transform hover:-translate-y-1 flex flex-col items-center sm:block">
-                        <!-- 모바일 전용 초미니멀 뷰 (< sm) -->
-                        <div class="sm:hidden flex flex-col items-center py-1">
-                            <div class="w-12 h-12 rounded-full bg-slate-950 border-2 border-emerald-500/60 flex items-center justify-center relative shadow-[0_0_20px_rgba(16,185,129,0.35)]">
-                                <span class="material-symbols-rounded text-2xl text-emerald-400">person</span>
-                                <span class="absolute top-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" id="user-me-pulse-dot-m"></span>
-                            </div>
-                            <span class="text-[11px] font-black text-white bg-slate-900/90 px-2.5 py-0.5 rounded-full border border-emerald-500/40 mt-1 shadow tracking-tight">나</span>
-                        </div>
-
-                        <!-- 데스크톱 상세 카드 (sm:block) -->
-                        <div class="hidden sm:block">
-                            <div class="flex items-center justify-between mb-1.5">
-                                <span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
-                                    <span class="material-symbols-rounded text-[11px]">person</span>
-                                    <span>나 (Me)</span>
-                                </span>
-                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping" id="user-me-pulse-dot"></span>
-                            </div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black shrink-0">
-                                    <span class="material-symbols-rounded text-base">account_circle</span>
-                                </span>
-                                <div class="min-w-0">
-                                    <div class="text-xs font-black text-white group-hover:text-emerald-300 transition truncate" id="hub-user-name">나 (수험생)</div>
-                                    <div class="text-[9.5px] text-slate-400 truncate" id="hub-user-role">수험생 본인</div>
-                                </div>
-                            </div>
-                            <div class="text-[10px] text-slate-300 leading-snug mb-2">
-                                순공 타이머 &amp; 맞춤 대입 등대 가동 계정
-                            </div>
-                            <div class="flex items-center justify-between pt-1 border-t border-slate-800">
-                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/30" id="user-me-badge">계정 연결됨</span>
-                                <span class="text-[10px] font-extrabold text-emerald-400 flex items-center gap-0.5">
-                                    <span>내 정보 ↗</span>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+                <!-- 조작 가이드 안내 뱃지 (하단 좌측) -->
+                <div class="absolute bottom-4 left-4 z-30 pointer-events-none hidden sm:flex items-center gap-2 bg-slate-900/80 backdrop-blur border border-slate-800/80 px-3.5 py-1.5 rounded-full text-[10.5px] text-slate-300">
+                    <span class="material-symbols-rounded text-sm text-indigo-400">mouse</span>
+                    <span>휠 스크롤: 줌 인/아웃 · 드래그: 은하 이동 · 제품 클릭: 3개 위성 노드 집중 뷰</span>
                 </div>
 
-                <!-- 👨‍👩‍👧 [우측 노드]: 가족 안심망 (학부모) - 모바일 초미니멀 캡슐 / 데스크톱 상세 카드 -->
-                <div id="triad-satellite-1" onclick="openParentSyncModal()" class="absolute right-3 sm:right-6 md:right-14 top-1/2 -translate-y-1/2 z-20 w-auto sm:w-[175px] md:w-[205px] cursor-pointer group">
-                    <div id="sat1-card-box" class="bg-slate-900/95 hover:bg-slate-900 border-2 border-slate-700/80 p-1.5 sm:p-3.5 rounded-2xl shadow-xl transition-all transform hover:-translate-y-1 flex flex-col items-center sm:block node-unlinked-dim">
-                        <!-- 모바일 전용 초미니멀 뷰 (< sm) -->
-                        <div class="sm:hidden flex flex-col items-center py-1">
-                            <div class="w-12 h-12 rounded-full bg-slate-950 border-2 border-indigo-500/50 flex items-center justify-center relative shadow-[0_0_20px_rgba(99,102,241,0.25)]">
-                                <span class="material-symbols-rounded text-2xl text-indigo-400" id="sat1-icon-m">family_restroom</span>
-                                <span class="absolute top-0 right-0 w-2.5 h-2.5 rounded-full bg-slate-600" id="sat1-pulse-dot-m"></span>
-                            </div>
-                            <span class="text-[11px] font-black text-white bg-slate-900/90 px-2.5 py-0.5 rounded-full border border-indigo-500/40 mt-1 shadow tracking-tight">부모</span>
-                        </div>
-
-                        <!-- 데스크톱 상세 카드 (sm:block) -->
-                        <div class="hidden sm:block">
-                            <div class="flex items-center justify-between mb-1.5">
-                                <span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 flex items-center gap-1">
-                                    <span class="material-symbols-rounded text-[11px]">family_restroom</span>
-                                    <span>가족 안심망</span>
-                                </span>
-                                <span class="w-2 h-2 rounded-full bg-slate-600" id="sat1-pulse-dot"></span>
-                            </div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-black shrink-0">
-                                    <span class="material-symbols-rounded text-base" id="sat1-icon">family_restroom</span>
-                                </span>
-                                <div class="min-w-0">
-                                    <div class="text-xs font-black text-white group-hover:text-indigo-300 transition truncate" id="sat1-title">가족 안심망</div>
-                                    <div class="text-[9.5px] text-slate-400 truncate" id="sat1-role-sub">학부모 리포트</div>
-                                </div>
-                            </div>
-                            <div class="text-[10px] text-slate-300 leading-snug mb-2" id="sat1-desc">
-                                실시간 순공 시간표 &amp; 맞춤 대입 컨설팅 공유
-                            </div>
-                            <div class="flex items-center justify-between pt-1 border-t border-slate-800">
-                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 border border-slate-700" id="sat1-badge">미연동 (+초대)</span>
-                                <span class="text-[10px] font-extrabold text-indigo-400 flex items-center gap-0.5">
-                                    <span>관리 ↗</span>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+                <!-- 하단 텔레메트리 캡슐 -->
+                <div class="absolute bottom-4 right-4 z-30 pointer-events-none hidden md:flex items-center gap-2 bg-slate-900/80 backdrop-blur border border-slate-800 px-3.5 py-1.5 rounded-full text-[10.5px] text-slate-300 shadow">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>PALIN 12대 전 생애 주기 관제망 가동 중</span>
                 </div>
 
-                <!-- 🏫 [상단 노드]: 교육기관망 (학원 · 독서실) - 모바일 초미니멀 캡슐 / 데스크톱 상세 카드 -->
-                <div id="triad-satellite-2" onclick="openAcademySyncModal()" class="absolute top-3 sm:top-5 left-1/2 -translate-x-1/2 z-10 cursor-pointer group">
-                    <div id="sat2-card-box" class="bg-slate-900/95 hover:bg-slate-900 border-2 border-slate-700/80 p-1.5 sm:px-4 sm:py-2.5 rounded-2xl sm:rounded-xl text-center shadow-lg transition-all flex flex-col sm:flex-row items-center gap-1 sm:gap-2.5 transform hover:-translate-y-0.5 node-unlinked-dim">
-                        <!-- 모바일 전용 초미니멀 뷰 (< sm) -->
-                        <div class="sm:hidden flex flex-col items-center py-1">
-                            <div class="w-12 h-12 rounded-full bg-slate-950 border-2 border-amber-500/50 flex items-center justify-center relative shadow-[0_0_20px_rgba(245,158,11,0.25)]">
-                                <span class="material-symbols-rounded text-2xl text-amber-400" id="sat2-icon-m">domain</span>
-                                <span class="absolute top-0 right-0 w-2.5 h-2.5 rounded-full bg-slate-600" id="sat2-pulse-dot-m"></span>
-                            </div>
-                            <span class="text-[11px] font-black text-white bg-slate-900/90 px-2.5 py-0.5 rounded-full border border-amber-500/40 mt-1 shadow tracking-tight">학원</span>
-                        </div>
+                <!-- 🌌 [ZOOM & PAN INTERACTIVE STAGE]: 마우스 휠과 드래그에 반응하는 인터랙티브 스테이지 -->
+                <div id="orbit-zoom-stage" class="orbit-zoom-stage absolute inset-0 w-full h-full flex items-center justify-center">
+                    
+                    <!-- SVG 연결 빔 및 궤도선 (스테이지 내부에서 1:1 완벽 동기화 줌/팬) -->
+                    <svg id="orbit-galaxy-svg" class="absolute w-[1600px] h-[1600px] pointer-events-none" viewBox="-800 -800 1600 1600" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <filter id="glow-neon-emerald" x="-30%" y="-30%" width="160%" height="160%">
+                                <feGaussianBlur stdDeviation="4" result="blur" />
+                                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                            </filter>
+                            <filter id="glow-neon-amber" x="-30%" y="-30%" width="160%" height="160%">
+                                <feGaussianBlur stdDeviation="4" result="blur" />
+                                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                            </filter>
+                            <filter id="glow-neon-pink" x="-30%" y="-30%" width="160%" height="160%">
+                                <feGaussianBlur stdDeviation="4" result="blur" />
+                                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                            </filter>
+                            <filter id="glow-neon-indigo" x="-30%" y="-30%" width="160%" height="160%">
+                                <feGaussianBlur stdDeviation="4" result="blur" />
+                                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                            </filter>
+                        </defs>
 
-                        <!-- 데스크톱 상세 카드 (sm:flex) -->
-                        <div class="hidden sm:flex items-center gap-2.5">
-                            <div class="flex items-center gap-1.5">
-                                <span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1">
-                                    <span class="material-symbols-rounded text-[11px]">domain</span>
-                                    <span>교육기관망</span>
-                                </span>
-                                <span class="material-symbols-rounded text-base text-amber-400" id="sat2-icon">domain</span>
-                            </div>
-                            <div class="text-left">
-                                <div class="text-[11px] font-black text-white flex items-center gap-1.5">
-                                    <span id="sat2-title">소속 학원 · 독서실</span>
-                                    <span class="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.2 rounded border border-slate-700 font-bold" id="sat2-badge">미등록 (+코드)</span>
-                                </div>
-                                <div class="text-[9.5px] text-slate-400" id="sat2-desc">출결 · 자습 좌석 · 수납 고지 연동</div>
-                            </div>
-                            <span class="w-2 h-2 rounded-full bg-slate-600 ml-1" id="sat2-pulse-dot"></span>
-                        </div>
-                    </div>
-                </div>
+                        <!-- 은은한 동심원 배경 궤도선들 (160px, 285px 메인 12시계 궤도, 365px 외곽 위성 궤도) -->
+                        <circle cx="0" cy="0" r="160" class="galaxy-clock-ring" />
+                        <circle cx="0" cy="0" r="285" class="galaxy-clock-ring" stroke-dasharray="6 8" />
+                        <circle cx="0" cy="0" r="365" class="galaxy-clock-ring-outer" stroke-dasharray="3 5" />
 
-                <!-- 📡 하단 텔레메트리 캡슐: 실시간 3자 궤도망 가동 현황 (모바일 완벽 1줄 유지) -->
-                <div class="absolute bottom-3 sm:bottom-5 left-1/2 -translate-x-1/2 z-10 pointer-events-none w-full px-4 flex justify-center">
-                    <div class="bg-slate-900/90 backdrop-blur border border-slate-800 px-3 sm:px-4 py-1.5 rounded-full text-center flex items-center justify-center gap-2 shadow-lg max-w-[95%]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping flex-shrink-0"></span>
-                        <span class="text-[9px] sm:text-[10.5px] text-slate-300 font-bold tracking-tight whitespace-nowrap overflow-hidden text-ellipsis">
-                            <span class="sm:hidden">수험생 ⇄ PASS-MATE ⇄ 부모님 ⇄ 교육기관 연동 중</span>
-                            <span class="hidden sm:inline">수험생 ⇄ PASS-MATE ⇄ 부모님 ⇄ 교육기관 3자 실시간 텔레메트리 가동 중</span>
-                        </span>
+                        <!-- 중앙 ⇄ 12대 제품 연결 빔 그룹 -->
+                        <g id="svg-galaxy-beams"></g>
+
+                        <!-- 각 제품 ⇄ 3개 위성 노드 연결 빔 그룹 -->
+                        <g id="svg-satellite-beams"></g>
+                    </svg>
+
+                    <!-- 🌌 12대 제품 및 서브 위성 노드들이 동적으로 렌더링되는 DOM 컨테이너 -->
+                    <div id="orbit-galaxy-dom" class="absolute w-0 h-0 flex items-center justify-center">
+                        <!-- JS initClockGalaxy()에 의해 중앙 나(Me) 노드 및 12개 시계방향 노드 + 36개 위성 엔티티가 자동 렌더링됨 -->
                     </div>
+
                 </div>
 
             </div>
@@ -425,45 +392,325 @@
         <!-- 3. 듀얼 빠른 관제 덱 (PASS-MATE ⇄ SILVER-MATE 원클릭 스위칭 덱) -->
         <div id="dual-control-deck" class="grid grid-cols-1 md:grid-cols-2 gap-6">
             
-            <!-- 카드 A: PASS-MATE 관제 데스크 -->
-            <div id="card-pass-deck" class="bg-gradient-to-br from-emerald-950/40 via-slate-900 to-slate-900 border-2 border-emerald-500/40 rounded-2xl p-6 shadow-xl relative overflow-hidden flex flex-col justify-between transition-all duration-300">
+            <!-- 카드 A: PASS-MATE 초정밀 관제 데스크 (3대 페르소나 1초 HUD 탑재) -->
+            <div id="card-pass-deck" class="bg-gradient-to-br from-emerald-950/40 via-slate-900 to-slate-900 border-2 border-emerald-500/40 rounded-3xl p-6 md:p-7 shadow-2xl relative overflow-hidden flex flex-col justify-between transition-all duration-300">
                 <div>
-                    <div class="flex justify-between items-start mb-4">
+                    <!-- 카드 상단 헤더 -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-                                <span class="material-symbols-rounded text-xl">school</span>
+                            <div class="w-11 h-11 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 shadow-lg shadow-emerald-900/30">
+                                <span class="material-symbols-rounded text-2xl">school</span>
                             </div>
                             <div>
-                                <div class="text-xs font-extrabold text-emerald-400">초·중·고 학업 & 대입 관제 OS</div>
-                                <h3 class="text-xl font-black text-white">PASS-MATE</h3>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-black text-emerald-400 uppercase tracking-wide">초·중·고 학업 &amp; 대입 관제 OS</span>
+                                    <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">1시 방향</span>
+                                </div>
+                                <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+                                    <span>PASS-MATE</span>
+                                    <span class="text-xs font-bold text-slate-400">1초 즉시 관제 HUD</span>
+                                </h3>
                             </div>
                         </div>
-                        <span id="deck-pass-badge" class="text-xs font-black px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                            ACTIVE LIVE
+                        <span id="deck-pass-badge" class="text-xs font-black px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5 shadow-sm">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span>ACTIVE LIVE</span>
                         </span>
                     </div>
+
                     <p class="text-xs text-slate-300 mb-4 leading-relaxed">
-                        초·중·고 학업 루틴, 순공 시간 타이머, 실시간 내신/수능 목표 대학 맞춤 대입 등대(컨설팅)가 가동 중입니다.
+                        굳이 PASS-MATE에 로그인하거나 세부 메뉴에 들어가지 않아도, <strong>학생</strong>, <strong>학부모</strong>, <strong>학원장</strong>에게 가장 중요한 핵심 관제 지표를 1초 만에 한눈에 확인합니다.
                     </p>
-                    <div class="grid grid-cols-3 gap-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800 mb-5 text-center">
-                        <div>
-                            <div class="text-[10px] text-slate-400 font-bold">연동 상태</div>
-                            <div class="text-sm font-black text-emerald-400" id="deck-pass-status-text">학습 측정 중</div>
+
+                    <!-- 3대 페르소나 원클릭 관제 탭 스위처 -->
+                    <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-950/80 rounded-2xl border border-slate-800 mb-5">
+                        <button type="button" id="tab-pass-student" onclick="setPassDeckPersona('STUDENT')" class="py-2 px-2.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-lg shadow-emerald-950/50 cursor-pointer">
+                            <span class="material-symbols-rounded text-sm">school</span>
+                            <span class="truncate">🎓 학생(수험생)</span>
+                        </button>
+                        <button type="button" id="tab-pass-parent" onclick="setPassDeckPersona('PARENT')" class="py-2 px-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <span class="material-symbols-rounded text-sm">family_restroom</span>
+                            <span class="truncate">🏡 학부모</span>
+                        </button>
+                        <button type="button" id="tab-pass-director" onclick="setPassDeckPersona('DIRECTOR')" class="py-2 px-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <span class="material-symbols-rounded text-sm">domain</span>
+                            <span class="truncate">🏫 학원장</span>
+                        </button>
+                    </div>
+
+                    <!-- 🎓 1. 수험생(학생) 뷰 -->
+                    <div id="persona-view-student" class="space-y-3.5">
+                        <!-- 1) 오늘 순공 시간 -->
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-extrabold text-slate-300 flex items-center gap-1.5">
+                                    <span class="material-symbols-rounded text-emerald-400 text-base">timer</span>
+                                    <span>오늘 순공 시간</span>
+                                </span>
+                                <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                                    <span>실시간 타이머 가동 중</span>
+                                </span>
+                            </div>
+                            <div class="flex items-baseline justify-between mb-2">
+                                <div class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                                    6<span class="text-sm font-bold text-slate-400">시간</span> 42<span class="text-sm font-bold text-slate-400">분</span>
+                                </div>
+                                <div class="text-xs font-bold text-emerald-400">
+                                    목표 8시간 중 <strong class="text-sm font-black">84%</strong> 달성
+                                </div>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                                <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-2.5 rounded-full shadow-[0_0_12px_rgba(16,185,129,0.7)]" style="width: 84%"></div>
+                            </div>
+                            <div class="mt-2 text-[10.5px] text-slate-400 flex items-center justify-between">
+                                <span>전국 수험생 상위 3% 순공 페이스</span>
+                                <span class="text-slate-300 font-bold">주간 누적 41h 15m</span>
+                            </div>
                         </div>
-                        <div>
-                            <div class="text-[10px] text-slate-400 font-bold">입시 경로</div>
-                            <div class="text-sm font-black text-white">대입 등대</div>
+
+                        <!-- 2) 목표대학 거리 (4단계: 안정 / 적정 / 소신 / 위험) -->
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4">
+                            <div class="flex items-center justify-between mb-2.5">
+                                <span class="text-xs font-extrabold text-slate-300 flex items-center gap-1.5">
+                                    <span class="material-symbols-rounded text-indigo-400 text-base">near_me</span>
+                                    <span>실시간 목표대학 거리 (내신+수능 예측)</span>
+                                </span>
+                                <span class="text-[10px] text-slate-400 font-medium">대입 등대 연동</span>
+                            </div>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                <!-- 안정 -->
+                                <div class="bg-emerald-950/30 border border-emerald-500/40 p-2.5 rounded-xl text-center">
+                                    <div class="text-[10px] font-black text-emerald-400 mb-0.5">안정 (98.4%)</div>
+                                    <div class="text-xs font-black text-white truncate">연세대</div>
+                                    <div class="text-[10px] text-slate-400 truncate">국어국문</div>
+                                </div>
+                                <!-- 적정 -->
+                                <div class="bg-indigo-950/30 border border-indigo-500/40 p-2.5 rounded-xl text-center">
+                                    <div class="text-[10px] font-black text-indigo-400 mb-0.5">적정 (96.2%)</div>
+                                    <div class="text-xs font-black text-white truncate">서울대</div>
+                                    <div class="text-[10px] text-slate-400 truncate">인문계열</div>
+                                </div>
+                                <!-- 소신 -->
+                                <div class="bg-amber-950/30 border border-amber-500/40 p-2.5 rounded-xl text-center">
+                                    <div class="text-[10px] font-black text-amber-300 mb-0.5">소신 (94.8%)</div>
+                                    <div class="text-xs font-black text-white truncate">고려대</div>
+                                    <div class="text-[10px] text-slate-400 truncate">경영대학</div>
+                                </div>
+                                <!-- 위험 -->
+                                <div class="bg-rose-950/30 border border-rose-500/40 p-2.5 rounded-xl text-center">
+                                    <div class="text-[10px] font-black text-rose-400 mb-0.5">위험 (91.0%)</div>
+                                    <div class="text-xs font-black text-white truncate">가톨릭대</div>
+                                    <div class="text-[10px] text-slate-400 truncate">의예과</div>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <div class="text-[10px] text-slate-400 font-bold">목표 진단</div>
-                            <div class="text-sm font-black text-indigo-400">실시간 연동</div>
+
+                        <!-- 3) 중요 일정 디데이 -->
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-extrabold text-slate-300 flex items-center gap-1.5">
+                                    <span class="material-symbols-rounded text-amber-400 text-base">calendar_clock</span>
+                                    <span>중요 시험 &amp; 입시 D-Day</span>
+                                </span>
+                                <span class="text-[10px] text-slate-400 font-bold">2026학년도</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 text-center">
+                                <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
+                                    <div class="text-[10px] text-slate-400 truncate">수학능력시험</div>
+                                    <div class="text-sm sm:text-base font-black text-rose-400 mt-0.5">D-14</div>
+                                </div>
+                                <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
+                                    <div class="text-[10px] text-slate-400 truncate">11월 전국모평</div>
+                                    <div class="text-sm sm:text-base font-black text-amber-300 mt-0.5">D-3</div>
+                                </div>
+                                <div class="bg-slate-900 border border-slate-800 p-2 rounded-xl">
+                                    <div class="text-[10px] text-slate-400 truncate">2학기 기말고사</div>
+                                    <div class="text-sm sm:text-base font-black text-emerald-400 mt-0.5">D-42</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- 🏡 2. 학부모 뷰 -->
+                    <div id="persona-view-parent" style="display: none;" class="space-y-3.5">
+                        <!-- 1) 자녀 실시간 순공시간 -->
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-extrabold text-slate-300 flex items-center gap-1.5">
+                                    <span class="material-symbols-rounded text-indigo-400 text-base">person</span>
+                                    <span>자녀 실시간 학습 현황</span>
+                                </span>
+                                <span class="text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/30 flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                                    <span>실시간 순공 측정 중</span>
+                                </span>
+                            </div>
+                            <div class="flex items-baseline justify-between mb-1.5">
+                                <div class="text-lg sm:text-xl font-black text-white">
+                                    김철수 수험생 <span class="text-sm font-semibold text-slate-400">(고3)</span>
+                                </div>
+                                <div class="text-xl sm:text-2xl font-black text-emerald-400">
+                                    6<span class="text-xs font-bold text-slate-400">h</span> 42<span class="text-xs font-bold text-slate-400">m</span>
+                                </div>
+                            </div>
+                            <p class="text-[11px] text-slate-300 bg-slate-900/90 border border-slate-800 p-2.5 rounded-xl">
+                                💡 현재 일원학원 대치본원 자습실에서 <strong>수학 킬러 문항 기출 분석</strong> 중입니다. 오늘 집중도 지수: <strong>94점 (매우 우수)</strong>
+                            </p>
+                        </div>
+
+                        <!-- 2) 학원 등원 여부 -->
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-extrabold text-slate-300 flex items-center gap-1.5">
+                                    <span class="material-symbols-rounded text-emerald-400 text-base">where_to_vote</span>
+                                    <span>학원 · 독서실 등원 여부</span>
+                                </span>
+                                <span class="text-[10px] font-black text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/40">
+                                    정상 등원 완료
+                                </span>
+                            </div>
+                            <div class="bg-slate-900/90 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black">
+                                        <span class="material-symbols-rounded text-base">domain</span>
+                                    </span>
+                                    <div>
+                                        <div class="text-xs font-black text-white">일원학원 대치본원</div>
+                                        <div class="text-[10px] text-slate-400">수학 실전계속반</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xs font-black text-emerald-400">18:25 등원 확인</div>
+                                    <div class="text-[9.5px] text-slate-500">안심 문자 발송 완료</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3) 결제 예정일 다가오는 학원/독서실 건수 -->
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-extrabold text-slate-300 flex items-center gap-1.5">
+                                    <span class="material-symbols-rounded text-amber-400 text-base">receipt_long</span>
+                                    <span>수납 고지 및 결제 예정일</span>
+                                </span>
+                                <span class="text-[10px] font-black text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-500/40">
+                                    2건 청구 예정
+                                </span>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="bg-slate-900/90 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between text-xs">
+                                    <div>
+                                        <div class="font-bold text-white">일원학원 11월 수강료 (실전계속반)</div>
+                                        <div class="text-[10px] text-slate-400">540,000원 · 결제선생 청구서 발송 예정</div>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 text-[10px] font-black">D-3 (11/02)</span>
+                                </div>
+                                <div class="bg-slate-900/90 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between text-xs">
+                                    <div>
+                                        <div class="font-bold text-white">대치 프리미엄 독서실 (1인석 월권)</div>
+                                        <div class="text-[10px] text-slate-400">180,000원 · 자동 갱신 예정</div>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-black">D-7 (11/06)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 🏫 3. 학원장 뷰 -->
+                    <div id="persona-view-director" style="display: none;" class="space-y-3.5">
+                        <!-- 1) 신규 등록 건수 -->
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-extrabold text-slate-300 flex items-center gap-1.5">
+                                    <span class="material-symbols-rounded text-emerald-400 text-base">person_add</span>
+                                    <span>신규 등록 및 수강 신청 현황</span>
+                                </span>
+                                <span class="text-[10px] text-slate-400 font-bold">홈페이지 &amp; 구글시트 연동</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 text-center">
+                                <div class="bg-slate-900 border border-slate-800 p-2.5 rounded-xl">
+                                    <div class="text-[10px] text-slate-400">오늘 신규 신청</div>
+                                    <div class="text-lg font-black text-emerald-400 mt-0.5">+4건</div>
+                                </div>
+                                <div class="bg-slate-900 border border-slate-800 p-2.5 rounded-xl">
+                                    <div class="text-[10px] text-slate-400">이번 주 누적</div>
+                                    <div class="text-lg font-black text-white mt-0.5">19명</div>
+                                </div>
+                                <div class="bg-slate-900 border border-slate-800 p-2.5 rounded-xl">
+                                    <div class="text-[10px] text-slate-400">총 활성 재원생</div>
+                                    <div class="text-lg font-black text-indigo-400 mt-0.5">128명</div>
+                                </div>
+                            </div>
+                            <div class="mt-2 text-[10px] text-amber-300/90 font-medium">
+                                ⚠️ 금요일 6:30반 마감임박 (현재 58/60명 접수, 대기 2건 대기열 등록)
+                            </div>
+                        </div>
+
+                        <!-- 2) 상담 & 민원 건수 -->
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-extrabold text-slate-300 flex items-center gap-1.5">
+                                    <span class="material-symbols-rounded text-amber-400 text-base">support_agent</span>
+                                    <span>상담 &amp; 민원 처리 현황</span>
+                                </span>
+                                <span class="text-[10px] font-black text-rose-300 bg-rose-500/20 px-2 py-0.5 rounded-full border border-rose-500/30">
+                                    미처리 1건 대기
+                                </span>
+                            </div>
+                            <div class="space-y-1.5">
+                                <div class="bg-slate-900/90 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between text-xs">
+                                    <div class="truncate mr-2">
+                                        <span class="text-rose-400 font-bold">[미처리]</span>
+                                        <span class="text-white ml-1">이수민 학부모: 1:1 입시 컨설팅 일정 조율</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-500 shrink-0">14:10 접수</span>
+                                </div>
+                                <div class="bg-slate-900/90 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between text-xs opacity-75">
+                                    <div class="truncate mr-2">
+                                        <span class="text-emerald-400 font-bold">[완료]</span>
+                                        <span class="text-slate-300 ml-1">박민규 원생: 10월 모평 성적표 재발급</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-500 shrink-0">오전 처리</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3) 원생 행정신청 건수 -->
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-extrabold text-slate-300 flex items-center gap-1.5">
+                                    <span class="material-symbols-rounded text-indigo-400 text-base">swap_horiz</span>
+                                    <span>원생 행정신청 건수 (출석부 실시간 연동)</span>
+                                </span>
+                                <span class="text-[10px] font-black text-indigo-300 bg-indigo-500/20 px-2 py-0.5 rounded-full border border-indigo-500/30">
+                                    실시간 3건
+                                </span>
+                            </div>
+                            <div class="space-y-1.5 text-xs">
+                                <div class="bg-slate-900/90 border border-slate-800 p-2 rounded-xl flex items-center justify-between">
+                                    <span class="text-slate-200">1) 홍길동 · <strong>11/02(일) 휴강 신청</strong></span>
+                                    <span class="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded">출석부 반영</span>
+                                </div>
+                                <div class="bg-slate-900/90 border border-slate-800 p-2 rounded-xl flex items-center justify-between">
+                                    <span class="text-slate-200">2) 이영희 · <strong>동영상 보강 신청</strong> (3회차)</span>
+                                    <span class="text-[10px] text-indigo-400 font-bold bg-indigo-500/10 px-1.5 py-0.5 rounded">링크 발송</span>
+                                </div>
+                                <div class="bg-slate-900/90 border border-slate-800 p-2 rounded-xl flex items-center justify-between">
+                                    <span class="text-slate-200">3) 박민수 · <strong>토 2시반 ⇄ 일 9시반 반변경</strong></span>
+                                    <span class="text-[10px] text-amber-300 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded">좌석 이동</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-                <div>
-                    <a id="btn-deck-pass-action" href="/" class="w-full text-center py-3 px-4 rounded-xl text-xs font-extrabold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/30 transition flex items-center justify-center gap-2">
-                        <span class="material-symbols-rounded text-base">dashboard</span>
-                        <span>PASS-MATE 대시보드로 이동</span>
+
+                <!-- 하단 액션 버튼 -->
+                <div class="mt-6 pt-4 border-t border-slate-800/80">
+                    <a id="btn-deck-pass-action" href="/" class="w-full text-center py-3.5 px-4 rounded-xl text-xs font-black bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-xl shadow-emerald-950/60 transition flex items-center justify-center gap-2">
+                        <span class="material-symbols-rounded text-lg">dashboard</span>
+                        <span>PASS-MATE 대시보드로 이동 ↗</span>
                     </a>
                 </div>
             </div>
@@ -1193,7 +1440,8 @@
                 // 비로그인 상태 시 통합 로그인 / 10초 간편가입 모달 즉시 팝업
                 openUnifiedAuthModal('LOGIN');
             }
-            await refreshUnifiedOrbitStatus();
+            await initClockGalaxy();
+            refreshUnifiedOrbitStatus();
         });
 
         function loadUserFromStorage() {
@@ -1777,6 +2025,7 @@
                     else if (r === 'DIRECTOR' || r === 'TENANT_ADMIN') hubUserRole.innerText = '원장님';
                     else hubUserRole.innerText = '정회원';
                     renderTriadPersona(r);
+                    setPassDeckPersona(r);
                 }
             } else {
                 if (btnLogin) btnLogin.style.display = 'flex';
@@ -1795,7 +2044,563 @@
         }
 
         // 통합 오빗 상태 실시간 새로고침
-        async function refreshUnifiedOrbitStatus() {
+        async 
+        // ============================================================
+        // 🌌 [PALIN 12대 전 생애 MATE 시계 은하계 & 줌/팬 인터랙션 엔진]
+        // ============================================================
+
+        // 12대 제품군 메타데이터 정의 (12시 KID-MATE부터 시계방향 11시 AFTER-MATE까지)
+        const GALAXY_PRODUCTS = [
+            {
+                id: 'kid',
+                clockIndex: 0,
+                clockHour: 12,
+                name: 'KID-MATE',
+                age: '0~7세',
+                icon: 'child_care',
+                desc: '영유아 안심 보육 OS',
+                status: 'R&D',
+                color: '#38bdf8',
+                satellites: ['보육원/유치원', '부모 안심', '소아과']
+            },
+            {
+                id: 'pass',
+                clockIndex: 1,
+                clockHour: 1,
+                name: 'PASS-MATE',
+                age: '초중고',
+                icon: 'school',
+                desc: '초중고 학업 & 대입 관제 OS',
+                status: 'ACTIVE LIVE',
+                color: '#10b981',
+                isLive: true,
+                satellites: ['일원학원·독서실', '학부모 리포트', '수험생/대입등대']
+            },
+            {
+                id: 'univ',
+                clockIndex: 2,
+                clockHour: 2,
+                name: 'UNIV-MATE',
+                age: '20~26세',
+                icon: 'account_balance',
+                desc: '대학생 학점 & 커뮤니티',
+                status: 'R&D',
+                color: '#818cf8',
+                satellites: ['대학교/학과', '학생회/동아리', '에타 커뮤니티']
+            },
+            {
+                id: 'career',
+                clockIndex: 3,
+                clockHour: 3,
+                name: 'CAREER-MATE',
+                age: '취준·직장',
+                icon: 'work',
+                desc: '취업·이직·스킬 로드맵',
+                status: 'R&D',
+                color: '#f59e0b',
+                satellites: ['기업/채용관', '헤드헌터', '직무 멘토']
+            },
+            {
+                id: 'fit',
+                clockIndex: 4,
+                clockHour: 4,
+                name: 'FIT-MATE',
+                age: '전 연령',
+                icon: 'fitness_center',
+                desc: '운동·피트니스 루틴',
+                status: 'R&D',
+                color: '#ec4899',
+                satellites: ['피트니스/짐', '전담 트레이너', '식단/웨어러블']
+            },
+            {
+                id: 'medi',
+                clockIndex: 5,
+                clockHour: 5,
+                name: 'MEDI-MATE',
+                age: '의료·건강',
+                icon: 'local_hospital',
+                desc: '의무기록 & 처방전 관제',
+                status: 'R&D',
+                color: '#06b6d4',
+                satellites: ['대학병원/클리닉', '문전약국/조제', '마이헬스/주치의']
+            },
+            {
+                id: 'marry',
+                clockIndex: 6,
+                clockHour: 6,
+                name: 'MARRY-MATE',
+                age: '25~45세',
+                icon: 'favorite',
+                desc: '결혼·웨딩·패밀리 구축',
+                status: 'R&D',
+                color: '#f43f5e',
+                satellites: ['웨딩홀/플래너', '양가 부모', '배우자/신혼']
+            },
+            {
+                id: 'home',
+                clockIndex: 7,
+                clockHour: 7,
+                name: 'HOME-MATE',
+                age: '부동산',
+                icon: 'home',
+                desc: '청약·주거·등기 안심',
+                status: 'R&D',
+                color: '#14b8a6',
+                satellites: ['공인중개사', '인테리어/시공', '주택금융/대출']
+            },
+            {
+                id: 'biz',
+                clockIndex: 8,
+                clockHour: 8,
+                name: 'BIZ-MATE',
+                age: '사업장',
+                icon: 'storefront',
+                desc: '사업장·가맹·매출 관제',
+                status: 'VERIFIED',
+                color: '#eab308',
+                isVerified: true,
+                satellites: ['일원학원 본원', '세무/가맹본부', '직원/강사진']
+            },
+            {
+                id: 'money',
+                clockIndex: 9,
+                clockHour: 9,
+                name: 'MONEY-MATE',
+                age: '자산·연금',
+                icon: 'savings',
+                desc: '마이데이터 자산 관제',
+                status: 'R&D',
+                color: '#84cc16',
+                satellites: ['증권/투자사', '주거래은행', '개인연금/IRP']
+            },
+            {
+                id: 'silver',
+                clockIndex: 10,
+                clockHour: 10,
+                name: 'SILVER-MATE',
+                age: '시니어',
+                icon: 'elderly',
+                desc: '시니어 안부·효도 관제',
+                status: 'CONNECTED',
+                color: '#f472b6',
+                isConnected: true,
+                satellites: ['노부모', '자녀 보호자', '돌봄/복지사']
+            },
+            {
+                id: 'after',
+                clockIndex: 11,
+                clockHour: 11,
+                name: 'AFTER-MATE',
+                age: '시니어+',
+                icon: 'volunteer_activism',
+                desc: '상조·유언·디지털 유산',
+                status: 'R&D',
+                color: '#a855f7',
+                satellites: ['상조/장례', '유족 안심망', '디지털 유언장']
+            }
+        ];
+
+        // 인터랙티브 줌/팬 상태값
+        let orbitZoom = 0.95;
+        let orbitPanX = 0;
+        let orbitPanY = 0;
+        let isOrbitDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let currentFocusedProductId = null;
+        let orbitViewMode = 'galaxy'; // 'galaxy' | 'triad'
+        const GALAXY_RADIUS = 285; // px (중심에서 12대 제품까지의 거리)
+        const SATELLITE_DISTANCE = 56; // px (제품에서 위성까지의 거리)
+
+        // 3대 페르소나 탭 제어 함수 (수험생 / 학부모 / 학원장)
+        function setPassDeckPersona(persona) {
+            const p = (persona || 'STUDENT').toUpperCase();
+            
+            const tabStudent = document.getElementById('tab-pass-student');
+            const tabParent = document.getElementById('tab-pass-parent');
+            const tabDirector = document.getElementById('tab-pass-director');
+
+            const viewStudent = document.getElementById('persona-view-student');
+            const viewParent = document.getElementById('persona-view-parent');
+            const viewDirector = document.getElementById('persona-view-director');
+
+            const defaultBtnClass = "py-2 px-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer";
+            const activeStudentClass = "py-2 px-2.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-lg shadow-emerald-950/50 cursor-pointer";
+            const activeParentClass = "py-2 px-2.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-indigo-600 text-white shadow-lg shadow-indigo-950/50 cursor-pointer";
+            const activeDirectorClass = "py-2 px-2.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-amber-600 text-white shadow-lg shadow-amber-950/50 cursor-pointer";
+
+            if (tabStudent) tabStudent.className = defaultBtnClass;
+            if (tabParent) tabParent.className = defaultBtnClass;
+            if (tabDirector) tabDirector.className = defaultBtnClass;
+
+            if (viewStudent) viewStudent.style.display = 'none';
+            if (viewParent) viewParent.style.display = 'none';
+            if (viewDirector) viewDirector.style.display = 'none';
+
+            if (p === 'PARENT') {
+                if (tabParent) tabParent.className = activeParentClass;
+                if (viewParent) viewParent.style.display = 'block';
+            } else if (p === 'DIRECTOR' || p === 'TENANT_ADMIN') {
+                if (tabDirector) tabDirector.className = activeDirectorClass;
+                if (viewDirector) viewDirector.style.display = 'block';
+            } else {
+                if (tabStudent) tabStudent.className = activeStudentClass;
+                if (viewStudent) viewStudent.style.display = 'block';
+            }
+        }
+
+        // 12대 제품군 시계 은하계 초기화 및 DOM & SVG 렌더링
+        function initClockGalaxy() {
+            const domContainer = document.getElementById('orbit-galaxy-dom');
+            const svgBeamsGroup = document.getElementById('svg-galaxy-beams');
+            const svgSatBeamsGroup = document.getElementById('svg-satellite-beams');
+            const stage = document.getElementById('orbit-zoom-stage');
+            const wrapper = document.getElementById('orbit-canvas-wrapper');
+
+            if (!domContainer || !svgBeamsGroup || !stage || !wrapper) return;
+
+            // 이미 생성되어 있다면 트랜스폼만 갱신
+            if (domContainer.children.length > 0) {
+                updateStageTransform();
+                return;
+            }
+
+            domContainer.innerHTML = '';
+            svgBeamsGroup.innerHTML = '';
+            if (svgSatBeamsGroup) svgSatBeamsGroup.innerHTML = '';
+
+            const isCreator = isMasterCreator();
+            const verifiedBizName = localStorage.getItem("verified_biz_name") || "일원학원";
+
+            // A. 정중앙 "나 (Me / 3050 패밀리 허브)" 코어 노드 생성
+            const centerNode = document.createElement('div');
+            centerNode.id = 'galaxy-center-me';
+            centerNode.className = 'absolute z-30 flex flex-col items-center cursor-pointer select-none';
+            centerNode.style.transform = 'translate(-50%, -50%)';
+            centerNode.onclick = () => resetOrbitZoom();
+            centerNode.innerHTML = `
+                <div class="w-18 h-18 sm:w-22 sm:h-22 rounded-full p-1 bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 shadow-[0_0_35px_rgba(99,102,241,0.65)] hover:scale-105 transition-transform duration-300 flex items-center justify-center">
+                    <div class="w-full h-full rounded-full bg-slate-950 flex flex-col items-center justify-center border-2 border-indigo-400/40">
+                        <span class="material-symbols-rounded text-2xl sm:text-3xl text-indigo-300">person</span>
+                        <span class="text-[10px] sm:text-[11.5px] font-black text-white tracking-tight mt-0.5">${isCreator ? '👑 나 (Me)' : '나 (Me)'}</span>
+                    </div>
+                </div>
+                <div class="mt-1.5 flex flex-col items-center">
+                    <span class="text-[9px] sm:text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 whitespace-nowrap shadow">
+                        ${isCreator ? '3050 패밀리 허브 · 총괄' : '단일 PALIN ID 연동'}
+                    </span>
+                </div>
+            `;
+            domContainer.appendChild(centerNode);
+
+            // B. 시계 12방향 12대 제품군 노드 및 위성 서브 노드 렌더링
+            GALAXY_PRODUCTS.forEach((prod) => {
+                // 각도 계산: 12시는 -90도, 30도씩 증가
+                const deg = -90 + (prod.clockIndex * 30);
+                const rad = deg * (Math.PI / 180);
+                const px = Math.round(GALAXY_RADIUS * Math.cos(rad));
+                const py = Math.round(GALAXY_RADIUS * Math.sin(rad));
+
+                // 1. 중앙 ⇄ 제품 연결 빔 SVG 패스 생성
+                const beamPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                beamPath.id = `beam-prod-${prod.id}`;
+                beamPath.setAttribute('d', `M 0 0 L ${px} ${py}`);
+                
+                let beamClass = 'galaxy-clock-ring';
+                let beamStroke = 'rgba(99, 102, 241, 0.25)';
+                if (prod.isLive) {
+                    beamClass = 'beam-active-emerald';
+                    beamStroke = '#10b981';
+                } else if (prod.isVerified) {
+                    beamClass = 'beam-active-amber';
+                    beamStroke = '#f59e0b';
+                } else if (prod.isConnected) {
+                    beamClass = 'beam-active-indigo';
+                    beamStroke = '#f472b6';
+                }
+                beamPath.setAttribute('class', beamClass);
+                beamPath.setAttribute('stroke', beamStroke);
+                svgBeamsGroup.appendChild(beamPath);
+
+                // 2. 제품 노드 DOM 생성
+                const prodNode = document.createElement('div');
+                prodNode.id = `prod-node-${prod.id}`;
+                prodNode.className = `clock-product-node absolute z-20 flex flex-col items-center select-none`;
+                prodNode.style.left = `${px}px`;
+                prodNode.style.top = `${py}px`;
+                prodNode.style.transform = 'translate(-50%, -50%)';
+                prodNode.onclick = (e) => {
+                    e.stopPropagation();
+                    focusClockProduct(prod.id);
+                };
+
+                // 제품별 상태 스타일
+                let ringBg = 'bg-slate-900/90 border border-slate-700/80';
+                let iconColor = 'text-slate-300';
+                let badgeBg = 'bg-slate-800 text-slate-400 border-slate-700';
+                let glowShadow = '';
+
+                if (prod.isLive) {
+                    ringBg = 'bg-gradient-to-tr from-emerald-950 via-slate-950 to-slate-950 border-2 border-emerald-500';
+                    iconColor = 'text-emerald-400';
+                    badgeBg = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
+                    glowShadow = 'shadow-[0_0_25px_rgba(16,185,129,0.5)]';
+                } else if (prod.isVerified) {
+                    ringBg = 'bg-gradient-to-tr from-amber-950 via-slate-950 to-slate-950 border-2 border-amber-500';
+                    iconColor = 'text-amber-400';
+                    badgeBg = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+                    glowShadow = 'shadow-[0_0_25px_rgba(245,158,11,0.5)]';
+                } else if (prod.isConnected) {
+                    ringBg = 'bg-gradient-to-tr from-pink-950 via-slate-950 to-slate-950 border-2 border-pink-500';
+                    iconColor = 'text-pink-400';
+                    badgeBg = 'bg-pink-500/20 text-pink-300 border-pink-500/40';
+                    glowShadow = 'shadow-[0_0_25px_rgba(244,114,182,0.5)]';
+                }
+
+                let displayName = prod.name;
+                if (prod.id === 'biz') {
+                    displayName = `BIZ-MATE (${verifiedBizName})`;
+                }
+
+                prodNode.innerHTML = `
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl ${ringBg} ${glowShadow} flex flex-col items-center justify-center p-1 relative hover:scale-105 transition-transform">
+                        <span class="material-symbols-rounded text-xl sm:text-2xl ${iconColor}">${prod.icon}</span>
+                        <span class="text-[8px] font-black text-slate-300 mt-0.5 truncate max-w-[56px]">${prod.clockHour}시</span>
+                        ${prod.isLive ? '<span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>' : ''}
+                    </div>
+                    <div class="mt-1 text-center flex flex-col items-center">
+                        <span class="text-[10px] sm:text-[11px] font-black text-white whitespace-nowrap drop-shadow">${displayName}</span>
+                        <span class="text-[8px] font-bold px-1.5 py-0.2 rounded-full border ${badgeBg} whitespace-nowrap mt-0.5">
+                            ${prod.status}
+                        </span>
+                    </div>
+                `;
+                domContainer.appendChild(prodNode);
+
+                // 3. 각 제품군별 3개 위성 노드(sub-entities) 렌더링
+                if (prod.satellites && prod.satellites.length > 0) {
+                    const angleOffsets = [-0.55, 0, 0.55]; // 약 -31°, 0°, +31° 부채꼴
+                    prod.satellites.forEach((satName, sIdx) => {
+                        const satRad = rad + (angleOffsets[sIdx] || 0);
+                        const satDist = SATELLITE_DISTANCE + (sIdx === 1 ? 12 : 0);
+                        const satX = px + Math.round(satDist * Math.cos(satRad));
+                        const satY = py + Math.round(satDist * Math.sin(satRad));
+
+                        // 위성 연결선 SVG
+                        if (svgSatBeamsGroup) {
+                            const satPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                            satPath.id = `sat-beam-${prod.id}-${sIdx}`;
+                            satPath.setAttribute('d', `M ${px} ${py} L ${satX} ${satY}`);
+                            satPath.setAttribute('stroke', prod.isLive ? 'rgba(16,185,129,0.45)' : (prod.isVerified ? 'rgba(245,158,11,0.45)' : (prod.isConnected ? 'rgba(244,114,182,0.45)' : 'rgba(148,163,184,0.2)')));
+                            satPath.setAttribute('stroke-width', '1');
+                            satPath.setAttribute('stroke-dasharray', '2 3');
+                            svgSatBeamsGroup.appendChild(satPath);
+                        }
+
+                        // 위성 DOM 노드
+                        const satNode = document.createElement('div');
+                        satNode.id = `sat-node-${prod.id}-${sIdx}`;
+                        satNode.className = `satellite-sub-node absolute z-10 flex items-center gap-1 bg-slate-900/90 border border-slate-700/80 px-2 py-0.5 rounded-full shadow-md select-none text-[8.5px] font-bold text-slate-300`;
+                        satNode.style.left = `${satX}px`;
+                        satNode.style.top = `${satY}px`;
+                        satNode.style.transform = 'translate(-50%, -50%)';
+
+                        let dotColor = prod.isLive ? 'bg-emerald-400' : (prod.isVerified ? 'bg-amber-400' : (prod.isConnected ? 'bg-pink-400' : 'bg-slate-500'));
+                        satNode.innerHTML = `
+                            <span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>
+                            <span class="whitespace-nowrap">${satName}</span>
+                        `;
+                        domContainer.appendChild(satNode);
+                    });
+                }
+            });
+
+            // C. 마우스 휠 및 드래그 제스처 바인딩
+            setupOrbitInteractions(wrapper, stage);
+
+            // 초기 배율 설정
+            updateStageTransform();
+        }
+
+        // 줌 & 팬 변환 업데이트
+        function updateStageTransform() {
+            const stage = document.getElementById('orbit-zoom-stage');
+            const badge = document.getElementById('zoom-level-badge');
+            if (stage) {
+                stage.style.transform = `translate(${orbitPanX}px, ${orbitPanY}px) scale(${orbitZoom})`;
+            }
+            if (badge) {
+                badge.innerText = `${Math.round(orbitZoom * 100)}%`;
+            }
+        }
+
+        // 줌 레벨 조정
+        function setOrbitZoom(newZoom) {
+            orbitZoom = Math.min(2.0, Math.max(0.55, newZoom));
+            updateStageTransform();
+        }
+
+        function zoomOrbit(delta) {
+            setOrbitZoom(orbitZoom + delta);
+        }
+
+        // 12개 제품군 전체 은하 조망 (0.68x)
+        function zoomOrbitToFit() {
+            orbitPanX = 0;
+            orbitPanY = 0;
+            orbitZoom = 0.68;
+            currentFocusedProductId = null;
+            
+            // 포커스 배너 숨김
+            const banner = document.getElementById('orbit-focus-banner');
+            if (banner) banner.style.display = 'none';
+
+            // 포커스 클래스 제거
+            document.querySelectorAll('.clock-product-node').forEach(n => n.classList.remove('is-focused'));
+
+            updateStageTransform();
+        }
+
+        // 나(Me) 중심 1.0x 리셋
+        function resetOrbitZoom() {
+            orbitPanX = 0;
+            orbitPanY = 0;
+            orbitZoom = 1.0;
+            currentFocusedProductId = null;
+
+            const banner = document.getElementById('orbit-focus-banner');
+            if (banner) banner.style.display = 'none';
+
+            document.querySelectorAll('.clock-product-node').forEach(n => n.classList.remove('is-focused'));
+
+            updateStageTransform();
+        }
+
+        // 특정 제품 클릭 시 집중 뷰 (Focus Mode)
+        function focusClockProduct(productId) {
+            const prod = GALAXY_PRODUCTS.find(p => p.id === productId);
+            if (!prod) return;
+
+            currentFocusedProductId = productId;
+
+            // 해당 제품 좌표 계산
+            const deg = -90 + (prod.clockIndex * 30);
+            const rad = deg * (Math.PI / 180);
+            const px = Math.round(GALAXY_RADIUS * Math.cos(rad));
+            const py = Math.round(GALAXY_RADIUS * Math.sin(rad));
+
+            // 해당 제품이 화면 중심에 오도록 스무스 이동 및 1.35x 확대
+            orbitZoom = 1.35;
+            orbitPanX = Math.round(-px * orbitZoom * 0.75);
+            orbitPanY = Math.round(-py * orbitZoom * 0.75);
+
+            // 포커스 배너 노출
+            const banner = document.getElementById('orbit-focus-banner');
+            const targetName = document.getElementById('orbit-focus-target-name');
+            if (banner && targetName) {
+                targetName.innerText = `[${prod.name}] 3개 위성 집중 관제 중`;
+                banner.style.display = 'flex';
+            }
+
+            // 포커스 클래스 부여
+            document.querySelectorAll('.clock-product-node').forEach(n => n.classList.remove('is-focused'));
+            const targetNode = document.getElementById(`prod-node-${prod.id}`);
+            if (targetNode) targetNode.classList.add('is-focused');
+
+            updateStageTransform();
+
+            // 제품별 추가 액션
+            if (prod.id === 'pass') {
+                const deck = document.getElementById('card-pass-deck');
+                if (deck) deck.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else if (prod.id === 'biz') {
+                openBizVerifyModal();
+            } else if (prod.id === 'silver') {
+                handleSilverNodeClick(true);
+            }
+        }
+
+        // 마우스 휠 및 드래그 인터랙션 셋업
+        function setupOrbitInteractions(wrapper, stage) {
+            if (!wrapper || !stage) return;
+
+            // 1. 마우스 휠 줌 (휠 다운: 축소 전체조망, 휠 업: 확대 집중)
+            wrapper.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const factor = e.deltaY < 0 ? 1.08 : 0.92;
+                setOrbitZoom(orbitZoom * factor);
+            }, { passive: false });
+
+            // 2. 마우스 드래그 패닝
+            wrapper.addEventListener('mousedown', (e) => {
+                if (e.target.closest('button') || e.target.closest('.clock-product-node')) return;
+                isOrbitDragging = true;
+                dragStartX = e.clientX - orbitPanX;
+                dragStartY = e.clientY - orbitPanY;
+                stage.classList.add('is-dragging');
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isOrbitDragging) return;
+                orbitPanX = e.clientX - dragStartX;
+                orbitPanY = e.clientY - dragStartY;
+                updateStageTransform();
+            });
+
+            window.addEventListener('mouseup', () => {
+                if (isOrbitDragging) {
+                    isOrbitDragging = false;
+                    stage.classList.remove('is-dragging');
+                }
+            });
+
+            // 3. 모바일 터치 제스처 기본 지원
+            let touchStartX = 0;
+            let touchStartY = 0;
+            wrapper.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    isOrbitDragging = true;
+                    touchStartX = e.touches[0].clientX - orbitPanX;
+                    touchStartY = e.touches[0].clientY - orbitPanY;
+                    stage.classList.add('is-dragging');
+                }
+            }, { passive: true });
+
+            wrapper.addEventListener('touchmove', (e) => {
+                if (!isOrbitDragging || e.touches.length !== 1) return;
+                orbitPanX = e.touches[0].clientX - touchStartX;
+                orbitPanY = e.touches[0].clientY - touchStartY;
+                updateStageTransform();
+            }, { passive: true });
+
+            wrapper.addEventListener('touchend', () => {
+                isOrbitDragging = false;
+                stage.classList.remove('is-dragging');
+            });
+        }
+
+        // 궤도 모드 토글 (12대 은하 ⇄ 단일 3자 입시)
+        function toggleOrbitMode() {
+            const btn = document.getElementById('btn-toggle-orbit-text');
+            const title = document.getElementById('orbit-view-title');
+            const subtitle = document.getElementById('orbit-view-subtitle');
+
+            if (orbitViewMode === 'galaxy') {
+                orbitViewMode = 'triad';
+                if (btn) btn.innerText = '🎯 단일 3자 입시 관제 뷰';
+                if (title) title.innerText = 'PASS-MATE 중심 3자 실시간 입시 관제망 (수험생 ⇄ 학부모 ⇄ 학원)';
+                if (subtitle) subtitle.innerText = '수험생 본인과 실제 연동된 3자 입시 관제망만 표시됩니다.';
+                focusClockProduct('pass');
+            } else {
+                orbitViewMode = 'galaxy';
+                if (btn) btn.innerText = '🌌 12대 전 생애 은하 궤도망';
+                if (title) title.innerText = '인간 100세 전 생애 12대 MATE 시계 궤도망 (12-Clock Galactic Orbit)';
+                if (subtitle) subtitle.innerText = '마우스 휠 스크롤로 12개 제품군 전체 은하를 한눈에 보거나, 개별 제품을 클릭하여 집중할 수 있습니다.';
+                zoomOrbitToFit();
+            }
+        }
+
+function refreshUnifiedOrbitStatus() {
             const sid = currentUser ? currentUser.id : localStorage.getItem("userId");
             const phone = currentUser ? currentUser.phone : localStorage.getItem("userPhone");
 
