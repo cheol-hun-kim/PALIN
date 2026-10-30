@@ -2386,8 +2386,8 @@
         // 🌌 대표님 제안: 12개 제품군 지그재그(교대 반지름) 대폭 이격으로 겹침 완벽 원천 박멸!
         const GALAXY_RADIUS_INNER = 210;        // 짝수 시계: 안쪽 궤도 (12시 KID, 2시 UNIV, 4시 FIT, 6시 MARRY, 8시 BIZ, 10시 SILVER)
         const GALAXY_RADIUS_OUTER = 320;        // 홀수 시계: 바깥쪽 궤도 110px 대폭 이격 (1시 PASS-MATE, 3시 CAREER, 5시 MEDI, 7시 HOME 등)
-        const SATELLITE_DIST_SIDE = 64;         // 좌우 위성 노드 거리 (px)
-        const SATELLITE_DIST_CENTER = 98;       // 중앙 외곽 위성 노드 거리 (px)
+        const SATELLITE_DIST_SIDE = 86;         // 좌우 위성 노드 거리 (px)
+        const SATELLITE_DIST_CENTER = 122;       // 중앙 외곽 위성 노드 거리 (px)
 
         function getProductRadius(prod) {
             // 홀수 시계: 외곽 288px (PASS-MATE 등), 짝수 시계: 내부 224px (KID-MATE, UNIV-MATE 등)
@@ -2602,7 +2602,7 @@
                 // 4. 제품군별 3개 위성 노드 (충분한 거리와 부채꼴 각도로 100% 겹침 방지)
                 if (prod.satellites && prod.satellites.length > 0) {
                     // 각도 오프셋: 좌측(-42°), 중앙(0°), 우측(+42°)
-                    const angleOffsets = [-0.28, 0, 0.28]; // 약 16도 정밀 방사형 부채꼴: 이웃 제품군 노드 및 연결선 침범 100% 차단
+                    const angleOffsets = [-0.62, 0, 0.62]; // 약 35.5도 넓은 부채꼴 각도로 위성 간 80px 이상 완전 분리
                     const distances = [SATELLITE_DIST_SIDE, SATELLITE_DIST_CENTER, SATELLITE_DIST_SIDE];
 
                     prod.satellites.forEach((satName, sIdx) => {

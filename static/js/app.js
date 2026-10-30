@@ -8051,6 +8051,10 @@ function switchTab(tabId) {
     let baseTab = tabId;
     if (baseTab.startsWith('elem-')) baseTab = baseTab.replace('elem-', '');
     if (baseTab.startsWith('mid-')) baseTab = baseTab.replace('mid-', '');
+
+    // 활성 탭 영구 기록 (다른 앱/창 전환 복귀 시 1페이지 강제 리셋 원천 차단)
+    window.currentActiveTab = baseTab;
+    try { sessionStorage.setItem('active_tab', baseTab); } catch(e) {}
     
     // 1. 모든 page-view 숨기기
     document.querySelectorAll(".page-view").forEach(page => {
@@ -13969,7 +13973,7 @@ async function loadMicroRankings() {
                     ? "1.5px solid #eab308" 
                     : (isDayMode ? "1px solid #cbd5e1" : "1px solid rgba(255,255,255,0.06)");
 
-                const titleTag = r.equipped_title ? `<span class="user-title-tag">${r.equipped_title}</span>` : '';
+                const titleTag = ''; // 칭호 전면 제거: 유치하고 긴 수식어 삭제하여 쿡 찌르기 및 순위 정보 깔끔 노출
                 const pokeBtn = (r.can_poke && !r.isMe) 
                     ? `<button type="button" class="btn-poke" onclick="event.stopPropagation(); pokeStudent(${r.id}, '${r.name}')">콕 찌르기</button>` 
                     : '';
@@ -17563,26 +17567,39 @@ function renderAppForSchoolLevel(student) {
     const midView = document.getElementById('middle-app-view');
     const elemView = document.getElementById('elem-app-view');
 
+    // 사용자가 보고 있던 활성 탭 보존 (다른 탭 다녀왔을 때 1페이지로 튕기는 버그 완벽 해결)
+    let currentTab = window.currentActiveTab;
+    if (!currentTab) {
+        try { currentTab = sessionStorage.getItem('active_tab'); } catch(e) {}
+    }
+    if (!currentTab) {
+        const activeNav = document.querySelector("#bottom-nav-main .nav-item.active, .bottom-nav .nav-item.active");
+        if (activeNav && activeNav.getAttribute("data-tab")) {
+            currentTab = activeNav.getAttribute("data-tab");
+        }
+    }
+    currentTab = currentTab || 'page1';
+
     if (level === 'ELEMENTARY') {
         if (highView) highView.style.display = 'none';
         if (midView) midView.style.display = 'none';
         if (elemView) elemView.style.display = 'block';
 
         refreshElemPetUI(student);
-        switchTab('page1');
+        switchTab(currentTab);
     } else if (level === 'MIDDLE') {
         if (highView) highView.style.display = 'none';
         if (midView) midView.style.display = 'block';
         if (elemView) elemView.style.display = 'none';
 
         refreshMiddleUI(student);
-        switchTab('page1');
+        switchTab(currentTab);
     } else { // HIGH
         if (highView) highView.style.display = 'block';
         if (midView) midView.style.display = 'none';
         if (elemView) elemView.style.display = 'none';
 
-        switchTab('page1');
+        switchTab(currentTab);
     }
 }
 window.renderAppForSchoolLevel = renderAppForSchoolLevel;
