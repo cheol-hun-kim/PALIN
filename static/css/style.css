@@ -5772,3 +5772,196 @@ body.day-mode #parent-sms-dashboard-card .parent-sms-action-btn {
 
 
 
+
+/* ===================================================
+   📱 공통 헤더 액션 버튼 4대 요소 완벽 규격 통일 시스템
+   =================================================== */
+.header-action-btn {
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+    border-radius: 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    padding: 0 10px !important;
+    box-sizing: border-box !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
+    font-size: 0.78rem !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+}
+
+.header-action-btn.header-theme-btn {
+    width: 34px !important;
+    min-width: 34px !important;
+    max-width: 34px !important;
+    padding: 0 !important;
+}
+
+body:not(.day-mode) .header-action-btn {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.18) !important;
+    color: #f1f5f9 !important;
+}
+
+body:not(.day-mode) .header-action-btn:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.32) !important;
+}
+
+body.day-mode .header-action-btn {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+    color: #1e293b !important;
+}
+
+body.day-mode .header-action-btn:hover {
+    background: #f8fafc !important;
+    border-color: #94a3b8 !important;
+}
+
+body.day-mode .header-action-btn .header-action-icon[style*="color: #818cf8"],
+body.day-mode .header-action-btn .header-user-icon {
+    color: #4f46e5 !important;
+}
+
+.header-action-icon {
+    font-size: 1.15rem !important;
+    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+@media (max-width: 640px) {
+    .header-btn-label {
+        display: none !important;
+    }
+    .header-action-btn {
+        width: 32px !important;
+        min-width: 32px !important;
+        max-width: 32px !important;
+        height: 32px !important;
+        min-height: 32px !important;
+        max-height: 32px !important;
+        padding: 0 !important;
+        border-radius: 9px !important;
+        justify-content: center !important;
+    }
+    .header-action-btn .header-action-icon {
+        font-size: 1.1rem !important;
+    }
+    .user-status {
+        gap: 5px !important;
+    }
+}
+
+/* ===================================================
+   🎯 대입 등대 및 순공 결손 경고 데이모드 완벽 고대비 룰셋 (7-Gate 불변 원칙)
+   =================================================== */
+body.day-mode #admission-distance-headline-card {
+    background: #ffffff !important;
+    border: 1.5px solid #e2e8f0 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
+}
+
+body.day-mode #dist-headline-title {
+    color: #0f172a !important;
+}
+
+body.day-mode #btn-open-score-input {
+    background: #eef2ff !important;
+    border: 1.5px solid #c7d2fe !important;
+    color: #4338ca !important;
+}
+
+body.day-mode #btn-open-score-input .material-symbols-rounded {
+    color: #4f46e5 !important;
+}
+
+body.day-mode #admission-target-switcher-bar {
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+body.day-mode #btn-dist-target-2 {
+    color: #475569 !important;
+}
+
+body.day-mode #admission-distance-headline-card button[onclick*="openAdmissionUnivSelectModal"] {
+    border: 1px solid #c7d2fe !important;
+    background: #eef2ff !important;
+    color: #4338ca !important;
+}
+
+body.day-mode #admission-map-container {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+body.day-mode .admission-legend-text {
+    color: #334155 !important;
+}
+
+body.day-mode #admission-map-container button[onclick*="toggleAdmissionDetailAccordion"] {
+    background: #eef2ff !important;
+    border: 1px solid #c7d2fe !important;
+    color: #4338ca !important;
+}
+
+/* 실시간 순공 결손 경고 배너 데이모드 고대비 (흰배경에 분홍/흰색 글씨 절대 금지) */
+body.day-mode #admission-penalty-alert-box {
+    background: #fef2f2 !important;
+    border: 1.5px solid #fca5a5 !important;
+    color: #7f1d1d !important;
+}
+
+body.day-mode #admission-penalty-alert-text {
+    color: #7f1d1d !important;
+}
+
+body.day-mode #admission-penalty-alert-text b {
+    color: #991b1b !important;
+}
+
+body.day-mode #admission-penalty-alert-badge {
+    background: #fee2e2 !important;
+    border: 1px solid #f87171 !important;
+    color: #991b1b !important;
+}
+
+/* 목표·마지노선 순공 벤치마크 아코디언 버튼 데이모드 */
+body.day-mode #btn-toggle-admission-detail {
+    background: #f1f5f9 !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #1e293b !important;
+}
+
+body.day-mode #dist-accordion-deficit-badge {
+    background: #fee2e2 !important;
+    border: 1px solid #f87171 !important;
+    color: #991b1b !important;
+}
+
+/* 전형 상세표 데이모드 */
+body.day-mode [id^="track-card-"] {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+}
+
+body.day-mode [id^="track-card-"] span[style*="color: #ffffff"] {
+    color: #0f172a !important;
+}
+
+body.day-mode [id^="track-card-"] div[style*="color: #cbd5e1"] {
+    color: #475569 !important;
+}

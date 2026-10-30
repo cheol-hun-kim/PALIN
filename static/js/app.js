@@ -4938,6 +4938,9 @@ function togglePALINTheme() {
     if (currentStudent) {
         updateTargetBanner();
     }
+    if (typeof renderAdmissionPathEngine === 'function') {
+        renderAdmissionPathEngine();
+    }
 }
 
 async function fetchUnivData() {
@@ -21618,36 +21621,38 @@ function renderAdmissionPathEngine() {
     const alertBadge = document.getElementById('admission-penalty-alert-badge');
     const deficitBadge = document.getElementById('dist-accordion-deficit-badge');
 
+    const isDay = document.body.classList.contains('day-mode');
+
     if (badgeTextEl) {
         badgeTextEl.innerText = overallLabel;
     }
     if (badgeContainer) {
         if (overallStatus === 'SAFE') {
-            badgeContainer.style.background = 'rgba(16, 185, 129, 0.18)';
+            badgeContainer.style.background = isDay ? '#d1fae5' : 'rgba(16, 185, 129, 0.18)';
             badgeContainer.style.borderColor = '#10b981';
-            badgeContainer.style.color = '#a7f3d0';
+            badgeContainer.style.color = isDay ? '#065f46' : '#a7f3d0';
         } else if (overallStatus === 'ON_TRACK') {
-            badgeContainer.style.background = 'rgba(245, 158, 11, 0.18)';
+            badgeContainer.style.background = isDay ? '#fef3c7' : 'rgba(245, 158, 11, 0.18)';
             badgeContainer.style.borderColor = '#f59e0b';
-            badgeContainer.style.color = '#fde68a';
+            badgeContainer.style.color = isDay ? '#92400e' : '#fde68a';
         } else {
-            badgeContainer.style.background = 'rgba(239, 68, 68, 0.18)';
+            badgeContainer.style.background = isDay ? '#fee2e2' : 'rgba(239, 68, 68, 0.18)';
             badgeContainer.style.borderColor = '#ef4444';
-            badgeContainer.style.color = '#fca5a5';
+            badgeContainer.style.color = isDay ? '#991b1b' : '#fca5a5';
         }
     }
 
     if (deficitBadge) {
         if (deficitHours > 0) {
             deficitBadge.innerText = `부족 -${deficitHours.toFixed(1)}시간`;
-            deficitBadge.style.color = '#fca5a5';
-            deficitBadge.style.borderColor = '#ef4444';
-            deficitBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+            deficitBadge.style.color = isDay ? '#991b1b' : '#fca5a5';
+            deficitBadge.style.borderColor = isDay ? '#f87171' : '#ef4444';
+            deficitBadge.style.background = isDay ? '#fee2e2' : 'rgba(239, 68, 68, 0.2)';
         } else {
             deficitBadge.innerText = `목표 달성 완료`;
-            deficitBadge.style.color = '#6ee7b7';
+            deficitBadge.style.color = isDay ? '#065f46' : '#6ee7b7';
             deficitBadge.style.borderColor = '#10b981';
-            deficitBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+            deficitBadge.style.background = isDay ? '#d1fae5' : 'rgba(16, 185, 129, 0.2)';
         }
     }
 
@@ -21655,35 +21660,38 @@ function renderAdmissionPathEngine() {
     if (deficitHours > 0) {
         if (alertBadge) {
             alertBadge.innerText = '순공 결손 경고';
-            alertBadge.style.color = '#fca5a5';
-            alertBadge.style.borderColor = '#ef4444';
-            alertBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+            alertBadge.style.color = isDay ? '#991b1b' : '#fca5a5';
+            alertBadge.style.borderColor = isDay ? '#f87171' : '#ef4444';
+            alertBadge.style.background = isDay ? '#fee2e2' : 'rgba(239, 68, 68, 0.2)';
         }
         if (alertBox) {
             alertBox.style.display = 'flex';
             alertBox.style.alignItems = 'flex-start';
-            alertBox.style.background = 'rgba(239, 68, 68, 0.12)';
-            alertBox.style.borderColor = 'rgba(239, 68, 68, 0.35)';
-            alertBox.style.color = '#fecdd3';
+            alertBox.style.background = isDay ? '#fef2f2' : 'rgba(239, 68, 68, 0.12)';
+            alertBox.style.borderColor = isDay ? '#fca5a5' : 'rgba(239, 68, 68, 0.35)';
+            alertBox.style.color = isDay ? '#7f1d1d' : '#fecdd3';
         }
         if (alertText) {
             alertText.style.whiteSpace = 'normal';
             alertText.style.wordBreak = 'keep-all';
-            alertText.innerHTML = `${activeUnivName} 합격권 대비 주간 순공이 <b style="color: #f87171;">${deficitHours.toFixed(1)}시간 결손</b> 상태입니다. 현재 성적 팩트는 <b class="text-white">[${overallLabel}]</b>이나, <b style="color: #fca5a5;">주 56시간 미만 학습 시 수능 실전 감각 저하로 합격선이 [소신 ➔ 위험]으로 급락</b>할 수 있습니다. 순공 타이머를 즉시 가동하세요!`;
+            const bFactColor = isDay ? '#0f172a' : '#ffffff';
+            const deficitHighlightColor = isDay ? '#b91c1c' : '#f87171';
+            const warningDropColor = isDay ? '#991b1b' : '#fca5a5';
+            alertText.innerHTML = `${activeUnivName} 합격권 대비 주간 순공이 <b style="color: ${deficitHighlightColor}; font-weight: 900;">${deficitHours.toFixed(1)}시간 결손</b> 상태입니다. 현재 성적 팩트는 <b style="color: ${bFactColor}; font-weight: 900;">[${overallLabel}]</b>이나, <b style="color: ${warningDropColor}; font-weight: 800;">주 56시간 미만 학습 시 수능 실전 감각 저하로 합격선이 [소신 ➔ 위험]으로 급락</b>할 수 있습니다. 순공 타이머를 즉시 가동하세요!`;
         }
     } else {
         if (alertBadge) {
             alertBadge.innerText = '순공 페이스 유지';
-            alertBadge.style.color = '#6ee7b7';
+            alertBadge.style.color = isDay ? '#065f46' : '#6ee7b7';
             alertBadge.style.borderColor = '#10b981';
-            alertBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+            alertBadge.style.background = isDay ? '#d1fae5' : 'rgba(16, 185, 129, 0.2)';
         }
         if (alertBox) {
             alertBox.style.display = 'flex';
             alertBox.style.alignItems = 'flex-start';
-            alertBox.style.background = 'rgba(16, 185, 129, 0.1)';
-            alertBox.style.borderColor = 'rgba(16, 185, 129, 0.28)';
-            alertBox.style.color = '#a7f3d0';
+            alertBox.style.background = isDay ? '#f0fdf4' : 'rgba(16, 185, 129, 0.1)';
+            alertBox.style.borderColor = isDay ? '#86efac' : 'rgba(16, 185, 129, 0.28)';
+            alertBox.style.color = isDay ? '#064e3b' : '#a7f3d0';
         }
         if (alertText) {
             alertText.style.whiteSpace = 'normal';
@@ -22054,12 +22062,15 @@ function renderSvgRoutes(tracks) {
             </path>
         `;
 
+        const isDaySvg = document.body.classList.contains('day-mode');
+        const pillFill = isDaySvg ? '#ffffff' : '#0f172a';
+        const pillTextColor = isDaySvg ? '#0f172a' : '#ffffff';
         const labelX = 260;
         svgHtml += `
             <g transform="translate(${labelX}, ${midY})" style="cursor: pointer;" onclick="selectAdmissionTrackCard('${tr.id}')">
                 <circle r="3.5" fill="${tr.color}" />
-                <rect x="-42" y="-10" width="84" height="20" rx="6" fill="#0f172a" stroke="${tr.color}" stroke-width="1.2" opacity="0.95" />
-                <text text-anchor="middle" dy="3.5" fill="#ffffff" font-size="9" font-weight="900">${tr.name}</text>
+                <rect x="-42" y="-10" width="84" height="20" rx="6" fill="${pillFill}" stroke="${tr.color}" stroke-width="1.2" opacity="0.95" />
+                <text text-anchor="middle" dy="3.5" fill="${pillTextColor}" font-size="9" font-weight="900">${tr.name}</text>
             </g>
         `;
     });

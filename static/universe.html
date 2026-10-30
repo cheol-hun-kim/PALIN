@@ -303,7 +303,7 @@
                     <div class="creator-only">
                         <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-black border border-amber-500/40 mb-2">
                             <span class="material-symbols-rounded text-sm text-amber-400">workspace_premium</span>
-                            <span>👑 제작자 전용 마스터 모드 (1286orbital21@gmail.com)</span>
+                            <span>제작자 전용 마스터 모드 (1286orbital21@gmail.com)</span>
                         </div>
                         <h2 class="text-xl sm:text-2xl font-black text-white">인간 100세 전 생애 12대 제품군 총괄 궤도망</h2>
                         <p class="text-xs md:text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
@@ -551,18 +551,18 @@
                     </p>
 
                     <!-- 3대 페르소나 탭 스위처 -->
-                    <div class="grid grid-cols-3 gap-2 p-1.5 bg-slate-950/80 rounded-2xl border border-slate-800 mb-6 max-w-xl">
-                        <button type="button" id="tab-pass-student" onclick="setPassDeckPersona('STUDENT')" class="py-2.5 px-3 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-lg shadow-emerald-950/50 cursor-pointer">
+                    <div class="w-full max-w-full grid grid-cols-3 gap-2 p-1.5 bg-slate-950/80 rounded-2xl border border-slate-800 mb-6">
+                        <button type="button" id="tab-pass-student" onclick="setPassDeckPersona('STUDENT')" class="py-2.5 px-2 sm:px-4 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-lg shadow-emerald-950/50 cursor-pointer whitespace-nowrap">
                             <span class="material-symbols-rounded text-sm">school</span>
-                            <span>학생(수험생) 뷰</span>
+                            <span class="whitespace-nowrap">학생 뷰</span>
                         </button>
-                        <button type="button" id="tab-pass-parent" onclick="setPassDeckPersona('PARENT')" class="py-2.5 px-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        <button type="button" id="tab-pass-parent" onclick="setPassDeckPersona('PARENT')" class="py-2.5 px-2 sm:px-4 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
                             <span class="material-symbols-rounded text-sm">family_restroom</span>
-                            <span>학부모 뷰</span>
+                            <span class="whitespace-nowrap">학부모 뷰</span>
                         </button>
-                        <button type="button" id="tab-pass-director" onclick="setPassDeckPersona('DIRECTOR')" class="py-2.5 px-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        <button type="button" id="tab-pass-director" onclick="setPassDeckPersona('DIRECTOR')" class="py-2.5 px-2 sm:px-4 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
                             <span class="material-symbols-rounded text-sm">domain</span>
-                            <span>학원장 뷰</span>
+                            <span class="whitespace-nowrap">학원장 뷰</span>
                         </button>
                     </div>
 
@@ -732,8 +732,8 @@
                                     </span>
                                 </div>
                                 <div class="p-3.5 bg-slate-900/80 rounded-xl border border-slate-800 text-center mb-3">
-                                    <div class="text-xs font-bold text-white">웹 수강신청 &amp; 구글 시트 연동 중</div>
-                                    <div class="text-[10.5px] text-slate-400 mt-1">홈페이지 신청 접수 즉시 출석부 시트에 자동 반영됩니다.</div>
+                                    <div class="text-xs font-bold text-white break-keep">웹 수강신청 &amp; 구글 시트 실시간 연동</div>
+                                    <div class="text-[10.5px] text-slate-400 mt-1 break-keep leading-relaxed">홈페이지 신청 접수 즉시 출석부 시트에 자동 반영됩니다.</div>
                                 </div>
                             </div>
                             <a href="/admin/attendance" target="_blank" class="text-xs font-black text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
@@ -755,8 +755,8 @@
                                     </span>
                                 </div>
                                 <div class="p-3.5 bg-slate-900/80 rounded-xl border border-slate-800 text-center mb-3">
-                                    <div class="text-xs font-bold text-slate-300">대기 중인 미처리 민원 없음</div>
-                                    <div class="text-[10.5px] text-slate-500 mt-0.5">새로운 상담 및 문의 접수 시 실시간 알림이 발송됩니다.</div>
+                                    <div class="text-xs font-bold text-slate-300 break-keep">대기 중인 미처리 민원 없음</div>
+                                    <div class="text-[10.5px] text-slate-500 mt-1 break-keep leading-relaxed">새로운 상담 및 문의 접수 시 실시간 알림이 발송됩니다.</div>
                                 </div>
                             </div>
                             <span class="text-[10px] text-slate-500">솔라피(Solapi) 관리자 알림 문자 연동</span>
@@ -775,8 +775,8 @@
                                     </span>
                                 </div>
                                 <div class="p-3.5 bg-slate-900/80 rounded-xl border border-slate-800 text-center mb-3">
-                                    <div class="text-xs font-bold text-slate-300">대기 중인 행정 신청 없음</div>
-                                    <div class="text-[10.5px] text-slate-500 mt-0.5">휴강/보강/반변경 신청 접수 시 출석부 자동 반영</div>
+                                    <div class="text-xs font-bold text-slate-300 break-keep">대기 중인 행정 신청 없음</div>
+                                    <div class="text-[10.5px] text-slate-500 mt-1 break-keep leading-relaxed">휴강·보강·반변경 신청 접수 시 출석부에 자동 반영됩니다.</div>
                                 </div>
                             </div>
                             <span class="text-[10px] text-slate-500">PassMate ERP ⇄ Google Sheets 실시간 동기화</span>
@@ -805,7 +805,7 @@
                 <div>
                     <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-black border border-amber-500/40 mb-2">
                         <span class="material-symbols-rounded text-sm text-amber-400">workspace_premium</span>
-                        <span>👑 제작자 전용 마스터 모드 (1286orbital21@gmail.com)</span>
+                        <span>제작자 전용 마스터 모드 (1286orbital21@gmail.com)</span>
                     </div>
                     <h3 class="text-xl font-black text-white flex items-center gap-2">
                         <span>인간 100세 전 생애 12대 MATE 제품군 총괄 관계망</span>
@@ -827,7 +827,7 @@
                 <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 hover:border-slate-700 transition flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-xl">👶</span>
+                            <span class="material-symbols-rounded text-xl text-amber-400">child_care</span>
                             <span class="text-[9px] font-bold text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">0~7세</span>
                         </div>
                         <div class="text-xs font-black text-white">KID-MATE</div>
@@ -843,7 +843,7 @@
                 <div onclick="location.href='/passmate'" class="bg-gradient-to-br from-emerald-950/40 via-slate-950 to-slate-950 border-2 border-emerald-500/50 rounded-2xl p-3.5 shadow-lg shadow-emerald-950/30 hover:border-emerald-400 transition cursor-pointer flex flex-col justify-between transform hover:-translate-y-0.5">
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-xl">🎓</span>
+                            <span class="material-symbols-rounded text-xl text-emerald-400">school</span>
                             <span class="text-[9px] font-black text-emerald-300 bg-emerald-500/20 border border-emerald-500/40 px-1.5 py-0.5 rounded">LIVE ACTIVE</span>
                         </div>
                         <div class="text-xs font-black text-white">PASS-MATE</div>
@@ -859,7 +859,7 @@
                 <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 hover:border-slate-700 transition flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-xl">🏛️</span>
+                            <span class="material-symbols-rounded text-xl text-indigo-400">account_balance</span>
                             <span class="text-[9px] font-bold text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">20~26세</span>
                         </div>
                         <div class="text-xs font-black text-white">UNIV-MATE</div>
@@ -875,7 +875,7 @@
                 <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 hover:border-slate-700 transition flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-xl">💼</span>
+                            <span class="material-symbols-rounded text-xl text-blue-400">work</span>
                             <span class="text-[9px] font-bold text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">취준·직장</span>
                         </div>
                         <div class="text-xs font-black text-white">CAREER-MATE</div>
@@ -907,7 +907,7 @@
                 <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 hover:border-slate-700 transition flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-xl">🏥</span>
+                            <span class="material-symbols-rounded text-xl text-red-400">medical_services</span>
                             <span class="text-[9px] font-bold text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">의료·건강</span>
                         </div>
                         <div class="text-xs font-black text-white">MEDI-MATE</div>
@@ -923,7 +923,7 @@
                 <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 hover:border-slate-700 transition flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-xl">💍</span>
+                            <span class="material-symbols-rounded text-xl text-pink-400">favorite</span>
                             <span class="text-[9px] font-bold text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">25~45세</span>
                         </div>
                         <div class="text-xs font-black text-white">MARRY-MATE</div>
@@ -939,7 +939,7 @@
                 <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 hover:border-slate-700 transition flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-xl">🏡</span>
+                            <span class="material-symbols-rounded text-xl text-teal-400">home</span>
                             <span class="text-[9px] font-bold text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">부동산</span>
                         </div>
                         <div class="text-xs font-black text-white">HOME-MATE</div>
@@ -955,7 +955,7 @@
                 <div onclick="openBizVerifyModal()" class="bg-gradient-to-br from-amber-950/30 via-slate-950 to-slate-950 border border-amber-500/50 rounded-2xl p-3.5 hover:border-amber-400 transition cursor-pointer flex flex-col justify-between transform hover:-translate-y-0.5">
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-xl">🏢</span>
+                            <span class="material-symbols-rounded text-xl text-amber-500">storefront</span>
                             <span class="text-[9px] font-black text-amber-300 bg-amber-500/20 border border-amber-500/40 px-1.5 py-0.5 rounded">VERIFIED</span>
                         </div>
                         <div class="text-xs font-black text-white">BIZ-MATE</div>
@@ -1003,7 +1003,7 @@
                 <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 hover:border-slate-700 transition flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-xl">🕊️</span>
+                            <span class="material-symbols-rounded text-xl text-purple-400">volunteer_activism</span>
                             <span class="text-[9px] font-bold text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">시니어+</span>
                         </div>
                         <div class="text-xs font-black text-white">AFTER-MATE</div>
@@ -1308,15 +1308,15 @@
                 <div class="grid grid-cols-3 gap-2">
                     <button type="button" id="btn-role-student" onclick="selectPassmateRole('STUDENT')" class="py-2.5 px-2 rounded-xl text-xs font-black border-2 border-emerald-500 bg-emerald-500/20 text-emerald-300 transition flex flex-col items-center gap-1 cursor-pointer">
                         <span class="material-symbols-rounded text-base">person</span>
-                        <span>🧑‍🎓 학생 (수험생)</span>
+                        <span class="whitespace-nowrap">학생 (수험생)</span>
                     </button>
                     <button type="button" id="btn-role-parent" onclick="selectPassmateRole('PARENT')" class="py-2.5 px-2 rounded-xl text-xs font-bold border border-slate-700 bg-slate-900 text-slate-300 hover:text-white transition flex flex-col items-center gap-1 cursor-pointer">
                         <span class="material-symbols-rounded text-base">diversity_1</span>
-                        <span>👨‍👩‍👧 학부모</span>
+                        <span class="whitespace-nowrap">학부모</span>
                     </button>
                     <button type="button" id="btn-role-director" onclick="selectPassmateRole('DIRECTOR')" class="py-2.5 px-2 rounded-xl text-xs font-bold border border-slate-700 bg-slate-900 text-slate-300 hover:text-white transition flex flex-col items-center gap-1 cursor-pointer">
                         <span class="material-symbols-rounded text-base">corporate_fare</span>
-                        <span>🏢 학원장</span>
+                        <span class="whitespace-nowrap">학원장</span>
                     </button>
                 </div>
             </div>
@@ -1370,7 +1370,7 @@
                         <input type="tel" id="pm-pa-child-phone" placeholder="010-0000-0000" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none">
                     </div>
                     <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs">
-                        💡 <strong>자동 연동 안내:</strong> 자녀가 PASS-MATE에 가입되어 있는 경우, 자녀의 휴대폰 번호로 3초 만에 실시간 성적 및 순공 데이터가 연동됩니다.
+                        <span class="material-symbols-rounded text-sm text-emerald-400 align-middle mr-1">info</span><strong>자동 연동 안내:</strong> 자녀가 PASS-MATE에 가입되어 있는 경우, 자녀의 휴대폰 번호로 3초 만에 실시간 성적 및 순공 데이터가 연동됩니다.
                     </div>
                 </div>
 
@@ -1395,8 +1395,8 @@
                             학원장 관제실은 <strong>엔터프라이즈 정회원 라이선스 결제 및 본사 인가</strong> 후 활성화됩니다. 아래 버튼으로 사전 접수 후 본사로 연락 주시면 즉시 결제 및 세팅이 진행됩니다.
                         </p>
                         <div class="text-[11px] text-amber-300 font-bold space-y-1 bg-slate-900/90 p-3 rounded-lg border border-amber-500/30">
-                            <div>📧 본사 라이선스 승인 이메일: <a href="mailto:1286ok@naver.com" class="underline text-white font-black">1286ok@naver.com</a> (PALIN 엔터프라이즈 운영본부)</div>
-                            <div>📞 대표 직통 유선 번호: <a href="tel:01055272979" class="underline text-white font-black">010-5527-2979</a></div>
+                            <div><span class="material-symbols-rounded text-xs text-amber-400 align-middle mr-1">mail</span>본사 라이선스 승인 이메일: <a href="mailto:1286ok@naver.com" class="underline text-white font-black">1286ok@naver.com</a> (PALIN 엔터프라이즈 운영본부)</div>
+                            <div><span class="material-symbols-rounded text-xs text-emerald-400 align-middle mr-1">call</span>대표 직통 유선 번호: <a href="tel:01055272979" class="underline text-white font-black">010-5527-2979</a></div>
                         </div>
                     </div>
                 </div>
@@ -2391,10 +2391,9 @@
             const viewParent = document.getElementById('persona-view-parent');
             const viewDirector = document.getElementById('persona-view-director');
 
-            const defaultBtnClass = "py-2.5 px-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer";
-            const activeStudentClass = "py-2.5 px-3 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-lg shadow-emerald-950/50 cursor-pointer";
-            const activeParentClass = "py-2.5 px-3 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-indigo-600 text-white shadow-lg shadow-indigo-950/50 cursor-pointer";
-            const activeDirectorClass = "py-2.5 px-3 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-amber-600 text-white shadow-lg shadow-amber-950/50 cursor-pointer";
+            const defaultBtnClass = "py-2.5 px-2 sm:px-4 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap";
+            // 통일된 PASS-MATE 브랜드 에메랄드 액티브 스타일 (알록달록 불일치 완전 영구 박멸)
+            const activeBtnClass = "py-2.5 px-2 sm:px-4 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-lg shadow-emerald-950/50 cursor-pointer whitespace-nowrap";
 
             if (tabStudent) tabStudent.className = defaultBtnClass;
             if (tabParent) tabParent.className = defaultBtnClass;
@@ -2405,13 +2404,13 @@
             if (viewDirector) viewDirector.style.display = 'none';
 
             if (p === 'PARENT') {
-                if (tabParent) tabParent.className = activeParentClass;
+                if (tabParent) tabParent.className = activeBtnClass;
                 if (viewParent) viewParent.style.display = 'grid';
             } else if (p === 'DIRECTOR' || p === 'TENANT_ADMIN') {
-                if (tabDirector) tabDirector.className = activeDirectorClass;
+                if (tabDirector) tabDirector.className = activeBtnClass;
                 if (viewDirector) viewDirector.style.display = 'grid';
             } else {
-                if (tabStudent) tabStudent.className = activeStudentClass;
+                if (tabStudent) tabStudent.className = activeBtnClass;
                 if (viewStudent) viewStudent.style.display = 'grid';
             }
         }
@@ -3045,7 +3044,7 @@ async function refreshUnifiedOrbitStatus() {
                                 <span class="material-symbols-rounded text-base text-indigo-400 shrink-0">school</span>
                                 <span class="truncate">${tUniv}</span>
                             </div>
-                            ${bUniv && bUniv !== '-' ? `<div class="text-[11px] text-slate-400 mt-1 truncate"><span class="text-slate-500 font-semibold">안정/기준:</span> ${bUniv}</div>` : ''}
+                            ${bUniv && bUniv !== '-' ? `<div class="text-[11px] text-slate-400 mt-1 truncate"><span class="text-slate-500 font-semibold">마지노선:</span> ${bUniv}</div>` : ''}
                         </div>
                     `;
                     if (targetBadge) {

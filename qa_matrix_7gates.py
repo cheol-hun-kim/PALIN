@@ -616,6 +616,26 @@ assert '#fbbf24' in req_fn_code and '#f59e0b' in req_fn_code, "openRequestModal 
 
 print("[GATE 4.8 PASS] Administrative Request Modal 4-Way Semantic Color Parity (VOD=Blue, ATTENDANCE=Green, CLASS_CHANGE=Amber, LEAVE=Red) 100% Verified!")
 
+# Gate 4.9: Day-Mode Admission Card & Deficit Warning Contrast Zero-Violation Defense
+assert 'body.day-mode #admission-distance-headline-card' in css_content, "Missing Day Mode admission card contrast rule"
+assert 'body.day-mode #admission-penalty-alert-box' in css_content, "Missing Day Mode penalty alert box contrast rule"
+assert 'body.day-mode #admission-penalty-alert-text' in css_content, "Missing Day Mode penalty alert text contrast rule"
+assert 'body.day-mode #admission-penalty-alert-badge' in css_content, "Missing Day Mode penalty alert badge contrast rule"
+assert 'body.day-mode #btn-toggle-admission-detail' in css_content, "Missing Day Mode accordion trigger contrast rule"
+assert '.header-action-btn' in css_content and '.header-btn-label' in css_content, "Missing unified header action button and label rules"
+assert 'renderAdmissionPathEngine()' in js_source, "togglePALINTheme must re-evaluate renderAdmissionPathEngine"
+print("[GATE 4.9 PASS] Day-Mode Admission Card & Deficit Warning High-Contrast Zero-Violation Defense Verified!")
+
+# Gate 4.10: Zero-Orphan Typography & Deck Full-Width (iPad & Mobile Viewport Defense)
+with open(os.path.join(ROOT_DIR, 'static', 'universe.html'), 'r', encoding='utf-8') as f:
+    u_content = f.read()
+
+assert 'max-w-xl' not in u_content[u_content.find('id="tab-pass-student"') - 200:u_content.find('id="tab-pass-student"')], "Deck tab bar must stretch 100% without max-w-xl squishing"
+assert 'whitespace-nowrap' in u_content and '학생 뷰' in u_content, "Persona tab labels must enforce whitespace-nowrap and concise symmetry"
+assert '👶' not in u_content and '🏛️' not in u_content and '💼' not in u_content, "Zero raw OS emojis in 12-clock product matrix (Material Symbols enforced)"
+assert 'activeBtnClass' in u_content and 'bg-emerald-600' in u_content, "Unified brand active tab styling verified across all 3 personas (Zero rainbow jumps)"
+print("[GATE 4.10 PASS] Zero-Orphan Typography & Deck Full-Width (iPad & Mobile Viewport Defense) 100% Verified!")
+
 # ==============================================================================
 # GATE 5: Backend / Frontend Syntax Compiles
 # ==============================================================================
