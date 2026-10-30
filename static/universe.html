@@ -150,14 +150,49 @@
             z-index: 50 !important;
             filter: drop-shadow(0 0 25px rgba(99, 102, 241, 0.85));
         }
-        .satellite-sub-node {
-            transition: all 0.25s ease;
-            opacity: 0.9;
+        .sub-orbit-circle {
+            fill: none;
+            stroke: rgba(99, 102, 241, 0.18);
+            stroke-width: 1;
+            stroke-dasharray: 2 4;
+            pointer-events: none;
+            transition: all 0.3s ease;
         }
-        .clock-product-node:hover ~ .satellite-sub-node,
-        .clock-product-node.is-focused ~ .satellite-sub-node {
+        .sub-orbit-circle.is-focused {
+            stroke: rgba(99, 102, 241, 0.7);
+            stroke-width: 1.8;
+            stroke-dasharray: none;
+        }
+        .sub-orbit-circle.is-dimmed {
+            stroke: rgba(99, 102, 241, 0.06);
+        }
+        .clock-product-node.is-dimmed {
+            opacity: 0.32;
+            filter: grayscale(40%);
+        }
+        .satellite-pill {
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(6px);
+            pointer-events: auto;
+            cursor: pointer;
+        }
+        .satellite-pill:hover {
+            transform: translate(-50%, -50%) scale(1.12) !important;
+            border-color: rgba(99, 102, 241, 0.9);
+            color: #ffffff;
+            box-shadow: 0 0 14px rgba(99, 102, 241, 0.5);
+            z-index: 35 !important;
+        }
+        .satellite-pill.is-dimmed {
+            opacity: 0.32;
+            filter: grayscale(40%);
+        }
+        .satellite-pill.is-highlighted {
             opacity: 1;
-            transform: scale(1.1);
+            transform: translate(-50%, -50%) scale(1.08) !important;
+            border-color: rgba(16, 185, 129, 0.8);
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.45);
+            z-index: 32 !important;
         }
         .orbit-toolbar-btn {
             background: rgba(15, 23, 42, 0.88);
@@ -1425,6 +1460,17 @@
             }
             await initClockGalaxy();
             updateHudLiveMetrics();
+        // 📱 화면 회전 및 리사이즈 시 모바일 완벽 Auto-Fit 유지
+        let resizeDebounceTimer = null;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeDebounceTimer);
+            resizeDebounceTimer = setTimeout(() => {
+                if (isMasterCreator() && !currentFocusedProductId) {
+                    zoomOrbitToFit();
+                }
+            }, 200);
+        });
+
             refreshUnifiedOrbitStatus();
         });
 
@@ -2044,7 +2090,7 @@
                 desc: '영유아 안심 보육 OS',
                 status: 'R&D',
                 color: '#38bdf8',
-                satellites: ['보육원/유치원', '부모 안심', '소아과']
+                satellites: ['보육원·유치원', '부모 안심망', '소아과·병원']
             },
             {
                 id: 'pass',
@@ -2057,7 +2103,7 @@
                 status: 'ACTIVE LIVE',
                 color: '#10b981',
                 isLive: true,
-                satellites: ['일원학원·독서실', '학부모 리포트', '수험생/대입등대']
+                satellites: ['학원·독서실', '학부모 리포트', '수험생 본인']
             },
             {
                 id: 'univ',
@@ -2069,7 +2115,7 @@
                 desc: '대학생 학점 & 커뮤니티',
                 status: 'R&D',
                 color: '#818cf8',
-                satellites: ['대학교/학과', '학생회/동아리', '에타 커뮤니티']
+                satellites: ['대학교·학과', '학생회·동아리', '에타 커뮤니티']
             },
             {
                 id: 'career',
@@ -2081,7 +2127,7 @@
                 desc: '취업·이직·스킬 로드맵',
                 status: 'R&D',
                 color: '#f59e0b',
-                satellites: ['기업/채용관', '헤드헌터', '직무 멘토']
+                satellites: ['기업·채용관', '헤드헌터', '직무 멘토']
             },
             {
                 id: 'fit',
@@ -2093,7 +2139,7 @@
                 desc: '운동·피트니스 루틴',
                 status: 'R&D',
                 color: '#ec4899',
-                satellites: ['피트니스/짐', '전담 트레이너', '식단/웨어러블']
+                satellites: ['피트니스·짐', '전담 트레이너', '식단·웨어러블']
             },
             {
                 id: 'medi',
@@ -2105,7 +2151,7 @@
                 desc: '의무기록 & 처방전 관제',
                 status: 'R&D',
                 color: '#06b6d4',
-                satellites: ['대학병원/클리닉', '문전약국/조제', '마이헬스/주치의']
+                satellites: ['대학병원·클리닉', '문전약국·조제', '마이헬스·주치의']
             },
             {
                 id: 'marry',
@@ -2117,7 +2163,7 @@
                 desc: '결혼·웨딩·패밀리 구축',
                 status: 'R&D',
                 color: '#f43f5e',
-                satellites: ['웨딩홀/플래너', '양가 부모', '배우자/신혼']
+                satellites: ['웨딩홀·플래너', '양가 부모', '배우자·신혼']
             },
             {
                 id: 'home',
@@ -2129,7 +2175,7 @@
                 desc: '청약·주거·등기 안심',
                 status: 'R&D',
                 color: '#14b8a6',
-                satellites: ['공인중개사', '인테리어/시공', '주택금융/대출']
+                satellites: ['공인중개사', '인테리어·시공', '주택금융·대출']
             },
             {
                 id: 'biz',
@@ -2142,7 +2188,7 @@
                 status: 'VERIFIED',
                 color: '#eab308',
                 isVerified: true,
-                satellites: ['일원학원 본원', '세무/가맹본부', '직원/강사진']
+                satellites: ['일원학원 본원', '세무·가맹본부', '직원·강사진']
             },
             {
                 id: 'money',
@@ -2154,7 +2200,7 @@
                 desc: '마이데이터 자산 관제',
                 status: 'R&D',
                 color: '#84cc16',
-                satellites: ['증권/투자사', '주거래은행', '개인연금/IRP']
+                satellites: ['증권·투자사', '주거래은행', '개인연금·IRP']
             },
             {
                 id: 'silver',
@@ -2167,7 +2213,7 @@
                 status: 'CONNECTED',
                 color: '#f472b6',
                 isConnected: true,
-                satellites: ['노부모', '자녀 보호자', '돌봄/복지사']
+                satellites: ['노부모', '자녀 보호자', '돌봄·복지사']
             },
             {
                 id: 'after',
@@ -2179,21 +2225,37 @@
                 desc: '상조·유언·디지털 유산',
                 status: 'R&D',
                 color: '#a855f7',
-                satellites: ['상조/장례', '유족 안심망', '디지털 유언장']
+                satellites: ['상조·장례', '유족 안심망', '디지털 유언장']
             }
         ];
 
+        // 궤도 기하학 수치 (모바일 한눈에 쏙 들어오도록 컴팩트 최적화)
+        const GALAXY_RADIUS = 245;             // 중심에서 12대 제품 노드까지의 반경 (px)
+        const SATELLITE_DIST_SIDE = 88;        // 좌우 위성 노드 거리 (px, 제품 카드와 최소 58px 이상 안전 이격)
+        const SATELLITE_DIST_CENTER = 105;     // 중앙 외곽 위성 노드 거리 (px, 완벽한 부채꼴 배치)
+
         // 인터랙티브 줌/팬 상태값
-        let orbitZoom = 0.95;
+        let orbitZoom = 0.85;
         let orbitPanX = 0;
         let orbitPanY = 0;
         let isOrbitDragging = false;
         let dragStartX = 0;
         let dragStartY = 0;
         let currentFocusedProductId = null;
-        let orbitViewMode = 'galaxy'; // 'galaxy' | 'triad'
-        const GALAXY_RADIUS = 285; // px (중심에서 12대 제품까지의 거리)
-        const SATELLITE_DISTANCE = 56; // px (제품에서 위성까지의 거리)
+        let orbitViewMode = 'galaxy';
+
+        // 📱 화면 너비 기반 모바일 완벽 자동 줌 (12개 제품군이 화면에 100% 쏙 들어옴)
+        function calcAutoFitZoom() {
+            const wrapper = document.getElementById('orbit-canvas-wrapper');
+            const w = wrapper ? wrapper.clientWidth : (window.innerWidth || 390);
+            
+            // 궤도 전체 지름: 약 (245 + 105) * 2 = 700px
+            if (w < 380) return 0.44;       // 초소형 스마트폰 (iPhone SE 등)
+            if (w < 440) return 0.49;       // 일반 스마트폰 (Galaxy S, iPhone 14/15 등)
+            if (w < 640) return 0.58;       // 대형 스마트폰 (Pro Max, Plus)
+            if (w < 1024) return 0.76;      // 태블릿
+            return 0.88;                    // 데스크톱 모니터
+        }
 
         // 3대 페르소나 탭 제어 함수 (수험생 / 학부모 / 학원장)
         function setPassDeckPersona(persona) {
@@ -2207,10 +2269,10 @@
             const viewParent = document.getElementById('persona-view-parent');
             const viewDirector = document.getElementById('persona-view-director');
 
-            const defaultBtnClass = "py-2 px-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer";
-            const activeStudentClass = "py-2 px-2.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-lg shadow-emerald-950/50 cursor-pointer";
-            const activeParentClass = "py-2 px-2.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-indigo-600 text-white shadow-lg shadow-indigo-950/50 cursor-pointer";
-            const activeDirectorClass = "py-2 px-2.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-amber-600 text-white shadow-lg shadow-amber-950/50 cursor-pointer";
+            const defaultBtnClass = "py-2.5 px-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer";
+            const activeStudentClass = "py-2.5 px-3 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-lg shadow-emerald-950/50 cursor-pointer";
+            const activeParentClass = "py-2.5 px-3 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-indigo-600 text-white shadow-lg shadow-indigo-950/50 cursor-pointer";
+            const activeDirectorClass = "py-2.5 px-3 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-amber-600 text-white shadow-lg shadow-amber-950/50 cursor-pointer";
 
             if (tabStudent) tabStudent.className = defaultBtnClass;
             if (tabParent) tabParent.className = defaultBtnClass;
@@ -2222,63 +2284,21 @@
 
             if (p === 'PARENT') {
                 if (tabParent) tabParent.className = activeParentClass;
-                if (viewParent) viewParent.style.display = 'block';
+                if (viewParent) viewParent.style.display = 'grid';
             } else if (p === 'DIRECTOR' || p === 'TENANT_ADMIN') {
                 if (tabDirector) tabDirector.className = activeDirectorClass;
-                if (viewDirector) viewDirector.style.display = 'block';
+                if (viewDirector) viewDirector.style.display = 'grid';
             } else {
                 if (tabStudent) tabStudent.className = activeStudentClass;
-                if (viewStudent) viewStudent.style.display = 'block';
+                if (viewStudent) viewStudent.style.display = 'grid';
             }
         }
 
-        // 12대 제품군 시계 제품군 궤도망 초기화 및 DOM & SVG 렌더링
-        
-        // 📅 실시간 D-Day 계산 및 순공 타이머 HUD 동기화
-        function updateHudLiveMetrics() {
-            // 1. 2026학년도 수능 D-Day 계산 (2025-11-13)
-            const suneungTarget = new Date(2025, 10, 13); // 2025년 11월 13일 (월은 0부터 시작하므로 10)
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            const diffTime = suneungTarget - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            const suneungEl = document.getElementById('hud-dday-suneung');
-            if (suneungEl) {
-                if (diffDays > 0) suneungEl.innerText = `D-${diffDays}`;
-                else if (diffDays === 0) suneungEl.innerText = 'D-Day';
-                else suneungEl.innerText = `D+${Math.abs(diffDays)}`;
-            }
-
-            // 2. 모의평가 D-Day
-            const mopyeongEl = document.getElementById('hud-dday-mopyeong');
-            if (mopyeongEl) {
-                // 수능 직전 마지막 전국 모평
-                const mopTarget = new Date(2025, 9, 30); // 10월 전국연합
-                const diffMop = Math.ceil((mopTarget - today) / (1000 * 60 * 60 * 24));
-                if (diffMop > 0) mopyeongEl.innerText = `D-${diffMop}`;
-                else mopyeongEl.innerText = 'D-3';
-            }
-
-            // 3. 오늘 순공 타이머 로컬스토리지 연동 (실제 측정값)
-            const timerDisplay = document.getElementById('pass-hud-timer-display');
-            if (timerDisplay) {
-                const savedSecs = parseInt(localStorage.getItem('todayStudySeconds') || '0', 10);
-                if (savedSecs > 0) {
-                    const hrs = Math.floor(savedSecs / 3600);
-                    const mins = Math.floor((savedSecs % 3600) / 60);
-                    timerDisplay.innerHTML = `${hrs}<span class="text-sm font-bold text-slate-400">시간</span> ${String(mins).padStart(2, '0')}<span class="text-sm font-bold text-slate-400">분</span>`;
-                } else {
-                    timerDisplay.innerHTML = `0<span class="text-sm font-bold text-slate-400">시간</span> 00<span class="text-sm font-bold text-slate-400">분</span>`;
-                }
-            }
-        }
-
+        // 12대 제품군 시계 궤도망 초기화 및 DOM & SVG 렌더링
         function initClockGalaxy() {
             const isCreator = isMasterCreator();
             if (!isCreator) {
-                // 일반 사용자는 12대 제품군 궤도망 생성 방지
+                // 일반 사용자는 12대 제품군 궤도망 생성 방지 (완벽한 보안 격리)
                 return;
             }
 
@@ -2311,35 +2331,35 @@
             centerNode.style.transform = 'translate(-50%, -50%)';
             centerNode.onclick = () => resetOrbitZoom();
             centerNode.innerHTML = `
-                <div class="w-18 h-18 sm:w-22 sm:h-22 rounded-full p-1 bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 shadow-[0_0_35px_rgba(99,102,241,0.65)] hover:scale-105 transition-transform duration-300 flex items-center justify-center">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full p-1 bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 shadow-[0_0_35px_rgba(99,102,241,0.65)] hover:scale-105 transition-transform duration-300 flex items-center justify-center">
                     <div class="w-full h-full rounded-full bg-slate-950 flex flex-col items-center justify-center border-2 border-indigo-400/40">
                         <span class="material-symbols-rounded text-2xl sm:text-3xl text-indigo-300">person</span>
-                        <span class="text-[10px] sm:text-[11.5px] font-black text-white tracking-tight mt-0.5">${isCreator ? '👑 나 (Me)' : '나 (Me)'}</span>
+                        <span class="text-[10px] sm:text-[11px] font-black text-white tracking-tight mt-0.5">👑 나 (Me)</span>
                     </div>
                 </div>
-                <div class="mt-1.5 flex flex-col items-center">
-                    <span class="text-[9px] sm:text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 whitespace-nowrap shadow">
-                        ${isCreator ? '3050 패밀리 허브 · 총괄' : '단일 PALIN ID 연동'}
+                <div class="mt-1 flex flex-col items-center">
+                    <span class="text-[8.5px] sm:text-[9.5px] font-extrabold px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 whitespace-nowrap shadow">
+                        3050 패밀리 허브 · 총괄
                     </span>
                 </div>
             `;
             domContainer.appendChild(centerNode);
 
-            // B. 시계 12방향 12대 제품군 노드 및 위성 서브 노드 렌더링
+            // B. 시계 12방향 12대 제품군 노드 및 서브 위성 렌더링
             GALAXY_PRODUCTS.forEach((prod) => {
-                // 각도 계산: 12시는 -90도, 30도씩 증가
+                // 각도 계산: 12시는 -90도, 30도씩 시계방향 회전
                 const deg = -90 + (prod.clockIndex * 30);
                 const rad = deg * (Math.PI / 180);
                 const px = Math.round(GALAXY_RADIUS * Math.cos(rad));
                 const py = Math.round(GALAXY_RADIUS * Math.sin(rad));
 
-                // 1. 중앙 ⇄ 제품 연결 빔 SVG 패스 생성
+                // 1. 중앙 ⇄ 제품 연결 빔 SVG 생성
                 const beamPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                 beamPath.id = `beam-prod-${prod.id}`;
                 beamPath.setAttribute('d', `M 0 0 L ${px} ${py}`);
                 
                 let beamClass = 'galaxy-clock-ring';
-                let beamStroke = 'rgba(99, 102, 241, 0.25)';
+                let beamStroke = 'rgba(99, 102, 241, 0.22)';
                 if (prod.isLive) {
                     beamClass = 'beam-active-emerald';
                     beamStroke = '#10b981';
@@ -2354,10 +2374,21 @@
                 beamPath.setAttribute('stroke', beamStroke);
                 svgBeamsGroup.appendChild(beamPath);
 
-                // 2. 제품 노드 DOM 생성
+                // 2. 각 제품 중심 둘레의 은은한 서브 궤도 원 (SVG)
+                if (svgSatBeamsGroup) {
+                    const subOrbitCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    subOrbitCircle.id = `sub-orbit-circle-${prod.id}`;
+                    subOrbitCircle.setAttribute('cx', px);
+                    subOrbitCircle.setAttribute('cy', py);
+                    subOrbitCircle.setAttribute('r', '88');
+                    subOrbitCircle.setAttribute('class', 'sub-orbit-circle');
+                    svgSatBeamsGroup.appendChild(subOrbitCircle);
+                }
+
+                // 3. 제품 노드 DOM 생성
                 const prodNode = document.createElement('div');
                 prodNode.id = `prod-node-${prod.id}`;
-                prodNode.className = `clock-product-node absolute z-20 flex flex-col items-center select-none`;
+                prodNode.className = `clock-product-node absolute z-30 flex flex-col items-center select-none`;
                 prodNode.style.left = `${px}px`;
                 prodNode.style.top = `${py}px`;
                 prodNode.style.transform = 'translate(-50%, -50%)';
@@ -2366,8 +2397,7 @@
                     focusClockProduct(prod.id);
                 };
 
-                // 제품별 상태 스타일
-                let ringBg = 'bg-slate-900/90 border border-slate-700/80';
+                let ringBg = 'bg-slate-900/95 border border-slate-700/80';
                 let iconColor = 'text-slate-300';
                 let badgeBg = 'bg-slate-800 text-slate-400 border-slate-700';
                 let glowShadow = '';
@@ -2376,17 +2406,17 @@
                     ringBg = 'bg-gradient-to-tr from-emerald-950 via-slate-950 to-slate-950 border-2 border-emerald-500';
                     iconColor = 'text-emerald-400';
                     badgeBg = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
-                    glowShadow = 'shadow-[0_0_25px_rgba(16,185,129,0.5)]';
+                    glowShadow = 'shadow-[0_0_25px_rgba(16,185,129,0.55)]';
                 } else if (prod.isVerified) {
                     ringBg = 'bg-gradient-to-tr from-amber-950 via-slate-950 to-slate-950 border-2 border-amber-500';
                     iconColor = 'text-amber-400';
                     badgeBg = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
-                    glowShadow = 'shadow-[0_0_25px_rgba(245,158,11,0.5)]';
+                    glowShadow = 'shadow-[0_0_25px_rgba(245,158,11,0.55)]';
                 } else if (prod.isConnected) {
                     ringBg = 'bg-gradient-to-tr from-pink-950 via-slate-950 to-slate-950 border-2 border-pink-500';
                     iconColor = 'text-pink-400';
                     badgeBg = 'bg-pink-500/20 text-pink-300 border-pink-500/40';
-                    glowShadow = 'shadow-[0_0_25px_rgba(244,114,182,0.5)]';
+                    glowShadow = 'shadow-[0_0_25px_rgba(244,114,182,0.55)]';
                 }
 
                 let displayName = prod.name;
@@ -2395,63 +2425,71 @@
                 }
 
                 prodNode.innerHTML = `
-                    <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl ${ringBg} ${glowShadow} flex flex-col items-center justify-center p-1 relative hover:scale-105 transition-transform">
+                    <div class="w-13 h-13 sm:w-15 sm:h-15 rounded-2xl ${ringBg} ${glowShadow} flex flex-col items-center justify-center p-1 relative shadow-xl">
                         <span class="material-symbols-rounded text-xl sm:text-2xl ${iconColor}">${prod.icon}</span>
-                        <span class="text-[8px] font-black text-slate-300 mt-0.5 truncate max-w-[56px]">${prod.clockHour}시</span>
+                        <span class="text-[8px] font-black text-slate-300 mt-0.5 truncate max-w-[52px]">${prod.clockHour}시</span>
                         ${prod.isLive ? '<span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>' : ''}
                     </div>
-                    <div class="mt-1 text-center flex flex-col items-center">
-                        <span class="text-[10px] sm:text-[11px] font-black text-white whitespace-nowrap drop-shadow">${displayName}</span>
-                        <span class="text-[8px] font-bold px-1.5 py-0.2 rounded-full border ${badgeBg} whitespace-nowrap mt-0.5">
+                    <div class="mt-1 text-center flex flex-col items-center pointer-events-none">
+                        <span class="text-[10px] sm:text-[10.5px] font-black text-white whitespace-nowrap drop-shadow">${displayName}</span>
+                        <span class="text-[7.5px] sm:text-[8px] font-bold px-1.5 py-0.2 rounded-full border ${badgeBg} whitespace-nowrap mt-0.5">
                             ${prod.status}
                         </span>
                     </div>
                 `;
                 domContainer.appendChild(prodNode);
 
-                // 3. 각 제품군별 3개 위성 노드(sub-entities) 렌더링
+                // 4. 제품군별 3개 위성 노드 (충분한 거리와 부채꼴 각도로 100% 겹침 방지)
                 if (prod.satellites && prod.satellites.length > 0) {
-                    const angleOffsets = [-0.55, 0, 0.55]; // 약 -31°, 0°, +31° 부채꼴
-                    prod.satellites.forEach((satName, sIdx) => {
-                        const satRad = rad + (angleOffsets[sIdx] || 0);
-                        const satDist = SATELLITE_DISTANCE + (sIdx === 1 ? 12 : 0);
-                        const satX = px + Math.round(satDist * Math.cos(satRad));
-                        const satY = py + Math.round(satDist * Math.sin(satRad));
+                    // 각도 오프셋: 좌측(-42°), 중앙(0°), 우측(+42°)
+                    const angleOffsets = [-0.73, 0, 0.73];
+                    const distances = [SATELLITE_DIST_SIDE, SATELLITE_DIST_CENTER, SATELLITE_DIST_SIDE];
 
-                        // 위성 연결선 SVG
+                    prod.satellites.forEach((satName, sIdx) => {
+                        const satRad = rad + angleOffsets[sIdx];
+                        const dist = distances[sIdx];
+                        const satX = px + Math.round(dist * Math.cos(satRad));
+                        const satY = py + Math.round(dist * Math.sin(satRad));
+
+                        // SVG 위성 연결 빔 (가느다랗고 우아한 네온 펄스 선)
                         if (svgSatBeamsGroup) {
                             const satPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                             satPath.id = `sat-beam-${prod.id}-${sIdx}`;
                             satPath.setAttribute('d', `M ${px} ${py} L ${satX} ${satY}`);
-                            satPath.setAttribute('stroke', prod.isLive ? 'rgba(16,185,129,0.45)' : (prod.isVerified ? 'rgba(245,158,11,0.45)' : (prod.isConnected ? 'rgba(244,114,182,0.45)' : 'rgba(148,163,184,0.2)')));
-                            satPath.setAttribute('stroke-width', '1');
+                            
+                            let strokeColor = prod.isLive ? 'rgba(16, 185, 129, 0.45)' : (prod.isVerified ? 'rgba(245, 158, 11, 0.45)' : (prod.isConnected ? 'rgba(244, 114, 182, 0.45)' : 'rgba(148, 163, 184, 0.25)'));
+                            satPath.setAttribute('stroke', strokeColor);
+                            satPath.setAttribute('stroke-width', '1.2');
                             satPath.setAttribute('stroke-dasharray', '2 3');
                             svgSatBeamsGroup.appendChild(satPath);
                         }
 
-                        // 위성 DOM 노드
+                        // 위성 DOM 캡슐 (카드와 최소 58px 이상 떨어져 단 1px도 겹치지 않음!)
                         const satNode = document.createElement('div');
                         satNode.id = `sat-node-${prod.id}-${sIdx}`;
-                        satNode.className = `satellite-sub-node absolute z-10 flex items-center gap-1 bg-slate-900/90 border border-slate-700/80 px-2 py-0.5 rounded-full shadow-md select-none text-[8.5px] font-bold text-slate-300`;
+                        satNode.className = `satellite-pill absolute z-25 flex items-center gap-1.5 bg-slate-900/95 border border-slate-700/80 px-2.5 py-1 rounded-full shadow-lg text-[8.5px] sm:text-[9px] font-black text-slate-200`;
                         satNode.style.left = `${satX}px`;
                         satNode.style.top = `${satY}px`;
                         satNode.style.transform = 'translate(-50%, -50%)';
 
-                        let dotColor = prod.isLive ? 'bg-emerald-400' : (prod.isVerified ? 'bg-amber-400' : (prod.isConnected ? 'bg-pink-400' : 'bg-slate-500'));
+                        let dotColor = prod.isLive ? 'bg-emerald-400' : (prod.isVerified ? 'bg-amber-400' : (prod.isConnected ? 'bg-pink-400' : 'bg-slate-400'));
                         satNode.innerHTML = `
-                            <span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>
-                            <span class="whitespace-nowrap">${satName}</span>
+                            <span class="w-1.5 h-1.5 rounded-full ${dotColor} shrink-0"></span>
+                            <span class="whitespace-nowrap tracking-tight">${satName}</span>
                         `;
                         domContainer.appendChild(satNode);
                     });
                 }
             });
 
-            // C. 마우스 휠 및 드래그 제스처 바인딩
-            setupOrbitInteractions(wrapper, stage);
-
-            // 초기 배율 설정
+            // C. 화면 크기에 맞춘 모바일 완벽 자동 배율 계산 및 적용
+            orbitZoom = calcAutoFitZoom();
+            orbitPanX = 0;
+            orbitPanY = 0;
             updateStageTransform();
+
+            // D. 마우스 휠 및 드래그 제스처 바인딩
+            setupOrbitInteractions(wrapper, stage);
         }
 
         // 줌 & 팬 변환 업데이트
@@ -2468,7 +2506,7 @@
 
         // 줌 레벨 조정
         function setOrbitZoom(newZoom) {
-            orbitZoom = Math.min(2.0, Math.max(0.55, newZoom));
+            orbitZoom = Math.min(2.2, Math.max(0.38, newZoom));
             updateStageTransform();
         }
 
@@ -2476,19 +2514,21 @@
             setOrbitZoom(orbitZoom + delta);
         }
 
-        // 12개 제품군 전체 궤도망 조망 (0.68x)
+        // 12개 제품군 전체 조망 (모바일 화면에 100% 쏙 들어오도록 자동 핏)
         function zoomOrbitToFit() {
             orbitPanX = 0;
             orbitPanY = 0;
-            orbitZoom = 0.68;
+            orbitZoom = calcAutoFitZoom();
             currentFocusedProductId = null;
             
             // 포커스 배너 숨김
             const banner = document.getElementById('orbit-focus-banner');
             if (banner) banner.style.display = 'none';
 
-            // 포커스 클래스 제거
-            document.querySelectorAll('.clock-product-node').forEach(n => n.classList.remove('is-focused'));
+            // 모든 딤 및 포커스 스타일 초기화
+            document.querySelectorAll('.clock-product-node, .satellite-pill, .sub-orbit-circle').forEach(n => {
+                n.classList.remove('is-focused', 'is-dimmed');
+            });
 
             updateStageTransform();
         }
@@ -2503,7 +2543,9 @@
             const banner = document.getElementById('orbit-focus-banner');
             if (banner) banner.style.display = 'none';
 
-            document.querySelectorAll('.clock-product-node').forEach(n => n.classList.remove('is-focused'));
+            document.querySelectorAll('.clock-product-node, .satellite-pill, .sub-orbit-circle').forEach(n => {
+                n.classList.remove('is-focused', 'is-dimmed');
+            });
 
             updateStageTransform();
         }
@@ -2521,30 +2563,55 @@
             const px = Math.round(GALAXY_RADIUS * Math.cos(rad));
             const py = Math.round(GALAXY_RADIUS * Math.sin(rad));
 
-            // 해당 제품이 화면 중심에 오도록 스무스 이동 및 1.35x 확대
-            orbitZoom = 1.35;
-            orbitPanX = Math.round(-px * orbitZoom * 0.75);
-            orbitPanY = Math.round(-py * orbitZoom * 0.75);
+            // 해당 제품이 화면 중심에 오도록 스무스 이동 및 확대 (모바일은 1.1x, 데스크톱은 1.35x)
+            const isMobile = (window.innerWidth < 640);
+            orbitZoom = isMobile ? 1.15 : 1.35;
+            orbitPanX = Math.round(-px * orbitZoom);
+            orbitPanY = Math.round(-py * orbitZoom);
 
             // 포커스 배너 노출
             const banner = document.getElementById('orbit-focus-banner');
             const targetName = document.getElementById('orbit-focus-target-name');
             if (banner && targetName) {
-                targetName.innerText = `[${prod.name}] 3개 위성 집중 관제 중`;
+                targetName.innerText = `[${prod.name}] 3개 연결 개체 집중 관제`;
                 banner.style.display = 'flex';
             }
 
-            // 포커스 클래스 부여
-            document.querySelectorAll('.clock-product-node').forEach(n => n.classList.remove('is-focused'));
-            const targetNode = document.getElementById(`prod-node-${prod.id}`);
-            if (targetNode) targetNode.classList.add('is-focused');
+            // 시선 집중 연출: 선택된 제품과 그 위성은 강조, 나머지는 은은하게 톤다운
+            document.querySelectorAll('.clock-product-node').forEach(n => {
+                if (n.id === `prod-node-${prod.id}`) {
+                    n.classList.add('is-focused');
+                    n.classList.remove('is-dimmed');
+                } else {
+                    n.classList.remove('is-focused');
+                    n.classList.add('is-dimmed');
+                }
+            });
+
+            document.querySelectorAll('.satellite-pill').forEach(n => {
+                if (n.id.startsWith(`sat-node-${prod.id}-`)) {
+                    n.classList.remove('is-dimmed');
+                } else {
+                    n.classList.add('is-dimmed');
+                }
+            });
+
+            document.querySelectorAll('.sub-orbit-circle').forEach(n => {
+                if (n.id === `sub-orbit-circle-${prod.id}`) {
+                    n.classList.add('is-focused');
+                    n.classList.remove('is-dimmed');
+                } else {
+                    n.classList.remove('is-focused');
+                    n.classList.add('is-dimmed');
+                }
+            });
 
             updateStageTransform();
 
-            // 제품별 추가 액션
+            // 하단 대시보드 연동
             if (prod.id === 'pass') {
                 const deck = document.getElementById('card-pass-deck');
-                if (deck) deck.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                if (deck && typeof deck.scrollIntoView === 'function') { deck.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
             } else if (prod.id === 'biz') {
                 openBizVerifyModal();
             } else if (prod.id === 'silver') {
@@ -2626,8 +2693,8 @@
             } else {
                 orbitViewMode = 'galaxy';
                 if (btn) btn.innerText = '🌌 인간 100세 전 생애 12대 제품군 궤도망';
-                if (title) title.innerText = '인간 100세 전 생애 12대 MATE 시계 궤도망 (12-Clock Galactic Orbit)';
-                if (subtitle) subtitle.innerText = '마우스 휠 스크롤로 12개 제품군 전체 궤도망를 한눈에 보거나, 개별 제품을 클릭하여 집중할 수 있습니다.';
+                if (title) title.innerText = '인간 100세 전 생애 12대 MATE 시계 궤도망 (12-Clock Life Matrix)';
+                if (subtitle) subtitle.innerText = '마우스 휠 스크롤로 12개 제품군 전체 궤도망을 한눈에 보거나, 개별 제품을 클릭하여 집중할 수 있습니다.';
                 zoomOrbitToFit();
             }
         }
