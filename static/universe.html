@@ -30,6 +30,29 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800;900&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <style>
+        /* ⚡ [PERMANENT ZERO-ORPHAN KOREAN TYPOGRAPHY ENGINE]
+           한글 음절 어색한 쪼개짐/외톨이 단어 100% 영구 원천 박멸 전역 룰 */
+        *, *::before, *::after {
+            word-break: keep-all !important;
+            overflow-wrap: break-word !important;
+        }
+
+        /* 모든 뱃지, 태그, 칩, 버튼, 네비게이션 탭의 줄바꿈/외톨이 글자 원천 차단 */
+        .badge, [class*="badge"], [class*="pill"], [class*="chip"],
+        .btn, button, [role="button"],
+        .tab-btn, [class*="tab-"],
+        span[class*="rounded-full"],
+        .whitespace-nowrap {
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+        }
+
+        /* flex-between 헤더 내 텍스트 컨테이너 줄바꿈 보호 */
+        [class*="justify-between"] > span,
+        [class*="justify-between"] > div {
+            word-break: keep-all !important;
+        }
+
         body {
             font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
             background-color: #0b0f19;

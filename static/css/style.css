@@ -14,9 +14,26 @@ html, body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* ⚡ [PERMANENT ZERO-ORPHAN KOREAN TYPOGRAPHY ENGINE]
+   한글 음절 어색한 쪼개짐/외톨이 단어 100% 영구 원천 박멸 전역 룰 */
+*, *::before, *::after {
+    word-break: keep-all !important;
+    overflow-wrap: break-word !important;
+}
+
 body, p, span, div, h1, h2, h3, h4, h5, h6, label, button, .card, .banner, .modal {
-    word-break: keep-all;
-    overflow-wrap: break-word;
+    word-break: keep-all !important;
+    overflow-wrap: break-word !important;
+}
+
+/* 모든 뱃지, 태그, 칩, 버튼, 네비게이션 탭의 줄바꿈/외톨이 글자 원천 차단 */
+.badge, [class*="badge"], [class*="pill"], [class*="chip"],
+.btn, button, [role="button"],
+.tab-btn, [class*="tab-"],
+span[class*="rounded-full"],
+.whitespace-nowrap {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
 }
 
 .u-truncate {

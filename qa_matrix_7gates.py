@@ -637,7 +637,23 @@ assert '👶' not in u_content and '🏛️' not in u_content and '💼' not in 
 assert 'lg:grid-cols-3' in u_content, "Persona decks must use lg:grid-cols-3 to prevent iPad portrait squishing"
 assert 'whitespace-nowrap shrink-0' in u_content, "All persona card badges must enforce whitespace-nowrap shrink-0"
 assert 'activeBtnClass' in u_content and 'bg-emerald-600' in u_content, "Unified brand active tab styling verified across all 3 personas (Zero rainbow jumps)"
-print("[GATE 4.10 PASS] Zero-Orphan Typography & Deck Full-Width (iPad & Mobile Viewport Defense) 100% Verified!")
+
+# ⚡ [PERMANENT ZERO-ORPHAN KOREAN TYPOGRAPHY ENGINE ENFORCEMENT]
+# 1) universe.html global word-break and badge nowrap enforcement
+assert 'word-break: keep-all !important;' in u_content, "Missing global word-break: keep-all in universe.html"
+assert 'overflow-wrap: break-word !important;' in u_content, "Missing global overflow-wrap: break-word in universe.html"
+
+# 2) style.css global word-break and badge nowrap enforcement
+assert 'word-break: keep-all !important;' in css_content, "Missing global word-break: keep-all in style.css"
+assert 'overflow-wrap: break-word !important;' in css_content, "Missing global overflow-wrap: break-word in style.css"
+assert '.whitespace-nowrap' in css_content and 'white-space: nowrap !important;' in css_content, "Missing badge/button nowrap enforcement in style.css"
+
+# 3) index.html global typography engine enforcement
+with open(os.path.join(ROOT_DIR, 'static', 'index.html'), 'r', encoding='utf-8', errors='ignore') as f:
+    idx_content = f.read()
+assert 'word-break: keep-all !important;' in idx_content, "Missing global word-break: keep-all in index.html"
+
+print("[GATE 4.10 PASS] Zero-Orphan Typography Engine & Deck Full-Width (Universal keep-all & nowrap) 100% Verified!")
 
 # ==============================================================================
 # GATE 5: Backend / Frontend Syntax Compiles
