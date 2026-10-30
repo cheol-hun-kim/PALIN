@@ -37,12 +37,26 @@
             overflow-wrap: break-word !important;
         }
 
-        /* 모든 뱃지, 태그, 칩, 버튼, 네비게이션 탭의 줄바꿈/외톨이 글자 원천 차단 */
-        .badge, [class*="badge"], [class*="pill"], [class*="chip"],
-        .btn, button, [role="button"],
-        .tab-btn, [class*="tab-"],
+        /* 오직 뱃지, 칩, 알약 태그 및 명시적 whitespace-nowrap 요소만 1줄 유지 */
+        .badge:not(.allow-wrap),
+        [class*="badge"]:not(.allow-wrap),
+        [class*="pill"]:not(.allow-wrap),
+        [class*="chip"]:not(.allow-wrap),
+        .tab-btn,
         span[class*="rounded-full"],
         .whitespace-nowrap {
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+        }
+
+        /* 일반 버튼 및 컨테이너는 긴 문장 시 자동 줄바꿈 허용 (화면/카드 탈출 100% 방지) */
+        .btn, button, [role="button"] {
+            white-space: normal;
+            word-break: keep-all !important;
+            overflow-wrap: break-word !important;
+            max-width: 100%;
+        }
+        .btn.whitespace-nowrap, button.whitespace-nowrap {
             white-space: nowrap !important;
             flex-shrink: 0 !important;
         }

@@ -701,6 +701,23 @@ assert 'word-break: keep-all !important;' in idx_content, "Missing global word-b
 
 print("[GATE 4.10 PASS] Zero-Orphan Typography Engine & Deck Full-Width (Universal keep-all & nowrap) 100% Verified!")
 
+# Gate 4.11: Academic Calendar & Sub-Container Day Mode Contrast Zero-Violation Defense
+assert 'body.day-mode #calendar-selected-day-box' in css_content, "Missing Day Mode #calendar-selected-day-box contrast rule in style.css"
+assert 'body.day-mode #calendar-selected-date-text' in css_content, "Missing Day Mode calendar-selected-date-text contrast rule in style.css"
+assert 'body.day-mode .calendar-empty-notice' in css_content, "Missing Day Mode calendar-empty-notice contrast rule in style.css"
+assert 'body.day-mode .calendar-event-card' in css_content, "Missing Day Mode calendar-event-card contrast rule in style.css"
+assert 'calendar-empty-notice' in js_source, "renderCalendarSelectedDayDetails must inject class .calendar-empty-notice"
+assert 'calendar-event-card' in js_source, "renderCalendarSelectedDayDetails must inject class .calendar-event-card"
+assert 'id="calendar-selected-day-box" style="background: rgba(15, 23, 42' not in idx_content, "calendar-selected-day-box must not have hardcoded dark inline style in index.html"
+print("[GATE 4.11 PASS] Academic Calendar & Sub-Container Day Mode Contrast Zero-Violation Defense 100% Verified!")
+
+# Gate 4.12: Broad-Selector Nowrap Ban & Safe Overflow Engine Scanner
+assert '[class*="tab-"]' not in css_content[:css_content.find('.u-truncate')], "DANGEROUS: [class*='tab-'] must NEVER be in global nowrap rule (breaks tab containers)"
+assert 'tab-"],' not in u_content[:u_content.find('/* flex-between')], "DANGEROUS: [class*='tab-'] must NEVER be in universe.html nowrap rule"
+assert 'white-space: normal;' in css_content[:css_content.find('.u-truncate')], "Global buttons must allow normal wrapping to prevent escaping card boundaries"
+assert 'minmax(0, 1fr) minmax(0, 1fr)' in idx_content, "Two-column grids in index.html must enforce minmax(0, 1fr) to prevent overflow overlaps"
+print("[GATE 4.12 PASS] Broad-Selector Nowrap Ban & Safe Overflow Engine Scanner 100% Verified!")
+
 # ==============================================================================
 # GATE 5: Backend / Frontend Syntax Compiles
 # ==============================================================================

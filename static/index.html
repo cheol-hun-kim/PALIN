@@ -1555,7 +1555,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     </p>
 
                     <!-- 4대 안심 텔레메트리 그리드 (2x2) -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                    <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-bottom: 12px;">
                         <!-- 1) 기상 / 취침 루틴 -->
                         <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 12px;">
                             <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
@@ -1813,7 +1813,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <select id="up-major" class="form-input" style="width: 100%; padding: 8px 18px 8px 8px; font-size: 0.8rem; box-sizing: border-box;"></select>
             </div>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; width: 100%; box-sizing: border-box;">
+        <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; margin-bottom: 10px; width: 100%; box-sizing: border-box;">
             <div style="min-width: 0; width: 100%; box-sizing: border-box;">
                 <label class="input-label" style="font-size: 0.78rem; font-weight: 700; color: #818cf8; margin-bottom: 4px; display: block;">마지노선 대학</label>
                 <select id="up-base-univ" class="form-input" style="width: 100%; padding: 8px 18px 8px 8px; font-size: 0.8rem; box-sizing: border-box;"></select>
@@ -1922,7 +1922,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 8px;">
                 내신 등급을 기반으로 정량 평가합니다. 내신 평균 등급을 입력하면 교과 전형 합격 가능성을 진단합니다.
             </p>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; margin-bottom: 10px;">
                 <div>
                     <label class="input-label">내신 평균 등급</label>
                     <input type="number" id="susi-gpa" class="input-field" placeholder="예: 1.5" min="1" max="9" step="0.1">
@@ -1948,7 +1948,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <b>3.</b> 어쩌다 합격한 특이 케이스를 제외하고, <b>'주로' 합격한 대학 수준</b>을 파악하세요<br>
                 <b>4.</b> 아래에 결과를 입력하면 기록으로 남습니다
             </div>
-            <div style="margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div style="margin-top: 10px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px;">
                 <div>
                     <label class="input-label">희망대학 종합전형</label>
                     <select id="susi-target-verdict" class="input-field">
@@ -1996,7 +1996,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </select>
     </div>
     
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+    <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-bottom: 12px;">
         <div>
             <label class="input-label">국어 백분위 (0~100)</label>
             <input type="number" id="pred-kor" class="input-field" placeholder="0~100" min="0" max="100" step="1" oninput="if(Number(this.value)>100)this.value=100;if(Number(this.value)<0)this.value=0;" onkeyup="if(Number(this.value)>100)this.value=100;" onchange="if(Number(this.value)>100)this.value=100;">
@@ -2007,7 +2007,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
     
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+    <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-bottom: 12px;">
         <div>
             <label class="input-label">영어 원점수 (0~100)</label>
             <input type="number" id="pred-eng" class="input-field" placeholder="0~100" min="0" max="100" step="1" oninput="if(Number(this.value)>100)this.value=100;if(Number(this.value)<0)this.value=0;" onkeyup="if(Number(this.value)>100)this.value=100;" onchange="if(Number(this.value)>100)this.value=100;">
@@ -2019,7 +2019,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
     </div>
     
     <!-- 탐구1 & 탐구2 (과탐/사탐 선택 및 백분위) -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+    <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-bottom: 16px;">
         <div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                 <label class="input-label" style="margin: 0;">탐구 1</label>
@@ -2980,9 +2980,9 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 </div>
 
                                 <!-- 2. 특정 날짜 터치 시 펼쳐지는 당일 세부 학사일정 서랍 (Selected Day Schedule Drawer) -->
-                                <div id="calendar-selected-day-box" style="background: rgba(15, 23, 42, 0.75); border: 1.5px solid rgba(99, 102, 241, 0.35); border-radius: 12px; padding: 12px; margin-top: 4px;">
+                                <div id="calendar-selected-day-box" style="border-radius: 12px; padding: 12px; margin-top: 4px;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                        <div style="font-size: 0.82rem; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 6px;">
+                                        <div style="font-size: 0.82rem; font-weight: 800; display: flex; align-items: center; gap: 6px;">
                                             <span class="material-symbols-rounded" style="font-size: 1rem; color: #818cf8;">event_note</span>
                                             <span id="calendar-selected-date-text">2026년 10월 16일 (오늘) 학사일정</span>
                                         </div>
@@ -3141,7 +3141,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                         </div>
                                     </div>
 
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                                    <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; margin-bottom: 10px;">
                                         <div>
                                             <label style="font-size: 0.74rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">응시 과목</label>
                                             <select id="digital-omr-subject" onchange="onDigitalOmrSubjectChange()" class="form-input" style="width: 100%; font-weight: 700;">
@@ -3421,7 +3421,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                     <span>학생 행정 요청 센터 (학부모 알림톡 실시간 연동)</span>
                                 </div>
 
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                                <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; margin-bottom: 10px;">
                                     <button onclick="openRequestModal('VOD')" class="btn btn-secondary" style="padding: 12px 8px; text-align: left; display: flex; flex-direction: column; gap: 4px;">
                                         <div style="font-weight: 800; font-size: 0.85rem; color: #818cf8; display: flex; align-items: center; gap: 4px;">
                                             <span class="material-symbols-rounded" style="font-size: 1rem;">play_circle</span>
@@ -4263,7 +4263,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <span>내 보유 자산 현황</span>
                     <span style="font-size: 0.7rem; color: #94a3b8;">포인트 / 캐시 통합 지갑</span>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; margin-bottom: 10px;">
                     <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 10px;">
                         <div style="font-size: 0.7rem; color: #fcd34d; font-weight: 700;">무료 성실 포인트</div>
                         <div style="font-size: 1.15rem; font-weight: 900; color: #fbbf24; margin-top: 2px;" id="mypage-points">0 P</div>
@@ -5054,7 +5054,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     하루 1~1.5시간 분량의 기출 분석 숙제를 완료한 뒤 사진을 촬영하여 업로드하면 내 폴더에 자동 기록되며 원장님이 일괄 확인합니다.
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; margin-bottom: 10px;">
                     <div>
                         <label id="sf-stage-label" style="display: block; font-size: 0.74rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">수강 과정 / 구분</label>
                         <select id="sf-curriculum-stage" class="form-input" style="width: 100%; box-sizing: border-box; font-weight: 700; font-size: 0.8rem;">

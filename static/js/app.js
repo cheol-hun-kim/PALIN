@@ -14666,7 +14666,7 @@ function renderCalendarSelectedDayDetails(dateStr) {
 
     if (dayEvents.length === 0) {
         listEl.innerHTML = `
-            <div style="text-align: center; color: var(--text-secondary); font-size: 0.78rem; padding: 14px 10px; background: rgba(255,255,255,0.02); border-radius: 8px;">
+            <div class="calendar-empty-notice">
                 선택하신 날짜에 등록된 학사 일정 및 특별 공지가 없습니다.
             </div>
         `;
@@ -14679,16 +14679,16 @@ function renderCalendarSelectedDayDetails(dateStr) {
         const instBadge = ev.institution_name || (window.currentStudent?.academy_name || "일원학원");
 
         return `
-            <div style="background: rgba(255,255,255,0.03); border: 1.5px solid ${color}; border-radius: 10px; padding: 10px 12px; margin-bottom: 2px;">
+            <div class="calendar-event-card" style="border: 1.5px solid ${color};">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; flex-wrap: wrap; gap: 4px;">
                     <div style="display: flex; align-items: center; gap: 6px;">
                         <span style="background: ${color}; color: #ffffff; padding: 2px 7px; border-radius: 4px; font-size: 0.68rem; font-weight: 900;">${instBadge}</span>
                         ${isSpecial ? '<span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.68rem; font-weight: 800;">중요</span>' : ''}
-                        <span style="font-weight: 800; font-size: 0.84rem; color: var(--text-primary);">${ev.curriculum_name}</span>
+                        <span class="calendar-event-title">${ev.curriculum_name}</span>
                     </div>
-                    <span style="font-size: 0.72rem; color: var(--text-secondary);">${ev.feed_date}</span>
+                    <span class="calendar-event-date">${ev.feed_date}</span>
                 </div>
-                <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.45;">${ev.content}</div>
+                <div class="calendar-event-desc">${ev.content}</div>
             </div>
         `;
     }).join('');
