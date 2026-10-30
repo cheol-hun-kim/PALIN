@@ -492,10 +492,11 @@
                 </div>
 
                 <!-- 특정 제품 포커스 시 복귀 배너 -->
-                <div id="orbit-focus-banner" style="display: none;" class="absolute top-4 left-4 z-40 flex items-center gap-2 bg-indigo-950/90 border border-indigo-500/60 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-2xl">
+                <div id="orbit-focus-banner" style="display: none;" class="absolute top-4 left-4 z-40 flex items-center gap-2 bg-slate-900/95 border border-indigo-500/60 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-2xl">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
                     <span id="orbit-focus-target-name" class="text-xs font-black text-white">PASS-MATE 집중 관제</span>
-                    <button type="button" onclick="zoomOrbitToFit()" class="ml-2 px-2.5 py-1 rounded-lg text-[10px] font-black bg-indigo-600 hover:bg-indigo-500 text-white transition flex items-center gap-1 cursor-pointer">
+                    <div id="orbit-focus-actions" class="flex items-center gap-1.5 ml-1"></div>
+                    <button type="button" onclick="zoomOrbitToFit()" class="ml-1 px-2.5 py-1 rounded-lg text-[10px] font-black bg-indigo-600 hover:bg-indigo-500 text-white transition flex items-center gap-1 cursor-pointer">
                         <span class="material-symbols-rounded text-xs">arrow_back</span>
                         <span>12대 전체 복귀</span>
                     </button>
@@ -2333,8 +2334,8 @@
 
         // 궤도 기하학 수치 (모바일 한눈에 쏙 들어오도록 컴팩트 최적화)
         const GALAXY_RADIUS = 245;             // 중심에서 12대 제품 노드까지의 반경 (px)
-        const SATELLITE_DIST_SIDE = 88;        // 좌우 위성 노드 거리 (px, 제품 카드와 최소 58px 이상 안전 이격)
-        const SATELLITE_DIST_CENTER = 105;     // 중앙 외곽 위성 노드 거리 (px, 완벽한 부채꼴 배치)
+        const SATELLITE_DIST_SIDE = 94;        // 좌우 위성 노드 거리 (px, 서브 궤도 원과 일치)
+        const SATELLITE_DIST_CENTER = 130;     // 중앙 외곽 위성 노드 거리 (px, 외곽 궤도로 36px 대폭 이격하여 겹침 0% 원천 차단)
 
         // 인터랙티브 줌/팬 상태값
         let orbitZoom = 0.85;
@@ -2482,7 +2483,7 @@
                     subOrbitCircle.id = `sub-orbit-circle-${prod.id}`;
                     subOrbitCircle.setAttribute('cx', px);
                     subOrbitCircle.setAttribute('cy', py);
-                    subOrbitCircle.setAttribute('r', '88');
+                    subOrbitCircle.setAttribute('r', '94');
                     subOrbitCircle.setAttribute('class', 'sub-orbit-circle');
                     svgSatBeamsGroup.appendChild(subOrbitCircle);
                 }
@@ -2544,7 +2545,7 @@
                 // 4. 제품군별 3개 위성 노드 (충분한 거리와 부채꼴 각도로 100% 겹침 방지)
                 if (prod.satellites && prod.satellites.length > 0) {
                     // 각도 오프셋: 좌측(-42°), 중앙(0°), 우측(+42°)
-                    const angleOffsets = [-0.73, 0, 0.73];
+                    const angleOffsets = [-0.96, 0, 0.96]; // 좌우 약 55도 부채꼴 전개로 알약 간 최소 20px 이상 절대 여백 확보
                     const distances = [SATELLITE_DIST_SIDE, SATELLITE_DIST_CENTER, SATELLITE_DIST_SIDE];
 
                     prod.satellites.forEach((satName, sIdx) => {
@@ -2636,6 +2637,14 @@
         }
 
         // 나(Me) 중심 1.0x 리셋
+                // 사용자가 배너에서 명시적으로 대시보드 이동을 눌렀을 때만 부드럽게 스크롤
+        function scrollToPassDeck() {
+            const deck = document.getElementById('card-pass-deck') || document.getElementById('pass-control-deck');
+            if (deck && typeof deck.scrollIntoView === 'function') {
+                deck.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
         function resetOrbitZoom() {
             orbitPanX = 0;
             orbitPanY = 0;
@@ -2710,14 +2719,33 @@
 
             updateStageTransform();
 
-            // 하단 대시보드 연동
-            if (prod.id === 'pass') {
-                const deck = document.getElementById('card-pass-deck');
-                if (deck && typeof deck.scrollIntoView === 'function') { deck.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-            } else if (prod.id === 'biz') {
-                openBizVerifyModal();
-            } else if (prod.id === 'silver') {
-                handleSilverNodeClick(true);
+            // 🛑 강제 스크롤 및 강제 이동 완전 제거: 궤도망 내에서 제품과 3개 위성 집중 관제 온전히 유지
+            const actionsContainer = document.getElementById('orbit-focus-actions');
+            if (actionsContainer) {
+                if (prod.id === 'pass') {
+                    actionsContainer.innerHTML = `
+                        <button type="button" onclick="scrollToPassDeck()" class="px-2.5 py-1 rounded-lg text-[10px] font-black bg-emerald-600 hover:bg-emerald-500 text-white transition flex items-center gap-1 cursor-pointer">
+                            <span class="material-symbols-rounded text-xs">dashboard</span>
+                            <span>대시보드로 이동 ↗</span>
+                        </button>
+                    `;
+                } else if (prod.id === 'biz') {
+                    actionsContainer.innerHTML = `
+                        <button type="button" onclick="openBizVerifyModal()" class="px-2.5 py-1 rounded-lg text-[10px] font-black bg-amber-600 hover:bg-amber-500 text-white transition flex items-center gap-1 cursor-pointer">
+                            <span class="material-symbols-rounded text-xs">store</span>
+                            <span>사업장 관제실 ↗</span>
+                        </button>
+                    `;
+                } else if (prod.id === 'silver') {
+                    actionsContainer.innerHTML = `
+                        <button type="button" onclick="handleSilverNodeClick(true)" class="px-2.5 py-1 rounded-lg text-[10px] font-black bg-pink-600 hover:bg-pink-500 text-white transition flex items-center gap-1 cursor-pointer">
+                            <span class="material-symbols-rounded text-xs">elderly</span>
+                            <span>안심 관제탑 ↗</span>
+                        </button>
+                    `;
+                } else {
+                    actionsContainer.innerHTML = '';
+                }
             }
         }
 
