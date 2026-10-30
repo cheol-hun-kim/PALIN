@@ -521,10 +521,6 @@
                         <span class="material-symbols-rounded text-sm text-indigo-400">fit_screen</span>
                         <span class="hidden sm:inline">12대 전체 조망</span>
                     </button>
-                    <button type="button" onclick="resetOrbitZoom()" class="orbit-toolbar-btn px-2.5 h-8 rounded-xl flex items-center gap-1 text-[11px] font-bold cursor-pointer" title="나(Me) 중심 1.0x 리셋">
-                        <span class="material-symbols-rounded text-sm text-emerald-400">my_location</span>
-                        <span class="hidden sm:inline">나(Me) 리셋</span>
-                    </button>
                     <span id="zoom-level-badge" class="text-[10px] font-mono text-slate-400 px-2 py-0.5 rounded bg-slate-950/60 border border-slate-800 hidden sm:inline-block">100%</span>
                 </div>
 
@@ -656,7 +652,7 @@
                             </a>
                         </div>
 
-                        <!-- 3) 수능 D-Day (실시간 D-Day 연동) -->
+                        <!-- 3) 대입 D-Day (실시간 당해 연도 입시 일정 연동) -->
                         <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
                             <div>
                                 <div class="flex items-center justify-between mb-3">
@@ -665,21 +661,34 @@
                                         <span id="pass-hud-dday-header">2027학년도 대입 D-Day</span>
                                     </span>
                                     <span class="text-[10px] font-bold text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30 whitespace-nowrap shrink-0">
-                                        공식 일정
+                                        공식 입시 일정
                                     </span>
                                 </div>
                                 <div class="space-y-2">
                                     <div class="bg-slate-900/90 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between">
-                                        <span class="text-xs font-bold text-slate-200 whitespace-nowrap shrink-0" id="hud-dday-suneung-title">2027학년도 수능</span>
-                                        <span class="text-sm font-black text-rose-400" id="hud-dday-suneung">D-20</span>
+                                        <div class="flex items-center gap-1.5 min-w-0">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0"></span>
+                                            <span class="text-xs font-bold text-slate-200 truncate" id="hud-dday-suneung-title">2027학년도 수능</span>
+                                        </div>
+                                        <span class="text-sm font-black text-rose-400 shrink-0 ml-2" id="hud-dday-suneung">D-20</span>
                                     </div>
                                     <div class="bg-slate-900/90 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between">
-                                        <span class="text-xs font-bold text-slate-200 whitespace-nowrap shrink-0" id="hud-dday-mopyeong-title">6월 평가원 모의평가</span>
-                                        <span class="text-sm font-black text-amber-300" id="hud-dday-mopyeong">D-216</span>
+                                        <div class="flex items-center gap-1.5 min-w-0">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 shrink-0"></span>
+                                            <span class="text-xs font-bold text-slate-200 truncate" id="hud-dday-susi-title">수시 합격 발표</span>
+                                        </div>
+                                        <span class="text-sm font-black text-indigo-300 shrink-0 ml-2" id="hud-dday-susi">D-42</span>
+                                    </div>
+                                    <div class="bg-slate-900/90 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between">
+                                        <div class="flex items-center gap-1.5 min-w-0">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"></span>
+                                            <span class="text-xs font-bold text-slate-200 truncate" id="hud-dday-mopyeong-title">정시 원서접수</span>
+                                        </div>
+                                        <span class="text-sm font-black text-amber-300 shrink-0 ml-2" id="hud-dday-mopyeong">D-59</span>
                                     </div>
                                 </div>
                             </div>
-                            <div class="text-[10px] text-slate-500 mt-2">한국교육과정평가원 수능 공식 캘린더 연동</div>
+                            <div class="text-[10px] text-slate-500 mt-2">한국교육과정평가원 및 대교협 2027 공식 일정 연동</div>
                         </div>
                     </div>
 
@@ -3088,12 +3097,52 @@ async function refreshUnifiedOrbitStatus() {
             const tUniv = (pm && pm.target_univ && pm.target_univ.trim() !== '-') ? pm.target_univ.trim() : (localStorage.getItem('cached_target_univ') || null);
             const bUniv = (pm && pm.baseline_univ && pm.baseline_univ.trim() !== '-') ? pm.baseline_univ.trim() : (localStorage.getItem('cached_baseline_univ') || null);
 
+            // 소신/안정/적정/위험 종합 판정 및 목표와의 격차(거리) 산출
+            let overallVerdict = (pm && pm.overall_verdict) || localStorage.getItem('cached_overall_verdict');
+            let rawDeficit = (pm && typeof pm.deficit_hours === 'number') ? pm.deficit_hours : localStorage.getItem('cached_deficit_hours');
+            let deficitHours = (rawDeficit !== null && rawDeficit !== undefined && !isNaN(parseFloat(rawDeficit))) ? parseFloat(rawDeficit) : 63.0;
+
+            if (!overallVerdict) {
+                const rawGpa = localStorage.getItem('cached_score_gpa');
+                const gpaNum = rawGpa ? parseFloat(rawGpa) : null;
+                if (gpaNum && gpaNum <= 1.2) {
+                    overallVerdict = '적정';
+                } else {
+                    overallVerdict = '소신';
+                }
+            }
+
+            let verdictBadgeClass = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+            let verdictLabel = '소신';
+            let distText = deficitHours > 0 ? `순공 -${deficitHours.toFixed(1)}h 결손 (상향 도전)` : '소신권 합격선 근접';
+            let distColor = 'text-amber-400';
+
+            if (overallVerdict.includes('안정') || overallVerdict.includes('적정')) {
+                verdictBadgeClass = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
+                verdictLabel = overallVerdict;
+                distText = deficitHours > 0 ? `순공 -${deficitHours.toFixed(1)}h (적정 유지)` : '목표 안정권 달성 완료';
+                distColor = 'text-emerald-400';
+            } else if (overallVerdict.includes('위험')) {
+                verdictBadgeClass = 'bg-rose-500/20 text-rose-300 border-rose-500/40';
+                verdictLabel = '위험';
+                distText = deficitHours > 0 ? `순공 -${deficitHours.toFixed(1)}h (격차 큼)` : '성적 격차 큼 (집중 보완)';
+                distColor = 'text-rose-400';
+            } else {
+                verdictBadgeClass = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+                verdictLabel = '소신';
+                distText = deficitHours > 0 ? `순공 -${deficitHours.toFixed(1)}h 결손 (상향 도전)` : '소신권 합격선 근접';
+                distColor = 'text-amber-400';
+            }
+
             if (targetContent) {
                 if (tUniv && tUniv !== '-') {
                     targetContent.innerHTML = `
                         <div class="p-3 bg-slate-900/90 rounded-xl border border-indigo-500/40 text-left mb-3">
                             <div class="flex items-center justify-between mb-1.5 gap-2">
-                                <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 whitespace-nowrap shrink-0">1지망 목표</span>
+                                <div class="flex items-center gap-1.5 min-w-0">
+                                    <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 whitespace-nowrap shrink-0">1지망 목표</span>
+                                    <span class="text-[10px] font-black px-2 py-0.5 rounded-md border ${verdictBadgeClass} whitespace-nowrap shrink-0">${verdictLabel}</span>
+                                </div>
                                 <span class="text-[10px] font-bold text-emerald-400 flex items-center gap-1 whitespace-nowrap shrink-0">
                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                                     <span class="whitespace-nowrap">대입 등대 연동됨</span>
@@ -3104,11 +3153,15 @@ async function refreshUnifiedOrbitStatus() {
                                 <span class="truncate">${tUniv}</span>
                             </div>
                             ${bUniv && bUniv !== '-' ? `<div class="text-[11px] text-slate-400 mt-1 break-keep"><span class="text-slate-500 font-semibold">마지노선:</span> ${bUniv}</div>` : ''}
+                            <div class="mt-2.5 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+                                <span class="text-slate-400 font-medium">목표와의 거리</span>
+                                <span class="font-extrabold ${distColor}">${distText}</span>
+                            </div>
                         </div>
                     `;
                     if (targetBadge) {
-                        targetBadge.innerText = '목표 설정 완료';
-                        targetBadge.className = 'text-[10px] font-bold text-indigo-300 bg-indigo-500/20 px-2 py-0.5 rounded-full border border-indigo-500/40 whitespace-nowrap shrink-0';
+                        targetBadge.innerText = `${verdictLabel} 판정`;
+                        targetBadge.className = `text-[10px] font-black px-2 py-0.5 rounded-full border ${verdictBadgeClass} whitespace-nowrap shrink-0`;
                     }
                     if (targetLinkText) targetLinkText.innerText = '대입 등대 진단 리포트 열기';
                 } else {
@@ -3133,24 +3186,31 @@ async function refreshUnifiedOrbitStatus() {
             const suneungEl = document.getElementById('hud-dday-suneung');
             const suneungTitleEl = document.getElementById('hud-dday-suneung-title');
             const headerDDayEl = document.getElementById('pass-hud-dday-header');
+            const susiEl = document.getElementById('hud-dday-susi');
+            const susiTitleEl = document.getElementById('hud-dday-susi-title');
             const mopyeongEl = document.getElementById('hud-dday-mopyeong');
             const mopyeongTitleEl = document.getElementById('hud-dday-mopyeong-title');
 
             if (ddayDate) {
                 const suneungDDay = computeDDay(ddayDate);
                 if (suneungEl) suneungEl.innerText = suneungDDay || 'D-Day';
-                if (suneungTitleEl) suneungTitleEl.innerText = ddayTitle ? (ddayTitle.includes('수능') ? ddayTitle : `${ddayTitle} 수능`) : '목표 D-Day';
-                if (headerDDayEl) headerDDayEl.innerText = `${ddayTitle ? ddayTitle.split(' ')[0] : '대입'} D-Day`;
+                if (suneungTitleEl) suneungTitleEl.innerText = ddayTitle ? (ddayTitle.includes('수능') ? ddayTitle : `${ddayTitle} 수능`) : '2027학년도 수능';
+                if (headerDDayEl) headerDDayEl.innerText = `${ddayTitle ? ddayTitle.split(' ')[0] : '2027학년도'} 대입 D-Day`;
             } else {
                 if (suneungEl) suneungEl.innerText = '미설정';
                 if (suneungTitleEl) suneungTitleEl.innerText = '목표 D-Day 미설정';
                 if (headerDDayEl) headerDDayEl.innerText = '대입 D-Day';
             }
 
-            // 차기 평가원 모의평가
-            const mopyeongDDay = computeDDay('2027-06-03') || 'D-216';
-            if (mopyeongEl) mopyeongEl.innerText = mopyeongDDay;
-            if (mopyeongTitleEl) mopyeongTitleEl.innerText = '6월 평가원 모의평가';
+            // 당해 연도 수시 합격 발표 (2026-12-11)
+            const susiDDay = computeDDay('2026-12-11') || 'D-42';
+            if (susiEl) susiEl.innerText = susiDDay;
+            if (susiTitleEl) susiTitleEl.innerText = '수시 합격 발표';
+
+            // 당해 연도 정시 원서접수 (2026-12-28)
+            const jungsiDDay = computeDDay('2026-12-28') || 'D-59';
+            if (mopyeongEl) mopyeongEl.innerText = jungsiDDay;
+            if (mopyeongTitleEl) mopyeongTitleEl.innerText = '정시 원서접수';
 
             // 4. 학부모 뷰 연동 동기화
             const parentChildName = document.getElementById('parent-hud-child-name');

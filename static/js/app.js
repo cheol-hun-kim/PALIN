@@ -21734,6 +21734,12 @@ function renderAdmissionPathEngine() {
         }
     }
 
+    try {
+        localStorage.setItem('cached_overall_verdict', overallLabel);
+        localStorage.setItem('cached_overall_status', overallStatus);
+        localStorage.setItem('cached_deficit_hours', deficitHours.toFixed(1));
+    } catch(e) {}
+
     if (deficitBadge) {
         if (deficitHours > 0) {
             deficitBadge.innerText = `부족 -${deficitHours.toFixed(1)}시간`;
