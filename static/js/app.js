@@ -5276,6 +5276,10 @@ function updateTimerDisplay(seconds) {
     const secs = String(seconds % 60).padStart(2, '0');
     circle.innerText = `${hrs}:${mins}:${secs}`;
 
+    try {
+        localStorage.setItem("passmate_today_study_seconds", String(seconds));
+    } catch(e) {}
+
     const badge = document.getElementById("timer-badge-status");
     if (badge) {
         if (seconds > 0) {
@@ -5320,6 +5324,12 @@ async function fetchStudentInfo(studentId) {
             }
             if (currentStudent.name) {
                 localStorage.setItem("cached_student_name", currentStudent.name);
+            }
+            if (currentStudent.dday_date) {
+                localStorage.setItem("cached_dday_date", currentStudent.dday_date);
+            }
+            if (currentStudent.dday_title) {
+                localStorage.setItem("cached_dday_title", currentStudent.dday_title);
             }
             // 모바일/PC 크로스 디바이스 성적 실시간 연동
             try {

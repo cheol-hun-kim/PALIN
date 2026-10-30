@@ -576,54 +576,56 @@
                                         <span class="material-symbols-rounded text-emerald-400 text-base">timer</span>
                                         <span>오늘 순공 시간</span>
                                     </span>
-                                    <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                                    <span id="pass-hud-timer-badge" class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
                                         실시간 타이머
                                     </span>
                                 </div>
                                 <div class="text-3xl font-black text-white tracking-tight mb-2" id="pass-hud-timer-display">
                                     0<span class="text-sm font-bold text-slate-400">시간</span> 00<span class="text-sm font-bold text-slate-400">분</span>
                                 </div>
-                                <p class="text-[11px] text-slate-400 leading-relaxed mb-4">
+                                <p class="text-[11px] text-slate-400 leading-relaxed mb-4" id="pass-hud-timer-desc">
                                     PASS-MATE 메인 화면에서 순공 타이머를 시작하면 오늘의 집중 학습 시간이 실시간으로 누적됩니다.
                                 </p>
                             </div>
-                            <a href="/" class="text-xs font-black text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
+                            <a href="/passmate" class="text-xs font-black text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
                                 <span>순공 타이머 바로가기</span>
                                 <span class="material-symbols-rounded text-sm">arrow_forward</span>
                             </a>
                         </div>
 
-                        <!-- 2) 목표대학 거리 -->
-                        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
+                        <!-- 2) 목표대학 거리 (대입 등대) -->
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between" id="pass-hud-target-card">
                             <div>
                                 <div class="flex items-center justify-between mb-3">
                                     <span class="text-xs font-extrabold text-slate-300 flex items-center gap-1.5">
                                         <span class="material-symbols-rounded text-indigo-400 text-base">near_me</span>
                                         <span>목표대학 진단 (대입 등대)</span>
                                     </span>
-                                    <span class="text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/30">
-                                        실시간 연동
+                                    <span id="pass-hud-target-badge" class="text-[10px] font-bold text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full border border-slate-700">
+                                        미설정
                                     </span>
                                 </div>
-                                <div class="p-3.5 bg-slate-900/80 rounded-xl border border-dashed border-slate-800 text-center mb-3">
-                                    <span class="material-symbols-rounded text-2xl text-slate-500 mb-1">school</span>
-                                    <div class="text-xs font-bold text-slate-300">목표 대학 미설정</div>
-                                    <div class="text-[10.5px] text-slate-500 mt-0.5">내신·모평 성적 입력 시 안정/적정/소신 진단</div>
+                                <div id="pass-hud-target-content">
+                                    <div class="p-3.5 bg-slate-900/80 rounded-xl border border-dashed border-slate-800 text-center mb-3">
+                                        <span class="material-symbols-rounded text-2xl text-slate-500 mb-1">school</span>
+                                        <div class="text-xs font-bold text-slate-300">목표 대학 미설정</div>
+                                        <div class="text-[10.5px] text-slate-500 mt-0.5">내신·모평 성적 입력 시 안정/적정/소신 진단</div>
+                                    </div>
                                 </div>
                             </div>
-                            <a href="/" class="text-xs font-black text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
-                                <span>대입 등대 목표 설정하기</span>
+                            <a id="pass-hud-target-link" href="/passmate" class="text-xs font-black text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
+                                <span id="pass-hud-target-link-text">대입 등대 목표 설정하기</span>
                                 <span class="material-symbols-rounded text-sm">arrow_forward</span>
                             </a>
                         </div>
 
-                        <!-- 3) 2026 수능 D-Day (실시간 D-Day 연동) -->
+                        <!-- 3) 수능 D-Day (실시간 D-Day 연동) -->
                         <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
                             <div>
                                 <div class="flex items-center justify-between mb-3">
                                     <span class="text-xs font-extrabold text-slate-300 flex items-center gap-1.5">
                                         <span class="material-symbols-rounded text-amber-400 text-base">calendar_clock</span>
-                                        <span>2026학년도 대입 D-Day</span>
+                                        <span id="pass-hud-dday-header">2027학년도 대입 D-Day</span>
                                     </span>
                                     <span class="text-[10px] font-bold text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30">
                                         공식 일정
@@ -631,12 +633,12 @@
                                 </div>
                                 <div class="space-y-2">
                                     <div class="bg-slate-900/90 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between">
-                                        <span class="text-xs font-bold text-slate-200">2026학년도 수능</span>
-                                        <span class="text-sm font-black text-rose-400" id="hud-dday-suneung">D-Day 계산 중</span>
+                                        <span class="text-xs font-bold text-slate-200" id="hud-dday-suneung-title">2027학년도 수능</span>
+                                        <span class="text-sm font-black text-rose-400" id="hud-dday-suneung">D-20</span>
                                     </div>
                                     <div class="bg-slate-900/90 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between">
-                                        <span class="text-xs font-bold text-slate-200">평가원 모의평가</span>
-                                        <span class="text-sm font-black text-amber-300" id="hud-dday-mopyeong">D-Day 계산 중</span>
+                                        <span class="text-xs font-bold text-slate-200" id="hud-dday-mopyeong-title">6월 평가원 모의평가</span>
+                                        <span class="text-sm font-black text-amber-300" id="hud-dday-mopyeong">D-216</span>
                                     </div>
                                 </div>
                             </div>
@@ -1558,6 +1560,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             loadUserFromStorage();
             updateCreatorMode();
+            renderPassmateDeck(null);
             if (!currentUser || !currentUser.id) {
                 // 비로그인 상태 시 통합 로그인 / 10초 간편가입 모달 즉시 팝업
                 openUnifiedAuthModal('LOGIN');
@@ -2966,6 +2969,139 @@ async function refreshUnifiedOrbitStatus() {
             }
         }
 
+        function computeDDay(dateStr) {
+            if (!dateStr) return null;
+            try {
+                const parts = dateStr.split('-');
+                if (parts.length !== 3) return null;
+                const target = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                const now = new Date();
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const diffDays = Math.round((target - today) / (1000 * 60 * 60 * 24));
+                if (diffDays === 0) return 'D-DAY';
+                if (diffDays > 0) return `D-${diffDays}`;
+                return `D+${Math.abs(diffDays)}`;
+            } catch(e) {
+                return null;
+            }
+        }
+
+        function renderPassmateDeck(pm) {
+            // 1. 오늘 순공 시간 동기화
+            const timerDisplay = document.getElementById('pass-hud-timer-display');
+            const timerDesc = document.getElementById('pass-hud-timer-desc');
+            const timerBadge = document.getElementById('pass-hud-timer-badge');
+
+            let sec = 0;
+            if (pm && typeof pm.today_study_seconds === 'number') {
+                sec = pm.today_study_seconds;
+            } else {
+                const localSec = localStorage.getItem('passmate_today_study_seconds');
+                if (localSec) sec = parseInt(localSec, 10) || 0;
+            }
+
+            if (timerDisplay) {
+                const hrs = Math.floor(sec / 3600);
+                const mins = Math.floor((sec % 3600) / 60);
+                timerDisplay.innerHTML = `${hrs}<span class="text-sm font-bold text-slate-400">시간</span> ${String(mins).padStart(2, '0')}<span class="text-sm font-bold text-slate-400">분</span>`;
+            }
+            if (timerDesc) {
+                if (sec > 0) {
+                    timerDesc.innerText = '오늘 실제 측정된 집중 학습 시간입니다. 대시보드에서 순공 타이머를 이어서 진행할 수 있습니다.';
+                    if (timerBadge) {
+                        timerBadge.innerText = '측정 누적 중';
+                        timerBadge.className = 'text-[10px] font-bold text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/40';
+                    }
+                } else {
+                    timerDesc.innerText = 'PASS-MATE 메인 화면에서 순공 타이머를 시작하면 오늘의 집중 학습 시간이 실시간으로 누적됩니다.';
+                    if (timerBadge) {
+                        timerBadge.innerText = '실시간 타이머';
+                        timerBadge.className = 'text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30';
+                    }
+                }
+            }
+
+            // 2. 목표대학 진단 (대입 등대) 동기화
+            const targetContent = document.getElementById('pass-hud-target-content');
+            const targetBadge = document.getElementById('pass-hud-target-badge');
+            const targetLink = document.getElementById('pass-hud-target-link');
+            const targetLinkText = document.getElementById('pass-hud-target-link-text');
+
+            const tUniv = (pm && pm.target_univ && pm.target_univ.trim() !== '-') ? pm.target_univ.trim() : (localStorage.getItem('cached_target_univ') || null);
+            const bUniv = (pm && pm.baseline_univ && pm.baseline_univ.trim() !== '-') ? pm.baseline_univ.trim() : (localStorage.getItem('cached_baseline_univ') || null);
+
+            if (targetContent) {
+                if (tUniv && tUniv !== '-') {
+                    targetContent.innerHTML = `
+                        <div class="p-3 bg-slate-900/90 rounded-xl border border-indigo-500/40 text-left mb-3">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">1지망 목표</span>
+                                <span class="text-[10px] font-bold text-emerald-400 flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    <span>대입 등대 연동됨</span>
+                                </span>
+                            </div>
+                            <div class="text-sm font-black text-white flex items-center gap-1.5 truncate">
+                                <span class="material-symbols-rounded text-base text-indigo-400 shrink-0">school</span>
+                                <span class="truncate">${tUniv}</span>
+                            </div>
+                            ${bUniv && bUniv !== '-' ? `<div class="text-[11px] text-slate-400 mt-1 truncate"><span class="text-slate-500 font-semibold">안정/기준:</span> ${bUniv}</div>` : ''}
+                        </div>
+                    `;
+                    if (targetBadge) {
+                        targetBadge.innerText = '목표 설정 완료';
+                        targetBadge.className = 'text-[10px] font-bold text-indigo-300 bg-indigo-500/20 px-2 py-0.5 rounded-full border border-indigo-500/40';
+                    }
+                    if (targetLinkText) targetLinkText.innerText = '대입 등대 진단 리포트 열기';
+                } else {
+                    targetContent.innerHTML = `
+                        <div class="p-3.5 bg-slate-900/80 rounded-xl border border-dashed border-slate-800 text-center mb-3">
+                            <span class="material-symbols-rounded text-2xl text-slate-500 mb-1">school</span>
+                            <div class="text-xs font-bold text-slate-300">목표 대학 미설정</div>
+                            <div class="text-[10.5px] text-slate-500 mt-0.5">내신·모평 성적 입력 시 안정/적정/소신 진단</div>
+                        </div>
+                    `;
+                    if (targetBadge) {
+                        targetBadge.innerText = '미설정';
+                        targetBadge.className = 'text-[10px] font-bold text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full border border-slate-700';
+                    }
+                    if (targetLinkText) targetLinkText.innerText = '대입 등대 목표 설정하기';
+                }
+            }
+
+            // 3. 2027 수능 D-Day 실시간 동적 계산
+            const ddayDate = (pm && pm.dday_date) || localStorage.getItem('cached_dday_date') || '2026-11-19';
+            const ddayTitle = (pm && pm.dday_title) || localStorage.getItem('cached_dday_title') || '2027 수능';
+            const suneungEl = document.getElementById('hud-dday-suneung');
+            const suneungTitleEl = document.getElementById('hud-dday-suneung-title');
+            const headerDDayEl = document.getElementById('pass-hud-dday-header');
+            const mopyeongEl = document.getElementById('hud-dday-mopyeong');
+            const mopyeongTitleEl = document.getElementById('hud-dday-mopyeong-title');
+
+            const suneungDDay = computeDDay(ddayDate) || 'D-20';
+            if (suneungEl) suneungEl.innerText = suneungDDay;
+            if (suneungTitleEl) suneungTitleEl.innerText = ddayTitle.includes('수능') ? ddayTitle : `${ddayTitle} 수능`;
+            if (headerDDayEl) headerDDayEl.innerText = `${ddayTitle.split(' ')[0] || '2027학년도'} 대입 D-Day`;
+
+            // 차기 평가원 모의평가
+            const mopyeongDDay = computeDDay('2027-06-03') || 'D-216';
+            if (mopyeongEl) mopyeongEl.innerText = mopyeongDDay;
+            if (mopyeongTitleEl) mopyeongTitleEl.innerText = '6월 평가원 모의평가';
+
+            // 4. 학부모 뷰 연동 동기화
+            const parentChildName = document.getElementById('parent-hud-child-name');
+            const parentStatusBadge = document.getElementById('parent-hud-status-badge');
+            if (pm && pm.student_name && parentChildName) {
+                const schoolInfo = pm.high_school ? `${pm.high_school} ` : '';
+                const gradeInfo = pm.grade ? `${pm.grade}학년` : '수험생';
+                parentChildName.innerText = `${pm.student_name} (${schoolInfo}${gradeInfo})`;
+                if (parentStatusBadge) {
+                    parentStatusBadge.innerText = '실시간 연동 중';
+                    parentStatusBadge.className = 'text-[10px] font-bold text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/40';
+                }
+            }
+        }
+
         function renderPassmateNode(pm) {
             const unverified = document.getElementById('pass-node-unverified');
             const verified = document.getElementById('pass-node-verified');
@@ -3005,6 +3141,9 @@ async function refreshUnifiedOrbitStatus() {
                     btnDeckAction.innerHTML = '<span class="material-symbols-rounded text-base">add_circle</span><span>+ PASS-MATE 추가하기</span>';
                 }
             }
+
+            // 🚀 실시간 학생 지표(순공 시간, 목표대학 진단, D-Day) 요약 덱 동기화
+            renderPassmateDeck(pm);
         }
 
         function renderBizNode(bm) {

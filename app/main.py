@@ -1507,6 +1507,54 @@ def get_unified_status(user_id: Optional[int] = None, phone: Optional[str] = Non
     if not target_student and is_super_admin:
         # Super admin represents creator and also master student #1
         target_student = db.query(models.Student).filter(models.Student.id == 1).first()
+    if not target_student and effective_id:
+        target_student = db.query(models.Student).filter(models.Student.id == effective_id).first()
+    if not target_student and user and user.email:
+        clean_user_email = user.email.strip().lower()
+        target_student = db.query(models.Student).filter(func.lower(models.Student.email) == clean_user_email).first()
+
+    # 7-1. Real Ground-Truth PASS-MATE Telemetry (Target Univ, D-Day, Study Time)
+    target_univ = None
+    baseline_univ = None
+    dday_date = None
+    dday_title = None
+    today_study_seconds = 0
+    student_name = None
+    high_school = None
+    grade = None
+    streak_days = 0
+
+    if target_student:
+        if target_student.target_univ and target_student.target_univ.strip() not in ("-", ""):
+            target_univ = target_student.target_univ.strip()
+        if target_student.baseline_univ and target_student.baseline_univ.strip() not in ("-", ""):
+            baseline_univ = target_student.baseline_univ.strip()
+        dday_date = target_student.dday_date or "2026-11-19"
+        dday_title = target_student.dday_title or "2027 수능"
+        student_name = target_student.name
+        high_school = target_student.high_school
+        grade = target_student.grade
+        streak_days = target_student.streak_days or 0
+
+        # Calculate today's real study seconds from StudySession + cache
+        start_of_today = datetime.combine(datetime.today(), datetime.min.time())
+        try:
+            today_sessions = db.query(models.StudySession).filter(
+                models.StudySession.student_id == target_student.id,
+                models.StudySession.created_at >= start_of_today,
+                models.StudySession.deleted_at == None
+            ).all()
+            today_study_seconds = sum((s.duration_sec or 0) for s in today_sessions)
+        except Exception:
+            today_study_seconds = 0
+
+        try:
+            from app.cache import cache_manager
+            rank_info = cache_manager.get_student_rank(student_id=target_student.id, period="daily")
+            if rank_info and rank_info.get("total_seconds"):
+                today_study_seconds = max(today_study_seconds, int(rank_info["total_seconds"]))
+        except Exception:
+            pass
 
     # Backfill student_id on user if missing
     if user and not user.student_id and target_student:
@@ -1606,7 +1654,17 @@ def get_unified_status(user_id: Optional[int] = None, phone: Optional[str] = Non
             "label": pm_label,
             "dashboard_url": pm_url,
             "is_locked": False,
-            "lock_message": None
+            "lock_message": None,
+            "student_id": target_student.id if target_student else None,
+            "student_name": student_name,
+            "high_school": high_school,
+            "grade": grade,
+            "target_univ": target_univ,
+            "baseline_univ": baseline_univ,
+            "dday_date": dday_date,
+            "dday_title": dday_title,
+            "today_study_seconds": today_study_seconds,
+            "streak_days": streak_days
         },
         "bizmate": {
             "is_active": bool(biz_row),
