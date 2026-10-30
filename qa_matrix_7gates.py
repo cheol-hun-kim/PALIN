@@ -718,6 +718,25 @@ assert 'white-space: normal;' in css_content[:css_content.find('.u-truncate')], 
 assert 'minmax(0, 1fr) minmax(0, 1fr)' in idx_content, "Two-column grids in index.html must enforce minmax(0, 1fr) to prevent overflow overlaps"
 print("[GATE 4.12 PASS] Broad-Selector Nowrap Ban & Safe Overflow Engine Scanner 100% Verified!")
 
+# Gate 4.13: Universal Zero Text-Overflow & High Contrast Defense Scanner
+import re
+for html_rel in ['static/index.html', 'static/universe.html', 'static/admin.html']:
+    html_fpath = os.path.join(ROOT_DIR, html_rel)
+    with open(html_fpath, 'r', encoding='utf-8') as hf:
+        h_str = hf.read()
+    grid_decls = re.findall(r'grid-template-columns:[^;]+;', h_str)
+    for gd in grid_decls:
+        gd_clean = re.sub(r'minmax\(\s*0\s*,\s*1fr\s*\)', 'SAFE', gd)
+        assert '1fr' not in gd_clean, f"Unprotected 1fr grid found in {html_rel}: {gd}"
+
+assert 'id="calendar-current-month-label"' in idx_content, "Missing #calendar-current-month-label in index.html"
+assert 'id="calendar-current-month-label" style="font-weight: 900; font-size: 0.88rem; color: #f8fafc;' not in idx_content, "calendar-current-month-label must not have hardcoded white text in index.html"
+assert 'body.day-mode #calendar-current-month-label' in css_content, "Missing Day Mode #calendar-current-month-label rule in style.css"
+assert 'body.day-mode #chat-box .chat-bubble.bot' in css_content, "Missing Day Mode #chat-box .chat-bubble.bot rule in style.css"
+assert 'body.day-mode [style*="background: rgba(15, 23, 42"]' in css_content, "Missing universal Day Mode inline dark background override in style.css"
+assert 'body.day-mode .btn-primary' in css_content, "Missing Day Mode solid action button white text protection in style.css"
+print("[GATE 4.13 PASS] Universal Zero Text-Overflow & High Contrast Defense Scanner 100% Verified!")
+
 # ==============================================================================
 # GATE 5: Backend / Frontend Syntax Compiles
 # ==============================================================================

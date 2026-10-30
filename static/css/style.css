@@ -6189,3 +6189,89 @@ body.day-mode #parent-cheer-custom-message {
     color: #0f172a !important;
     border: 1.5px solid #cbd5e1 !important;
 }
+
+
+/* ==========================================================================
+   🛡️ [PERMANENT ZERO-OVERFLOW & HIGH-CONTRAST TYPOGRAPHY DEFENSE]
+   ========================================================================== */
+
+/* 1. Chatbot Notice Box & Message Bubbles Wrap Safety */
+.chatbot-notice-box {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+.chatbot-notice-box > div {
+    flex: 1 !important;
+    min-width: 0 !important;
+    word-break: keep-all !important;
+    overflow-wrap: break-word !important;
+}
+.chat-container {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+}
+.chat-bubble {
+    max-width: 88% !important;
+    word-break: keep-all !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+    box-sizing: border-box !important;
+}
+
+/* 2. High School Chatbot Bot Bubble High-Contrast in Day Mode */
+body.day-mode #chat-box .chat-bubble.bot {
+    background: #f8fafc !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+body.day-mode #chat-box .chat-bubble.bot * {
+    color: inherit !important;
+}
+
+/* 3. Calendar Month Header & Navigation Buttons in Day Mode */
+body.day-mode #calendar-current-month-label {
+    color: #0f172a !important;
+    font-weight: 900 !important;
+}
+body.day-mode button[onclick*="navigateAcademyCalendar"] {
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+body.day-mode button[onclick*="jumpAcademyCalendarToToday"] {
+    background: #e0e7ff !important;
+    border: 1px solid #818cf8 !important;
+    color: #3730a3 !important;
+    font-weight: 800 !important;
+}
+
+/* 4. Universal Day Mode Solid Action Button High Contrast Protection */
+body.day-mode .btn-primary,
+body.day-mode .btn-action,
+body.day-mode button[class*="bg-indigo-"],
+body.day-mode button[class*="bg-emerald-"],
+body.day-mode button[class*="bg-amber-"],
+body.day-mode button[class*="bg-rose-"],
+body.day-mode button[class*="bg-purple-"] {
+    color: #ffffff !important;
+}
+body.day-mode .btn-primary *,
+body.day-mode button[class*="bg-indigo-"] *,
+body.day-mode button[class*="bg-emerald-"] *,
+body.day-mode button[class*="bg-rose-"] * {
+    color: #ffffff !important;
+}
+
+/* 5. Universal Day-Mode Dark Inline Background Catch-All Surface Conversion */
+body.day-mode [style*="background: rgba(15, 23, 42"],
+body.day-mode [style*="background: rgba(15,23,42"],
+body.day-mode [style*="background: #0f172a"],
+body.day-mode [style*="background:#0f172a"],
+body.day-mode [style*="background: #090d16"],
+body.day-mode [style*="background: #08090d"] {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+

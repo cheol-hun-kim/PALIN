@@ -67,7 +67,7 @@
         }
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, minmax(0, 1fr)));
             gap: 12px;
             margin-bottom: 20px;
         }
@@ -94,7 +94,7 @@
         /* 4대 마스터 탭 바 & 5-캡슐 Progressive Disclosure 네비게이션 */
         .admin-master-bar {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 8px;
             margin-bottom: 10px;
             background: rgba(15, 23, 42, 0.75);
@@ -178,7 +178,7 @@
         }
         @media (max-width: 768px) {
             .admin-master-bar {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 6px;
             }
             .admin-master-btn {
@@ -189,7 +189,7 @@
 
         .admin-tab-nav {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(5, minmax(0, 1fr));
             gap: 8px;
             margin-bottom: 20px;
             width: 100%;
@@ -219,7 +219,7 @@
         }
         .curriculum-sub-nav {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(5, minmax(0, 1fr));
             gap: 6px;
             margin-bottom: 16px;
             background: rgba(15, 23, 42, 0.6);
@@ -381,40 +381,40 @@
         /* Layout Grid Helpers */
         .grid-sched-form {
             display: grid;
-            grid-template-columns: 140px 140px 1fr 110px auto;
+            grid-template-columns: 140px 140px minmax(0, 1fr) 110px auto;
             gap: 8px;
             align-items: center;
         }
         .grid-vod-form {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr auto;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) auto;
             gap: 8px;
             align-items: center;
         }
         .grid-two-col {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
             gap: 14px;
         }
         .grid-sms-target {
             display: grid;
-            grid-template-columns: 240px 1fr;
+            grid-template-columns: 240px minmax(0, 1fr);
             gap: 10px;
         }
         .grid-mat-form {
             display: grid;
-            grid-template-columns: 130px 150px 1fr;
+            grid-template-columns: 130px 150px minmax(0, 1fr);
             gap: 8px;
             align-items: center;
         }
         .grid-mat-files {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
             gap: 8px;
         }
         .grid-feed-form {
             display: grid;
-            grid-template-columns: 100px 1fr;
+            grid-template-columns: 100px minmax(0, 1fr);
             gap: 8px;
             align-items: center;
         }
@@ -436,8 +436,9 @@
 
         .floating-b2b-support-btn {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+            right: 16px;
+            z-index: 900;
             background: linear-gradient(135deg, #f59e0b, #d97706);
             color: #000;
             font-weight: 900;
@@ -492,7 +493,7 @@
             }
             .admin-header-actions {
                 display: grid;
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
                 gap: 6px;
             }
             .admin-header-actions .btn {
@@ -502,7 +503,7 @@
                 justify-content: center;
             }
             .kpi-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 8px;
             }
             .kpi-card {
@@ -518,14 +519,14 @@
             .grid-mat-form,
             .grid-mat-files,
             .grid-feed-form {
-                grid-template-columns: 1fr;
+                grid-template-columns: minmax(0, 1fr);
                 gap: 8px;
             }
             
         /* 4대 마스터 탭 바 & 5-캡슐 Progressive Disclosure 네비게이션 */
         .admin-master-bar {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 8px;
             margin-bottom: 10px;
             background: rgba(15, 23, 42, 0.75);
@@ -609,7 +610,7 @@
         }
         @media (max-width: 768px) {
             .admin-master-bar {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 6px;
             }
             .admin-master-btn {
@@ -619,11 +620,11 @@
         }
 
         .admin-tab-nav {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 6px;
             }
             .curriculum-sub-nav {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 6px;
             }
             .admin-cockpit-tab-btn {
@@ -816,7 +817,7 @@
                     </div>
 
                     <!-- 요일 헤더 -->
-                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.72rem; font-weight: 800; color: #94a3b8; margin-bottom: 6px;">
+                    <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); text-align: center; font-size: 0.72rem; font-weight: 800; color: #94a3b8; margin-bottom: 6px;">
                         <div style="color: #f87171;">일</div>
                         <div>월</div>
                         <div>화</div>
@@ -827,7 +828,7 @@
                     </div>
 
                     <!-- 캘린더 날짜 셀 그리드 (한 화면 뷰포트 맞춤 반응형) -->
-                    <div id="admin-personal-calendar-cells" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 14px;">
+                    <div id="admin-personal-calendar-cells" style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin-bottom: 14px;">
                         <!-- JS renderAdminPersonalCalendar() -->
                     </div>
 
@@ -841,7 +842,7 @@
                             <button type="button" onclick="togglePersonalScheduleAddForm(false)" style="background: none; border: none; color: #94a3b8; font-size: 1rem; cursor: pointer;">✕</button>
                         </div>
                         <form onsubmit="handleCreateSchedule(event)" style="display: flex; flex-direction: column; gap: 8px;">
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px;">
                                 <div>
                                     <label style="font-size: 0.72rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 3px;">일정 구분</label>
                                     <select id="sched-category" class="form-input" style="font-weight: 700; height: 38px; width: 100%; box-sizing: border-box; font-size: 0.78rem;">
@@ -927,7 +928,7 @@
                         </button>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; background: rgba(0, 0, 0, 0.45); border: 1.5px solid rgba(56, 189, 248, 0.3); border-radius: 16px; padding: 14px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, minmax(0, 1fr))); gap: 12px; background: rgba(0, 0, 0, 0.45); border: 1.5px solid rgba(56, 189, 248, 0.3); border-radius: 16px; padding: 14px;">
                         <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 14px 8px; text-align: center;">
                             <div style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">4자리 인증번호</div>
                             <div id="admin-otp-code-display" style="font-size: 2.3rem; font-weight: 900; letter-spacing: 6px; color: #38bdf8; font-family: monospace; text-shadow: 0 0 16px rgba(56,189,248,0.5); line-height: 1.2;">
@@ -993,7 +994,7 @@
                     </div>
 
                     <!-- 4대 요약 KPI 카드 (총 청구 / 수납완료 / 미납-인질 / 원장 정산 예정액) -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, minmax(0, 1fr))); gap: 10px;">
                         <div style="background: rgba(0,0,0,0.4); padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
                             <div style="font-size: 0.74rem; color: #94a3b8; font-weight: 700;">당월 총 청구액</div>
                             <div id="billing-kpi-total-amount" style="font-size: 1.45rem; font-weight: 900; color: #ffffff; margin-top: 4px;">₩0</div>
@@ -1105,31 +1106,31 @@
                             <button onclick="openSettlementAccountModal()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.72rem; color: #38bdf8;">수정</button>
                         </div>
                         <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 14px; margin-bottom: 10px;">
-                            <div style="display: grid; grid-template-columns: 100px 1fr; gap: 6px; font-size: 0.8rem; margin-bottom: 4px;">
+                            <div style="display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 6px; font-size: 0.8rem; margin-bottom: 4px;">
                                 <span style="color: #94a3b8;">정산 은행:</span>
                                 <strong id="settle-disp-bank" style="color: #ffffff;">신한은행</strong>
                             </div>
-                            <div style="display: grid; grid-template-columns: 100px 1fr; gap: 6px; font-size: 0.8rem; margin-bottom: 4px;">
+                            <div style="display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 6px; font-size: 0.8rem; margin-bottom: 4px;">
                                 <span style="color: #94a3b8;">계좌 번호:</span>
                                 <strong id="settle-disp-account" style="color: #38bdf8;">110-384-928192</strong>
                             </div>
-                            <div style="display: grid; grid-template-columns: 100px 1fr; gap: 6px; font-size: 0.8rem; margin-bottom: 4px;">
+                            <div style="display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 6px; font-size: 0.8rem; margin-bottom: 4px;">
                                 <span style="color: #94a3b8;">예금주:</span>
                                 <strong id="settle-disp-holder" style="color: #ffffff;">김철훈(일원학원)</strong>
                             </div>
-                            <div style="display: grid; grid-template-columns: 100px 1fr; gap: 6px; font-size: 0.8rem; margin-bottom: 4px;">
+                            <div style="display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 6px; font-size: 0.8rem; margin-bottom: 4px;">
                                 <span style="color: #94a3b8;">원비 청구 주기:</span>
                                 <strong id="settle-disp-cycle" style="color: #fbbf24;">매 4주 (28일) 단위 청구</strong>
                             </div>
-                            <div style="display: grid; grid-template-columns: 100px 1fr; gap: 6px; font-size: 0.8rem; margin-bottom: 4px;">
+                            <div style="display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 6px; font-size: 0.8rem; margin-bottom: 4px;">
                                 <span style="color: #94a3b8;">수업료 산정:</span>
                                 <strong id="settle-disp-calc-mode" style="color: #34d399;">주기별 고정 정액제</strong>
                             </div>
-                            <div style="display: grid; grid-template-columns: 100px 1fr; gap: 6px; font-size: 0.8rem; margin-bottom: 4px;">
+                            <div style="display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 6px; font-size: 0.8rem; margin-bottom: 4px;">
                                 <span style="color: #94a3b8;">서브몰 MID:</span>
                                 <strong id="settle-disp-mid" style="color: #6366f1;">SM_ILWON_2027 (승인완료)</strong>
                             </div>
-                            <div style="display: grid; grid-template-columns: 100px 1fr; gap: 6px; font-size: 0.8rem;">
+                            <div style="display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 6px; font-size: 0.8rem;">
                                 <span style="color: #94a3b8;">정산 주기:</span>
                                 <span style="color: #f8fafc;">익영업일(D+1) 자동 입금</span>
                             </div>
@@ -1232,7 +1233,7 @@
                     </div>
 
                     <!-- 1) 수업/분반 카드 리스트 컨테이너 -->
-                    <div id="admin-classes-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px;">
+                    <div id="admin-classes-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, minmax(0, 1fr))); gap: 10px;">
                         <div style="font-size: 0.75rem; color: #94a3b8; padding: 15px 0;">수업 시간표를 불러오는 중입니다...</div>
                     </div>
 
@@ -1248,7 +1249,7 @@
                                 <span id="admin-timetable-view-count" style="font-weight: 800; color: #fbbf24;">0개</span> 분반 배치됨 · 같은 요일/시간대 수업도 강사별로 분리 정렬됩니다.
                             </div>
                         </div>
-                        <div id="admin-timetable-grid-cols" style="display: grid; grid-template-columns: repeat(7, minmax(130px, 1fr)); gap: 8px; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 8px; min-height: 240px;">
+                        <div id="admin-timetable-grid-cols" style="display: grid; grid-template-columns: repeat(7, minmax(130px, minmax(0, 1fr))); gap: 8px; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 8px; min-height: 240px;">
                             <!-- 월~일 7열 자바스크립트 동적 렌더링 -->
                         </div>
                     </div>
@@ -1272,7 +1273,7 @@
                         </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.72rem; font-weight: 800; color: #94a3b8; margin-bottom: 6px;">
+                    <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); text-align: center; font-size: 0.72rem; font-weight: 800; color: #94a3b8; margin-bottom: 6px;">
                         <div style="color: #f87171;">일</div>
                         <div>월</div>
                         <div>화</div>
@@ -1282,7 +1283,7 @@
                         <div style="color: #60a5fa;">토</div>
                     </div>
 
-                    <div id="admin-calendar-grid-cells" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 14px;">
+                    <div id="admin-calendar-grid-cells" style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin-bottom: 14px;">
                         <!-- JS renderAdminCalendar() -->
                     </div>
 
@@ -1292,7 +1293,7 @@
                     </div>
 
                     <form onsubmit="handleCreateFeed(event)" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
-                        <div style="display: grid; grid-template-columns: 140px 100px 1fr; gap: 8px;">
+                        <div style="display: grid; grid-template-columns: 140px 100px minmax(0, 1fr); gap: 8px;">
                             <input type="date" id="feed-date" required class="form-input" style="font-weight: 800; color: #38bdf8;">
                             <input type="text" id="feed-week" placeholder="예: 3주차" value="3주차" required class="form-input" style="text-align: center; font-weight: 800;">
                             <input type="text" id="feed-title" placeholder="학사일정/공지 제목 (예: 10월 연합 모의평가 해설 특강)" required class="form-input">
@@ -1414,7 +1415,7 @@
                     
                     <!-- 기출문제 등록 폼 -->
                     <form onsubmit="handleUploadExamMaterial(event)" style="display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.25); padding: 14px; border-radius: 12px; border: 1px solid rgba(16,185,129,0.2); margin-bottom: 14px;">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 2fr; gap: 8px;" class="grid-mat-form">
+                        <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) 2fr; gap: 8px;" class="grid-mat-form">
                             <div>
                                 <label style="font-size: 0.75rem; color: #34d399; font-weight: 800; display: block; margin-bottom: 4px;">수험 학년도</label>
                                 <select id="mat-year" class="form-input" style="font-weight: 700; height: 42px; width: 100%; box-sizing: border-box;">
@@ -1514,7 +1515,7 @@
                         <button type="button" onclick="loadAdminVodLibrary()" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.72rem;">갱신</button>
                     </div>
                     <form onsubmit="handleCreateVodLibrary(event)" style="display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.25); padding: 14px; border-radius: 12px; border: 1px solid rgba(99, 102, 241,0.2); margin-bottom: 14px;">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px;">
                             <div>
                                 <label style="font-size: 0.75rem; color: #818cf8; font-weight: 800; display: block; margin-bottom: 4px;">강의 과목 / 구분</label>
                                 <select id="vod-lib-category" class="form-input" style="font-weight: 700; height: 42px; width: 100%; box-sizing: border-box;">
@@ -1616,12 +1617,12 @@
                 <!-- 📁 [핵심] 학생별 개별 디지털 폴더 아카이브 & 숙제·시험결과·내신홀드 일괄 관제소 -->
                 <div id="admin-student-folders-hub-card" class="kpi-card" style="border: 1.5px solid rgba(99, 102, 241, 0.55); background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 27, 75, 0.45)); margin-bottom: 16px; padding: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(245, 158, 11, 0.16); border: 1.5px solid #fbbf24; display: flex; align-items: center; justify-content: center;">
+                        <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; max-width: 100%;">
+                            <div style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 10px; background: rgba(245, 158, 11, 0.16); border: 1.5px solid #fbbf24; display: flex; align-items: center; justify-content: center;">
                                 <span class="material-symbols-rounded" style="color: #fbbf24; font-size: 1.4rem;">folder_managed</span>
                             </div>
-                            <div>
-                                <div style="font-size: 1.08rem; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 1.08rem; font-weight: 900; color: #ffffff; word-break: keep-all; overflow-wrap: break-word; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                                     <span>학생별 개별 디지털 폴더 &amp; 숙제·시험결과·내신홀드 일괄 관제소</span>
                                     <span style="font-size: 0.7rem; font-weight: 800; background: rgba(99, 102, 241, 0.25); color: #a5b4fc; padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(129, 140, 248, 0.4);">전 원생 자동 폴더 아카이브</span>
                                 </div>
@@ -1653,7 +1654,7 @@
                     <!-- 접이식 바디 컨테이너 -->
                     <div id="admin-folders-hub-collapsible-body">
                     <!-- 5대 실시간 폴더 KPI 바 -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 8px; margin-bottom: 14px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, minmax(0, 1fr))); gap: 8px; margin-bottom: 14px;">
                         <div style="background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 12px;">
                             <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 700;">재원생 개별 폴더</div>
                             <div id="af-kpi-total-folders" style="font-size: 1.25rem; font-weight: 900; color: #ffffff; margin-top: 2px;">0개</div>
@@ -1686,7 +1687,7 @@
                             </div>
                             <div style="font-size: 0.73rem; color: #94a3b8;">학생 폴더를 클릭하면 숙제 사진·시험결과·OMR·출결·홀드 전 이력이 열립니다.</div>
                         </div>
-                        <div id="admin-student-folders-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(225px, 1fr)); gap: 10px; max-height: 430px; overflow-y: auto; padding: 4px;">
+                        <div id="admin-student-folders-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(225px, minmax(0, 1fr))); gap: 10px; max-height: 430px; overflow-y: auto; padding: 4px;">
                             <div style="grid-column: 1 / -1; text-align: center; color: #94a3b8; font-size: 0.8rem; padding: 24px;">학생별 디지털 폴더 목록을 불러오는 중입니다...</div>
                         </div>
                     </div>
@@ -1904,7 +1905,7 @@
                                 <span class="material-symbols-rounded" style="font-size: 0.9rem;">tune</span>
                                 <span>원장 맞춤 선발 가중치 공식 세부 조정</span>
                             </div>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, minmax(0, 1fr))); gap: 10px;">
                                 <div>
                                     <label style="font-size: 0.7rem; color: #94a3b8; display: block; margin-bottom: 3px;">출석 1회 가점 (점)</label>
                                     <input type="number" id="csat-weight-att" value="10.0" step="1.0" class="form-input" style="height: 34px; font-size: 0.8rem; font-weight: 700;">
@@ -1930,7 +1931,7 @@
                         </div>
 
                         <!-- 4대 요약 KPI 지표 -->
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-bottom: 12px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, minmax(0, 1fr))); gap: 10px; margin-bottom: 12px;">
                             <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 14px;">
                                 <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 700;">총 집계 재원생</div>
                                 <div id="csat-total-review-count" style="font-size: 1.45rem; font-weight: 900; color: #ffffff; margin-top: 2px;">99명</div>
@@ -1999,7 +2000,7 @@
                     </div>
 
                     <form onsubmit="handleSaveAdminExam(event)" style="display: flex; flex-direction: column; gap: 12px;">
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;">
                             <div>
                                 <label style="font-size: 0.74rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">시험 주차</label>
                                 <select id="admin-exam-week" class="form-input" style="width: 100%; font-weight: 700; height: 44px; min-height: 44px; padding: 6px 10px; font-size: 0.88rem; line-height: 1.4;">
@@ -2075,7 +2076,7 @@
                             </div>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 10px;">
+                        <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 1.5fr; gap: 10px;">
                             <div id="admin-exam-elective-box">
                                 <label style="font-size: 0.74rem; color: #fbbf24; font-weight: 800; display: block; margin-bottom: 4px;">선택 과목 (정답표 분기)</label>
                                 <select id="admin-exam-elective" onchange="renderAdminAnswerKeyGrid()" class="form-input" style="width: 100%; font-weight: 800; border-color: rgba(251,191,36,0.4); height: 44px; min-height: 44px; padding: 6px 10px; font-size: 0.85rem; line-height: 1.4; color: #fbbf24;">
@@ -2113,7 +2114,7 @@
                                     </label>
                                 </div>
                             </div>
-                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                            <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px;">
                                 <div>
                                     <label style="font-size: 0.72rem; color: #10b981; font-weight: 800; display: block; margin-bottom: 2px;">1등급 컷</label>
                                     <input type="number" step="0.1" id="admin-cut-1" value="90.0" class="form-input" style="width: 100%; font-weight: 800; text-align: center;">
@@ -2167,7 +2168,7 @@
                     </div>
 
                     <!-- 성적 현황 요약 KPI (높낮이 완벽 수평 통일) -->
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px;">
+                    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px;">
                         <div style="background: rgba(255,255,255,0.03); padding: 10px 6px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; justify-content: space-between; min-height: 76px; box-sizing: border-box;">
                             <div style="font-size: 0.72rem; color: var(--text-secondary); min-height: 28px; display: flex; align-items: center; justify-content: center; word-break: keep-all; line-height: 1.2;">총 응시 건수</div>
                             <div style="font-size: 1.15rem; font-weight: 900; color: #38bdf8; margin-top: auto;" id="exam-summary-total-count">0건</div>
@@ -2277,13 +2278,13 @@
                     </div>
 
                     <!-- 카탈로그 그리드 컨테이너 -->
-                    <div id="procurement-catalog-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 12px;">
+                    <div id="procurement-catalog-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, minmax(0, 1fr))); gap: 12px; margin-bottom: 12px;">
                         <!-- JS 렌더링 -->
                     </div>
                 </div>
 
                 <!-- 2. 사설 모의고사 & 교재 B2B 발주 및 아정당형 렌탈 인프라 2열 그리드 -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, minmax(0, 1fr))); gap: 16px;">
                     <!-- 사설 모의고사 & 교재 발주 -->
                     <div class="kpi-card" style="border: 1.5px solid #6366f1; background: rgba(99, 102, 241, 0.03);">
                         <div class="section-title" style="color: #818cf8; display: flex; justify-content: space-between; align-items: center;">
@@ -2331,10 +2332,10 @@
                         <span style="font-size: 0.75rem; color: #cbd5e1; background: rgba(244, 114, 182, 0.15); border: 1px solid rgba(244, 114, 182, 0.3); padding: 3px 8px; border-radius: 6px; font-weight: 800;">1080x1080 인스타그램 규격 실시간 렌더러</span>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, minmax(0, 1fr))); gap: 16px;">
                         <!-- 입력 폼 -->
                         <form onsubmit="handleRenderMarketingCard(event)" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px;">
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px;">
                                 <div>
                                     <label style="font-size: 0.75rem; color: #f472b6; font-weight: 800; display: block; margin-bottom: 2px;">학생 성명 / 이니셜</label>
                                     <input type="text" id="mkt-st-name" placeholder="예: 김*준 (낙생고 3)" required class="form-input" style="height: 40px;">
@@ -2344,7 +2345,7 @@
                                     <input type="text" id="mkt-subject" placeholder="예: 2027 수능국어 정규반" required class="form-input" style="height: 40px;">
                                 </div>
                             </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px;">
                                 <div>
                                     <label style="font-size: 0.75rem; color: #f87171; font-weight: 800; display: block; margin-bottom: 2px;">기존 성적 / 등급</label>
                                     <input type="text" id="mkt-score-before" placeholder="예: 4등급 (62점)" required class="form-input" style="height: 40px; color: #f87171; font-weight: 800;">
@@ -2354,7 +2355,7 @@
                                     <input type="text" id="mkt-score-after" placeholder="예: 1등급 (96점 / 백분위 99)" required class="form-input" style="height: 40px; color: #34d399; font-weight: 800;">
                                 </div>
                             </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px;">
                                 <div>
                                     <label style="font-size: 0.75rem; color: #fbbf24; font-weight: 800; display: block; margin-bottom: 2px;">소요 수강 기간</label>
                                     <input type="text" id="mkt-period" value="단 3개월" required class="form-input" style="height: 40px;">
@@ -2437,7 +2438,7 @@
                 <button type="button" onclick="closeTextbookOrderModal()" class="btn btn-secondary" style="padding: 4px 10px;">✕</button>
             </div>
             <form onsubmit="handleSubmitTextbookOrder(event)" style="display: flex; flex-direction: column; gap: 10px;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px;">
                     <div>
                         <label style="font-size: 0.75rem; color: #818cf8; font-weight: 800; display: block; margin-bottom: 2px;">출판사 / 총판 제휴처</label>
                         <select id="order-publisher" class="form-input" style="height: 40px; font-weight: 700;">
@@ -2453,7 +2454,7 @@
                         <input type="text" id="order-book-name" placeholder="예: 2027 수능대비 간쓸개 시즌1" required class="form-input" style="height: 40px;">
                     </div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px;">
                     <div>
                         <label style="font-size: 0.75rem; color: #cbd5e1; font-weight: 800; display: block; margin-bottom: 2px;">발주 부수</label>
                         <input type="number" id="order-qty" value="20" min="1" required class="form-input" style="height: 40px; font-weight: 800;">
@@ -2499,7 +2500,7 @@
             <form onsubmit="handleSubmitRentalInquiry(event)" style="display: flex; flex-direction: column; gap: 10px;">
                 <div>
                     <label style="font-size: 0.75rem; color: #34d399; font-weight: 800; display: block; margin-bottom: 4px;">필요 품목 선택 (다중 선택 가능)</label>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, minmax(0, 1fr))); gap: 6px;">
                         <label style="display: flex; align-items: center; gap: 6px; font-size: 0.78rem; background: rgba(255,255,255,0.04); padding: 6px 8px; border-radius: 6px; cursor: pointer;">
                             <input type="checkbox" name="rental-item" value="고속 복합기/프린터" checked style="width: 15px; height: 15px;">
                             <span>고속 복합기/프린터</span>
@@ -2522,7 +2523,7 @@
                         </label>
                     </div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px;">
                     <div>
                         <label style="font-size: 0.75rem; color: #cbd5e1; font-weight: 800; display: block; margin-bottom: 2px;">원장 성명</label>
                         <input type="text" id="rnt-director" value="원장" required class="form-input" style="height: 40px;">
@@ -2711,7 +2712,7 @@
             <div id="admin-seat-mode-toggle-area"></div>
 
             <!-- 실시간 KPI 요약 카드 그리드 -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, minmax(0, 1fr))); gap: 10px; margin-bottom: 16px;">
                 <div class="kpi-card" style="padding: 14px; text-align: center; border: 1px solid rgba(99,102,241,0.3);">
                     <div style="font-size: 0.75rem; color: #94a3b8;">실시간 가동률</div>
                     <div id="cafe-kpi-occupancy" style="font-size: 1.4rem; font-weight: 900; color: #818cf8;">0%</div>
@@ -2777,7 +2778,7 @@
                     </div>
                 </div>
 
-                <div id="studycafe-seat-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; max-height: 480px; overflow-y: auto; padding: 4px;">
+                <div id="studycafe-seat-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, minmax(0, 1fr))); gap: 10px; max-height: 480px; overflow-y: auto; padding: 4px;">
                     <!-- JS renderStudyCafeSeatGrid() -->
                 </div>
 
@@ -2911,7 +2912,7 @@
 
                 <div style="display: flex; flex-direction: column; gap: 8px;">
                     <div style="font-size: 0.76rem; font-weight: 800; color: #cbd5e1; margin-bottom: 2px;">좌석 작업 선택:</div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px;">
                         <button onclick="executeSeatAction('ASSIGN')" class="btn" style="background: #10b981; color: white; padding: 10px; font-weight: 800; font-size: 0.78rem;">입실/배정</button>
                         <button onclick="executeSeatAction('LEAVE')" class="btn" style="background: #ef4444; color: white; padding: 10px; font-weight: 800; font-size: 0.78rem;">퇴실 처리</button>
                         <button onclick="executeSeatAction('OUT')" class="btn" style="background: #f59e0b; color: black; padding: 10px; font-weight: 800; font-size: 0.78rem;">외출 전환</button>
@@ -2943,7 +2944,7 @@
                         <input type="text" id="batch-item-title" value="2026년 9월 정규반 수강료 & 교재비" required class="form-input" style="height: 42px;">
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px;">
                         <div>
                             <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">기본 수업료 (원)</label>
                             <input type="number" id="batch-tuition-amount" value="450000" step="10000" required class="form-input" style="height: 42px;">
@@ -2954,7 +2955,7 @@
                         </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px;">
                         <div>
                             <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">청구 대상 월</label>
                             <input type="text" id="batch-billing-month" value="2026-09" required class="form-input" style="text-align: center; font-weight: 800; height: 42px;">
@@ -3016,7 +3017,7 @@
                         <input type="text" id="single-item-title" placeholder="예: 2026년 9월 고3 수능국어 정규반 수강료" required class="form-input" style="height: 42px;">
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px;">
                         <div>
                             <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">청구 원금 (원)</label>
                             <input type="number" id="single-amount" value="500000" step="10000" required class="form-input" style="height: 42px;">
@@ -3027,7 +3028,7 @@
                         </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px;">
                         <div>
                             <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">납부 마감 기한</label>
                             <input type="date" id="single-due-date" required class="form-input" style="height: 42px; color-scheme: dark;">
@@ -3076,7 +3077,7 @@
                         <input type="text" id="settle-input-bizno" value="128-86-23861" required class="form-input" style="height: 42px; font-weight: 800;">
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 140px 1fr; gap: 10px;">
+                    <div style="display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 10px;">
                         <div>
                             <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">정산 은행</label>
                             <select id="settle-input-bank" required class="form-input" style="height: 42px; font-weight: 800;">
@@ -3096,7 +3097,7 @@
                         </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px;">
                         <div>
                             <label style="font-size: 0.78rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">예금주명</label>
                             <input type="text" id="settle-input-holder" value="김철훈(일원학원)" required class="form-input" style="height: 42px;">
@@ -3788,7 +3789,7 @@
             if (infoBox) {
                 const statusK = seat.status === 'DISABLED' ? '🚫 미사용 (제외)' : (seat.status === 'OCCUPIED' ? '🟢 이용중' : (seat.status === 'OUT_BRIEF' ? '🟡 외출중' : (seat.status === 'RESERVED' ? '🔵 예약' : '⚪ 빈자리')));
                 infoBox.innerHTML = `
-                    <div style="display:grid; grid-template-columns: 80px 1fr; gap: 6px;">
+                    <div style="display:grid; grid-template-columns: 80px minmax(0, 1fr); gap: 6px;">
                         <span style="color:#94a3b8;">현재 상태:</span><strong>${statusK}</strong>
                         <span style="color:#94a3b8;">이용자:</span><strong style="color:${seat.status === 'DISABLED' ? '#64748b' : '#34d399'};">${seat.status === 'DISABLED' ? '(제외된 구역)' : (seat.student_name || '없음')}</strong>
                         <span style="color:#94a3b8;">이용권 종류:</span><span>${seat.status === 'DISABLED' ? '-' : (seat.plan_type || '지정 배정')}</span>
@@ -7568,7 +7569,7 @@
             </div>
             <form onsubmit="handleUpdateVodLibrary(event)" style="display: flex; flex-direction: column; gap: 10px;">
                 <input type="hidden" id="edit-vod-id">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px;">
                     <div>
                         <label style="font-size: 0.75rem; color: #818cf8; font-weight: 800; display: block; margin-bottom: 4px;">강의 과목 / 구분</label>
                         <div style="display: flex; gap: 6px;">
@@ -7792,7 +7793,7 @@
             </div>
 
             <!-- 핵심 KPI 4분할 요약 카드 -->
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 20px;">
                 <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 10px; text-align: center;">
                     <div style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 4px;">총 자습 몰입</div>
                     <div style="font-size: 1.2rem; font-weight: 900; color: #38bdf8;" id="dossier-kpi-study-hours">0시간</div>
@@ -7942,7 +7943,7 @@
                 <button type="button" onclick="closeAdminCreateClassModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.3rem; cursor: pointer;">✕</button>
             </div>
             <form onsubmit="handleSubmitCreateClass(event)">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-bottom: 10px;">
                     <div>
                         <label style="font-size: 0.74rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">과목 구분</label>
                         <select id="modal-class-subject" class="form-input" style="width: 100%; box-sizing: border-box; font-weight: 700;">
@@ -7970,7 +7971,7 @@
                     <input type="text" id="modal-class-course-name" required placeholder="예: 미적분 킬러 3문항 정복 & 실전 타임어택" class="form-input" style="width: 100%; box-sizing: border-box;">
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-bottom: 10px;">
                     <div>
                         <label style="font-size: 0.74rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">담당 선생님</label>
                         <input type="text" id="modal-class-instructor" required placeholder="예: 대표강사T" class="form-input" style="width: 100%; box-sizing: border-box;">
@@ -7989,7 +7990,7 @@
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-bottom: 10px;">
                     <div>
                         <label style="font-size: 0.74rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">시작 시간</label>
                         <input type="time" id="modal-class-start" required value="14:00" class="form-input" style="width: 100%; box-sizing: border-box;">
@@ -8000,7 +8001,7 @@
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); gap: 8px; margin-bottom: 10px;">
                     <div>
                         <label style="font-size: 0.74rem; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">배정 강의실</label>
                         <input type="text" id="modal-class-room" value="301호 대강의실" class="form-input" style="width: 100%; box-sizing: border-box;">
@@ -8171,7 +8172,7 @@
             </div>
 
             <!-- 폴더 요약 배지 -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 8px; margin-bottom: 14px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, minmax(0, 1fr))); gap: 8px; margin-bottom: 14px;">
                 <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.28); border-radius: 8px; padding: 8px 12px;">
                     <div style="font-size: 0.7rem; color: #6ee7b7; font-weight: 800;">누적 숙제 인증</div>
                     <div id="admin-sf-stat-hw" style="font-size: 1.15rem; font-weight: 900; color: #fff;">0건</div>
@@ -9045,7 +9046,7 @@ function printStudentDossier() {
                     </div>
 
                     <!-- 7열 주간 그리드 본체 -->
-                    <div id="print-sheet-timetable-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;">
+                    <div id="print-sheet-timetable-grid" style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px;">
                         <!-- 동적 렌더링 -->
                     </div>
 
@@ -10157,7 +10158,7 @@ function renderAdminStudentFoldersGrid() {
                         ${holdBadge}
                     </div>
                 </div>
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; background: rgba(2,6,23,0.55); padding: 7px 8px; border-radius: 8px; font-size: 0.72rem;">
+                <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; background: rgba(2,6,23,0.55); padding: 7px 8px; border-radius: 8px; font-size: 0.72rem;">
                     <div style="text-align: center;">
                         <div style="color: #94a3b8; font-size: 0.66rem;">숙제인증</div>
                         <div style="color: #34d399; font-weight: 900;">${f.homework_count || 0}건</div>
@@ -11035,7 +11036,7 @@ window.executeBatchStudentActionDirect = executeBatchStudentActionDirect;
                     </div>
 
                     <!-- 7열 주간 그리드 본체 -->
-                    <div id="print-sheet-timetable-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;">
+                    <div id="print-sheet-timetable-grid" style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px;">
                         <!-- 동적 렌더링 -->
                     </div>
 
