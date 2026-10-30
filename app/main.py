@@ -2560,8 +2560,19 @@ def get_student(student_id: int, db: Session = Depends(get_db)):
 
     acad_meta = get_student_academy_meta(student, db)
 
+    # 입시 관제 정밀 성적 실시간 연동 (PC/모바일/패드 크로스 디바이스 완벽 일치)
+    cfg_key = f"student_admission_scores_{student.id}"
+    cfg = db.query(models.SystemConfig).filter(models.SystemConfig.config_key == cfg_key).first()
+    admission_scores = None
+    if cfg and cfg.config_value:
+        try:
+            admission_scores = json.loads(cfg.config_value)
+        except Exception:
+            pass
+
     return {
         "id": student.id,
+        "admission_scores": admission_scores,
         "email": student.email,
         "name": student.name or "학생",
         "phone": student.phone or "-",

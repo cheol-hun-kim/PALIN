@@ -573,19 +573,19 @@
                         접속하지 않고도 <strong>학생</strong>, <strong>학부모</strong>, <strong>학원장</strong>에게 가장 중요한 관제 지표를 1초 만에 확인합니다. 아래 탭을 눌러 시점을 전환하세요.
                     </p>
 
-                    <!-- 3대 페르소나 탭 스위처 -->
-                    <div class="w-full max-w-full grid grid-cols-3 gap-2 p-1.5 bg-slate-950/80 rounded-2xl border border-slate-800 mb-6">
-                        <button type="button" id="tab-pass-student" onclick="setPassDeckPersona('STUDENT')" class="py-2.5 px-2 sm:px-4 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-lg shadow-emerald-950/50 cursor-pointer whitespace-nowrap">
-                            <span class="material-symbols-rounded text-sm">school</span>
-                            <span class="whitespace-nowrap">학생 뷰</span>
+                    <!-- 3대 페르소나 탭 스위처 (아이패드·모바일 100% 가로 꽉 참 & 글자 쪼개짐 절대 방지) -->
+                    <div class="w-full flex items-center gap-2 p-1.5 bg-slate-950/90 rounded-2xl border border-slate-800/90 mb-6 shadow-inner">
+                        <button type="button" id="tab-pass-student" onclick="setPassDeckPersona('STUDENT')" class="flex-1 min-w-0 py-3 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-black transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-lg shadow-emerald-950/50 cursor-pointer whitespace-nowrap shrink-0">
+                            <span class="material-symbols-rounded text-base shrink-0">school</span>
+                            <span class="whitespace-nowrap truncate font-black">학생 뷰</span>
                         </button>
-                        <button type="button" id="tab-pass-parent" onclick="setPassDeckPersona('PARENT')" class="py-2.5 px-2 sm:px-4 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
-                            <span class="material-symbols-rounded text-sm">family_restroom</span>
-                            <span class="whitespace-nowrap">학부모 뷰</span>
+                        <button type="button" id="tab-pass-parent" onclick="setPassDeckPersona('PARENT')" class="flex-1 min-w-0 py-3 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0">
+                            <span class="material-symbols-rounded text-base shrink-0">family_restroom</span>
+                            <span class="whitespace-nowrap truncate font-black">학부모 뷰</span>
                         </button>
-                        <button type="button" id="tab-pass-director" onclick="setPassDeckPersona('DIRECTOR')" class="py-2.5 px-2 sm:px-4 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
-                            <span class="material-symbols-rounded text-sm">domain</span>
-                            <span class="whitespace-nowrap">학원장 뷰</span>
+                        <button type="button" id="tab-pass-director" onclick="setPassDeckPersona('DIRECTOR')" class="flex-1 min-w-0 py-3 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0">
+                            <span class="material-symbols-rounded text-base shrink-0">domain</span>
+                            <span class="whitespace-nowrap truncate font-black">학원장 뷰</span>
                         </button>
                     </div>
 
@@ -701,7 +701,7 @@
                                 <div class="flex items-center justify-between mb-3">
                                     <span class="text-xs font-extrabold text-slate-300 flex items-center gap-1.5 whitespace-nowrap shrink-0">
                                         <span class="material-symbols-rounded text-emerald-400 text-base">where_to_vote</span>
-                                        <span>학원·독서실 출결 알림</span>
+                                        <span class="whitespace-nowrap font-black">학원·독서실 출결 알림</span>
                                     </span>
                                     <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30 whitespace-nowrap shrink-0">
                                         안심 출결
@@ -725,7 +725,7 @@
                                 <div class="flex items-center justify-between mb-3">
                                     <span class="text-xs font-extrabold text-slate-300 flex items-center gap-1.5 whitespace-nowrap shrink-0">
                                         <span class="material-symbols-rounded text-amber-400 text-base">receipt_long</span>
-                                        <span>수납 고지 및 청구서</span>
+                                        <span class="whitespace-nowrap font-black">수납 고지 및 청구서</span>
                                     </span>
                                     <span class="text-[10px] font-bold text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30 whitespace-nowrap shrink-0">
                                         결제선생 연동
@@ -748,7 +748,7 @@
                                 <div class="flex items-center justify-between mb-3">
                                     <span class="text-xs font-extrabold text-slate-300 flex items-center gap-1.5 whitespace-nowrap shrink-0">
                                         <span class="material-symbols-rounded text-emerald-400 text-base">person_add</span>
-                                        <span>신규 등록 및 수강 신청</span>
+                                        <span class="whitespace-nowrap font-black">신규 등록 및 수강 신청</span>
                                     </span>
                                     <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30 whitespace-nowrap shrink-0">
                                         실시간 동기화
@@ -771,7 +771,7 @@
                                 <div class="flex items-center justify-between mb-3">
                                     <span class="text-xs font-extrabold text-slate-300 flex items-center gap-1.5 whitespace-nowrap shrink-0">
                                         <span class="material-symbols-rounded text-amber-400 text-base">support_agent</span>
-                                        <span>상담 &amp; 민원 처리</span>
+                                        <span class="whitespace-nowrap font-black">상담 &amp; 민원 처리</span>
                                     </span>
                                     <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30 whitespace-nowrap shrink-0">
                                         정상 운영 중
@@ -791,7 +791,7 @@
                                 <div class="flex items-center justify-between mb-3">
                                     <span class="text-xs font-extrabold text-slate-300 flex items-center gap-1.5 whitespace-nowrap shrink-0">
                                         <span class="material-symbols-rounded text-indigo-400 text-base">swap_horiz</span>
-                                        <span>원생 행정 신청 현황</span>
+                                        <span class="whitespace-nowrap font-black">원생 행정 신청 현황</span>
                                     </span>
                                     <span class="text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/30 whitespace-nowrap shrink-0">
                                         ERP 연동
@@ -2369,10 +2369,11 @@
         // 궤도 기하학 수치 (모바일 한눈에 쏙 들어오도록 컴팩트 최적화)
         // 🌌 대표님의 지그재그(Alternating Dual Orbit) 기하학 설계: 인접 제품군 간 반경을 64px 엇갈려 위성 겹침 100% 원천 박멸!
         // 🌌 대표님의 황금 지그재그(Alternating Dual Orbit) 기하학 설계: 인접 제품 80px 단차 & 위성 120px 절대 간격 보장!
-        const GALAXY_RADIUS_INNER = 215;        // 짝수 시계 (12시 KID, 2시 UNIV, 4시 FIT, 6시 MARRY, 8시 BIZ, 10시 SILVER)
-        const GALAXY_RADIUS_OUTER = 295;        // 홀수 시계 (1시 PASS-MATE, 3시 CAREER, 5시 MEDI, 7시 HOME, 9시 MONEY, 11시 AFTER)
-        const SATELLITE_DIST_SIDE = 84;         // 좌우 위성 노드 거리 (px, 서브 궤도 원과 일치)
-        const SATELLITE_DIST_CENTER = 148;      // 중앙 외곽 위성 노드 거리 (px, 외곽 궤도로 68px 대폭 이격하여 겹침 0% 박멸)
+        // 🌌 대표님 제안: 12개 제품군 지그재그(교대 반지름) 대폭 이격으로 겹침 완벽 원천 박멸!
+        const GALAXY_RADIUS_INNER = 210;        // 짝수 시계: 안쪽 궤도 (12시 KID, 2시 UNIV, 4시 FIT, 6시 MARRY, 8시 BIZ, 10시 SILVER)
+        const GALAXY_RADIUS_OUTER = 320;        // 홀수 시계: 바깥쪽 궤도 110px 대폭 이격 (1시 PASS-MATE, 3시 CAREER, 5시 MEDI, 7시 HOME 등)
+        const SATELLITE_DIST_SIDE = 64;         // 좌우 위성 노드 거리 (px)
+        const SATELLITE_DIST_CENTER = 98;       // 중앙 외곽 위성 노드 거리 (px)
 
         function getProductRadius(prod) {
             // 홀수 시계: 외곽 288px (PASS-MATE 등), 짝수 시계: 내부 224px (KID-MATE, UNIV-MATE 등)
@@ -2414,9 +2415,9 @@
             const viewParent = document.getElementById('persona-view-parent');
             const viewDirector = document.getElementById('persona-view-director');
 
-            const defaultBtnClass = "py-2.5 px-2 sm:px-4 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap";
-            // 통일된 PASS-MATE 브랜드 에메랄드 액티브 스타일 (알록달록 불일치 완전 영구 박멸)
-            const activeBtnClass = "py-2.5 px-2 sm:px-4 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-lg shadow-emerald-950/50 cursor-pointer whitespace-nowrap";
+            const defaultBtnClass = "flex-1 min-w-0 py-3 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0";
+            // 통일된 PASS-MATE 브랜드 에메랄드 액티브 스타일 (아이패드 100% 꽉 찬 너비 유지)
+            const activeBtnClass = "flex-1 min-w-0 py-3 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-black transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-lg shadow-emerald-950/50 cursor-pointer whitespace-nowrap shrink-0";
 
             if (tabStudent) tabStudent.className = defaultBtnClass;
             if (tabParent) tabParent.className = defaultBtnClass;
@@ -2587,7 +2588,7 @@
                 // 4. 제품군별 3개 위성 노드 (충분한 거리와 부채꼴 각도로 100% 겹침 방지)
                 if (prod.satellites && prod.satellites.length > 0) {
                     // 각도 오프셋: 좌측(-42°), 중앙(0°), 우측(+42°)
-                    const angleOffsets = [-0.62, 0, 0.62]; // 약 35.5도 넓은 부채꼴: 인접 위성 간 25px 이상 완전 분리
+                    const angleOffsets = [-0.28, 0, 0.28]; // 약 16도 정밀 방사형 부채꼴: 이웃 제품군 노드 및 연결선 침범 100% 차단
                     const distances = [SATELLITE_DIST_SIDE, SATELLITE_DIST_CENTER, SATELLITE_DIST_SIDE];
 
                     prod.satellites.forEach((satName, sIdx) => {
@@ -2915,8 +2916,9 @@
         }
 
 async function refreshUnifiedOrbitStatus() {
-            const sid = currentUser ? currentUser.id : localStorage.getItem("userId");
-            const phone = currentUser ? currentUser.phone : localStorage.getItem("userPhone");
+            const rawSid = (currentUser && currentUser.id) || localStorage.getItem("studentId") || localStorage.getItem("userId") || "1";
+            const sid = (!isNaN(parseInt(rawSid, 10))) ? parseInt(rawSid, 10) : 1;
+            const phone = currentUser ? currentUser.phone : (localStorage.getItem("userPhone") || localStorage.getItem("cached_student_phone"));
 
             try {
                 const q = sid ? `?user_id=${sid}` : (phone ? `?phone=${phone}` : '');
@@ -2926,7 +2928,7 @@ async function refreshUnifiedOrbitStatus() {
                     if (data && data.is_logged_in) {
                         if (!currentUser) {
                             currentUser = {
-                                id: sid || 1,
+                                id: sid,
                                 name: data.name,
                                 phone: data.phone,
                                 email: data.email,
@@ -2935,7 +2937,27 @@ async function refreshUnifiedOrbitStatus() {
                             localStorage.setItem("unified_user", JSON.stringify(currentUser));
                         }
                         updateHeaderUserUI();
-                    updateCreatorMode();
+                        updateCreatorMode();
+                    }
+
+                    // 🎯 회원 실제 Ground-Truth 연동: 목표대학/D-Day/이름 실시간 정밀 연동
+                    if (data && data.passmate && (!data.passmate.target_univ || data.passmate.target_univ === '-')) {
+                        try {
+                            const stRes = await fetch(`/api/student/${sid}`);
+                            if (stRes.ok) {
+                                const stData = await stRes.json();
+                                if (stData) {
+                                    if (stData.target_univ && stData.target_univ !== '-') data.passmate.target_univ = stData.target_univ;
+                                    if (stData.baseline_univ && stData.baseline_univ !== '-') data.passmate.baseline_univ = stData.baseline_univ;
+                                    if (stData.dday_date) data.passmate.dday_date = stData.dday_date;
+                                    if (stData.dday_title) data.passmate.dday_title = stData.dday_title;
+                                    if (stData.name) data.passmate.student_name = stData.name;
+                                    data.passmate.is_active = true;
+                                }
+                            }
+                        } catch (stErr) {
+                            console.warn("Student fallback fetch notice:", stErr);
+                        }
                     }
 
                     // A. PASS-MATE 노드 렌더링

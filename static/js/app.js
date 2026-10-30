@@ -5334,26 +5334,46 @@ async function fetchStudentInfo(studentId) {
             if (currentStudent.dday_title) {
                 localStorage.setItem("cached_dday_title", currentStudent.dday_title);
             }
-            // 모바일/PC 크로스 디바이스 성적 실시간 연동
-            try {
-                const scoreSyncRes = await fetch(`/api/student/${currentStudent.id}/admission-scores`);
-                if (scoreSyncRes.ok) {
-                    const scoreSyncJson = await scoreSyncRes.json();
-                    if (scoreSyncJson && scoreSyncJson.data) {
-                        const sd = scoreSyncJson.data;
-                        if (sd.gpa_grade !== null && sd.gpa_grade !== undefined) localStorage.setItem('cached_score_gpa', String(sd.gpa_grade));
-                        if (sd.gpa_rank !== null && sd.gpa_rank !== undefined) localStorage.setItem('cached_score_rank', String(sd.gpa_rank));
-                        if (sd.gpa_total !== null && sd.gpa_total !== undefined) localStorage.setItem('cached_score_total', String(sd.gpa_total));
-                        if (sd.kor_pct !== null && sd.kor_pct !== undefined) localStorage.setItem('cached_score_kor', String(sd.kor_pct));
-                        if (sd.math_pct !== null && sd.math_pct !== undefined) localStorage.setItem('cached_score_math', String(sd.math_pct));
-                        if (sd.inq1_pct !== null && sd.inq1_pct !== undefined) localStorage.setItem('cached_score_inq1', String(sd.inq1_pct));
-                        if (sd.inq2_pct !== null && sd.inq2_pct !== undefined) localStorage.setItem('cached_score_inq2', String(sd.inq2_pct));
-                        if (sd.eng_grade !== null && sd.eng_grade !== undefined) localStorage.setItem('cached_score_eng', String(sd.eng_grade));
-                        if (sd.hist_grade !== null && sd.hist_grade !== undefined) localStorage.setItem('cached_score_hist', String(sd.hist_grade));
+            // 모바일/PC/패드 크로스 디바이스 성적 실시간 Ground-Truth 동기화
+            if (currentStudent.admission_scores) {
+                const sd = currentStudent.admission_scores;
+                if (sd.gpa_grade !== null && sd.gpa_grade !== undefined) localStorage.setItem('cached_score_gpa', String(sd.gpa_grade));
+                if (sd.gpa_rank !== null && sd.gpa_rank !== undefined) localStorage.setItem('cached_score_rank', String(sd.gpa_rank));
+                if (sd.gpa_total !== null && sd.gpa_total !== undefined) localStorage.setItem('cached_score_total', String(sd.gpa_total));
+                if (sd.kor_pct !== null && sd.kor_pct !== undefined) localStorage.setItem('cached_score_kor', String(sd.kor_pct));
+                if (sd.math_pct !== null && sd.math_pct !== undefined) localStorage.setItem('cached_score_math', String(sd.math_pct));
+                if (sd.inq1_pct !== null && sd.inq1_pct !== undefined) localStorage.setItem('cached_score_inq1', String(sd.inq1_pct));
+                if (sd.inq2_pct !== null && sd.inq2_pct !== undefined) localStorage.setItem('cached_score_inq2', String(sd.inq2_pct));
+                if (sd.eng_grade !== null && sd.eng_grade !== undefined) localStorage.setItem('cached_score_eng', String(sd.eng_grade));
+                if (sd.hist_grade !== null && sd.hist_grade !== undefined) localStorage.setItem('cached_score_hist', String(sd.hist_grade));
+            } else {
+                try {
+                    const scoreSyncRes = await fetch(`/api/student/${currentStudent.id}/admission-scores`);
+                    if (scoreSyncRes.ok) {
+                        const scoreSyncJson = await scoreSyncRes.json();
+                        if (scoreSyncJson && scoreSyncJson.data) {
+                            currentStudent.admission_scores = scoreSyncJson.data;
+                            const sd = scoreSyncJson.data;
+                            if (sd.gpa_grade !== null && sd.gpa_grade !== undefined) localStorage.setItem('cached_score_gpa', String(sd.gpa_grade));
+                            if (sd.gpa_rank !== null && sd.gpa_rank !== undefined) localStorage.setItem('cached_score_rank', String(sd.gpa_rank));
+                            if (sd.gpa_total !== null && sd.gpa_total !== undefined) localStorage.setItem('cached_score_total', String(sd.gpa_total));
+                            if (sd.kor_pct !== null && sd.kor_pct !== undefined) localStorage.setItem('cached_score_kor', String(sd.kor_pct));
+                            if (sd.math_pct !== null && sd.math_pct !== undefined) localStorage.setItem('cached_score_math', String(sd.math_pct));
+                            if (sd.inq1_pct !== null && sd.inq1_pct !== undefined) localStorage.setItem('cached_score_inq1', String(sd.inq1_pct));
+                            if (sd.inq2_pct !== null && sd.inq2_pct !== undefined) localStorage.setItem('cached_score_inq2', String(sd.inq2_pct));
+                            if (sd.eng_grade !== null && sd.eng_grade !== undefined) localStorage.setItem('cached_score_eng', String(sd.eng_grade));
+                            if (sd.hist_grade !== null && sd.hist_grade !== undefined) localStorage.setItem('cached_score_hist', String(sd.hist_grade));
+                        }
                     }
+                } catch (scoreSyncErr) {
+                    console.warn("Admission scores cross-device sync notice:", scoreSyncErr);
                 }
-            } catch (scoreSyncErr) {
-                console.warn("Admission scores cross-device sync notice:", scoreSyncErr);
+            }
+            if (typeof renderAdmissionPathEngine === 'function') {
+                renderAdmissionPathEngine();
+            }
+            if (typeof syncSurfaceScoreInputs === 'function') {
+                syncSurfaceScoreInputs();
             }
         } else {
             console.warn("fetchStudentInfo non-ok, preserving cached student profile & academy linkage.");
@@ -21200,21 +21220,30 @@ let cachedAdmissionCampusData = null;
 
 // 정밀 성적 기본값 로드 (로컬 스토리지 캐시 우선)
 function getPreciseScoreData() {
-    const rawGpa = localStorage.getItem('cached_score_gpa');
-    const rawKor = localStorage.getItem('cached_score_kor');
-    const hasScores = !!(rawGpa || rawKor);
+    const memScores = window.currentStudent?.admission_scores;
+    const rawGpa = (memScores && memScores.gpa_grade !== null && memScores.gpa_grade !== undefined) ? String(memScores.gpa_grade) : localStorage.getItem('cached_score_gpa');
+    const rawKor = (memScores && memScores.kor_pct !== null && memScores.kor_pct !== undefined) ? String(memScores.kor_pct) : localStorage.getItem('cached_score_kor');
+    const rawMath = (memScores && memScores.math_pct !== null && memScores.math_pct !== undefined) ? String(memScores.math_pct) : localStorage.getItem('cached_score_math');
+    const rawInq1 = (memScores && memScores.inq1_pct !== null && memScores.inq1_pct !== undefined) ? String(memScores.inq1_pct) : localStorage.getItem('cached_score_inq1');
+    const rawInq2 = (memScores && memScores.inq2_pct !== null && memScores.inq2_pct !== undefined) ? String(memScores.inq2_pct) : localStorage.getItem('cached_score_inq2');
+    const rawRank = (memScores && memScores.gpa_rank !== null && memScores.gpa_rank !== undefined) ? String(memScores.gpa_rank) : localStorage.getItem('cached_score_rank');
+    const rawTotal = (memScores && memScores.gpa_total !== null && memScores.gpa_total !== undefined) ? String(memScores.gpa_total) : localStorage.getItem('cached_score_total');
+    const rawEng = (memScores && memScores.eng_grade !== null && memScores.eng_grade !== undefined) ? String(memScores.eng_grade) : localStorage.getItem('cached_score_eng');
+    const rawHist = (memScores && memScores.hist_grade !== null && memScores.hist_grade !== undefined) ? String(memScores.hist_grade) : localStorage.getItem('cached_score_hist');
+
+    const hasScores = !!(rawGpa || rawKor || rawMath);
 
     return {
         hasScores: hasScores,
-        gpa_grade: parseFloat(rawGpa || '1.85'),
-        gpa_rank: parseInt(localStorage.getItem('cached_score_rank') || '12', 10),
-        gpa_total: parseInt(localStorage.getItem('cached_score_total') || '280', 10),
-        kor_pct: parseInt(rawKor || '96', 10),
-        math_pct: parseInt(localStorage.getItem('cached_score_math') || '98', 10),
-        inq1_pct: parseInt(localStorage.getItem('cached_score_inq1') || '95', 10),
-        inq2_pct: parseInt(localStorage.getItem('cached_score_inq2') || '94', 10),
-        eng_grade: parseInt(localStorage.getItem('cached_score_eng') || '1', 10),
-        hist_grade: parseInt(localStorage.getItem('cached_score_hist') || '1', 10)
+        gpa_grade: rawGpa ? parseFloat(rawGpa) : null,
+        gpa_rank: rawRank ? parseInt(rawRank, 10) : null,
+        gpa_total: rawTotal ? parseInt(rawTotal, 10) : 280,
+        kor_pct: rawKor ? parseInt(rawKor, 10) : null,
+        math_pct: rawMath ? parseInt(rawMath, 10) : null,
+        inq1_pct: rawInq1 ? parseInt(rawInq1, 10) : null,
+        inq2_pct: rawInq2 ? parseInt(rawInq2, 10) : null,
+        eng_grade: rawEng ? parseInt(rawEng, 10) : 1,
+        hist_grade: rawHist ? parseInt(rawHist, 10) : 1
     };
 }
 window.getPreciseScoreData = getPreciseScoreData;
@@ -21228,11 +21257,11 @@ function syncSurfaceScoreInputs() {
     const inq1Inp = document.getElementById('surf-score-inq1');
     const inq2Inp = document.getElementById('surf-score-inq2');
 
-    if (gpaInp && document.activeElement !== gpaInp) gpaInp.value = scores.gpa_grade;
-    if (korInp && document.activeElement !== korInp) korInp.value = scores.kor_pct;
-    if (mathInp && document.activeElement !== mathInp) mathInp.value = scores.math_pct;
-    if (inq1Inp && document.activeElement !== inq1Inp) inq1Inp.value = scores.inq1_pct;
-    if (inq2Inp && document.activeElement !== inq2Inp) inq2Inp.value = scores.inq2_pct;
+    if (gpaInp && document.activeElement !== gpaInp) gpaInp.value = (scores.gpa_grade !== null && scores.gpa_grade !== undefined) ? scores.gpa_grade : '';
+    if (korInp && document.activeElement !== korInp) korInp.value = (scores.kor_pct !== null && scores.kor_pct !== undefined) ? scores.kor_pct : '';
+    if (mathInp && document.activeElement !== mathInp) mathInp.value = (scores.math_pct !== null && scores.math_pct !== undefined) ? scores.math_pct : '';
+    if (inq1Inp && document.activeElement !== inq1Inp) inq1Inp.value = (scores.inq1_pct !== null && scores.inq1_pct !== undefined) ? scores.inq1_pct : '';
+    if (inq2Inp && document.activeElement !== inq2Inp) inq2Inp.value = (scores.inq2_pct !== null && scores.inq2_pct !== undefined) ? scores.inq2_pct : '';
 }
 window.syncSurfaceScoreInputs = syncSurfaceScoreInputs;
 
@@ -21240,36 +21269,48 @@ window.syncSurfaceScoreInputs = syncSurfaceScoreInputs;
 async function handleSaveSurfaceScores(e) {
     if (e && e.preventDefault) e.preventDefault();
 
-    const gpa = parseFloat(document.getElementById('surf-score-gpa')?.value || '1.85');
-    const kor = parseInt(document.getElementById('surf-score-kor')?.value || '96', 10);
-    const math = parseInt(document.getElementById('surf-score-math')?.value || '98', 10);
-    const inq1 = parseInt(document.getElementById('surf-score-inq1')?.value || '95', 10);
-    const inq2 = parseInt(document.getElementById('surf-score-inq2')?.value || '94', 10);
+    const gpaRaw = document.getElementById('surf-score-gpa')?.value?.trim();
+    const korRaw = document.getElementById('surf-score-kor')?.value?.trim();
+    const mathRaw = document.getElementById('surf-score-math')?.value?.trim();
+    const inq1Raw = document.getElementById('surf-score-inq1')?.value?.trim();
+    const inq2Raw = document.getElementById('surf-score-inq2')?.value?.trim();
 
-    localStorage.setItem('cached_score_gpa', String(gpa));
-    localStorage.setItem('cached_score_kor', String(kor));
-    localStorage.setItem('cached_score_math', String(math));
-    localStorage.setItem('cached_score_inq1', String(inq1));
-    localStorage.setItem('cached_score_inq2', String(inq2));
+    const gpa = gpaRaw ? parseFloat(gpaRaw) : null;
+    const kor = korRaw ? parseInt(korRaw, 10) : null;
+    const math = mathRaw ? parseInt(mathRaw, 10) : null;
+    const inq1 = inq1Raw ? parseInt(inq1Raw, 10) : null;
+    const inq2 = inq2Raw ? parseInt(inq2Raw, 10) : null;
 
-    // DB 영구 저장 및 모바일/PC 실시간 동기화
+    if (gpa !== null) localStorage.setItem('cached_score_gpa', String(gpa));
+    if (kor !== null) localStorage.setItem('cached_score_kor', String(kor));
+    if (math !== null) localStorage.setItem('cached_score_math', String(math));
+    if (inq1 !== null) localStorage.setItem('cached_score_inq1', String(inq1));
+    if (inq2 !== null) localStorage.setItem('cached_score_inq2', String(inq2));
+
+    const scorePayload = {
+        gpa_grade: gpa,
+        gpa_rank: parseInt(localStorage.getItem('cached_score_rank') || '12', 10),
+        gpa_total: parseInt(localStorage.getItem('cached_score_total') || '280', 10),
+        kor_pct: kor,
+        math_pct: math,
+        inq1_pct: inq1,
+        inq2_pct: inq2,
+        eng_grade: parseInt(localStorage.getItem('cached_score_eng') || '1', 10),
+        hist_grade: parseInt(localStorage.getItem('cached_score_hist') || '1', 10)
+    };
+
+    if (window.currentStudent) {
+        window.currentStudent.admission_scores = scorePayload;
+    }
+
+    // DB 영구 저장 및 모바일/PC/패드 실시간 동기화
     const sid = (window.currentStudent && window.currentStudent.id) || localStorage.getItem("studentId");
     if (sid && !isNaN(parseInt(sid, 10))) {
         try {
             await fetch(`/api/student/${sid}/admission-scores`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    gpa_grade: gpa,
-                    gpa_rank: parseInt(localStorage.getItem('cached_score_rank') || '12', 10),
-                    gpa_total: parseInt(localStorage.getItem('cached_score_total') || '280', 10),
-                    kor_pct: kor,
-                    math_pct: math,
-                    inq1_pct: inq1,
-                    inq2_pct: inq2,
-                    eng_grade: parseInt(localStorage.getItem('cached_score_eng') || '1', 10),
-                    hist_grade: parseInt(localStorage.getItem('cached_score_hist') || '1', 10)
-                })
+                body: JSON.stringify(scorePayload)
             });
         } catch (scoreSaveErr) {
             console.warn("Admission scores DB save error:", scoreSaveErr);
@@ -21429,44 +21470,60 @@ window.closeScoreInputModal = closeScoreInputModal;
 async function handleSavePreciseScores(e) {
     if (e && e.preventDefault) e.preventDefault();
 
-    const gpa = parseFloat(document.getElementById('input-score-gpa')?.value || '1.85');
-    const rank = parseInt(document.getElementById('input-score-rank')?.value || '12', 10);
-    const total = parseInt(document.getElementById('input-score-total')?.value || '280', 10);
-    const kor = parseInt(document.getElementById('input-score-kor')?.value || '96', 10);
-    const math = parseInt(document.getElementById('input-score-math')?.value || '98', 10);
-    const inq1 = parseInt(document.getElementById('input-score-inq1')?.value || '95', 10);
-    const inq2 = parseInt(document.getElementById('input-score-inq2')?.value || '94', 10);
-    const eng = parseInt(document.getElementById('input-score-eng')?.value || '1', 10);
-    const hist = parseInt(document.getElementById('input-score-hist')?.value || '1', 10);
+    const gpaRaw = document.getElementById('input-score-gpa')?.value?.trim();
+    const rankRaw = document.getElementById('input-score-rank')?.value?.trim();
+    const totalRaw = document.getElementById('input-score-total')?.value?.trim();
+    const korRaw = document.getElementById('input-score-kor')?.value?.trim();
+    const mathRaw = document.getElementById('input-score-math')?.value?.trim();
+    const inq1Raw = document.getElementById('input-score-inq1')?.value?.trim();
+    const inq2Raw = document.getElementById('input-score-inq2')?.value?.trim();
+    const engRaw = document.getElementById('input-score-eng')?.value?.trim();
+    const histRaw = document.getElementById('input-score-hist')?.value?.trim();
 
-    localStorage.setItem('cached_score_gpa', String(gpa));
-    localStorage.setItem('cached_score_rank', String(rank));
-    localStorage.setItem('cached_score_total', String(total));
-    localStorage.setItem('cached_score_kor', String(kor));
-    localStorage.setItem('cached_score_math', String(math));
-    localStorage.setItem('cached_score_inq1', String(inq1));
-    localStorage.setItem('cached_score_inq2', String(inq2));
-    localStorage.setItem('cached_score_eng', String(eng));
-    localStorage.setItem('cached_score_hist', String(hist));
+    const gpa = gpaRaw ? parseFloat(gpaRaw) : null;
+    const rank = rankRaw ? parseInt(rankRaw, 10) : null;
+    const total = totalRaw ? parseInt(totalRaw, 10) : 280;
+    const kor = korRaw ? parseInt(korRaw, 10) : null;
+    const math = mathRaw ? parseInt(mathRaw, 10) : null;
+    const inq1 = inq1Raw ? parseInt(inq1Raw, 10) : null;
+    const inq2 = inq2Raw ? parseInt(inq2Raw, 10) : null;
+    const eng = engRaw ? parseInt(engRaw, 10) : 1;
+    const hist = histRaw ? parseInt(histRaw, 10) : 1;
 
-    // DB 영구 저장 및 모바일/PC 실시간 동기화
+    if (gpa !== null) localStorage.setItem('cached_score_gpa', String(gpa));
+    if (rank !== null) localStorage.setItem('cached_score_rank', String(rank));
+    if (total !== null) localStorage.setItem('cached_score_total', String(total));
+    if (kor !== null) localStorage.setItem('cached_score_kor', String(kor));
+    if (math !== null) localStorage.setItem('cached_score_math', String(math));
+    if (inq1 !== null) localStorage.setItem('cached_score_inq1', String(inq1));
+    if (inq2 !== null) localStorage.setItem('cached_score_inq2', String(inq2));
+    if (eng !== null) localStorage.setItem('cached_score_eng', String(eng));
+    if (hist !== null) localStorage.setItem('cached_score_hist', String(hist));
+
+    const scorePayload = {
+        gpa_grade: gpa,
+        gpa_rank: rank,
+        gpa_total: total,
+        kor_pct: kor,
+        math_pct: math,
+        inq1_pct: inq1,
+        inq2_pct: inq2,
+        eng_grade: eng,
+        hist_grade: hist
+    };
+
+    if (window.currentStudent) {
+        window.currentStudent.admission_scores = scorePayload;
+    }
+
+    // DB 영구 저장 및 모바일/PC/패드 실시간 동기화
     const sid = (window.currentStudent && window.currentStudent.id) || localStorage.getItem("studentId");
     if (sid && !isNaN(parseInt(sid, 10))) {
         try {
             await fetch(`/api/student/${sid}/admission-scores`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    gpa_grade: gpa,
-                    gpa_rank: rank,
-                    gpa_total: total,
-                    kor_pct: kor,
-                    math_pct: math,
-                    inq1_pct: inq1,
-                    inq2_pct: inq2,
-                    eng_grade: eng,
-                    hist_grade: hist
-                })
+                body: JSON.stringify(scorePayload)
             });
         } catch (scoreSaveErr) {
             console.warn("Admission scores DB save error:", scoreSaveErr);
@@ -21602,7 +21659,11 @@ function renderAdmissionPathEngine() {
     const hasSafeTrack = tracks.some(t => t.status === 'SAFE');
     const hasOnTrack = tracks.some(t => t.status === 'ON_TRACK');
 
-    if (hasSafeTrack) {
+    const allUnentered = tracks.every(t => t.status === 'UNENTERED');
+    if (allUnentered) {
+        overallStatus = 'UNENTERED';
+        overallLabel = '성적 미입력';
+    } else if (hasSafeTrack) {
         overallStatus = 'SAFE';
         overallLabel = '적정';
     } else if (hasOnTrack) {
@@ -21627,7 +21688,11 @@ function renderAdmissionPathEngine() {
         badgeTextEl.innerText = overallLabel;
     }
     if (badgeContainer) {
-        if (overallStatus === 'SAFE') {
+        if (overallStatus === 'UNENTERED') {
+            badgeContainer.style.background = isDay ? '#f1f5f9' : 'rgba(100, 116, 139, 0.18)';
+            badgeContainer.style.borderColor = '#94a3b8';
+            badgeContainer.style.color = isDay ? '#475569' : '#cbd5e1';
+        } else if (overallStatus === 'SAFE') {
             badgeContainer.style.background = isDay ? '#d1fae5' : 'rgba(16, 185, 129, 0.18)';
             badgeContainer.style.borderColor = '#10b981';
             badgeContainer.style.color = isDay ? '#065f46' : '#a7f3d0';

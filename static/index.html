@@ -114,7 +114,7 @@
     </script>
     <!-- 구글 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="css/style.css?v=20260928_unify_purple_v2">
+    <link rel="stylesheet" href="css/style.css?v=20261030_crossdevice_v4">
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#6366f1">
@@ -1208,7 +1208,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         <div id="admission-5tracks-table" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px;"></div>
 
                         <!-- C. 상세 진단 하단 페이지 접기 버튼 바 (긴 스크롤 어디서든 원터치로 상단 복귀) -->
-                        <button type="button" id="btn-close-admission-detail" onclick="toggleAdmissionDetailAccordion(false)" style="width: 100%; min-height: 48px; padding: 12px 14px; border-radius: 12px; background: rgba(99, 102, 241, 0.18); border: 1.5px solid rgba(99, 102, 241, 0.4); color: #e0e7ff; font-size: 0.88rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; box-sizing: border-box; box-shadow: 0 4px 12px rgba(0,0,0,0.3); margin-top: 10px;">
+                        <button type="button" id="btn-close-admission-detail" onclick="toggleAdmissionDetailAccordion(false)" class="btn-close-detail-pill" style="width: 100%; min-height: 48px; padding: 12px 14px; border-radius: 12px; font-size: 0.88rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; box-sizing: border-box; margin-top: 10px;">
                             <span class="material-symbols-rounded" style="font-size: 1.25rem;">expand_less</span>
                             <span>페이지 접기 (상세 진단 닫고 노선도로 이동)</span>
                         </button>
@@ -6393,7 +6393,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </div>
     </div>
 
-    <script src="js/app.js?v=20261030_v6_report_prep"></script>
+    <script src="js/app.js?v=20261030_crossdevice_v4"></script>
     <script>
     // ================= PWA HOME SCREEN SHORTCUT & INSTALLATION ENGINE =================
     let deferredPwaPrompt = null;

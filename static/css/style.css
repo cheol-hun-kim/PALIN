@@ -5859,26 +5859,37 @@ body.day-mode .header-action-btn .header-user-icon {
     padding: 0 !important;
 }
 
-@media (max-width: 640px) {
-    .header-btn-label {
+/* 모바일 및 태블릿 세로 모드(768px 이하): 헤더 아이콘 4개 규격 완전 통일 및 텍스트 라벨 숨김 */
+@media (max-width: 768px) {
+    .header-btn-label,
+    #header-student-name,
+    #header-streak-count {
         display: none !important;
     }
-    .header-action-btn {
-        width: 32px !important;
-        min-width: 32px !important;
-        max-width: 32px !important;
-        height: 32px !important;
-        min-height: 32px !important;
-        max-height: 32px !important;
+    .header-action-btn,
+    .header-action-btn.streak-badge,
+    .header-action-btn.header-user-btn,
+    .header-action-btn.header-theme-btn {
+        width: 34px !important;
+        min-width: 34px !important;
+        max-width: 34px !important;
+        height: 34px !important;
+        min-height: 34px !important;
+        max-height: 34px !important;
         padding: 0 !important;
-        border-radius: 9px !important;
+        border-radius: 10px !important;
         justify-content: center !important;
+        flex-shrink: 0 !important;
     }
     .header-action-btn .header-action-icon {
-        font-size: 1.1rem !important;
+        font-size: 1.15rem !important;
+        margin: 0 !important;
     }
     .user-status {
-        gap: 5px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        flex-shrink: 0 !important;
     }
 }
 
@@ -6021,4 +6032,39 @@ body.day-mode #headline-campus-occupation-card div[style*="color: #cbd5e1"] {
 
 body.day-mode #headline-network-total-hours {
     color: #64748b !important;
+}
+
+/* 접기 버튼 전역 고대비 테마 (데이모드 텅 빈 바 현상 영구 박멸) */
+#btn-close-admission-detail,
+.btn-close-detail-pill {
+    background: #1e1b4b !important;
+    border: 1.5px solid #6366f1 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
+}
+#btn-close-admission-detail .material-symbols-rounded,
+#btn-close-admission-detail span,
+.btn-close-detail-pill * {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #btn-close-admission-detail,
+body.day-mode .btn-close-detail-pill {
+    background: #eef2ff !important;
+    border: 2px solid #4338ca !important;
+    color: #1e1b4b !important;
+    box-shadow: 0 2px 10px rgba(67, 56, 202, 0.25) !important;
+}
+body.day-mode #btn-close-admission-detail:hover,
+body.day-mode .btn-close-detail-pill:hover {
+    background: #e0e7ff !important;
+    border-color: #3730a3 !important;
+    color: #0f172a !important;
+}
+body.day-mode #btn-close-admission-detail .material-symbols-rounded,
+body.day-mode #btn-close-admission-detail span,
+body.day-mode .btn-close-detail-pill * {
+    color: #1e1b4b !important;
+    font-weight: 900 !important;
 }
