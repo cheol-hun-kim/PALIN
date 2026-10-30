@@ -330,6 +330,29 @@ for fname in ['static/js/app.js', 'static/universe.html', 'app/main.py']:
 
 print("[GATE 1.10 PASS] Zero Hardcoded Score Fallbacks Scanner Passed (100% Pure DB Ground-Truth Verified)!")
 
+# [GATE 1.11] Universal Zero-Fabrication & Honest Empty State Scanner (전 도메인 하드코딩·목데이터 원천 차단 규칙)
+universal_fabrication_patterns = [
+    (r"high_school:\s*['\"]낙생고['\"]", "Hardcoded dummy high school"),
+    (r"phone:\s*['\"]010-5527-2979['\"]", "Hardcoded dummy phone in student object"),
+    (r"target_univ.*\|\|\s*['\"]연세대학교", "Hardcoded dummy target university fallback"),
+    (r"baseline_univ.*\|\|\s*['\"]서울대학교", "Hardcoded dummy baseline university fallback"),
+    (r"cached_dday_date.*\|\|\s*['\"]2026-11-19['\"]", "Hardcoded dummy D-Day date fallback"),
+    (r"pinnedDDayDate.*\|\|\s*['\"]2026-11-19['\"]", "Hardcoded dummy pinned D-Day date fallback"),
+    (r"school_name:\s*Optional\[str\]\s*=\s*['\"]낙생고", "Hardcoded default school parameter in backend")
+]
+
+for fname in ['static/js/app.js', 'static/universe.html', 'app/main.py']:
+    if not os.path.exists(fname): continue
+    with open(fname, 'r', encoding='utf-8', errors='ignore') as f:
+        file_txt = f.read()
+    for pat, desc in universal_fabrication_patterns:
+        if re.search(pat, file_txt):
+            print(f"[GATE 1.11 FAIL] Universal Zero-Fabrication Violation in {fname}: {desc} (regex: {pat})")
+            sys.exit(1)
+
+print("[GATE 1.11 PASS] Universal Zero-Fabrication & Honest Empty State Scanner Passed across all modules!")
+
+
 
 # GATE 2: DOM Event Listener, Dead Button & Modal Function Binding Scanner
 # ==============================================================================

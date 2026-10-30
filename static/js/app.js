@@ -5376,31 +5376,32 @@ async function fetchStudentInfo(studentId) {
                 syncSurfaceScoreInputs();
             }
         } else {
-            console.warn("fetchStudentInfo non-ok, preserving cached student profile & academy linkage.");
-            const cachedCode = localStorage.getItem("cached_academy_code") || "ILWON-2027";
-            const cachedStatus = localStorage.getItem("cached_academy_approval_status") || "APPROVED";
+            console.warn("fetchStudentInfo non-ok, honest empty state applied (Zero-Mock Principle).");
+            const cachedCode = localStorage.getItem("cached_academy_code");
+            const cachedStatus = localStorage.getItem("cached_academy_approval_status") || "NONE";
+            const isMaster = (sessionStorage.getItem('palin_super_admin') === 'true') || (localStorage.getItem('userRole') === 'SUPER_ADMIN') || (targetId === 1 && localStorage.getItem("authToken"));
             currentStudent = {
                 id: targetId || 1,
-                name: localStorage.getItem("cached_student_name") || "김철훈 학생",
-                phone: "010-5527-2979",
-                grade: 4,
-                high_school: "낙생고",
-                target_univ: localStorage.getItem("cached_target_univ") || "연세대학교 의예과",
-                baseline_univ: localStorage.getItem("cached_baseline_univ") || "서울대학교 화학생물공학부",
-                current_points: 100,
-                streak_days: 1,
-                diligence_score: 95,
-                academy_code: cachedCode,
+                name: localStorage.getItem("cached_student_name") || (isMaster ? "김철훈 (마스터)" : "학생"),
+                phone: localStorage.getItem("cached_student_phone") || "-",
+                grade: parseInt(localStorage.getItem("cached_student_grade") || "0", 10),
+                high_school: localStorage.getItem("cached_high_school") || "-",
+                target_univ: localStorage.getItem("cached_target_univ") || "-",
+                baseline_univ: localStorage.getItem("cached_baseline_univ") || "-",
+                current_points: 0,
+                streak_days: 0,
+                diligence_score: 0,
+                academy_code: cachedCode || null,
                 academy_approval_status: cachedStatus,
-                b2c_subscription_tier: "TIER_3_MASTER",
-                ai_level: "B2B_PREMIUM",
+                b2c_subscription_tier: "TIER_1_FREE",
+                ai_level: "B2C_BASIC",
                 chat_tokens: 5,
                 league_tier: "BRONZE",
                 point_multiplier: 1.0,
                 golden_tickets_count: 0,
                 paid_cash: 0,
                 medical_symbol: "GENERAL",
-                enrollment_status: "ENROLLED"
+                enrollment_status: "ACTIVE"
             };
             localStorage.setItem("studentId", String(currentStudent.id));
         }
@@ -5466,23 +5467,23 @@ async function fetchStudentInfo(studentId) {
 
                 id: 1,
 
-                name: "학생",
+                name: localStorage.getItem("cached_student_name") || "학생",
 
-                phone: "010-5527-2979",
+                phone: localStorage.getItem("cached_student_phone") || "-",
 
-                grade: 4,
+                grade: 0,
 
-                high_school: "낙생고",
+                high_school: localStorage.getItem("cached_high_school") || "-",
 
-                target_univ: "연세대학교 의예과",
+                target_univ: localStorage.getItem("cached_target_univ") || "-",
 
-                baseline_univ: "서울대학교 화학생물공학부",
+                baseline_univ: localStorage.getItem("cached_baseline_univ") || "-",
 
-                current_points: 100,
+                current_points: 0,
 
                 streak_days: 0,
 
-                diligence_score: 50,
+                diligence_score: 0,
 
                 academy_code: null,
 
@@ -7036,9 +7037,9 @@ function updateTargetBanner() {
 
     const ddayTitleEl = document.getElementById("banner-dday-title");
 
-    const activeDate = localStorage.getItem('pinnedDDayDate') || (currentStudent && currentStudent.dday_date) || "2026-11-19";
+    const activeDate = localStorage.getItem('pinnedDDayDate') || (currentStudent && currentStudent.dday_date) || null;
 
-    const activeTitle = localStorage.getItem('pinnedDDayTitle') || (currentStudent && currentStudent.dday_title) || "2027 수능";
+    const activeTitle = localStorage.getItem('pinnedDDayTitle') || (currentStudent && currentStudent.dday_title) || "목표 D-Day";
 
     
 
@@ -7799,7 +7800,7 @@ function renderAdmissionCalendar() {
 
     
 
-    const pinnedDate = localStorage.getItem('pinnedDDayDate') || "2026-11-19";
+    const pinnedDate = (window.currentStudent && window.currentStudent.dday_date) || localStorage.getItem('pinnedDDayDate') || null;
 
     
 
@@ -10833,7 +10834,7 @@ async function upgradeStudentToTutor(e) {
         university: univ,
         major: major,
         admission_year: parseInt(document.getElementById("tutor-up-year").value),
-        high_school: (currentStudent && currentStudent.high_school) || "낙생고",
+        high_school: (currentStudent && currentStudent.high_school) || "-",
         bio: document.getElementById("tutor-up-bio").value.trim(),
         contact_link: document.getElementById("tutor-up-link").value.trim()
     };
@@ -12798,7 +12799,7 @@ function openStudentCardModal() {
 
         currentStudent = {
 
-            id: 1, name: "학생", high_school: "낙생고", grade: 4,
+            id: 1, name: "학생", high_school: "-", grade: 4,
 
             target_univ: "연세대학교 의예과", referral_code: "PL-2027-0001"
 
@@ -12810,7 +12811,7 @@ function openStudentCardModal() {
 
     if (!modal) return;
 
-    const tUniv = currentStudent.target_univ || "연세대학교 의예과";
+    const tUniv = (currentStudent && currentStudent.target_univ && currentStudent.target_univ !== "-") ? currentStudent.target_univ : "목표대 미설정";
 
     const parts = tUniv.split(" ");
 
@@ -12826,7 +12827,7 @@ function openStudentCardModal() {
 
     document.getElementById("card-name").innerText = `${currentStudent.name} 학생`;
 
-    document.getElementById("card-school").innerText = `${currentStudent.high_school || "낙생고"} (${currentStudent.grade === 4 ? 'N수생' : (currentStudent.grade || 4) + '학년'})`;
+    document.getElementById("card-school").innerText = `${currentStudent.high_school || "학교 미입력"} (${currentStudent.grade === 4 ? 'N수생' : (currentStudent.grade || 4) + '학년'})`;
 
     document.getElementById("card-dept").innerText = deptName;
 
@@ -12846,7 +12847,7 @@ function downloadStudentIDCard() {
 
     }
 
-    const tUniv = currentStudent.target_univ || "서울대학교 의예과";
+    const tUniv = (currentStudent && currentStudent.target_univ && currentStudent.target_univ !== "-") ? currentStudent.target_univ : "목표대 미설정";
 
     const parts = tUniv.split(" ");
 
@@ -13930,7 +13931,7 @@ async function loadMicroRankings() {
 
     const sid = (currentStudent && currentStudent.id) ? currentStudent.id : parseInt(localStorage.getItem('studentId') || '1', 10);
     const myRegion = currentStudent?.region || "성남시 분당구";
-    const mySchool = currentStudent?.high_school || "낙생고등학교";
+    const mySchool = currentStudent?.high_school || "";
 
     const regEl = document.getElementById("my-ranking-region-name");
     const schEl = document.getElementById("my-ranking-school-name");
@@ -18263,7 +18264,7 @@ function getMyRegisteredSchool() {
             return sch;
         }
     }
-    return "낙생고등학교";
+    return "";
 }
 window.getMyRegisteredSchool = getMyRegisteredSchool;
 
@@ -18469,7 +18470,7 @@ function openExamSourceAskModal() {
 
     const schoolInp = document.getElementById("ask-school-name");
     if (schoolInp && currentStudent) {
-        schoolInp.value = currentStudent.high_school || currentStudent.school_name || "낙생고등학교";
+        schoolInp.value = currentStudent.high_school || currentStudent.school_name || "";
     }
     currentAskImageBase64 = null;
     const previewBox = document.getElementById("ask-image-preview-box");
@@ -21562,8 +21563,12 @@ function renderAdmissionPathEngine() {
     const sid = (window.currentStudent && window.currentStudent.id) || parseInt(localStorage.getItem("studentId") || "1", 10);
 
     // 기본 로컬/캐시 데이터 준비 (0ms 즉시 렌더링)
-    const localTarget = (window.currentStudent && window.currentStudent.target_univ) || localStorage.getItem("cached_target_univ") || "연세대학교 의예과";
-    const localBaseline = (window.currentStudent && window.currentStudent.baseline_univ) || localStorage.getItem("cached_baseline_univ") || "서울대학교 화학생물공학부";
+    const localTarget = (window.currentStudent && window.currentStudent.target_univ && window.currentStudent.target_univ !== "-") 
+        ? window.currentStudent.target_univ 
+        : (localStorage.getItem("cached_target_univ") || null);
+    const localBaseline = (window.currentStudent && window.currentStudent.baseline_univ && window.currentStudent.baseline_univ !== "-") 
+        ? window.currentStudent.baseline_univ 
+        : (localStorage.getItem("cached_baseline_univ") || null);
 
     const data = cachedAdmissionCampusData || {
         target_info: { univ_name: localTarget, raw_name: localTarget, avg_hours: 42.5 },
@@ -21607,8 +21612,8 @@ function renderAdmissionPathEngine() {
     const studentTarget = (window.currentStudent && window.currentStudent.target_univ) || localStorage.getItem("cached_target_univ");
     const studentBaseline = (window.currentStudent && window.currentStudent.baseline_univ) || localStorage.getItem("cached_baseline_univ");
 
-    const rawTarget = studentTarget || data.target_info?.raw_name || data.target_info?.univ_name || "연세대학교 의예과";
-    const rawBaseline = studentBaseline || data.baseline_info?.raw_name || data.baseline_info?.univ_name || "서울대학교 화학생물공학부";
+    const rawTarget = (studentTarget && studentTarget !== "-") ? studentTarget : (data.target_info?.raw_name || data.target_info?.univ_name || "목표대 미설정");
+    const rawBaseline = (studentBaseline && studentBaseline !== "-") ? studentBaseline : (data.baseline_info?.raw_name || data.baseline_info?.univ_name || "마지노선 미설정");
 
     const targetUnivName = cleanUnivDisplay(rawTarget);
     const baselineUnivName = cleanUnivDisplay(rawBaseline);
@@ -22163,8 +22168,8 @@ function renderHeadlineCampusBars(data, activeTargetHours, myHours) {
     const maxH = Math.max(targetInfo?.avg_hours || 1, baselineInfo?.avg_hours || 1, myHours || 1, 1);
 
     const items = [
-        { label: "1지망 목표", name: targetInfo?.univ_name || "연세대학교 의예과", hours: targetInfo?.avg_hours || 42.5, color: "#6366f1", badge: "1지망" },
-        { label: "마지노선", name: baselineInfo?.univ_name || "서울대학교 화학생물공학부", hours: baselineInfo?.avg_hours || 36.0, color: "#0284c7", badge: "마지노선" },
+        { label: "1지망 목표", name: targetInfo?.univ_name || "목표대 미설정", hours: targetInfo?.avg_hours || 0.0, color: "#6366f1", badge: "1지망" },
+        { label: "마지노선", name: baselineInfo?.univ_name || "마지노선 미설정", hours: baselineInfo?.avg_hours || 0.0, color: "#0284c7", badge: "마지노선" },
         { label: "나의 순공", name: (window.currentStudent?.name || "학생") + " 이번 주 공부시간", hours: myHours, color: (myHours >= (baselineInfo?.avg_hours || 36.0) ? "#10b981" : "#ef4444"), badge: "MY" }
     ];
 
@@ -22292,8 +22297,12 @@ async function openAdmissionUnivSelectModal() {
         UNIVERSITY_DEPARTMENTS["메디컬 (의·치·한·약·수)"] = UNIVERSITY_DEPARTMENTS["메디컬"];
     }
 
-    const currentTarget = (window.currentStudent && window.currentStudent.target_univ) || localStorage.getItem("cached_target_univ") || "연세대학교 의예과";
-    const currentBase = (window.currentStudent && window.currentStudent.baseline_univ) || localStorage.getItem("cached_baseline_univ") || "서울대학교 화학생물공학부";
+    const currentTarget = (window.currentStudent && window.currentStudent.target_univ && window.currentStudent.target_univ !== "-") 
+        ? window.currentStudent.target_univ 
+        : (localStorage.getItem("cached_target_univ") || "목표대 미설정");
+    const currentBase = (window.currentStudent && window.currentStudent.baseline_univ && window.currentStudent.baseline_univ !== "-") 
+        ? window.currentStudent.baseline_univ 
+        : (localStorage.getItem("cached_baseline_univ") || "마지노선 미설정");
 
     // 1지망 파싱
     let tUniv = "", tDept = "";

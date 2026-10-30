@@ -3113,19 +3113,25 @@ async function refreshUnifiedOrbitStatus() {
                 }
             }
 
-            // 3. 2027 수능 D-Day 실시간 동적 계산
-            const ddayDate = (pm && pm.dday_date) || localStorage.getItem('cached_dday_date') || '2026-11-19';
-            const ddayTitle = (pm && pm.dday_title) || localStorage.getItem('cached_dday_title') || '2027 수능';
+            // 3. D-Day 실시간 동적 계산 (가짜 하드코딩 완전 영구 제거 & 정직한 미설정 빈 상태)
+            const ddayDate = (pm && pm.dday_date) || localStorage.getItem('cached_dday_date') || null;
+            const ddayTitle = (pm && pm.dday_title) || localStorage.getItem('cached_dday_title') || null;
             const suneungEl = document.getElementById('hud-dday-suneung');
             const suneungTitleEl = document.getElementById('hud-dday-suneung-title');
             const headerDDayEl = document.getElementById('pass-hud-dday-header');
             const mopyeongEl = document.getElementById('hud-dday-mopyeong');
             const mopyeongTitleEl = document.getElementById('hud-dday-mopyeong-title');
 
-            const suneungDDay = computeDDay(ddayDate) || 'D-20';
-            if (suneungEl) suneungEl.innerText = suneungDDay;
-            if (suneungTitleEl) suneungTitleEl.innerText = ddayTitle.includes('수능') ? ddayTitle : `${ddayTitle} 수능`;
-            if (headerDDayEl) headerDDayEl.innerText = `${ddayTitle.split(' ')[0] || '2027학년도'} 대입 D-Day`;
+            if (ddayDate) {
+                const suneungDDay = computeDDay(ddayDate);
+                if (suneungEl) suneungEl.innerText = suneungDDay || 'D-Day';
+                if (suneungTitleEl) suneungTitleEl.innerText = ddayTitle ? (ddayTitle.includes('수능') ? ddayTitle : `${ddayTitle} 수능`) : '목표 D-Day';
+                if (headerDDayEl) headerDDayEl.innerText = `${ddayTitle ? ddayTitle.split(' ')[0] : '대입'} D-Day`;
+            } else {
+                if (suneungEl) suneungEl.innerText = '미설정';
+                if (suneungTitleEl) suneungTitleEl.innerText = '목표 D-Day 미설정';
+                if (headerDDayEl) headerDDayEl.innerText = '대입 D-Day';
+            }
 
             // 차기 평가원 모의평가
             const mopyeongDDay = computeDDay('2027-06-03') || 'D-216';

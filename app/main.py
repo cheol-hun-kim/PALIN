@@ -3359,14 +3359,15 @@ def ocr_trace_exam_source(payload: schemas.ExamOcrTraceRequest, db: Session = De
 
 
 @app.get("/api/exam-sources/bible-summary")
-def get_exam_source_bible_summary(school_name: Optional[str] = "낙생고등학교", subject: Optional[str] = None, db: Session = Depends(get_db)):
-    target_school = (school_name or "낙생고등학교").strip()
+def get_exam_source_bible_summary(school_name: Optional[str] = None, subject: Optional[str] = None, db: Session = Depends(get_db)):
+    target_school = school_name.strip() if school_name else None
     
     # 1. Query resolved questions and accepted answers for target school
     q_query = db.query(models.ExamSourceQuestion).filter(
-        models.ExamSourceQuestion.school_name.ilike(f"%{target_school}%"),
         models.ExamSourceQuestion.deleted_at.is_(None)
     )
+    if target_school:
+        q_query = q_query.filter(models.ExamSourceQuestion.school_name.ilike(f"%{target_school}%"))
     if subject and subject != "전체":
         q_query = q_query.filter(models.ExamSourceQuestion.subject == subject)
     
