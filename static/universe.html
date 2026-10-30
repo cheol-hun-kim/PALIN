@@ -1397,44 +1397,135 @@
     </div>
 
     <!-- ====================================================================== -->
-    <!-- 6. [MODAL 3] 사업자등록번호 인증 모달 (BIZ-MATE 활성화) -->
+    <!-- 6. [MODAL 3] 사업자등록번호 인증 및 BIZ-MATE 사업장 관제 모달 -->
     <!-- ====================================================================== -->
     <div id="biz-verify-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
-        <div class="bg-[#0f172a] border-2 border-amber-500/50 rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
-            <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
-                <div class="flex items-center gap-2.5">
-                    <span class="material-symbols-rounded text-amber-400 text-2xl">store</span>
-                    <div>
-                        <h3 class="text-base font-black text-white">사업자 인증 및 BIZ-MATE 활성화</h3>
-                        <p class="text-[11px] text-slate-400">사업주 본인의 사업자 정보를 등록하여 관계도에 연결합니다.</p>
+        <div class="bg-[#0f172a] border-2 border-amber-500/50 rounded-2xl p-6 w-full max-w-lg shadow-2xl relative text-slate-100">
+            
+            <!-- [VIEW 1] 인증 완료 사업장 관제실 (VERIFIED 상태 시 기본 노출) -->
+            <div id="biz-modal-view-verified" style="display: none;">
+                <div class="flex justify-between items-center mb-5 border-b border-slate-800 pb-3">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+                            <span class="material-symbols-rounded text-2xl">store</span>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-base font-black text-white">BIZ-MATE 사업장 관제실</h3>
+                                <span class="text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    국세청 인증 VERIFIED
+                                </span>
+                            </div>
+                            <p class="text-[11px] text-slate-400">등록된 사업장 정보 및 3대 편대 연동망을 실시간 관제합니다.</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeBizVerifyModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+                </div>
+
+                <!-- 사업장 기본 정보 카드 -->
+                <div class="bg-slate-900/90 border border-amber-500/30 rounded-xl p-4 mb-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="text-[11px] text-slate-400 font-bold">인증 사업장</div>
+                        <span class="text-[10px] font-extrabold text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded">실시간 활성화 상태</span>
+                    </div>
+                    <div class="text-lg font-black text-white flex items-center gap-2">
+                        <span id="biz-view-name">일원학원 주식회사</span>
+                    </div>
+                    <div class="mt-2.5 pt-2.5 border-t border-slate-800 grid grid-cols-2 gap-3 text-xs">
+                        <div>
+                            <div class="text-[10px] text-slate-400 font-bold mb-0.5">사업자등록번호</div>
+                            <div class="font-mono font-black text-slate-200" id="biz-view-no">120-88-02498</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-slate-400 font-bold mb-0.5">대표자명</div>
+                            <div class="font-bold text-slate-200" id="biz-view-owner">대표 원장</div>
+                        </div>
                     </div>
                 </div>
-                <button type="button" onclick="closeBizVerifyModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
-            </div>
 
-            <form onsubmit="handleBizVerifySubmit(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1.5">상호명 (사업장 이름)</label>
-                    <input type="text" id="input-biz-name" required placeholder="예: (주)에듀테크파트너스" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                <!-- 3대 연결 편대 상태 현황 -->
+                <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-3.5 mb-5 space-y-2">
+                    <div class="text-[11px] font-black text-slate-300 flex items-center gap-1.5 mb-2">
+                        <span class="material-symbols-rounded text-sm text-amber-400">hub</span>
+                        <span>BIZ-MATE 3대 편대 텔레메트리 연동망</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs py-1.5 px-3 rounded-lg bg-slate-950/70 border border-slate-800">
+                        <span class="font-bold text-slate-200 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                            일원학원 본원
+                        </span>
+                        <span class="text-[10px] text-emerald-400 font-bold">출석부 &amp; 결제선생 자동 연동 중</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs py-1.5 px-3 rounded-lg bg-slate-950/70 border border-slate-800">
+                        <span class="font-bold text-slate-200 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                            직원·강사진
+                        </span>
+                        <span class="text-[10px] text-amber-400 font-bold">출근부 &amp; 강사료 정산망 가동</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs py-1.5 px-3 rounded-lg bg-slate-950/70 border border-slate-800">
+                        <span class="font-bold text-slate-200 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                            세무·가맹본부
+                        </span>
+                        <span class="text-[10px] text-indigo-400 font-bold">홈택스 현금영수증 자동 연동</span>
+                    </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1.5">사업자등록번호 (10자리)</label>
-                    <input type="text" id="input-biz-no" required maxlength="12" placeholder="000-00-00000" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1.5">대표자명</label>
-                    <input type="text" id="input-biz-owner" placeholder="대표자 성명 (예: 홍길동)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
-                </div>
-
-                <div class="pt-2">
-                    <button type="submit" id="btn-submit-biz-verify" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white text-xs font-black shadow-lg shadow-amber-900/30 transition flex items-center justify-center gap-1.5 cursor-pointer">
-                        <span class="material-symbols-rounded text-sm">verified</span>
-                        <span>사업자 인증 및 관계도에 활성화</span>
+                <!-- 액션 버튼 -->
+                <div class="grid grid-cols-2 gap-2.5">
+                    <button type="button" onclick="goToDirectorDashboardFromBiz()" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white text-xs font-black shadow-lg shadow-amber-950/50 transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        <span class="material-symbols-rounded text-sm">manage_accounts</span>
+                        <span>원장 관리자 모드로 이동</span>
+                    </button>
+                    <button type="button" onclick="switchBizModalView('FORM')" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700 transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        <span class="material-symbols-rounded text-sm">edit</span>
+                        <span>사업자 정보 변경</span>
                     </button>
                 </div>
-            </form>
+            </div>
+
+            <!-- [VIEW 2] 사업자 인증 / 정보 수정 폼 -->
+            <div id="biz-modal-view-form">
+                <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+                    <div class="flex items-center gap-2.5">
+                        <span class="material-symbols-rounded text-amber-400 text-2xl">store</span>
+                        <div>
+                            <h3 class="text-base font-black text-white" id="biz-form-title">사업자 인증 및 BIZ-MATE 활성화</h3>
+                            <p class="text-[11px] text-slate-400">사업주 본인의 사업자 정보를 등록하여 관계도에 연결합니다.</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeBizVerifyModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+                </div>
+
+                <form onsubmit="handleBizVerifySubmit(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1.5">상호명 (사업장 이름)</label>
+                        <input type="text" id="input-biz-name" required placeholder="예: (주)에듀테크파트너스" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1.5">사업자등록번호 (10자리)</label>
+                        <input type="text" id="input-biz-no" required maxlength="12" placeholder="000-00-00000" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1.5">대표자명</label>
+                        <input type="text" id="input-biz-owner" placeholder="대표자 성명 (예: 홍길동)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                    </div>
+
+                    <div class="pt-2 flex items-center gap-2">
+                        <button type="button" id="btn-biz-back-to-verified" onclick="switchBizModalView('VERIFIED')" style="display: none;" class="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700 transition cursor-pointer">
+                            취소
+                        </button>
+                        <button type="submit" id="btn-submit-biz-verify" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white text-xs font-black shadow-lg shadow-amber-900/30 transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <span class="material-symbols-rounded text-sm">verified</span>
+                            <span>사업자 인증 및 관계도에 활성화</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -2320,7 +2411,7 @@
             svgBeamsGroup.innerHTML = '';
             if (svgSatBeamsGroup) svgSatBeamsGroup.innerHTML = '';
 
-            const verifiedBizName = localStorage.getItem("verified_biz_name") || "일원학원";
+            const verifiedBizName = localStorage.getItem("verified_biz_name") || (isMasterCreator() ? "일원학원 주식회사" : "일원학원");
 
             // A. 정중앙 "나 (Me / 3050 패밀리 허브)" 코어 노드 생성
             const centerNode = document.createElement('div');
@@ -3170,14 +3261,74 @@ async function refreshUnifiedOrbitStatus() {
         }
 
         // --- BIZ-MATE MODAL CONTROLS ---
-        function openBizVerifyModal() {
+        function switchBizModalView(viewName) {
+            const viewVerified = document.getElementById('biz-modal-view-verified');
+            const viewForm = document.getElementById('biz-modal-view-form');
+            const formTitle = document.getElementById('biz-form-title');
+            const btnBack = document.getElementById('btn-biz-back-to-verified');
+
+            if (viewName === 'FORM') {
+                if (viewVerified) viewVerified.style.display = 'none';
+                if (viewForm) viewForm.style.display = 'block';
+                if (formTitle) formTitle.innerText = "사업자 정보 수정 / 재인증";
+                if (btnBack) btnBack.style.display = 'inline-flex';
+            } else {
+                if (viewVerified) viewVerified.style.display = 'block';
+                if (viewForm) viewForm.style.display = 'none';
+            }
+        }
+
+        function openBizVerifyModal(forceForm = false) {
             const modal = document.getElementById('biz-verify-modal');
-            if (modal) modal.style.display = 'flex';
+            if (!modal) return;
+
+            const isCreator = isMasterCreator();
+            const cachedName = localStorage.getItem("verified_biz_name") || (isCreator ? "일원학원 주식회사" : "일원학원");
+            const cachedNo = localStorage.getItem("verified_biz_no") || (isCreator ? "120-88-02498" : "120-88-02498");
+            const cachedOwner = localStorage.getItem("verified_biz_owner") || (isCreator ? "대표 원장" : "대표 원장");
+
+            // 폼 필드 사전 입력 (pre-fill)
+            const inputName = document.getElementById('input-biz-name');
+            const inputNo = document.getElementById('input-biz-no');
+            const inputOwner = document.getElementById('input-biz-owner');
+            if (inputName) inputName.value = cachedName;
+            if (inputNo) inputNo.value = cachedNo;
+            if (inputOwner) inputOwner.value = cachedOwner;
+
+            // 이미 인증된 상태인지 판별 (로컬스토리지에 저장되어 있거나 마스터 제작자인 경우)
+            const isVerified = Boolean(localStorage.getItem("verified_biz_name")) || isCreator;
+
+            if (isVerified && !forceForm) {
+                // 인증 완료 사업장 관제실 뷰 표시
+                const elName = document.getElementById('biz-view-name');
+                const elNo = document.getElementById('biz-view-no');
+                const elOwner = document.getElementById('biz-view-owner');
+                if (elName) elName.innerText = cachedName;
+                if (elNo) elNo.innerText = cachedNo;
+                if (elOwner) elOwner.innerText = cachedOwner;
+
+                switchBizModalView('VERIFIED');
+            } else {
+                switchBizModalView('FORM');
+                const formTitle = document.getElementById('biz-form-title');
+                if (formTitle) formTitle.innerText = isVerified ? "사업자 정보 수정 / 재인증" : "사업자 인증 및 BIZ-MATE 활성화";
+            }
+
+            modal.style.display = 'flex';
         }
 
         function closeBizVerifyModal() {
             const modal = document.getElementById('biz-verify-modal');
             if (modal) modal.style.display = 'none';
+        }
+
+        function goToDirectorDashboardFromBiz() {
+            closeBizVerifyModal();
+            setPassDeckPersona('DIRECTOR');
+            const deck = document.getElementById('card-pass-deck');
+            if (deck && typeof deck.scrollIntoView === 'function') {
+                deck.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
 
         async function handleBizVerifySubmit(e) {
