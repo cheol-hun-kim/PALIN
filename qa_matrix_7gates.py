@@ -622,6 +622,7 @@ assert 'body.day-mode #admission-penalty-alert-box' in css_content, "Missing Day
 assert 'body.day-mode #admission-penalty-alert-text' in css_content, "Missing Day Mode penalty alert text contrast rule"
 assert 'body.day-mode #admission-penalty-alert-badge' in css_content, "Missing Day Mode penalty alert badge contrast rule"
 assert 'body.day-mode #btn-toggle-admission-detail' in css_content, "Missing Day Mode accordion trigger contrast rule"
+assert 'body.day-mode #btn-close-admission-detail' in css_content, "Missing Day Mode accordion bottom close button contrast rule"
 assert '.header-action-btn' in css_content and '.header-btn-label' in css_content, "Missing unified header action button and label rules"
 assert 'renderAdmissionPathEngine()' in js_source, "togglePALINTheme must re-evaluate renderAdmissionPathEngine"
 print("[GATE 4.9 PASS] Day-Mode Admission Card & Deficit Warning High-Contrast Zero-Violation Defense Verified!")
@@ -633,6 +634,8 @@ with open(os.path.join(ROOT_DIR, 'static', 'universe.html'), 'r', encoding='utf-
 assert 'max-w-xl' not in u_content[u_content.find('id="tab-pass-student"') - 200:u_content.find('id="tab-pass-student"')], "Deck tab bar must stretch 100% without max-w-xl squishing"
 assert 'whitespace-nowrap' in u_content and '학생 뷰' in u_content, "Persona tab labels must enforce whitespace-nowrap and concise symmetry"
 assert '👶' not in u_content and '🏛️' not in u_content and '💼' not in u_content, "Zero raw OS emojis in 12-clock product matrix (Material Symbols enforced)"
+assert 'lg:grid-cols-3' in u_content, "Persona decks must use lg:grid-cols-3 to prevent iPad portrait squishing"
+assert 'whitespace-nowrap shrink-0' in u_content, "All persona card badges must enforce whitespace-nowrap shrink-0"
 assert 'activeBtnClass' in u_content and 'bg-emerald-600' in u_content, "Unified brand active tab styling verified across all 3 personas (Zero rainbow jumps)"
 print("[GATE 4.10 PASS] Zero-Orphan Typography & Deck Full-Width (iPad & Mobile Viewport Defense) 100% Verified!")
 

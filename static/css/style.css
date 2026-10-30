@@ -5965,3 +5965,43 @@ body.day-mode [id^="track-card-"] span[style*="color: #ffffff"] {
 body.day-mode [id^="track-card-"] div[style*="color: #cbd5e1"] {
     color: #475569 !important;
 }
+
+
+/* 세부 전형별 판정 근거 및 하단 접기 바 데이모드 완벽 고대비 */
+body.day-mode #btn-close-admission-detail {
+    background: #eef2ff !important;
+    border: 1.5px solid #818cf8 !important;
+    color: #312e81 !important;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15) !important;
+}
+
+body.day-mode #btn-close-admission-detail:hover {
+    background: #e0e7ff !important;
+    border-color: #6366f1 !important;
+    color: #1e1b4b !important;
+}
+
+body.day-mode #btn-close-admission-detail .material-symbols-rounded {
+    color: #4338ca !important;
+}
+
+body.day-mode #btn-close-admission-detail span {
+    color: #312e81 !important;
+}
+
+body.day-mode #admission-detail-panel {
+    border-top: 1px dashed #cbd5e1 !important;
+}
+
+body.day-mode #admission-detail-panel div[style*="color: #ffffff"],
+body.day-mode #admission-detail-panel span[style*="color: #ffffff"] {
+    color: #0f172a !important;
+}
+
+body.day-mode #headline-campus-occupation-card div[style*="color: #cbd5e1"] {
+    color: #334155 !important;
+}
+
+body.day-mode #headline-network-total-hours {
+    color: #64748b !important;
+}

@@ -22098,18 +22098,24 @@ function renderHeadlineCampusBars(data, activeTargetHours, myHours) {
         { label: "나의 순공", name: (window.currentStudent?.name || "학생") + " 이번 주 공부시간", hours: myHours, color: (myHours >= (baselineInfo?.avg_hours || 36.0) ? "#10b981" : "#ef4444"), badge: "MY" }
     ];
 
+    const isDay = document.body.classList.contains('day-mode');
+    const barCardBg = isDay ? '#f8fafc' : 'rgba(255,255,255,0.03)';
+    const barCardBorder = isDay ? '#e2e8f0' : 'rgba(255,255,255,0.06)';
+    const barTextColor = isDay ? '#0f172a' : '#ffffff';
+    const barTrackBg = isDay ? '#e2e8f0' : 'rgba(255,255,255,0.08)';
+
     listEl.innerHTML = items.map(item => {
         const pct = Math.min(100, Math.round((item.hours / maxH) * 100));
         return `
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 10px 12px;">
+            <div style="background: ${barCardBg}; border: 1px solid ${barCardBorder}; border-radius: 10px; padding: 10px 12px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                     <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 0.68rem; font-weight: 800; background: ${item.color}33; color: ${item.color}; border: 1px solid ${item.color}66; padding: 1px 6px; border-radius: 4px;">${item.badge}</span>
-                        <span style="font-size: 0.78rem; font-weight: 800; color: #ffffff;">${item.name}</span>
+                        <span style="font-size: 0.68rem; font-weight: 800; background: ${item.color}33; color: ${item.color}; border: 1px solid ${item.color}66; padding: 1px 6px; border-radius: 4px; white-space: nowrap;">${item.badge}</span>
+                        <span style="font-size: 0.78rem; font-weight: 800; color: ${barTextColor};">${item.name}</span>
                     </div>
-                    <span style="font-size: 0.82rem; font-weight: 900; color: ${item.color};">${item.hours.toFixed(1)}시간</span>
+                    <span style="font-size: 0.82rem; font-weight: 900; color: ${item.color}; white-space: nowrap;">${item.hours.toFixed(1)}시간</span>
                 </div>
-                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;">
+                <div style="width: 100%; height: 6px; background: ${barTrackBg}; border-radius: 3px; overflow: hidden;">
                     <div style="width: ${pct}%; height: 100%; background: ${item.color}; border-radius: 3px; transition: width 0.6s ease;"></div>
                 </div>
             </div>
