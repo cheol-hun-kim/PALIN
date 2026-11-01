@@ -1211,7 +1211,7 @@ def unified_login(payload: schemas.UnifiedLoginRequest, db: Session = Depends(ge
             return {
                 "status": "success",
                 "token": token,
-                "user": {"id": 1, "name": "최고관리자", "email": "1286orbital21@gmail.com", "phone": "01055272979", "role": "SUPER_ADMIN"},
+                "user": {"id": 1, "student_id": 1, "name": "최고관리자", "email": "1286orbital21@gmail.com", "phone": "01055272979", "role": "SUPER_ADMIN"},
                 "activated_modules": {"passmate": True, "passmate_role": "SUPER_ADMIN", "bizmate": True, "silvermate": True},
                 "redirect_url": "/universe"
             }
@@ -1644,6 +1644,9 @@ def get_unified_status(user_id: Optional[int] = None, phone: Optional[str] = Non
 
     return {
         "is_logged_in": True,
+        "id": effective_id,
+        "user_id": user.id if user else effective_id,
+        "student_id": target_student.id if target_student else (user.student_id if user else None),
         "name": effective_name,
         "phone": effective_phone,
         "email": effective_email,
@@ -2545,9 +2548,20 @@ def login_student(payload: LoginPayload, db: Session = Depends(get_db)):
         print("Login Internal Error:", traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"로그인 처리 중 오류 발생: {str(e)}")
 
+def resolve_student(db: Session, student_id: int):
+    """학생 ID 조회 헬퍼: UnifiedUser.id가 넘어오더라도 연결된 실제 Student를 무결성 복구 조회"""
+    if not student_id:
+        return None
+    st = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not st:
+        u_fb = db.query(models.UnifiedUser).filter(models.UnifiedUser.id == student_id).first()
+        if u_fb and u_fb.student_id:
+            st = db.query(models.Student).filter(models.Student.id == u_fb.student_id).first()
+    return st
+
 @app.get("/api/student/{student_id}")
 def get_student(student_id: int, db: Session = Depends(get_db)):
-    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    student = resolve_student(db, student_id)
     if not student:
         raise HTTPException(status_code=404, detail="학생을 찾을 수 없습니다.")
     if student.is_banned:
@@ -2836,7 +2850,7 @@ def get_mission_status(student_id: int, db: Session = Depends(get_db)):
 
 @app.post("/api/mission/verify")
 def verify_mission(payload: schemas.MissionVerify, db: Session = Depends(get_db)):
-    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    student = resolve_student(db, payload.student_id)
     if not student:
         raise HTTPException(status_code=404, detail="학생 정보를 찾을 수 없습니다.")
         
@@ -5173,7 +5187,9 @@ def get_student_academy_seats(student_id: Optional[int] = None, academy_code: Op
 @app.post("/api/student/academy/seat/select")
 def select_student_academy_seat(payload: schemas.StudentSeatSelectPayload, db: Session = Depends(get_db)):
     """학생 앱: 자유석 선택/입실/예약/퇴실 처리 (지정좌석제 시 잠금 방어)"""
-    student = db.query(models.Student).filter(models.Student.id == payload.student_id, models.Student.deleted_at == None).first()
+    student = resolve_student(db, payload.student_id)
+    if student and student.deleted_at is not None:
+        student = None
     if not student:
         raise HTTPException(status_code=404, detail="학생 정보를 찾을 수 없습니다.")
 
@@ -6991,7 +7007,7 @@ def register_or_update_academy_code(payload: AcademyCodePayload):
 
 @app.post("/api/academy/link")
 def link_academy(payload: AcademyLinkPayload, db: Session = Depends(get_db)):
-    student = db.query(models.Student).filter(models.Student.id == payload.student_id).first()
+    student = resolve_student(db, payload.student_id)
     if not student:
         raise HTTPException(status_code=404, detail="학생 정보를 찾을 수 없습니다.")
     

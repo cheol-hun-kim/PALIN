@@ -2856,91 +2856,57 @@ body.day-mode .mypage-menu-row:hover {
 }
 
 .mypage-icon-box {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: rgba(255, 255, 255, 0.05);
+    color: #cbd5e1;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.2s ease;
 }
 
 .mypage-icon-box .material-symbols-rounded {
     font-size: 1.25rem;
 }
 
-.mypage-icon-id {
-    background: rgba(99, 102, 241, 0.12);
+.mypage-menu-row:hover .mypage-icon-box {
+    background: rgba(99, 102, 241, 0.15);
     color: #818cf8;
-    border: 1px solid rgba(99, 102, 241, 0.25);
+    border-color: rgba(99, 102, 241, 0.3);
 }
 
-.mypage-icon-gift {
-    background: rgba(236, 72, 153, 0.12);
-    color: #f43f5e;
-    border: 1px solid rgba(236, 72, 153, 0.25);
-}
-
-.mypage-icon-cash {
-    background: rgba(59, 130, 246, 0.12);
-    color: #60a5fa;
-    border: 1px solid rgba(59, 130, 246, 0.25);
-}
-
-.mypage-icon-admin {
-    background: rgba(245, 158, 11, 0.12);
-    color: #fbbf24;
-    border: 1px solid rgba(245, 158, 11, 0.25);
-}
-
-.mypage-icon-feedback {
-    background: rgba(16, 185, 129, 0.12);
-    color: #34d399;
-    border: 1px solid rgba(16, 185, 129, 0.25);
-}
-
+.mypage-icon-id,
+.mypage-icon-gift,
+.mypage-icon-cash,
+.mypage-icon-admin,
+.mypage-icon-feedback,
 .mypage-icon-theme {
-    background: rgba(99, 102, 241, 0.12);
-    color: #818cf8;
-    border: 1px solid rgba(99, 102, 241, 0.25);
+    background: rgba(255, 255, 255, 0.05);
+    color: #cbd5e1;
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* Day Mode Icons */
-body.day-mode .mypage-icon-id {
-    background: #eef2ff !important;
-    color: #4f46e5 !important;
-    border: 1px solid #c7d2fe !important;
-}
-
-body.day-mode .mypage-icon-gift {
-    background: #fff1f2 !important;
-    color: #e11d48 !important;
-    border: 1px solid #fecdd3 !important;
-}
-
-body.day-mode .mypage-icon-cash {
-    background: #eff6ff !important;
-    color: #2563eb !important;
-    border: 1px solid #bfdbfe !important;
-}
-
-body.day-mode .mypage-icon-admin {
-    background: #fffbeb !important;
-    color: #d97706 !important;
-    border: 1px solid #fde68a !important;
-}
-
-body.day-mode .mypage-icon-feedback {
-    background: #ecfdf5 !important;
-    color: #059669 !important;
-    border: 1px solid #a7f3d0 !important;
-}
-
+body.day-mode .mypage-icon-box,
+body.day-mode .mypage-icon-id,
+body.day-mode .mypage-icon-gift,
+body.day-mode .mypage-icon-cash,
+body.day-mode .mypage-icon-admin,
+body.day-mode .mypage-icon-feedback,
 body.day-mode .mypage-icon-theme {
-    background: #faf5ff !important;
-    color: #4f46e5 !important;
-    border: 1px solid #e9d5ff !important;
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+body.day-mode .mypage-menu-row:hover .mypage-icon-box {
+    background: #e0e7ff !important;
+    color: #4338ca !important;
+    border-color: #c7d2fe !important;
 }
 
 .mypage-chevron {

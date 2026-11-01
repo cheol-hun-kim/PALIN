@@ -1634,9 +1634,9 @@
                     currentUser = JSON.parse(raw);
                     const token = localStorage.getItem("authToken");
                     if (token) localStorage.setItem("jwtToken", token);
-                    const sId = String(currentUser.id || 1);
+                    const sId = String(currentUser.student_id || currentUser.id || 1);
                     localStorage.setItem("studentId", sId);
-                    localStorage.setItem("userId", sId);
+                    localStorage.setItem("userId", String(currentUser.id || sId));
                     const isCreator = (currentUser.email === '1286orbital21@gmail.com' || currentUser.email === '1286ok@naver.com' || currentUser.role === 'SUPER_ADMIN');
                     localStorage.setItem("userRole", currentUser.role || (isCreator ? "SUPER_ADMIN" : "STUDENT"));
                     updateHeaderUserUI();
@@ -2939,7 +2939,7 @@
         }
 
 async function refreshUnifiedOrbitStatus() {
-            const rawSid = (currentUser && currentUser.id) || localStorage.getItem("studentId") || localStorage.getItem("userId") || "1";
+            const rawSid = (currentUser && (currentUser.student_id || currentUser.id)) || localStorage.getItem("studentId") || localStorage.getItem("userId") || "1";
             const sid = (!isNaN(parseInt(rawSid, 10))) ? parseInt(rawSid, 10) : 1;
             const phone = currentUser ? currentUser.phone : (localStorage.getItem("userPhone") || localStorage.getItem("cached_student_phone"));
 
@@ -2966,7 +2966,9 @@ async function refreshUnifiedOrbitStatus() {
                     // 🎯 회원 실제 Ground-Truth 연동: 목표대학/D-Day/이름 실시간 정밀 연동
                     if (data && data.passmate && (!data.passmate.target_univ || data.passmate.target_univ === '-')) {
                         try {
-                            const stRes = await fetch(`/api/student/${sid}`);
+                            const effStudentId = (data.passmate && data.passmate.student_id) || (data.student_id) || (currentUser && currentUser.student_id) || sid;
+                            localStorage.setItem("studentId", String(effStudentId));
+                            const stRes = await fetch(`/api/student/${effStudentId}`);
                             if (stRes.ok) {
                                 const stData = await stRes.json();
                                 if (stData) {
@@ -3361,9 +3363,9 @@ async function refreshUnifiedOrbitStatus() {
                     localStorage.setItem("unified_user", JSON.stringify(currentUser));
                     localStorage.setItem("authToken", data.token);
                     localStorage.setItem("jwtToken", data.token);
-                    const effSid = data.user.id || 1;
-                    localStorage.setItem("userId", effSid);
-                    localStorage.setItem("studentId", effSid);
+                    const effSid = data.user.student_id || data.user.id || 1;
+                    localStorage.setItem("userId", String(data.user.id || effSid));
+                    localStorage.setItem("studentId", String(effSid));
                     localStorage.setItem("userRole", data.user.role || (isMasterCreator() ? "SUPER_ADMIN" : "STUDENT"));
                     if (data.user.phone) localStorage.setItem("userPhone", data.user.phone);
 

@@ -5085,11 +5085,12 @@ function checkAuth() {
         try {
             const u = JSON.parse(rawUnified);
             if (u) {
-                const effId = String(u.id || 1);
-                if (!studentId || isNaN(parseInt(studentId, 10))) studentId = effId;
-                if (!jwtToken) jwtToken = "unified_session_token_" + effId;
-                localStorage.setItem("studentId", studentId);
-                localStorage.setItem("userId", studentId);
+                const effStudentId = String(u.student_id || u.id || 1);
+                const effUserId = String(u.id || effStudentId);
+                studentId = effStudentId;
+                if (!jwtToken) jwtToken = "unified_session_token_" + effUserId;
+                localStorage.setItem("studentId", effStudentId);
+                localStorage.setItem("userId", effUserId);
                 localStorage.setItem("jwtToken", jwtToken);
                 localStorage.setItem("authToken", jwtToken);
                 localStorage.setItem("userRole", u.role || (u.email === '1286orbital21@gmail.com' ? 'SUPER_ADMIN' : 'STUDENT'));
