@@ -3116,7 +3116,7 @@ async function refreshUnifiedOrbitStatus() {
 
             let verdictBadgeClass = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
             let verdictLabel = '소신';
-            let distText = deficitHours > 0 ? `순공 -${deficitHours.toFixed(1)}h 결손 (상향 도전)` : '소신권 합격선 근접';
+            let distText = deficitHours > 0 ? `순공 -${deficitHours.toFixed(1)}h 부족 (상향 도전)` : '소신권 합격선 근접';
             let distColor = 'text-amber-400';
 
             if (overallVerdict.includes('안정') || overallVerdict.includes('적정')) {
@@ -3132,7 +3132,7 @@ async function refreshUnifiedOrbitStatus() {
             } else {
                 verdictBadgeClass = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
                 verdictLabel = '소신';
-                distText = deficitHours > 0 ? `순공 -${deficitHours.toFixed(1)}h 결손 (상향 도전)` : '소신권 합격선 근접';
+                distText = deficitHours > 0 ? `순공 -${deficitHours.toFixed(1)}h 부족 (상향 도전)` : '소신권 합격선 근접';
                 distColor = 'text-amber-400';
             }
 

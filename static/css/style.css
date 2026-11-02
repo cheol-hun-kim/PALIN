@@ -5876,7 +5876,7 @@ body.day-mode .header-action-btn .header-user-icon {
 }
 
 /* ===================================================
-   🎯 대입 등대 및 순공 결손 경고 데이모드 완벽 고대비 룰셋 (7-Gate 불변 원칙)
+   🎯 대입 등대 및 순공 부족 경고 데이모드 완벽 고대비 룰셋 (7-Gate 불변 원칙)
    =================================================== */
 body.day-mode #admission-distance-headline-card {
     background: #ffffff !important;
@@ -5928,7 +5928,7 @@ body.day-mode #admission-map-container button[onclick*="toggleAdmissionDetailAcc
     color: #4338ca !important;
 }
 
-/* 실시간 순공 결손 경고 배너 데이모드 고대비 (흰배경에 분홍/흰색 글씨 절대 금지) */
+/* 실시간 순공 부족 경고 배너 데이모드 고대비 (흰배경에 분홍/흰색 글씨 절대 금지) */
 body.day-mode #admission-penalty-alert-box {
     background: #fef2f2 !important;
     border: 1.5px solid #fca5a5 !important;
@@ -6241,3 +6241,68 @@ body.day-mode [style*="background: #08090d"] {
     color: #0f172a !important;
 }
 
+
+/* ==========================================================================
+   Admission Target & Baseline Modal High-Contrast Strict Rules (Day/Night)
+   ========================================================================== */
+.chip-btn-inseoul {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid #10b981;
+  color: #6ee7b7;
+}
+.chip-btn-medical {
+  background: rgba(56, 189, 248, 0.2);
+  border: 1px solid #38bdf8;
+  color: #7dd3fc;
+}
+.modal-target-preview-bar,
+.modal-baseline-preview-bar {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.modal-target-preview-bar .preview-label,
+.modal-baseline-preview-bar .preview-label {
+  color: #cbd5e1;
+}
+#modal-target-preview-text {
+  color: #fde047;
+}
+#modal-baseline-preview-text {
+  color: #7dd3fc;
+}
+
+/* Day Mode High-Contrast Enforcement */
+body.day-mode .chip-btn-inseoul {
+  background: #dcfce7 !important;
+  border: 1.5px solid #10b981 !important;
+  color: #065f46 !important;
+  font-weight: 800 !important;
+}
+body.day-mode .chip-btn-medical {
+  background: #e0f2fe !important;
+  border: 1.5px solid #0284c7 !important;
+  color: #075985 !important;
+  font-weight: 800 !important;
+}
+body.day-mode .admission-field-label {
+  color: #1e293b !important;
+  font-weight: 800 !important;
+}
+body.day-mode .modal-target-preview-bar,
+body.day-mode .modal-baseline-preview-bar {
+  background: #f1f5f9 !important;
+  border: 1.5px solid #cbd5e1 !important;
+}
+body.day-mode .modal-target-preview-bar .preview-label,
+body.day-mode .modal-baseline-preview-bar .preview-label {
+  color: #334155 !important;
+  font-weight: 800 !important;
+}
+body.day-mode #modal-target-preview-text {
+  color: #9a3412 !important; /* High-contrast deep amber on light bg */
+  font-weight: 900 !important;
+}
+body.day-mode #modal-baseline-preview-text {
+  color: #0369a1 !important; /* High-contrast deep blue on light bg */
+  font-weight: 900 !important;
+}

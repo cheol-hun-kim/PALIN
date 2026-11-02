@@ -21758,7 +21758,7 @@ function renderAdmissionPathEngine() {
     // 순공시간 부족 시 심리적 경각심 경고 배너 (순수 성적 팩트와 명확히 분리)
     if (deficitHours > 0) {
         if (alertBadge) {
-            alertBadge.innerText = '순공 결손 경고';
+            alertBadge.innerText = '순공 부족 경고';
             alertBadge.style.color = isDay ? '#991b1b' : '#fca5a5';
             alertBadge.style.borderColor = isDay ? '#f87171' : '#ef4444';
             alertBadge.style.background = isDay ? '#fee2e2' : 'rgba(239, 68, 68, 0.2)';
@@ -21776,7 +21776,7 @@ function renderAdmissionPathEngine() {
             const bFactColor = isDay ? '#0f172a' : '#ffffff';
             const deficitHighlightColor = isDay ? '#b91c1c' : '#f87171';
             const warningDropColor = isDay ? '#991b1b' : '#fca5a5';
-            alertText.innerHTML = `${activeUnivName} 합격권 대비 주간 순공이 <b style="color: ${deficitHighlightColor}; font-weight: 900;">${deficitHours.toFixed(1)}시간 결손</b> 상태입니다. 현재 성적 팩트는 <b style="color: ${bFactColor}; font-weight: 900;">[${overallLabel}]</b>이나, <b style="color: ${warningDropColor}; font-weight: 800;">주 56시간 미만 학습 시 수능 실전 감각 저하로 합격선이 [소신 ➔ 위험]으로 급락</b>할 수 있습니다. 순공 타이머를 즉시 가동하세요!`;
+            alertText.innerHTML = `${activeUnivName} 합격권 대비 주간 순공이 <b style="color: ${deficitHighlightColor}; font-weight: 800;">${deficitHours.toFixed(1)}시간 부족</b>하여 불합격 위험이 높습니다.`;
         }
     } else {
         if (alertBadge) {

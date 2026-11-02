@@ -1173,9 +1173,9 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <div id="admission-penalty-alert-box" style="display: flex; align-items: flex-start; justify-content: space-between; width: 100%; min-height: 48px; padding: 10px 14px; border-radius: 12px; background: rgba(99, 102, 241, 0.12); border: 1.5px solid rgba(99, 102, 241, 0.28); font-size: 0.82rem; font-weight: 700; color: #c7d2fe; margin-bottom: 8px; box-sizing: border-box; gap: 10px;">
                         <div style="display: flex; align-items: flex-start; gap: 8px; min-width: 0; flex: 1;">
                             <span class="material-symbols-rounded" style="color: #f87171; font-size: 1.25rem; flex-shrink: 0; margin-top: 1px;">bolt</span>
-                            <span id="admission-penalty-alert-text" style="font-size: 0.80rem; line-height: 1.5; word-break: keep-all; flex: 1;">연세대 의예과 합격권 대비 주간 순공이 <b style="color: #f87171;">63.0시간 결손</b> 상태입니다. 순공 타이머를 가동하여 실시간 합격선을 방어하세요.</span>
+                            <span id="admission-penalty-alert-text" style="font-size: 0.80rem; line-height: 1.5; word-break: keep-all; flex: 1;">연세대 의예과 합격권 대비 주간 순공이 <b style="color: #f87171;">63.0시간 부족</b>하여 불합격 위험이 높습니다.</span>
                         </div>
-                        <span id="admission-penalty-alert-badge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid #ef4444; padding: 3px 10px; border-radius: 8px; font-size: 0.74rem; font-weight: 900; white-space: nowrap; flex-shrink: 0; margin-top: 2px;">순공 결손 경고</span>
+                        <span id="admission-penalty-alert-badge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid #ef4444; padding: 3px 10px; border-radius: 8px; font-size: 0.74rem; font-weight: 900; white-space: nowrap; flex-shrink: 0; margin-top: 2px;">순공 부족 경고</span>
                     </div>
 
                     <!-- 6행: 아코디언 드롭다운 트리거 버튼 바 (5행 알림 배너와 완벽히 동일한 쌍둥이 규격) -->
@@ -6910,10 +6910,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
                     <!-- 광역 퀵 칩 (인서울/메디컬 2종만 유지) -->
                     <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;">
-                        <button type="button" onclick="selectAdmissionTargetChip('TARGET', '인서울 대학')" style="padding: 6px 12px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #a7f3d0; cursor: pointer;">
+                        <button type="button" onclick="selectAdmissionTargetChip('TARGET', '인서울 대학')" class="admission-chip chip-btn-inseoul" style="padding: 6px 12px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; cursor: pointer;">
                             인서울 대학
                         </button>
-                        <button type="button" onclick="selectAdmissionTargetChip('TARGET', '메디컬')" style="padding: 6px 12px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; background: rgba(56, 189, 248, 0.2); border: 1px solid #38bdf8; color: #bae6fd; cursor: pointer;">
+                        <button type="button" onclick="selectAdmissionTargetChip('TARGET', '메디컬')" class="admission-chip chip-btn-medical" style="padding: 6px 12px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; cursor: pointer;">
                             메디컬
                         </button>
                     </div>
@@ -6921,19 +6921,19 @@ document.addEventListener("DOMContentLoaded", function() {
                     <!-- 대학 & 학과 듀얼 드롭다운 (회원가입과 동일) -->
                     <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; margin-bottom: 8px;">
                         <div>
-                            <label style="font-size: 0.72rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">대학교 선택</label>
+                            <label class="admission-field-label" style="font-size: 0.72rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">대학교 선택</label>
                             <select id="modal-target-univ" class="admission-modal-select" style="border: 1.5px solid rgba(99, 102, 241, 0.45);"></select>
                         </div>
                         <div>
-                            <label style="font-size: 0.72rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">개설 학과 (자동 연동)</label>
+                            <label class="admission-field-label" style="font-size: 0.72rem; color: #a5b4fc; font-weight: 800; display: block; margin-bottom: 4px;">개설 학과 (자동 연동)</label>
                             <select id="modal-target-dept" class="admission-modal-select" style="border: 1.5px solid rgba(99, 102, 241, 0.45);"></select>
                         </div>
                     </div>
 
                     <!-- 실시간 선택 결과 프리뷰 -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.35); border-radius: 8px; padding: 7px 12px; border: 1px solid rgba(255,255,255,0.06);">
-                        <span style="font-size: 0.7rem; color: #94a3b8; font-weight: 700;">1지망 확정 설정:</span>
-                        <strong id="modal-target-preview-text" style="font-size: 0.82rem; font-weight: 900; color: #fbbf24;">연세대학교 의예과</strong>
+                    <div class="modal-target-preview-bar" style="display: flex; justify-content: space-between; align-items: center; border-radius: 8px; padding: 7px 12px;">
+                        <span class="preview-label" style="font-size: 0.72rem; font-weight: 700;">1지망:</span>
+                        <strong id="modal-target-preview-text" style="font-size: 0.82rem; font-weight: 900;">연세대학교 의예과</strong>
                     </div>
                 </div>
 
@@ -6949,10 +6949,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
                     <!-- 광역 퀵 칩 (인서울/메디컬 2종만 유지) -->
                     <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;">
-                        <button type="button" onclick="selectAdmissionTargetChip('BASELINE', '인서울 대학')" style="padding: 6px 12px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #a7f3d0; cursor: pointer;">
+                        <button type="button" onclick="selectAdmissionTargetChip('BASELINE', '인서울 대학')" class="admission-chip chip-btn-inseoul" style="padding: 6px 12px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; cursor: pointer;">
                             인서울 대학
                         </button>
-                        <button type="button" onclick="selectAdmissionTargetChip('BASELINE', '메디컬')" style="padding: 6px 12px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; background: rgba(56, 189, 248, 0.2); border: 1px solid #38bdf8; color: #bae6fd; cursor: pointer;">
+                        <button type="button" onclick="selectAdmissionTargetChip('BASELINE', '메디컬')" class="admission-chip chip-btn-medical" style="padding: 6px 12px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; cursor: pointer;">
                             메디컬
                         </button>
                     </div>
@@ -6960,19 +6960,19 @@ document.addEventListener("DOMContentLoaded", function() {
                     <!-- 대학 & 학과 듀얼 드롭다운 (회원가입과 동일) -->
                     <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; margin-bottom: 8px;">
                         <div>
-                            <label style="font-size: 0.72rem; color: #7dd3fc; font-weight: 800; display: block; margin-bottom: 4px;">마지노선 대학 선택</label>
+                            <label class="admission-field-label" style="font-size: 0.72rem; color: #7dd3fc; font-weight: 800; display: block; margin-bottom: 4px;">마지노선 대학 선택</label>
                             <select id="modal-baseline-univ" class="admission-modal-select" style="border: 1.5px solid rgba(2, 132, 199, 0.45);"></select>
                         </div>
                         <div>
-                            <label style="font-size: 0.72rem; color: #7dd3fc; font-weight: 800; display: block; margin-bottom: 4px;">개설 학과 (자동 연동)</label>
+                            <label class="admission-field-label" style="font-size: 0.72rem; color: #7dd3fc; font-weight: 800; display: block; margin-bottom: 4px;">개설 학과 (자동 연동)</label>
                             <select id="modal-baseline-dept" class="admission-modal-select" style="border: 1.5px solid rgba(2, 132, 199, 0.45);"></select>
                         </div>
                     </div>
 
                     <!-- 실시간 선택 결과 프리뷰 -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.35); border-radius: 8px; padding: 7px 12px; border: 1px solid rgba(255,255,255,0.06);">
-                        <span style="font-size: 0.7rem; color: #94a3b8; font-weight: 700;">마지노선 확정 설정:</span>
-                        <strong id="modal-baseline-preview-text" style="font-size: 0.82rem; font-weight: 900; color: #38bdf8;">서울대학교 화학생물공학부</strong>
+                    <div class="modal-baseline-preview-bar" style="display: flex; justify-content: space-between; align-items: center; border-radius: 8px; padding: 7px 12px;">
+                        <span class="preview-label" style="font-size: 0.72rem; font-weight: 700;">마지노선:</span>
+                        <strong id="modal-baseline-preview-text" style="font-size: 0.82rem; font-weight: 900;">서울대학교 화학생물공학부</strong>
                     </div>
                 </div>
 
