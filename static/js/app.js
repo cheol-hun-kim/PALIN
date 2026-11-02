@@ -6835,8 +6835,8 @@ function getEffectiveTierInfo(student) {
                 modalDesc: '원장님 지원으로 최상위 Tier 4 일원직영 마스터 AI를 무료 이용하고 있습니다.',
                 chatLabel: 'Tier 4 (일원직영)',
                 chatDesc: 'Tier 4 (일원직영) · 김철훈 대표원장 직강 RAG 무제한',
-                color: '#fbbf24',
-                bg: 'rgba(245, 158, 11, 0.25)',
+                color: '#818cf8',
+                bg: 'rgba(99, 102, 241, 0.12)',
                 isUnlimited: true
             };
         } else if (acadTier === 3 || student.ai_level === "B2B_MASTER_AI") {
@@ -6929,9 +6929,10 @@ function updateChatTierAndTokens(student, customRemaining = null) {
         pill.innerText = tierLabel;
         pill.dataset.tier = tierInfo.tierNumber;
         pill.className = `tier-pill tier-${tierInfo.tierNumber}`;
-        pill.style.color = tierColor;
-        pill.style.background = tierBg;
-        pill.style.borderColor = tierColor;
+        const isDay = typeof document !== 'undefined' && document.body && document.body.classList ? document.body.classList.contains('day-mode') : false;
+        pill.style.color = isDay ? '#4f46e5' : '#818cf8';
+        pill.style.background = isDay ? 'rgba(99, 102, 241, 0.08)' : 'rgba(99, 102, 241, 0.15)';
+        pill.style.borderColor = isDay ? '#cbd5e1' : 'rgba(99, 102, 241, 0.3)';
     }
 
     const toks = customRemaining !== null ? customRemaining : ((student.chat_tokens !== undefined && student.chat_tokens !== null) ? student.chat_tokens : 5);
@@ -7161,7 +7162,7 @@ function renderRankingSubTab(tab) {
         let html = `<div style="display:flex; flex-direction:column; gap:6px;">`;
         schools.forEach((s, idx) => {
             const champBadge = s.is_champion ? '<span style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; font-weight:900; padding:2px 6px; border-radius:4px; font-size:0.68rem; margin-left:4px;">1위</span>' : '';
-            const isDay = document.body.classList.contains('day-mode');
+            const isDay = typeof document !== 'undefined' && document.body && document.body.classList ? document.body.classList.contains('day-mode') : false;
             const bg = idx === 0 ? (isDay ? 'background:#fef3c7; border:1px solid #f59e0b;' : 'background:rgba(245, 158, 11, 0.15); border:1px solid rgba(245, 158, 11, 0.3);') : (idx < 3 ? (isDay ? 'background:#ede9fe; border:1px solid #c7d2fe;' : 'background:rgba(99, 102, 241, 0.1); border:1px solid rgba(99, 102, 241, 0.2);') : (isDay ? 'background:#ffffff; border:1px solid #e2e8f0;' : 'background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);'));
             const rankColor = idx === 0 ? (isDay ? '#b45309' : '#fbbf24') : (idx < 3 ? (isDay ? '#4f46e5' : '#a5b4fc') : (isDay ? '#64748b' : '#cbd5e1'));
             const schoolColor = isDay ? '#0f172a' : '#f8fafc';
@@ -7186,7 +7187,7 @@ function renderRankingSubTab(tab) {
         const thrones = cachedRankingMatrix.local_thrones || [];
         let html = `<div style="display:flex; flex-direction:column; gap:6px;">`;
         thrones.forEach(t => {
-            const isDay = document.body.classList.contains('day-mode');
+            const isDay = typeof document !== 'undefined' && document.body && document.body.classList ? document.body.classList.contains('day-mode') : false;
             const bg = isDay ? 'background:#fef3c7; border:1px solid #fcd34d;' : 'background:rgba(245, 158, 11, 0.08); border:1px solid rgba(245, 158, 11, 0.2);';
             const titleColor = isDay ? '#b45309' : '#fbbf24';
             const leaderColor = isDay ? '#0f172a' : '#cbd5e1';
@@ -14026,7 +14027,7 @@ async function loadMicroRankings() {
                 } else {
                     guildListEl.innerHTML = schools.map((s, idx) => {
                         const champBadge = s.is_champion ? '<span style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; font-weight:900; padding:2px 6px; border-radius:4px; font-size:0.68rem; margin-left:4px;">1위 챔피언</span>' : '';
-                        const isDay = document.body.classList.contains('day-mode');
+                        const isDay = typeof document !== 'undefined' && document.body && document.body.classList ? document.body.classList.contains('day-mode') : false;
                         const bg = idx === 0 ? (isDay ? 'background:#fef3c7; border:1.5px solid #f59e0b;' : 'background:rgba(245, 158, 11, 0.15); border:1.5px solid rgba(245, 158, 11, 0.3);') : (idx < 3 ? (isDay ? 'background:#ede9fe; border:1px solid #c7d2fe;' : 'background:rgba(99, 102, 241, 0.12); border:1px solid rgba(99, 102, 241, 0.25);') : (isDay ? 'background:#ffffff; border:1px solid #e2e8f0;' : 'background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);'));
                         const rankColor = idx === 0 ? (isDay ? '#b45309' : '#fbbf24') : (idx < 3 ? (isDay ? '#4f46e5' : '#a5b4fc') : (isDay ? '#64748b' : '#cbd5e1'));
                         const schoolColor = isDay ? '#0f172a' : '#f8fafc';

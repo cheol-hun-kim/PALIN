@@ -4681,12 +4681,15 @@ body.day-mode .quick-dur-btn.active {
 /* ========================================================================== */
 .bottom-nav .nav-icon-director,
 .bottom-nav .nav-text-director,
-.bottom-nav #nav-tab-admin span,
+.bottom-nav #nav-tab-admin span {
+    color: #94a3b8 !important;
+    font-weight: 700 !important;
+}
 body.day-mode .bottom-nav .nav-icon-director,
 body.day-mode .bottom-nav .nav-text-director,
 body.day-mode .bottom-nav #nav-tab-admin span {
-    color: #fbbf24 !important;
-    font-weight: 800 !important;
+    color: #64748b !important;
+    font-weight: 700 !important;
 }
 
 /* ========================================================================== */
@@ -4921,31 +4924,18 @@ body.day-mode #chat-tier-status-pill.tier-1 {
 }
 
 /* Active States (Dark Mode) */
+.school-switcher-btn.active,
 .school-switcher-btn#m-btn-elem.active,
-.school-switcher-btn#mypage-btn-elem.active {
-    background: #f59e0b !important;
-    border: 1.5px solid #fbbf24 !important;
-    color: #000000 !important;
-    font-weight: 900 !important;
-    box-shadow: 0 0 12px rgba(245, 158, 11, 0.5) !important;
-}
-
+.school-switcher-btn#mypage-btn-elem.active,
 .school-switcher-btn#m-btn-mid.active,
-.school-switcher-btn#mypage-btn-mid.active {
-    background: #2563eb !important;
-    border: 1.5px solid #60a5fa !important;
-    color: #ffffff !important;
-    font-weight: 900 !important;
-    box-shadow: 0 0 12px rgba(37, 99, 235, 0.5) !important;
-}
-
+.school-switcher-btn#mypage-btn-mid.active,
 .school-switcher-btn#m-btn-high.active,
 .school-switcher-btn#mypage-btn-high.active {
-    background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
-    border: 1.5px solid #a5b4fc !important;
+    background: #4f46e5 !important;
+    border: 1px solid #6366f1 !important;
     color: #ffffff !important;
-    font-weight: 900 !important;
-    box-shadow: 0 0 12px rgba(99, 102, 241, 0.5) !important;
+    font-weight: 800 !important;
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3) !important;
 }
 
 /* Day Mode (Light Theme) Contrast Rules */
@@ -6432,4 +6422,116 @@ body.day-mode .timer-gauge-hero #timer-circle {
 }
 body.day-mode .timer-gauge-hero span {
   color: #475569 !important;
+}
+
+
+/* ========================================================================== */
+/* 👑 PASSMATE MASTER NAVIGATION & ZERO-CLASH CONTRAST ARMOR                  */
+/* ========================================================================== */
+
+/* 1. Header Day Mode Inversion */
+body.day-mode header {
+    background-color: #FFFFFF !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    color: #0F172A !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+}
+body.day-mode header .logo-text {
+    color: #0F172A !important;
+}
+body.day-mode header .header-action-btn {
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    color: #334155 !important;
+}
+body.day-mode header .header-action-btn:hover {
+    background: #F1F5F9 !important;
+    border-color: #CBD5E1 !important;
+}
+body.day-mode header .header-action-btn span {
+    color: #334155 !important;
+}
+body.day-mode #header-streak-badge {
+    border-color: #E2E8F0 !important;
+    background: #F8FAFC !important;
+}
+body.day-mode #header-streak-badge span {
+    color: #64748B !important;
+}
+body:not(.day-mode) #header-streak-badge span {
+    color: #94A3B8 !important;
+}
+
+/* 2. Bottom Nav Fixed 100% Width & Day Mode Inversion */
+.bottom-nav {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    z-index: 999 !important;
+}
+body.day-mode .bottom-nav {
+    background: #FFFFFF !important;
+    border-top: 1px solid #E2E8F0 !important;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.04) !important;
+}
+body.day-mode .bottom-nav .nav-item {
+    color: #64748B !important;
+}
+body.day-mode .bottom-nav .nav-item.active {
+    color: #4F46E5 !important;
+}
+body.day-mode .bottom-nav .nav-item.active .nav-icon {
+    color: #4F46E5 !important;
+}
+main {
+    padding-bottom: 96px !important;
+}
+
+/* 3. Deficit Warning Neutral Armor in Day Mode */
+body.day-mode .deficit-alert-badge,
+body.day-mode .deficit-detail-badge {
+    background-color: #F1F5F9 !important;
+    color: #475569 !important;
+    border-color: #CBD5E1 !important;
+}
+
+/* 4. Chatbot Notice Box Neutral Style */
+.chatbot-notice-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #94a3b8;
+}
+.chatbot-notice-box .material-symbols-rounded {
+    color: #818cf8 !important;
+}
+body.day-mode .chatbot-notice-box {
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    color: #475569 !important;
+}
+body.day-mode .chatbot-notice-box b {
+    color: #1E293B !important;
+}
+body.day-mode .chatbot-notice-box .material-symbols-rounded {
+    color: #4F46E5 !important;
+}
+
+/* 5. Mission Card Failure Test Button Armor */
+body.day-mode #mission-card button[onclick*="true"] {
+    border-color: #CBD5E1 !important;
+    color: #64748B !important;
+    background: transparent !important;
+}
+body.day-mode #mission-card button[onclick*="true"]:hover {
+    background: #F1F5F9 !important;
+    color: #334155 !important;
 }

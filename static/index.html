@@ -986,7 +986,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         <!-- 제작자/관리자 전용 학교급 실시간 3단 뷰어 스위처 바 (갓모드 마스터 전용) -->
         <div id="master-school-level-bar" style="display: none; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); border-bottom: 1.5px solid rgba(129, 140, 248, 0.4); padding: 8px 14px; align-items: center; justify-content: space-between; gap: 8px; box-sizing: border-box; z-index: 100;">
             <div style="display: flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 800; color: #ffffff; white-space: nowrap;">
-                <span class="material-symbols-rounded" style="font-size: 1.25rem; color: #fbbf24; filter: drop-shadow(0 0 6px rgba(251,191,36,0.8)); vertical-align: middle;">admin_panel_settings</span>
+                <span class="material-symbols-rounded" style="font-size: 1.25rem; color: #94a3b8; vertical-align: middle;">admin_panel_settings</span>
                 <span style="color: #ffffff; letter-spacing: -0.2px;">제작자 관제 모드:</span>
             </div>
             <div style="display: flex; gap: 6px; overflow-x: auto;" id="master-level-switcher-btns">
@@ -1074,68 +1074,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                      ========================================== -->
                 <div id="student-p1-view" style="display: block;">
 
-<!-- 포레스트(Forest) 모델 - 목표 대학 로고 & 집중 공부 타이머 (아코디언 드롭다운) -->
-                <div class="card" id="univ-target-box" style="text-align: center; position: relative; padding: 0; overflow: hidden;">
-                    <!-- 아코디언 헤더 바 (기본 상시 노출) -->
-                    <div class="accordion-header" style="display: none !important;" onclick="toggleAccordion('timer-accordion-body', 'timer-accordion-icon')" style="padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: rgba(255,255,255,0.02);">
-                        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.95rem;">
-                            <span class="material-symbols-rounded" style="color: #818cf8;">hourglass_empty</span>
-                            <span>집중 공부 타이머</span>
-                            <span id="timer-badge-status" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 12px; background: rgba(99, 102, 241, 0.15); color: #818cf8; font-weight: 800; border: 1px solid rgba(99, 102, 241, 0.3);">00:00:00 대기중</span>
-                        </div>
-                        <span class="material-symbols-rounded" id="timer-accordion-icon" style="transition: transform 0.3s ease; color: var(--text-secondary);">expand_more</span>
-                    </div>
-
-                    <!-- 아코디언 본체 (접힘/펼침) -->
-                    <div id="timer-accordion-body" style="display: block; padding: 20px 16px; border-top: none;">
-                        <!-- 딴짓 감지 시 균열 오버레이 -->
-                        <div class="crack-overlay" id="logo-crack-overlay"></div>
-
-                        <div class="timer-container">
-                            <div style="width:100%; max-width:320px; margin-bottom:12px;">
-                                <label style="font-size:0.75rem; color:var(--text-secondary); display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                                    <span style="font-weight: 700;">어떤 계획을 공부하시겠습니까?</span>
-                                    <span id="timer-selected-day-label" style="color: #818cf8; font-weight: 800; font-size: 0.72rem;">오늘 요일</span>
-                                </label>
-                                
-                                <!-- 📅 타이머 요일 선택 탭 -->
-                                <div style="display: flex; gap: 4px; justify-content: center; margin-bottom: 8px;" id="timer-day-tabs">
-                                    <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(0, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">월</button>
-                                    <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(1, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">화</button>
-                                    <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(2, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">수</button>
-                                    <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(3, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">목</button>
-                                    <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(4, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">금</button>
-                                    <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(5, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">토</button>
-                                    <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(6, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">일</button>
-                                    <button type="button" class="btn btn-secondary timer-day-btn" onclick="filterTimerScheduleByDay('all', this)" style="padding: 3px 6px; font-size: 0.72rem;">전체</button>
-                                </div>
-
-                                <select id="timer-schedule-select" class="form-input" style="width:100%; padding:8px 10px; font-size: 0.82rem; font-weight: 600;">
-                                    <option value="none">직접 자유 공부하기</option>
-                                </select>
-                            </div>
-                            
-                            <div id="timer-current-study" style="font-size:0.8rem; font-weight:600; color:#818cf8; margin-bottom:12px;">대기 중: 할 일을 선택하여 측정을 시작하세요</div>
-                            
-                            <div class="timer-gauge-hero" style="width: 240px; height: 240px; border-radius: 50%; border: 6px solid #1e293b; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 12px auto 16px; position: relative; background: radial-gradient(circle, rgba(99, 102, 241, 0.06) 0%, transparent 70%); box-shadow: 0 0 30px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(0, 0, 0, 0.25);">
-                                <span style="font-size: 0.82rem; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px; margin-bottom: 2px;">총시간</span>
-                                <div class="timer-circle tabular-nums" id="timer-circle" style="font-size: 2.7rem; font-weight: 900; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: #ffffff; line-height: 1.1; margin: 2px 0 8px;">00:00:00</div>
-                                <div class="timer-controls">
-                                    <button class="btn" id="timer-toggle-btn" style="background-color: #4f46e5; box-shadow: 0 4px 16px rgba(79, 70, 229, 0.5); padding: 9px 30px; font-size: 0.95rem; font-weight: 800; color: white; border-radius: 12px; border: none; cursor: pointer; transition: all 0.2s ease;" onclick="requestStartTimer()">공부 시작</button>
-                                </div>
-                            </div>
-                            
-                            <div style="font-size:0.68rem; color:var(--text-secondary); margin-top:14px; line-height:1.3;">
-                                <b>화면 꺼짐(Screen Off) 상태는 정상 자습으로 유지</b>됩니다. 단, 타 앱으로 전환(딴짓) 시 3초 후 타이머가 일시정지됩니다.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                
-
-
-                <!-- 미션 카드 -->
+<!-- 미션 카드 -->
                 
                 <!-- ============================================================================== -->
                 <!-- 🎯 [FEATURE DIRECTIVE 3] PASS-MATE 1번 탭 최상단 헤드라인 위젯: -->
@@ -1295,7 +1234,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             <span class="material-symbols-rounded" style="color: #f87171; font-size: 1.25rem; flex-shrink: 0; margin-top: 1px;">bolt</span>
                             <span id="admission-penalty-alert-text" style="font-size: 0.80rem; line-height: 1.5; word-break: keep-all; flex: 1;">연세대 의예과 합격권 대비 주간 순공이 <b style="color: #f87171;">63.0시간 부족</b>하여 불합격 위험이 높습니다.</span>
                         </div>
-                        <span id="admission-penalty-alert-badge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid #ef4444; padding: 3px 10px; border-radius: 8px; font-size: 0.74rem; font-weight: 900; white-space: nowrap; flex-shrink: 0; margin-top: 2px;">순공 부족 경고</span>
+                        <span id="admission-penalty-alert-badge" class="deficit-alert-badge" style="background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 3px 10px; border-radius: 8px; font-size: 0.74rem; font-weight: 800; white-space: nowrap; flex-shrink: 0; margin-top: 2px;">순공 부족 경고</span>
                     </div>
 
                     <!-- 6행: 아코디언 드롭다운 트리거 버튼 바 (5행 알림 배너와 완벽히 동일한 쌍둥이 규격) -->
@@ -1304,7 +1243,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             <span class="material-symbols-rounded" id="dist-accordion-arrow-icon" style="font-size: 1.25rem; transition: transform 0.25s ease; flex-shrink: 0;">expand_more</span>
                             <span style="font-weight: 800; font-size: 0.88rem; white-space: nowrap;">상세진단</span>
                         </span>
-                        <span id="dist-accordion-deficit-badge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid #ef4444; padding: 3px 10px; border-radius: 8px; font-size: 0.74rem; font-weight: 900; white-space: nowrap; flex-shrink: 0;">부족 -36.0시간</span>
+                        <span id="dist-accordion-deficit-badge" class="deficit-detail-badge" style="background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 3px 10px; border-radius: 8px; font-size: 0.74rem; font-weight: 800; white-space: nowrap; flex-shrink: 0;">부족 -36.0시간</span>
                     </button>
 
                     <!-- 7행: 아코디언 드롭다운 펼침 패널 -->
@@ -1337,15 +1276,9 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 </div>
 
                 <div class="card" id="mission-card" style="margin-bottom: 14px; padding: 18px 20px; border-radius: 16px;">
-                    <!-- Ground-Truth Card 4 Header (media_1793640376335_1b73f4de.png) -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                        <div>
-                            <div style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; letter-spacing: 0.3px;">오늘의 생활 규칙</div>
-                            <div style="font-size: 1.15rem; font-weight: 900; color: var(--text-primary); margin-top: 2px;">미션</div>
-                        </div>
-                        <div id="mission-dday-ring" style="width: 42px; height: 42px; border-radius: 50%; border: 3px solid #6366f1; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 900; color: #818cf8; background: rgba(99, 102, 241, 0.08);">
-                            D-16
-                        </div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px;">
+                        <span class="material-symbols-rounded" style="color: #6366f1; font-size: 1.25rem;">task_alt</span>
+                        <span style="font-size: 0.96rem; font-weight: 900; color: var(--text-primary); letter-spacing: -0.3px;">오늘의 생활 규칙 미션</span>
                     </div>
                     
                     <div class="mission-row" style="padding: 10px 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
@@ -1355,7 +1288,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </div>
                         <div style="display: flex; gap: 6px; flex-shrink: 0;">
                             <button id="btn-mission-wakeup" class="btn" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 800; background: #6366f1; color: white; border-radius: 8px; border: none; cursor: pointer;" onclick="verifyMission('WAKEUP')">성공인증</button>
-                            <button class="btn btn-secondary" style="padding: 6px 8px; font-size: 0.72rem; border-color: var(--border-subtle); color: var(--text-muted); opacity: 0.6; display: none;" onclick="verifyMission('WAKEUP', true)">실패테스트</button>
+                            <button class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.72rem; font-weight: 700; border: 1px solid rgba(148, 163, 184, 0.35); color: #94a3b8; background: transparent; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center;" onclick="verifyMission('WAKEUP', true)">실패테스트</button>
                         </div>
                     </div>
                     
@@ -1366,7 +1299,65 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </div>
                         <div style="display: flex; gap: 6px; flex-shrink: 0;">
                             <button id="btn-mission-sleep" class="btn" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 800; background: #6366f1; color: white; border-radius: 8px; border: none; cursor: pointer;" onclick="verifyMission('SLEEP')">성공인증</button>
-                            <button class="btn btn-secondary" style="padding: 6px 8px; font-size: 0.72rem; border-color: var(--border-subtle); color: var(--text-muted); opacity: 0.6; display: none;" onclick="verifyMission('SLEEP', true)">실패테스트</button>
+                            <button class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.72rem; font-weight: 700; border: 1px solid rgba(148, 163, 184, 0.35); color: #94a3b8; background: transparent; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center;" onclick="verifyMission('SLEEP', true)">실패테스트</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 포레스트(Forest) 모델 - 목표 대학 로고 & 집중 공부 타이머 (아코디언 드롭다운) -->
+                <div class="card" id="univ-target-box" style="text-align: center; position: relative; padding: 0; overflow: hidden;">
+                    <!-- 아코디언 헤더 바 (기본 상시 노출) -->
+                    <div class="accordion-header" onclick="toggleAccordion(\'timer-accordion-body\', \'timer-accordion-icon\')" style="padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: rgba(255,255,255,0.02);">
+                        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.95rem;">
+                            <span class="material-symbols-rounded" style="color: #818cf8;">hourglass_empty</span>
+                            <span>집중 공부 타이머</span>
+                            <span id="timer-badge-status" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 12px; background: rgba(99, 102, 241, 0.15); color: #818cf8; font-weight: 800; border: 1px solid rgba(99, 102, 241, 0.3);">00:00:00 대기중</span>
+                        </div>
+                        <span class="material-symbols-rounded" id="timer-accordion-icon" style="transition: transform 0.3s ease; color: var(--text-secondary);">expand_more</span>
+                    </div>
+
+                    <!-- 아코디언 본체 (접힘/펼침) -->
+                    <div id="timer-accordion-body" style="display: block; padding: 20px 16px; border-top: none;">
+                        <!-- 딴짓 감지 시 균열 오버레이 -->
+                        <div class="crack-overlay" id="logo-crack-overlay"></div>
+
+                        <div class="timer-container">
+                            <div style="width:100%; max-width:320px; margin-bottom:12px;">
+                                <label style="font-size:0.75rem; color:var(--text-secondary); display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                    <span style="font-weight: 700;">어떤 계획을 공부하시겠습니까?</span>
+                                    <span id="timer-selected-day-label" style="color: #818cf8; font-weight: 800; font-size: 0.72rem;">오늘 요일</span>
+                                </label>
+                                
+                                <!-- 📅 타이머 요일 선택 탭 -->
+                                <div style="display: flex; gap: 4px; justify-content: center; margin-bottom: 8px;" id="timer-day-tabs">
+                                    <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(0, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">월</button>
+                                    <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(1, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">화</button>
+                                    <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(2, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">수</button>
+                                    <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(3, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">목</button>
+                                    <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(4, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">금</button>
+                                    <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(5, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">토</button>
+                                    <button type="button" class="btn timer-day-btn" onclick="filterTimerScheduleByDay(6, this)" style="padding: 3px 6px; font-size: 0.72rem; min-width: 28px;">일</button>
+                                    <button type="button" class="btn btn-secondary timer-day-btn" onclick="filterTimerScheduleByDay('all', this)" style="padding: 3px 6px; font-size: 0.72rem;">전체</button>
+                                </div>
+
+                                <select id="timer-schedule-select" class="form-input" style="width:100%; padding:8px 10px; font-size: 0.82rem; font-weight: 600;">
+                                    <option value="none">직접 자유 공부하기</option>
+                                </select>
+                            </div>
+                            
+                            <div id="timer-current-study" style="font-size:0.8rem; font-weight:600; color:#818cf8; margin-bottom:12px;">대기 중: 할 일을 선택하여 측정을 시작하세요</div>
+                            
+                            <div class="timer-gauge-hero" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 12px auto 16px; position: relative;">
+                                <span style="font-size: 0.82rem; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px; margin-bottom: 2px;">총시간</span>
+                                <div class="timer-circle tabular-nums" id="timer-circle" style="font-size: 3rem; font-weight: 900; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: var(--text-primary); line-height: 1.1; margin: 4px 0 14px;">00:00:00</div>
+                                <div class="timer-controls">
+                                    <button class="btn" id="timer-toggle-btn" style="background-color: #4f46e5; box-shadow: 0 4px 16px rgba(79, 70, 229, 0.5); padding: 9px 30px; font-size: 0.95rem; font-weight: 800; color: white; border-radius: 12px; border: none; cursor: pointer; transition: all 0.2s ease;" onclick="requestStartTimer()">공부 시작</button>
+                                </div>
+                            </div>
+                            
+                            <div style="font-size:0.68rem; color:var(--text-secondary); margin-top:14px; line-height:1.3;">
+                                <b>화면 꺼짐(Screen Off) 상태는 정상 자습으로 유지</b>됩니다. 단, 타 앱으로 전환(딴짓) 시 3초 후 타이머가 일시정지됩니다.
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1832,7 +1823,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </div>
                         
                         <!-- 심도 있는 답변 사전 안내 문구 -->
-                        <div class="chatbot-notice-box" style="border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; font-size: 0.82rem; display: flex; align-items: center; gap: 10px; line-height: 1.5; background: rgba(99, 102, 241, 0.12); border: 1.5px solid #6366f1;">
+                        <div class="chatbot-notice-box" style="border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; font-size: 0.82rem; display: flex; align-items: center; gap: 10px; line-height: 1.5;">
                             <span class="material-symbols-rounded" style="font-size: 1.3rem; flex-shrink: 0; color: #6366f1;">lightbulb</span>
                             <div style="font-weight: 700; color: inherit; flex: 1; min-width: 0; word-break: keep-all; overflow-wrap: break-word;">수험생 백서 지식 기반으로 <b style="font-weight: 900; color: var(--color-accent, #6366f1);">심도 있는 맞춤형 답변을 분석/작성</b>하므로 질문 후 <b style="font-weight: 900; color: var(--color-accent, #6366f1);">약 10~20초</b>가량 소요될 수 있습니다.</div>
                         </div>
