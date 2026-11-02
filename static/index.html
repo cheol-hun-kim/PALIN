@@ -328,6 +328,49 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
     }
     </style>
 
+
+    <!-- 👑 PASSMATE MASTER COOL SLATE & ELECTRIC INDIGO GLOBAL OVERRIDE -->
+    <style id="passmate-cool-slate-engine">
+    :root {
+        --bg-primary: #0B0F17 !important;
+        --bg-secondary: #161C28 !important;
+        --surface-card: #161C28 !important;
+        --glass-bg: #161C28 !important;
+        --glass-border: rgba(255, 255, 255, 0.06) !important;
+        --color-accent: #6366F1 !important;
+        --text-primary: #F8FAFC !important;
+        --text-secondary: #94A3B8 !important;
+        --text-disabled: #475569 !important;
+        --border-color: rgba(255, 255, 255, 0.06) !important;
+    }
+    body.day-mode, html.day-mode {
+        --bg-primary: #F8FAFC !important;
+        --bg-secondary: #FFFFFF !important;
+        --surface-card: #FFFFFF !important;
+        --glass-bg: #FFFFFF !important;
+        --glass-border: #E2E8F0 !important;
+        --color-accent: #4F46E5 !important;
+        --text-primary: #0F172A !important;
+        --text-secondary: #475569 !important;
+        --text-disabled: #94A3B8 !important;
+        --border-color: #E2E8F0 !important;
+    }
+    html, body {
+        background-color: var(--bg-primary) !important;
+        color: var(--text-primary) !important;
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    }
+    .card, .banner, .modal-content, [class*="card"] {
+        background: var(--surface-card) !important;
+        border: 1px solid var(--glass-border) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+    }
+    .timer-circle {
+        font-variant-numeric: tabular-nums !important;
+    }
+    </style>
+
 </head>
 <body>
     <!-- Phase 11: 익명 콕 찌르기 & 시스템 알림 슬라이드 다운 토스트 컨테이너 -->
@@ -1245,7 +1288,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </div>
                         <div style="display: flex; gap: 6px; flex-shrink: 0;">
                             <button id="btn-mission-wakeup" class="btn" style="padding: 6px 10px; font-size: 0.78rem; white-space: nowrap;" onclick="verifyMission('WAKEUP')">성공인증</button>
-                            <button class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.78rem; border-color:var(--color-danger); color:var(--color-danger); white-space: nowrap;" onclick="verifyMission('WAKEUP', true)">실패테스트</button>
+                            <button class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.78rem; border-color: var(--border-subtle); color: var(--text-muted); white-space: nowrap;" onclick="verifyMission('WAKEUP', true)">실패테스트</button>
                         </div>
                     </div>
                     
@@ -1256,7 +1299,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                         </div>
                         <div style="display: flex; gap: 6px; flex-shrink: 0;">
                             <button id="btn-mission-sleep" class="btn" style="padding: 6px 10px; font-size: 0.78rem; white-space: nowrap;" onclick="verifyMission('SLEEP')">성공인증</button>
-                            <button class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.78rem; border-color:var(--color-danger); color:var(--color-danger); white-space: nowrap;" onclick="verifyMission('SLEEP', true)">실패테스트</button>
+                            <button class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.78rem; border-color: var(--border-subtle); color: var(--text-muted); white-space: nowrap;" onclick="verifyMission('SLEEP', true)">실패테스트</button>
                         </div>
                     </div>
                 </div>
@@ -1274,7 +1317,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     </div>
 
                     <!-- 아코디언 본체 (접힘/펼침) -->
-                    <div id="timer-accordion-body" style="display: none; padding: 16px;">
+                    <div id="timer-accordion-body" style="display: block; padding: 20px 16px;">
                         <!-- 딴짓 감지 시 균열 오버레이 -->
                         <div class="crack-overlay" id="logo-crack-overlay"></div>
 
@@ -1304,7 +1347,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                             
                             <div id="timer-current-study" style="font-size:0.8rem; font-weight:600; color:#818cf8; margin-bottom:12px;">대기 중: 할 일을 선택하여 측정을 시작하세요</div>
                             
-                            <div class="timer-circle" id="timer-circle">00:00:00</div>
+                            <div class="timer-circle tabular-nums" id="timer-circle" style="font-size: 3rem; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: var(--text-primary); margin: 16px 0;">00:00:00</div>
                             <div class="timer-controls">
                                 <button class="btn" id="timer-toggle-btn" style="background-color: #6366f1; box-shadow: 0 4px 14px rgba(99, 102, 241,0.4); padding: 10px 24px; font-size: 0.95rem; font-weight: 800; color: white;" onclick="requestStartTimer()">공부 시작</button>
                             </div>
