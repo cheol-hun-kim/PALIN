@@ -1336,31 +1336,37 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     </div>
                 </div>
 
-                <div class="card">
-                    <div class="card-title">
-                        <span class="material-symbols-rounded" style="color: #818cf8;">task_alt</span>
-                        오늘의 생활 규칙 미션
-                    </div>
-                    
-                    <div class="mission-row">
-                        <div class="mission-info" style="min-width: 0;">
-                            <span class="mission-name" id="mission-wakeup-label">[기상] 06:30</span>
-                            <span class="mission-time">실패 시 부모님께 안내메시지 즉시 발송</span>
+                <div class="card" id="mission-card" style="margin-bottom: 14px; padding: 18px 20px; border-radius: 16px;">
+                    <!-- Ground-Truth Card 4 Header (media_1793640376335_1b73f4de.png) -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <div>
+                            <div style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; letter-spacing: 0.3px;">오늘의 생활 규칙</div>
+                            <div style="font-size: 1.15rem; font-weight: 900; color: var(--text-primary); margin-top: 2px;">미션</div>
                         </div>
-                        <div style="display: flex; gap: 6px; flex-shrink: 0;">
-                            <button id="btn-mission-wakeup" class="btn" style="padding: 6px 10px; font-size: 0.78rem; white-space: nowrap;" onclick="verifyMission('WAKEUP')">성공인증</button>
-                            <button class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.78rem; border-color: var(--border-subtle); color: var(--text-muted); white-space: nowrap;" onclick="verifyMission('WAKEUP', true)">실패테스트</button>
+                        <div id="mission-dday-ring" style="width: 42px; height: 42px; border-radius: 50%; border: 3px solid #6366f1; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 900; color: #818cf8; background: rgba(99, 102, 241, 0.08);">
+                            D-16
                         </div>
                     </div>
                     
-                    <div class="mission-row">
+                    <div class="mission-row" style="padding: 10px 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
                         <div class="mission-info" style="min-width: 0;">
-                            <span class="mission-name" id="mission-sleep-label">[취침] 23:30</span>
-                            <span class="mission-time">수면 모드 시작 및 기기 동작 모니터링</span>
+                            <span class="mission-name" id="mission-wakeup-label" style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary);">[기상] 06:30</span>
+                            <span class="mission-time" style="font-size: 0.72rem; color: #94a3b8;">실패 시 부모님께 안내메시지 즉시 발송</span>
                         </div>
                         <div style="display: flex; gap: 6px; flex-shrink: 0;">
-                            <button id="btn-mission-sleep" class="btn" style="padding: 6px 10px; font-size: 0.78rem; white-space: nowrap;" onclick="verifyMission('SLEEP')">성공인증</button>
-                            <button class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.78rem; border-color: var(--border-subtle); color: var(--text-muted); white-space: nowrap;" onclick="verifyMission('SLEEP', true)">실패테스트</button>
+                            <button id="btn-mission-wakeup" class="btn" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 800; background: #6366f1; color: white; border-radius: 8px; border: none; cursor: pointer;" onclick="verifyMission('WAKEUP')">성공인증</button>
+                            <button class="btn btn-secondary" style="padding: 6px 8px; font-size: 0.72rem; border-color: var(--border-subtle); color: var(--text-muted); opacity: 0.6; display: none;" onclick="verifyMission('WAKEUP', true)">실패테스트</button>
+                        </div>
+                    </div>
+                    
+                    <div class="mission-row" style="padding: 10px 0; display: flex; justify-content: space-between; align-items: center;">
+                        <div class="mission-info" style="min-width: 0;">
+                            <span class="mission-name" id="mission-sleep-label" style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary);">[취침] 23:30</span>
+                            <span class="mission-time" style="font-size: 0.72rem; color: #94a3b8;">수면 모드 시작 및 기기 동작 모니터링</span>
+                        </div>
+                        <div style="display: flex; gap: 6px; flex-shrink: 0;">
+                            <button id="btn-mission-sleep" class="btn" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 800; background: #6366f1; color: white; border-radius: 8px; border: none; cursor: pointer;" onclick="verifyMission('SLEEP')">성공인증</button>
+                            <button class="btn btn-secondary" style="padding: 6px 8px; font-size: 0.72rem; border-color: var(--border-subtle); color: var(--text-muted); opacity: 0.6; display: none;" onclick="verifyMission('SLEEP', true)">실패테스트</button>
                         </div>
                     </div>
                 </div>
