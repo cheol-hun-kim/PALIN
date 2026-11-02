@@ -21776,7 +21776,7 @@ function renderAdmissionPathEngine() {
             const bFactColor = isDay ? '#0f172a' : '#ffffff';
             const deficitHighlightColor = isDay ? '#b91c1c' : '#f87171';
             const warningDropColor = isDay ? '#991b1b' : '#fca5a5';
-            alertText.innerHTML = `${activeUnivName} 합격권 대비 주간 순공이 <b style="color: ${deficitHighlightColor}; font-weight: 800;">${deficitHours.toFixed(1)}시간 부족</b>하여 불합격 위험이 높습니다.`;
+            alertText.innerHTML = `경쟁자 대비 주간 순공 <b style="color: ${deficitHighlightColor}; font-weight: 800;">${deficitHours.toFixed(1)}시간 부족</b> (불합격 위험)`;
         }
     } else {
         if (alertBadge) {

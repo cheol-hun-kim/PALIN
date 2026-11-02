@@ -6415,3 +6415,21 @@ body.day-mode #modal-baseline-preview-text {
   color: #0369a1 !important; /* High-contrast deep blue on light bg */
   font-weight: 900 !important;
 }
+
+/* Hero Focus Timer Circular Gauge (Linear / Toss / Ground-Truth Match) */
+.timer-gauge-hero {
+  border-radius: 50% !important;
+  box-sizing: border-box !important;
+  transition: all 0.3s ease !important;
+}
+body.day-mode .timer-gauge-hero {
+  border-color: #cbd5e1 !important;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), inset 0 0 15px rgba(0, 0, 0, 0.03) !important;
+}
+body.day-mode .timer-gauge-hero #timer-circle {
+  color: #0f172a !important;
+}
+body.day-mode .timer-gauge-hero span {
+  color: #475569 !important;
+}
