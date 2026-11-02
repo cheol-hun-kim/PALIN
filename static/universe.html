@@ -270,6 +270,38 @@
             }
         }
     </style>
+
+    <style>
+    :root {
+        --bg-main: #0B0F17;
+        --bg-surface: #161C28;
+        --bg-elevated: #1E2638;
+        --accent-primary: #6366F1;
+        --accent-subtle: rgba(99, 102, 241, 0.12);
+        --border-subtle: rgba(255, 255, 255, 0.06);
+        --text-primary: #F8FAFC;
+        --text-secondary: #94A3B8;
+        --text-muted: #475569;
+    }
+    body.day-mode, html.day-mode {
+        --bg-main: #F8FAFC;
+        --bg-surface: #FFFFFF;
+        --bg-elevated: #F1F5F9;
+        --accent-primary: #4F46E5;
+        --accent-subtle: rgba(79, 70, 229, 0.08);
+        --border-subtle: #E2E8F0;
+        --text-primary: #0F172A;
+        --text-secondary: #475569;
+        --text-muted: #94A3B8;
+    }
+    .card, .panel, .dock-panel, .node-card {
+        border-radius: 12px !important;
+    }
+    .tabular-nums, [id*="dday"], [id*="time"], [id*="stat"] {
+        font-variant-numeric: tabular-nums !important;
+    }
+    </style>
+
 </head>
 <body class="min-h-screen bg-[#0b0f19] text-slate-100 antialiased flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
 

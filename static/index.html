@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
     <!-- 🛡️ PALIN Unified Session Guard (Universe-First Flow) -->
     <script>
     (function() {
@@ -312,6 +313,21 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
     color: #ffffff !important;
 }
 </style>
+
+    <style>
+    /* 👑 PASSMATE TABULAR-NUMS & SPACING ENFORCEMENT */
+    .timer-display, .timer-digits, #timer-display, #stopwatch-display,
+    .stat-number, .stat-value, .kpi-num, [class*="timer"],
+    span[id*="time"], div[id*="time"], span[id*="timer"], div[id*="timer"],
+    span[id*="dday"], div[id*="dday"], .tabular-nums {
+        font-variant-numeric: tabular-nums !important;
+        font-feature-settings: "tnum" 1 !important;
+    }
+    .card, .banner, .modal, .modal-content, [class*="card"] {
+        border-radius: 12px !important;
+    }
+    </style>
+
 </head>
 <body>
     <!-- Phase 11: 익명 콕 찌르기 & 시스템 알림 슬라이드 다운 토스트 컨테이너 -->

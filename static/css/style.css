@@ -1,4 +1,113 @@
 
+/* ============================================================================
+   👑 PASSMATE MASTER DESIGN SYSTEM (Cool Slate & Electric Indigo)
+   ============================================================================ */
+:root {
+    /* [공통 포인트 컬러] */
+    --accent-primary: #6366F1;
+    --accent-subtle: rgba(99, 102, 241, 0.12);
+
+    /* [🌙 Night Mode (기본 다크 모드) 토큰] */
+    --bg-main: #0B0F17;
+    --bg-surface: #161C28;
+    --bg-elevated: #1E2638;
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --text-muted: #475569;
+
+    /* 하위 호환성 브릿지 변수 */
+    --bg-primary: var(--bg-main);
+    --bg-secondary: var(--bg-surface);
+    --surface-card: var(--bg-surface);
+    --glass-bg: var(--bg-surface);
+    --glass-border: var(--border-subtle);
+    --color-accent: var(--accent-primary);
+    --color-accent-subtle: var(--accent-subtle);
+    --text-disabled: var(--text-muted);
+
+    /* 상태 표시 컬러 (채도를 40% 낮춘 차분한 톤) */
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-danger: #ef4444;
+
+    /* 타이포그래피 & 형태 규격 */
+    --font-app: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --radius-card: 12px;
+}
+
+/* [☀️ Day Mode (라이트 모드) 토큰] */
+body.day-mode,
+html.day-mode,
+[data-theme="day"] {
+    --accent-primary: #4F46E5;
+    --accent-subtle: rgba(79, 70, 229, 0.08);
+
+    --bg-main: #F8FAFC;
+    --bg-surface: #FFFFFF;
+    --bg-elevated: #F1F5F9;
+    --border-subtle: #E2E8F0;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #94A3B8;
+
+    --bg-primary: var(--bg-main);
+    --bg-secondary: var(--bg-surface);
+    --surface-card: var(--bg-surface);
+    --glass-bg: var(--bg-surface);
+    --glass-border: var(--border-subtle);
+    --color-accent: var(--accent-primary);
+    --color-accent-subtle: var(--accent-subtle);
+    --text-disabled: var(--text-muted);
+}
+
+/* ⚡ 전역 숫자 요소 고정폭(tabular-nums) 강제 적용 */
+.tabular-nums,
+[data-tabular="true"],
+.timer-display,
+.timer-digits,
+.stat-number,
+.stat-value,
+.count-badge,
+.dday-number,
+.rank-number,
+.metric-value,
+.table td,
+table td,
+span[id*="timer"],
+div[id*="timer"],
+span[id*="count"],
+span[id*="time"],
+div[id*="time"],
+span[id*="dday"],
+div[id*="dday"] {
+    font-variant-numeric: tabular-nums !important;
+    font-feature-settings: "tnum" 1 !important;
+}
+
+/* ⚡ 카드 모서리 곡률 12px 단일화 */
+.card,
+.stat-card,
+.panel,
+.dashboard-card,
+.modal-content,
+.drawer-content {
+    border-radius: var(--radius-card) !important;
+}
+
+/* ⚡ 13px 미만 마이크로 폰트 전면 퇴출 및 규격화 */
+small,
+.text-xs,
+.caption,
+.timestamp,
+.meta-info,
+span.text-xs,
+p.text-xs {
+    font-size: 13px !important;
+    line-height: 1.45 !important;
+}
+
+
 /* 🛡️ Phase 0: Global Typography, Contrast & Text-Wrapping Defense (Zero-Defect Standard) */
 *, *::before, *::after {
     box-sizing: border-box;
