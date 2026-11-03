@@ -21847,7 +21847,7 @@ function renderAdmissionPathEngine() {
         const targetLabel = isTarget ? "1지망" : "마지노선";
         svgUnivTarget.textContent = targetLabel;
         svgUnivTarget.innerHTML = targetLabel;
-        svgUnivTarget.setAttribute("fill", isDay ? targetBrandColor : (isTarget ? "#818cf8" : "#38bdf8"));
+        svgUnivTarget.setAttribute("fill", isTarget ? "#93c5fd" : "#38bdf8");
     }
     if (svgUnivCircle) {
         svgUnivCircle.setAttribute("stroke", targetBrandColor);
