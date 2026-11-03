@@ -998,9 +998,9 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 </a>
             </div>
             <div style="display: flex; gap: 6px; overflow-x: auto;" id="master-level-switcher-btns">
-                <button type="button" class="btn school-switcher-btn" id="m-btn-elem" onclick="switchMasterSchoolView('ELEMENTARY')">초등 모드</button>
-                <button type="button" class="btn school-switcher-btn" id="m-btn-mid" onclick="switchMasterSchoolView('MIDDLE')">중등 모드</button>
-                <button type="button" class="btn school-switcher-btn active" id="m-btn-high" onclick="switchMasterSchoolView('HIGH')">고등 모드</button>
+                <button type="button" class="school-switcher-btn" id="m-btn-elem" onclick="switchMasterSchoolView('ELEMENTARY')">초등 모드</button>
+                <button type="button" class="school-switcher-btn" id="m-btn-mid" onclick="switchMasterSchoolView('MIDDLE')">중등 모드</button>
+                <button type="button" class="school-switcher-btn active" id="m-btn-high" onclick="switchMasterSchoolView('HIGH')">고등 모드</button>
             </div>
         </div>
 
@@ -1112,15 +1112,15 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
 
                     <!-- 2행: 1지망 목표 vs 마지노선 듀얼 스위처 (대학명 말줄임 방지 2단 구조) -->
                     <div id="admission-target-switcher-bar" style="display: flex; align-items: stretch; gap: 6px; background: rgba(0,0,0,0.4); padding: 4px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 10px;">
-                        <button type="button" id="btn-dist-target-1" onclick="switchAdmissionTargetView('TARGET')" style="flex: 1; min-width: 0; padding: 6px 10px; border-radius: 8px; border: 1.5px solid #6366f1; background: #4f46e5; color: white; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 1px; transition: all 0.2s;">
-                            <div style="display: flex; align-items: center; gap: 4px; font-size: 0.66rem; font-weight: 800; opacity: 0.9;">
+                        <button type="button" id="btn-dist-target-1" class="dist-target-tab-btn active" onclick="switchAdmissionTargetView('TARGET')" style="flex: 1; min-width: 0; padding: 6px 10px; border-radius: 8px; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 1px; transition: all 0.2s;">
+                            <div style="display: flex; align-items: center; gap: 4px; font-size: 0.66rem; font-weight: 800;">
                                 <span class="material-symbols-rounded" style="font-size: 0.8rem;">flag</span>
                                 <span>1지망 목표</span>
                             </div>
                             <div id="dist-target-univ-name" style="font-size: 0.8rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;">연세대학교</div>
                         </button>
-                        <button type="button" id="btn-dist-target-2" onclick="switchAdmissionTargetView('BASELINE')" style="flex: 1; min-width: 0; padding: 6px 10px; border-radius: 8px; border: 1.5px solid transparent; background: transparent; color: #94a3b8; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 1px; transition: all 0.2s;">
-                            <div style="display: flex; align-items: center; gap: 4px; font-size: 0.66rem; font-weight: 800; opacity: 0.9;">
+                        <button type="button" id="btn-dist-target-2" class="dist-target-tab-btn" onclick="switchAdmissionTargetView('BASELINE')" style="flex: 1; min-width: 0; padding: 6px 10px; border-radius: 8px; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 1px; transition: all 0.2s;">
+                            <div style="display: flex; align-items: center; gap: 4px; font-size: 0.66rem; font-weight: 800;">
                                 <span class="material-symbols-rounded" style="font-size: 0.8rem;">verified_user</span>
                                 <span>마지노선</span>
                             </div>
@@ -1156,18 +1156,16 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 </filter>
                             </defs>
 
-                            <!-- 좌측 출발 노드: 나 (학생) -->
+                            <!-- 좌측 출발 노드: 나 (학생) - Clean Modern Solid Node -->
                             <g id="svg-node-student" transform="translate(42, 100)">
-                                <circle r="26" fill="#1e1b4b" stroke="#818cf8" stroke-width="2.5" />
-                                <circle r="21" fill="#312e81" />
+                                <circle r="24" fill="#4f46e5" stroke="#818cf8" stroke-width="2" />
                                 <text text-anchor="middle" dy="5" fill="#ffffff" font-size="14" font-weight="900">나</text>
                             </g>
 
-                            <!-- 우측 도착 노드: 목표 대학 -->
+                            <!-- 우측 도착 노드: 목표 대학 - Clean Modern Solid Node -->
                             <g id="svg-node-university" transform="translate(478, 100)">
-                                <circle r="28" fill="#1e1b4b" stroke="#6366f1" stroke-width="2.5" id="svg-univ-circle" />
-                                <circle r="23" fill="#0f172a" />
-                                <text text-anchor="middle" dy="-2" fill="#ffffff" font-size="9.5" font-weight="900" id="svg-univ-short-lbl">연세대</text>
+                                <circle r="26" fill="#1e1b4b" stroke="#6366f1" stroke-width="2" id="svg-univ-circle" />
+                                <text text-anchor="middle" dy="-2" fill="#ffffff" font-size="10" font-weight="900" id="svg-univ-short-lbl">연세대</text>
                                 <text text-anchor="middle" dy="11" fill="#93c5fd" font-size="8" font-weight="800" id="svg-univ-target-lbl">1지망</text>
                             </g>
 
@@ -4311,13 +4309,13 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     <span style="font-size: 0.65rem; color: #94a3b8; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); padding: 1px 6px; border-radius: 4px; font-weight: 700;">MASTER</span>
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px;" id="mypage-school-switcher-btns">
-                    <button type="button" class="btn school-switcher-btn" id="mypage-btn-elem" onclick="switchMasterSchoolView('ELEMENTARY'); closeMyPageModal();">
+                    <button type="button" class="school-switcher-btn" id="mypage-btn-elem" onclick="switchMasterSchoolView('ELEMENTARY'); closeMyPageModal();">
                         초등 모드
                     </button>
-                    <button type="button" class="btn school-switcher-btn" id="mypage-btn-mid" onclick="switchMasterSchoolView('MIDDLE'); closeMyPageModal();">
+                    <button type="button" class="school-switcher-btn" id="mypage-btn-mid" onclick="switchMasterSchoolView('MIDDLE'); closeMyPageModal();">
                         중등 모드
                     </button>
-                    <button type="button" class="btn school-switcher-btn active" id="mypage-btn-high" onclick="switchMasterSchoolView('HIGH'); closeMyPageModal();">
+                    <button type="button" class="school-switcher-btn active" id="mypage-btn-high" onclick="switchMasterSchoolView('HIGH'); closeMyPageModal();">
                         고등 모드
                     </button>
                 </div>

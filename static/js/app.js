@@ -21416,25 +21416,21 @@ function switchAdmissionTargetView(mode) {
 
     if (mode === 'TARGET') {
         if (btn1) {
-            btn1.style.background = '#4f46e5';
-            btn1.style.borderColor = '#6366f1';
-            btn1.style.color = '#ffffff';
+            btn1.classList.add('active');
+            btn1.removeAttribute('style');
         }
         if (btn2) {
-            btn2.style.background = 'transparent';
-            btn2.style.borderColor = 'transparent';
-            btn2.style.color = '#94a3b8';
+            btn2.classList.remove('active');
+            btn2.removeAttribute('style');
         }
     } else {
         if (btn2) {
-            btn2.style.background = '#4f46e5';
-            btn2.style.borderColor = '#6366f1';
-            btn2.style.color = '#ffffff';
+            btn2.classList.add('active');
+            btn2.removeAttribute('style');
         }
         if (btn1) {
-            btn1.style.background = 'transparent';
-            btn1.style.borderColor = 'transparent';
-            btn1.style.color = '#94a3b8';
+            btn1.classList.remove('active');
+            btn1.removeAttribute('style');
         }
     }
 
@@ -22179,15 +22175,16 @@ function renderSvgRoutes(tracks) {
     const endY = 100;
     const uniformStrokeWidth = 2.6;
 
-    tracks.forEach((tr) => {
-        const midY = tr.yCurve;
+    tracks.forEach((tr, index) => {
+        const midY = (tr.yCurve !== undefined && !isNaN(tr.yCurve)) ? tr.yCurve : (45 + index * 37);
+        const routeColor = tr.color || '#10b981';
         const d = `M ${startX} ${startY} C 190 ${midY}, 330 ${midY}, ${endX} ${endY}`;
         const isDashed = (tr.type === 'DASHED' || tr.status === 'UNENTERED');
         const dashArray = isDashed ? '6 4' : 'none';
         const isPulse = (tr.status === 'DANGER' && tr.type === 'DASHED');
 
         svgHtml += `
-            <path d="${d}" fill="none" stroke="${tr.color}" stroke-width="${uniformStrokeWidth}" 
+            <path d="${d}" fill="none" stroke="${routeColor}" stroke-width="${uniformStrokeWidth}" 
                   stroke-dasharray="${dashArray}" opacity="${tr.status === 'UNENTERED' ? '0.5' : '0.9'}" style="transition: all 0.3s ease; cursor: pointer;"
                   onclick="selectAdmissionTrackCard('${tr.id}')">
                 ${isPulse ? '<animate attributeName="stroke-opacity" values="0.95;0.35;0.95" dur="1.4s" repeatCount="indefinite" />' : ''}
@@ -22200,8 +22197,8 @@ function renderSvgRoutes(tracks) {
         const labelX = 260;
         svgHtml += `
             <g transform="translate(${labelX}, ${midY})" style="cursor: pointer;" onclick="selectAdmissionTrackCard('${tr.id}')">
-                <circle r="3.5" fill="${tr.color}" />
-                <rect x="-42" y="-10" width="84" height="20" rx="6" fill="${pillFill}" stroke="${tr.color}" stroke-width="1.2" opacity="0.95" />
+                <circle r="3.5" fill="${routeColor}" />
+                <rect x="-42" y="-10" width="84" height="20" rx="6" fill="${pillFill}" stroke="${routeColor}" stroke-width="1.2" opacity="0.95" />
                 <text text-anchor="middle" dy="3.5" fill="${pillTextColor}" font-size="9" font-weight="900">${tr.name}</text>
             </g>
         `;

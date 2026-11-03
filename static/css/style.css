@@ -6024,8 +6024,77 @@ body.day-mode #admission-target-switcher-bar {
     border: 1px solid #e2e8f0 !important;
 }
 
-body.day-mode #btn-dist-target-2 {
-    color: #475569 !important;
+/* 🎯 Target Distance Switcher Tabs Inviolable Contrast Armor (Day/Dark Mode) */
+.dist-target-tab-btn {
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+/* Day Mode Inactive Tab */
+body.day-mode .dist-target-tab-btn:not(.active),
+[data-theme="day"] .dist-target-tab-btn:not(.active),
+[data-theme="light"] .dist-target-tab-btn:not(.active),
+[data-theme="apple-cupertino"] .dist-target-tab-btn:not(.active),
+[data-theme="stripe-fintech"] .dist-target-tab-btn:not(.active) {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    font-weight: 800 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+body.day-mode .dist-target-tab-btn:not(.active) *,
+[data-theme="day"] .dist-target-tab-btn:not(.active) *,
+[data-theme="light"] .dist-target-tab-btn:not(.active) *,
+[data-theme="apple-cupertino"] .dist-target-tab-btn:not(.active) *,
+[data-theme="stripe-fintech"] .dist-target-tab-btn:not(.active) * {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+
+/* Day Mode Active Tab */
+body.day-mode .dist-target-tab-btn.active,
+[data-theme="day"] .dist-target-tab-btn.active,
+[data-theme="light"] .dist-target-tab-btn.active,
+[data-theme="apple-cupertino"] .dist-target-tab-btn.active,
+[data-theme="stripe-fintech"] .dist-target-tab-btn.active {
+    background: #4f46e5 !important;
+    border: 1.5px solid #4338ca !important;
+    color: #ffffff !important;
+    font-weight: 900 !important;
+    box-shadow: 0 3px 10px rgba(79, 70, 229, 0.35) !important;
+}
+body.day-mode .dist-target-tab-btn.active *,
+[data-theme="day"] .dist-target-tab-btn.active *,
+[data-theme="light"] .dist-target-tab-btn.active *,
+[data-theme="apple-cupertino"] .dist-target-tab-btn.active *,
+[data-theme="stripe-fintech"] .dist-target-tab-btn.active * {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+}
+
+/* Dark Mode Inactive Tab */
+body:not(.day-mode) .dist-target-tab-btn:not(.active) {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.18) !important;
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+}
+body:not(.day-mode) .dist-target-tab-btn:not(.active) * {
+    color: #cbd5e1 !important;
+    font-weight: 800 !important;
+}
+
+/* Dark Mode Active Tab */
+body:not(.day-mode) .dist-target-tab-btn.active {
+    background: #4f46e5 !important;
+    border: 1.5px solid #6366f1 !important;
+    color: #ffffff !important;
+    font-weight: 900 !important;
+    box-shadow: 0 3px 10px rgba(79, 70, 229, 0.4) !important;
+}
+body:not(.day-mode) .dist-target-tab-btn.active * {
+    color: #ffffff !important;
+    font-weight: 900 !important;
 }
 
 body.day-mode #admission-distance-headline-card button[onclick*="openAdmissionUnivSelectModal"] {
@@ -7029,4 +7098,23 @@ body:not(.day-mode) .school-switcher-btn:not(.active) *,
 body:not(.day-mode) #master-level-switcher-btns .school-switcher-btn:not(.active) *,
 body:not(.day-mode) #mypage-school-switcher-btns .school-switcher-btn:not(.active) * {
     color: #f8fafc !important;
+}
+
+/* 🛡️ Explicit Zero-Bleed Armor for School Switcher Buttons */
+.school-switcher-btn:not(.active) {
+    color: #0f172a !important;
+}
+body.day-mode .school-switcher-btn:not(.active),
+body.day-mode button.school-switcher-btn:not(.active) {
+    background: #ffffff !important;
+    border: 1.5px solid #94a3b8 !important;
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+body:not(.day-mode) .school-switcher-btn:not(.active),
+body:not(.day-mode) button.school-switcher-btn:not(.active) {
+    background: #1e293b !important;
+    border: 1.5px solid #475569 !important;
+    color: #f8fafc !important;
+    font-weight: 800 !important;
 }
