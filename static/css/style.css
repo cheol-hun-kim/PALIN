@@ -2398,7 +2398,8 @@ body:not(.day-mode) #banner-dday-title {
 
 body:not(.day-mode) #univ-target-box {
     background: rgba(18, 20, 29, 0.9) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border: 1px solid var(--border-subtle) !important;
+    box-shadow: none !important;
 }
 
 body:not(.day-mode) #micro-league-title {
@@ -6934,4 +6935,98 @@ body.day-mode #master-school-level-bar a.btn {
     border: 1px solid #818cf8 !important;
     color: #312e81 !important;
     font-weight: 800 !important;
+}
+
+/* Feed Institution Badge High-Contrast Armor */
+.feed-inst-badge {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+}
+.feed-inst-badge * {
+    color: #ffffff !important;
+}
+
+/* 🤖 Chat Header Tier 4 Pill Badge (Vibrant Gold in Dark Mode, Warm Amber in Day) */
+body:not(.day-mode) #chat-tier-status-pill[data-tier="4"],
+body:not(.day-mode) #chat-tier-status-pill.tier-4 {
+    background: rgba(245, 158, 11, 0.18) !important;
+    border: 1px solid rgba(245, 158, 11, 0.4) !important;
+    color: #fbbf24 !important;
+    font-weight: 800 !important;
+    box-shadow: none !important;
+}
+body.day-mode #chat-tier-status-pill[data-tier="4"],
+body.day-mode #chat-tier-status-pill.tier-4 {
+    background: #fef3c7 !important;
+    border: 1px solid #fcd34d !important;
+    color: #92400e !important;
+    font-weight: 800 !important;
+    box-shadow: none !important;
+}
+
+/* 💡 Chatbot Notice Box: Neutral Card Integration (Zero Purple Shading) */
+.chatbot-notice-box {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #94a3b8 !important;
+    box-shadow: none !important;
+}
+.chatbot-notice-box b {
+    color: #f1f5f9 !important;
+    font-weight: 800 !important;
+}
+.chatbot-notice-box .material-symbols-rounded {
+    color: #818cf8 !important;
+}
+body.day-mode .chatbot-notice-box {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #334155 !important;
+    box-shadow: none !important;
+}
+body.day-mode .chatbot-notice-box b {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+body.day-mode .chatbot-notice-box .material-symbols-rounded {
+    color: #4f46e5 !important;
+}
+
+/* 👑 School Switcher Buttons: Bulletproof Day/Dark Mode Contrast */
+body.day-mode .school-switcher-btn:not(.active),
+body.day-mode #master-level-switcher-btns .school-switcher-btn:not(.active),
+body.day-mode #mypage-school-switcher-btns .school-switcher-btn:not(.active),
+[data-theme="day"] .school-switcher-btn:not(.active),
+[data-theme="light"] .school-switcher-btn:not(.active),
+[data-theme="apple-cupertino"] .school-switcher-btn:not(.active),
+[data-theme="stripe-fintech"] .school-switcher-btn:not(.active) {
+    background: #ffffff !important;
+    border: 1.5px solid #94a3b8 !important;
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+
+body.day-mode .school-switcher-btn:not(.active) *,
+body.day-mode #master-level-switcher-btns .school-switcher-btn:not(.active) *,
+body.day-mode #mypage-school-switcher-btns .school-switcher-btn:not(.active) *,
+[data-theme="day"] .school-switcher-btn:not(.active) *,
+[data-theme="light"] .school-switcher-btn:not(.active) *,
+[data-theme="apple-cupertino"] .school-switcher-btn:not(.active) *,
+[data-theme="stripe-fintech"] .school-switcher-btn:not(.active) * {
+    color: #0f172a !important;
+}
+
+body:not(.day-mode) .school-switcher-btn:not(.active),
+body:not(.day-mode) #master-level-switcher-btns .school-switcher-btn:not(.active),
+body:not(.day-mode) #mypage-school-switcher-btns .school-switcher-btn:not(.active) {
+    background: #1e293b !important;
+    border: 1.5px solid #475569 !important;
+    color: #f8fafc !important;
+    font-weight: 800 !important;
+}
+
+body:not(.day-mode) .school-switcher-btn:not(.active) *,
+body:not(.day-mode) #master-level-switcher-btns .school-switcher-btn:not(.active) *,
+body:not(.day-mode) #mypage-school-switcher-btns .school-switcher-btn:not(.active) * {
+    color: #f8fafc !important;
 }

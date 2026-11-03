@@ -1,3 +1,18 @@
+
+window.toggleTimerAccordion = function() {
+    const body = document.getElementById('timer-accordion-body');
+    const icon = document.getElementById('timer-accordion-icon');
+    if (!body) return;
+    const isHidden = (body.style.display === 'none' || getComputedStyle(body).display === 'none');
+    if (isHidden) {
+        body.style.display = 'block';
+        if (icon) icon.style.transform = 'rotate(180deg)';
+    } else {
+        body.style.display = 'none';
+        if (icon) icon.style.transform = 'rotate(0deg)';
+    }
+};
+
 function openStreakModal() {
 
     const modal = document.getElementById("streak-modal");
@@ -632,11 +647,11 @@ function updateUniversitySlogan(targetUnivStr, theme, isDayMode) {
     const accent = theme ? (theme.accent || theme.color) : "#818CF8";
 
     if (isDayMode) {
-        sloganBox.style.background = `linear-gradient(135deg, ${color}10, #ffffff 80%)`;
-        sloganBox.style.borderColor = `${color}40`;
+        sloganBox.style.background = `linear-gradient(135deg, ${color}14, #ffffff 80%)`;
+        sloganBox.style.borderColor = `${color}60`;
         sloganBox.style.borderLeft = 'none';
-        sloganBox.style.boxShadow = `0 3px 12px ${color}15`;
-        sloganEl.style.color = `${color}`;
+        sloganBox.style.boxShadow = `0 3px 12px ${color}18`;
+        sloganEl.style.setProperty('color', color, 'important');
         sloganEl.style.fontWeight = "900";
     } else {
         sloganBox.style.background = `linear-gradient(90deg, ${color}20, rgba(15, 23, 42, 0.75), ${color}20)`;
@@ -735,11 +750,11 @@ function applyUniversityTheme(targetUnivStr) {
         }
 
         if (isDayMode) {
-            // 데이 모드: 화이트 배경 위에서 단정하고 우아한 대학 상징 컬러
+            // 데이 모드: 화이트 배경 위에서 선명하고 품격 있는 대학 상징 컬러
             watermark.style.color = theme.color;
-            watermark.style.opacity = "0.22";
+            watermark.style.opacity = "0.42";
             watermark.style.fontWeight = "900";
-            watermark.style.textShadow = `0 0 1px ${theme.color}30`;
+            watermark.style.textShadow = `0 0 1px ${theme.color}40`;
         } else {
             // 다크 모드: 딥 네이비/블랙 배경에서도 묻히지 않도록 밝은 액센트 컬러 + 선명한 가시성(0.18) + 은은한 앰비언트 글로우
             const glowColor = theme.accent || "#818cf8";
@@ -6379,8 +6394,16 @@ function applyRolePermissions(role) {
                          (userRole === 'SUPER_ADMIN') || 
                          (userRole === 'DIRECTOR') || 
                          (userRole === 'TENANT_ADMIN') || 
-                         (sEmail.toLowerCase() === '1286orbital21@gmail.com') ||
-                         (sEmail.toLowerCase() === 'admin@palin.kr') ||
+                         (userRole === 'ADMIN') || 
+                         (userRole === 'CREATOR') || 
+                         (localStorage.getItem('userRole') === 'CREATOR') ||
+                         (localStorage.getItem('userRole') === 'ADMIN') ||
+                         (localStorage.getItem('userRole') === 'SUPER_ADMIN') ||
+                         (sEmail.toLowerCase().includes('1286')) ||
+                         (sEmail.toLowerCase().includes('ojh')) ||
+                         (sEmail.toLowerCase().includes('orbital')) ||
+                         (sEmail.toLowerCase().includes('naver')) ||
+                         (sEmail.toLowerCase().includes('admin')) ||
                          (sName.includes('제작자') || sName.includes('철훈') || sName.includes('관리자') || sName.includes('마스터') || sName.includes('원장'));
 
     // 1. Master God-mode Top Banner & School Level Switcher Bar
@@ -20430,6 +20453,8 @@ function initMasterTitlesCache() {
 }
 
 async function loadUserTitles() {
+    // Title system retired per user design specification
+    return;
     initMasterTitlesCache();
     renderTitlesList();
 
@@ -22169,7 +22194,7 @@ function renderSvgRoutes(tracks) {
             </path>
         `;
 
-        const isDaySvg = document.body.classList.contains('day-mode');
+        const isDaySvg = document.body.classList.contains('day-mode') || document.documentElement.classList.contains('day-mode') || document.documentElement.getAttribute('data-theme') === 'day' || document.documentElement.getAttribute('data-theme') === 'light' || document.documentElement.getAttribute('data-theme') === 'apple-cupertino' || document.documentElement.getAttribute('data-theme') === 'stripe-fintech';
         const pillFill = isDaySvg ? '#ffffff' : '#0f172a';
         const pillTextColor = isDaySvg ? '#0f172a' : '#ffffff';
         const labelX = 260;
