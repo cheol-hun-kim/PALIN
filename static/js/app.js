@@ -293,68 +293,50 @@ const UNIVERSITY_THEME_MAP = {
     "고려대학교": { code: "KOREA", color: "#8B0029", accent: "#F87171", bg: "linear-gradient(135deg, rgba(139, 0, 41, 0.48), rgba(239, 68, 68, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(239, 68, 68, 0.45)" },
     "가톨릭대": { code: "CATHOLIC", color: "#005696", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 86, 150, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
     "가톨릭대학교": { code: "CATHOLIC", color: "#005696", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 86, 150, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
-    "성균관대": { code: "SKKU", color: "#003829", accent: "#34D399", bg: "linear-gradient(135deg, rgba(0, 56, 41, 0.48), rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(16, 185, 129, 0.45)" },
-    "성균관대학교": { code: "SKKU", color: "#003829", accent: "#34D399", bg: "linear-gradient(135deg, rgba(0, 56, 41, 0.48), rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(16, 185, 129, 0.45)" },
-    "울산대": { code: "ULSAN", color: "#004B87", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 75, 135, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
-    "울산대학교": { code: "ULSAN", color: "#004B87", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 75, 135, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
-    "서강대": { code: "SOGANG", color: "#A6192E", accent: "#F87171", bg: "linear-gradient(135deg, rgba(166, 25, 46, 0.48), rgba(248, 113, 113, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(248, 113, 113, 0.45)" },
-    "서강대학교": { code: "SOGANG", color: "#A6192E", accent: "#F87171", bg: "linear-gradient(135deg, rgba(166, 25, 46, 0.48), rgba(248, 113, 113, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(248, 113, 113, 0.45)" },
-    "한양대": { code: "HANYANG", color: "#003C71", accent: "#60A5FA", bg: "linear-gradient(135deg, rgba(0, 60, 113, 0.48), rgba(96, 165, 250, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(96, 165, 250, 0.45)" },
-    "한양대학교": { code: "HANYANG", color: "#003C71", accent: "#60A5FA", bg: "linear-gradient(135deg, rgba(0, 60, 113, 0.48), rgba(96, 165, 250, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(96, 165, 250, 0.45)" },
-    "중앙대": { code: "CAU", color: "#004899", accent: "#818CF8", bg: "linear-gradient(135deg, rgba(0, 72, 153, 0.48), rgba(238, 39, 55, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(99, 102, 241, 0.45)" },
-    "중앙대학교": { code: "CAU", color: "#004899", accent: "#818CF8", bg: "linear-gradient(135deg, rgba(0, 72, 153, 0.48), rgba(238, 39, 55, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(99, 102, 241, 0.45)" },
-    "경희대": { code: "KYUNG HEE", color: "#8C1D40", accent: "#FCD34D", bg: "linear-gradient(135deg, rgba(140, 29, 64, 0.48), rgba(197, 160, 89, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(245, 158, 11, 0.45)" },
-    "경희대학교": { code: "KYUNG HEE", color: "#8C1D40", accent: "#FCD34D", bg: "linear-gradient(135deg, rgba(140, 29, 64, 0.48), rgba(197, 160, 89, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(245, 158, 11, 0.45)" },
-    "한국외대": { code: "HUFS", color: "#002C6C", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 44, 108, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
-    "한국외국어대학교": { code: "HUFS", color: "#002C6C", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 44, 108, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
-    "서울시립대": { code: "UOS", color: "#003E7E", accent: "#818CF8", bg: "linear-gradient(135deg, rgba(0, 62, 126, 0.48), rgba(129, 140, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(129, 140, 248, 0.45)" },
-    "서울시립대학교": { code: "UOS", color: "#003E7E", accent: "#818CF8", bg: "linear-gradient(135deg, rgba(0, 62, 126, 0.48), rgba(129, 140, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(129, 140, 248, 0.45)" },
-    "이화여대": { code: "EWHA", color: "#00462A", accent: "#34D399", bg: "linear-gradient(135deg, rgba(0, 70, 42, 0.48), rgba(52, 211, 153, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(52, 211, 153, 0.45)" },
-    "이화여자대학교": { code: "EWHA", color: "#00462A", accent: "#34D399", bg: "linear-gradient(135deg, rgba(0, 70, 42, 0.48), rgba(52, 211, 153, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(52, 211, 153, 0.45)" },
-    "건국대": { code: "KONKUK", color: "#00472F", accent: "#22C55E", bg: "linear-gradient(135deg, rgba(0, 71, 47, 0.48), rgba(34, 197, 94, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(34, 197, 94, 0.45)" },
-    "건국대학교": { code: "KONKUK", color: "#00472F", accent: "#22C55E", bg: "linear-gradient(135deg, rgba(0, 71, 47, 0.48), rgba(34, 197, 94, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(34, 197, 94, 0.45)" },
-    "동국대": { code: "DONGGUK", color: "#D96B27", accent: "#FB923C", bg: "linear-gradient(135deg, rgba(217, 107, 39, 0.48), rgba(249, 115, 22, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(249, 115, 22, 0.45)" },
-    "동국대학교": { code: "DONGGUK", color: "#D96B27", accent: "#FB923C", bg: "linear-gradient(135deg, rgba(217, 107, 39, 0.48), rgba(249, 115, 22, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(249, 115, 22, 0.45)" },
-    "홍익대": { code: "HONGIK", color: "#002855", accent: "#60A5FA", bg: "linear-gradient(135deg, rgba(0, 40, 85, 0.48), rgba(96, 165, 250, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(96, 165, 250, 0.45)" },
-    "홍익대학교": { code: "HONGIK", color: "#002855", accent: "#60A5FA", bg: "linear-gradient(135deg, rgba(0, 40, 85, 0.48), rgba(96, 165, 250, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(96, 165, 250, 0.45)" },
-    "숙명여대": { code: "SOOKMYUNG", color: "#002B49", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 43, 73, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
-    "숙명여자대학교": { code: "SOOKMYUNG", color: "#002B49", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 43, 73, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
-    "국민대": { code: "KOOKMIN", color: "#003876", accent: "#60A5FA", bg: "linear-gradient(135deg, rgba(0, 56, 118, 0.48), rgba(96, 165, 250, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(96, 165, 250, 0.45)" },
-    "국민대학교": { code: "KOOKMIN", color: "#003876", accent: "#60A5FA", bg: "linear-gradient(135deg, rgba(0, 56, 118, 0.48), rgba(96, 165, 250, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(96, 165, 250, 0.45)" },
-    "숭실대": { code: "SOONGSIL", color: "#004B87", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 75, 135, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
-    "숭실대학교": { code: "SOONGSIL", color: "#004B87", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 75, 135, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
-    "세종대": { code: "SEJONG", color: "#9B111E", accent: "#F87171", bg: "linear-gradient(135deg, rgba(155, 17, 30, 0.48), rgba(248, 113, 113, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(248, 113, 113, 0.45)" },
-    "세종대학교": { code: "SEJONG", color: "#9B111E", accent: "#F87171", bg: "linear-gradient(135deg, rgba(155, 17, 30, 0.48), rgba(248, 113, 113, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(248, 113, 113, 0.45)" },
-    "단국대": { code: "DANKOOK", color: "#003A70", accent: "#60A5FA", bg: "linear-gradient(135deg, rgba(0, 58, 112, 0.48), rgba(96, 165, 250, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(96, 165, 250, 0.45)" },
-    "단국대학교": { code: "DANKOOK", color: "#003A70", accent: "#60A5FA", bg: "linear-gradient(135deg, rgba(0, 58, 112, 0.48), rgba(96, 165, 250, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(96, 165, 250, 0.45)" },
+    "성균관대": { code: "SKKU", color: "#00592D", accent: "#34D399", bg: "linear-gradient(135deg, rgba(0, 89, 45, 0.48), rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(16, 185, 129, 0.45)" },
+    "성균관대학교": { code: "SKKU", color: "#00592D", accent: "#34D399", bg: "linear-gradient(135deg, rgba(0, 89, 45, 0.48), rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(16, 185, 129, 0.45)" },
+    "울산대": { code: "ULSAN", color: "#003876", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 56, 118, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
+    "울산대학교": { code: "ULSAN", color: "#003876", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 56, 118, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
+    "한양대": { code: "HANYANG", color: "#003B6F", accent: "#60A5FA", bg: "linear-gradient(135deg, rgba(0, 59, 111, 0.48), rgba(59, 130, 246, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(59, 130, 246, 0.45)" },
+    "한양대학교": { code: "HANYANG", color: "#003B6F", accent: "#60A5FA", bg: "linear-gradient(135deg, rgba(0, 59, 111, 0.48), rgba(59, 130, 246, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(59, 130, 246, 0.45)" },
+    "중앙대": { code: "CAU", color: "#004B9B", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 75, 155, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
+    "중앙대학교": { code: "CAU", color: "#004B9B", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 75, 155, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
+    "경희대": { code: "KHU", color: "#960018", accent: "#F87171", bg: "linear-gradient(135deg, rgba(150, 0, 24, 0.48), rgba(239, 68, 68, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(239, 68, 68, 0.45)" },
+    "경희대학교": { code: "KHU", color: "#960018", accent: "#F87171", bg: "linear-gradient(135deg, rgba(150, 0, 24, 0.48), rgba(239, 68, 68, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(239, 68, 68, 0.45)" },
+    "서강대": { code: "SOGANG", color: "#B11016", accent: "#F87171", bg: "linear-gradient(135deg, rgba(177, 16, 22, 0.48), rgba(239, 68, 68, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(239, 68, 68, 0.45)" },
+    "서강대학교": { code: "SOGANG", color: "#B11016", accent: "#F87171", bg: "linear-gradient(135deg, rgba(177, 16, 22, 0.48), rgba(239, 68, 68, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(239, 68, 68, 0.45)" },
+    "한국외대": { code: "HUFS", color: "#002D62", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 45, 98, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
+    "한국외국어대학교": { code: "HUFS", color: "#002D62", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 45, 98, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
+    "서울시립대": { code: "UOS", color: "#003865", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 56, 101, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
+    "서울시립대학교": { code: "UOS", color: "#003865", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 56, 101, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
+    "이화여대": { code: "EWHA", color: "#00462A", accent: "#34D399", bg: "linear-gradient(135deg, rgba(0, 70, 42, 0.48), rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(16, 185, 129, 0.45)" },
+    "이화여자대학교": { code: "EWHA", color: "#00462A", accent: "#34D399", bg: "linear-gradient(135deg, rgba(0, 70, 42, 0.48), rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(16, 185, 129, 0.45)" },
+    "건국대": { code: "KU", color: "#005826", accent: "#34D399", bg: "linear-gradient(135deg, rgba(0, 88, 38, 0.48), rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(16, 185, 129, 0.45)" },
+    "건국대학교": { code: "KU", color: "#005826", accent: "#34D399", bg: "linear-gradient(135deg, rgba(0, 88, 38, 0.48), rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(16, 185, 129, 0.45)" },
+    "동국대": { code: "DONGGUK", color: "#D9531E", accent: "#FB923C", bg: "linear-gradient(135deg, rgba(217, 83, 30, 0.48), rgba(249, 115, 22, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(249, 115, 22, 0.45)" },
+    "동국대학교": { code: "DONGGUK", color: "#D9531E", accent: "#FB923C", bg: "linear-gradient(135deg, rgba(217, 83, 30, 0.48), rgba(249, 115, 22, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(249, 115, 22, 0.45)" },
+    "홍익대": { code: "HONGIK", color: "#002D62", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 45, 98, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
+    "홍익대학교": { code: "HONGIK", color: "#002D62", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 45, 98, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
+    "아주대": { code: "AJOU", color: "#003087", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 48, 135, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
+    "아주대학교": { code: "AJOU", color: "#003087", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 48, 135, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
+    "인하대": { code: "INHA", color: "#004B87", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 75, 135, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
+    "인하대학교": { code: "INHA", color: "#004B87", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 75, 135, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
     "카이스트": { code: "KAIST", color: "#004191", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 65, 145, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
     "한국과학기술원": { code: "KAIST", color: "#004191", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 65, 145, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
-    "포스텍": { code: "POSTECH", color: "#C80851", accent: "#FB7185", bg: "linear-gradient(135deg, rgba(200, 8, 81, 0.48), rgba(251, 113, 133, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(251, 113, 133, 0.45)" },
-    "포항공과대학교": { code: "POSTECH", color: "#C80851", accent: "#FB7185", bg: "linear-gradient(135deg, rgba(200, 8, 81, 0.48), rgba(251, 113, 133, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(251, 113, 133, 0.45)" },
-    "아주대": { code: "AJOU", color: "#003876", accent: "#60A5FA", bg: "linear-gradient(135deg, rgba(0, 56, 118, 0.48), rgba(96, 165, 250, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(96, 165, 250, 0.45)" },
-    "아주대학교": { code: "AJOU", color: "#003876", accent: "#60A5FA", bg: "linear-gradient(135deg, rgba(0, 56, 118, 0.48), rgba(96, 165, 250, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(96, 165, 250, 0.45)" },
-    "인하대": { code: "INHA", color: "#003F7A", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 63, 122, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
-    "인하대학교": { code: "INHA", color: "#003F7A", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 63, 122, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
-    "가천대": { code: "GACHON", color: "#002B49", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 43, 73, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
-    "가천대학교": { code: "GACHON", color: "#002B49", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 43, 73, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
-    "부산대": { code: "PNU", color: "#003876", accent: "#60A5FA", bg: "linear-gradient(135deg, rgba(0, 56, 118, 0.48), rgba(96, 165, 250, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(96, 165, 250, 0.45)" },
-    "부산대학교": { code: "PNU", color: "#003876", accent: "#60A5FA", bg: "linear-gradient(135deg, rgba(0, 56, 118, 0.48), rgba(96, 165, 250, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(96, 165, 250, 0.45)" },
-    "경북대": { code: "KNU", color: "#9B111E", accent: "#F87171", bg: "linear-gradient(135deg, rgba(155, 17, 30, 0.48), rgba(248, 113, 113, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(248, 113, 113, 0.45)" },
-    "경북대학교": { code: "KNU", color: "#9B111E", accent: "#F87171", bg: "linear-gradient(135deg, rgba(155, 17, 30, 0.48), rgba(248, 113, 113, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(248, 113, 113, 0.45)" },
-    "전남대": { code: "CNU", color: "#00472F", accent: "#34D399", bg: "linear-gradient(135deg, rgba(0, 71, 47, 0.48), rgba(52, 211, 153, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(52, 211, 153, 0.45)" },
-    "전남대학교": { code: "CNU", color: "#00472F", accent: "#34D399", bg: "linear-gradient(135deg, rgba(0, 71, 47, 0.48), rgba(52, 211, 153, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(52, 211, 153, 0.45)" },
-    "전북대": { code: "JBNU", color: "#002B49", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 43, 73, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
-    "전북대학교": { code: "JBNU", color: "#002B49", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 43, 73, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
-    "충남대": { code: "CNU", color: "#003A70", accent: "#60A5FA", bg: "linear-gradient(135deg, rgba(0, 58, 112, 0.48), rgba(96, 165, 250, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(96, 165, 250, 0.45)" },
-    "충남대학교": { code: "CNU", color: "#003A70", accent: "#60A5FA", bg: "linear-gradient(135deg, rgba(0, 58, 112, 0.48), rgba(96, 165, 250, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(96, 165, 250, 0.45)" },
-    "충북대": { code: "CBNU", color: "#003829", accent: "#34D399", bg: "linear-gradient(135deg, rgba(0, 56, 41, 0.48), rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(16, 185, 129, 0.45)" },
-    "충북대학교": { code: "CBNU", color: "#003829", accent: "#34D399", bg: "linear-gradient(135deg, rgba(0, 56, 41, 0.48), rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(16, 185, 129, 0.45)" },
+    "포스텍": { code: "POSTECH", color: "#C8102E", accent: "#F87171", bg: "linear-gradient(135deg, rgba(200, 16, 46, 0.48), rgba(239, 68, 68, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(239, 68, 68, 0.45)" },
+    "포항공과대학교": { code: "POSTECH", color: "#C8102E", accent: "#F87171", bg: "linear-gradient(135deg, rgba(200, 16, 46, 0.48), rgba(239, 68, 68, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(239, 68, 68, 0.45)" },
+    "지스트": { code: "GIST", color: "#FF4B00", accent: "#FB923C", bg: "linear-gradient(135deg, rgba(255, 75, 0, 0.48), rgba(249, 115, 22, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(249, 115, 22, 0.45)" },
+    "광주과학기술원": { code: "GIST", color: "#FF4B00", accent: "#FB923C", bg: "linear-gradient(135deg, rgba(255, 75, 0, 0.48), rgba(249, 115, 22, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(249, 115, 22, 0.45)" },
+    "디지스트": { code: "DGIST", color: "#005BAC", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 91, 172, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
+    "대구경북과학기술원": { code: "DGIST", color: "#005BAC", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 91, 172, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
+    "유니스트": { code: "UNIST", color: "#002855", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 40, 85, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
+    "울산과학기술원": { code: "UNIST", color: "#002855", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 40, 85, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
+    "켄텍": { code: "KENTECH", color: "#003087", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 48, 135, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
+    "한국에너지공과대학교": { code: "KENTECH", color: "#003087", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 48, 135, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
     "경찰대": { code: "KNPU", color: "#00205B", accent: "#FCD34D", bg: "linear-gradient(135deg, rgba(0, 32, 91, 0.48), rgba(245, 158, 11, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(245, 158, 11, 0.45)" },
-    "경찰대학교": { code: "KNPU", color: "#00205B", accent: "#FCD34D", bg: "linear-gradient(135deg, rgba(0, 32, 91, 0.48), rgba(245, 158, 11, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(245, 158, 11, 0.45)" },
-    "한국항공대": { code: "KAU", color: "#004B87", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 75, 135, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
-    "한국항공대학교": { code: "KAU", color: "#004B87", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 75, 135, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
-    "서울과학기술대": { code: "SEOULTECH", color: "#002B49", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 43, 73, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
-    "서울과학기술대학교": { code: "SEOULTECH", color: "#002B49", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 43, 73, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" }
+    "경찰대학": { code: "KNPU", color: "#00205B", accent: "#FCD34D", bg: "linear-gradient(135deg, rgba(0, 32, 91, 0.48), rgba(245, 158, 11, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(245, 158, 11, 0.45)" },
+    "의예과": { code: "MED", color: "#005696", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 86, 150, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" },
+    "의과대학": { code: "MED", color: "#005696", accent: "#38BDF8", bg: "linear-gradient(135deg, rgba(0, 86, 150, 0.48), rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95))", border: "rgba(56, 189, 248, 0.45)" }
 };
 
 // === 목표 대학 공식 상징 슬로건 & 메디컬 특화 딕셔너리 ===
@@ -4891,6 +4873,7 @@ window.onSidoChange = onSidoChange;
 window.populateSidoOptions = populateSidoOptions;
 
 function toggleAccordion(bodyId, iconId) {
+    window.toggleAccordion = toggleAccordion;
     const body = document.getElementById(bodyId);
     const icon = document.getElementById(iconId);
     if (!body) return;
@@ -6387,19 +6370,20 @@ function previewRoleAs(targetRole) {
 }
 
 function applyRolePermissions(role) {
-    const userRole = role || localStorage.getItem('userRole') || 'STUDENT';
+    const userRole = role || localStorage.getItem('userRole') || (window.currentUser && window.currentUser.role) || (window.currentStudent && window.currentStudent.role) || 'STUDENT';
+    const sName = (window.currentStudent && window.currentStudent.name) || (window.currentUser && window.currentUser.name) || localStorage.getItem('studentName') || localStorage.getItem('userName') || '';
+    const sEmail = (window.currentStudent && window.currentStudent.email) || (window.currentUser && window.currentUser.email) || localStorage.getItem('studentEmail') || localStorage.getItem('userEmail') || '';
+    
     const isMasterUser = (sessionStorage.getItem('palin_super_admin') === 'true') || 
                          (localStorage.getItem('palin_super_admin') === 'true') || 
-                         (localStorage.getItem('userRole') === 'SUPER_ADMIN') || 
-                         (localStorage.getItem('userRole') === 'DIRECTOR') || 
-                         (localStorage.getItem('userRole') === 'TENANT_ADMIN') || 
-                         (currentStudent && (
-                             (currentStudent.email && currentStudent.email.toLowerCase() === '1286orbital21@gmail.com') ||
-                             currentStudent.id === 1 || currentStudent.id === '1' ||
-                             (currentStudent.name && (currentStudent.name.includes('김철훈') || currentStudent.name.includes('제작자') || currentStudent.name.includes('마스터')))
-                         ));
+                         (userRole === 'SUPER_ADMIN') || 
+                         (userRole === 'DIRECTOR') || 
+                         (userRole === 'TENANT_ADMIN') || 
+                         (sEmail.toLowerCase() === '1286orbital21@gmail.com') ||
+                         (sEmail.toLowerCase() === 'admin@palin.kr') ||
+                         (sName.includes('제작자') || sName.includes('철훈') || sName.includes('관리자') || sName.includes('마스터') || sName.includes('원장'));
 
-    // 1. Master God-mode Top Banner & School Level Switcher Bar (Only visible for Master Account)
+    // 1. Master God-mode Top Banner & School Level Switcher Bar
     const masterBanner = document.getElementById('master-godmode-banner');
     if (masterBanner) {
         masterBanner.style.display = isMasterUser ? 'flex' : 'none';
@@ -6426,14 +6410,14 @@ function applyRolePermissions(role) {
             }
             const sectionTitle = document.getElementById('mypage-admin-section-title');
             if (sectionTitle) {
-                sectionTitle.textContent = isMasterUser ? '관리자 & 마스터 전용 관제실' : '학원장 전용 관제실';
+                sectionTitle.textContent = isMasterUser ? '총괄 & 제작자 전용 관제실' : '학원장 전용 관제실';
             }
         } else {
             mypageAdminRow.style.display = 'none';
         }
     }
 
-    // 3. Bottom Nav Admin Tab Visibility (Only visible to SUPER_ADMIN / DIRECTOR / MASTER, HIDDEN from 일반 STUDENTS & PARENTS)
+    // 3. Bottom Nav Admin Tab Visibility (관제실)
     const adminNavBtn = document.getElementById('nav-tab-admin');
     if (adminNavBtn) {
         if (userRole === 'SUPER_ADMIN' || userRole === 'DIRECTOR' || userRole === 'TENANT_ADMIN' || isMasterUser) {
@@ -14728,7 +14712,7 @@ function renderAcademyFeedList() {
             <div style="background: ${isSpecial ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.03)'}; border: 1px solid ${isSpecial ? '#ef4444' : 'rgba(255,255,255,0.08)'}; border-left: 3.5px solid ${color}; border-radius: 10px; padding: 12px; margin-bottom: 6px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; flex-wrap: wrap; gap: 4px;">
                     <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="background: ${color}; color: #ffffff; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 800;">${instName}</span>
+                        <span class="feed-inst-badge" style="background: ${color}; color: #ffffff !important; padding: 2px 7px; border-radius: 6px; font-size: 0.68rem; font-weight: 800;">${instName}</span>
                         ${isSpecial ? '<span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 800;">특별공지</span>' : ''}
                         <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-primary);">${f.curriculum_name}</span>
                     </div>
@@ -22580,3 +22564,5 @@ async function handleSaveAdmissionTargets(e) {
     }
 }
 window.handleSaveAdmissionTargets = handleSaveAdmissionTargets;
+
+window.toggleAccordion = toggleAccordion;

@@ -2278,7 +2278,8 @@ body.day-mode #target-logo-name {
 
 body.day-mode #univ-target-box {
     background: #ffffff !important;
-    border: 1.5px solid #cbd5e1 !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: none !important;
 }
 
 body.day-mode #banner-dday-title {
@@ -3941,9 +3942,17 @@ body.day-mode #hub-vod-list-container > div > div > div {
     color: #0f172a !important;
 }
 
-body.day-mode #hub-vod-list-container [style*="color: #ffffff"],
-body.day-mode #hub-curriculum-feed-list [style*="color: #ffffff"] {
+body.day-mode #hub-vod-list-container [style*="color: #ffffff"]:not(.btn *):not(.badge *):not([style*="background"]):not(.feed-inst-badge) {
     color: #0f172a !important;
+    font-weight: 800 !important;
+}
+body.day-mode #hub-curriculum-feed-list [style*="color: #ffffff"]:not(.feed-inst-badge):not(span[style*="background"]) {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+body.day-mode #hub-curriculum-feed-list .feed-inst-badge,
+body.day-mode #hub-curriculum-feed-list span[style*="background"] {
+    color: #ffffff !important;
     font-weight: 800 !important;
 }
 
@@ -6595,4 +6604,104 @@ body:not(.day-mode) #admission-penalty-alert-badge {
     border: 1px solid #ef4444 !important;
     color: #ffffff !important;
     font-weight: 900 !important;
+}
+
+
+/* ========================================================================== */
+/* ⚡ PASSMATE FLAWLESS CONTRAST & NATURAL CARD INTEGRATION (ZERO-SHADOW PURGE) */
+/* ========================================================================== */
+
+/* 1. All Day-Mode Cards: Flat 1px subtle border, zero jarring shadows or inset lines */
+body.day-mode .card,
+body.day-mode #mission-card,
+body.day-mode #univ-target-box,
+body.day-mode .subtab-view-p2 .card,
+body.day-mode .subtab-view-p3 .card,
+body.day-mode #p2-chat .card,
+body.day-mode #p3-qa .card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: none !important;
+    border-radius: 16px !important;
+}
+
+body.day-mode .card-title,
+body.day-mode .subtab-view-p2 .card-title,
+body.day-mode .subtab-view-p3 .card-title {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+/* 2. Streak Flame Icon & Badge Vibrant Orange */
+.streak-flame-icon,
+#header-streak-badge .streak-flame-icon,
+#header-streak-badge .material-symbols-rounded,
+.material-symbols-rounded.streak-flame-icon {
+    color: #f97316 !important;
+    filter: drop-shadow(0 0 5px rgba(249, 115, 22, 0.45)) !important;
+}
+
+/* 3. Admission Penalty Alert Box Bulletproof WCAG AAA Contrast */
+body:not(.day-mode) #admission-penalty-alert-box {
+    background: rgba(239, 68, 68, 0.16) !important;
+    border: 1.5px solid rgba(239, 68, 68, 0.45) !important;
+    color: #fecdd3 !important;
+}
+body:not(.day-mode) #admission-penalty-alert-box b {
+    color: #fda4af !important;
+    font-weight: 900 !important;
+}
+body:not(.day-mode) #admission-penalty-alert-box .deficit-alert-badge {
+    background: rgba(239, 68, 68, 0.3) !important;
+    color: #fee2e2 !important;
+    border: 1px solid #f87171 !important;
+    font-weight: 800 !important;
+}
+body:not(.day-mode) #admission-penalty-alert-box .material-symbols-rounded {
+    color: #f97316 !important;
+}
+
+body.day-mode #admission-penalty-alert-box {
+    background: #fef2f2 !important;
+    border: 1.5px solid #fca5a5 !important;
+    color: #7f1d1d !important;
+}
+body.day-mode #admission-penalty-alert-box b {
+    color: #991b1b !important;
+    font-weight: 900 !important;
+}
+body.day-mode #admission-penalty-alert-box .deficit-alert-badge {
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+    border: 1px solid #ef4444 !important;
+    font-weight: 800 !important;
+}
+body.day-mode #admission-penalty-alert-box .material-symbols-rounded {
+    color: #ea580c !important;
+}
+
+/* 4. Chatbot Notice Box Smooth Day Integration */
+body.day-mode .chatbot-notice-box {
+    background: #eef2ff !important;
+    border: 1px solid #c7d2fe !important;
+    box-shadow: none !important;
+    color: #1e1b4b !important;
+}
+
+/* 5. GNB Nav Admin Tab (관제실) Active & Day Mode Styling */
+.bottom-nav #nav-tab-admin {
+    cursor: pointer !important;
+    color: #94a3b8;
+}
+.bottom-nav #nav-tab-admin:hover,
+.bottom-nav #nav-tab-admin.active {
+    color: #818cf8 !important;
+}
+body.day-mode .bottom-nav #nav-tab-admin {
+    color: #64748b !important;
+}
+body.day-mode .bottom-nav #nav-tab-admin:hover,
+body.day-mode .bottom-nav #nav-tab-admin.active {
+    color: #4f46e5 !important;
 }
