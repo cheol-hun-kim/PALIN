@@ -550,8 +550,8 @@ body.day-mode textarea::placeholder {
 
 body.day-mode .card {
     background: #ffffff !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: none !important;
     color: #0f172a !important;
 }
 
@@ -2181,7 +2181,7 @@ body.day-mode .calendar-card {
     background: #ffffff !important;
     border: 1px solid #e2e8f0 !important;
     color: #0f172a !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
+    box-shadow: none !important;
 }
 
 /* 회원가입/로그인 오버레이는 완벽한 불투명 다크 테마 및 최상위 레이어로 뒤쪽 간섭 100% 차단 */
@@ -3925,9 +3925,15 @@ body.day-mode #hub-view-request .card {
 
 body.day-mode #hub-curriculum-feed-list > div {
     background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+    border: none !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 12px 6px !important;
     color: #0f172a !important;
+}
+body.day-mode #hub-curriculum-feed-list > div:last-child {
+    border-bottom: none !important;
 }
 body.day-mode #hub-vod-list-container > div > div > div {
     background: #f8fafc !important;
@@ -4293,7 +4299,7 @@ body.day-mode .trigger-content {
     background: #ffffff !important;
     color: #0f172a !important;
     border-color: #e2e8f0 !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+    box-shadow: none !important;
 }
 
 /* 2. Universal Yellow / Amber / Gold -> Deep Amber Brown (#92400e / #78350f / #b45309) */
@@ -6567,4 +6573,26 @@ body.day-mode #admission-dist-overall-badge span {
 body.day-mode #p3-qa .card div[style*="background: rgba(255,255,255,0.02)"] {
     background: #f8fafc !important;
     border: 1px solid #e2e8f0 !important;
+}
+
+/* 순공 부족 경고 배너 다크모드 완벽 고대비 (어두운 배경에 어두운 글씨 원천 방지) */
+#admission-penalty-alert-box {
+    align-items: center !important;
+}
+body:not(.day-mode) #admission-penalty-alert-box {
+    background: rgba(239, 68, 68, 0.16) !important;
+    border-color: rgba(239, 68, 68, 0.45) !important;
+    color: #ffffff !important;
+}
+body:not(.day-mode) #admission-penalty-alert-box #admission-penalty-alert-text {
+    color: #ffffff !important;
+}
+body:not(.day-mode) #admission-penalty-alert-box #admission-penalty-alert-text b {
+    color: #fca5a5 !important;
+}
+body:not(.day-mode) #admission-penalty-alert-badge {
+    background: rgba(239, 68, 68, 0.35) !important;
+    border: 1px solid #ef4444 !important;
+    color: #ffffff !important;
+    font-weight: 900 !important;
 }

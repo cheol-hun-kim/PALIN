@@ -984,10 +984,18 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
         </header>
 
         <!-- 제작자/관리자 전용 학교급 실시간 3단 뷰어 스위처 바 (갓모드 마스터 전용) -->
-        <div id="master-school-level-bar" style="display: none; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); border-bottom: 1.5px solid rgba(129, 140, 248, 0.4); padding: 8px 14px; align-items: center; justify-content: space-between; gap: 8px; box-sizing: border-box; z-index: 100;">
-            <div style="display: flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 800; color: #ffffff; white-space: nowrap;">
-                <span class="material-symbols-rounded" style="font-size: 1.25rem; color: #94a3b8; vertical-align: middle;">admin_panel_settings</span>
-                <span style="color: #ffffff; letter-spacing: -0.2px;">제작자 관제 모드:</span>
+        <div id="master-school-level-bar" style="display: none; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); border-bottom: 1.5px solid rgba(129, 140, 248, 0.4); padding: 8px 14px; align-items: center; justify-content: space-between; gap: 8px; box-sizing: border-box; z-index: 100; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 800; color: #ffffff; white-space: nowrap;">
+                    <span class="material-symbols-rounded" style="font-size: 1.25rem; color: #94a3b8; vertical-align: middle;">admin_panel_settings</span>
+                    <span style="color: #ffffff; letter-spacing: -0.2px;">제작자 관제 모드:</span>
+                </div>
+                <a href="/admin.html" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.74rem; font-weight: 800; background: rgba(99, 102, 241, 0.25); border: 1px solid #818cf8; color: #ffffff; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                    <span>관리자 관제실 ↗</span>
+                </a>
+                <a href="/master.html" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.74rem; font-weight: 800; background: rgba(245, 158, 11, 0.25); border: 1px solid #f59e0b; color: #ffffff; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                    <span>갓모드 콘솔 ↗</span>
+                </a>
             </div>
             <div style="display: flex; gap: 6px; overflow-x: auto;" id="master-level-switcher-btns">
                 <button type="button" class="btn school-switcher-btn" id="m-btn-elem" onclick="switchMasterSchoolView('ELEMENTARY')">초등 모드</button>
@@ -1229,9 +1237,9 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     </div>
 
                     <!-- 5행: 실시간 순공 페널티 긴급 알림 띠 배너 (줄바꿈 허용 및 끊김 방지 최적화) -->
-                    <div id="admission-penalty-alert-box" style="display: flex; align-items: flex-start; justify-content: space-between; width: 100%; min-height: 48px; padding: 10px 14px; border-radius: 12px; background: rgba(99, 102, 241, 0.12); border: 1.5px solid rgba(99, 102, 241, 0.28); font-size: 0.82rem; font-weight: 700; color: #c7d2fe; margin-bottom: 8px; box-sizing: border-box; gap: 10px;">
-                        <div style="display: flex; align-items: flex-start; gap: 8px; min-width: 0; flex: 1;">
-                            <span class="material-symbols-rounded" style="color: #f87171; font-size: 1.25rem; flex-shrink: 0; margin-top: 1px;">bolt</span>
+                    <div id="admission-penalty-alert-box" style="display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 48px; padding: 10px 14px; border-radius: 12px; background: rgba(99, 102, 241, 0.12); border: 1.5px solid rgba(99, 102, 241, 0.28); font-size: 0.82rem; font-weight: 700; color: #c7d2fe; margin-bottom: 8px; box-sizing: border-box; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
+                            <span class="material-symbols-rounded" style="color: #f87171; font-size: 1.25rem; flex-shrink: 0;">bolt</span>
                             <span id="admission-penalty-alert-text" style="font-size: 0.80rem; line-height: 1.5; word-break: keep-all; flex: 1;">연세대 의예과 합격권 대비 주간 순공이 <b style="color: #f87171;">63.0시간 부족</b>하여 불합격 위험이 높습니다.</span>
                         </div>
                         <span id="admission-penalty-alert-badge" class="deficit-alert-badge" style="background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 3px 10px; border-radius: 8px; font-size: 0.74rem; font-weight: 800; white-space: nowrap; flex-shrink: 0; margin-top: 2px;">순공 부족 경고</span>
@@ -4201,7 +4209,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
             </a>
             <div class="nav-item" id="nav-tab-admin" onclick="window.open('/admin.html', '_blank')" style="cursor: pointer; display: none;">
                 <span class="material-symbols-rounded nav-icon nav-icon-director">shield_person</span>
-                <span class="nav-text-director">원장관제</span>
+                <span class="nav-text-director">관제실</span>
             </div>
         </div>
     </div>
