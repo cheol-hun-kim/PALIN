@@ -6705,3 +6705,135 @@ body.day-mode .bottom-nav #nav-tab-admin:hover,
 body.day-mode .bottom-nav #nav-tab-admin.active {
     color: #4f46e5 !important;
 }
+
+
+/* ========================================================================== */
+/* 💎 7-GATE AAA DESIGN INTEGRATION: ZERO-BORDER HEADERS & FLAWLESS CONTRAST */
+/* ========================================================================== */
+
+/* 1. All Card Titles & Headers: ZERO border, ZERO box-shadow, Natural flat integration */
+.card-title,
+.card-header,
+[class*="card-title"],
+[class*="section-title"],
+.subtab-view-p2 .card-title,
+.subtab-view-p3 .card-title,
+#p2-chat .card-title,
+#p3-qa .card-title {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* 2. University Slogan Box: Zero vertical left border, flat subtle surround */
+#univ-slogan-container {
+    border-left: none !important;
+    box-shadow: none !important;
+}
+body.day-mode #univ-slogan-container {
+    border-left: none !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: none !important;
+}
+body:not(.day-mode) #univ-slogan-container {
+    border-left: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: none !important;
+}
+
+/* 3. MyPage Report Tickets Referral Button: High-Contrast Day & Dark */
+body.day-mode .mypage-ticket-referral-btn {
+    background: #eef2ff !important;
+    border: 1px solid #c7d2fe !important;
+    color: #4338ca !important;
+}
+body.day-mode .mypage-ticket-referral-btn span,
+body.day-mode .mypage-ticket-referral-btn strong {
+    color: #4338ca !important;
+    font-weight: 800 !important;
+}
+body:not(.day-mode) .mypage-ticket-referral-btn {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+}
+body:not(.day-mode) .mypage-ticket-referral-btn span {
+    color: #ffffff !important;
+}
+body:not(.day-mode) .mypage-ticket-referral-btn strong {
+    color: #38bdf8 !important;
+}
+
+/* 4. Tier 4 Master AI Badge: Borderless, Vibrant Gold in Dark Mode, Warm Amber in Day */
+body:not(.day-mode) #mypage-tier-active-badge {
+    background: rgba(245, 158, 11, 0.12) !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 12px !important;
+}
+body:not(.day-mode) #mypage-tier-title {
+    color: #fbbf24 !important;
+    font-weight: 900 !important;
+}
+body:not(.day-mode) #mypage-academy-sponsor-text {
+    color: #fde68a !important;
+    font-weight: 600 !important;
+}
+body:not(.day-mode) #mypage-tier-manage-btn {
+    background: #f59e0b !important;
+    color: #0f172a !important;
+    border: none !important;
+    font-weight: 900 !important;
+}
+
+body.day-mode #mypage-tier-active-badge {
+    background: #fef3c7 !important;
+    border: 1px solid #fcd34d !important;
+    box-shadow: none !important;
+    border-radius: 12px !important;
+}
+body.day-mode #mypage-tier-title {
+    color: #92400e !important;
+    font-weight: 900 !important;
+}
+body.day-mode #mypage-academy-sponsor-text {
+    color: #b45309 !important;
+    font-weight: 600 !important;
+}
+body.day-mode #mypage-tier-manage-btn {
+    background: #f59e0b !important;
+    color: #ffffff !important;
+    border: none !important;
+    font-weight: 800 !important;
+}
+
+/* 5. Protect Button Text: Never bleed dark green or illegible text into action buttons */
+.btn:not(.btn-secondary):not(.btn-outline),
+button[type="submit"],
+.btn-primary {
+    color: #ffffff !important;
+}
+.btn:not(.btn-secondary):not(.btn-outline) *,
+button[type="submit"] *,
+.btn-primary * {
+    color: #ffffff !important;
+}
+
+/* 6. MyPage User Info & Asset Balances Day-Mode Deep Slate Contrast */
+body.day-mode #mypage-student-fullname,
+body.day-mode #mypage-points,
+body.day-mode #mypage-cash {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+
+/* 7. Title System Permanent Deletion from User Interface */
+#mypage-user-title-tag,
+#mypage-title-section,
+#mypage-titles-accordion,
+#mypage-titles-accordion-body {
+    display: none !important;
+}
