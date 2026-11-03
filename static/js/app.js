@@ -21415,23 +21415,11 @@ function switchAdmissionTargetView(mode) {
     const btn2 = document.getElementById('btn-dist-target-2');
 
     if (mode === 'TARGET') {
-        if (btn1) {
-            btn1.classList.add('active');
-            btn1.removeAttribute('style');
-        }
-        if (btn2) {
-            btn2.classList.remove('active');
-            btn2.removeAttribute('style');
-        }
+        if (btn1) btn1.classList.add('active');
+        if (btn2) btn2.classList.remove('active');
     } else {
-        if (btn2) {
-            btn2.classList.add('active');
-            btn2.removeAttribute('style');
-        }
-        if (btn1) {
-            btn1.classList.remove('active');
-            btn1.removeAttribute('style');
-        }
+        if (btn2) btn2.classList.add('active');
+        if (btn1) btn1.classList.remove('active');
     }
 
     renderAdmissionPathEngine();
