@@ -560,7 +560,7 @@ body.day-mode .form-input,
 body.day-mode select,
 body.day-mode textarea {
     background: #ffffff !important;
-    border: 1.5px solid #cbd5e1 !important;
+    border: 1px solid #cbd5e1 !important;
     color: #0f172a !important;
 }
 
@@ -1057,7 +1057,7 @@ body.day-mode .univ-slogan-bar {
 }
 
 body.day-mode #univ-slogan-text {
-    color: #1e293b;
+    /* University brand color is preserved dynamically */
 }
 
 @media (max-width: 480px) {
@@ -2179,9 +2179,9 @@ body.day-mode .trigger-content,
 body.day-mode .univ-logo-card,
 body.day-mode .calendar-card {
     background: #ffffff !important;
-    border: 1px solid #cbd5e1 !important;
+    border: 1px solid #e2e8f0 !important;
     color: #0f172a !important;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
 }
 
 /* 회원가입/로그인 오버레이는 완벽한 불투명 다크 테마 및 최상위 레이어로 뒤쪽 간섭 100% 차단 */
@@ -2210,8 +2210,8 @@ body.day-mode .calendar-card {
 body.day-mode .form-input:not(#register-overlay .form-input),
 body.day-mode select.form-input:not(#register-overlay select),
 body.day-mode .input-field:not(#register-overlay .input-field) {
-    background: #f8fafc !important;
-    border: 1.5px solid #cbd5e1 !important;
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
     color: #0f172a !important;
     font-weight: 600 !important;
 }
@@ -3923,10 +3923,15 @@ body.day-mode #hub-view-request .card {
     color: #0f172a !important;
 }
 
-body.day-mode #hub-curriculum-feed-list > div,
+body.day-mode #hub-curriculum-feed-list > div {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+    color: #0f172a !important;
+}
 body.day-mode #hub-vod-list-container > div > div > div {
     background: #f8fafc !important;
-    border: 1.5px solid #cbd5e1 !important;
+    border: 1px solid #e2e8f0 !important;
     color: #0f172a !important;
 }
 
@@ -4876,9 +4881,10 @@ body.day-mode #chat-tier-status-pill {
 
 body.day-mode #chat-tier-status-pill[data-tier="4"],
 body.day-mode #chat-tier-status-pill.tier-4 {
-    background: #fef3c7 !important;
-    border: 1.5px solid #d97706 !important;
-    color: #78350f !important;
+    background: rgba(99, 102, 241, 0.08) !important;
+    border: 1px solid rgba(99, 102, 241, 0.25) !important;
+    color: #4338ca !important;
+    box-shadow: none !important;
 }
 
 body.day-mode #chat-tier-status-pill[data-tier="3"],
@@ -6455,11 +6461,22 @@ body.day-mode #header-streak-badge {
     border-color: #E2E8F0 !important;
     background: #F8FAFC !important;
 }
-body.day-mode #header-streak-badge span {
-    color: #64748B !important;
+#header-streak-badge .material-symbols-rounded,
+#header-streak-badge .streak-flame-icon {
+    color: #f97316 !important;
+    filter: drop-shadow(0 0 5px rgba(249, 115, 22, 0.45));
 }
-body:not(.day-mode) #header-streak-badge span {
-    color: #94A3B8 !important;
+body.day-mode #header-streak-badge {
+    border-color: #e2e8f0 !important;
+    background: #f8fafc !important;
+}
+body.day-mode #header-streak-badge #header-streak-count {
+    color: #ea580c !important;
+    font-weight: 800 !important;
+}
+body:not(.day-mode) #header-streak-badge #header-streak-count {
+    color: #fdba74 !important;
+    font-weight: 800 !important;
 }
 
 /* 2. Bottom Nav Fixed 100% Width & Day Mode Inversion */
@@ -6534,4 +6551,20 @@ body.day-mode #mission-card button[onclick*="true"] {
 body.day-mode #mission-card button[onclick*="true"]:hover {
     background: #F1F5F9 !important;
     color: #334155 !important;
+}
+
+/* 나와 대학의 거리 종합 판정 뱃지 데이모드 완벽 고대비 (분홍-분홍 저대비 원천 박멸) */
+body.day-mode #admission-dist-overall-badge {
+    background: #fef2f2 !important;
+    border: 1px solid #f87171 !important;
+    color: #991b1b !important;
+}
+body.day-mode #admission-dist-overall-badge span {
+    color: #991b1b !important;
+}
+
+/* Q&A 폼 서브컨테이너 데이모드 자연스러운 어우러짐 */
+body.day-mode #p3-qa .card div[style*="background: rgba(255,255,255,0.02)"] {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
 }

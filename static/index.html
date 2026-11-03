@@ -972,7 +972,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 </button>
                 <!-- 듀오링고 연속 출석 불꽃 (명확한 연속일수 안내) -->
                 <div class="header-action-btn streak-badge" id="header-streak-badge" title="연속 학습 미션 성공 기록 (클릭하여 주간 현황 확인)">
-                    <span class="material-symbols-rounded header-action-icon" style="font-size: 1.15rem; color: #f97316;">local_fire_department</span>
+                    <span class="material-symbols-rounded header-action-icon streak-flame-icon" style="font-size: 1.15rem; color: #f97316 !important;">local_fire_department</span>
                     <span class="header-btn-label" id="header-streak-count">0일</span>
                 </div>
                 <!-- 마이페이지 & 자산 관리 버튼 -->
@@ -1095,7 +1095,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                                 <span class="material-symbols-rounded" style="font-size: 0.95rem; color: #818cf8;">edit_note</span>
                                 <span>내 성적 입력</span>
                             </button>
-                            <div id="admission-dist-overall-badge"  style="display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 12px; font-size: 0.76rem; font-weight: 900; background: rgba(239, 68, 68, 0.18); border: 1.5px solid #ef4444; color: #fca5a5;">
+                            <div id="admission-dist-overall-badge" style="display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 12px; font-size: 0.76rem; font-weight: 900; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fecdd3;">
                                 <span class="material-symbols-rounded" style="font-size: 0.9rem;">warning</span>
                                 <span id="admission-dist-badge-text">위험</span>
                             </div>
@@ -1307,7 +1307,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                 <!-- 포레스트(Forest) 모델 - 목표 대학 로고 & 집중 공부 타이머 (아코디언 드롭다운) -->
                 <div class="card" id="univ-target-box" style="text-align: center; position: relative; padding: 0; overflow: hidden;">
                     <!-- 아코디언 헤더 바 (기본 상시 노출) -->
-                    <div class="accordion-header" onclick="toggleAccordion(\'timer-accordion-body\', \'timer-accordion-icon\')" style="padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: rgba(255,255,255,0.02);">
+                    <div class="accordion-header" onclick="toggleAccordion('timer-accordion-body', 'timer-accordion-icon')" style="padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: rgba(255,255,255,0.02);">
                         <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.95rem;">
                             <span class="material-symbols-rounded" style="color: #818cf8;">hourglass_empty</span>
                             <span>집중 공부 타이머</span>
@@ -1317,7 +1317,7 @@ body.day-mode .custom-time-input::-webkit-calendar-picker-indicator {
                     </div>
 
                     <!-- 아코디언 본체 (접힘/펼침) -->
-                    <div id="timer-accordion-body" style="display: block; padding: 20px 16px; border-top: none;">
+                    <div id="timer-accordion-body" style="display: none; padding: 20px 16px; border-top: none;">
                         <!-- 딴짓 감지 시 균열 오버레이 -->
                         <div class="crack-overlay" id="logo-crack-overlay"></div>
 

@@ -650,11 +650,12 @@ function updateUniversitySlogan(targetUnivStr, theme, isDayMode) {
     const accent = theme ? (theme.accent || theme.color) : "#818CF8";
 
     if (isDayMode) {
-        sloganBox.style.background = `linear-gradient(135deg, ${color}0D, #ffffff 80%)`;
+        sloganBox.style.background = `linear-gradient(135deg, ${color}10, #ffffff 80%)`;
         sloganBox.style.borderColor = `${color}40`;
+        sloganBox.style.borderLeft = `4px solid ${color}`;
         sloganBox.style.boxShadow = `0 3px 12px ${color}15`;
-        sloganEl.style.color = color;
-        sloganEl.style.fontWeight = "800";
+        sloganEl.style.color = `${color}`;
+        sloganEl.style.fontWeight = "900";
     } else {
         sloganBox.style.background = `linear-gradient(90deg, ${color}20, rgba(15, 23, 42, 0.75), ${color}20)`;
         sloganBox.style.borderColor = `${color}45`;
@@ -754,8 +755,9 @@ function applyUniversityTheme(targetUnivStr) {
         if (isDayMode) {
             // 데이 모드: 화이트 배경 위에서 단정하고 우아한 대학 상징 컬러
             watermark.style.color = theme.color;
-            watermark.style.opacity = "0.10";
-            watermark.style.textShadow = "none";
+            watermark.style.opacity = "0.22";
+            watermark.style.fontWeight = "900";
+            watermark.style.textShadow = `0 0 1px ${theme.color}30`;
         } else {
             // 다크 모드: 딥 네이비/블랙 배경에서도 묻히지 않도록 밝은 액센트 컬러 + 선명한 가시성(0.18) + 은은한 앰비언트 글로우
             const glowColor = theme.accent || "#818cf8";
@@ -21730,9 +21732,9 @@ function renderAdmissionPathEngine() {
             badgeContainer.style.borderColor = '#f59e0b';
             badgeContainer.style.color = isDay ? '#92400e' : '#fde68a';
         } else {
-            badgeContainer.style.background = isDay ? '#fee2e2' : 'rgba(239, 68, 68, 0.18)';
-            badgeContainer.style.borderColor = '#ef4444';
-            badgeContainer.style.color = isDay ? '#991b1b' : '#fca5a5';
+            badgeContainer.style.background = isDay ? '#fef2f2' : 'rgba(239, 68, 68, 0.22)';
+            badgeContainer.style.borderColor = isDay ? '#f87171' : '#ef4444';
+            badgeContainer.style.color = isDay ? '#991b1b' : '#fecdd3';
         }
     }
 
@@ -21822,14 +21824,16 @@ function renderAdmissionPathEngine() {
         svgUnivShort.textContent = shortText;
         svgUnivShort.innerHTML = shortText;
     }
+    const uTheme = (typeof UNIVERSITY_THEME_MAP !== 'undefined') ? (UNIVERSITY_THEME_MAP[shortText] || UNIVERSITY_THEME_MAP[activeUnivName]) : null;
+    const targetBrandColor = uTheme ? uTheme.color : (isTarget ? "#6366f1" : "#0284c7");
     if (svgUnivTarget) {
         const targetLabel = isTarget ? "1지망" : "마지노선";
         svgUnivTarget.textContent = targetLabel;
         svgUnivTarget.innerHTML = targetLabel;
-        svgUnivTarget.setAttribute("fill", isTarget ? "#818cf8" : "#38bdf8");
+        svgUnivTarget.setAttribute("fill", isDay ? targetBrandColor : (isTarget ? "#818cf8" : "#38bdf8"));
     }
     if (svgUnivCircle) {
-        svgUnivCircle.setAttribute("stroke", isTarget ? "#6366f1" : "#0284c7");
+        svgUnivCircle.setAttribute("stroke", targetBrandColor);
     }
 
     // 5. SVG 베지어 곡선 지도 렌더링
@@ -22228,17 +22232,42 @@ window.renderHeadlineCampusBars = renderHeadlineCampusBars;
 function render5TracksTable(tracks) {
     const tableEl = document.getElementById('admission-5tracks-table');
     if (!tableEl) return;
+    const isDay = document.body.classList.contains('day-mode');
 
     tableEl.innerHTML = tracks.map(tr => {
+        let badgeBg, badgeColor, badgeBorder;
+        if (tr.status === 'SAFE') {
+            badgeBg = isDay ? '#ecfdf5' : 'rgba(16, 185, 129, 0.18)';
+            badgeColor = isDay ? '#065f46' : '#6ee7b7';
+            badgeBorder = isDay ? '#34d399' : '#10b981';
+        } else if (tr.status === 'ON_TRACK') {
+            badgeBg = isDay ? '#fffbeb' : 'rgba(245, 158, 11, 0.18)';
+            badgeColor = isDay ? '#92400e' : '#fde68a';
+            badgeBorder = isDay ? '#fbbf24' : '#f59e0b';
+        } else if (tr.status === 'DANGER') {
+            badgeBg = isDay ? '#fef2f2' : 'rgba(239, 68, 68, 0.22)';
+            badgeColor = isDay ? '#991b1b' : '#fecdd3';
+            badgeBorder = isDay ? '#f87171' : '#ef4444';
+        } else {
+            badgeBg = isDay ? '#f1f5f9' : 'rgba(100, 116, 139, 0.18)';
+            badgeColor = isDay ? '#475569' : '#cbd5e1';
+            badgeBorder = isDay ? '#cbd5e1' : '#64748b';
+        }
+
+        const cardBg = isDay ? '#ffffff' : 'rgba(255,255,255,0.03)';
+        const cardBorder = isDay ? '#e2e8f0' : 'rgba(255,255,255,0.06)';
+        const titleColor = isDay ? '#0f172a' : '#ffffff';
+        const commentColor = isDay ? '#475569' : '#cbd5e1';
+
         return `
-            <div id="track-card-${tr.id}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-left: 3.5px solid ${tr.color}; border-radius: 10px; margin-bottom: 8px;">
+            <div id="track-card-${tr.id}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: ${cardBg}; border: 1px solid ${cardBorder}; border-left: 3.5px solid ${tr.color}; border-radius: 10px; margin-bottom: 8px;">
                 <div style="display: flex; flex-direction: column; gap: 3px;">
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 0.96rem; font-weight: 900; color: #ffffff;">${tr.name}</span>
+                        <span style="font-size: 0.96rem; font-weight: 900; color: ${titleColor};">${tr.name}</span>
                     </div>
-                    <div style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.4;">${tr.comment}</div>
+                    <div style="font-size: 0.84rem; color: ${commentColor}; line-height: 1.4;">${tr.comment}</div>
                 </div>
-                <span style="font-size: 0.78rem; font-weight: 900; color: ${tr.color}; background: ${tr.color}1a; border: 1px solid ${tr.color}55; padding: 4px 10px; border-radius: 8px; white-space: nowrap; margin-left: 12px;">
+                <span style="font-size: 0.78rem; font-weight: 900; color: ${badgeColor}; background: ${badgeBg}; border: 1px solid ${badgeBorder}; padding: 4px 10px; border-radius: 8px; white-space: nowrap; margin-left: 12px;">
                     ${tr.badge}
                 </span>
             </div>
